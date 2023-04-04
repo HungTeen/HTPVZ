@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -11,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.hungteen.pvz.common.register.PVZItemTabs.PVZ_BLOCKS;
 import static com.hungteen.pvz.common.register.PVZItemTabs.PVZ_MISC;
 
 public class PVZItems {
@@ -30,7 +28,7 @@ public class PVZItems {
 
     public static PVZItems init(){
         storedSup = () -> new Item(new Item.Properties().tab(PVZ_MISC));
-        storedModel = Model.Common;
+        storedModel = Model.Simple;
         modelMap = new HashMap<>();
         return tmpObj;
     }
@@ -53,11 +51,11 @@ public class PVZItems {
         if (storedModel != Model.Modeled){
             modelMap.put(item, storedModel);
         }
-        storedModel = Model.Common;
+        storedModel = Model.Simple;
         return item;
     }
 
     public enum Model {
-        Common, Block, Modeled
+        Simple, Block, Modeled
     }
 }

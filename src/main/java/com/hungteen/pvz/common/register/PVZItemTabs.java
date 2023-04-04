@@ -8,7 +8,7 @@ public class PVZItemTabs {
     public static final CreativeModeTab PVZ_BLOCKS = new CreativeModeTab("pvz_blocks") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(PVZBlocks.EXAMPLE_BLOCK.get().asItem());
+            return new ItemStack(PVZBlocks.NUT_PLANKS.get().asItem());
         }
     };
 

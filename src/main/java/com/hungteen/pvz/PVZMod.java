@@ -2,11 +2,13 @@ package com.hungteen.pvz;
 
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -27,17 +29,20 @@ public class PVZMod
     private static final Logger LOGGER = LogUtils.getLogger();
     public PVZMod()
     {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener(this::commonSetup);
+        modBus.addListener(EventPriority.NORMAL, DataGenHandler::dataGen);
+        PVZItems.ITEMS.register(modBus);
+        PVZBlocks.BLOCKS.register(modBus);
 
-        // Register the commonSetup method for modloading
-        modEventBus.addListener(this::commonSetup);
 
-        // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
-
-        PVZItems.ITEMS.register(modEventBus);
-        PVZBlocks.BLOCKS.register(modEventBus);
+        IEventBus forgeBus = MinecraftForge.EVENT_BUS;
+        forgeBus.register(this);
     }
+
+
+
+
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {

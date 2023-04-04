@@ -20,9 +20,9 @@ import static com.hungteen.pvz.common.register.PVZItemTabs.PVZ_BLOCKS;
 public class PVZBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PVZMod.MODID);
 
-    public static final RegistryObject<Block> EXAMPLE_BLOCK = init().block("example_block");
-    public static final RegistryObject<Block> BLOCK1 = block("block1");
-    public static final RegistryObject<Block> BLOCK2 = block("block2");
+    public static final RegistryObject<Block> NUT_PLANKS = init().block("nut_planks");
+//    public static final RegistryObject<Block> BLOCK1 = block("block1");
+//    public static final RegistryObject<Block> BLOCK2 = block("block2");
 
 
 
@@ -37,8 +37,8 @@ public class PVZBlocks {
     private static PVZBlocks init(){
         storedTab = PVZ_BLOCKS;
         storedSup = () -> new Block(BlockBehaviour.Properties.of(Material.STONE));
-        storedModel = Model.Common;
-        storedItemModel = PVZItems.Model.Common;
+        storedModel = Model.Simple;
+        storedItemModel = PVZItems.Model.Block;
         modelMap = new HashMap<>();
         return tmpObj;
     }
@@ -72,11 +72,11 @@ public class PVZBlocks {
         return tmpObj;
     }
 
-    public static RegistryObject<Block> block(String name){
+    private static RegistryObject<Block> block(String name){
         return block(name, storedSup);
     }
 
-    public static RegistryObject<Block> block(String name, Supplier<Block> sup){
+    private static RegistryObject<Block> block(String name, Supplier<Block> sup){
         RegistryObject<Block> BlockObj = BLOCKS.register(name, sup);
         CreativeModeTab tmpTab = storedTab;
         PVZItems.modelMap.put(
@@ -85,16 +85,16 @@ public class PVZBlocks {
         if (storedModel != Model.Modeled){
             modelMap.put(BlockObj, storedModel);
         }
-        storedModel = Model.Common;
+        storedModel = Model.Simple;
         storedItemModel = PVZItems.Model.Block;
         return BlockObj;
     }
 
-    public static Map<String, RegistryObject<?>> wood(String name){
+    private static Map<String, RegistryObject<?>> wood(String name){
         return null;
     }
 
     public enum Model {
-        Common, Modeled
+        Simple, Modeled
     }
 }
