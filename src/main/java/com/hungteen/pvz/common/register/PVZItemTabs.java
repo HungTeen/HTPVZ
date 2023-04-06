@@ -2,13 +2,14 @@ package com.hungteen.pvz.common.register;
 
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class PVZItemTabs {
 
     public static final CreativeModeTab PVZ_BLOCKS = new CreativeModeTab("pvz_blocks") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(PVZBlocks.NUT_PLANKS.get().asItem());
+            return new ItemStack(PVZBlocks.NUT.get(PVZBlocks.WoodSet.Plank).get().asItem());
         }
     };
 

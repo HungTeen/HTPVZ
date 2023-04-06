@@ -26,7 +26,7 @@ public class PVZMod
     // Define mod id in a common place for everything to reference
     public static final String MODID = "pvz";
     // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public PVZMod()
     {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();

@@ -13,25 +13,21 @@ import java.util.function.Supplier;
 import static com.hungteen.pvz.common.register.PVZItemTabs.PVZ_MISC;
 
 public class PVZItems {
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, PVZMod.MODID);
 
-    public static final RegistryObject<Item> NUT = init().item("nut");
+    //init
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, PVZMod.MODID);
+    public static Supplier<Item> storedSup = () -> new Item(new Item.Properties().tab(PVZ_MISC));
+    private static Model storedModel = Model.Simple;
+    public static Map<RegistryObject<Item>, PVZItems.Model> modelMap = new HashMap<>();
+    private static final PVZItems tmpObj = new PVZItems();
+
+
+    //registry
+    public static final RegistryObject<Item> NUT = item("nut");
     public static final RegistryObject<Item> PEA = item("pea");
 
 
-
     //definitions
-    public static Supplier<Item> storedSup;
-    private static Model storedModel;
-    public static Map<RegistryObject<Item>, PVZItems.Model> modelMap;
-    private static final PVZItems tmpObj = new PVZItems();
-
-    public static PVZItems init(){
-        storedSup = () -> new Item(new Item.Properties().tab(PVZ_MISC));
-        storedModel = Model.Simple;
-        modelMap = new HashMap<>();
-        return tmpObj;
-    }
     private static PVZItems model(Model model){
         storedModel = model;
         return tmpObj;
