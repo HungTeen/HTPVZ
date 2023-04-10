@@ -8,6 +8,8 @@ public class DataGenHandler {
         DataGenerator g = ev.getGenerator();
         g.addProvider(true, new BlockModelGen(g, ev.getExistingFileHelper()));
         g.addProvider(true, new ItemModelGen(g, ev.getExistingFileHelper()));
+        g.addProvider(true, new BlockTagGen(g, ev.getExistingFileHelper()));
+
     }
 
 }

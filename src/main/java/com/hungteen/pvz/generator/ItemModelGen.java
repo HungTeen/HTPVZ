@@ -9,6 +9,8 @@ import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
+import java.util.List;
+
 public class ItemModelGen extends ItemModelProvider {
     public ItemModelGen(DataGenerator generator, ExistingFileHelper existingFileHelper) {
         super(generator, PVZMod.MODID, existingFileHelper);
@@ -16,23 +18,34 @@ public class ItemModelGen extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        PVZItems.modelMap.forEach((itemRegisterObj, model) -> {
-            Item item = itemRegisterObj.get();
+        PVZItems.modelList.forEach((pair) -> {
+            Item item = pair.getFirst().get();
             PVZMod.LOGGER.info("Gen Item Model: "+item);
-            switch (model) {
-                case Simple -> simple(item);
-                case Block -> block(item);
+            switch (pair.getSecond().getFirst()) {
+                case Simple -> simple(item, pair.getSecond().getSecond());
+                case Block -> block(item, pair.getSecond().getSecond());
                 //Modeled and ones excluded.
             }
         });
     }
 
-    public void simple(Item item){
-        basicItem(item);
+    public void simple(Item item, List<ResourceLocation> list){
+        if (list.size() == 0){
+            basicItem(item);
+        } else if (list.size() == 1){
+            getBuilder(item.toString())
+                    .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                    .texture("layer0", list.get(0));
+        }
     }
-    public void block(Item item){
-        getBuilder(item.toString())
-                .parent(new ModelFile.UncheckedModelFile(new ResourceLocation(PVZMod.MODID,"block/"+item)));
+    public void block(Item item, List<ResourceLocation> list){
+        if (list.size() == 0){
+            getBuilder(item.toString())
+                    .parent(new ModelFile.UncheckedModelFile(new ResourceLocation(PVZMod.MODID,"block/"+item)));
+        } else if (list.size() == 1){
+            getBuilder(item.toString())
+                    .parent(new ModelFile.UncheckedModelFile(list.get(0)));
+        }
     }
 
 }

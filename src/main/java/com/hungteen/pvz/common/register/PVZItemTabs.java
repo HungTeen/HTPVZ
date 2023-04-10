@@ -2,7 +2,6 @@ package com.hungteen.pvz.common.register;
 
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class PVZItemTabs {
 
