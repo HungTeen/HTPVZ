@@ -1,12 +1,17 @@
 package com.hungteen.pvz;
 
+import com.hungteen.pvz.common.register.PVZBlockEntitys;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -34,6 +39,7 @@ public class PVZMod
         modBus.addListener(EventPriority.NORMAL, DataGenHandler::dataGen);
         PVZItems.ITEMS.register(modBus);
         PVZBlocks.BLOCKS.register(modBus);
+        PVZBlockEntitys.BLOCK_ENTITYS.register(modBus);
 
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
@@ -69,6 +75,18 @@ public class PVZMod
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+
+            event.enqueueWork(() ->
+                    PVZBlocks.woodTypeList.forEach(Sheets::addWoodType)
+            );
+        }
+
+
+        @SubscribeEvent
+        public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            PVZBlockEntitys.rendererMap.forEach((blockEntity, renderer)->
+                    event.registerBlockEntityRenderer((BlockEntityType<? extends BlockEntity>) blockEntity.get(), renderer)
+            );
         }
     }
 }

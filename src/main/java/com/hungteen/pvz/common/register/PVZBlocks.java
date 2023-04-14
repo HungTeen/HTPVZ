@@ -1,6 +1,9 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.block.PVZStandingSignBlock;
+import com.hungteen.pvz.common.block.PVZWallSignBlock;
+import com.hungteen.pvz.world.NutTreeGrower;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -8,6 +11,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SignItem;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.WoodType;
@@ -33,19 +37,27 @@ public class PVZBlocks {
     public static List<RegistryObject<Block>> blockList = new ArrayList<>();
     private static CreativeModeTab storedTab = PVZ_BLOCKS;
     private static Supplier<Block> storedSup = () -> new Block(BlockBehaviour.Properties.of(Material.STONE));
-    private static final PVZBlocks tmpObj = new PVZBlocks();
+    private static final PVZBlocks reflector = new PVZBlocks();
+    public static List<WoodType> woodTypeList = new ArrayList<>();
     //model
     private static Model storedModel = Model.Simple;
     private static List<ResourceLocation> storedModelTexture = List.of();
     private static Pair<PVZItems.Model, List<ResourceLocation>> storedItemModel = Pair.of(PVZItems.Model.Block, new ArrayList<>());
+    private static boolean hasItem = true;
     public static List<Pair<RegistryObject<Block>, Pair<Model, List<ResourceLocation>>>> modelList = new ArrayList<>();
     //tag
-    public static Map<RegistryObject<Block>, List<TagKey<Block>>> tagMap = new HashMap<>();
     private static List<TagKey<Block>> storedTag = new ArrayList<>();
+    public static Map<RegistryObject<Block>, List<TagKey<Block>>> tagMap = new HashMap<>();
+    //renderType
+    private static String storedRenderType = null;
+    public static Map<RegistryObject<Block>, String> renderTypeMap = new HashMap<>();
+    //blockEntity
+    private static String storedBlockEntity = null;
+    public static Map<String, List<RegistryObject<Block>>> blockEntityMap = new HashMap<>();
 
 
     //registry
-    public static final RegistryObject<Block> NUT_LEAVES_WITH_NUTS = block("nut_leaves_with_nuts", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES)));
+    public static final RegistryObject<Block> NUT_LEAVES_WITH_NUTS = tag(BlockTags.LEAVES).renderType("cutout").block("nut_leaves_with_nuts", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES)));
     public static final Map<WoodSet, RegistryObject<Block>> NUT = wood("nut");
 
 
@@ -58,29 +70,55 @@ public class PVZBlocks {
         RegistryObject<Block> BlockObj = BLOCKS.register(name, sup);
         blockList.add(BlockObj);
         //model
-        CreativeModeTab tmpTab = storedTab;
-        PVZItems.modelList.add(Pair.of(
-                PVZItems.ITEMS.register(name, () -> new BlockItem(BlockObj.get(), storedTab == null ? new Item.Properties() : new Item.Properties().tab(tmpTab))),
-                storedItemModel));
+        if (hasItem){
+            CreativeModeTab tmpTab = storedTab;
+            PVZItems.modelList.add(Pair.of(
+                    PVZItems.ITEMS.register(name, () -> new BlockItem(BlockObj.get(), storedTab == null ? new Item.Properties() : new Item.Properties().tab(tmpTab))),
+                    storedItemModel));
+        }
         if (storedModel != Model.Modeled){
             modelList.add(Pair.of(BlockObj, Pair.of(storedModel, storedModelTexture)));
         }
+        hasItem = true;
         storedModel = Model.Simple;
         storedModelTexture = List.of();
         storedItemModel = Pair.of(PVZItems.Model.Block, new ArrayList<>());
         //tag
         tagMap.put(BlockObj, storedTag);
         storedTag = List.of();
+        //renderType
+        if (storedRenderType != null){
+            renderTypeMap.put(BlockObj, storedRenderType);
+            storedRenderType = null;
+        }
+        //blockEntity
+        if (storedBlockEntity != null){
+            if (! blockEntityMap.containsKey(storedBlockEntity)){
+                blockEntityMap.put(storedBlockEntity, List.of(BlockObj));
+            } else {
+                List<RegistryObject<Block>> list = new ArrayList<>(List.copyOf(blockEntityMap.get(storedBlockEntity)));
+                list.add(BlockObj);
+                blockEntityMap.put(storedBlockEntity, list);
+            }
+            storedBlockEntity = null;
+        }
+        //return
         return BlockObj;
     }
 
     private static Map<WoodSet, RegistryObject<Block>> wood(String name){
-        // Related items contained.
+        //init
         Map<WoodSet, RegistryObject<Block>> set = new HashMap();
+        WoodType woodtype = WoodType.create(name);
+        WoodType.register(woodtype);
+        woodTypeList.add(woodtype);
+//        name = woodtype.name();
+        CreativeModeTab tmpTab = storedTab;
+        //register
         set.put(WoodSet.Plank, tag(BlockTags.PLANKS).block(name+"_planks"));
-//        set.put(WoodSet.Sampling, tag(BlockTags.SAPLINGS).model(Model.Cross).block(name+"_sampling", new SaplingBlock()));
-        set.put(WoodSet.Leaves, tag(BlockTags.LEAVES).block(name+"_leaves", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES))));
-            set.put(WoodSet.Wood, tag(BlockTags.LOGS).model(Model.Column, res("nut_log"), res("nut_log")).block(name+"_wood", () -> new RotatedPillarBlock(BlockBehaviour.Properties.copy(Blocks.OAK_WOOD))));
+        set.put(WoodSet.Sampling, tag(BlockTags.SAPLINGS).model(Model.Cross).renderType("cutout").itemModel(PVZItems.Model.Simple, res("nut_sapling")).block(name+"_sapling", () -> new SaplingBlock(new NutTreeGrower(), BlockBehaviour.Properties.copy(OAK_SAPLING))));
+        set.put(WoodSet.Leaves, tag(BlockTags.LEAVES).renderType("cutout").block(name+"_leaves", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES))));
+        set.put(WoodSet.Wood, tag(BlockTags.LOGS).model(Model.Column, res("nut_log"), res("nut_log")).block(name+"_wood", () -> new RotatedPillarBlock(BlockBehaviour.Properties.copy(Blocks.OAK_WOOD))));
         set.put(WoodSet.StWood, tag(BlockTags.LOGS).model(Model.Column, res("stripped_nut_log"), res("stripped_nut_log")).block("stripped_"+name+"_wood", () -> new RotatedPillarBlock(BlockBehaviour.Properties.copy(Blocks.STRIPPED_OAK_WOOD))));
         set.put(WoodSet.Log, tag(BlockTags.LOGS).model(Model.Column).block(name+"_log", () -> new RotatedPillarBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LOG))));
         set.put(WoodSet.StLog, tag(BlockTags.LOGS).model(Model.Column, res("stripped_nut_log"), res("nut_log_top")).block("stripped_"+name+"_log", () -> new RotatedPillarBlock(BlockBehaviour.Properties.copy(Blocks.STRIPPED_OAK_LOG))));
@@ -92,35 +130,35 @@ public class PVZBlocks {
         set.put(WoodSet.Gate, tag(BlockTags.FENCE_GATES).model(Model.Gate, res("nut_planks")).block(name+"_fence_gate", () -> new FenceGateBlock(BlockBehaviour.Properties.copy(OAK_FENCE_GATE))));
         set.put(WoodSet.Button, tag(BlockTags.WOODEN_BUTTONS).model(Model.Button, res("nut_planks")).itemModel(PVZItems.Model.Block, res("nut_button_inventory")).block(name+"_button", () -> new WoodButtonBlock(BlockBehaviour.Properties.copy(OAK_BUTTON))));
         set.put(WoodSet.Plate, tag(BlockTags.WOODEN_PRESSURE_PLATES).model(Model.Plate, res("nut_planks")).block(name+"_pressure_plate", () -> new PressurePlateBlock(PressurePlateBlock.Sensitivity.EVERYTHING, BlockBehaviour.Properties.copy(OAK_PRESSURE_PLATE))));
-        set.put(WoodSet.Sign, tag(BlockTags.STANDING_SIGNS).model(Model.Sign).itemModel(PVZItems.Model.Simple).block(name+"_sign", () -> new StandingSignBlock(BlockBehaviour.Properties.copy(OAK_SIGN), WoodType.OAK)));
-        set.put(WoodSet.WallSign, tab(null).tag(BlockTags.WALL_SIGNS).model(Model.WallSign, res("nut_planks")).block(name+"_wall_sign", () -> new WallSignBlock(BlockBehaviour.Properties.copy(OAK_WALL_SIGN), WoodType.OAK)));
-        tab(PVZ_BLOCKS);
+        set.put(WoodSet.Sign, noItem().tag(BlockTags.STANDING_SIGNS).model(Model.Sign).blockEntity("pvz_sign").block(name+"_sign", () -> new PVZStandingSignBlock(BlockBehaviour.Properties.copy(OAK_SIGN), woodtype)));
+        set.put(WoodSet.WallSign, noItem().tag(BlockTags.WALL_SIGNS).model(Model.WallSign, res("nut_planks")).blockEntity("pvz_sign").block(name+"_wall_sign", () -> new PVZWallSignBlock(BlockBehaviour.Properties.copy(OAK_WALL_SIGN), woodtype)));
+        tab(tmpTab);
+        PVZItems.modelList.add(Pair.of(
+                PVZItems.ITEMS.register(name+"_sign", () -> new SignItem(storedTab == null ? new Item.Properties() : new Item.Properties().tab(tmpTab), set.get(WoodSet.Sign).get(), set.get(WoodSet.WallSign).get())),
+                Pair.of(PVZItems.Model.Simple, List.of())));
         return set;
     }
 
     private static PVZBlocks tab(CreativeModeTab tab){
         storedTab = tab;
-        return tmpObj;
+        return reflector;
     }
-
     private static PVZBlocks material(Material material){
         storedSup = () -> new Block(BlockBehaviour.Properties.of(material));
-        return tmpObj;
+        return reflector;
     }
-
     private static PVZBlocks material(Block block){
         storedSup = () -> new Block(BlockBehaviour.Properties.copy(block));
-        return tmpObj;
+        return reflector;
     }
-
     private static PVZBlocks sup(Supplier<Block> sup){
         storedSup = sup;
-        return tmpObj;
+        return reflector;
     }
     private static PVZBlocks model(Model model){
         storedModel = model;
         storedModelTexture = List.of();
-        return tmpObj;
+        return reflector;
     }
     private static PVZBlocks model(Model model, ResourceLocation... res){
         return model(model, List.of(res));
@@ -128,27 +166,37 @@ public class PVZBlocks {
     private static PVZBlocks model(Model model, List<ResourceLocation> list){
         storedModel = model;
         storedModelTexture = list;
-        return tmpObj;
+        return reflector;
     }
     private static PVZBlocks tag(TagKey<Block>... tags){
         return tag(List.of(tags));
     }
     private static PVZBlocks tag(List<TagKey<Block>> list){
         storedTag = list;
-        return tmpObj;
+        return reflector;
     }
     private static ResourceLocation res(String path){
         return new ResourceLocation(PVZMod.MODID, ModelProvider.BLOCK_FOLDER + "/" + path);
     }
-
+    private static PVZBlocks noItem(){
+        hasItem = false;
+        return reflector;
+    }
     private static PVZBlocks itemModel(PVZItems.Model model, ResourceLocation... res){
         storedItemModel = Pair.of(model, List.of(res));
-        return tmpObj;
+        return reflector;
     }
-
     private static PVZBlocks itemModel(PVZItems.Model model, List<ResourceLocation> res){
         storedItemModel = Pair.of(model, res);
-        return tmpObj;
+        return reflector;
+    }
+    private static PVZBlocks renderType(String type){
+        storedRenderType = type;
+        return reflector;
+    }
+    private static PVZBlocks blockEntity(String blockentity){
+        storedBlockEntity = blockentity;
+        return reflector;
     }
 
     public enum WoodSet {

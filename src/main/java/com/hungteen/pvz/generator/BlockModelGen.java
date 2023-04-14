@@ -2,6 +2,7 @@ package com.hungteen.pvz.generator;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.*;
@@ -12,6 +13,8 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+
+import static net.minecraft.client.renderer.RenderType.solid;
 
 public class BlockModelGen extends BlockStateProvider {
 
@@ -25,40 +28,51 @@ public class BlockModelGen extends BlockStateProvider {
     protected void registerStatesAndModels() {
         PVZBlocks.modelList.forEach((pair) -> {
             Block block = pair.getFirst().get();
+            String renderType = PVZBlocks.renderTypeMap.get(pair.getFirst()) == null ? "solid" : PVZBlocks.renderTypeMap.get(pair.getFirst());
             PVZMod.LOGGER.info("Gen Block Model: "+block);
+
             switch (pair.getSecond().getFirst()) {
-                case Simple -> simple(block, pair.getSecond().getSecond());
-                case Column -> column((RotatedPillarBlock) block, pair.getSecond().getSecond());
-                case Slab -> slab((SlabBlock) block, pair.getSecond().getSecond());
-                case Stairs -> stair((StairBlock) block, pair.getSecond().getSecond());
-                case Door -> door((DoorBlock) block, pair.getSecond().getSecond());
-                case Trapdoor -> trapdoor((TrapDoorBlock) block, pair.getSecond().getSecond());
-                case Fence -> fence((FenceBlock) block, pair.getSecond().getSecond());
-                case Gate -> gate((FenceGateBlock) block, pair.getSecond().getSecond());
-                case Button -> button((ButtonBlock) block, pair.getSecond().getSecond());
-                case Plate -> plate((PressurePlateBlock) block, pair.getSecond().getSecond());
+                case Simple -> simple(block, pair.getSecond().getSecond(), renderType);
+                case Column -> column((RotatedPillarBlock) block, pair.getSecond().getSecond(), renderType);
+                case Cross -> cross(block, pair.getSecond().getSecond(), renderType);
+                case Slab -> slab((SlabBlock) block, pair.getSecond().getSecond(), renderType);
+                case Stairs -> stair((StairBlock) block, pair.getSecond().getSecond(), renderType);
+                case Door -> door((DoorBlock) block, pair.getSecond().getSecond(), renderType);
+                case Trapdoor -> trapdoor((TrapDoorBlock) block, pair.getSecond().getSecond(), renderType);
+                case Fence -> fence((FenceBlock) block, pair.getSecond().getSecond(), renderType);
+                case Gate -> gate((FenceGateBlock) block, pair.getSecond().getSecond(), renderType);
+                case Button -> button((ButtonBlock) block, pair.getSecond().getSecond(), renderType);
+                case Plate -> plate((PressurePlateBlock) block, pair.getSecond().getSecond(), renderType);
                 case Sign -> sign((StandingSignBlock) block);
-                case WallSign -> wallsign((WallSignBlock) block, pair.getSecond().getSecond());
+                case WallSign -> wallsign((WallSignBlock) block, pair.getSecond().getSecond(), renderType);
                 //Modeled ones excluded.
             }
         });
     }
 
-    private void simple(Block block, List<ResourceLocation> list) {
+    private void simple(Block block, List<ResourceLocation> list, String renderType) {
         if (list.size() == 0){
-            simpleBlock(block);
+            simpleBlock(block, models().cubeAll(path(block), blockTexture(block)).renderType(renderType));
         } else {
-            simpleBlock(block, models().cubeAll(path(block), list.get(0)));
+            simpleBlock(block, models().cubeAll(path(block), list.get(0)).renderType(renderType));
         }
     }
-    private void column(RotatedPillarBlock block, List<ResourceLocation> list){
+    private void column(RotatedPillarBlock block, List<ResourceLocation> list, String renderType){
         if (list.size() == 0){
-            logBlock(block);
+            logBlockWithRenderType(block, renderType);
         } else {
-            axisBlock(block, /*sides*/list.get(0), /*top*/list.get(1));
+            axisBlockWithRenderType(block, /*sides*/list.get(0), /*top*/list.get(1), renderType);
         }
     }
-    private void slab(SlabBlock block, List<ResourceLocation> list){
+    public void cross(Block block, List<ResourceLocation> list, String renderType) {
+        if (list.size() == 0){
+            simpleBlock(block, models().cross(path(block), blockTexture(block)).renderType(renderType));
+        } else {
+            simpleBlock(block, models().cross(path(block), list.get(0)).renderType(renderType));
+
+        }
+    }
+    private void slab(SlabBlock block, List<ResourceLocation> list, String renderType){
         if (list.size() == 0){
             slabBlock(block, blockTexture(block), blockTexture(block));
         } else if (list.size() == 1){
@@ -67,46 +81,46 @@ public class BlockModelGen extends BlockStateProvider {
             slabBlock(block, /*double*/list.get(0), /*sides*/list.get(1), /*bottom*/list.get(2), /*top*/list.get(3));
         }
     }
-    private void stair(StairBlock block, List<ResourceLocation> list){
+    private void stair(StairBlock block, List<ResourceLocation> list, String renderType){
         if (list.size() == 0){
-            stairsBlock(block, blockTexture(block));
+            stairsBlockWithRenderType(block, blockTexture(block), renderType);
         } else if (list.size() == 1){
-            stairsBlock(block, list.get(0));
+            stairsBlockWithRenderType(block, list.get(0), renderType);
         } else if (list.size() == 3){
-            stairsBlock(block, /*double*/list.get(0), /*bottom*/list.get(1), /*top*/list.get(2));
+            stairsBlockWithRenderType(block, /*double*/list.get(0), /*bottom*/list.get(1), /*top*/list.get(2), renderType);
         }
     }
-    private void door(DoorBlock block, List<ResourceLocation> list){
+    private void door(DoorBlock block, List<ResourceLocation> list, String renderType){
         if (list.size() == 0){
-            doorBlock(block, res(path(block) + "_bottom"), res(path(block) + "_top"));
+            doorBlockWithRenderType(block, res(path(block) + "_bottom"), res(path(block) + "_top"), renderType);
         } else if (list.size() == 2){
-            doorBlock(block, list.get(0), list.get(1));
+            doorBlockWithRenderType(block, list.get(0), list.get(1), renderType);
         }
     }
-    private void trapdoor(TrapDoorBlock block, List<ResourceLocation> list){
+    private void trapdoor(TrapDoorBlock block, List<ResourceLocation> list, String renderType){
         if (list.size() == 0){
-            trapdoorBlock(block, blockTexture(block), true);
+            trapdoorBlockWithRenderType(block, blockTexture(block), true, renderType);
         } else if (list.size() == 1){
-            trapdoorBlock(block, list.get(0), true);
+            trapdoorBlockWithRenderType(block, list.get(0), true, renderType);
         }
     }
-    private void fence(FenceBlock block, List<ResourceLocation> list){
+    private void fence(FenceBlock block, List<ResourceLocation> list, String renderType){
         if (list.size() == 0){
-            fenceBlock(block, blockTexture(block));
+            fenceBlockWithRenderType(block, blockTexture(block), renderType);
             models().fenceInventory(path(block) + "_inventory", blockTexture(block));
         } else if (list.size() == 1){
-            fenceBlock(block, list.get(0));
+            fenceBlockWithRenderType(block, list.get(0), renderType);
             models().fenceInventory(path(block) + "_inventory", list.get(0));
         }
     }
-    private void gate(FenceGateBlock block, List<ResourceLocation> list){
+    private void gate(FenceGateBlock block, List<ResourceLocation> list, String renderType){
         if (list.size() == 0){
-            fenceGateBlock(block, blockTexture(block));
+            fenceGateBlockWithRenderType(block, blockTexture(block), renderType);
         } else if (list.size() == 1){
-            fenceGateBlock(block, list.get(0));
+            fenceGateBlockWithRenderType(block, list.get(0), renderType);
         }
     }
-    private void button(ButtonBlock block, List<ResourceLocation> list){
+    private void button(ButtonBlock block, List<ResourceLocation> list, String renderType){
         if (list.size() == 0){
             buttonBlock(block, blockTexture(block));
             models().buttonInventory(path(block) + "_inventory", blockTexture(block));
@@ -115,7 +129,7 @@ public class BlockModelGen extends BlockStateProvider {
             models().buttonInventory(path(block) + "_inventory", list.get(0));
         }
     }
-    private void plate(PressurePlateBlock block, List<ResourceLocation> list){
+    private void plate(PressurePlateBlock block, List<ResourceLocation> list, String renderType){
         if (list.size() == 0){
             pressurePlateBlock(block, blockTexture(block));
         } else if (list.size() == 1){
@@ -125,12 +139,12 @@ public class BlockModelGen extends BlockStateProvider {
     private void sign(StandingSignBlock block){
         storedBlocks.add(block);
     }
-    private void wallsign(WallSignBlock wall, List<ResourceLocation> list){
+    private void wallsign(WallSignBlock wall, List<ResourceLocation> list, String renderType){
         StandingSignBlock standing = (StandingSignBlock) getFromStored((block) -> block instanceof StandingSignBlock);
         storedBlocks.remove(standing);
         if (list.size() == 0){
             signBlock(standing, wall, blockTexture(standing));
-        } else if (list.size() == 2) {
+        } else if (list.size() == 1) {
             signBlock(standing, wall, list.get(0));
         }
     }
