@@ -2,7 +2,6 @@ package com.hungteen.pvz.common.block;
 
 import com.hungteen.pvz.common.block.entity.PVZSignBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;

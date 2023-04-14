@@ -112,7 +112,6 @@ public class PVZBlocks {
         WoodType woodtype = WoodType.create(name);
         WoodType.register(woodtype);
         woodTypeList.add(woodtype);
-//        name = woodtype.name();
         CreativeModeTab tmpTab = storedTab;
         //register
         set.put(WoodSet.Plank, tag(BlockTags.PLANKS).block(name+"_planks"));
@@ -183,8 +182,7 @@ public class PVZBlocks {
         return reflector;
     }
     private static PVZBlocks itemModel(PVZItems.Model model, ResourceLocation... res){
-        storedItemModel = Pair.of(model, List.of(res));
-        return reflector;
+        return itemModel(model, List.of(res));
     }
     private static PVZBlocks itemModel(PVZItems.Model model, List<ResourceLocation> res){
         storedItemModel = Pair.of(model, res);
