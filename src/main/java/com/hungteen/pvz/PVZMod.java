@@ -1,13 +1,16 @@
 package com.hungteen.pvz;
 
-import com.hungteen.pvz.common.register.PVZBlockEntitys;
+import com.hungteen.pvz.common.register.PVZBlockEntities;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,6 +27,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
+
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(PVZMod.MODID)
 public class PVZMod
@@ -39,7 +45,7 @@ public class PVZMod
         modBus.addListener(EventPriority.NORMAL, DataGenHandler::dataGen);
         PVZItems.ITEMS.register(modBus);
         PVZBlocks.BLOCKS.register(modBus);
-        PVZBlockEntitys.BLOCK_ENTITYS.register(modBus);
+        PVZBlockEntities.BLOCK_ENTITYS.register(modBus);
 
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
@@ -55,6 +61,17 @@ public class PVZMod
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
         LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
+
+        event.enqueueWork(() ->{
+            PVZBlocks.flammableMap.forEach((blockObj, pair) ->
+                    ((FireBlock) Blocks.FIRE).setFlammable(blockObj.get(), pair.getFirst(), pair.getSecond())
+            );
+            PVZBlocks.woodList.forEach((map) -> {
+                AxeItem.STRIPPABLES = new HashMap<>(AxeItem.STRIPPABLES);
+                AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Log).get(), map.get(PVZBlocks.WoodSet.StLog).get());
+                AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Wood).get(), map.get(PVZBlocks.WoodSet.StWood).get());
+            });
+        });
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
@@ -84,7 +101,7 @@ public class PVZMod
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            PVZBlockEntitys.rendererMap.forEach((blockEntity, renderer)->
+            PVZBlockEntities.rendererMap.forEach((blockEntity, renderer)->
                     event.registerBlockEntityRenderer((BlockEntityType<? extends BlockEntity>) blockEntity.get(), renderer)
             );
         }

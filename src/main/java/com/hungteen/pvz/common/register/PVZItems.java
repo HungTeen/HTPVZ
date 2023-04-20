@@ -3,6 +3,9 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.item.BoatItem;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -27,6 +30,7 @@ public class PVZItems {
     //registry
     public static final RegistryObject<Item> NUT = item("nut");
     public static final RegistryObject<Item> PEA = item("pea");
+    //public static final RegistryObject<Item> NUT_BOAT = item("nut_boat", () -> new BoatItem(false, Boat.Type., (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
 
 
     //definitions

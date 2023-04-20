@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.block.entity;
 
-import com.hungteen.pvz.common.register.PVZBlockEntitys;
+import com.hungteen.pvz.common.register.PVZBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
@@ -13,6 +13,6 @@ public class PVZSignBlockEntity extends SignBlockEntity {
 
     @Override
     public BlockEntityType<?> getType(){
-        return PVZBlockEntitys.SIGN.get();
+        return PVZBlockEntities.SIGN.get();
     }
 }
