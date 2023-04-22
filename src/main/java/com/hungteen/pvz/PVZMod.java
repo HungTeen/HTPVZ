@@ -2,17 +2,15 @@ package com.hungteen.pvz;
 
 import com.hungteen.pvz.common.register.PVZBlockEntities;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -28,7 +26,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
-import java.util.Map;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(PVZMod.MODID)
@@ -45,7 +42,8 @@ public class PVZMod
         modBus.addListener(EventPriority.NORMAL, DataGenHandler::dataGen);
         PVZItems.ITEMS.register(modBus);
         PVZBlocks.BLOCKS.register(modBus);
-        PVZBlockEntities.BLOCK_ENTITYS.register(modBus);
+        PVZEntities.ENTITIES.register(modBus);
+        PVZBlockEntities.BLOCK_ENTITIES.register(modBus);
 
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
@@ -101,9 +99,8 @@ public class PVZMod
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            PVZBlockEntities.rendererMap.forEach((blockEntity, renderer)->
-                    event.registerBlockEntityRenderer((BlockEntityType<? extends BlockEntity>) blockEntity.get(), renderer)
-            );
+            PVZBlockEntities.registerRenderer(event);
+            PVZEntities.registerRenderer(event);
         }
     }
 }

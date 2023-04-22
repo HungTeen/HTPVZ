@@ -18,10 +18,10 @@ public class PVZItemTabs {
             return new ItemStack(PVZItems.NUT.get());
         }
     };
-//    public static final CreativeModeTab PVZ_FUNCTIONAL = new CreativeModeTab("pvz_functional") {
-//        @Override
-//        public ItemStack makeIcon() {
-//            return new ItemStack(PVZItems.NUT_BOAT.get());
-//        }
-//    };
+    public static final CreativeModeTab PVZ_FUNCTIONAL = new CreativeModeTab("pvz_functional") {
+        @Override
+        public ItemStack makeIcon() {
+            return new ItemStack(PVZItems.NUT_BOAT.get());
+        }
+    };
 }
