@@ -4,9 +4,8 @@ import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.ChestBoat;
 import net.minecraft.world.item.Item;
@@ -29,16 +28,29 @@ public class PVZChestBoat extends ChestBoat {
         this.zo = p_38296_;
     }
     @Override
-    public Item getDropItem(){
-        return PVZItems.boatItemList.get(Pair.of(this.woodType, true)).get();
+    public void addAdditionalSaveData(CompoundTag p_38359_){
+        p_38359_.putString("WoodType", this.getWoodType().name());
     }
     @Override
-    public EntityDimensions getDimensions(Pose poseIn){
-        return EntityDimensions.scalable(1.375F, 0.5625F);
+    public void readAdditionalSaveData(CompoundTag p_38338_){
+        if (p_38338_.contains("WoodType", 8)) {
+            this.setWoodType(p_38338_.getString("WoodType"));
+        }
+    }
+    @Override
+    public Item getDropItem(){
+        return PVZItems.boatItemList.get(Pair.of(this.woodType, true)).get();
     }
 
     public void setWoodType(WoodType woodType){
         this.woodType = woodType;
+    }
+    public void setWoodType(String woodType){
+        PVZBlocks.woodTypeList.forEach((t) -> {
+            if (t.name().equals(woodType)){
+                this.woodType = t;
+            }
+        });
     }
     public WoodType getWoodType(){
         return woodType;

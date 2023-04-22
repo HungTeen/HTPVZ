@@ -1,6 +1,7 @@
 package com.hungteen.pvz.generator;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
@@ -25,6 +26,8 @@ public class ItemTagGen extends ItemTagsProvider {
 
     @Override
     public void addTags(){
+        //atItemRegister
+        PVZItems.tagMap.forEach((item, tagList)-> tagList.forEach((tag) -> this.tag(tag).add(item.get())));
         //woodSet
         this.copy(BlockTags.PLANKS, ItemTags.PLANKS);
         this.copy(BlockTags.LOGS, ItemTags.LOGS);

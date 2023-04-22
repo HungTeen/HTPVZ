@@ -164,6 +164,9 @@ public class PVZBlocks {
                 PVZItems.ITEMS.register(name+"_sign", () -> new SignItem(storedTab == null ? new Item.Properties() : new Item.Properties().tab(tmpTab), set.get(WoodSet.Sign).get(), set.get(WoodSet.WallSign).get())),
                 Pair.of(PVZItems.Model.Simple, List.of())));
         woodList.add(set);
+        PVZItems.boat(false, woodtype);
+        PVZItems.boat(true, woodtype);
+        /**Boats added to {@link PVZItems#boatItemList}.*/
         return set;
     }
 

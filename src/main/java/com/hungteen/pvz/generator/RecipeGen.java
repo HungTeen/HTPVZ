@@ -1,20 +1,31 @@
 package com.hungteen.pvz.generator;
 
+import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZBlocks.WoodSet;
+import com.hungteen.pvz.common.register.PVZItems;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.WoodType;
+import net.minecraftforge.registries.RegistryObject;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.hungteen.pvz.common.register.PVZBlocks.woodList;
+import static com.hungteen.pvz.common.register.PVZBlocks.woodTypeList;
 
 public class RecipeGen extends RecipeProvider {
+    private Map<Pair<WoodType, Boolean>, Item> boatsToMatch = new HashMap<>();
 
     public RecipeGen(DataGenerator p_125973_) {
         super(p_125973_);
@@ -34,12 +45,41 @@ public class RecipeGen extends RecipeProvider {
             buttonBuilder(wood(i, WoodSet.Button), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             doorBuilder(wood(i, WoodSet.Door), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             trapdoorBuilder(wood(i, WoodSet.Trapdoor), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
-
         }
-
+        //boats
+        PVZItems.boatItemList.forEach((pair, itemObj) -> {
+            if (!pair.getSecond()){
+                woodenBoat(c, itemObj.get(), getWoodSet(pair.getFirst()).get(WoodSet.Plank).get());
+                if (boatsToMatch.containsKey(Pair.of(pair.getFirst(), true))){
+                    chestBoat(c, boatsToMatch.get(Pair.of(pair.getFirst(), true)), itemObj.get());
+                } else {
+                    boatsToMatch.put(pair, itemObj.get());
+                }
+            } else {
+                if (boatsToMatch.containsKey(Pair.of(pair.getFirst(), false))) {
+                    chestBoat(c, itemObj.get(), boatsToMatch.get(Pair.of(pair.getFirst(), false)));
+                } else {
+                    boatsToMatch.put(pair, itemObj.get());
+                }
+            }
+        });
     }
 
     public ItemLike wood(int i, WoodSet elem){
         return woodList.get(i).get(elem).get();
-    };
+    }
+    public Map<WoodSet, RegistryObject<Block>> getWoodSet(WoodType woodType){
+        for (int i = 0; i < PVZBlocks.woodTypeList.size(); i ++){
+            if (woodTypeList.get(i) == woodType){
+                return woodList.get(i);
+            }
+        }
+        return null;
+    }
+    protected void chestBoat(Consumer<FinishedRecipe> consumer, ItemLike chestBoat, ItemLike boat){
+        ShapelessRecipeBuilder.shapeless(chestBoat)
+                .requires(Blocks.CHEST).requires(boat)
+                .group("chest_boat").unlockedBy("has_boat", has(ItemTags.BOATS))
+                .save(consumer);
+    }
 }

@@ -19,13 +19,13 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class PVZEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, PVZMod.MODID);
-    public static final RegistryObject<EntityType<PVZBoat>> BOAT = entity("pvz_boat", PVZBoat::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<PVZBoat>> BOAT = entity("pvz_boat", PVZBoat::new, MobCategory.MISC, 1.375F, 0.5625F);
+    public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC, 1.375F, 0.5625F);
 
 
     //definitions
-    private static <T extends Entity> RegistryObject<EntityType<T>> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification){
-        return ENTITIES.register(name, () -> EntityType.Builder.of(factory, classification).build(Util.prefix(name).toString()));
+    private static <T extends Entity> RegistryObject<EntityType<T>> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification, float width, float height){
+        return ENTITIES.register(name, () -> EntityType.Builder.of(factory, classification).sized(width, height).build(Util.prefix(name).toString()));
     }
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent

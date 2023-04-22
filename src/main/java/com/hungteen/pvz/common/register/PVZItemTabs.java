@@ -21,7 +21,7 @@ public class PVZItemTabs {
     public static final CreativeModeTab PVZ_FUNCTIONAL = new CreativeModeTab("pvz_functional") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(PVZItems.NUT_BOAT.get());
+            return new ItemStack(PVZItems.PEA.get());
         }
     };
 }
