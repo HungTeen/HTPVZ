@@ -3,7 +3,6 @@ package com.hungteen.pvz.world;
 import com.hungteen.pvz.common.register.OtherRegisters;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
@@ -12,13 +11,11 @@ import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorTy
 import static net.minecraft.world.level.block.CaveVines.BERRIES;
 
 public class GlowBerryDecorator extends TreeDecorator {
-    public static final Codec<GlowBerryDecorator> CODEC = Codec.unit(() -> {
-        return GlowBerryDecorator.INSTANCE;
-    });
+    public static final Codec<GlowBerryDecorator> CODEC = Codec.unit(() -> GlowBerryDecorator.INSTANCE);
     public static final GlowBerryDecorator INSTANCE = new GlowBerryDecorator();
 
     protected TreeDecoratorType<?> type() {
-        return OtherRegisters.GLOWBERRY_DECORATOR.get();
+        return OtherRegisters.GLOW_BERRY_DECORATOR.get();
     }
 
     public void place(TreeDecorator.Context context) {

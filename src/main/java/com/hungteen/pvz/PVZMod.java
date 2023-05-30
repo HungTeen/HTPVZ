@@ -1,9 +1,7 @@
 package com.hungteen.pvz;
 
-import com.hungteen.pvz.common.register.PVZBlockEntities;
-import com.hungteen.pvz.common.register.PVZBlocks;
-import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.client.renderer.PVZLayerHandler;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -39,10 +37,13 @@ public class PVZMod
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::commonSetup);
         modBus.addListener(EventPriority.NORMAL, DataGenHandler::dataGen);
+        modBus.addListener(EventPriority.NORMAL, PVZEntities::addEntityAttributes);
         PVZItems.ITEMS.register(modBus);
         PVZBlocks.BLOCKS.register(modBus);
         PVZEntities.ENTITIES.register(modBus);
         PVZBlockEntities.BLOCK_ENTITIES.register(modBus);
+
+        OtherRegisters.register(modBus);
 
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
@@ -79,23 +80,25 @@ public class PVZMod
         LOGGER.info("----------server starting----------");
     }
 
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            // Some client setup code
             LOGGER.info("----------CLIENT SETUP----------");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-
+        //blocks
             event.enqueueWork(() ->
                     PVZBlocks.woodTypeList.forEach(Sheets::addWoodType)
             );
         }
 
-
+        //entities & blockEntities
+        @SubscribeEvent
+        public static void onRegisterLayers(EntityRenderersEvent.RegisterLayerDefinitions event){
+            PVZLayerHandler.createModelDefinitions(event);
+        }
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
             PVZBlockEntities.registerRenderer(event);

@@ -24,6 +24,7 @@ public class PVZBlockEntities {
     //registry
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, PVZMod.MODID);
     public static final RegistryObject<BlockEntityType<PVZSignBlockEntity>> SIGN = bEntity("pvz_sign", PVZSignBlockEntity::new);
+    /**binding renderer at {@link PVZBlockEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}*/
 
 
     //definitions

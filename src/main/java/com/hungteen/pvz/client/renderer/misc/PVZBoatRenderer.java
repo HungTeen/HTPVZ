@@ -1,4 +1,4 @@
-package com.hungteen.pvz.client;
+package com.hungteen.pvz.client.renderer.misc;
 
 import com.hungteen.pvz.common.entity.PVZBoat;
 import com.hungteen.pvz.common.entity.PVZChestBoat;
