@@ -24,6 +24,7 @@ public class ItemModelGen extends ItemModelProvider {
             switch (pair.getSecond().getFirst()) {
                 case Simple -> simple(item, pair.getSecond().getSecond());
                 case Block -> block(item, pair.getSecond().getSecond());
+                case SpawnEgg -> spawnEgg(item);
                 //Modeled and ones excluded.
             }
         });
@@ -46,6 +47,10 @@ public class ItemModelGen extends ItemModelProvider {
             getBuilder(item.toString())
                     .parent(new ModelFile.UncheckedModelFile(list.get(0)));
         }
+    }
+    public void spawnEgg(Item item){
+        getBuilder(item.toString())
+                .parent(new ModelFile.UncheckedModelFile(new ResourceLocation("item/template_spawn_egg")));
     }
 
 }

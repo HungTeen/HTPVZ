@@ -47,7 +47,7 @@ public class RecipeGen extends RecipeProvider {
             trapdoorBuilder(wood(i, WoodSet.Trapdoor), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
         }
         //boats
-        PVZItems.boatItemList.forEach((pair, itemObj) -> {
+        PVZItems.boatItemMap.forEach((pair, itemObj) -> {
             if (!pair.getSecond()){
                 woodenBoat(c, itemObj.get(), getWoodSet(pair.getFirst()).get(WoodSet.Plank).get());
                 if (boatsToMatch.containsKey(Pair.of(pair.getFirst(), true))){

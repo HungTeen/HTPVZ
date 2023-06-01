@@ -38,9 +38,9 @@ public class PVZMod
         modBus.addListener(this::commonSetup);
         modBus.addListener(EventPriority.NORMAL, DataGenHandler::dataGen);
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addEntityAttributes);
+        PVZEntities.ENTITIES.register(modBus);
         PVZItems.ITEMS.register(modBus);
         PVZBlocks.BLOCKS.register(modBus);
-        PVZEntities.ENTITIES.register(modBus);
         PVZBlockEntities.BLOCK_ENTITIES.register(modBus);
 
         OtherRegisters.register(modBus);
@@ -56,7 +56,6 @@ public class PVZMod
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
-        // Some common setup code
         LOGGER.info("----------COMMON SETUP----------");
 //        LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
 
@@ -70,6 +69,11 @@ public class PVZMod
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Wood).get(), map.get(PVZBlocks.WoodSet.StWood).get());
             });
         });
+
+        //clear variables
+        PVZBlocks.release();
+        PVZItems.release();
+        PVZEntities.release();
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
@@ -92,6 +96,8 @@ public class PVZMod
             event.enqueueWork(() ->
                     PVZBlocks.woodTypeList.forEach(Sheets::addWoodType)
             );
+
+        //clear variables
         }
 
         //entities & blockEntities

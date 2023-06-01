@@ -6,8 +6,11 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.properties.WoodType;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -15,13 +18,13 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.hungteen.pvz.common.register.PVZItemTabs.PVZ_MISC;
+import static com.hungteen.pvz.utils.Util.name;
 
 public class PVZItems {
 
     //init
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, PVZMod.MODID);
-    public static Supplier<Item> storedSup = () -> new Item(new Item.Properties().tab(PVZ_MISC));
+    public static Supplier<Item> storedSup = () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_MISC));
 
     private static List<TagKey<Item>> storedTag = new ArrayList<>();
     public static Map<RegistryObject<Item>, List<TagKey<Item>>> tagMap = new HashMap<>();
@@ -29,7 +32,8 @@ public class PVZItems {
     private static Pair<Model, List<ResourceLocation>> storedModel = Pair.of(Model.Simple, new ArrayList<>());
     public static List<Pair<RegistryObject<Item>, Pair<Model, List<ResourceLocation>>>> modelList = new ArrayList<>();
 
-    public static Map<Pair<WoodType, /*hasChest*/Boolean>, RegistryObject<Item>> boatItemList = new HashMap<>();
+    public static Map<Pair<WoodType, /*hasChest*/Boolean>, RegistryObject<Item>> boatItemMap = new HashMap<>();
+    public static Map<RegistryObject<EntityType<? extends Mob>>, RegistryObject<Item>> spawnEggMap = new HashMap<>();
     private static final PVZItems reflector = new PVZItems();
 
 
@@ -37,6 +41,10 @@ public class PVZItems {
     //registry
     public static final RegistryObject<Item> NUT = item("nut");
     public static final RegistryObject<Item> PEA = item("pea");
+
+    static {
+        createSpawnEggs();
+    }
 
 
 
@@ -78,11 +86,26 @@ public class PVZItems {
     public static RegistryObject<Item> boat(boolean hasChest, WoodType woodType){
         RegistryObject<Item> itemObj = tag(ItemTags.BOATS).item(woodType.name() + (hasChest ? "_chest_boat" : "_boat"),
                 () -> new PVZBoatItem(hasChest, woodType, (new Item.Properties()).stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-        boatItemList.put(Pair.of(woodType, hasChest), itemObj);
+        boatItemMap.put(Pair.of(woodType, hasChest), itemObj);
+        return itemObj;
+    }
+    public static RegistryObject<Item> spawnEgg(RegistryObject<EntityType<? extends Mob>> entity, Integer bgColor, Integer hlColor){
+        RegistryObject<Item> itemObj = model(Model.SpawnEgg).item(name(entity) + "_spawn_egg",
+                () -> new ForgeSpawnEggItem(entity, bgColor, hlColor, (new Item.Properties()).tab(PVZItemTabs.PVZ_MISC)));
+        spawnEggMap.put(entity, itemObj);
         return itemObj;
     }
 
+    public static void createSpawnEggs(){
+        PVZEntities.spawnEggMap.forEach((entity, pair) -> spawnEgg((RegistryObject<EntityType<? extends Mob>>) entity, pair.getFirst(), pair.getSecond()));
+    }
+
+    public static void release(){
+        List.of(tagMap, boatItemMap, spawnEggMap).forEach(Map::clear);
+        modelList.clear();
+    }
+
     public enum Model {
-        Simple, Block, Modeled
+        Simple, Block, SpawnEgg, Modeled
     }
 }

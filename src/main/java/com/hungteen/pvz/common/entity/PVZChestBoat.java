@@ -39,7 +39,7 @@ public class PVZChestBoat extends ChestBoat {
     }
     @Override
     public Item getDropItem(){
-        return PVZItems.boatItemList.get(Pair.of(this.woodType, true)).get();
+        return PVZItems.boatItemMap.get(Pair.of(this.woodType, true)).get();
     }
 
     public void setWoodType(WoodType woodType){

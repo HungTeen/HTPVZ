@@ -17,10 +17,10 @@ import static com.hungteen.pvz.utils.Util.name;
 public class SimpleMobRenderer<T extends Mob> extends MobRenderer<T, EntityModel<T>> {
     public SimpleMobRenderer(EntityRendererProvider.Context context, EntityType<T> entityType) {
         super(context, /*model*/((Function<ModelPart,EntityModel<T>>) PVZEntities.simpleRenderedMap.get(entityType).get(0))
-                .apply(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get(name(entityType)).get(0))),
+                .apply(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get(name(entityType)+":main"))),
                 /*shadowSize*/ (float) PVZEntities.simpleRenderedMap.get(entityType).get(2));
     }
     public ResourceLocation getTextureLocation(Mob mob) {
-        return PVZEntities.SimpleTextureLocationMap.get(mob.getType());
+        return PVZEntities.simpleTextureLocationMap.get(mob.getType());
     }
 }

@@ -166,7 +166,7 @@ public class PVZBlocks {
         woodList.add(set);
         PVZItems.boat(false, woodtype);
         PVZItems.boat(true, woodtype);
-        /**Boats added to {@link PVZItems#boatItemList}.*/
+        /**Boats added to {@link PVZItems#boatItemMap}.*/
         return set;
     }
 
@@ -235,6 +235,11 @@ public class PVZBlocks {
     private static PVZBlocks loot(Boolean loot){
         storedLoot = loot;
         return reflector;
+    }
+
+    public static void release(){
+        List.of(woodList, woodTypeList, modelList, lootedList).forEach(List::clear);
+        List.of(renderTypeMap, tagMap, blockEntityMap, flammableMap).forEach(Map::clear);
     }
 
     public enum WoodSet {
