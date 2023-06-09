@@ -9,11 +9,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * @program: pvzmod-1.18.x
- * @author: HungTeen
- * @create: 2022-03-28 20:53
- **/
 public class GrassCarpRender extends MobRenderer<GrassCarp, GrassCarpModel<GrassCarp>> {
 
     private static final ResourceLocation RES = Util.prefix("textures/entity/grasscarp/grasscarp.png");

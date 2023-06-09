@@ -11,11 +11,6 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * @program: pvzmod-1.18.x
- * @author: HungTeen
- * @create: 2022-03-28 23:32
- **/
 public class GrassCarpItemLayer<T extends GrassCarp> extends RenderLayer<T, GrassCarpModel<T>> {
 
     public GrassCarpItemLayer(RenderLayerParent<T, GrassCarpModel<T>> p_116884_) {

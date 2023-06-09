@@ -25,7 +25,6 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacements.SpawnPredicate;
 import net.minecraft.world.entity.SpawnPlacements.Type;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -132,7 +131,6 @@ public class PVZEntities {
     }
 
     private static PVZEntities collision(Float width, Float height) {
-        //TODO not effective.
         storedCollision = Pair.of(width, height);
         return reflector;
     }

@@ -3,7 +3,6 @@ package com.hungteen.pvz.common.entity;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.common.network.SpawnParticlePacket;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -42,6 +41,7 @@ import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -358,7 +358,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
 
         CollectItemsGoal(GrassCarp carp) {
             this.carp = carp;
-            //TODO flag?
+            this.setFlags(EnumSet.of(Flag.MOVE));
         }
 
         @Override

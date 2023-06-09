@@ -49,9 +49,7 @@ public class BlockLootGen extends BlockLoot {
     @Override
     protected Iterable<Block> getKnownBlocks() {
         List<Block> list = new ArrayList<>();
-        lootedList.forEach((blockObj) -> {
-            list.add(blockObj.get());
-        });
+        lootedList.forEach((blockObj) -> list.add(blockObj.get()));
         return list;
     }
 

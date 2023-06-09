@@ -2,7 +2,6 @@ package com.hungteen.pvz.generator;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZBlocks;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.*;
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static net.minecraft.client.renderer.RenderType.solid;
 
 public class BlockModelGen extends BlockStateProvider {
 

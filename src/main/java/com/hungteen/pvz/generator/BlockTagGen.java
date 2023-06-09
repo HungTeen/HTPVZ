@@ -28,11 +28,7 @@ public class BlockTagGen extends BlockTagsProvider {
     @Override
     public void addTags(){
         //atBlockRegister
-        PVZBlocks.tagMap.forEach((block, tagList)-> {
-            tagList.forEach((tag) -> {
-                this.tag(tag).add(block.get());
-            });
-        });
+        PVZBlocks.tagMap.forEach((block, tagList)-> tagList.forEach((tag) -> this.tag(tag).add(block.get())));
         //woodSet
         for (int i = 0; i < woodList.size(); i ++){
             String name = woodTypeList.get(i).name();
