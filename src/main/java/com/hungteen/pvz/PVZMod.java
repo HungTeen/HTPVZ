@@ -1,6 +1,9 @@
 package com.hungteen.pvz;
 
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
+import com.hungteen.pvz.common.network.CommonProxy;
+import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.logging.LogUtils;
@@ -15,6 +18,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -32,14 +36,20 @@ public class PVZMod
     public static final String MODID = "pvz";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
     public PVZMod()
     {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::commonSetup);
         modBus.addListener(EventPriority.NORMAL, DataGenHandler::dataGen);
-        modBus.addListener(EventPriority.NORMAL, PVZEntities::addEntityAttributes);
+
         PVZEntities.ENTITIES.register(modBus);
+        modBus.addListener(EventPriority.NORMAL, PVZEntities::addEntityAttributes);
+        modBus.addListener(EventPriority.NORMAL, PVZEntities::addSummonRules);
+        PVZBiomeModifier.BIOME_MODIFIER.register(modBus);
+
         PVZItems.ITEMS.register(modBus);
+
         PVZBlocks.BLOCKS.register(modBus);
         PVZBlockEntities.BLOCK_ENTITIES.register(modBus);
 
@@ -74,6 +84,9 @@ public class PVZMod
         PVZBlocks.release();
         PVZItems.release();
         PVZEntities.release();
+
+        //network
+        PVZPacketHandler.init();
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

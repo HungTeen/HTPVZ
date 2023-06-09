@@ -3,6 +3,8 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
+import com.hungteen.pvz.client.renderer.creatures.GrassCarpRender;
+import com.hungteen.pvz.common.entity.GrassCarp;
 import com.hungteen.pvz.common.entity.MooBloom;
 import com.hungteen.pvz.common.entity.PVZBoat;
 import com.hungteen.pvz.common.entity.PVZChestBoat;
@@ -18,16 +20,24 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.SpawnPlacements.SpawnPredicate;
+import net.minecraft.world.entity.SpawnPlacements.Type;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,25 +58,34 @@ public class PVZEntities {
     public static Map<EntityType<? extends Entity>, ResourceLocation> simpleTextureLocationMap = new HashMap<>();
     //collision
     private static Pair<Float, Float> storedCollision = Pair.of(0.6F, 1.8F);
+    public static List<Pair<Float, Float>> collisionMap = new ArrayList<>();
     //spawn egg
     private static Pair<Integer, Integer> storedSpawnEgg = null;
     public static Map<RegistryObject, Pair<Integer, Integer>> spawnEggMap = new HashMap<>();
+    //spawn placements
+    private static List</*0:SpawnPlacements.type, 1:HeightMap.types, 2:checkSpawnRulesMethod*/?> storedSpawnPlacement = null;
+    public static Map<RegistryObject, List</*0:SpawnPlacements.type, 1:HeightMap.types, 2:checkSpawnRulesMethod*/?>> spawnPlacementMap = new HashMap<>();
+    //attributes
+    private static Supplier<AttributeSupplier.Builder> storedAttribute = null;
+    public static Map<RegistryObject, Supplier<AttributeSupplier.Builder>> attributesMap = new HashMap<>();
 
 
     //registry
     public static final RegistryObject<EntityType<PVZBoat>> BOAT = collision(1.375F, 0.5625F).entity("pvz_boat", PVZBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = collision(1.375F, 0.5625F).entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<MooBloom>> MOOBLOOM = spawnEgg(0xffc100, 0x88b830).collision(0.9F, 1.4F).entity("moobloom", MooBloom::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<MooBloom>> MOOBLOOM = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, MooBloom::checkMooBloomSpawnRules)
+            .spawnEgg(0xffc100, 0x88b830).attribute(MooBloom::createAttributes)
+            .collision(0.9F, 1.4F).entity("moo_bloom", MooBloom::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<GrassCarp>> GRASSCARP = summonRule(Type.IN_WATER, Types.MOTION_BLOCKING_NO_LEAVES, GrassCarp::checkGrassCarpSpawnRules)
+            .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
+            .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
 
     /**
-     * for simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}
-     * register renderer at {@link PVZEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}
-     * modelLayers and LayerDefinitions handled in {@link PVZLayerHandler#createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions)}
-     * lootTables gen in {@link EntityLootGen#addTables()}
+     * For simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}.
+     * For other renderers, register renderer at {@link PVZEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}.
+     * ModelLayers and LayerDefinitions handled in {@link PVZLayerHandler#createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions)}.
+     * LootTables gen in {@link EntityLootGen#addTables()}.
      */
-    public static void addEntityAttributes(EntityAttributeCreationEvent ev) {
-        ev.put(MOOBLOOM.get(), MooBloom.createAttributes().build());
-    }
 
 
     //client
@@ -78,8 +97,9 @@ public class PVZEntities {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void registerRenderer(EntityRenderersEvent.RegisterRenderers e) {
-        r(e, BOAT, (p_174094_) -> new PVZBoatRenderer(p_174094_, false));
-        r(e, CHEST_BOAT, (p_174094_) -> new PVZBoatRenderer(p_174094_, true));
+        r(e, BOAT, (c) -> new PVZBoatRenderer(c, false));
+        r(e, CHEST_BOAT, (c) -> new PVZBoatRenderer(c, true));
+        r(e, GRASSCARP, GrassCarpRender::new);
         //enter here
 
         //auto works
@@ -89,21 +109,46 @@ public class PVZEntities {
 
     //definitions
     private static <T extends Entity> RegistryObject<EntityType<T>> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
-        RegistryObject<EntityType<T>> entity = ENTITIES.register(name, () -> EntityType.Builder.of(factory, classification).sized(storedCollision.getFirst(), storedCollision.getSecond()).build(Util.prefix(name).toString()));
+        float coh = storedCollision.getFirst();
+        float cov = storedCollision.getSecond();
+        RegistryObject<EntityType<T>> entity = ENTITIES.register(name, () -> EntityType.Builder.of(factory, classification).sized(coh, cov).build(Util.prefix(name).toString()));
         storedCollision = Pair.of(0.6F, 1.8F);
-        if (storedSpawnEgg != null){
-            spawnEggMap.put(entity,storedSpawnEgg);
+        //spawn egg
+        if (storedSpawnEgg != null) {
+            spawnEggMap.put(entity, storedSpawnEgg);
             storedSpawnEgg = null;
+        }
+        //summon rule
+        if (storedSpawnPlacement != null) {
+            spawnPlacementMap.put(entity, storedSpawnPlacement);
+            storedSpawnPlacement = null;
+        }
+        //attributes
+        if (storedAttribute != null) {
+            attributesMap.put(entity, storedAttribute);
+            storedAttribute = null;
         }
         return entity;
     }
 
-    private static PVZEntities collision(Float width, Float height){
+    private static PVZEntities collision(Float width, Float height) {
+        //TODO not effective.
         storedCollision = Pair.of(width, height);
         return reflector;
     }
-    private static PVZEntities spawnEgg(Integer bgColor, Integer hlColor){
+
+    private static PVZEntities spawnEgg(Integer bgColor, Integer hlColor) {
         storedSpawnEgg = Pair.of(bgColor, hlColor);
+        return reflector;
+    }
+
+    private static PVZEntities summonRule(Type type, Types types, SpawnPredicate predicate) {
+        storedSpawnPlacement = List.of(type, types, predicate);
+        return reflector;
+    }
+
+    private static PVZEntities attribute(Supplier<AttributeSupplier.Builder> attribute) {
+        storedAttribute = attribute;
         return reflector;
     }
 
@@ -132,7 +177,22 @@ public class PVZEntities {
         rS(entity, model, layer, shadowSize, "textures/entity/" + name(entity) + "/" + name(entity.get()) + ".png");
     }
 
-    public static void release(){
-        List.of(spawnEggMap).forEach(Map::clear);
+    @SubscribeEvent
+    public static void addSummonRules(SpawnPlacementRegisterEvent e) {
+        spawnPlacementMap.forEach((obj, list) ->
+                e.register((EntityType<? extends Entity>) obj.get(), (Type) list.get(0),
+                        (Types) list.get(1), (SpawnPredicate) list.get(2),
+                        SpawnPlacementRegisterEvent.Operation.OR
+                )
+        );
+    }
+
+    @SubscribeEvent
+    public static void addEntityAttributes(EntityAttributeCreationEvent e) {
+        attributesMap.forEach((obj, sup) -> e.put((EntityType<? extends LivingEntity>) obj.get(), sup.get().build()));
+    }
+
+    public static void release() {
+        List.of(spawnEggMap, spawnPlacementMap).forEach(Map::clear);
     }
 }

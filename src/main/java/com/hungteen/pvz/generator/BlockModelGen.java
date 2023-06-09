@@ -35,6 +35,7 @@ public class BlockModelGen extends BlockStateProvider {
                 case Simple -> simple(block, pair.getSecond().getSecond(), renderType);
                 case Column -> column((RotatedPillarBlock) block, pair.getSecond().getSecond(), renderType);
                 case Cross -> cross(block, pair.getSecond().getSecond(), renderType);
+                case Carpet -> carpet(block, pair.getSecond().getSecond(), renderType);
                 case Slab -> slab((SlabBlock) block, pair.getSecond().getSecond(), renderType);
                 case Stairs -> stair((StairBlock) block, pair.getSecond().getSecond(), renderType);
                 case Door -> door((DoorBlock) block, pair.getSecond().getSecond(), renderType);
@@ -64,12 +65,18 @@ public class BlockModelGen extends BlockStateProvider {
             axisBlockWithRenderType(block, /*sides*/list.get(0), /*top*/list.get(1), renderType);
         }
     }
-    public void cross(Block block, List<ResourceLocation> list, String renderType) {
+    private void cross(Block block, List<ResourceLocation> list, String renderType) {
         if (list.size() == 0){
             simpleBlock(block, models().cross(path(block), blockTexture(block)).renderType(renderType));
         } else {
             simpleBlock(block, models().cross(path(block), list.get(0)).renderType(renderType));
-
+        }
+    }
+    private void carpet(Block block, List<ResourceLocation> list, String renderType){
+        if (list.size() == 0){
+            simpleBlock(block, models().carpet(path(block), blockTexture(block)).renderType(renderType));
+        } else {
+            simpleBlock(block, models().carpet(path(block), list.get(0)).renderType(renderType));
         }
     }
     private void slab(SlabBlock block, List<ResourceLocation> list, String renderType){

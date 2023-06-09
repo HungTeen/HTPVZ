@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.block.CarpMossBlock;
 import com.hungteen.pvz.common.block.PVZStandingSignBlock;
 import com.hungteen.pvz.common.block.PVZWallSignBlock;
 import com.hungteen.pvz.generator.loot.BlockLootGen;
@@ -59,12 +60,11 @@ public class PVZBlocks {
 
 
 
-
     //registry
-    /**Loot data has no auto generator: {@link BlockLootGen #addTables()}*/
     public static final RegistryObject<Block> NUT_LEAVES_WITH_NUTS = tag(BlockTags.LEAVES).renderType("cutout").flammable(30, 60).loot(false).block("nut_leaves_with_nuts", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES)));
     public static final Map<WoodSet, RegistryObject<Block>> NUT = wood("nut", new NutTreeGrower());
-
+    public static final RegistryObject<Block> CARP_MOSS = tag(BlockTags.REPLACEABLE_PLANTS).model(Model.Modeled).renderType("cutout").flammable(5, 5).loot(false).block("carp_moss", () -> new CarpMossBlock(BlockBehaviour.Properties.copy(GLOW_LICHEN).randomTicks()));
+    /**Loot data has no auto generator: {@link BlockLootGen #addTables()}*/
 
 
 
@@ -238,7 +238,7 @@ public class PVZBlocks {
     }
 
     public static void release(){
-        List.of(woodList, woodTypeList, modelList, lootedList).forEach(List::clear);
+        List.of(woodList, modelList, lootedList).forEach(List::clear);
         List.of(renderTypeMap, tagMap, blockEntityMap, flammableMap).forEach(Map::clear);
     }
 
@@ -252,7 +252,7 @@ public class PVZBlocks {
     }
 
     public enum Model {
-        Simple, Column, Box, Cross,
+        Simple, Column, Box, Cross, Carpet,
         Slab, Stairs, Door, Trapdoor,
         Plate, Button, Sign, WallSign,
         Fence, Gate,

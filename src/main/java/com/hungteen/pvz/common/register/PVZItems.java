@@ -4,12 +4,16 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.item.PVZBoatItem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.level.block.state.properties.WoodType;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -41,6 +45,9 @@ public class PVZItems {
     //registry
     public static final RegistryObject<Item> NUT = item("nut");
     public static final RegistryObject<Item> PEA = item("pea");
+
+    //spawners
+    public static final RegistryObject<Item> GRASSCARP_BUCKET = item("grass_carp_bucket", () -> new MobBucketItem(() -> PVZEntities.GRASSCARP.get(), () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
 
     static {
         createSpawnEggs();

@@ -1,5 +1,6 @@
 package com.hungteen.pvz.client.renderer;
 
+import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -9,6 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +28,7 @@ public class PVZLayerHandler {
     public static void createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions e){
         PVZEntities.simpleRenderHandler();
         //enter here.
-
+        L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
         //simple rendered entities
         for (EntityType<? extends Entity> entity: PVZEntities.simpleRenderedMap.keySet()){
             L(e, name(entity), (Supplier<LayerDefinition>) PVZEntities.simpleRenderedMap.get(entity).get(1));
@@ -41,6 +43,12 @@ public class PVZLayerHandler {
     }
     private static void L(EntityRenderersEvent.RegisterLayerDefinitions event, String name, Supplier<LayerDefinition> provider){
         L(event, name, "main", provider);
+    }
+    private static void L(EntityRenderersEvent.RegisterLayerDefinitions event, RegistryObject<?> registryObject, String layerName, Supplier<LayerDefinition> provider){
+        L(event, name(registryObject), layerName, provider);
+    }
+    private static void L(EntityRenderersEvent.RegisterLayerDefinitions event, RegistryObject<?> registryObject, Supplier<LayerDefinition> provider){
+        L(event, name(registryObject), provider);
     }
 
     private static ModelLayerLocation createLayer(String name, String layerName) {

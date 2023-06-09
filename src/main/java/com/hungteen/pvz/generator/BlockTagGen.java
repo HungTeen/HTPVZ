@@ -2,16 +2,15 @@ package com.hungteen.pvz.generator;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -44,6 +43,15 @@ public class BlockTagGen extends BlockTagsProvider {
                     woodList.get(i).get(StWood).get()
             );
         }
+        //others
+        this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT);
+        this.tag(PVZBlockTags.PLANTABLE_BLOCKS).add(
+                Blocks.GRASS_BLOCK, Blocks.MYCELIUM, Blocks.PODZOL,
+                Blocks.CRIMSON_NYLIUM, Blocks.WARPED_NYLIUM,
+                Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET, PVZBlocks.CARP_MOSS.get(),
+                Blocks.SCULK_VEIN, Blocks.SCULK, Blocks.SCULK_CATALYST,
+                Blocks.LILY_PAD, Blocks.FLOWER_POT
+        );
     }
 
     public static final List<TagKey<Block>> LOGS = new ArrayList<>();

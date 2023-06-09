@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -23,21 +24,29 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 
+import static net.minecraft.world.level.biome.Biomes.*;
+
 public class MooBloom extends Cow implements Shearable, net.minecraftforge.common.IForgeShearable {
+
     public MooBloom(EntityType<? extends MooBloom> p_28914_, Level p_28915_) {
         super(p_28914_, p_28915_);
     }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.2D);
     }
-    public float getWalkTargetValue(BlockPos p_28933_, LevelReader p_28934_) {
-        return p_28934_.getBlockState(p_28933_.below()).is(BlockTags.FLOWERS) ? 10.0F : p_28934_.getPathfindingCostFromLightLevels(p_28933_);
+
+    public static boolean checkMooBloomSpawnRules(EntityType<? extends Animal> entityType, LevelAccessor level, MobSpawnType mobSpawnType, BlockPos blockPos, RandomSource rand) {
+        return level.getBiome(blockPos).is(SUNFLOWER_PLAINS)
+                || (level.getBiome(blockPos).is(FLOWER_FOREST) || level.getBiome(blockPos).is(MEADOW) && rand.nextInt(3) == 0)
+                || rand.nextInt(10) == 0
+                && checkAnimalSpawnRules(entityType, level, mobSpawnType, blockPos, rand);
     }
 
-    public static boolean checkMushroomSpawnRules(EntityType<MooBloom> p_218201_, LevelAccessor p_218202_, MobSpawnType p_218203_, BlockPos p_218204_, RandomSource p_218205_) {
-        return p_218202_.getBlockState(p_218204_.below()).is(BlockTags.MOOSHROOMS_SPAWNABLE_ON) && isBrightEnoughToSpawn(p_218202_, p_218204_);
+    public float getWalkTargetValue(BlockPos p_28933_, LevelReader p_28934_) {
+        return p_28934_.getBlockState(p_28933_.below()).is(BlockTags.FLOWERS) ? 10.0F : p_28934_.getPathfindingCostFromLightLevels(p_28933_);
     }
 
     public InteractionResult mobInteract(Player p_28941_, InteractionHand p_28942_) {
@@ -113,7 +122,7 @@ public class MooBloom extends Cow implements Shearable, net.minecraftforge.commo
     private java.util.List<ItemStack> shearInternal(SoundSource p_28924_) {
         this.level.playSound(null, this, SoundEvents.MOOSHROOM_SHEAR, p_28924_, 1.0F, 1.0F);
         if (!this.level.isClientSide()) {
-            ((ServerLevel)this.level).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5D), this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+            ((ServerLevel) this.level).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5D), this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
             this.discard();
             Cow cow = EntityType.COW.create(this.level);
             cow.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
@@ -132,7 +141,7 @@ public class MooBloom extends Cow implements Shearable, net.minecraftforge.commo
             this.level.addFreshEntity(cow);
 
             java.util.List<ItemStack> items = new java.util.ArrayList<>();
-            for(int i = 0; i < 3; ++i) {
+            for (int i = 0; i < 3; ++i) {
                 items.add(new ItemStack(Blocks.SUNFLOWER));
             }
             return items;
