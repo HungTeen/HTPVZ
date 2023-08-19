@@ -123,6 +123,11 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
             }
             //check item stack or blocks.
             check();
+        } else {
+            if (random.nextInt(10) == 0) {
+                Vec3 pos = this.position();
+                level.addParticle(ParticleTypes.COMPOSTER.getType(), pos.x + random.nextFloat() * 0.6 - 0.3, pos.y + random.nextFloat() * 1.0 - 0.3, pos.z + random.nextFloat() * 0.6 - 0.3, 0, 0, 0);
+            }
         }
     }
 
@@ -142,8 +147,8 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
         //holding item particle.
         if (!getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() && nextCheckLeft < 400) {
             if (random.nextInt(400) > nextCheckLeft) {
-                Vec3 pos = this.position().add(random.nextFloat() * 1.5 - 0.75, random.nextFloat() * 1.5, random.nextFloat() * 1.5 - 0.75);
-                particle(this.level, ParticleTypes.COMPOSTER, pos);
+                particle(this.level, ParticleTypes.COMPOSTER, this.position().add(random.nextFloat() * 1.5 - 0.75, random.nextFloat() * 1.5, random.nextFloat() * 1.5 - 0.75));
+                particle(this.level, ParticleTypes.COMPOSTER, this.position().add(random.nextFloat() * 1.5 - 0.75, random.nextFloat() * 1.5, random.nextFloat() * 1.5 - 0.75));
             }
         }
         if (--this.nextCheckLeft <= 0) {
@@ -153,7 +158,8 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
                     this.setBald(false);
                     item.setCount(item.getCount() - 1);
                     nextCheckLeft = 0;
-                } if (item.getItem() == Items.BONE_MEAL) {
+                }
+                if (item.getItem() == Items.BONE_MEAL) {
                     if (this.isBald()) {
                         this.setBald(false);
                     }
@@ -189,7 +195,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
                     BlockPos pos = this.blockPosition();
                     for (int h = -1; h <= 2; ++h) {
                         if (checkBlock(this.blockPosition().offset(x, h, y))) {
-                            for (int j = 0; j < 5; j ++){
+                            for (int j = 0; j < 5; j++) {
                                 particle(this.level, ParticleTypes.COMPOSTER, new Vec3(pos.getX() + x + random.nextFloat(), pos.getY() + h + 1.1, pos.getZ() + y + random.nextFloat()));
                             }
                         }

@@ -1,20 +1,29 @@
 package com.hungteen.pvz;
 
+import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
+import com.hungteen.pvz.common.capability.CapabilityHandler;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.command.PlayerStatsCommand;
 import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.generator.DataGenHandler;
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -46,6 +55,8 @@ public class PVZMod
         PVZEntities.ENTITIES.register(modBus);
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addEntityAttributes);
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addSummonRules);
+        modBus.addListener(EventPriority.NORMAL, CapabilityHandler::registerCapabilities);
+
         PVZBiomeModifier.BIOME_MODIFIER.register(modBus);
 
         PVZItems.ITEMS.register(modBus);
@@ -53,10 +64,17 @@ public class PVZMod
         PVZBlocks.BLOCKS.register(modBus);
         PVZBlockEntities.BLOCK_ENTITIES.register(modBus);
 
-        OtherRegisters.register(modBus);
+        PVZBiomes.BIOMES.register(modBus);
+
+        OtherRegisters.modBusRegister(modBus);
 
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
+        forgeBus.addGenericListener(Entity.class, CapabilityHandler::attachCapabilities);
+        forgeBus.addListener(PVZMod::registerCommands);
+        forgeBus.addListener(PVZMod::onServerTick);
+        forgeBus.addListener(PVZMod::onRenderTick);
+        PVZConfig.init();
         forgeBus.register(this);
     }
 
@@ -68,6 +86,9 @@ public class PVZMod
     {
         LOGGER.info("----------COMMON SETUP----------");
 //        LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
+
+        PVZDimensions.register();
+        PVZBiomes.checkFeatures();
 
         event.enqueueWork(() ->{
             PVZBlocks.flammableMap.forEach((blockObj, pair) ->
@@ -123,5 +144,23 @@ public class PVZMod
             PVZBlockEntities.registerRenderer(event);
             PVZEntities.registerRenderer(event);
         }
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        PVZPlayerCapability.tick();
+    }
+
+    @SubscribeEvent
+    public static void onRenderTick(TickEvent.RenderTickEvent event) {
+        if (ClientProxy.getPlayer() != null){
+            PVZOverlayHandler.tick(event.renderTickTime);
+        }
+    }
+
+    @SubscribeEvent
+    public static void registerCommands(RegisterCommandsEvent ev){
+        CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
+        PlayerStatsCommand.register(dispatcher);
     }
 }

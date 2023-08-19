@@ -10,6 +10,9 @@ import net.minecraft.data.loot.BlockLoot;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraftforge.registries.RegistryObject;
@@ -30,8 +33,10 @@ public class BlockLootGen extends BlockLoot {
     @Override
     public void addTables(){
         //leaves
-        PVZBlocks.woodList.forEach((map) ->
-                this.addLeavesDrops(map.get(PVZBlocks.WoodSet.Leaves).get(), map.get(PVZBlocks.WoodSet.Sampling).get(), NORMAL_LEAVES_SAPLING_CHANCES)
+        PVZBlocks.woodList.forEach((map) -> {
+                this.addLeavesDrops(map.get(PVZBlocks.WoodSet.Leaves).get(), map.get(PVZBlocks.WoodSet.Sampling).get(), NORMAL_LEAVES_SAPLING_CHANCES);
+                this.addDoorTable(map.get(PVZBlocks.WoodSet.Door).get());
+        }
         );
 
         this.dropOther(PVZBlocks.NUT_LEAVES_WITH_NUTS.get(), PVZItems.NUT.get());
@@ -56,6 +61,10 @@ public class BlockLootGen extends BlockLoot {
     protected void addLeavesDrops(Block block, Block sapling, float... chance) {
         outPut(block);
         this.add(block, createLeavesDrops(block, sapling, chance));
+    }
+    protected void addDoorTable(Block block) {
+        outPut(block);
+        this.add(block, createDoorTable(block));
     }
 
     private void outPut(Block block){

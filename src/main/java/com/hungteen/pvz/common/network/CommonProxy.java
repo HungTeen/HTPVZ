@@ -4,7 +4,7 @@ import net.minecraft.world.entity.player.Player;
 
 public class CommonProxy {
 
-    public Player getPlayer(){
+    public static Player getPlayer(){
         return null;
     }
 

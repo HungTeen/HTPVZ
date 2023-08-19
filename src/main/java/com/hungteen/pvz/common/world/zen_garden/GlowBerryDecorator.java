@@ -1,4 +1,4 @@
-package com.hungteen.pvz.world;
+package com.hungteen.pvz.common.world.zen_garden;
 
 import com.hungteen.pvz.common.register.OtherRegisters;
 import com.mojang.serialization.Codec;

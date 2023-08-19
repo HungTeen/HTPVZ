@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.world.GlowBerryDecorator;
+import com.hungteen.pvz.common.world.zen_garden.GlowBerryDecorator;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -13,7 +13,7 @@ public class OtherRegisters {
     public static final RegistryObject<TreeDecoratorType<GlowBerryDecorator>> GLOW_BERRY_DECORATOR = TREE_DECORATORS.register("glow_berry", () -> new TreeDecoratorType<>(GlowBerryDecorator.CODEC));
 
 
-    public static void register(IEventBus bus){
+    public static void modBusRegister(IEventBus bus){
         TREE_DECORATORS.register(bus);
     }
 }

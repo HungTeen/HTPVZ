@@ -10,8 +10,9 @@ import com.hungteen.pvz.common.entity.PVZBoat;
 import com.hungteen.pvz.common.entity.PVZChestBoat;
 import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
+import com.hungteen.pvz.common.entity.plants.WallNut;
 import com.hungteen.pvz.generator.loot.EntityLootGen;
-import com.hungteen.pvz.utils.Util;
+import com.hungteen.pvz.Util;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -43,8 +44,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.hungteen.pvz.utils.Util.name;
-import static com.hungteen.pvz.utils.Util.prefix;
+import static com.hungteen.pvz.Util.name;
+import static com.hungteen.pvz.Util.prefix;
 
 public class PVZEntities {
     //init
@@ -78,12 +79,16 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<GrassCarp>> GRASSCARP = summonRule(Type.IN_WATER, Types.MOTION_BLOCKING_NO_LEAVES, GrassCarp::checkGrassCarpSpawnRules)
             .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
+        //plants
+        public static final RegistryObject<EntityType<WallNut>> WALLNUT = collision(0.8F, 1F).entity("wall_nut", WallNut::new, MobCategory.MISC);
 
     /**
-     * For simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}.
-     * For other renderers, register renderer at {@link PVZEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}.
-     * ModelLayers and LayerDefinitions handled in {@link PVZLayerHandler#createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions)}.
-     * LootTables gen in {@link EntityLootGen#addTables()}.
+     * <p> For simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}.</p>
+     * <p> </p>
+     * <p> For other renderers, register renderer at {@link PVZEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}.</p>
+     * <p> And then handle ModelLayers and LayerDefinitions in {@link PVZLayerHandler#createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions)}.</p>
+     * <p> </p>
+     * <p> LootTables gen in {@link EntityLootGen#addTables()}.</p>
      */
 
 

@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.network;
 
-import com.hungteen.pvz.utils.Util;
+import com.hungteen.pvz.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -21,6 +21,7 @@ public class PVZPacketHandler {
                 .simpleChannel();
 
         CHANNEL.registerMessage(id ++, SpawnParticlePacket.class, SpawnParticlePacket::toBytes, SpawnParticlePacket::new, SpawnParticlePacket::handle);
+        CHANNEL.registerMessage(id ++, PlayerCapPacket.class, PlayerCapPacket::toBytes, PlayerCapPacket::new, PlayerCapPacket::handle);
     }
 
     public static <MSG> void sendToServer(MSG msg){

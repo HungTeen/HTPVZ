@@ -5,7 +5,7 @@ import com.hungteen.pvz.common.block.CarpMossBlock;
 import com.hungteen.pvz.common.block.PVZStandingSignBlock;
 import com.hungteen.pvz.common.block.PVZWallSignBlock;
 import com.hungteen.pvz.generator.loot.BlockLootGen;
-import com.hungteen.pvz.world.NutTreeGrower;
+import com.hungteen.pvz.common.world.zen_garden.NutTreeGrower;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -151,7 +151,7 @@ public class PVZBlocks {
         }
         set.put(WoodSet.Slab, tag(BlockTags.WOODEN_SLABS).tag(tags).model(Model.Slab, res(name+"_planks")).flammable(flame*5, flame*5).block(name+"_slab", () -> new SlabBlock(BlockBehaviour.Properties.copy(OAK_SLAB))));
         set.put(WoodSet.Stairs, tag(BlockTags.WOODEN_STAIRS).tag(tags).model(Model.Stairs, res(name+"_planks")).flammable(flame*5, flame*20).block(name+"_stairs", () -> new StairBlock(() -> set.get(WoodSet.Plank).get().defaultBlockState(), BlockBehaviour.Properties.copy(OAK_STAIRS))));
-        set.put(WoodSet.Door, tag(BlockTags.WOODEN_DOORS).tag(tags).model(Model.Door).itemModel(PVZItems.Model.Simple).block(name+"_door", () -> new DoorBlock(BlockBehaviour.Properties.copy(OAK_DOOR))));
+        set.put(WoodSet.Door, tag(BlockTags.WOODEN_DOORS).tag(tags).model(Model.Door).itemModel(PVZItems.Model.Simple).loot(false).block(name+"_door", () -> new DoorBlock(BlockBehaviour.Properties.copy(OAK_DOOR))));
         set.put(WoodSet.Trapdoor, tag(BlockTags.WOODEN_TRAPDOORS).tag(tags).model(Model.Trapdoor).itemModel(PVZItems.Model.Block, res(name+"_trapdoor_bottom")).block(name+"_trapdoor", () -> new TrapDoorBlock(BlockBehaviour.Properties.copy(OAK_TRAPDOOR))));
         set.put(WoodSet.Fence, tag(BlockTags.WOODEN_FENCES).tag(tags).model(Model.Fence, res(name+"_planks")).itemModel(PVZItems.Model.Block, res(name+"_fence_inventory")).flammable(flame*5, flame*20).block(name+"_fence", () -> new FenceBlock(BlockBehaviour.Properties.copy(OAK_FENCE))));
         set.put(WoodSet.Gate, tag(BlockTags.FENCE_GATES).tag(tags).model(Model.Gate, res(name+"_planks")).flammable(flame*5, flame*20).block(name+"_fence_gate", () -> new FenceGateBlock(BlockBehaviour.Properties.copy(OAK_FENCE_GATE))));
@@ -233,7 +233,7 @@ public class PVZBlocks {
         return reflector;
     }
     private static PVZBlocks loot(Boolean loot){
-        storedLoot = loot;
+        storedLoot = loot; //false for no auto generation
         return reflector;
     }
 

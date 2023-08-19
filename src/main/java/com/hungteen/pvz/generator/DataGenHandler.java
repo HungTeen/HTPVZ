@@ -9,18 +9,17 @@ public class DataGenHandler {
     public static void dataGen(GatherDataEvent ev) {
         DataGenerator g = ev.getGenerator();
         ExistingFileHelper helper = ev.getExistingFileHelper();
-        boolean include = ev.includeServer();
+        boolean i = ev.includeServer();
 
-        g.addProvider(include, new BlockModelGen(g, helper));
-        g.addProvider(include, new ItemModelGen(g, helper));
+        g.addProvider(i, new BlockModelGen(g, helper));
+        g.addProvider(i, new ItemModelGen(g, helper));
         
         BlockTagsProvider blockTag = new BlockTagGen(g, helper);
-        g.addProvider(include, blockTag);
-        g.addProvider(include, new ItemTagGen(g, blockTag, helper));
+        g.addProvider(i, blockTag);
+        g.addProvider(i, new ItemTagGen(g, blockTag, helper));
 
-        g.addProvider(include, new RecipeGen(g));
-        g.addProvider(include, new LootGen(g));
-
+        g.addProvider(i, new RecipeGen(g));
+        g.addProvider(i, new LootGen(g));
     }
 
 }

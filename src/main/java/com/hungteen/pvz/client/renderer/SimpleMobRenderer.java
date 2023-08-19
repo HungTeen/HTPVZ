@@ -11,7 +11,7 @@ import net.minecraft.world.entity.Mob;
 
 import java.util.function.Function;
 
-import static com.hungteen.pvz.utils.Util.name;
+import static com.hungteen.pvz.Util.name;
 
 
 public class SimpleMobRenderer<T extends Mob> extends MobRenderer<T, EntityModel<T>> {

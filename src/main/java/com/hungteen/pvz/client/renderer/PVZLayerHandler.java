@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.hungteen.pvz.utils.Util.name;
-import static com.hungteen.pvz.utils.Util.prefix;
+import static com.hungteen.pvz.Util.name;
+import static com.hungteen.pvz.Util.prefix;
 
 @OnlyIn(Dist.CLIENT)
 public class PVZLayerHandler {
