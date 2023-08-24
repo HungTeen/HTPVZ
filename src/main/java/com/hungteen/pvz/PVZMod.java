@@ -3,7 +3,10 @@ package com.hungteen.pvz;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.capability.CapabilityHandler;
+import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.command.OwnCommand;
+import com.hungteen.pvz.common.command.PVZRulesCommand;
 import com.hungteen.pvz.common.command.PlayerStatsCommand;
 import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -15,10 +18,15 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -33,6 +41,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -45,6 +54,7 @@ public class PVZMod
     public static final String MODID = "pvz";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static String GLOBAL_TEAM = "pvzmod.globalTeam";
     public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
     public PVZMod()
     {
@@ -56,6 +66,9 @@ public class PVZMod
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addEntityAttributes);
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addSummonRules);
         modBus.addListener(EventPriority.NORMAL, CapabilityHandler::registerCapabilities);
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            modBus.addListener(PVZOverlayHandler::registerOverlay);
+        }
 
         PVZBiomeModifier.BIOME_MODIFIER.register(modBus);
 
@@ -65,12 +78,14 @@ public class PVZMod
         PVZBlockEntities.BLOCK_ENTITIES.register(modBus);
 
         PVZBiomes.BIOMES.register(modBus);
+        PVZParticles.PARTICLES.register(modBus);
 
         OtherRegisters.modBusRegister(modBus);
 
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addGenericListener(Entity.class, CapabilityHandler::attachCapabilities);
+        forgeBus.addGenericListener(Level.class, CapabilityHandler::initPVZRules);
         forgeBus.addListener(PVZMod::registerCommands);
         forgeBus.addListener(PVZMod::onServerTick);
         forgeBus.addListener(PVZMod::onRenderTick);
@@ -128,6 +143,7 @@ public class PVZMod
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         //blocks
             event.enqueueWork(() ->
+                    //register sign materials
                     PVZBlocks.woodTypeList.forEach(Sheets::addWoodType)
             );
 
@@ -147,14 +163,22 @@ public class PVZMod
     }
 
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
+    public static void onServerTick(TickEvent.ServerTickEvent ev) {
+        //global playerTeam
+        Scoreboard scoreboard = ev.getServer().getScoreboard();
+        if (scoreboard.getPlayerTeam(GLOBAL_TEAM) == null) {
+            PlayerTeam playerteam = scoreboard.addPlayerTeam(GLOBAL_TEAM);
+            playerteam.setDisplayName(Component.literal(GLOBAL_TEAM));
+        }
+        //caps tick
         PVZPlayerCapability.tick();
+        PVZOwnedCapability.tick();
     }
 
     @SubscribeEvent
-    public static void onRenderTick(TickEvent.RenderTickEvent event) {
+    public static void onRenderTick(TickEvent.RenderTickEvent ev) {
         if (ClientProxy.getPlayer() != null){
-            PVZOverlayHandler.tick(event.renderTickTime);
+            PVZOverlayHandler.tick(ev.renderTickTime);
         }
     }
 
@@ -162,5 +186,7 @@ public class PVZMod
     public static void registerCommands(RegisterCommandsEvent ev){
         CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
         PlayerStatsCommand.register(dispatcher);
+        OwnCommand.register(dispatcher);
+        PVZRulesCommand.register(dispatcher);
     }
 }

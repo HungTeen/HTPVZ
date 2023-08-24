@@ -15,6 +15,10 @@ public class PVZPlayerCapNBT {
     public Player player;
     private Map<String, Integer> dataMap = new HashMap<>();
     private Map<String, Pair<Integer, Integer>> dataLimitMap = new HashMap<>();
+    public static final String SUN = "sun";
+
+    //sun effect count
+    public int sunCountDown = 0;
 
     public PVZPlayerCapNBT() {
         initBasicValues();
@@ -23,7 +27,7 @@ public class PVZPlayerCapNBT {
     public void setPlayer(Player player){
         this.player = player;
         if (player instanceof ServerPlayer){
-            PVZPlayerCapability.nbtSet.add(this);
+            PVZPlayerCapability.playerSet.add(player);
         }
     }
 
@@ -33,7 +37,7 @@ public class PVZPlayerCapNBT {
         setValue("plant_cost_sun", 1, 0, 1);
         setValue("plant_have_cd", 1, 0, 1);
         //resource
-        setValue("sun", 50, 0, 1000);
+        setValue(SUN, 50, 0, 500);
         //fog
         setValue("inFog", 0);//no limit.
     }
@@ -160,7 +164,7 @@ public class PVZPlayerCapNBT {
         }
     }
 
-    public void completeSync(){
+    public void syncAll(){
         if (player instanceof ServerPlayer) {
             for (String key : dataMap.keySet()) {
                 PlayerCapPacket.sync((ServerPlayer) player, key, true);

@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface IHaveSkills {
     /**
-     * If you want to add a skill for your plant or any mob else (or even not mob?), use this interface.
-     * <br>Remember to save and load the skills. See {@link IHaveSkills#serializeNBT()} and {@link IHaveSkills#deserializeNBT(CompoundTag)}.
+     * If you want to add a PVZ skill for your plant or any mob else (or even not mob?), use this interface.
+     * <br>Remember to save and load the skills. See {@link IHaveSkills#saveSkills(CompoundTag)} and {@link IHaveSkills#loadSkills(CompoundTag)}.
      */
     List<String> skillList = new ArrayList<>();
 
@@ -38,11 +38,10 @@ public interface IHaveSkills {
         }
     }
 
-    default CompoundTag serializeNBT() {
-        return null;
+    default void saveSkills(CompoundTag tag) {
     }
 
-    default void deserializeNBT(CompoundTag tag) {
+    default void loadSkills(CompoundTag tag) {
     }
     //TODO save and load from nbt.
 }

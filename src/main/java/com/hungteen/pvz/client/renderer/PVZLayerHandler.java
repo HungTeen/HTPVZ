@@ -1,6 +1,7 @@
 package com.hungteen.pvz.client.renderer;
 
 import com.hungteen.pvz.client.model.GrassCarpModel;
+import com.hungteen.pvz.client.model.plants.WallNutModel;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -29,6 +30,8 @@ public class PVZLayerHandler {
         PVZEntities.simpleRenderHandler();
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
+        L(e, PVZEntities.WALLNUT, WallNutModel::createBodyLayer);
+
         //simple rendered entities
         for (EntityType<? extends Entity> entity: PVZEntities.simpleRenderedMap.keySet()){
             L(e, name(entity), (Supplier<LayerDefinition>) PVZEntities.simpleRenderedMap.get(entity).get(1));

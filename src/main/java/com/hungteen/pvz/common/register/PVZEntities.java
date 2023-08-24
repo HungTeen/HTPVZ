@@ -2,8 +2,10 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
+import com.hungteen.pvz.client.model.plants.WallNutModel;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
-import com.hungteen.pvz.client.renderer.creatures.GrassCarpRender;
+import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
+import com.hungteen.pvz.client.renderer.plants.WallNutRenderer;
 import com.hungteen.pvz.common.entity.GrassCarp;
 import com.hungteen.pvz.common.entity.MooBloom;
 import com.hungteen.pvz.common.entity.PVZBoat;
@@ -52,13 +54,10 @@ public class PVZEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, PVZMod.MODID);
     public static final PVZEntities reflector = new PVZEntities();
     //client
-    @OnlyIn(Dist.CLIENT)
     public static Map<EntityType<? extends Entity>, List</*0:model, 1:layerDefinition, 2:shadowSize*/?>> simpleRenderedMap = new HashMap<>();
-    @OnlyIn(Dist.CLIENT)
     public static Map<EntityType<? extends Entity>, ResourceLocation> simpleTextureLocationMap = new HashMap<>();
     //collision
     private static Pair<Float, Float> storedCollision = Pair.of(0.6F, 1.8F);
-    public static List<Pair<Float, Float>> collisionMap = new ArrayList<>();
     //spawn egg
     private static Pair<Integer, Integer> storedSpawnEgg = null;
     public static Map<RegistryObject, Pair<Integer, Integer>> spawnEggMap = new HashMap<>();
@@ -71,6 +70,9 @@ public class PVZEntities {
 
 
     //registry
+    /**
+     * do not forget to add attributes. use {@link PVZEntities#attribute(Supplier)}.
+     */
     public static final RegistryObject<EntityType<PVZBoat>> BOAT = collision(1.375F, 0.5625F).entity("pvz_boat", PVZBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = collision(1.375F, 0.5625F).entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<MooBloom>> MOOBLOOM = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, MooBloom::checkMooBloomSpawnRules)
@@ -80,19 +82,18 @@ public class PVZEntities {
             .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
         //plants
-        public static final RegistryObject<EntityType<WallNut>> WALLNUT = collision(0.8F, 1F).entity("wall_nut", WallNut::new, MobCategory.MISC);
-
-    /**
-     * <p> For simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}.</p>
-     * <p> </p>
-     * <p> For other renderers, register renderer at {@link PVZEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}.</p>
-     * <p> And then handle ModelLayers and LayerDefinitions in {@link PVZLayerHandler#createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions)}.</p>
-     * <p> </p>
-     * <p> LootTables gen in {@link EntityLootGen#addTables()}.</p>
-     */
+        public static final RegistryObject<EntityType<WallNut>> WALLNUT = attribute(WallNut::createAttributes)
+                .collision(0.8F, 1F).entity("wall_nut", WallNut::new, MobCategory.MISC);
 
 
     //client
+    /** For simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}.
+     * <br>
+     * <br> For other renderers, register renderer at {@link PVZEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}. And then handle ModelLayers and LayerDefinitions in {@link PVZLayerHandler#createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions)}.
+     * <br>
+     * <br> LootTables gen in {@link EntityLootGen#addTables()}.
+     */
+
     @OnlyIn(Dist.CLIENT)
     public static void simpleRenderHandler() {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
@@ -103,7 +104,8 @@ public class PVZEntities {
     public static void registerRenderer(EntityRenderersEvent.RegisterRenderers e) {
         r(e, BOAT, (c) -> new PVZBoatRenderer(c, false));
         r(e, CHEST_BOAT, (c) -> new PVZBoatRenderer(c, true));
-        r(e, GRASSCARP, GrassCarpRender::new);
+        r(e, GRASSCARP, GrassCarpRenderer::new);
+        r(e, WALLNUT, WallNutRenderer::new);
         //enter here
 
         //auto works

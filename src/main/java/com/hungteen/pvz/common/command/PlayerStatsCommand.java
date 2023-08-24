@@ -16,39 +16,41 @@ import java.util.Collection;
 
 public class PlayerStatsCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("playerstats").requires((ctx) -> ctx.hasPermission(2));
-        builder.then(Commands.argument("targets", EntityArgument.players())
-                .then(Commands.literal("add")
-                        .then(Commands.argument("name", StringArgumentType.word())
-                                .then(Commands.argument("amount", IntegerArgumentType.integer())
-                                        .executes((command) -> {
-                                            return addPlayerStats(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "amount"));
-                                        }))))
-                .then(Commands.literal("query")
-                        .then(Commands.argument("name", StringArgumentType.word())
-                                .then(Commands.literal("value")
-                                        .executes((command) -> {
-                                            return queryPlayerStats(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), true);
-                                        }))
-                                .then(Commands.literal("limit")
-                                        .executes((command) -> {
-                                            return queryPlayerStats(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), false);
-                                        }))))
-                .then(Commands.literal("set")
-                        .then(Commands.argument("name", StringArgumentType.word())
-                                .then(Commands.literal("value")
+        dispatcher.register(Commands.literal("playerstats").requires((ctx) -> ctx.hasPermission(2))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("name", StringArgumentType.word())
                                         .then(Commands.argument("amount", IntegerArgumentType.integer())
                                                 .executes((command) -> {
-                                                    return setPlayerStats(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "amount"));
-                                                })))
-                                .then(Commands.literal("limit")
-                                        .then(Commands.argument("min", IntegerArgumentType.integer())
-                                                .then(Commands.argument("max", IntegerArgumentType.integer())
+                                                    return addPlayerStats(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "amount"));
+                                                }))))
+                        .then(Commands.literal("query")
+                                .then(Commands.argument("name", StringArgumentType.word())
+                                        .then(Commands.literal("value")
+                                                .executes((command) -> {
+                                                    return queryPlayerStats(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), true);
+                                                }))
+                                        .then(Commands.literal("limit")
+                                                .executes((command) -> {
+                                                    return queryPlayerStats(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), false);
+                                                }))))
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("name", StringArgumentType.word())
+                                        .then(Commands.literal("value")
+                                                .then(Commands.argument("amount", IntegerArgumentType.integer())
                                                         .executes((command) -> {
-                                                            return setPlayerStatsLimit(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "min"), IntegerArgumentType.getInteger(command, "max"));
-                                                        }))))
-                        )));
-        dispatcher.register(builder);
+                                                            return setPlayerStats(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "amount"));
+                                                        })))
+                                        .then(Commands.literal("limit")
+                                                .then(Commands.argument("min", IntegerArgumentType.integer())
+                                                        .then(Commands.argument("max", IntegerArgumentType.integer())
+                                                                .executes((command) -> {
+                                                                    return setPlayerStatsLimit(command.getSource(), EntityArgument.getPlayers(command, "targets"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "min"), IntegerArgumentType.getInteger(command, "max"));
+                                                                }))))
+                                )
+                        )
+                )
+        );
     }
 
     public static int addPlayerStats(CommandSourceStack source, Collection<? extends ServerPlayer> targets, String name, int num) {

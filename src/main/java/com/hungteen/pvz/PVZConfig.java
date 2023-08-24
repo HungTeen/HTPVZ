@@ -43,7 +43,7 @@ public class PVZConfig {
             renderSunAsBar = builder
                     .comment("turn on to display sun amount as a bar.")
                     .translation("config.pvz.client.render_sun_as_bar")
-                    .define("RenderSunAsBar", true);
+                    .define("RenderSunAsBar", false);
             renderSunBarX = builder
                     .translation("config.pvz.client.render_sun_bar_x")
                     .comment("control x coordinate of displaying the sun amount bar. count from the right if set negative.")
@@ -55,7 +55,7 @@ public class PVZConfig {
             renderSunBarScale = builder
                     .translation("config.pvz.client.render_sun_bar_scale")
                     .comment("control scale of displaying the sun amount bar.")
-                    .defineInRange("renderSunBarScale", 0.67, 0.1, 10);
+                    .defineInRange("renderSunBarScale", 1, 0.1, 10);
 
         }
     }
