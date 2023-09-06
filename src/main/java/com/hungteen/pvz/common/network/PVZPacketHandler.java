@@ -37,4 +37,7 @@ public class PVZPacketHandler {
             return new PacketDistributor.TargetPoint(vec.x, vec.y, vec.z, dis, world.dimension());
         }), msg);
     }
+//    TODO public static <MSG> void sendToClients(Level world, MSG msg){
+//        CHANNEL.send(PacketDistributor.PLAYER.with(() -> p), msg);
+//    }
 }

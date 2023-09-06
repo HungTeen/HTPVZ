@@ -238,8 +238,13 @@ public class PVZBlocks {
     }
 
     public static void release(){
-        List.of(woodList, modelList, lootedList).forEach(List::clear);
-        List.of(renderTypeMap, tagMap, blockEntityMap, flammableMap).forEach(Map::clear);
+        List.of(modelList, lootedList).forEach(List::clear);
+        List.of(renderTypeMap, tagMap, blockEntityMap).forEach(Map::clear);
+    }
+
+    public static void queueRelease() {
+        woodList.clear();
+        flammableMap.clear();
     }
 
     public enum WoodSet {

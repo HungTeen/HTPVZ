@@ -20,10 +20,18 @@ public class Util {
         return new ResourceLocation(PVZMod.MODID, name);
     }
     public static String name(EntityType<? extends Entity> entityType){
-        return entityType.toString().substring(("entity."+PVZMod.MODID+".").length());
+        String string = entityType.getDescriptionId();
+        while (string.contains(".")) {
+            string = string.substring(string.indexOf(".") + 1);
+        }
+        return string;
     }
     public static String name(Block block){
-        return block.toString().substring(("block."+PVZMod.MODID+".").length());
+        String string = block.getDescriptionId();
+        while (string.contains(".")) {
+            string = string.substring(string.indexOf(".") + 1);
+        }
+        return string;
     }
     public static String name(RegistryObject obj){
         return obj.getId().getPath();

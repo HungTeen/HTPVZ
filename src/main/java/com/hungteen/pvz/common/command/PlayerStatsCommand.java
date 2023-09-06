@@ -57,7 +57,7 @@ public class PlayerStatsCommand {
         for (ServerPlayer player : targets) {
             PVZPlayerCapability.getPlayerData(player).ifPresent(((nbt) -> {
                 nbt.addValue(name, num);
-                source.sendSuccess(Component.translatable(name + " : " + nbt.getValue(name)), true);
+                source.sendSuccess(Component.translatable("commands.pvz.playerstats.get_value", name, nbt.getValue(name)), true);
             }));
         }
         return targets.size();
@@ -67,12 +67,12 @@ public class PlayerStatsCommand {
         for (ServerPlayer player : targets) {
             if (valueOrLimit) {
                 PVZPlayerCapability.getPlayerData(player).ifPresent(((nbt) -> {
-                    source.sendSuccess(Component.translatable(name + " : " + nbt.getValue(name)), true);
+                    source.sendSuccess(Component.translatable("commands.pvz.playerstats.get_value", name, nbt.getValue(name)), true);
                 }));
             } else {
                 PVZPlayerCapability.getPlayerData(player).ifPresent(((nbt) -> {
                     Pair<Integer, Integer> limit = nbt.getValueLimit(name);
-                    source.sendSuccess(Component.translatable(name + " : " + limit.getFirst() + " ~ " + limit.getSecond()), true);
+                    source.sendSuccess(Component.translatable("commands.pvz.playerstats.get_limit", name, limit.getFirst(), limit.getSecond()), true);
                 }));
             }
         }
@@ -83,7 +83,7 @@ public class PlayerStatsCommand {
         for (ServerPlayer player : targets) {
             PVZPlayerCapability.getPlayerData(player).ifPresent(((nbt) -> {
                 nbt.setValue(name, num);
-                source.sendSuccess(Component.translatable(name + " : " + nbt.getValue(name)), true);
+                source.sendSuccess(Component.translatable("commands.pvz.playerstats.get_value", name, nbt.getValue(name)), true);
             }));
         }
         return targets.size();
@@ -94,7 +94,7 @@ public class PlayerStatsCommand {
             PVZPlayerCapability.getPlayerData(player).ifPresent(((nbt) -> {
                 nbt.setValueLimit(name, min, max);
                 Pair<Integer, Integer> limit = nbt.getValueLimit(name);
-                source.sendSuccess(Component.translatable(name + " : " + limit.getFirst() + " ~ " + limit.getSecond()), true);
+                source.sendSuccess(Component.translatable("commands.pvz.playerstats.get_limit", name, limit.getFirst(), limit.getSecond()), true);
             }));
         }
         return targets.size();

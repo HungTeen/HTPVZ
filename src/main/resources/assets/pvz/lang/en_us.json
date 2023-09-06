@@ -1,0 +1,22 @@
+{
+  "commands.pvz.own.own": "%s is now owned by %s",
+  "commands.pvz.own.owns": "%d entities are newly owned by %s",
+  "commands.pvz.playerstats.get_limit": "The limit of %s is %d to %d",
+  "commands.pvz.playerstats.get_value": "The value of %s is %d",
+  "commands.pvz.playerstats.set_limit": "The limit of %s is set from %d to %d",
+  "commands.pvz.playerstats.set_value": "The value of %s is set to %d",
+  "commands.pvz.pvzrules.set": "The value of %s has not been changed, It's originally %d",
+  "entity.pvz.grass_carp": "Grass Carp",
+  "entity.pvz.moo_bloom": "Moo Bloom",
+  "entity.pvz.pvz_boat": "Boat",
+  "entity.pvz.pvz_chest_boat": "Chest Boat",
+  "entity.pvz.sun": "Sun",
+  "entity.pvz.wall_nut": "Wall Nut",
+  "hint.pvz.plant.cant_plant_in_water": "%s can't be planted in water",
+  "hint.pvz.plant.cant_plant_on": "Can't plant %s on %s",
+  "hint.pvz.plant.entity_not_present": "Target entity is not present",
+  "hint.pvz.plant.no_enough_place": "No enough space",
+  "hint.pvz.plant.no_enough_resource": "%s is not enough",
+  "item.pvz.plant_card": "Card of %s",
+  "sun": "Sun"
+}

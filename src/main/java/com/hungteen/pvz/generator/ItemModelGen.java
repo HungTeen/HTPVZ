@@ -24,8 +24,9 @@ public class ItemModelGen extends ItemModelProvider {
             switch (pair.getSecond().getFirst()) {
                 case Simple -> simple(item, pair.getSecond().getSecond());
                 case Block -> block(item, pair.getSecond().getSecond());
+                case Card -> card(item, pair.getSecond().getSecond());
                 case SpawnEgg -> spawnEgg(item);
-                //Modeled and ones excluded.
+                //Modeled ones excluded.
             }
         });
     }
@@ -37,6 +38,16 @@ public class ItemModelGen extends ItemModelProvider {
             getBuilder(item.toString())
                     .parent(new ModelFile.UncheckedModelFile("item/generated"))
                     .texture("layer0", list.get(0));
+        }
+    }
+    public void card(Item item, List<ResourceLocation> list){
+        if (list.size() == 0){
+            basicItem(item);
+        } else if (list.size() == 2){
+            getBuilder(item.toString())
+                    .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                    .texture("layer0", list.get(0))
+                    .texture("layer1", list.get(1));
         }
     }
     public void block(Item item, List<ResourceLocation> list){

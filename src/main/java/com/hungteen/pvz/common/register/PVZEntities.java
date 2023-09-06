@@ -2,14 +2,11 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
-import com.hungteen.pvz.client.model.plants.WallNutModel;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
+import com.hungteen.pvz.client.renderer.misc.SunRenderer;
 import com.hungteen.pvz.client.renderer.plants.WallNutRenderer;
-import com.hungteen.pvz.common.entity.GrassCarp;
-import com.hungteen.pvz.common.entity.MooBloom;
-import com.hungteen.pvz.common.entity.PVZBoat;
-import com.hungteen.pvz.common.entity.PVZChestBoat;
+import com.hungteen.pvz.common.entity.*;
 import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.WallNut;
@@ -39,7 +36,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,10 +67,11 @@ public class PVZEntities {
 
     //registry
     /**
-     * do not forget to add attributes. use {@link PVZEntities#attribute(Supplier)}.
+     * silly carp do not forget to add attributes. use {@link PVZEntities#attribute(Supplier)}.
      */
     public static final RegistryObject<EntityType<PVZBoat>> BOAT = collision(1.375F, 0.5625F).entity("pvz_boat", PVZBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = collision(1.375F, 0.5625F).entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<Sun>> SUN = collision(0.2F, 0.2F).entity("sun", Sun::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<MooBloom>> MOOBLOOM = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, MooBloom::checkMooBloomSpawnRules)
             .spawnEgg(0xffc100, 0x88b830).attribute(MooBloom::createAttributes)
             .collision(0.9F, 1.4F).entity("moo_bloom", MooBloom::new, MobCategory.CREATURE);
@@ -82,7 +79,7 @@ public class PVZEntities {
             .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
         //plants
-        public static final RegistryObject<EntityType<WallNut>> WALLNUT = attribute(WallNut::createAttributes)
+        public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes)
                 .collision(0.8F, 1F).entity("wall_nut", WallNut::new, MobCategory.MISC);
 
 
@@ -105,7 +102,8 @@ public class PVZEntities {
         r(e, BOAT, (c) -> new PVZBoatRenderer(c, false));
         r(e, CHEST_BOAT, (c) -> new PVZBoatRenderer(c, true));
         r(e, GRASSCARP, GrassCarpRenderer::new);
-        r(e, WALLNUT, WallNutRenderer::new);
+        r(e, WALL_NUT, WallNutRenderer::new);
+        r(e, SUN, SunRenderer::new);
         //enter here
 
         //auto works

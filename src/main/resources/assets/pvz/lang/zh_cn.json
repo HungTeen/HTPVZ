@@ -1,0 +1,22 @@
+{
+  "commands.pvz.own.own": "%s现在从属于%s",
+  "commands.pvz.own.owns": "%s新拥有了%d个实体",
+  "commands.pvz.playerstats.get_limit": "%s的范围为 %d ~ %d",
+  "commands.pvz.playerstats.get_value": "%s的值为 %d",
+  "commands.pvz.playerstats.set_limit": "%s的范围已设为 %d ~ %d",
+  "commands.pvz.playerstats.set_value": "%s的值已设为 %d",
+  "commands.pvz.pvzrules.set": "%s的值没有改变，它本来就是 %d",
+  "entity.pvz.grass_carp": "草鱼",
+  "entity.pvz.moo_bloom": "哞葵",
+  "entity.pvz.pvz_boat": "船",
+  "entity.pvz.pvz_chest_boat": "运输船",
+  "entity.pvz.sun": "阳光",
+  "entity.pvz.wall_nut": "坚果墙",
+  "hint.pvz.plant.cant_plant_in_water": "%s不能种植在水中",
+  "hint.pvz.plant.cant_plant_on": "%s不能种植在%s上",
+  "hint.pvz.plant.entity_not_present": "指定的生物不存在",
+  "hint.pvz.plant.no_enough_place": "种植空间不足",
+  "hint.pvz.plant.no_enough_resource": "%s不足!",
+  "item.pvz.plant_card": "%s 召唤卡",
+  "sun": "阳光"
+}

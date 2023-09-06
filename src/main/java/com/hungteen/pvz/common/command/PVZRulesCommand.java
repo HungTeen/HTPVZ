@@ -10,6 +10,10 @@ import net.minecraft.network.chat.Component;
 
 import java.util.HashMap;
 
+/**
+ * to use PVZ rules, go to {@link PVZRulesCapability}.
+ */
+
 public class PVZRulesCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("pvzrules").requires((ctx) -> ctx.hasPermission(2));
@@ -39,7 +43,7 @@ public class PVZRulesCommand {
             source.sendSuccess(Component.translatable("commands.gamerule.set", key, value), true);
             return 1;
         } else {
-            source.sendSuccess(Component.translatable("The value of " + key + " has not been changed. It's originally " + value + "."), true);
+            source.sendSuccess(Component.translatable("commands.pvz.pvzrules.set", key, value), true);
             return 0;
         }
     }

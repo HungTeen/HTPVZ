@@ -20,7 +20,7 @@ public class WallNutRenderer<T extends WallNut> extends MobRenderer<T, EntityMod
     private static final ResourceLocation STATE2 = Util.prefix("textures/entity/plants/wall_nut/wall_nut_2.png");
 
     public WallNutRenderer(EntityRendererProvider.Context context) {
-        super(context, new WallNutModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("wall_nut:main"))), 0.8F);
+        super(context, new WallNutModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("wall_nut:main"))), 0.6F);
         this.addLayer(new WallNutColorLayer(this, context.getModelSet()));
     }
 

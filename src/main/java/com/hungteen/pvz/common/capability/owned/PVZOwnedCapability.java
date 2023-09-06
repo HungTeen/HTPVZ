@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.capability.owned;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.ServerScoreboard;
@@ -25,7 +26,6 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public String resource = "";
     public int cost = 0;
     private Entity owner = null;
-    public boolean isTeamDirty = false;
     private final ServerScoreboard scoreboard;
     public static Set<PVZOwnedCapability> capSet = new HashSet<>();
 
@@ -55,12 +55,28 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public void setOwner(Entity entity) {
         this.owner = entity;
         if (entity == null) {
-            scoreboard.removePlayerFromTeam(entity.getScoreboardName());
+            scoreboard.removePlayerFromTeam(this.entity.getScoreboardName());
         }
     }
 
     public Entity getOwner(){
         return owner;
+    }
+
+    public static boolean isTeammate(Entity A, Entity B) {
+        Team teamA = A.getTeam();
+        Team teamB = B.getTeam();
+        Team globalTeam = getCap(A).scoreboard.getPlayerTeam(PVZMod.GLOBAL_TEAM);
+        if (teamA == null || teamB == null) {
+            return false;
+        }
+        if (teamA == globalTeam || teamB == globalTeam) {
+            return ! PVZRulesCapability.get().booleanMap.get("teamBattle");
+        }
+        if (teamA == teamB) {
+            return true;
+        }
+        return ! PVZRulesCapability.get().booleanMap.get("teamBattle");
     }
 
     @Override

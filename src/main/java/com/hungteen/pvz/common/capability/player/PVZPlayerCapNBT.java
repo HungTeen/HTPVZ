@@ -33,9 +33,10 @@ public class PVZPlayerCapNBT {
 
     public void initBasicValues() {
         //basic
-        setValue("can_plant", 1, 0, 1);
-        setValue("plant_cost_sun", 1, 0, 1);
-        setValue("plant_have_cd", 1, 0, 1);
+        setValue("can_plant", 1, 0, 1);//naturally always 1. if 0, player can't plant.
+        setValue("auto_set_cost_and_cd", 1, 0, 1);//naturally always 1. if 1, "plant_cost_sun" and "plant_have_cd" of this player will change with gamemode.
+        setValue("plant_have_cost", 1, 0, 1);//naturally creative:0, survival:1.
+        setValue("plant_have_cd", 1, 0, 1);//naturally creative:0, survival:1.
         //resource
         setValue(SUN, 50, 0, 500);
         //fog

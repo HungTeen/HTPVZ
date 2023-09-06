@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.OwnCommand;
 import com.hungteen.pvz.common.command.PVZRulesCommand;
 import com.hungteen.pvz.common.command.PlayerStatsCommand;
+import com.hungteen.pvz.common.item.PlantCardItem;
 import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
@@ -21,7 +22,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
@@ -114,6 +114,7 @@ public class PVZMod
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Log).get(), map.get(PVZBlocks.WoodSet.StLog).get());
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Wood).get(), map.get(PVZBlocks.WoodSet.StWood).get());
             });
+            PVZBlocks.queueRelease();
         });
 
         //clear variables

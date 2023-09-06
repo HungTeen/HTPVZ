@@ -2,7 +2,8 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.item.PVZBoatItem;
-import com.hungteen.pvz.common.item.SummonCardItem;
+import com.hungteen.pvz.common.item.PVZPlantCards;
+import com.hungteen.pvz.common.item.PlantCardItem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.client.model.generators.ModelProvider;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -40,19 +42,29 @@ public class PVZItems {
     public static Map<Pair<WoodType, /*hasChest*/Boolean>, RegistryObject<Item>> boatItemMap = new HashMap<>();
     public static Map<RegistryObject<EntityType<? extends Mob>>, RegistryObject<Item>> spawnEggMap = new HashMap<>();
     private static final PVZItems reflector = new PVZItems();
-
+    public static Map<String, RegistryObject<Item>> plantCardMap = new HashMap<>();
 
 
     //registry
-    public static final RegistryObject<Item> NUT = item("nut");
     public static final RegistryObject<Item> PEA = item("pea");
-    public static final RegistryObject<Item> SUMMON_CARD = item("summon_card", () -> new SummonCardItem(new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> NUT = item("nut");
+    public static final RegistryObject<Item> TERRA_ESSENCE = item("terra_essence");
+    public static final RegistryObject<Item> AQUA_ESSENCE = item("aqua_essence");
+    public static final RegistryObject<Item> IGNIS_ESSENCE = item("ignis_essence");
+    public static final RegistryObject<Item> VENTUS_ESSENCE = item("ventus_essence");
+    public static final RegistryObject<Item> GELUN_ESSENCE = item("gelum_essence");
+    public static final RegistryObject<Item> LUX_ESSENCE = item("lux_essence");
+    public static final RegistryObject<Item> FLOWER_CARD = item("flower_card");
+    public static final RegistryObject<Item> NETHER_WART_CARD = item("nether_wart_card");
+    public static final RegistryObject<Item> CHORUS_FRUIT_CARD = item("chorus_fruit_card");
+
 
     //spawners
     public static final RegistryObject<Item> GRASSCARP_BUCKET = item("grass_carp_bucket", () -> new MobBucketItem(PVZEntities.GRASSCARP, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
 
     static {
         createSpawnEggs();
+        createPlantCards();
     }
 
 
@@ -66,6 +78,10 @@ public class PVZItems {
     private static PVZItems model(Model model, List<ResourceLocation> res){
         storedModel = Pair.of(model, res);
         return reflector;
+    }
+
+    private static ResourceLocation res(String path){
+        return new ResourceLocation(PVZMod.MODID, ModelProvider.ITEM_FOLDER + "/" + path);
     }
 
     private static PVZItems sup(Supplier<Item> sup){
@@ -100,7 +116,7 @@ public class PVZItems {
     }
     public static RegistryObject<Item> spawnEgg(RegistryObject<EntityType<? extends Mob>> entity, Integer bgColor, Integer hlColor){
         RegistryObject<Item> itemObj = model(Model.SpawnEgg).item(name(entity) + "_spawn_egg",
-                () -> new ForgeSpawnEggItem(entity, bgColor, hlColor, (new Item.Properties()).tab(PVZItemTabs.PVZ_MISC)));
+                () -> new ForgeSpawnEggItem(entity, bgColor, hlColor, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
         spawnEggMap.put(entity, itemObj);
         return itemObj;
     }
@@ -109,12 +125,22 @@ public class PVZItems {
         PVZEntities.spawnEggMap.forEach((entity, pair) -> spawnEgg((RegistryObject<EntityType<? extends Mob>>) entity, pair.getFirst(), pair.getSecond()));
     }
 
+    public static void createPlantCards(){
+        PVZPlantCards.plantCards.forEach((card) -> {
+            String name = card.goalEntity instanceof RegistryObject<?> ? name((RegistryObject<?>) card.goalEntity) : name((EntityType<?>) card.goalEntity.get());
+            plantCardMap.put(name,
+                    model(Model.Card, res("card_backs/" + name(card.getBackCard())), res("plants/" + name)).item(name + "_summon_card", () -> new PlantCardItem(
+                            new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_PLANT_CARDS), card.goalEntity, card.resource, card.cost, card.coolDown
+                    )));
+        });
+    }
+
     public static void release(){
         List.of(tagMap, boatItemMap, spawnEggMap).forEach(Map::clear);
         modelList.clear();
     }
 
     public enum Model {
-        Simple, Block, SpawnEgg, Modeled
+        Simple, Block, SpawnEgg, Card, Modeled
     }
 }

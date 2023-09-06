@@ -1,11 +1,13 @@
 package com.hungteen.pvz.common.capability.player;
 
+import com.hungteen.pvz.common.item.PlantCardItem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -46,9 +48,9 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
             }
             syncCount = 0;
         }
-        //sun changing when having effects
         for (Player player : playerSet) {
             getPlayerData(player).ifPresent( (nbt) -> {
+                //sun changing when having effects
                 if (player.hasEffect(MobEffects.DARKNESS) && ++ nbt.sunCountDown >= 30/(player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
                     Difficulty difficulty = player.getServer().getWorldData().getDifficulty();
                     int limitSun;
@@ -65,6 +67,19 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         nbt.addValue("sun", -5);
                     }
                     nbt.sunCountDown = 0;
+                }
+                //auto set sun cost and cd.
+                if (nbt.getValue("auto_set_cost_and_cd") == 1) {
+                    nbt.setValue("plant_have_cost", player.isCreative() ? 0 : 1);
+                    nbt.setValue("plant_have_cd", player.isCreative() ? 0 : 1);
+                }
+                //cd handle.
+                if (nbt.getValue("plant_have_cd") == 0) {
+                    for (Item i : player.getCooldowns().cooldowns.keySet()) {
+                        if (i instanceof PlantCardItem) {
+                            player.getCooldowns().removeCooldown(i);
+                        }
+                    }
                 }
             });
         }

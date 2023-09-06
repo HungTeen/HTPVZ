@@ -31,8 +31,9 @@ public class PVZRulesCapability implements ICapabilitySerializable<CompoundTag> 
 
     public static HashMap<String, Boolean> initBooleanMap() {
         HashMap<String, Boolean> map = new HashMap<>();
-        register(map, "teamBattle", false);//if on, plants in different team will attack each other.
         register(map, "shovelPermission", true);//if on, player can shovel plants planted by not only itself.
+        register(map, "sunDisappear", true);//if on, sun will automatically disappear.
+        register(map, "teamBattle", false);//if on, plants in different team will attack each other.
         return map;
     }
 

@@ -26,16 +26,22 @@ public class OwnCommand {
 
     private static int own(CommandSourceStack source, Collection<? extends Entity> owned, Entity owner) {
         int count = 0;
+        Entity tmpEntity = null;
         for (Entity entity: owned) {
             if (entity != owner) {
                 PVZOwnedCapability cap = PVZOwnedCapability.getCap(entity);
                 if (cap != null && cap.getOwner() != owner) {
                     cap.setOwner(owner);
                     count ++;
+                    tmpEntity = entity;
                 }
             }
         }
-        source.sendSuccess(Component.translatable(owner.getName() + " owned " + count + " entities."), true);
+        if (count == 1) {
+            source.sendSuccess(Component.translatable("commands.pvz.own.own", tmpEntity.getName(), owner.getName()), true);
+        } else {
+            source.sendSuccess(Component.translatable("commands.pvz.own.owns", owner.getName(), count), true);
+        }
         return count;
     }
 

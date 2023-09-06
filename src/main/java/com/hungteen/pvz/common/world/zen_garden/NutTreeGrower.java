@@ -76,8 +76,5 @@ public class NutTreeGrower extends AbstractMegaTreeGrower {
                 new ConfiguredFeature<>(Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(new WeightedPlacedFeature(MEGA_NUT_TREE_CHECKED, 0.33333334F)), MEGA_NUT_TREE_CHECKED)));
         TREES_NUT_PF = BuiltinRegistries.register(BuiltinRegistries.PLACED_FEATURE, Util.prefix("trees_nut"),
                 new PlacedFeature(Holder.hackyErase(TREES_NUT_CF), List.copyOf(treePlacement(PlacementUtils.countExtra(50, 0.1F, 1)))));
-
-
-        //TODO deal with TreeFeatures, TreePlacements, VegetationFeatures, VegetationPlacements
     }
 }

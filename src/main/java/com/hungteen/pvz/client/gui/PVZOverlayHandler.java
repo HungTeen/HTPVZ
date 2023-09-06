@@ -34,6 +34,7 @@ public class PVZOverlayHandler{
     private static int bufferSunAmount = 0;
     private static int bufferSunBarLength = 0;
     private static Random random = new Random();
+    public static float notEnoughHint = 0;
 
     @SubscribeEvent
     public static void onPostRenderOverlay(RenderGuiOverlayEvent.Post ev){
@@ -46,16 +47,22 @@ public class PVZOverlayHandler{
     }
 
     public static void tick(float tickTime){
-        float speed = 0.1F;//count animation with time?
-        int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapNBT.SUN);
-        int barLength = 94*bufferSunAmount/PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapNBT.SUN).getSecond();
-        bufferSunAmount = (int)(now*speed + bufferSunAmount*(1-speed));
-        bufferSunBarLength = (int)(barLength*speed + bufferSunBarLength*(1-speed));
-        if (Math.abs(bufferSunAmount - now) <= 10) {
-            bufferSunAmount = now;
-        }
-        if (Math.abs(bufferSunBarLength - barLength) <= 10) {
-            bufferSunBarLength = barLength;
+        if (PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).isPresent()) {
+            float speed = 0.1F;//TODO count animation with time?
+            int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapNBT.SUN);
+            int barLength = 94*bufferSunAmount/PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapNBT.SUN).getSecond();
+            bufferSunAmount = (int)(now*speed + bufferSunAmount*(1-speed));
+            bufferSunBarLength = (int)(barLength*speed + bufferSunBarLength*(1-speed));
+            if (Math.abs(bufferSunAmount - now) <= 10) {
+                bufferSunAmount = now;
+            }
+            if (Math.abs(bufferSunBarLength - barLength) <= 10) {
+                bufferSunBarLength = barLength;
+            }
+            if (notEnoughHint > 0) {
+                notEnoughHint -= tickTime / 10;
+                PVZMod.LOGGER.info(tickTime + " || " + notEnoughHint);
+            }
         }
     }
 
@@ -75,7 +82,12 @@ public class PVZOverlayHandler{
         Util.GuiBiltScaled(stack, drawX + 3, drawY, 31, 96, bufferSunBarLength, 16, 2);
         Util.GuiBiltScaled(stack, x >= 0 ? x : (int) (width/scale) - 33 + x, y >= 0 ? y : (int) (height/scale) - 33 + y, 94, 62, 34, 34, 2);
 
-        Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 86 : (int) (width/scale) - 84 + x)*2, (y >= 0 ? y + 5 : (int) (height/scale) - 11 + y)*2, 0x663600, 2f);
+
+        if ((notEnoughHint * 1.5) % 2 >= 1) {
+            Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 86 : (int) (width / scale) - 84 + x) * 2, (y >= 0 ? y + 5 : (int) (height / scale) - 11 + y) * 2, 0xEF1010, 2f);
+        } else {
+            Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 86 : (int) (width / scale) - 84 + x) * 2, (y >= 0 ? y + 5 : (int) (height / scale) - 11 + y) * 2, 0x663600, 2f);
+        }
         Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 85 : (int) (width/scale) - 85 + x)*2, (y >= 0 ? y + 4 : (int) (height/scale) - 12 + y)*2, 0xFFFFFF, 2f);
 
         RenderSystem.disableBlend();
@@ -143,8 +155,11 @@ public class PVZOverlayHandler{
                         blit(stack, x, y, 10 * tmp, 20, 9, 9);
                     }
                 }
-                if (levelActual != levelShow && gui.getGuiTicks() % 10 < 7) {
+                if (levelActual != levelShow) {
                     blit(stack, x, y, 40, 20, 9, 9);
+                }
+                if ((notEnoughHint * 1.5) % 2 >= 1) {
+                    blit(stack, x, y, 50, 20, 9, 9);
                 }
 
             }

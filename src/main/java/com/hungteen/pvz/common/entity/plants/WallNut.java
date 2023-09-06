@@ -1,9 +1,11 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.common.entity.ICanBePlantedOn;
 import com.hungteen.pvz.common.entity.Plant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -16,6 +18,8 @@ import net.minecraft.world.level.block.Blocks;
 
 import java.util.EnumSet;
 import java.util.function.Predicate;
+
+import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
 public class WallNut extends Plant {
     float storedHealth;

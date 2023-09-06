@@ -30,7 +30,7 @@ public class PVZLayerHandler {
         PVZEntities.simpleRenderHandler();
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
-        L(e, PVZEntities.WALLNUT, WallNutModel::createBodyLayer);
+        L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
 
         //simple rendered entities
         for (EntityType<? extends Entity> entity: PVZEntities.simpleRenderedMap.keySet()){
