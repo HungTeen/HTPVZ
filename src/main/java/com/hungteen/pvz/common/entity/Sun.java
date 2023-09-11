@@ -3,22 +3,27 @@ package com.hungteen.pvz.common.entity;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
+import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-public class Sun extends Entity {
+public class Sun extends Entity implements ICanAbsorbSun{
     public static final float SUN_FALL_SPEED = 0.03F;
     public static final int DEFAULT_AMOUNT = 50;
     public static final int MAX_LIVE_TICK = 500;
@@ -43,33 +48,54 @@ public class Sun extends Entity {
         this.entityData.set(AMOUNT, num);
     }
 
-    public static Sun spawnByAmount(Level level, int amount, Vec3 speed) {
+    public static Sun spawnByAmount(Level level, int amount, BlockPos pos, Vec3 speed) {
         Sun sun = PVZEntities.SUN.get().create(level);
         sun.setAmount(amount);
+        sun.moveTo(Vec3.atCenterOf(pos));
         sun.setDeltaMovement(speed);
         level.addFreshEntity(sun);
         return sun;
     }
 
-    public boolean canAttractSun(Entity entity) {
+    public boolean canAttractThis(Entity entity) {
         if (entity instanceof Player) {
-            return true;
-        } else if (!(attractedBy instanceof Player)) {
-            if(entity instanceof Sun) {
-                return getAmount() < 150 && ((Sun) entity).getAmount() < 150 && getId() < entity.getId() && distanceToSqr(entity) < 4;
-            }
+            final boolean[] tmp = new boolean[1];
+            PVZPlayerCapability.getPlayerData((Player) entity).ifPresent((nbt) -> tmp[0] = nbt.getValue(PVZPlayerCapNBT.SUN) < nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond());
+            return tmp[0];
+        } else if ((!(attractedBy instanceof Player) || distanceToSqr(attractedBy) > 16) && entity instanceof ICanAbsorbSun) {
+            return ((ICanAbsorbSun) entity).canAbsorb(this);
         }
         return false;
     }
 
     public void onAbsorbedBy(Entity entity) {
         if (entity instanceof Player) {
+            //sun mending enchantment.
+            if (getAmount() >= 50) {
+                Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), (Player) entity, ItemStack::isDamaged);
+                if (entry != null) {
+                    ItemStack itemStack = entry.getValue();
+                    setAmount(getAmount() - 25);
+                    itemStack.setDamageValue(itemStack.getDamageValue() - 1);
+                }
+            }
+            //player absorb.
             PVZPlayerCapability.getPlayerData((Player) entity).ifPresent((nbt) -> {
                 nbt.addValue(PVZPlayerCapNBT.SUN, getAmount());
+                this.remove(Entity.RemovalReason.DISCARDED);
             });
-        } else if (entity instanceof Sun) {
-            ((Sun) attractedBy).setAmount(((Sun) attractedBy).getAmount()+this.getAmount());
+        } else if (entity instanceof ICanAbsorbSun) {
+            ((ICanAbsorbSun) entity).onAbsorb(this);
         }
+    }
+
+    public void onAbsorb(Sun sun) {
+        setAmount(getAmount() + sun.getAmount());
+        sun.remove(Entity.RemovalReason.DISCARDED);
+    }
+
+    public boolean canAbsorb(Sun sun){
+        return getAmount() < 150 && sun.getAmount() < 150 && sun.getId() < getId() && distanceToSqr(sun) < 4;
     }
 
 
@@ -99,16 +125,15 @@ public class Sun extends Entity {
         if ((this.tickCount+this.getId()) % ((this.attractedBy != null) ? 250 : 50) == 0 || (this.attractedBy != null && this.attractedBy.distanceToSqr(this) > 64.0D)) {
             this.attractedBy = null;
             level.getEntities(this, this.getBoundingBox().inflate(6)).forEach((targetEntity) -> {
-                if ((this.attractedBy == null || distanceToSqr(targetEntity) < distanceToSqr(attractedBy)) && canAttractSun(targetEntity)) {
+                if ((this.attractedBy == null || distanceToSqr(targetEntity) < distanceToSqr(attractedBy)) && canAttractThis(targetEntity)) {
                     this.attractedBy = targetEntity;
                 }
             });
         }
         //being attracted.
         if (this.attractedBy != null) {
-            if (!level.isClientSide() && distanceToSqr(attractedBy) < 1){
+            if (!level.isClientSide() && distanceToSqr(attractedBy) < 0.8F){
                 onAbsorbedBy(attractedBy);
-                this.remove(Entity.RemovalReason.DISCARDED);
             }
             Vec3 vec3 = new Vec3(this.attractedBy.getX() - this.getX(), this.attractedBy.getY() + (double)this.attractedBy.getEyeHeight() / 2.0D - this.getY(), this.attractedBy.getZ() - this.getZ());
             double d0 = vec3.lengthSqr();
@@ -152,14 +177,18 @@ public class Sun extends Entity {
 
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
-        if (tag.contains("amount")) {
+        if (tag.contains("Amount")) {
             setAmount(tag.getInt("amount"));
+        }
+        if (tag.contains("SunLiveTick")) {
+            this.sunLiveTick = tag.getInt("SunLiveTick");
         }
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
-        tag.putInt("amount", this.getAmount());
+        tag.putInt("Amount", this.getAmount());
+        tag.putInt("SunLiveTick", this.sunLiveTick);
     }
 
     @Override

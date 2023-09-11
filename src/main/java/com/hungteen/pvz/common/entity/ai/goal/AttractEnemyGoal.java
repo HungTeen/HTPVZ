@@ -4,6 +4,7 @@ import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
@@ -35,11 +36,10 @@ public class AttractEnemyGoal extends Goal {
     }
 
     public void attractEnemies(Mob entity) {
-        //TODO Attracts friendly mobs. Fix that.
         double range = entity.getAttributeValue(Attributes.FOLLOW_RANGE);//recommended value is 2.
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
             //attracting limits about tergetEntity.
-            if (targetEntity instanceof Mob && ! PVZOwnedCapability.isTeammate(entity, targetEntity)) {
+            if (targetEntity instanceof Mob && (!(targetEntity instanceof NeutralMob) || ((NeutralMob) targetEntity).isAngryAt(this.entity)) && ! PVZOwnedCapability.isTeammate(entity, targetEntity)) {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
                 if ((! PVZRulesCapability.get("teamBattle")) || (targetOfTarget == null || !targetOfTarget.isAlive() || targetOfTarget.getTeam() == entity.getTeam())) {

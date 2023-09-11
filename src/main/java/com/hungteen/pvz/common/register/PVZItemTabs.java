@@ -24,10 +24,10 @@ public class PVZItemTabs {
             return new ItemStack(PVZItems.PEA.get());
         }
     };
-    public static final CreativeModeTab PVZ_PLANT_CARDS = new CreativeModeTab("pvz_plant_cards") {
+    public static final CreativeModeTab PVZ_PLANT_CARDS = new CreativeModeTab("seed_packets") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(PVZItems.FLOWER_CARD.get());
+            return new ItemStack(PVZItems.FLOWER_SEED_PACKET.get());
         }
     };
 }

@@ -1,7 +1,14 @@
 package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.Util;
+import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
+import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
+import com.hungteen.pvz.common.network.SpawnParticlePacket;
+import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -11,12 +18,17 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -25,6 +37,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import static java.lang.Math.ceil;
@@ -35,11 +48,14 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
 
     /**
      * whether this plant need proper plant-able blocks.*/
-    protected static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(Plant.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(Plant.class, EntityDataSerializers.BOOLEAN);
     /**
      * whether this plant occupy an area so other plants can't plant on.*/
-    protected static final EntityDataAccessor<Boolean> HAS_COINCIDE_DMG = SynchedEntityData.defineId(Plant.class, EntityDataSerializers.BOOLEAN);
-    private int wiltCountDown = 0;
+    public static final EntityDataAccessor<Boolean> HAS_COINCIDE_DMG = SynchedEntityData.defineId(Plant.class, EntityDataSerializers.BOOLEAN);
+    /**
+     * how long can this plant still live. When player is too far, this countdown goes faster.*/
+    public static final EntityDataAccessor<Integer> WILT_COUNTDOWN = SynchedEntityData.defineId(Plant.class, EntityDataSerializers.INT);
+    private int situationHurtCount = 0;
     private boolean shouldAlign = true;
 
     protected Plant(EntityType<? extends Mob> entityType, Level level) {
@@ -55,11 +71,11 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
     @Override
     public void baseTick(){
         super.baseTick();
-        // check plant wilt.
+        //check plant situation damage.
         if (isPositionSafe(this.level, this.getOnPos()) != null && isVehicleSafe(getVehicle()) != null &&
-                this.getAttribute(Attributes.MAX_HEALTH) != null && ++ wiltCountDown > 10) {
+                this.getAttribute(Attributes.MAX_HEALTH) != null && ++ situationHurtCount > 10) {
             this.hurt(DamageSource.GENERIC, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
-            wiltCountDown = 0;
+            situationHurtCount = 0;
         }
         //about aligning blocks.
         if (this.getDeltaMovement().distanceToSqr(new Vec3(0, 0, 0)) > 0.05 || ! this.isOnGround()) {
@@ -69,21 +85,22 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
             setDeltaMovement(0, 0, 0);
             shouldAlign = false;
         }
+        //live time count and wilt.
+        //TODO relative codes. and add particle when plant is dying.
     }
 
 
-/**see {@link INeedSafeSituation} .
+/**see {@link INeedSafeSituation}  for the two methods below.
  * */
     @Override
     public MutableComponent isPositionSafe(Level level, BlockPos onPos){
         VoxelShape tmpShape = level.getBlockState(onPos).getCollisionShape(level, onPos);
-        //TODO 看看有没有bug。
         double calcHeight = getBbHeight() + (tmpShape.isEmpty() ? 0 : tmpShape.bounds().maxY) - 1;
         for (int i = 1; i <= ceil(calcHeight); i ++) {
             if (! level.getBlockState(onPos.offset(new Vec3i(0, i, 0))).isAir()) {
                 if (calcHeight - i >= 1) {
                     return Component.translatable("hint.pvz.plant.no_enough_place");
-                } else {
+                } else if (calcHeight > 0) {
                     tmpShape = level.getBlockState(onPos.offset(new Vec3i(0, i, 0))).getCollisionShape(level, onPos.offset(new Vec3i(0, i, 0)));
                     if ((tmpShape.isEmpty() ? 1 : tmpShape.bounds().minY) < calcHeight - i + 1) {
                         return Component.translatable("hint.pvz.plant.no_enough_place");
@@ -97,8 +114,11 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
         if (shouldHaveCoincideDmg(level, onPos)) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        if (!getEntityData().get(ROOT) || level.getBlockState(onPos).is(PVZBlockTags.PLANTABLE_BLOCKS)) {
-            return null;
+        if (!getEntityData().get(ROOT) || (level.getBlockState(onPos).is(PVZBlockTags.PLANTABLE_BLOCKS) && !level.getBlockState(onPos).isAir())) {
+            if (level.getBlockState(onPos).getFluidState().isEmpty()) {
+                return null;
+            }
+            return Component.translatable("hint.pvz.plant.cant_plant_in_water", getName());
         } else {
             return Component.translatable("hint.pvz.plant.cant_plant_on", getName(), level.getBlockState(onPos).getBlock().getName());
         }
@@ -138,7 +158,6 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
         } else {
             BlockPos subPos = this.getOnPos();
             List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-subPos.getX(), -subPos.getY(), -subPos.getZ())),
-//            List<Entity> list = this.level.getEntities(this, this.getBoundingBox(),
                     (entity) -> entity instanceof Plant && entity.getEntityData().get(HAS_COINCIDE_DMG));
             return !list.isEmpty();
         }
@@ -146,6 +165,54 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
     public void alignBlocks() {
         BlockPos pos = this.getOnPos();
         moveTo(pos.getX() + 0.5, this.getY(), pos.getZ() + 0.5);
+    }
+
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        ItemStack itemstack = player.getItemInHand(handIn);
+        if (itemstack.getItem() instanceof ShovelItem) {
+            if (onBeingShoveled(player, handIn)) {
+                return InteractionResult.SUCCESS;
+            }
+        }
+        return super.mobInteract(player, handIn);
+    }
+
+    public boolean onBeingShoveled(Player player, InteractionHand handIn) {
+        //check permission.
+        boolean permission = false;
+        if (PVZOwnedCapability.getCap(this) != null) {
+            Entity owner = PVZOwnedCapability.getCap(this).getOwner();
+            if (owner != null) {
+            permission = PVZRulesCapability.get("shovelPermission") ?
+                    (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.get("teamBattle")) : owner.is(player);
+            } else {
+                permission = PVZRulesCapability.get("shovelPermission");
+            }
+        }
+        //shovel plant.
+        if (!player.level.isClientSide() && permission) {
+            ItemStack itemstack = player.getItemInHand(handIn);
+            itemstack.hurtAndBreak(2, player, (entity) -> {
+                entity.broadcastBreakEvent(handIn);
+            });
+            int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
+            if (PVZOwnedCapability.getCap(this) != null && enchantmentLevel > 0 && Objects.equals(PVZOwnedCapability.getCap(this).resource, PVZPlayerCapNBT.SUN)) {
+                for (int i = (int) (PVZOwnedCapability.getCap(this).cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)); i > 0; ) {
+                    int sunAmount = i;
+                    sunAmount = sunAmount > 50 ? 50 : sunAmount > 25 ? 25 : sunAmount > 15 ? 15 : Math.min(sunAmount, 5);
+                    i -= sunAmount;
+                    Sun.spawnByAmount(level, sunAmount, getOnPos().offset(0, 1, 0), new Vec3((random.nextFloat() - 0.5) * 0.25, random.nextFloat() * 0.1 + 0.15, (random.nextFloat() - 0.5) * 0.25));
+                    for (int j = 15; j <= sunAmount; j += 15){
+                        SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(this.getOnPos()).add(0, 1, 0));
+                    }
+                }
+            }
+            this.remove(RemovalReason.DISCARDED);
+            //TODO add particles.
+            return true;
+        }
+        return false;
     }
 
 
@@ -193,7 +260,7 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
 
     @Nullable
     public ItemStack getPickResult() {
-        RegistryObject<Item> summonCardItem = PVZItems.plantCardMap.get(Util.name(this.getType()));
+        RegistryObject<Item> summonCardItem = PVZItems.seedPacketMap.get(Util.name(this.getType()));
         return summonCardItem == null ? null : new ItemStack(summonCardItem.get());
     }
 }

@@ -196,7 +196,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
                     for (int h = -1; h <= 2; ++h) {
                         if (checkBlock(this.blockPosition().offset(x, h, y))) {
                             for (int j = 0; j < 5; j++) {
-                                particle(this.level, ParticleTypes.COMPOSTER, new Vec3(pos.getX() + x + random.nextFloat(), pos.getY() + h + 1.1, pos.getZ() + y + random.nextFloat()));
+                                particle(this.level, ParticleTypes.COMPOSTER, new Vec3(pos.getX() + x + random.nextFloat(), pos.getY() + h + 1.2, pos.getZ() + y + random.nextFloat()));
                             }
                         }
                     }

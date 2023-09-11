@@ -39,8 +39,6 @@ public class PVZPlayerCapNBT {
         setValue("plant_have_cd", 1, 0, 1);//naturally creative:0, survival:1.
         //resource
         setValue(SUN, 50, 0, 500);
-        //fog
-        setValue("inFog", 0);//no limit.
     }
 
 

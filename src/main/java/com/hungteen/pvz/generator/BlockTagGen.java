@@ -42,7 +42,7 @@ public class BlockTagGen extends BlockTagsProvider {
         //others
         this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT);
         this.tag(PVZBlockTags.PLANTABLE_BLOCKS).add(
-                Blocks.GRASS_BLOCK, Blocks.MYCELIUM, Blocks.PODZOL,
+                Blocks.GRASS_BLOCK, Blocks.MYCELIUM, Blocks.PODZOL, Blocks.DIRT_PATH,
                 Blocks.CRIMSON_NYLIUM, Blocks.WARPED_NYLIUM,
                 Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET, PVZBlocks.CARP_MOSS.get(),
                 Blocks.SCULK_VEIN, Blocks.SCULK, Blocks.SCULK_CATALYST,

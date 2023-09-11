@@ -1,9 +1,11 @@
 package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -52,28 +54,12 @@ public class MooBloom extends Cow implements Shearable, net.minecraftforge.commo
     public InteractionResult mobInteract(Player p_28941_, InteractionHand p_28942_) {
         ItemStack itemstack = p_28941_.getItemInHand(p_28942_);
         if (itemstack.is(Items.BOWL) && !this.isBaby()) {
-//            boolean flag = false;
-//            ItemStack itemstack1;
-//            if (this.effect != null) {
-//                flag = true;
-//                itemstack1 = new ItemStack(Items.SUSPICIOUS_STEW);
-//                SuspiciousStewItem.saveMobEffect(itemstack1, this.effect, this.effectDuration);
-//                this.effect = null;
-//                this.effectDuration = 0;
-//            } else {
-//                itemstack1 = new ItemStack(Items.MUSHROOM_STEW);
-//            }
-//
-//            ItemStack itemstack2 = ItemUtils.createFilledResult(itemstack, p_28941_, itemstack1, false);
-//            p_28941_.setItemInHand(p_28942_, itemstack2);
-//            SoundEvent soundevent;
-//            if (flag) {
-//                soundevent = SoundEvents.MOOSHROOM_MILK_SUSPICIOUSLY;
-//            } else {
-//                soundevent = SoundEvents.MOOSHROOM_MILK;
-//            }
-//
-//            this.playSound(soundevent, 1.0F, 1.0F);
+            ItemStack itemstack1;
+            itemstack1 = new ItemStack(Items.SUSPICIOUS_STEW);
+            SuspiciousStewItem.saveMobEffect(itemstack1, PVZMobEffects.BRIGHTNESS.get(), 600);
+            ItemStack itemstack2 = ItemUtils.createFilledResult(itemstack, p_28941_, itemstack1, false);
+            p_28941_.setItemInHand(p_28942_, itemstack2);
+            this.playSound(SoundEvents.MOOSHROOM_MILK, 1.0F, 1.0F);
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
             return super.mobInteract(p_28941_, p_28942_);

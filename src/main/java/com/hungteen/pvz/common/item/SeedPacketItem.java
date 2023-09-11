@@ -6,11 +6,12 @@ import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.INeedSafeSituation;
-import com.hungteen.pvz.common.event.CheckResourceEnoughEvent;
+import com.hungteen.pvz.common.entity.Plant;
+import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.common.register.PVZEnchantments;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
@@ -31,7 +33,7 @@ import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
-public class PlantCardItem<T extends Entity> extends Item {
+public class SeedPacketItem<T extends Entity> extends Item {
 
     //entitySupplier is unchangeable. the rest three can be adjusted with command.
     private final Supplier<EntityType<T>> entitySupplier;
@@ -39,8 +41,8 @@ public class PlantCardItem<T extends Entity> extends Item {
     private final int cost;
     private final int coolDown;
 
-    public PlantCardItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown) {
-        super(p_41383_.stacksTo(1));
+    public SeedPacketItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown) {
+        super(p_41383_.stacksTo(1).defaultDurability(300));
         this.entitySupplier = entitySupplier;
         this.resource = resource;
         this.cost = cost;
@@ -51,21 +53,27 @@ public class PlantCardItem<T extends Entity> extends Item {
         return entitySupplier.get();
     }
 
+    /** This method returns the original cost of the itemStack, not including the effects of enchantments and buffs. To get the accurate number, use {@link PVZResourceEvent.CheckResourceEvent}.
+     */
     public int getCost(@Nullable ItemStack itemStack){
-        if (itemStack != null && itemStack.getItem() instanceof PlantCardItem && itemStack.getTag() != null) {
-            return itemStack.getTag().contains("cost") ? itemStack.getTag().getInt("cost") : cost;
+        if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
+            return itemStack.getTag().contains("Cost") ? itemStack.getTag().getInt("Cost") : cost;
         }
         return cost;
     }
+
+    /** This method returns the original cool down of the itemStack, not including the effects of enchantments and buffs. To get the accurate number, use {@link com.hungteen.pvz.common.event.PVZResourceEvent.CheckPlantConditionEvent}.
+     */
     public int getCoolDown(@Nullable ItemStack itemStack){
-        if (itemStack != null && itemStack.getItem() instanceof PlantCardItem && itemStack.getTag() != null) {
-            return itemStack.getTag().contains("cool_down") ? itemStack.getTag().getInt("cool_down") : coolDown;
+        if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
+            return itemStack.getTag().contains("CoolDown") ? itemStack.getTag().getInt("CoolDown") : coolDown;
         }
         return coolDown;
     }
+
     public String getResource(@Nullable ItemStack itemStack){
-        if (itemStack != null && itemStack.getItem() instanceof PlantCardItem && itemStack.getTag() != null) {
-            return itemStack.getTag().contains("resource") ? itemStack.getTag().getString("resource") : resource;
+        if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
+            return itemStack.getTag().contains("Resource") ? itemStack.getTag().getString("Resource") : resource;
         }
         return resource;
     }
@@ -74,17 +82,17 @@ public class PlantCardItem<T extends Entity> extends Item {
 
     @Override
     public Component getName(ItemStack itemStack) {
-        return Component.translatable("item.pvz.plant_card", Component.translatable(entitySupplier.get().getDescriptionId()));
+        return Component.translatable("item.pvz.seed_packet", Component.translatable(entitySupplier.get().getDescriptionId()));
     }
 
     /**
      * Only checks if sun is enough for planting here.
-     * check {@link PlantCardItem#useOn(UseOnContext)} for planting a plant.
+     * check {@link SeedPacketItem#useOn(UseOnContext)} for planting a plant.
      */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
         if (level.isClientSide() && getResource(player.getItemInHand(handIn)).equals(PVZPlayerCapNBT.SUN)) {
-            CheckResourceEnoughEvent event = new CheckResourceEnoughEvent(player, player.getItemInHand(handIn));
+            PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, player.getItemInHand(handIn));
             MinecraftForge.EVENT_BUS.post(event);
             if (event.cost > PVZPlayerCapability.getValue(player, event.resource)) {
                 PVZOverlayHandler.notEnoughHint = 3;
@@ -112,9 +120,12 @@ public class PlantCardItem<T extends Entity> extends Item {
                 entity.setCustomName(context.getItemInHand().getHoverName());
             }
             //check pos.
+            if (entity instanceof Plant && EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), context.getItemInHand()) > 0) {
+                entity.getEntityData().set(Plant.ROOT, false);
+            }
             MutableComponent posCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isPositionSafe(entity.level, pos.below()) : null;
             if (entity != null && posCheck == null) {
-                CheckResourceEnoughEvent.CheckPlantableEvent event = new CheckResourceEnoughEvent.CheckPlantableEvent(player, context.getItemInHand());
+                PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, context.getItemInHand());
                 MinecraftForge.EVENT_BUS.post(event);
                 //check sun.
                 if (event.cost <= PVZPlayerCapability.getValue(player, event.resource)) {
@@ -129,6 +140,10 @@ public class PlantCardItem<T extends Entity> extends Item {
                     cap.setOwner(player);
                     cap.cost = event.cost;
                     cap.resource = event.resource;
+                    //TODO add particles.
+                    context.getItemInHand().hurtAndBreak(1, player, (entity1) -> {
+                        entity1.broadcastBreakEvent(context.getHand());
+                    });
                     return InteractionResult.SUCCESS;
                 }
                 player.displayClientMessage(Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource)), true);
@@ -150,28 +165,35 @@ public class PlantCardItem<T extends Entity> extends Item {
         if (!level.isClientSide()) {
             ItemStack itemStack = ev.getItemStack();
             Player player = ev.getEntity();
-            if (itemStack.getItem() instanceof PlantCardItem<?> && !player.getCooldowns().isOnCooldown(itemStack.getItem())) {
+            if (itemStack.getItem() instanceof SeedPacketItem<?> && !player.getCooldowns().isOnCooldown(itemStack.getItem())) {
                 Entity target = ev.getTarget();
-                Entity entity = ((PlantCardItem<?>) itemStack.getItem()).getEntity().create((ServerLevel) level, null,
-                        itemStack.hasCustomHoverName() ? ((PlantCardItem<?>) itemStack.getItem()).getName(itemStack) : null,
+                Entity entity = ((SeedPacketItem<?>) itemStack.getItem()).getEntity().create((ServerLevel) level, null,
+                        itemStack.hasCustomHoverName() ? ((SeedPacketItem<?>) itemStack.getItem()).getName(itemStack) : null,
                         player, target.blockPosition(), MobSpawnType.SPAWN_EGG, false, false);
                 if (entity != null && itemStack.hasCustomHoverName()) {
                     entity.setCustomName(itemStack.getHoverName());
                 }
+                if (entity instanceof Plant && EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), itemStack) > 0) {
+                    entity.getEntityData().set(Plant.ROOT, false);
+                }
                 MutableComponent targetCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isVehicleSafe(target) : null;
                 if (entity != null && targetCheck == null) {
-                    CheckResourceEnoughEvent.CheckPlantableEvent event = new CheckResourceEnoughEvent.CheckPlantableEvent(player, itemStack);
+                    PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, itemStack);
                     MinecraftForge.EVENT_BUS.post(event);
                     if (event.cost <= PVZPlayerCapability.getValue(player, event.resource)) {
                         PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, -event.cost));
                         player.getCooldowns().addCooldown(itemStack.getItem(), event.coolDown);
                         ((ServerLevel) level).addFreshEntityWithPassengers(entity);
                         entity.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
-                        entity.startRiding(target);
+                        entity.startRiding(target);//TODO let plant decide this.
                         PVZOwnedCapability cap = PVZOwnedCapability.getCap(entity);
                         cap.setOwner(player);
                         cap.cost = event.cost;
                         cap.resource = event.resource;
+                        //TODO add particles.
+                        itemStack.hurtAndBreak(1, player, (entity1) -> {
+                            entity1.broadcastBreakEvent(ev.getHand());
+                        });
                     } else {
                         player.displayClientMessage(Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource)), true);
                         entity.remove(Entity.RemovalReason.DISCARDED);
@@ -183,7 +205,20 @@ public class PlantCardItem<T extends Entity> extends Item {
                     }
                 }
             }
-
         }
     }
+
+    @SubscribeEvent
+    public static void HandleCoolDownEnchantment(PVZResourceEvent.CheckPlantConditionEvent ev) {
+        int level = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.QUICK_COOL_DOWN.get(), ev.seedPacket);
+        if (level > 0) {
+            ev.coolDown = ev.coolDown * (10 - level) / 10;
+        }
+    }
+
+    @Override
+    public int getEnchantmentValue(ItemStack stack){
+        return 15;
+    }
+
 }

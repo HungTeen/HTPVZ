@@ -8,7 +8,6 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.OwnCommand;
 import com.hungteen.pvz.common.command.PVZRulesCommand;
 import com.hungteen.pvz.common.command.PlayerStatsCommand;
-import com.hungteen.pvz.common.item.PlantCardItem;
 import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
@@ -29,6 +28,7 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -69,10 +69,12 @@ public class PVZMod
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modBus.addListener(PVZOverlayHandler::registerOverlay);
         }
+        PVZMobEffects.EFFECTS.register(modBus);
 
         PVZBiomeModifier.BIOME_MODIFIER.register(modBus);
 
         PVZItems.ITEMS.register(modBus);
+        PVZEnchantments.ENCHANTMENTS.register(modBus);
 
         PVZBlocks.BLOCKS.register(modBus);
         PVZBlockEntities.BLOCK_ENTITIES.register(modBus);
@@ -100,10 +102,10 @@ public class PVZMod
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         LOGGER.info("----------COMMON SETUP----------");
-//        LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
 
         PVZDimensions.register();
         PVZBiomes.checkFeatures();
+        PVZEnchantments.handleEnchantmentTypes();
 
         event.enqueueWork(() ->{
             PVZBlocks.flammableMap.forEach((blockObj, pair) ->
@@ -149,6 +151,7 @@ public class PVZMod
             );
 
         //clear variables
+            PVZParticles.particleMap.clear();
         }
 
         //entities & blockEntities
@@ -160,6 +163,10 @@ public class PVZMod
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
             PVZBlockEntities.registerRenderer(event);
             PVZEntities.registerRenderer(event);
+        }
+        @SubscribeEvent
+        public static void onRegisterParticles(RegisterParticleProvidersEvent event) {
+            PVZParticles.registerParticles(event);
         }
     }
 

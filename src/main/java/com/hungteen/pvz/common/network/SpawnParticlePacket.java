@@ -43,7 +43,7 @@ public class SpawnParticlePacket {
         ctx.get().enqueueWork(() -> {
             ParticleType<?> particle = ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation(type));
             if(particle instanceof SimpleParticleType){
-                PVZMod.PROXY.getPlayer().level.addParticle(((SimpleParticleType) particle).getType(), x, y, z, 0, 0, 0);
+                ClientProxy.getPlayer().level.addParticle(((SimpleParticleType) particle).getType(), x, y, z, 0, 0, 0);
             }
         });
         ctx.get().setPacketHandled(true);

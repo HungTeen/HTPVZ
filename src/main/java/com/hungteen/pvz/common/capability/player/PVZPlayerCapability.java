@@ -1,10 +1,13 @@
 package com.hungteen.pvz.common.capability.player;
 
-import com.hungteen.pvz.common.item.PlantCardItem;
+import com.hungteen.pvz.client.gui.PVZOverlayHandler;
+import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -50,33 +53,40 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         }
         for (Player player : playerSet) {
             getPlayerData(player).ifPresent( (nbt) -> {
-                //sun changing when having effects
-                if (player.hasEffect(MobEffects.DARKNESS) && ++ nbt.sunCountDown >= 30/(player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
-                    Difficulty difficulty = player.getServer().getWorldData().getDifficulty();
-                    int limitSun;
-                    switch (difficulty) {
-                        case PEACEFUL -> limitSun = 300;
-                        case EASY -> limitSun = 200;
-                        case HARD -> limitSun = 50;
-                        default -> limitSun = 100;//normal difficulty or other possible situations.
+                //sun related mob effects.
+                ++ nbt.sunCountDown;
+                if (player.hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
+                    if (player.hasEffect(MobEffects.DARKNESS)) {
+                        player.removeEffect(MobEffects.DARKNESS);
                     }
-                    int curSun = nbt.getValue("sun");
-                    if (curSun - 5 < limitSun) {
-                        nbt.setValue("sun", limitSun);
-                    } else if (curSun > limitSun) {
-                        nbt.addValue("sun", -5);
+                    if (nbt.sunCountDown >= 60/(player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
+                        int limitSun = getDifficultyLimitSun(player);
+                        int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
+                        if (curSun < limitSun) {
+                            nbt.setValue(PVZPlayerCapNBT.SUN, Math.min(curSun + 5, limitSun));
+                        }
+                        nbt.sunCountDown = 0;
+                    }
+                } else if (player.hasEffect(MobEffects.DARKNESS) && nbt.sunCountDown >= 30/(player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
+                    int limitSun = getDifficultyLimitSun(player);
+                    int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
+                    if (curSun > limitSun) {
+                        nbt.setValue(PVZPlayerCapNBT.SUN, Math.max(curSun - 5, limitSun));
                     }
                     nbt.sunCountDown = 0;
                 }
                 //auto set sun cost and cd.
                 if (nbt.getValue("auto_set_cost_and_cd") == 1) {
+                    if (player.level.isClientSide() && (player.isCreative() ? 0 : 1) == nbt.getValue("plant_have_cost")) {
+                        PVZOverlayHandler.refreshItemStack(player, player.getItemInHand(InteractionHand.MAIN_HAND));
+                    }
                     nbt.setValue("plant_have_cost", player.isCreative() ? 0 : 1);
                     nbt.setValue("plant_have_cd", player.isCreative() ? 0 : 1);
                 }
                 //cd handle.
                 if (nbt.getValue("plant_have_cd") == 0) {
                     for (Item i : player.getCooldowns().cooldowns.keySet()) {
-                        if (i instanceof PlantCardItem) {
+                        if (i instanceof SeedPacketItem) {
                             player.getCooldowns().removeCooldown(i);
                         }
                     }
@@ -84,6 +94,19 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
             });
         }
     }
+
+    public static int getDifficultyLimitSun(Player player) {
+        Difficulty difficulty = player.getServer().getWorldData().getDifficulty();
+        int limitSun;
+        switch (difficulty) {
+            case PEACEFUL -> limitSun = 300;
+            case EASY -> limitSun = 200;
+            case HARD -> limitSun = 50;
+            default -> limitSun = 100;//normal difficulty or other possible situations.
+        }
+        return limitSun;
+    }
+
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == NBT){
