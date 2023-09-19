@@ -4,9 +4,17 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.0'
+// get config values from gradle.properties.
+ext.configFile = file('gradle.properties')
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
+version = "${config.mc_version}-${config.mod_version}"
 group = 'com.hungteen.pvz' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'pvz'
+archivesBaseName = "${config.mod_name}"
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -143,17 +151,29 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 }
+task apiJar(type: Jar) {
+    classifier = 'api'
 
+    include 'com/hungteen/pvz/api/**'
+
+    // Sources included because of MinecraftForge/ForgeGradle#369
+    from sourceSets.main.allSource
+    from sourceSets.main.output
+}
+
+artifacts {
+    archives apiJar
+}
 // Example for how to get properties into the manifest for reading at runtime.
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "pvz",
-                "Specification-Vendor"    : "pvzsareus",
+                "Specification-Title"     : "${config.mod_id}",
+                "Specification-Vendor"    : "${config.mod_owner}",
                 "Specification-Version"   : "1", // We are version 1 of ourselves
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "pvzsareus",
+                "Implementation-Vendor"   : "${config.mod_owner}",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }

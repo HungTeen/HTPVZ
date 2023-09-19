@@ -77,9 +77,6 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 }
                 //auto set sun cost and cd.
                 if (nbt.getValue("auto_set_cost_and_cd") == 1) {
-                    if (player.level.isClientSide() && (player.isCreative() ? 0 : 1) == nbt.getValue("plant_have_cost")) {
-                        PVZOverlayHandler.refreshItemStack(player, player.getItemInHand(InteractionHand.MAIN_HAND));
-                    }
                     nbt.setValue("plant_have_cost", player.isCreative() ? 0 : 1);
                     nbt.setValue("plant_have_cd", player.isCreative() ? 0 : 1);
                 }

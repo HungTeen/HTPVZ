@@ -27,9 +27,15 @@
   "commands.pvz.pvzrules.set": "The value of %s has not been changed, It's originally %d",
   "effect.pvz.brightness": "Brightness",
   "enchantment.pvz.sun_shovel": "Sun Shovel",
+  "enchantment.pvz.sun_shovel.disc": "Drop some sun when remove a plant",
   "enchantment.pvz.sun_mending": "Sun Mending",
+  "enchantment.pvz.sun_mending.disc": "Fixes the tool with absorbed sun",
   "enchantment.pvz.soilless_culture": "Soilless Culture",
+  "enchantment.pvz.soilless_culture.disc": "Plant on ground that can't take roots",
   "enchantment.pvz.quick_cool_down": "Quick Cool Down",
+  "enchantment.pvz.quick_cool_down.disc": "Increase the speed of cooling down",
+  "enchantment.pvz.foolish_curse": "Foolish Curse",
+  "enchantment.pvz.foolish_curse.disc": "Can't get skills from Essence Altar",
   "entity.pvz.grass_carp": "Grass Carp",
   "entity.pvz.moo_bloom": "Moo Bloom",
   "entity.pvz.pvz_boat": "Boat",
@@ -62,5 +68,6 @@
   "itemGroup.pvz_functional": "PVZ Functional",
   "itemGroup.pvz_misc": "PVZ Miscellaneous",
   "itemGroup.seed_packets": "Seed Packets",
-  "sun": "Sun"
+  "skill.pvz.explosive_nut": "Explosive Nut",
+  "pvz.sun": "Sun"
 }

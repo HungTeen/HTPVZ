@@ -1,5 +1,7 @@
 package com.hungteen.pvz.common.entity;
 
+import com.hungteen.pvz.api.interfaces.ISunAbsorber;
+import com.hungteen.pvz.api.interfaces.ISun;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
@@ -15,15 +17,13 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Map;
-import java.util.Objects;
 
-public class Sun extends Entity implements ICanAbsorbSun{
+public class Sun extends Entity implements ISunAbsorber, ISun {
     public static final float SUN_FALL_SPEED = 0.03F;
     public static final int DEFAULT_AMOUNT = 50;
     public static final int MAX_LIVE_TICK = 500;
@@ -39,15 +39,6 @@ public class Sun extends Entity implements ICanAbsorbSun{
         setAmount(DEFAULT_AMOUNT);
         this.setNoGravity(true);
     }
-
-    public int getAmount(){
-        return this.entityData.get(AMOUNT);
-    }
-
-    public void setAmount(int num){
-        this.entityData.set(AMOUNT, num);
-    }
-
     public static Sun spawnByAmount(Level level, int amount, BlockPos pos, Vec3 speed) {
         Sun sun = PVZEntities.SUN.get().create(level);
         sun.setAmount(amount);
@@ -57,17 +48,31 @@ public class Sun extends Entity implements ICanAbsorbSun{
         return sun;
     }
 
+    //ISun.
+    @Override
+    public int getAmount(){
+        return this.entityData.get(AMOUNT);
+    }
+
+    @Override
+    public void setAmount(int num){
+        this.entityData.set(AMOUNT, num);
+    }
+
+
+    @Override
     public boolean canAttractThis(Entity entity) {
         if (entity instanceof Player) {
             final boolean[] tmp = new boolean[1];
             PVZPlayerCapability.getPlayerData((Player) entity).ifPresent((nbt) -> tmp[0] = nbt.getValue(PVZPlayerCapNBT.SUN) < nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond());
             return tmp[0];
-        } else if ((!(attractedBy instanceof Player) || distanceToSqr(attractedBy) > 16) && entity instanceof ICanAbsorbSun) {
-            return ((ICanAbsorbSun) entity).canAbsorb(this);
+        } else if ((!(attractedBy instanceof Player) || distanceToSqr(attractedBy) > 16) && entity instanceof ISunAbsorber) {
+            return ((ISunAbsorber) entity).canAbsorb(this);
         }
         return false;
     }
 
+    @Override
     public void onAbsorbedBy(Entity entity) {
         if (entity instanceof Player) {
             //sun mending enchantment.
@@ -84,18 +89,31 @@ public class Sun extends Entity implements ICanAbsorbSun{
                 nbt.addValue(PVZPlayerCapNBT.SUN, getAmount());
                 this.remove(Entity.RemovalReason.DISCARDED);
             });
-        } else if (entity instanceof ICanAbsorbSun) {
-            ((ICanAbsorbSun) entity).onAbsorb(this);
+        } else if (entity instanceof ISunAbsorber) {
+            ((ISunAbsorber) entity).onAbsorb(this);
         }
     }
 
-    public void onAbsorb(Sun sun) {
-        setAmount(getAmount() + sun.getAmount());
-        sun.remove(Entity.RemovalReason.DISCARDED);
+    //ISunAbsorber
+    @Override
+    public void onAbsorb(ISun sun) {
+        if (sun instanceof Entity) {
+            setAmount(getAmount() + sun.getAmount());
+            ((Entity) sun).remove(Entity.RemovalReason.DISCARDED);
+        }
     }
 
-    public boolean canAbsorb(Sun sun){
-        return getAmount() < 150 && sun.getAmount() < 150 && sun.getId() < getId() && distanceToSqr(sun) < 4;
+    @Override
+    public boolean canAbsorb(ISun sun){
+        if (sun instanceof Entity) {
+            return getAmount() < 150 && sun.getAmount() < 150 && ((Entity) sun).getId() < getId() && distanceToSqr(((Entity) sun)) < 4;
+        } else {
+            return false;
+        }
+    }
+    @Override
+    public int getContainingSun(){
+        return getAmount();
     }
 
 

@@ -24,7 +24,7 @@ public class ItemModelGen extends ItemModelProvider {
             switch (pair.getSecond().getFirst()) {
                 case Simple -> simple(item, pair.getSecond().getSecond());
                 case Block -> block(item, pair.getSecond().getSecond());
-                case Card -> card(item, pair.getSecond().getSecond());
+                case SeedPacket -> seedPacket(item, pair.getSecond().getSecond());
                 case SpawnEgg -> spawnEgg(item);
                 //Modeled ones excluded.
             }
@@ -40,7 +40,7 @@ public class ItemModelGen extends ItemModelProvider {
                     .texture("layer0", list.get(0));
         }
     }
-    public void card(Item item, List<ResourceLocation> list){
+    public void seedPacket(Item item, List<ResourceLocation> list){
         if (list.size() == 0){
             basicItem(item);
         } else if (list.size() == 2){

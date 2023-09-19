@@ -1,6 +1,11 @@
 package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.Util;
+import com.hungteen.pvz.api.*;
+import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
+import com.hungteen.pvz.api.interfaces.IHaveSkills;
+import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
@@ -36,29 +41,36 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static java.lang.Math.ceil;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
-public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
+public class PVZPlant extends Mob implements IHaveSkills, IPlant {
 
 
     /**
-     * whether this plant need proper plant-able blocks.*/
-    public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(Plant.class, EntityDataSerializers.BOOLEAN);
+     * whether this plant need proper plant-able blocks.
+     */
+    public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.BOOLEAN);
     /**
-     * whether this plant occupy an area so other plants can't plant on.*/
-    public static final EntityDataAccessor<Boolean> HAS_COINCIDE_DMG = SynchedEntityData.defineId(Plant.class, EntityDataSerializers.BOOLEAN);
+     * whether this plant occupy an area so other plants can't plant on.
+     */
+    public static final EntityDataAccessor<Boolean> HAS_COINCIDE_DMG = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.BOOLEAN);
     /**
-     * how long can this plant still live. When player is too far, this countdown goes faster.*/
-    public static final EntityDataAccessor<Integer> WILT_COUNTDOWN = SynchedEntityData.defineId(Plant.class, EntityDataSerializers.INT);
+     * how long can this plant still live. When player is too far, this countdown goes faster.
+     */
+    public static final EntityDataAccessor<Integer> WILT_COUNTDOWN = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
+    /**skill id. see {@link Skill}.*/
+    public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
+    protected static List<Skill> staticSkillSet = new ArrayList<>();
+
+
     private int situationHurtCount = 0;
     private boolean shouldAlign = true;
 
-    protected Plant(EntityType<? extends Mob> entityType, Level level) {
+    protected PVZPlant(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
     }
 
@@ -69,7 +81,7 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
     }
 
     @Override
-    public void baseTick(){
+    public void baseTick() {
         super.baseTick();
         //check plant situation damage.
         if (isPositionSafe(this.level, this.getOnPos()) != null && isVehicleSafe(getVehicle()) != null &&
@@ -86,14 +98,16 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
             shouldAlign = false;
         }
         //live time count and wilt.
-        //TODO relative codes. and add particle when plant is dying.
+
+        //TODO relative codes. add particle when plant is dying.
     }
 
 
-/**see {@link INeedSafeSituation}  for the two methods below.
- * */
+    /**
+     * see {@link INeedSafeSituation}  for the two methods below.
+     */
     @Override
-    public MutableComponent isPositionSafe(Level level, BlockPos onPos){
+    public MutableComponent isPositionSafe(Level level, BlockPos onPos) {
         VoxelShape tmpShape = level.getBlockState(onPos).getCollisionShape(level, onPos);
         double calcHeight = getBbHeight() + (tmpShape.isEmpty() ? 0 : tmpShape.bounds().maxY) - 1;
         for (int i = 1; i <= ceil(calcHeight); i ++) {
@@ -114,7 +128,7 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
         if (shouldHaveCoincideDmg(level, onPos)) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        if (!getEntityData().get(ROOT) || (level.getBlockState(onPos).is(PVZBlockTags.PLANTABLE_BLOCKS) && !level.getBlockState(onPos).isAir())) {
+        if (! getEntityData().get(root()) || (level.getBlockState(onPos).is(PVZBlockTags.PLANTABLE_BLOCKS) && ! level.getBlockState(onPos).isAir())) {
             if (level.getBlockState(onPos).getFluidState().isEmpty()) {
                 return null;
             }
@@ -123,6 +137,7 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
             return Component.translatable("hint.pvz.plant.cant_plant_on", getName(), level.getBlockState(onPos).getBlock().getName());
         }
     }
+
     @Override
     public MutableComponent isVehicleSafe(Entity vehicle) {
         if (vehicle == null) {
@@ -136,6 +151,29 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
         } else {
             return Component.translatable("hint.pvz.plant.cant_plant_on", getName(), vehicle.getName());
         }
+    }
+
+
+    @Override
+    public EntityDataAccessor<Boolean> root() {
+        return ROOT;
+    }
+    @Override
+    public int getSkill() {
+        return entityData.get(SKILL);
+    }
+    @Override
+    public boolean setSkill(int id) {
+        if (getSkill() == id) {
+            return false;
+        } else {
+            entityData.set(SKILL, id);
+            return true;
+        }
+    }
+    @Override
+    public List<Skill> getStaticSkillList(){
+        return staticSkillSet;
     }
 
 
@@ -158,7 +196,7 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
         } else {
             BlockPos subPos = this.getOnPos();
             List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-subPos.getX(), -subPos.getY(), -subPos.getZ())),
-                    (entity) -> entity instanceof Plant && entity.getEntityData().get(HAS_COINCIDE_DMG));
+                    (entity) -> entity instanceof PVZPlant && entity.getEntityData().get(HAS_COINCIDE_DMG));
             return !list.isEmpty();
         }
     }
@@ -215,23 +253,24 @@ public class Plant extends Mob implements IHaveSkills, INeedSafeSituation {
         return false;
     }
 
-
     //data
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ROOT, true);
         this.entityData.define(HAS_COINCIDE_DMG, true);
+        this.entityData.define(WILT_COUNTDOWN, -1);
+        this.entityData.define(SKILL, -1);
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        saveSkills(tag);
+        saveSkill(tag);
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
-        loadSkills(tag);
+        loadSkill(tag);
     }
 
 

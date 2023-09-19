@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.event;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -45,29 +46,14 @@ public class PVZResourceEvent extends PlayerEvent {
     @Cancelable
     public static class CheckPlantConditionEvent extends CheckResourceEvent {
         public int coolDown;
+        public Entity spawningEntity;
 
-        public CheckPlantConditionEvent(Player player, ItemStack plantCard) {
+        public CheckPlantConditionEvent(Player player, ItemStack plantCard, Entity spawningEntity) {
             super(player, plantCard);
             SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
             coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
                     0 : item.getCoolDown(plantCard);
+            this.spawningEntity = spawningEntity;
         }
     }
-//
-//    /** Deprecated for unnecessary. fire whenever an entity produces resource, e.g. when ShovelBoostEnchantment works.
-//     */
-//
-//    @Cancelable
-//    public static class ProduceResourceEvent extends EntityEvent {
-//        public int cost;
-//        public String resource;
-//        public String type;
-//
-//        public ProduceResourceEvent(Entity entity, String resource, int cost, String type) {
-//            super(entity);
-//            this.cost = cost;
-//            this.resource = resource;
-//            this.type = type;
-//        }
-//    }
 }

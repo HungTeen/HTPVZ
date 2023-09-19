@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.item.PVZBoatItem;
 import com.hungteen.pvz.common.item.PVZSeedPackets;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -48,13 +49,13 @@ public class PVZItems {
     //registry
     public static final RegistryObject<Item> PEA = item("pea");
     public static final RegistryObject<Item> NUT = item("nut");
-    public static final RegistryObject<Item> ORIGIN_ESSENCE = item("origin_essence");
-    public static final RegistryObject<Item> TERRA_ESSENCE = item("terra_essence");
-    public static final RegistryObject<Item> AQUA_ESSENCE = item("aqua_essence");
-    public static final RegistryObject<Item> IGNIS_ESSENCE = item("ignis_essence");
-    public static final RegistryObject<Item> VENTUS_ESSENCE = item("ventus_essence");
-    public static final RegistryObject<Item> GELUN_ESSENCE = item("gelum_essence");
-    public static final RegistryObject<Item> LUX_ESSENCE = item("lux_essence");
+    public static final RegistryObject<Item> ORIGIN_ESSENCE = tag(PVZItemTags.ESSENCE).item("origin_essence");
+    public static final RegistryObject<Item> TERRA_ESSENCE = tag(PVZItemTags.ESSENCE).item("terra_essence");
+    public static final RegistryObject<Item> AQUA_ESSENCE = tag(PVZItemTags.ESSENCE).item("aqua_essence");
+    public static final RegistryObject<Item> IGNIS_ESSENCE = tag(PVZItemTags.ESSENCE).item("ignis_essence");
+    public static final RegistryObject<Item> VENTUS_ESSENCE = tag(PVZItemTags.ESSENCE).item("ventus_essence");
+    public static final RegistryObject<Item> GELUN_ESSENCE = tag(PVZItemTags.ESSENCE).item("gelum_essence");
+    public static final RegistryObject<Item> LUX_ESSENCE = tag(PVZItemTags.ESSENCE).item("lux_essence");
     public static final RegistryObject<Item> FLOWER_SEED_PACKET = item("flower_seed_packet");
     public static final RegistryObject<Item> NETHER_WART_SEED_PACKET = item("nether_wart_seed_packet");
     public static final RegistryObject<Item> CHORUS_FRUIT_SEED_PACKET = item("chorus_fruit_seed_packet");
@@ -65,7 +66,7 @@ public class PVZItems {
 
     static {
         createSpawnEggs();
-        createPlantCards();
+        createSeedPackets();
     }
 
 
@@ -126,12 +127,15 @@ public class PVZItems {
         PVZEntities.spawnEggMap.forEach((entity, pair) -> spawnEgg((RegistryObject<EntityType<? extends Mob>>) entity, pair.getFirst(), pair.getSecond()));
     }
 
-    public static void createPlantCards(){
-        PVZSeedPackets.seedPackets.forEach((card) -> {
-            String name = card.goalEntity instanceof RegistryObject<?> ? name((RegistryObject<?>) card.goalEntity) : name((EntityType<?>) card.goalEntity.get());
+    public static void createSeedPackets(){
+        PVZSeedPackets.seedPackets.forEach((data) -> {
+            String name = data.entitySupplier instanceof RegistryObject<?> ? name((RegistryObject<?>) data.entitySupplier) : name((EntityType<?>) data.entitySupplier.get());
+            if (data instanceof PVZSeedPackets.RecipeSeedPacketData<?>) {
+                model(Model.SeedPacket, res("seed_packets/" + name(((PVZSeedPackets.RecipeSeedPacketData<?>) data).getBackImage())), res("plants/" + name));
+            }
             seedPacketMap.put(name,
-                    model(Model.Card, res("seed_packets/" + name(card.getBackCard())), res("plants/" + name)).item(name + "_seed_packet", () -> new SeedPacketItem(
-                            new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_PLANT_CARDS), card.goalEntity, card.resource, card.cost, card.coolDown
+                    item(name + "_seed_packet", () -> new SeedPacketItem(
+                            new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.resource, data.cost, data.coolDown
                     )));
         });
     }
@@ -142,6 +146,6 @@ public class PVZItems {
     }
 
     public enum Model {
-        Simple, Block, SpawnEgg, Card, Modeled
+        Simple, Block, SpawnEgg, SeedPacket, Modeled
     }
 }

@@ -63,7 +63,7 @@ public class PVZBlocks {
     //registry
     public static final RegistryObject<Block> NUT_LEAVES_WITH_NUTS = tag(BlockTags.LEAVES).renderType("cutout").flammable(30, 60).loot(false).block("nut_leaves_with_nuts", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES)));
     public static final Map<WoodSet, RegistryObject<Block>> NUT = wood("nut", new NutTreeGrower());
-    public static final RegistryObject<Block> CARP_MOSS = tag(BlockTags.REPLACEABLE_PLANTS).model(Model.Modeled).renderType("cutout").flammable(5, 5).loot(false).block("carp_moss", () -> new CarpMossBlock(BlockBehaviour.Properties.copy(GLOW_LICHEN).randomTicks()));
+    public static final RegistryObject<Block> CARP_MOSS = tag(BlockTags.REPLACEABLE_PLANTS /*also PVZBlockTags.PLANTABLE_BLOCKS*/).model(Model.Modeled).renderType("cutout").flammable(5, 5).loot(false).block("carp_moss", () -> new CarpMossBlock(BlockBehaviour.Properties.copy(GLOW_LICHEN).randomTicks()));
     /**Loot data has no auto generator: {@link BlockLootGen #addTables()}*/
 
 

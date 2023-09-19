@@ -1,6 +1,7 @@
 package com.hungteen.pvz.client.layer;
 
 import com.hungteen.pvz.Util;
+import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.client.model.plants.WallNutModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.GrassCarp;
@@ -14,6 +15,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class WallNutColorLayer<T extends WallNut> extends RenderLayer<T, WallNutModel<T>> {
 
@@ -29,14 +31,14 @@ public class WallNutColorLayer<T extends WallNut> extends RenderLayer<T, WallNut
 
     @Override
     public void render(PoseStack stack, MultiBufferSource bufferSource, int p_117351_, T wallNut, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
-        if (! wallNut.isInvisible() && wallNut.hasCustomName()) {
+        if (wallNut.hasSkill(0) || (! wallNut.isInvisible() && wallNut.hasCustomName())) {
             int R, G, B;
             Vec3i color = getColor(wallNut.getName().getString());
-            if (wallNut.hasSkill("pvz:explosive_nut") || color != null) {
-                float healthPercent = wallNut.getHealth()/wallNut.getMaxHealth();
-                R = color != null ? color.getX() : 255;
-                G = color != null ? color.getY() : 70;
-                B = color != null ? color.getZ() : 35;
+            if (wallNut.hasSkill(0) || color != null) {
+                float healthPercent = wallNut.getHealth() / wallNut.getMaxHealth();
+                R = color != null ? color.getX() : 256-0xFF;
+                G = color != null ? color.getY() : 256-0x44;
+                B = color != null ? color.getZ() : 256-0x33;
                 coloredCutoutModelCopyLayerRender(this.getParentModel(), this.model,
                         healthPercent > 0.67 ? STATE0 : (healthPercent > 0.33 ? STATE1 : STATE2),
                         stack, bufferSource, p_117351_, wallNut, p_117353_, p_117354_, p_117355_, p_117356_, p_117357_, p_117358_,

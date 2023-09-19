@@ -15,7 +15,7 @@ public class PVZPlayerCapNBT {
     public Player player;
     private Map<String, Integer> dataMap = new HashMap<>();
     private Map<String, Pair<Integer, Integer>> dataLimitMap = new HashMap<>();
-    public static final String SUN = "sun";
+    public static final String SUN = "pvz.sun";
 
     //sun effect count
     public int sunCountDown = 0;

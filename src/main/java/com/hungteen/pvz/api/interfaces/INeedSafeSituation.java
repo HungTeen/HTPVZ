@@ -1,7 +1,6 @@
-package com.hungteen.pvz.common.entity;
+package com.hungteen.pvz.api.interfaces;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;

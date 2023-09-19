@@ -41,6 +41,7 @@ public class PVZOverlayHandler{
     public static ItemStack storedItemStack = null;
     public static boolean itemStackResourceIsSun = true;
     public static int itemStackCost = 0;
+    public static boolean storedHaveCost = false;
 
     public static void tick(float tickTime){
         if (PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).isPresent()) {
@@ -62,8 +63,10 @@ public class PVZOverlayHandler{
             }
         }
         ItemStack itemStack = getCameraPlayer() == null ? null : getCameraPlayer().getItemInHand(InteractionHand.MAIN_HAND);
-        if (itemStack != storedItemStack && itemStack != null && itemStack.getItem() instanceof SeedPacketItem<?>) {
+        if ((itemStack != storedItemStack || ((PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1) != storedHaveCost)) &&
+                itemStack != null && itemStack.getItem() instanceof SeedPacketItem<?>) {
             refreshItemStack(getCameraPlayer(), itemStack);
+            storedHaveCost = (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1);
         }
         storedItemStack = itemStack;
     }

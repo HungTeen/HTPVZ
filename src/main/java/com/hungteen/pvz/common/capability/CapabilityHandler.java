@@ -22,6 +22,7 @@ public class CapabilityHandler {
     public static void registerCapabilities(RegisterCapabilitiesEvent ev){
         ev.register(PVZPlayerCapability.class);
         ev.register(PVZOwnedCapability.class);
+        ev.register(PVZRulesCapability.class);
     }
 
     @SubscribeEvent
