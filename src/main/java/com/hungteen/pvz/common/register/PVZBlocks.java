@@ -1,9 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.common.block.CarpMossBlock;
-import com.hungteen.pvz.common.block.PVZStandingSignBlock;
-import com.hungteen.pvz.common.block.PVZWallSignBlock;
+import com.hungteen.pvz.common.block.*;
 import com.hungteen.pvz.generator.loot.BlockLootGen;
 import com.hungteen.pvz.common.world.zen_garden.NutTreeGrower;
 import com.mojang.datafixers.util.Pair;
@@ -14,8 +12,11 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.client.model.generators.ModelProvider;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -23,6 +24,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 
 import static com.hungteen.pvz.common.register.PVZItemTabs.PVZ_BLOCKS;
 import static net.minecraft.world.level.block.Blocks.*;
@@ -35,27 +37,34 @@ public class PVZBlocks {
     private static Supplier<Block> storedSup = () -> new Block(BlockBehaviour.Properties.of(Material.STONE));
     private static final PVZBlocks reflector = new PVZBlocks();
     public static List<WoodType> woodTypeList = new ArrayList<>();
+    @Deprecated // will be cleared after register.
     public static List<Map<WoodSet, RegistryObject<Block>>> woodList = new ArrayList<>();
     //model
     private static Model storedModel = Model.Simple;
     private static List<ResourceLocation> storedModelTexture = List.of();
     private static Pair<PVZItems.Model, List<ResourceLocation>> storedItemModel = Pair.of(PVZItems.Model.Block, new ArrayList<>());
     private static boolean hasItem = true;
+    @Deprecated // will be cleared after register.
     public static List<Pair<RegistryObject<Block>, Pair<Model, List<ResourceLocation>>>> modelList = new ArrayList<>();
     //tag
     private static List<TagKey<Block>> storedTag = new ArrayList<>();
+    @Deprecated // will be cleared after register.
     public static Map<RegistryObject<Block>, List<TagKey<Block>>> tagMap = new HashMap<>();
     //renderType
     private static String storedRenderType = null;
+    @Deprecated // will be cleared after register.
     public static Map<RegistryObject<Block>, String> renderTypeMap = new HashMap<>();
     //blockEntity
     private static String storedBlockEntity = null;
+    @Deprecated // will be cleared after register.
     public static Map<String, List<RegistryObject<Block>>> blockEntityMap = new HashMap<>();
     //flammable
     private static Pair<Integer, Integer> storedFlammable = new Pair<>(0, 0);
+    @Deprecated // will be cleared after register.
     public static Map<RegistryObject<Block>, Pair<Integer, Integer>> flammableMap = new HashMap<>();
     //loot
     private static Boolean storedLoot = true;
+    @Deprecated // will be cleared after register.
     public static List<RegistryObject<Block>> lootedList = new ArrayList<>();
 
 
@@ -63,12 +72,22 @@ public class PVZBlocks {
     //registry
     public static final RegistryObject<Block> NUT_LEAVES_WITH_NUTS = tag(BlockTags.LEAVES).renderType("cutout").flammable(30, 60).loot(false).block("nut_leaves_with_nuts", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES)));
     public static final Map<WoodSet, RegistryObject<Block>> NUT = wood("nut", new NutTreeGrower());
-    public static final RegistryObject<Block> CARP_MOSS = tag(BlockTags.REPLACEABLE_PLANTS /*also PVZBlockTags.PLANTABLE_BLOCKS*/).model(Model.Modeled).renderType("cutout").flammable(5, 5).loot(false).block("carp_moss", () -> new CarpMossBlock(BlockBehaviour.Properties.copy(GLOW_LICHEN).randomTicks()));
-    /**Loot data has no auto generator: {@link BlockLootGen #addTables()}*/
+    public static final RegistryObject<Block> CARP_GRASS = tag(BlockTags.REPLACEABLE_PLANTS /*also PVZBlockTags.PLANTABLE_BLOCKS*/).model(Model.Modeled).renderType("cutout").flammable(5, 5).loot(false).block("carp_grass", () -> new CarpMossBlock(BlockBehaviour.Properties.copy(GLOW_LICHEN).randomTicks()));
+    public static final RegistryObject<Block> ESSENCE_ALTAR = tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).renderType("cutout").blockEntity("essence_altar").block("essence_altar", () -> new EssenceAltarBlock(BlockBehaviour.Properties.copy(ENCHANTING_TABLE)));
+    public static final RegistryObject<Block> ESSENCE_FURNACE = tag(BlockTags.NEEDS_STONE_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).blockEntity("essence_furnace").block("essence_furnace", () -> new EssenceFurnaceBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).lightLevel(litBlockEmission(13))));
+    public static final RegistryObject<Block> ORIGIN_BLOCK = tag(BlockTags.NEEDS_STONE_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).block("origin_block", () -> new Block(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GREEN).strength(15, 50).lightLevel(i -> 15).sound(SoundType.ANCIENT_DEBRIS).requiresCorrectToolForDrops()));
+    public static final RegistryObject<Block> ORIGIN_ORE = tag(BlockTags.MINEABLE_WITH_SHOVEL).block("origin_ore", () -> new Block(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GREEN).strength(1F).sound(SoundType.GRASS).lightLevel(i -> 10)));
+
+    /**Default loots self. Use {@link BlockLootGen#addTables()} to modify.*/
 
 
 
     //definitions
+    private static ToIntFunction<BlockState> litBlockEmission(int p_50760_) {
+        return (p_50763_) -> {
+            return p_50763_.getValue(BlockStateProperties.LIT) ? p_50760_ : 0;
+        };
+    }
     private static RegistryObject<Block> block(String name){
         return block(name, storedSup);
     }

@@ -27,7 +27,7 @@ public class BlockModelGen extends BlockStateProvider {
         PVZBlocks.modelList.forEach((pair) -> {
             Block block = pair.getFirst().get();
             String renderType = PVZBlocks.renderTypeMap.get(pair.getFirst()) == null ? "solid" : PVZBlocks.renderTypeMap.get(pair.getFirst());
-            PVZMod.LOGGER.info("Gen Block Model: "+block);
+            PVZMod.LOGGER.info("Gen Block Model: "+block.getDescriptionId());
 
             switch (pair.getSecond().getFirst()) {
                 case Simple -> simple(block, pair.getSecond().getSecond(), renderType);

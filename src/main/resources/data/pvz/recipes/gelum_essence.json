@@ -1,0 +1,11 @@
+{
+  "type": "pvz:essence_furnace",
+  "is_essence": true,
+  "ingredient": {
+    "tag": "pvz:to_gelum_essence"
+  },
+  "fuel": {
+    "item": "pvz:origin_essence"
+  },
+  "result": "pvz:gelum_essence"
+}

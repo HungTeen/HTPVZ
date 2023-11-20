@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.InstantenousMobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -16,6 +16,9 @@ public class PVZMobEffects {
      */
     public static RegistryObject<MobEffect> BRIGHTNESS = EFFECTS.register("brightness", () ->
             new MobEffect(MobEffectCategory.BENEFICIAL, 0xffd857)
+    );
+    public static RegistryObject<InstantenousMobEffect> EXCITEMENT = EFFECTS.register("excitement", () ->
+            new InstantenousMobEffect(MobEffectCategory.BENEFICIAL, 0xdddddd)
     );
 
     public static class MobEffect extends net.minecraft.world.effect.MobEffect {

@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -33,6 +34,13 @@ public class Util {
         }
         return string;
     }
+    public static String name(Item item){
+        String string = item.getDescriptionId();
+        while (string.contains(".")) {
+            string = string.substring(string.indexOf(".") + 1);
+        }
+        return string;
+    }
     public static String name(RegistryObject obj){
         return obj.getId().getPath();
     }
@@ -46,12 +54,12 @@ public class Util {
         RenderSystem.setShaderTexture(0, texture);
     }
 
-    public static void drawCenteredScaledString(PoseStack stack, Font render, String string, int x, int y, int color,
+    public static void drawCenteredScaledString(PoseStack stack, Font font, String string, int x, int y, int color,
                                                 float scale) {
-        int width = render.width(string);
+        int width = font.width(string);
         stack.pushPose();
         stack.scale(scale, scale, scale);
-        render.draw(stack, string, (x - width / 2 * scale) / scale, y / scale, color);
+        font.draw(stack, string, (x - width / 2 * scale) / scale, y / scale, color);
         stack.popPose();
     }
 

@@ -36,7 +36,7 @@ public class PVZOverlayHandler{
 
     private static int bufferSunAmount = 0;
     private static int bufferSunBarLength = 0;
-    private static Random random = new Random();
+    private static final Random random = new Random();
     public static float notEnoughHint = 0;
     public static ItemStack storedItemStack = null;
     public static boolean itemStackResourceIsSun = true;
@@ -63,7 +63,7 @@ public class PVZOverlayHandler{
             }
         }
         ItemStack itemStack = getCameraPlayer() == null ? null : getCameraPlayer().getItemInHand(InteractionHand.MAIN_HAND);
-        if ((itemStack != storedItemStack || ((PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1) != storedHaveCost)) &&
+        if ((itemStack != storedItemStack || (getCameraPlayer() != null && (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1) != storedHaveCost)) &&
                 itemStack != null && itemStack.getItem() instanceof SeedPacketItem<?>) {
             refreshItemStack(getCameraPlayer(), itemStack);
             storedHaveCost = (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1);

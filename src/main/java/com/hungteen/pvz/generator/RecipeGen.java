@@ -1,5 +1,7 @@
 package com.hungteen.pvz.generator;
 
+import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
+import com.hungteen.pvz.common.item.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZBlocks.WoodSet;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -7,6 +9,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
@@ -21,11 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static com.hungteen.pvz.Util.name;
+import static com.hungteen.pvz.Util.prefix;
 import static com.hungteen.pvz.common.register.PVZBlocks.woodList;
 import static com.hungteen.pvz.common.register.PVZBlocks.woodTypeList;
 
 public class RecipeGen extends RecipeProvider {
-    private Map<Pair<WoodType, Boolean>, Item> boatsToMatch = new HashMap<>();
+    private final Map<Pair<WoodType, Boolean>, Item> boatsToMatch = new HashMap<>();
 
     public RecipeGen(DataGenerator p_125973_) {
         super(p_125973_);
@@ -60,6 +65,33 @@ public class RecipeGen extends RecipeProvider {
                     chestBoat(c, itemObj.get(), boatsToMatch.get(Pair.of(pair.getFirst(), false)));
                 } else {
                     boatsToMatch.put(pair, itemObj.get());
+                }
+            }
+        });
+        //seed packets
+        PVZItems.seedPacketMap.forEach((data, itemObj) -> {
+            if (data instanceof PVZSeedPackets.RecipeSeedPacketData<?> && ((PVZSeedPackets.RecipeSeedPacketData<?>)data).recipe != null) {
+                final Item packet = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet") instanceof RegistryObject<?> ?
+                        ((RegistryObject<Item>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet")).get() :
+                        PVZItems.seedPacketMap.get((RegisterSeedPacketsEvent.SeedPacketData<?>)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet")).get();
+                ShapedRecipeBuilder.shaped(itemObj.get())
+                        .pattern("CCC")
+                        .pattern("CBC")
+                        .pattern("CAC")
+                        .define('A', ((RegistryObject<Item>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed")).get())
+                        .define('B', packet)
+                        .define('C', ((RegistryObject<Item>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("essence")).get())
+                        .unlockedBy("has_origin", has(packet))
+                        .save(c, prefix("seed_packets/" + name(itemObj)));
+                if (PVZItems.seedMap.get(data) != null) {
+                    ShapedRecipeBuilder.shaped(itemObj.get())
+                            .pattern("BBB")
+                            .pattern("BCB")
+                            .pattern("BBB")
+                            .define('B', PVZItems.seedMap.get(data).get())
+                            .define('C', ((PVZSeedPackets.RecipeSeedPacketData<?>) data).getBackCard().get())
+                            .unlockedBy("has_origin", has(packet))
+                            .save(c, prefix("seed_packets/fusion/" + name(itemObj)));
                 }
             }
         });

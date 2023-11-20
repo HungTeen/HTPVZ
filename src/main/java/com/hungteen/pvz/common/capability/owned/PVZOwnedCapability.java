@@ -8,7 +8,6 @@ import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -37,7 +36,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     }
 
     public static void tick(){
-        for (PVZOwnedCapability cap : capSet) {
+        for (PVZOwnedCapability cap : capSet) {//TODO cause ConcurrentModificationException, why?
             String name = cap.entity.getScoreboardName();
             if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
                 cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.GLOBAL_TEAM));

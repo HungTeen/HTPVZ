@@ -2,6 +2,7 @@ package com.hungteen.pvz;
 
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
+import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
 import com.hungteen.pvz.common.capability.CapabilityHandler;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
@@ -66,9 +67,6 @@ public class PVZMod
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addEntityAttributes);
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addSummonRules);
         modBus.addListener(EventPriority.NORMAL, CapabilityHandler::registerCapabilities);
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            modBus.addListener(PVZOverlayHandler::registerOverlay);
-        }
         PVZMobEffects.EFFECTS.register(modBus);
 
         PVZBiomeModifier.BIOME_MODIFIER.register(modBus);
@@ -82,7 +80,14 @@ public class PVZMod
         PVZBiomes.BIOMES.register(modBus);
         PVZParticles.PARTICLES.register(modBus);
 
+        PVZMenus.MENU_TYPES.register(modBus);
+
         OtherRegisters.modBusRegister(modBus);
+        modBus.addListener(EventPriority.NORMAL, OtherRegisters::essenceFurnaceRecipeBookRegister);
+
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            modBus.addListener(PVZOverlayHandler::registerOverlay);
+        }
 
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
@@ -92,6 +97,7 @@ public class PVZMod
         forgeBus.addListener(PVZMod::onServerTick);
         forgeBus.addListener(PVZMod::onRenderTick);
         PVZConfig.init();
+
         forgeBus.register(this);
     }
 
@@ -132,8 +138,9 @@ public class PVZMod
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-        // Do something when the server starts
         LOGGER.info("----------server starting----------");
+
+
     }
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -144,13 +151,16 @@ public class PVZMod
         {
             LOGGER.info("----------CLIENT SETUP----------");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        //blocks
-            event.enqueueWork(() ->
-                    //register sign materials
-                    PVZBlocks.woodTypeList.forEach(Sheets::addWoodType)
-            );
 
-        //clear variables
+            event.enqueueWork(() -> {
+                //register sign materials
+                PVZBlocks.woodTypeList.forEach(Sheets::addWoodType);
+
+                //registerScreens
+                PVZMenus.registerScreens();
+            });
+
+            //clear variables
             PVZParticles.particleMap.clear();
         }
 
@@ -187,6 +197,10 @@ public class PVZMod
     public static void onRenderTick(TickEvent.RenderTickEvent ev) {
         if (ClientProxy.getPlayer() != null){
             PVZOverlayHandler.tick(ev.renderTickTime);
+        }
+        EssenceAltarRenderer.time += ev.renderTickTime;
+        if (EssenceAltarRenderer.time > 1500) {
+            EssenceAltarRenderer.time -= 1500;
         }
     }
 

@@ -20,8 +20,12 @@ public class PVZPacketHandler {
                 .serverAcceptedVersions(s -> true)
                 .simpleChannel();
 
+        //SERVER TO CLIENT.
         CHANNEL.registerMessage(id ++, SpawnParticlePacket.class, SpawnParticlePacket::toBytes, SpawnParticlePacket::new, SpawnParticlePacket::handle);
         CHANNEL.registerMessage(id ++, PlayerCapPacket.class, PlayerCapPacket::toBytes, PlayerCapPacket::new, PlayerCapPacket::handle);
+        CHANNEL.registerMessage(id ++, PlayerCoolDownPacket.class, PlayerCoolDownPacket::toBytes, PlayerCoolDownPacket::new, PlayerCoolDownPacket::handle);
+        //CLIENT TO SERVER.
+        CHANNEL.registerMessage(id ++, PVZAddSkillPacket.class, PVZAddSkillPacket::toBytes, PVZAddSkillPacket::new, PVZAddSkillPacket::handle);
     }
 
     public static <MSG> void sendToServer(MSG msg){

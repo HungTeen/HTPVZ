@@ -122,9 +122,13 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         super.baseTick();
 
         //about sun disappear.
-        if(! level.isClientSide) {
-            if (PVZRulesCapability.get("sunDisappear") && ++ this.sunLiveTick >= this.getMaxLiveTick()) {
-                this.remove(Entity.RemovalReason.DISCARDED);
+        if (PVZRulesCapability.get("sunDisappear")) {
+            if(! level.isClientSide) {
+                if (++ this.sunLiveTick >= this.getMaxLiveTick()) {
+                    this.remove(Entity.RemovalReason.DISCARDED);
+                }
+            } else {
+                ++ this.sunLiveTick;
             }
         }
         //natural fall.

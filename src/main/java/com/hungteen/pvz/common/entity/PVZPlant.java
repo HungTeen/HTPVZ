@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.entity;
 
-import com.hungteen.pvz.Util;
 import com.hungteen.pvz.api.*;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
@@ -10,11 +9,12 @@ import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
+import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.SpawnParticlePacket;
 import com.hungteen.pvz.common.register.PVZEnchantments;
-import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.common.world.PVZDamageHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -38,10 +38,10 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 import static java.lang.Math.ceil;
@@ -86,7 +86,8 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
         //check plant situation damage.
         if (isPositionSafe(this.level, this.getOnPos()) != null && isVehicleSafe(getVehicle()) != null &&
                 this.getAttribute(Attributes.MAX_HEALTH) != null && ++ situationHurtCount > 10) {
-            this.hurt(DamageSource.GENERIC, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+            this.hurt(PVZDamageHandler.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+            //TODO change this to a new dmg type.
             situationHurtCount = 0;
         }
         //about aligning blocks.
@@ -299,7 +300,11 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
 
     @Nullable
     public ItemStack getPickResult() {
-        RegistryObject<Item> summonCardItem = PVZItems.seedPacketMap.get(Util.name(this.getType()));
-        return summonCardItem == null ? null : new ItemStack(summonCardItem.get());
+        AtomicReference<Item> packetItem = new AtomicReference<>();
+        SeedPacketItem.seedPacketItemList.forEach(item -> {
+            if (item.getEntity().equals(this.getType())) {
+                packetItem.set(item);
+        }});
+        return packetItem.get() == null ? super.getPickResult() : new ItemStack(packetItem.get());
     }
 }

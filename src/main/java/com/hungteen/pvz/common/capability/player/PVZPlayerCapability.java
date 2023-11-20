@@ -1,13 +1,13 @@
 package com.hungteen.pvz.common.capability.player;
 
-import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -75,18 +75,27 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                     nbt.sunCountDown = 0;
                 }
-                //auto set sun cost and cd.
-                if (nbt.getValue("auto_set_cost_and_cd") == 1) {
-                    nbt.setValue("plant_have_cost", player.isCreative() ? 0 : 1);
-                    nbt.setValue("plant_have_cd", player.isCreative() ? 0 : 1);
-                }
-                //cd handle.
+                //cool down effects.
                 if (nbt.getValue("plant_have_cd") == 0) {
-                    for (Item i : player.getCooldowns().cooldowns.keySet()) {
+                    Set<Item> keyset = Set.copyOf(player.getCooldowns().cooldowns.keySet());
+                    for (Item i : keyset) {
                         if (i instanceof SeedPacketItem) {
                             player.getCooldowns().removeCooldown(i);
                         }
                     }
+                }
+                if (player.hasEffect(PVZMobEffects.EXCITEMENT.get())) {
+                    for (int i = 0; i < 10; i ++) {
+                        player.getCooldowns().tick();
+                    }
+                    if (player instanceof ServerPlayer) {
+                        PlayerCoolDownPacket.clientCoolDown((ServerPlayer) player);
+                    }
+                }
+                //auto set sun cost and cd.
+                if (nbt.getValue("auto_set_cost_and_cd") == 1) {
+                    nbt.setValue("plant_have_cost", player.isCreative() ? 0 : 1);
+                    nbt.setValue("plant_have_cd", player.isCreative() ? 0 : 1);
                 }
             });
         }

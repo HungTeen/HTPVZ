@@ -32,23 +32,27 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class SeedPacketItem<T extends Entity> extends Item {
 
     //entitySupplier is unchangeable. the rest three can be adjusted with command.
-    private final Supplier<EntityType<T>> entitySupplier;
+    public static List<SeedPacketItem<?>> seedPacketItemList = new ArrayList<>();
+    protected final Supplier<EntityType<T>> entitySupplier;
     private final String resource;
     private final int cost;
     private final int coolDown;
 
     public SeedPacketItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown) {
-        super(p_41383_.stacksTo(1).defaultDurability(300));
+        super(p_41383_);
         this.entitySupplier = entitySupplier;
         this.resource = resource;
         this.cost = cost;
         this.coolDown = coolDown;
+        seedPacketItemList.add(this);
     }
 
     public EntityType<T> getEntity(){
@@ -80,7 +84,7 @@ public class SeedPacketItem<T extends Entity> extends Item {
         return resource;
     }
 
-    public static int getSkill(ItemStack itemStack) {
+    public int getSkill(ItemStack itemStack) {
         if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null){
             CompoundTag tag = itemStack.getTag();
             if (tag.contains("Skill")) {
@@ -114,6 +118,12 @@ public class SeedPacketItem<T extends Entity> extends Item {
         return super.use(level, player, handIn);
     }
 
+    protected void used(ItemStack itemstack, Player player, InteractionHand hand) {
+        itemstack.hurtAndBreak(1, player, (entity1) -> {
+            entity1.broadcastBreakEvent(hand);
+        });
+    }
+
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
@@ -144,8 +154,15 @@ public class SeedPacketItem<T extends Entity> extends Item {
                 MinecraftForge.EVENT_BUS.post(event);
                 //check sun.
                 if (event.cost <= PVZPlayerCapability.getValue(player, event.resource)) {
+                    //plant.
                     PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, -event.cost));
-                    player.getCooldowns().addCooldown(this, event.coolDown);
+                    if (event.coolDown > 0) {
+                        SeedPacketItem.seedPacketItemList.forEach(item -> {
+                            if (item.getEntity().equals(((SeedPacketItem<?>) context.getItemInHand().getItem()).entitySupplier.get())) {
+                                player.getCooldowns().addCooldown(item, event.coolDown);
+                            }
+                        });
+                    }
                     entity.moveTo(
                             pos.getX() + 0.5,
                             pos.below().getY() + (level.getBlockState(pos.below()).getCollisionShape(level, pos.below()).isEmpty() ? 0 : level.getBlockState(pos.below()).getCollisionShape(level, pos.below()).bounds().maxY),
@@ -156,9 +173,7 @@ public class SeedPacketItem<T extends Entity> extends Item {
                     cap.cost = event.cost;
                     cap.resource = event.resource;
                     //TODO add particles.
-                    context.getItemInHand().hurtAndBreak(1, player, (entity1) -> {
-                        entity1.broadcastBreakEvent(context.getHand());
-                    });
+                    used(context.getItemInHand(), player, context.getHand());
                     return InteractionResult.SUCCESS;
                 }
                 player.displayClientMessage(Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource)), true);
@@ -180,10 +195,10 @@ public class SeedPacketItem<T extends Entity> extends Item {
         if (!level.isClientSide()) {
             ItemStack itemStack = ev.getItemStack();
             Player player = ev.getEntity();
-            if (itemStack.getItem() instanceof SeedPacketItem<?> && !player.getCooldowns().isOnCooldown(itemStack.getItem())) {
+            if (itemStack.getItem() instanceof SeedPacketItem<?> item && !player.getCooldowns().isOnCooldown(item)) {
                 Entity target = ev.getTarget();
-                Entity entity = ((SeedPacketItem<?>) itemStack.getItem()).getEntity().create((ServerLevel) level, null,
-                        itemStack.hasCustomHoverName() ? ((SeedPacketItem<?>) itemStack.getItem()).getName(itemStack) : null,
+                Entity entity = item.getEntity().create((ServerLevel) level, null,
+                        itemStack.hasCustomHoverName() ? item.getName(itemStack) : null,
                         player, target.blockPosition(), MobSpawnType.SPAWN_EGG, false, false);
                 if (entity != null && itemStack.hasCustomHoverName()) {
                     entity.setCustomName(itemStack.getHoverName());
@@ -192,7 +207,7 @@ public class SeedPacketItem<T extends Entity> extends Item {
                     entity.getEntityData().set(((IPlant) entity).root(), false);
                 }
                 if (entity instanceof IHaveSkills) {
-                    ((IHaveSkills) entity).setSkill(getSkill(itemStack));
+                    ((IHaveSkills) entity).setSkill(item.getSkill(itemStack));
                 }
                 MutableComponent targetCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isVehicleSafe(target) : null;
                 if (entity != null && targetCheck == null) {
@@ -200,7 +215,13 @@ public class SeedPacketItem<T extends Entity> extends Item {
                     MinecraftForge.EVENT_BUS.post(event);
                     if (event.cost <= PVZPlayerCapability.getValue(player, event.resource)) {
                         PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, -event.cost));
-                        player.getCooldowns().addCooldown(itemStack.getItem(), event.coolDown);
+                        if (event.coolDown > 0) {
+                            SeedPacketItem.seedPacketItemList.forEach(itemToCD -> {
+                                if (itemToCD.getEntity().equals(item.entitySupplier.get())) {
+                                    player.getCooldowns().addCooldown(itemToCD, event.coolDown);
+                                }
+                            });
+                        }
                         ((ServerLevel) level).addFreshEntityWithPassengers(entity);
                         entity.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
                         entity.startRiding(target);//TODO let plant decide this.
@@ -209,9 +230,7 @@ public class SeedPacketItem<T extends Entity> extends Item {
                         cap.cost = event.cost;
                         cap.resource = event.resource;
                         //TODO add particles.
-                        itemStack.hurtAndBreak(1, player, (entity1) -> {
-                            entity1.broadcastBreakEvent(ev.getHand());
-                        });
+                        item.used(itemStack, player, ev.getHand());
                     } else {
                         player.displayClientMessage(Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource)), true);
                         entity.discard();
@@ -228,27 +247,31 @@ public class SeedPacketItem<T extends Entity> extends Item {
 
     @SubscribeEvent
     public static void HandlePlantConditions(PVZResourceEvent.CheckResourceEvent ev) {
-        if (ev.getEntity().level.isClientSide()) {
-            Entity entity = ((SeedPacketItem<?>) ev.seedPacket.getItem()).entitySupplier.get().create(ev.getEntity().level);
-            if (entity != null) {
-                if (ev.resource.equals(PVZPlayerCapNBT.SUN) && SeedPacketItem.getSkill(ev.seedPacket) >= 0) {
-                    if (entity instanceof IHaveSkills) {
-                        ev.cost += ((IHaveSkills) entity).getStaticSkillList().get(SeedPacketItem.getSkill(ev.seedPacket)).addCostSun;
+        if (! (ev.seedPacket.getItem() instanceof SeedItem)) {//to decrease calculation.
+            if (ev.getEntity().level.isClientSide() && PVZPlayerCapability.getValue(ev.getEntity(), "plant_have_cost") > 0) {
+                Entity entity = ((SeedPacketItem<?>) ev.seedPacket.getItem()).entitySupplier.get().create(ev.getEntity().level);
+                if (entity != null) {
+                    if (ev.resource.equals(PVZPlayerCapNBT.SUN) && ((SeedPacketItem<?>) ev.seedPacket.getItem()).getSkill(ev.seedPacket) >= 0) {
+                        if (entity instanceof IHaveSkills) {
+                            ev.cost += ((IHaveSkills) entity).getStaticSkillList().get(((SeedPacketItem<?>) ev.seedPacket.getItem()).getSkill(ev.seedPacket)).addCostSun;
+                        }
+                    }
+                    entity.discard();
+                }
+            } else if (ev instanceof PVZResourceEvent.CheckPlantConditionEvent e) {
+                int level = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.QUICK_COOL_DOWN.get(), e.seedPacket);
+                if (level > 0) {
+                    e.coolDown = e.coolDown * (10 - level) / 10;
+                }
+                if (PVZPlayerCapability.getValue(e.getEntity(), "plant_have_cost") > 0 &&
+                        e.spawningEntity instanceof IHaveSkills){
+                    if (((IHaveSkills) e.spawningEntity).getSkill() >= 0) {
+                        e.cost += ((IHaveSkills) e.spawningEntity).getStaticSkillList()
+                                .get(((SeedPacketItem<?>) e.seedPacket.getItem()).getSkill(e.seedPacket)).addCostSun;
+                        e.coolDown += ((IHaveSkills) e.spawningEntity).getStaticSkillList()
+                                .get(((SeedPacketItem<?>) e.seedPacket.getItem()).getSkill(e.seedPacket)).addCoolDown;
                     }
                 }
-                entity.discard();
-            }
-        } else if (ev instanceof PVZResourceEvent.CheckPlantConditionEvent) {
-            int level = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.QUICK_COOL_DOWN.get(), ev.seedPacket);
-            if (level > 0) {
-                ((PVZResourceEvent.CheckPlantConditionEvent) ev).coolDown = ((PVZResourceEvent.CheckPlantConditionEvent) ev).coolDown * (10 - level) / 10;
-            }
-            if (((PVZResourceEvent.CheckPlantConditionEvent) ev).spawningEntity instanceof IHaveSkills){
-                ev.cost += ((IHaveSkills) ((PVZResourceEvent.CheckPlantConditionEvent) ev).spawningEntity)
-                        .getSkill() >= 0 ?
-                        ((IHaveSkills) ((PVZResourceEvent.CheckPlantConditionEvent) ev).spawningEntity)
-                        .getStaticSkillList().get(SeedPacketItem.getSkill(ev.seedPacket)).addCostSun :
-                        0;
             }
         }
     }
@@ -256,6 +279,12 @@ public class SeedPacketItem<T extends Entity> extends Item {
     @Override
     public int getEnchantmentValue(ItemStack stack){
         return 15;
+    }
+    @Override
+    public boolean isValidRepairItem(ItemStack itemToFix, ItemStack material) {
+        return ((itemToFix.getItem() instanceof SeedPacketItem<?> && material.getItem() instanceof SeedItem<?>) &&
+                ((SeedPacketItem<?>) itemToFix.getItem()).entitySupplier.get().equals(((SeedItem<?>) material.getItem()).entitySupplier.get()))
+                || super.isValidRepairItem(itemToFix, material);
     }
 
 }

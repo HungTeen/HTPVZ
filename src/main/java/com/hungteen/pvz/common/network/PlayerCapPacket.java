@@ -12,10 +12,10 @@ import java.util.function.Supplier;
  * Available sending from server to client.
  */
 public class PlayerCapPacket {
-    private boolean type;//True for value, false for limit.
-    private int value;
+    private final boolean type;//True for value, false for limit.
+    private final int value;
     private int value2;
-    private String key;
+    private final String key;
 
     public PlayerCapPacket(String key, int value){
         this.type = true;
@@ -47,15 +47,13 @@ public class PlayerCapPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).ifPresent(nbt -> {
-                if (type) {
-                    nbt.setValue(key, value);
-                } else {
-                    nbt.setValueLimit(key, value, value2);
-                }
-            });
-        });
+        ctx.get().enqueueWork(() -> PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).ifPresent(nbt -> {
+            if (type) {
+                nbt.setValue(key, value);
+            } else {
+                nbt.setValueLimit(key, value, value2);
+            }
+        }));
         ctx.get().setPacketHandled(true);
     }
 

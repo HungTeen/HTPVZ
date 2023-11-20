@@ -1,6 +1,9 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
+import com.hungteen.pvz.common.block.entity.EssenceAltarBlockEntity;
+import com.hungteen.pvz.common.block.entity.EssenceFurnaceBlockEntity;
 import com.hungteen.pvz.common.block.entity.PVZSignBlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
@@ -24,7 +27,10 @@ public class PVZBlockEntities {
     //registry
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, PVZMod.MODID);
     public static final RegistryObject<BlockEntityType<PVZSignBlockEntity>> SIGN = bEntity("pvz_sign", PVZSignBlockEntity::new);
-    /**binding renderer at {@link PVZBlockEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}*/
+    public static final RegistryObject<BlockEntityType<EssenceAltarBlockEntity>> ESSENCE_ALTAR = bEntity("essence_altar", EssenceAltarBlockEntity::new);
+    public static final RegistryObject<BlockEntityType<EssenceFurnaceBlockEntity>> ESSENCE_FURNACE = bEntity("essence_furnace", EssenceFurnaceBlockEntity::new);
+    /**binding renderer at {@link PVZBlockEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}
+     <br>use {@link PVZBlocks#blockEntity(String)} to attach blockEntity to block.*/
 
 
     //definitions
@@ -46,6 +52,7 @@ public class PVZBlockEntities {
     @SubscribeEvent
     public static void registerRenderer(EntityRenderersEvent.RegisterRenderers e){
         r(e, SIGN, SignRenderer::new);
+        r(e, ESSENCE_ALTAR, EssenceAltarRenderer::new);
     }
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent

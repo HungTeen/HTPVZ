@@ -1,5 +1,6 @@
 package com.hungteen.pvz.client.renderer;
 
+import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.client.model.plants.WallNutModel;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -31,6 +32,7 @@ public class PVZLayerHandler {
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
+        L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
 
         //simple rendered entities
         for (EntityType<? extends Entity> entity: PVZEntities.simpleRenderedMap.keySet()){

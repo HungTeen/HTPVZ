@@ -1,0 +1,11 @@
+{
+  "type": "pvz:essence_furnace",
+  "is_essence": true,
+  "ingredient": {
+    "tag": "pvz:to_ventus_essence"
+  },
+  "fuel": {
+    "item": "pvz:origin_essence"
+  },
+  "result": "pvz:ventus_essence"
+}

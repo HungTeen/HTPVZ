@@ -2,6 +2,6 @@
   "parent": "minecraft:block/carpet",
   "render_type": "minecraft:cutout",
   "textures": {
-    "wool": "minecraft:block/moss_block"
+    "wool": "pvz:block/carp_grass_0"
   }
 }

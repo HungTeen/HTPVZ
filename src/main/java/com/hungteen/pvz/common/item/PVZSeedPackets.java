@@ -14,12 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-
+/**This class is used only when game loads. Then all the data in PVZSeedPackets.seedPackets will be released.
+ */
 public class PVZSeedPackets {
     public static final int FAST = 60;
     public static final int MIDDLE = 200;
-    public static final int SLOW = 500;
-    public static final int VERY_SLOW = 1200;
+    public static final int SLOW = 400;
+    public static final int VERY_SLOW = 750;
     public static List<RegisterSeedPacketsEvent.SeedPacketData> seedPackets = new ArrayList<>();
 
     static {
@@ -76,12 +77,12 @@ public class PVZSeedPackets {
             this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
             return this;
         }
-        public RegistryObject<Item> getBackImage() {
+        public RegistryObject<Item> getBackCard() {
             Object packet = recipe.get("packet");
             if (packet instanceof RegistryObject) {
                 return (RegistryObject<Item>) packet;
             }
-            return ((RecipeSeedPacketData) packet).getBackImage();
+            return ((RecipeSeedPacketData) packet).getBackCard();
         }
     }
 }

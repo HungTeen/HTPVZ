@@ -2,6 +2,7 @@ package com.hungteen.pvz.generator;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.tags.PVZItemTags;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
@@ -11,7 +12,9 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +49,16 @@ public class ItemTagGen extends ItemTagsProvider {
             this.copy(i, tag);
             LOGS.add(tag);
         }
+        //others
+        this.tag(PVZItemTags.TO_TERRA_ESSENCE).add(Blocks.STONE.asItem(), Blocks.DEEPSLATE.asItem(), 
+                Blocks.GRANITE.asItem(), Blocks.DIORITE.asItem(), Blocks.ANDESITE.asItem(), Blocks.TUFF.asItem());
+        this.tag(PVZItemTags.TO_AQUA_ESSENCE).add(Items.WATER_BUCKET);
+        this.tag(PVZItemTags.TO_IGNIS_ESSENCE).add(Items.LAVA_BUCKET, Blocks.MAGMA_BLOCK.asItem());
+        this.tag(PVZItemTags.TO_VENTUS_ESSENCE).add(Items.AIR);
+        this.tag(PVZItemTags.TO_GELUM_ESSENCE).add(Items.POWDER_SNOW_BUCKET, Blocks.SNOW_BLOCK.asItem(),
+                Blocks.ICE.asItem(), Blocks.PACKED_ICE.asItem(), Blocks.BLUE_ICE.asItem());
+        this.tag(PVZItemTags.TO_LUX_ESSENCE).add(Blocks.GLOWSTONE.asItem(), Blocks.SHROOMLIGHT.asItem(),
+                Blocks.PEARLESCENT_FROGLIGHT.asItem(), Blocks.OCHRE_FROGLIGHT.asItem(), Blocks.VERDANT_FROGLIGHT.asItem());
     }
 
     public static final List<TagKey<Item>> LOGS = new ArrayList<>();

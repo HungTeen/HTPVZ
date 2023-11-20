@@ -56,9 +56,11 @@ public class PVZEntities {
     private static Pair<Float, Float> storedCollision = Pair.of(0.6F, 1.8F);
     //spawn egg
     private static Pair<Integer, Integer> storedSpawnEgg = null;
+    @Deprecated // will be cleared after register.
     public static Map<RegistryObject, Pair<Integer, Integer>> spawnEggMap = new HashMap<>();
     //spawn placements
     private static List</*0:SpawnPlacements.type, 1:HeightMap.types, 2:checkSpawnRulesMethod*/?> storedSpawnPlacement = null;
+    @Deprecated // will be cleared after register.
     public static Map<RegistryObject, List</*0:SpawnPlacements.type, 1:HeightMap.types, 2:checkSpawnRulesMethod*/?>> spawnPlacementMap = new HashMap<>();
     //attributes
     private static Supplier<AttributeSupplier.Builder> storedAttribute = null;
