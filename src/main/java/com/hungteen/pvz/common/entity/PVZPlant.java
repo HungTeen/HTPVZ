@@ -81,6 +81,23 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
     }
 
     @Override
+    public EntityDataAccessor<Boolean> root() {
+        return ROOT;
+    }
+    @Override
+    public int getSkillVal(Object obj) {
+        return entityData.get(SKILL);
+    }
+    @Override
+    public void setSkillVal(Object obj, int val) {
+        entityData.set(SKILL, val);
+    }
+    @Override
+    public List<Skill> getStaticSkillList(){
+        return staticSkillSet;
+    }
+
+    @Override
     public void baseTick() {
         super.baseTick();
         //check plant situation damage.
@@ -155,27 +172,6 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
     }
 
 
-    @Override
-    public EntityDataAccessor<Boolean> root() {
-        return ROOT;
-    }
-    @Override
-    public int getSkill() {
-        return entityData.get(SKILL);
-    }
-    @Override
-    public boolean setSkill(int id) {
-        if (getSkill() == id) {
-            return false;
-        } else {
-            entityData.set(SKILL, id);
-            return true;
-        }
-    }
-    @Override
-    public List<Skill> getStaticSkillList(){
-        return staticSkillSet;
-    }
 
 
     /**
@@ -219,25 +215,26 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
 
     public boolean onBeingShoveled(Player player, InteractionHand handIn) {
         //check permission.
-        boolean permission = false;
-        if (PVZOwnedCapability.getCap(this) != null) {
-            Entity owner = PVZOwnedCapability.getCap(this).getOwner();
+        final boolean[] permission = {false};
+        this.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> {
+            Entity owner = cap.getOwner();
             if (owner != null) {
-            permission = PVZRulesCapability.get("shovelPermission") ?
+            permission[0] = PVZRulesCapability.get("shovelPermission") ?
                     (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.get("teamBattle")) : owner.is(player);
             } else {
-                permission = PVZRulesCapability.get("shovelPermission");
+                permission[0] = PVZRulesCapability.get("shovelPermission");
             }
-        }
+        });
         //shovel plant.
-        if (!player.level.isClientSide() && permission) {
+        if (!player.level.isClientSide() && permission[0]) {
             ItemStack itemstack = player.getItemInHand(handIn);
             itemstack.hurtAndBreak(2, player, (entity) -> {
                 entity.broadcastBreakEvent(handIn);
             });
             int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
-            if (PVZOwnedCapability.getCap(this) != null && enchantmentLevel > 0 && Objects.equals(PVZOwnedCapability.getCap(this).resource, PVZPlayerCapNBT.SUN)) {
-                for (int i = (int) (PVZOwnedCapability.getCap(this).cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)); i > 0; ) {
+            PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
+            if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
+                for (int i = (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)); i > 0; ) {
                     int sunAmount = i;
                     sunAmount = sunAmount > 50 ? 50 : sunAmount > 25 ? 25 : sunAmount > 15 ? 15 : Math.min(sunAmount, 5);
                     i -= sunAmount;
@@ -261,17 +258,19 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
         this.entityData.define(ROOT, true);
         this.entityData.define(HAS_COINCIDE_DMG, true);
         this.entityData.define(WILT_COUNTDOWN, -1);
-        this.entityData.define(SKILL, -1);
+        this.entityData.define(SKILL, 0);
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        saveSkill(tag);
+        tag.putInt("Skill", getSkillVal(this));
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
-        loadSkill(tag);
+        if (tag.contains("Skill")) {
+            setSkillVal(this, tag.getInt("Skill"));
+        }
     }
 
 

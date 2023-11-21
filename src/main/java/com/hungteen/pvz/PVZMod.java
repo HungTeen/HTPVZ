@@ -55,7 +55,8 @@ public class PVZMod
     public static final String MODID = "pvz";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static String GLOBAL_TEAM = "pvzmod.globalTeam";
+    public static String PLAYER_TEAM = "pvzmod.playerTeam";
+    public static String ENEMY_TEAM = "pvzmod.enemyTeam";
     public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
     public PVZMod()
     {
@@ -184,13 +185,17 @@ public class PVZMod
     public static void onServerTick(TickEvent.ServerTickEvent ev) {
         //global playerTeam
         Scoreboard scoreboard = ev.getServer().getScoreboard();
-        if (scoreboard.getPlayerTeam(GLOBAL_TEAM) == null) {
-            PlayerTeam playerteam = scoreboard.addPlayerTeam(GLOBAL_TEAM);
-            playerteam.setDisplayName(Component.literal(GLOBAL_TEAM));
+        if (scoreboard.getPlayerTeam(PLAYER_TEAM) == null) {
+            PlayerTeam playerteam = scoreboard.addPlayerTeam(PLAYER_TEAM);
+            playerteam.setDisplayName(Component.literal(PLAYER_TEAM));
+        }
+        if (scoreboard.getPlayerTeam(ENEMY_TEAM) == null) {
+            PlayerTeam playerteam = scoreboard.addPlayerTeam(ENEMY_TEAM);
+            playerteam.setDisplayName(Component.literal(ENEMY_TEAM));
         }
         //caps tick
-        PVZPlayerCapability.tick();
-        PVZOwnedCapability.tick();
+        PVZPlayerCapability.tick(ev);
+        PVZOwnedCapability.tick(ev);
     }
 
     @SubscribeEvent

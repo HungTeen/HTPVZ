@@ -26,9 +26,6 @@ public class PVZPlayerCapNBT {
 
     public void setPlayer(Player player){
         this.player = player;
-        if (player instanceof ServerPlayer){
-            PVZPlayerCapability.playerSet.add(player);
-        }
     }
 
     public void initBasicValues() {

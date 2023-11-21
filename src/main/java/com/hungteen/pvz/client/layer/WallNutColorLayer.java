@@ -28,10 +28,10 @@ public class WallNutColorLayer<T extends WallNut> extends RenderLayer<T, WallNut
 
     @Override
     public void render(PoseStack stack, MultiBufferSource bufferSource, int p_117351_, T wallNut, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
-        if (wallNut.hasSkill(0) || (! wallNut.isInvisible() && wallNut.hasCustomName())) {
+        if (wallNut.hasSkill(this, 0) || (! wallNut.isInvisible() && wallNut.hasCustomName())) {
             int R, G, B;
             Vec3i color = getColor(wallNut.getName().getString());
-            if (wallNut.hasSkill(0) || color != null) {
+            if (wallNut.hasSkill(this, 0) || color != null) {
                 float healthPercent = wallNut.getHealth() / wallNut.getMaxHealth();
                 R = color != null ? color.getX() : 256-0xFF;
                 G = color != null ? color.getY() : wallNut.getEntityData().get(EXPLODE_COUNT) % 10 > 6 ? 256-0xFF : 256-0x44;

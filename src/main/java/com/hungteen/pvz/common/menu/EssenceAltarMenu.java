@@ -6,6 +6,7 @@ import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.common.item.SeedItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZMenus;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -19,6 +20,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class EssenceAltarMenu extends AbstractContainerMenu {
 
@@ -42,14 +44,14 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(this.altarSlots, 0, 25, 17){
             @Override
             public boolean mayPlace(@Nonnull ItemStack stack) {
-                return super.mayPlace(stack) && stack.getItem() instanceof SeedPacketItem<?> item && ! (item instanceof SeedItem<?>);
+                return super.mayPlace(stack) && stack.getItem() instanceof SeedPacketItem<?> item && item.canBoost();
             }
         });
         this.addSlot(new Slot(this.altarSlots, 1, 15, 54));
         this.addSlot(new Slot(this.altarSlots, 2, 35, 54){
             @Override
             public boolean mayPlace(@Nonnull ItemStack stack) {
-                return super.mayPlace(stack) && stack.getItem() instanceof SeedPacketItem<?> item && item instanceof SeedItem<?>;
+                return super.mayPlace(stack) && stack.getItem() instanceof SeedItem<?>;
             }
         });
         for(int i = 0; i < 3; ++ i) {
@@ -108,28 +110,15 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int skillID) {
         if (slots.get(0).hasItem() && slots.get(0).getItem().getItem() instanceof SeedPacketItem<?> item) {
-            if (! (item instanceof SeedItem<?>) && item.getEntity().create(player.level) instanceof IHaveSkills e) {
+            if (item.canBoost() && item.getEntity().create(player.level) instanceof IHaveSkills e) {
                 if (e.getStaticSkillList().size() <= skillID) {
                     PVZMod.LOGGER.info("Chosen skill of "+ player.getName().getString() +" not exists.");
                 }
                 Skill skill = e.getStaticSkillList().get(skillID);
                 ((Entity)e).discard();
-                int costSeedPacket = skill.costSeedPacket;
+                int costSeedPacket = skill.costSeed;
                 int costItem = skill.costItem;
-                if ((! player.getAbilities().instabuild) &&
-                        ((costSeedPacket > 0 &&
-                            ! (this.slots.get(2).hasItem() &&
-                                    this.slots.get(2).getItem().getCount() >= costSeedPacket &&
-                                    this.slots.get(2).getItem().getItem() instanceof SeedItem<?> s &&
-                                    s.getEntity().equals(item.getEntity()))) ||
-                        (costItem > 0 &&
-                                ! (this.slots.get(1).hasItem() &&
-                                        this.slots.get(1).getItem().getCount() >= costItem &&
-                                        this.slots.get(1).getItem().getItem().getDescriptionId().equals(
-                                                skill.item.get().getDescriptionId()))))) {
-                    PVZMod.LOGGER.info(player.getName().getString() +" not match the condition of attaching skill.");
-                    return false;
-                } else {
+                if (isSkillAvailable(player, e.getStaticSkillList(), skillID)) {
                     if (! player.getAbilities().instabuild) {
                         if (slots.get(2).hasItem()) {
                             slots.get(2).getItem().shrink(costSeedPacket);
@@ -138,8 +127,11 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
                             slots.get(1).getItem().shrink(costItem);
                         }
                     }
-                    slots.get(0).getItem().getOrCreateTag().putInt("Skill", skillID);
+                    ((IHaveSkills) slots.get(0).getItem().getItem()).addSkill(slots.get(0).getItem(), skillID);
                     return true;
+                } else {
+                    PVZMod.LOGGER.info(player.getName().getString() +" not match the condition of attaching skill.");
+                    return false;
                 }
             }
         }
@@ -161,5 +153,41 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
             }
         }
         super.removed(player);
+    }
+
+    public boolean isSkillAvailable(Player player, List<Skill> list, int skillID) {
+        ItemStack item = slots.get(0).getItem();
+        if (item.getItem() instanceof SeedPacketItem<?> seedPacket) {
+            if (item.getEnchantmentLevel(PVZEnchantments.FOOLISH_CURSE.get()) > 0 || !seedPacket.canBoost()) {
+                return false;
+            }
+            for (int i :seedPacket.getSkills(slots.get(0).getItem())) {
+                if (i == skillID) {
+                    return false;
+                }
+                if (list.get(i).avoidSkills.contains(skillID)) {
+                    return false;
+                }
+            }
+            if (player.getAbilities().instabuild) {
+                return true;
+            }
+            Skill skill = list.get(skillID);
+            if (! slots.get(1).getItem().getItem().getDescriptionId().equals(skill.item.get().getDescriptionId())) {
+                return false;
+            }
+            if (slots.get(1).getItem().getCount() < skill.costItem) {
+                return false;
+            }
+            if (! (slots.get(2).getItem().getItem() instanceof SeedItem<?> item1 &&
+                    item1.getEntity().equals(((SeedPacketItem<?>) seedPacket).getEntity()))) {
+                return false;
+            }
+            if (slots.get(1).getItem().getCount() < skill.costSeed) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }

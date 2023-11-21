@@ -8,17 +8,18 @@ import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> {
     private final Entity entity;
@@ -26,28 +27,34 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public int cost = 0;
     private Entity owner = null;
     private final ServerScoreboard scoreboard;
-    public static Set<PVZOwnedCapability> capSet = new HashSet<>();
+    public static short tickCount = 0;
 
     public static final Capability<PVZOwnedCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
     public PVZOwnedCapability(Entity entity) {
         this.entity = entity;
         scoreboard = entity.getServer().getScoreboard();
-        capSet.add(this);
     }
 
-    public static void tick(){
-        for (PVZOwnedCapability cap : capSet) {//TODO cause ConcurrentModificationException, why?
-            String name = cap.entity.getScoreboardName();
-            if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
-                cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.GLOBAL_TEAM));
-            }
-            if (cap.owner != null) {
-                if (!cap.owner.isAlive()) {
-                    cap.setOwner(null);
-                } else if (cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()) != cap.scoreboard.getPlayersTeam(name)) {
-                    cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()));
-                }
-            }
+    public static void tick(TickEvent.ServerTickEvent ev) {
+        if (++ tickCount > 10) {
+            tickCount = 0;
+            ev.getServer().getAllLevels().forEach((level -> {
+                level.getAllEntities().forEach((entity1 -> {
+                    entity1.getCapability(CAP).ifPresent((cap) -> {
+                        String name = cap.entity.getScoreboardName();
+                        if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
+                            cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
+                        }
+                        if (cap.owner != null) {
+                            if (!cap.owner.isAlive()) {
+                                cap.setOwner(null);
+                            } else if (cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()) != cap.scoreboard.getPlayersTeam(name)) {
+                                cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()));
+                            }
+                        }
+                    });
+                }));
+            }));
         }
     }
 
@@ -65,31 +72,34 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public static boolean isTeammate(Entity A, Entity B) {
         Team teamA = A.getTeam();
         Team teamB = B.getTeam();
-        Team globalTeam = getCap(A).scoreboard.getPlayerTeam(PVZMod.GLOBAL_TEAM);
-        if (teamA == null || teamB == null) {
+
+        AtomicReference<Team> playerTeam = new AtomicReference<>();
+        AtomicReference<Team> enemyTeam = new AtomicReference<>();
+
+        A.getCapability(CAP).ifPresent((cap) -> {
+            playerTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
+            enemyTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.ENEMY_TEAM));
+        });
+        boolean teamBattle = PVZRulesCapability.get().booleanMap.get("teamBattle");
+
+        if (teamA == teamB) {
+            return teamA != null || (A instanceof Enemy == B instanceof Enemy);
+        }
+        if (teamA == null) {
+            return (A instanceof Enemy) == (teamB == enemyTeam.get());
+        }
+        if (teamB == null) {
+            return (B instanceof Enemy) == (teamA == enemyTeam.get());
+        }
+        if (teamA == enemyTeam.get() || teamB == enemyTeam.get()) {
             return false;
         }
-        if (teamA == globalTeam || teamB == globalTeam) {
-            return ! PVZRulesCapability.get().booleanMap.get("teamBattle");
-        }
-        if (teamA == teamB) {
-            return true;
-        }
-        return ! PVZRulesCapability.get().booleanMap.get("teamBattle");
+        return teamBattle;
     }
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         return LazyOptional.of(() -> this).cast();
-    }
-
-    public static PVZOwnedCapability getCap(Entity entity){
-        for (PVZOwnedCapability cap : capSet) {
-            if (cap.entity == entity) {
-                return cap;
-            }
-        }
-        return null;
     }
 
     @Override

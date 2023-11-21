@@ -16,6 +16,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +30,6 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     private PVZPlayerCapNBT nbt = null;
     public static final Capability<PVZPlayerCapNBT> NBT = CapabilityManager.get(new CapabilityToken<>(){});
     private final LazyOptional<PVZPlayerCapNBT> opt = LazyOptional.of(this::createNBT);
-    public static Set<Player> playerSet = new HashSet<>();
     public static int syncCount = 0;
 
     public PVZPlayerCapability(Player player) {
@@ -43,15 +43,15 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         return nbt;
     }
 
-    public static void tick(){
+    public static void tick(TickEvent.ServerTickEvent ev){
         //timed sync
         if (++ syncCount > 20){
-            for (Player player : playerSet){
+            for (Player player : ev.getServer().getPlayerList().getPlayers()){
                 getPlayerData(player).ifPresent(PVZPlayerCapNBT::syncAll);
             }
             syncCount = 0;
         }
-        for (Player player : playerSet) {
+        for (Player player : ev.getServer().getPlayerList().getPlayers()) {
             getPlayerData(player).ifPresent( (nbt) -> {
                 //sun related mob effects.
                 ++ nbt.sunCountDown;

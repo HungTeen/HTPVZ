@@ -77,7 +77,7 @@ public class WallNut extends PVZPlant {
             }
         }
         storedHealth = getHealth();
-        if (this.hasSkill(0) && this.getEntityData().get(EXPLODE_COUNT) > -1) {
+        if (this.hasSkill(this, 0) && this.getEntityData().get(EXPLODE_COUNT) > -1) {
             this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) + 1);
             if (this.getEntityData().get(EXPLODE_COUNT) > 40) {
                 this.explode();
@@ -97,7 +97,7 @@ public class WallNut extends PVZPlant {
     @Override
     public void actuallyHurt(DamageSource dmgSource, float dmg) {
         super.actuallyHurt(dmgSource, dmg);
-        if (this.hasSkill(0) && this.getHealth() <= 0) {
+        if (this.hasSkill(this, 0) && this.getHealth() <= 0) {
             this.setHealth(0.1F);
             this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) == -1 ? 0 : this.getEntityData().get(EXPLODE_COUNT));
         }

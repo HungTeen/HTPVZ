@@ -20,6 +20,11 @@ public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
         return Component.translatable("item.pvz.seed", Component.translatable(entitySupplier.get().getDescriptionId()));
     }
 
+    @Override
+    public boolean canBoost() {
+        return false;
+    }
+
     protected void used(ItemStack itemstack, Player player, InteractionHand hand) {
         player.awardStat(Stats.ITEM_USED.get(itemstack.getItem()));
         if (!player.getAbilities().instabuild) {

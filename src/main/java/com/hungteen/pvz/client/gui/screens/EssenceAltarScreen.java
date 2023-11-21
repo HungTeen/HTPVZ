@@ -6,7 +6,6 @@ import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
-import com.hungteen.pvz.common.item.SeedItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.menu.EssenceAltarMenu;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -60,7 +59,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
     public void containerTick() {
         this.skills = List.of();
         if (this.getMenu().slots.get(0).hasItem() && this.getMenu().slots.get(0).getItem().getItem() instanceof SeedPacketItem<?> item) {
-            if (item.getSkill(this.getMenu().slots.get(0).getItem()) < 0 && item.getEntity().create(ClientProxy.MC.level) instanceof IHaveSkills e) {
+            if (item.getEntity().create(ClientProxy.MC.level) instanceof IHaveSkills e) {
                 this.skills = e.getStaticSkillList();
             }
         }
@@ -88,7 +87,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         int allowedMax = skills.size() - 3;
         float current = shownFirstSkill / (float) allowedMax * (scrollBottom - scrollTop);
         this.blit(stack, leftPos + 156, scrollTop + (int) current, 191 + (skills.size() > 3 ? 0 : 12), 0, 12, 15);
-
+        //render block.
         int scale = (int)ClientProxy.MC.getWindow().getGuiScale();
         RenderSystem.viewport((this.width - 320) / 2 * scale, (this.height - 240) / 2 * scale, 320 * scale, 240 * scale);
         Matrix4f matrix4f = Matrix4f.createTranslateMatrix(-0.34F, 0.23F, 0.0F);
@@ -113,7 +112,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         RenderSystem.restoreProjectionMatrix();
         Lighting.setupFor3DItems();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
+        //render buttons.
         if (this.getMenu().slots.get(0).hasItem() && this.getMenu().slots.get(0).getItem().getItem() instanceof SeedPacketItem<?> item) {
             if (skills.size() > 0) {
                 int x = leftPos + 60;
@@ -123,26 +122,12 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                     RenderSystem.setShader(GameRenderer::getPositionTexShader);
                     RenderSystem.setShaderTexture(0, TEXTURE);
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                    int costSeedPacket = skills.get(i + shownFirstSkill).costSeedPacket;
+                    int costSeedPacket = skills.get(i + shownFirstSkill).costSeed;
                     int costItem = skills.get(i + shownFirstSkill).costItem;
                     Component skillName = Component.translatable(skills.get(i + shownFirstSkill).name);
                     int color;
-                    if ((! ClientProxy.getPlayer().getAbilities().instabuild) &&
-                            ((costSeedPacket > 0 &&
-                                ! (this.getMenu().slots.get(2).hasItem() &&
-                                        this.getMenu().slots.get(2).getItem().getCount() >= costSeedPacket &&
-                                                this.getMenu().slots.get(2).getItem().getItem() instanceof SeedItem<?> s &&
-                                                        s.getEntity().equals(item.getEntity()))) ||
-                            (costItem > 0 &&
-                                    ! (this.getMenu().slots.get(1).hasItem() &&
-                                            this.getMenu().slots.get(1).getItem().getCount() >= costItem &&
-                                            this.getMenu().slots.get(1).getItem().getItem().getDescriptionId().equals(
-                                                    skills.get(i + shownFirstSkill).item.get().getDescriptionId()))))) {
-                        this.blit(stack, x, y + 14 + 19 * i, 0, 185, 92, 19);
-                        this.blit(stack, x + 1, y + 15 + 19 * i, 16 * i, 239, 16, 16);
-                        color = 0x211d17;
-                        this.font.draw(stack, skillName, x + 39, y + 20 + 19 * i, color);
-                    } else {
+                    if (getMenu().isSkillAvailable(ClientProxy.getPlayer(), skills, i + shownFirstSkill)) {
+                        //available.
                         int mouseRelativeX = mouseX - x;
                         int mouseRelativeY = mouseY - (y + 14 + 19 * i);
                         if (mouseRelativeX >= 0 && mouseRelativeY >= 0 && mouseRelativeX < 92 && mouseRelativeY < 19) {
@@ -152,8 +137,13 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                             this.blit(stack, x, y + 14 + 19 * i, 0, 166, 92, 19);
                             color = 0x544c3b;
                         }
-
                         this.blit(stack, x + 1, y + 15 + 19 * i, 16 * i, 223, 16, 16);
+                        this.font.draw(stack, skillName, x + 39, y + 20 + 19 * i, color);
+                    } else {
+                        //not available.
+                        this.blit(stack, x, y + 14 + 19 * i, 0, 185, 92, 19);
+                        this.blit(stack, x + 1, y + 15 + 19 * i, 16 * i, 239, 16, 16);
+                        color = 0x211d17;
                         this.font.draw(stack, skillName, x + 39, y + 20 + 19 * i, color);
                     }
                     color = 0xffffff;
@@ -222,7 +212,6 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
             this.isDragging = true;
         } else if (mouseX > leftPos + 60 && mouseX < leftPos + 152 && mouseY > top && mouseY <= bottom) {
             if (skills.size() > (mouseY - top) / 19 + shownFirstSkill) {
-//                getMenu().clickMenuButton(ClientProxy.getPlayer(), (int) floor((mouseY - top) / 19) + shownFirstSkill);
                 PVZAddSkillPacket.addSkill((int) floor((mouseY - top) / 19) + shownFirstSkill);
             }
         }

@@ -34,17 +34,8 @@ public class FoolishCurseEnchantment extends Enchantment {
    public Component getFullname(int p_44701_) {
       Calendar calendar = Calendar.getInstance();
       boolean isFoolDay = calendar.get(2) + 1 == 4 && calendar.get(5) <= 3;
-      MutableComponent mutablecomponent = isFoolDay ? Component.translatable("enchantment.pvz.loofish_curse") : Component.translatable(this.getDescriptionId());
-      if (this.isCurse()) {
-         mutablecomponent.withStyle(ChatFormatting.RED);
-      } else {
-         mutablecomponent.withStyle(ChatFormatting.GRAY);
-      }
-
-      if (p_44701_ != 1 || this.getMaxLevel() != 1) {
-         mutablecomponent.append(" ").append(Component.translatable("enchantment.level." + p_44701_));
-      }
-
-      return mutablecomponent;
+      return isFoolDay ?
+              Component.translatable("enchantment.pvz.loofish_curse").withStyle(ChatFormatting.GOLD) :
+              Component.translatable(this.getDescriptionId()).withStyle(ChatFormatting.RED);
    }
 }

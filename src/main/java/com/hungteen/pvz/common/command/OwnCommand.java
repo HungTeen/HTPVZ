@@ -29,7 +29,7 @@ public class OwnCommand {
         Entity tmpEntity = null;
         for (Entity entity: owned) {
             if (entity != owner) {
-                PVZOwnedCapability cap = PVZOwnedCapability.getCap(entity);
+                PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
                 if (cap != null && cap.getOwner() != owner) {
                     cap.setOwner(owner);
                     count ++;
