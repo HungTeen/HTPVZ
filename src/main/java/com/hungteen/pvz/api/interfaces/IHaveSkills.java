@@ -1,7 +1,6 @@
 package com.hungteen.pvz.api.interfaces;
 
 import com.hungteen.pvz.api.Skill;
-import net.minecraft.nbt.CompoundTag;
 
 import java.util.*;
 
@@ -30,14 +29,14 @@ public interface IHaveSkills {
             }
         }
         return result;
-    };
+    }
     default boolean addSkill(Object obj, int id) {
         if (hasSkill(obj, id)) {
             return false;
         }
         setSkillVal(obj, getSkillVal(obj) | 1 << id);
         return true;
-    };
+    }
     default void setSkill(Object obj, int id, boolean enable) {
         if (enable) {
             setSkillVal(obj, getSkillVal(obj) | 1 << id);

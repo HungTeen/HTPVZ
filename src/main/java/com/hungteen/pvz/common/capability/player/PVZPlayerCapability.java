@@ -52,14 +52,14 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
             syncCount = 0;
         }
         for (Player player : ev.getServer().getPlayerList().getPlayers()) {
-            getPlayerData(player).ifPresent( (nbt) -> {
+            getPlayerData(player).ifPresent((nbt) -> {
                 //sun related mob effects.
                 ++ nbt.sunCountDown;
                 if (player.hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
                     if (player.hasEffect(MobEffects.DARKNESS)) {
                         player.removeEffect(MobEffects.DARKNESS);
                     }
-                    if (nbt.sunCountDown >= 60/(player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
+                    if (nbt.sunCountDown >= 30/(player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
                         int limitSun = getDifficultyLimitSun(player);
                         int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
                         if (curSun < limitSun) {

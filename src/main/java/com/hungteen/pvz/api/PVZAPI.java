@@ -2,6 +2,7 @@ package com.hungteen.pvz.api;
 
 import com.google.common.base.Suppliers;
 import com.hungteen.pvz.PVZMod;
+import net.minecraft.world.entity.Entity;
 
 import java.lang.reflect.Constructor;
 import java.util.function.Supplier;
@@ -27,6 +28,7 @@ public class PVZAPI {
 
     public interface IPVZAPI{
         String getSunString();
+        boolean isTeammate(Entity A, Entity B);
     }
 
     public static class DummyAPI implements IPVZAPI {
@@ -36,6 +38,11 @@ public class PVZAPI {
         @Override
         public String getSunString() {
             return "pvz.sun";
+        }
+
+        @Override
+        public boolean isTeammate(Entity A, Entity B) {
+            return false;
         }
     }
 }

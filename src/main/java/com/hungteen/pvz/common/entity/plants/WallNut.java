@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.PVZPlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
+import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -58,7 +59,7 @@ public class WallNut extends PVZPlant {
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
-        this.goalSelector.addGoal(3, new RandomPerpendicularlyLookAroundGoal(this));
+        this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 
     @Override
@@ -103,34 +104,4 @@ public class WallNut extends PVZPlant {
         }
     }
 
-    public static class RandomPerpendicularlyLookAroundGoal extends RandomLookAroundGoal {
-        private final Mob mob;
-        private double relX;
-        private double relZ;
-        private int lookTime;
-
-        public RandomPerpendicularlyLookAroundGoal(Mob p_25720_) {
-            super(p_25720_);
-            this.mob = p_25720_;
-            this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
-        }
-
-        @Override
-        public void start() {
-            double d0 = (Math.PI * 0.5D) * this.mob.getRandom().nextInt(4);
-            this.relX = Math.cos(d0);
-            this.relZ = Math.sin(d0);
-            this.lookTime = 20 + this.mob.getRandom().nextInt(20);
-        }
-
-        public boolean canContinueToUse() {
-            return this.lookTime >= 0;
-        }
-
-        @Override
-        public void tick() {
-            --this.lookTime;
-            this.mob.getLookControl().setLookAt(this.mob.getX() + this.relX, this.mob.getEyeY(), this.mob.getZ() + this.relZ);
-        }
-    }
 }

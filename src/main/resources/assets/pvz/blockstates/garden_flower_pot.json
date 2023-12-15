@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "pvz:block/garden_flower_pot"
+    },
+    "type=double": {
+      "model": "pvz:block/garden_flower_pots"
+    },
+    "type=top": {
+      "model": "pvz:block/garden_flower_pot_top"
+    }
+  }
+}

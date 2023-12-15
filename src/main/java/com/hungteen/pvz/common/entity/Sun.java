@@ -122,7 +122,7 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         super.baseTick();
 
         //about sun disappear.
-        if (PVZRulesCapability.get("sunDisappear")) {
+        if (PVZRulesCapability.getBoolean("sunDisappear")) {
             if(! level.isClientSide) {
                 if (++ this.sunLiveTick >= this.getMaxLiveTick()) {
                     this.remove(Entity.RemovalReason.DISCARDED);
@@ -188,7 +188,7 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
 
 
     public int getMaxLiveTick() {
-        return PVZRulesCapability.get("sunDisappear") ? MAX_LIVE_TICK : -1;
+        return PVZRulesCapability.getBoolean("sunDisappear") ? MAX_LIVE_TICK : -1;
     }
 
 
@@ -200,7 +200,7 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
         if (tag.contains("Amount")) {
-            setAmount(tag.getInt("amount"));
+            setAmount(tag.getInt("Amount"));
         }
         if (tag.contains("SunLiveTick")) {
             this.sunLiveTick = tag.getInt("SunLiveTick");

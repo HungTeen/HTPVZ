@@ -9,6 +9,7 @@ public class PVZBlockTags {
 
     public static final TagKey<Block> UNPLANTABLE_DIRT = pvzTag("unplantable_dirt");
     public static final TagKey<Block> PLANTABLE_BLOCKS = pvzTag("plantable_dirt");
+    public static final TagKey<Block> WATER = pvzTag("water");//only used doe garden terrain.
 
     //definition
 

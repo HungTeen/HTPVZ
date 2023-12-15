@@ -3,7 +3,6 @@ package com.hungteen.pvz.common.enchantment;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment;
 

@@ -110,15 +110,14 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int skillID) {
         if (slots.get(0).hasItem() && slots.get(0).getItem().getItem() instanceof SeedPacketItem<?> item) {
-            if (item.canBoost() && item.getEntity().create(player.level) instanceof IHaveSkills e) {
-                if (e.getStaticSkillList().size() <= skillID) {
+            if (item.canBoost() && item.getStaticSkillList().size() > 0) {
+                if (item.getStaticSkillList().size() <= skillID) {
                     PVZMod.LOGGER.info("Chosen skill of "+ player.getName().getString() +" not exists.");
                 }
-                Skill skill = e.getStaticSkillList().get(skillID);
-                ((Entity)e).discard();
+                Skill skill = item.getStaticSkillList().get(skillID);
                 int costSeedPacket = skill.costSeed;
                 int costItem = skill.costItem;
-                if (isSkillAvailable(player, e.getStaticSkillList(), skillID)) {
+                if (isSkillAvailable(player, item.getStaticSkillList(), skillID)) {
                     if (! player.getAbilities().instabuild) {
                         if (slots.get(2).hasItem()) {
                             slots.get(2).getItem().shrink(costSeedPacket);
@@ -180,7 +179,7 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
                 return false;
             }
             if (! (slots.get(2).getItem().getItem() instanceof SeedItem<?> item1 &&
-                    item1.getEntity().equals(((SeedPacketItem<?>) seedPacket).getEntity()))) {
+                    item1.getEntity().equals(seedPacket.getEntity()))) {
                 return false;
             }
             if (slots.get(1).getItem().getCount() < skill.costSeed) {

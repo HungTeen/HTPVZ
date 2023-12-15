@@ -2,7 +2,7 @@
   "type": "pvz:essence_furnace",
   "is_essence": true,
   "ingredient": {
-    "tag": "pvz:to_gelum_essence"
+    "item": "minecraft:blue_ice"
   },
   "fuel": {
     "item": "pvz:origin_essence"

@@ -52,11 +52,6 @@ public class ItemTagGen extends ItemTagsProvider {
         //others
         this.tag(PVZItemTags.TO_TERRA_ESSENCE).add(Blocks.STONE.asItem(), Blocks.DEEPSLATE.asItem(), 
                 Blocks.GRANITE.asItem(), Blocks.DIORITE.asItem(), Blocks.ANDESITE.asItem(), Blocks.TUFF.asItem());
-        this.tag(PVZItemTags.TO_AQUA_ESSENCE).add(Items.WATER_BUCKET);
-        this.tag(PVZItemTags.TO_IGNIS_ESSENCE).add(Items.LAVA_BUCKET, Blocks.MAGMA_BLOCK.asItem());
-        this.tag(PVZItemTags.TO_VENTUS_ESSENCE).addTag(ItemTags.LEAVES);
-        this.tag(PVZItemTags.TO_GELUM_ESSENCE).add(Items.POWDER_SNOW_BUCKET, Blocks.SNOW_BLOCK.asItem(),
-                Blocks.ICE.asItem(), Blocks.PACKED_ICE.asItem(), Blocks.BLUE_ICE.asItem());
         this.tag(PVZItemTags.TO_LUX_ESSENCE).add(Blocks.GLOWSTONE.asItem(), Blocks.SHROOMLIGHT.asItem(),
                 Blocks.PEARLESCENT_FROGLIGHT.asItem(), Blocks.OCHRE_FROGLIGHT.asItem(), Blocks.VERDANT_FROGLIGHT.asItem());
     }

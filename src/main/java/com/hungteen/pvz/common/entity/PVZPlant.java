@@ -64,7 +64,7 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
     public static final EntityDataAccessor<Integer> WILT_COUNTDOWN = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
     /**skill id. see {@link Skill}.*/
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
-    protected static List<Skill> staticSkillSet = new ArrayList<>();
+    public static List<Skill> staticSkillSet = new ArrayList<>();
 
 
     private int situationHurtCount = 0;
@@ -126,6 +126,7 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
      */
     @Override
     public MutableComponent isPositionSafe(Level level, BlockPos onPos) {
+        //TODO replace with vanilla methods.
         VoxelShape tmpShape = level.getBlockState(onPos).getCollisionShape(level, onPos);
         double calcHeight = getBbHeight() + (tmpShape.isEmpty() ? 0 : tmpShape.bounds().maxY) - 1;
         for (int i = 1; i <= ceil(calcHeight); i ++) {
@@ -219,10 +220,10 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
         this.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> {
             Entity owner = cap.getOwner();
             if (owner != null) {
-            permission[0] = PVZRulesCapability.get("shovelPermission") ?
-                    (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.get("teamBattle")) : owner.is(player);
+            permission[0] = PVZRulesCapability.getBoolean("shovelPermission") ?
+                    (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.getBoolean("teamBattle")) : owner.is(player);
             } else {
-                permission[0] = PVZRulesCapability.get("shovelPermission");
+                permission[0] = PVZRulesCapability.getBoolean("shovelPermission");
             }
         });
         //shovel plant.

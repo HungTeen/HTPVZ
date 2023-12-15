@@ -6,11 +6,17 @@ import com.hungteen.pvz.client.layer.WallNutColorLayer;
 import com.hungteen.pvz.client.model.plants.WallNutModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.WallNut;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Creeper;
+
+import static com.hungteen.pvz.common.entity.plants.WallNut.EXPLODE_COUNT;
 
 
 public class WallNutRenderer<T extends WallNut> extends MobRenderer<T, EntityModel<T>> {
@@ -22,6 +28,23 @@ public class WallNutRenderer<T extends WallNut> extends MobRenderer<T, EntityMod
     public WallNutRenderer(EntityRendererProvider.Context context) {
         super(context, new WallNutModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("wall_nut:main"))), 0.6F);
         this.addLayer(new WallNutColorLayer(this, context.getModelSet()));
+    }
+
+
+    public void render(T wallNut, float p_115456_, float p_115457_, PoseStack poseStack, MultiBufferSource buffer, int p_115460_) {
+        super.render(wallNut, p_115456_, p_115457_, poseStack, buffer, p_115460_);
+    }
+
+    @Override
+    protected void scale(T wallNut, PoseStack p_114047_, float p_114048_) {
+        float f = wallNut.hasSkill(this, 0) ? wallNut.getEntityData().get(EXPLODE_COUNT) < 20 ? 0 :
+                (float) wallNut.getEntityData().get(EXPLODE_COUNT) / 20 - 1 : 0;
+        float f1 = 1.0F + Mth.sin(f * 100.0F) * f * 0.01F;
+        f = Mth.clamp(f, 0.0F, 1.0F);
+        f *= f;
+        f *= f;
+        float f2 = (1.0F + f * 0.4F) * f1;
+        p_114047_.scale(f2, f2, f2);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
+import com.hungteen.pvz.common.entity.plants.WallNut;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.world.entity.EntityType;
@@ -14,18 +16,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-/**This class is used only when game loads. Then all the data in PVZSeedPackets.seedPackets will be released.
+/**This class is used only when registering. Then all the data in PVZSeedPackets.seedPackets will be released.
  */
 public class PVZSeedPackets {
     public static final int FAST = 60;
     public static final int MIDDLE = 200;
     public static final int SLOW = 400;
     public static final int VERY_SLOW = 750;
+    @Deprecated //clear after registry.
     public static List<RegisterSeedPacketsEvent.SeedPacketData> seedPackets = new ArrayList<>();
 
     static {
         //pvz packets.
-        add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW)
+        add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillSet)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();
@@ -67,6 +70,10 @@ public class PVZSeedPackets {
         }
         public RecipeSeedPacketData<T> coolDown(int coolDown) {
             this.coolDown = coolDown;
+            return this;
+        }
+        public RecipeSeedPacketData<T> skillList(List<Skill> list) {
+            this.skillList = list;
             return this;
         }
         public RecipeSeedPacketData<T> recipe(RegistryObject<Item> seed, RegistryObject<Item> packet, RegistryObject<Item> essence) {

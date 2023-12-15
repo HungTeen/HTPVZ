@@ -9,11 +9,7 @@ public class PVZItemTags {
 
     public static final TagKey<Item> ESSENCE = pvzTag("essence");
     public static final TagKey<Item> TO_TERRA_ESSENCE = pvzTag("to_terra_essence");
-    public static final TagKey<Item> TO_AQUA_ESSENCE = pvzTag("to_aqua_essence");
-    public static final TagKey<Item> TO_IGNIS_ESSENCE = pvzTag("to_ignis_essence");
-    public static final TagKey<Item> TO_VENTUS_ESSENCE = pvzTag("to_ventus_essence");
     public static final TagKey<Item> TO_LUX_ESSENCE = pvzTag("to_lux_essence");
-    public static final TagKey<Item> TO_GELUM_ESSENCE = pvzTag("to_gelum_essence");
 
     //definition
 

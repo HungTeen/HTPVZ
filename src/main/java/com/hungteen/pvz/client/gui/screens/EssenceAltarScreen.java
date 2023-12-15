@@ -2,7 +2,6 @@ package com.hungteen.pvz.client.gui.screens;
 
 import com.hungteen.pvz.Util;
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
@@ -59,8 +58,8 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
     public void containerTick() {
         this.skills = List.of();
         if (this.getMenu().slots.get(0).hasItem() && this.getMenu().slots.get(0).getItem().getItem() instanceof SeedPacketItem<?> item) {
-            if (item.getEntity().create(ClientProxy.MC.level) instanceof IHaveSkills e) {
-                this.skills = e.getStaticSkillList();
+            if (item.getStaticSkillList().size() > 0) {
+                this.skills = item.getStaticSkillList();
             }
         }
         shownFirstSkill = min(shownFirstSkill, skills.size());

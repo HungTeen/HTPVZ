@@ -1,6 +1,7 @@
 {
   "type": "pvz:essence_furnace",
   "is_essence": true,
+  "cost_ingredient": true,
   "ingredient": {
     "tag": "pvz:to_terra_essence"
   },

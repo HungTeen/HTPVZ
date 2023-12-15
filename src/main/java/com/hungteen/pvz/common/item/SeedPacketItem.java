@@ -50,9 +50,10 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     private final int coolDown;
     private List<Skill> skillList;
 
-    public SeedPacketItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown) {
+    public SeedPacketItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, List<Skill> skillList, String resource, int cost, int coolDown) {
         super(p_41383_);
         this.entitySupplier = entitySupplier;
+        this.skillList = skillList;
         this.resource = resource;
         this.cost = cost;
         this.coolDown = coolDown;
@@ -109,10 +110,6 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     @Override
     public List<Skill> getStaticSkillList(){
         return skillList;
-    }
-
-    public void updateSkillList(Entity entity) {
-        this.skillList = entity instanceof IHaveSkills e ? e.getStaticSkillList() : new ArrayList<>();
     }
 
     @Override
@@ -288,16 +285,11 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     public static void HandlePlantConditions(PVZResourceEvent.CheckResourceEvent ev) {
         if (! (ev.seedPacket.getItem() instanceof SeedPacketItem<?> item) || item.canBoost()) {
             if (ev.getEntity().level.isClientSide() && PVZPlayerCapability.getValue(ev.getEntity(), "plant_have_cost") > 0) {
-                Entity entity = ((SeedPacketItem<?>) ev.seedPacket.getItem()).entitySupplier.get().create(ev.getEntity().level);
-                if (entity != null) {
-                    if (((SeedPacketItem<?>) ev.seedPacket.getItem()).getSkillVal(ev.seedPacket) > 0) {
-                        if (entity instanceof IHaveSkills e) {
-                            for (int i : e.getSkills(e)) {
-                                ev.cost += e.getStaticSkillList().get(i).addCostResource;
-                            }
-                        }
+                SeedPacketItem<?> item = ((SeedPacketItem<?>) ev.seedPacket.getItem());
+                for (int i : item.getSkills(ev.seedPacket)) {
+                    if (item.getStaticSkillList().size() - 1 >= i) {
+                        ev.cost += item.getStaticSkillList().get(i).addCostResource;
                     }
-                    entity.discard();
                 }
             } else if (ev instanceof PVZResourceEvent.CheckPlantConditionEvent e) {
                 int level = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.QUICK_COOL_DOWN.get(), e.seedPacket);
@@ -329,9 +321,6 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn){
         super.appendHoverText(stack, level, tooltip, flagIn);
-        if (getStaticSkillList() == null) {
-            updateSkillList(getEntity().create(level));
-        }
         for (int i : getSkills(stack)) {
             if (getStaticSkillList().size() - 1 >= i) {
                 tooltip.add(Component.translatable(getStaticSkillList().get(i).name).withStyle(ChatFormatting.DARK_AQUA));

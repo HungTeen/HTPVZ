@@ -56,6 +56,8 @@ public class PVZItems {
     //registry
     public static final RegistryObject<Item> PEA = item("pea");
     public static final RegistryObject<Item> NUT = item("nut");
+    public static final RegistryObject<Item> JEWEL = item("jewel");
+    public static final RegistryObject<Item> ALAYA_RESIN = item("alaya_resin");
     public static final RegistryObject<Item> ORIGIN_ESSENCE = tag(PVZItemTags.ESSENCE).item("origin_essence");
     public static final RegistryObject<Item> TERRA_ESSENCE = tag(PVZItemTags.ESSENCE).item("terra_essence");
     public static final RegistryObject<Item> AQUA_ESSENCE = tag(PVZItemTags.ESSENCE).item("aqua_essence");
@@ -141,7 +143,7 @@ public class PVZItems {
             }
             seedPacketMap.put(data,
                     item(name + "_seed_packet", () -> new SeedPacketItem(
-                            new Item.Properties().stacksTo(1).defaultDurability(300).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.resource, data.cost, data.coolDown
+                            new Item.Properties().stacksTo(1).defaultDurability(300).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown
                     )));
             if (data instanceof PVZSeedPackets.RecipeSeedPacketData<?> && ((PVZSeedPackets.RecipeSeedPacketData<?>)data).recipe != null) {
                 model(Model.SeedPacket, res("seed_packets/seed"), res("plants/" + name));

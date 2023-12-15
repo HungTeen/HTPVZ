@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 
@@ -35,14 +36,17 @@ public class BlockLootGen extends BlockLoot {
         });
         //leaves
         PVZBlocks.woodList.forEach((map) -> {
-                this.addLeavesDrops(map.get(PVZBlocks.WoodSet.Leaves).get(), map.get(PVZBlocks.WoodSet.Sampling).get(), NORMAL_LEAVES_SAPLING_CHANCES);
+                this.addLeavesDrops(map.get(PVZBlocks.WoodSet.Leaves).get(), map.get(PVZBlocks.WoodSet.Sapling).get(), NORMAL_LEAVES_SAPLING_CHANCES);
+                this.addPottedDrop(map.get(PVZBlocks.WoodSet.PottedSapling).get());
                 this.addDoorTable(map.get(PVZBlocks.WoodSet.Door).get());
+                this.addSlabDrop(map.get(PVZBlocks.WoodSet.Slab).get());
         }
         );
 
         this.dropOther(PVZBlocks.NUT_LEAVES_WITH_NUTS.get(), PVZItems.NUT.get());
-        this.add(PVZBlocks.CARP_GRASS.get(), noDrop());
         this.addOreDrop(PVZBlocks.ORIGIN_ORE.get(), PVZItems.ORIGIN_ESSENCE.get());
+        this.addSlabDrop(PVZBlocks.GARDEN_FLOWER_POT.get());
+//        this.add(PVZBlocks.CARP_GRASS.get(), noDrop());
         //TODO bug that essence alter and origin block drop self without tool.
 
         //the rest
@@ -73,6 +77,16 @@ public class BlockLootGen extends BlockLoot {
         outPut(block);
         lootedList.add(block);
         this.add(block, createOreDrop(block, item));
+    }
+    protected void addSlabDrop(Block block) {
+        outPut(block);
+        lootedList.add(block);
+        this.add(block, createSlabItemTable(block));
+    }
+    protected void addPottedDrop(Block block) {
+        outPut(block);
+        lootedList.add(block);
+        this.add(block, createPotFlowerItemTable(((FlowerPotBlock)block).getContent()));
     }
 
     private void outPut(Block block){

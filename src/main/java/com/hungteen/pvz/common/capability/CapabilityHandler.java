@@ -31,7 +31,7 @@ public class CapabilityHandler {
         if (entity instanceof Player){
             ev.addCapability(Util.prefix("player_data"), new PVZPlayerCapability((Player) entity));
         }
-        if (entity.getServer() != null){
+        if (entity.level != null && entity.getServer() != null){// deliberately. entity.getServer() sometimes lead to a client error because (level == null).
             ev.addCapability(Util.prefix("owned_data"), new PVZOwnedCapability(entity));
         }
     }

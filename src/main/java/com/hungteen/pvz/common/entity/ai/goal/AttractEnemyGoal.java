@@ -41,7 +41,7 @@ public class AttractEnemyGoal extends Goal {
             if (targetEntity instanceof Mob && ! PVZOwnedCapability.isTeammate(entity, targetEntity)) {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
-                if ((! PVZRulesCapability.get("teamBattle")) ||
+                if ((! PVZRulesCapability.getBoolean("teamBattle")) ||
                         (targetEntity instanceof Enemy || targetOfTarget == null || !targetOfTarget.isAlive() || targetOfTarget.getTeam() == entity.getTeam())) {
                     //test if can attract.
                     ((Mob) targetEntity).targetSelector.getAvailableGoals().forEach((goal) -> {

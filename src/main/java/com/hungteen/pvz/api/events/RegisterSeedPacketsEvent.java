@@ -1,11 +1,13 @@
 package com.hungteen.pvz.api.events;
 
 import com.hungteen.pvz.api.PVZAPI;
+import com.hungteen.pvz.api.Skill;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.eventbus.api.Event;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -39,6 +41,7 @@ public class RegisterSeedPacketsEvent extends Event {
 
     public static class SeedPacketData<T extends LivingEntity> {
         public Supplier<EntityType<T>> entitySupplier;
+        public List<Skill> skillList = List.of();
         public int cost = 0;
         public int coolDown = 5;
         public String resource = PVZAPI.get().getSunString();

@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.world.zen_garden.LunarStoneFeature;
 import com.hungteen.pvz.common.world.zen_garden.NutTreeGrower;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenBiomeSource;
 import net.minecraft.sounds.Music;
@@ -17,23 +18,25 @@ public class PVZBiomes {
     public static final DeferredRegister<Biome> BIOMES = DeferredRegister.create(ForgeRegistries.BIOMES, PVZMod.MODID);
 
     public static final RegistryObject<Biome> GARDEN_PLAINS = BIOMES.register("garden_plains", ZenGardenBiomeSource::gardenPlains);
+    public static final RegistryObject<Biome> GARDEN_ISLAND = BIOMES.register("garden_island", ZenGardenBiomeSource::gardenIsland);
+    public static final RegistryObject<Biome> GARDEN_RIVER = BIOMES.register("garden_river", ZenGardenBiomeSource::gardenRiver);
+    public static final RegistryObject<Biome> GARDEN_MUSHROOM = BIOMES.register("garden_mushroom", ZenGardenBiomeSource::gardenMushroom);
     public static boolean features = false;
 
 
 
-    //difinitions
+    //definitions
 
-    public static Biome biome(Biome.Precipitation precipitation, float skyColor, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable Music music) {
-        return biome(precipitation, skyColor, downfall, 4159204, 329011, mobSpawnBuilder, biomeGenBuilder, music);
+    public static Biome biome(Biome.Precipitation precipitation, int skyColor, int fogColor, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable Music music) {
+        return biome(precipitation, skyColor, fogColor, 0x3f76e4, 0x050533, downfall, mobSpawnBuilder, biomeGenBuilder, music);
     }
 
-    public static Biome biome(Biome.Precipitation precipitation, float skyColor, float downfall, int waterColor, int waterFogColor, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable Music backgroundMusic) {
+    public static Biome biome(Biome.Precipitation precipitation, int skyColor, int fogColor, int waterColor, int waterFogColor, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable Music backgroundMusic) {
         return (new Biome.BiomeBuilder()).precipitation(precipitation).temperature(skyColor).downfall(downfall)
                 .specialEffects(
                         (new BiomeSpecialEffects.Builder())
                         .waterColor(waterColor).waterFogColor(waterFogColor)
-                        .fogColor(12638463).skyColor(calculateSkyColor(skyColor))
-                        .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
+                        .fogColor(fogColor).skyColor(skyColor)
                         .backgroundMusic(backgroundMusic).build()
                 )
                 .mobSpawnSettings(mobSpawnBuilder.build())
@@ -41,15 +44,10 @@ public class PVZBiomes {
                 .build();
     }
 
-    protected static int calculateSkyColor(float p_194844_) {
-        float $$1 = p_194844_ / 3.0F;
-        $$1 = Mth.clamp($$1, -1.0F, 1.0F);
-        return Mth.hsvToRgb(0.62222224F - $$1 * 0.05F, 0.5F + $$1 * 0.1F, 1.0F);
-    }
-
     public static void checkFeatures(){
         if (!features){
             NutTreeGrower.init();
+            LunarStoneFeature.init();
         }
     }
 }

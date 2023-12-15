@@ -8,11 +8,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
     public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown) {
-        super(p_41383_, entitySupplier, resource, cost, coolDown);
+        super(p_41383_, entitySupplier, List.of(), resource, cost, coolDown);
     }
 
     @Override

@@ -49,7 +49,7 @@ public class NutTreeGrower extends AbstractMegaTreeGrower {
     }
 
     public static void init(){
-        tree = FeatureUtils.register("nut_tree", Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
+        tree = FeatureUtils.register("pvz:nut_tree", Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(NUT.get(Log).get()),
                 new StraightTrunkPlacer(10, 2, 0),
                 new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
@@ -59,7 +59,7 @@ public class NutTreeGrower extends AbstractMegaTreeGrower {
                 new TwoLayersFeatureSize(1, 0, 1))
                 .build()
         );
-        megaTree = FeatureUtils.register("mega_nut_tree", Feature.TREE, (new TreeConfiguration.TreeConfigurationBuilder(
+        megaTree = FeatureUtils.register("pvz:mega_nut_tree", Feature.TREE, (new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(NUT.get(Log).get()),
                 new MegaJungleTrunkPlacer(15, 10, 10),
                 new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
@@ -71,10 +71,10 @@ public class NutTreeGrower extends AbstractMegaTreeGrower {
                 .build()
         );
         MEGA_NUT_TREE_CHECKED = BuiltinRegistries.register(BuiltinRegistries.PLACED_FEATURE, Util.prefix("mega_nut_tree_checked"),
-                new PlacedFeature(Holder.hackyErase(NutTreeGrower.megaTree), List.of(PlacementUtils.filteredByBlockSurvival(PVZBlocks.NUT.get(PVZBlocks.WoodSet.Sampling).get()))));
-        TREES_NUT_CF = BuiltinRegistries.register( BuiltinRegistries.CONFIGURED_FEATURE, Util.prefix("trees_nut"),
-                new ConfiguredFeature<>(Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(new WeightedPlacedFeature(MEGA_NUT_TREE_CHECKED, 0.33333334F)), MEGA_NUT_TREE_CHECKED)));
+                new PlacedFeature(Holder.hackyErase(NutTreeGrower.megaTree), List.of(PlacementUtils.filteredByBlockSurvival(PVZBlocks.NUT.get(PVZBlocks.WoodSet.Sapling).get()))));
+        TREES_NUT_CF = BuiltinRegistries.register(BuiltinRegistries.CONFIGURED_FEATURE, Util.prefix("trees_nut"),
+                new ConfiguredFeature<>(Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(new WeightedPlacedFeature(MEGA_NUT_TREE_CHECKED, 0.01F)), MEGA_NUT_TREE_CHECKED)));
         TREES_NUT_PF = BuiltinRegistries.register(BuiltinRegistries.PLACED_FEATURE, Util.prefix("trees_nut"),
-                new PlacedFeature(Holder.hackyErase(TREES_NUT_CF), List.copyOf(treePlacement(PlacementUtils.countExtra(50, 0.1F, 1)))));
+                new PlacedFeature(Holder.hackyErase(TREES_NUT_CF), List.copyOf(treePlacement(PlacementUtils.countExtra(1, 0.1F, 1)))));
     }
 }

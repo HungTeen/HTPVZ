@@ -79,6 +79,7 @@ public class PVZMod
         PVZBlockEntities.BLOCK_ENTITIES.register(modBus);
 
         PVZBiomes.BIOMES.register(modBus);
+        PVZFeatures.FEATURES.register(modBus);
         PVZParticles.PARTICLES.register(modBus);
 
         PVZMenus.MENU_TYPES.register(modBus);
@@ -111,7 +112,6 @@ public class PVZMod
         LOGGER.info("----------COMMON SETUP----------");
 
         PVZDimensions.register();
-        PVZBiomes.checkFeatures();
         PVZEnchantments.handleEnchantmentTypes();
 
         event.enqueueWork(() ->{
@@ -141,7 +141,7 @@ public class PVZMod
     {
         LOGGER.info("----------server starting----------");
 
-
+        PVZBiomes.checkFeatures();
     }
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

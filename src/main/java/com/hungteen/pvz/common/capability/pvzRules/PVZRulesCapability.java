@@ -2,7 +2,6 @@ package com.hungteen.pvz.common.capability.pvzRules;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
@@ -34,6 +33,7 @@ public class PVZRulesCapability implements ICapabilitySerializable<CompoundTag> 
         register(map, "shovelPermission", true);//if on, player can shovel plants planted by not only itself.
         register(map, "sunDisappear", true);//if on, sun will automatically disappear.
         register(map, "teamBattle", false);//if on, plants in different team will attack each other.
+        register(map, "killWisdomTree", false);//if on, wisdom tree will die.
         return map;
     }
 
@@ -41,7 +41,7 @@ public class PVZRulesCapability implements ICapabilitySerializable<CompoundTag> 
             return cap;
     }
 
-    public static boolean get(String key){
+    public static boolean getBoolean(String key){
         return get().booleanMap.get(key);
     }
 

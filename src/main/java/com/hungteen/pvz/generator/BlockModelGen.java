@@ -6,6 +6,8 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.*;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.client.model.generators.ModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
@@ -44,6 +46,7 @@ public class BlockModelGen extends BlockStateProvider {
                 case Plate -> plate((PressurePlateBlock) block, pair.getSecond().getSecond(), renderType);
                 case Sign -> sign((StandingSignBlock) block);
                 case WallSign -> wallsign((WallSignBlock) block, pair.getSecond().getSecond(), renderType);
+                case Potted -> potted((FlowerPotBlock) block, pair.getSecond().getSecond(), renderType);
                 //Modeled ones excluded.
             }
         });
@@ -153,7 +156,12 @@ public class BlockModelGen extends BlockStateProvider {
             signBlock(standing, wall, list.get(0));
         }
     }
-
+    private void potted(FlowerPotBlock block, List<ResourceLocation> list, String renderType) {
+        ModelFile model = models().withExistingParent(path(block), "flower_pot_cross")
+                .texture("plant", list.get(0))
+                .renderType(renderType);
+        simpleBlock(block, new ConfiguredModel(model));
+    }
     
     //definitions
     private String name(Block block) {

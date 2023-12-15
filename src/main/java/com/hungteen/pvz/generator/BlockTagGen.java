@@ -48,6 +48,7 @@ public class BlockTagGen extends BlockTagsProvider {
                 Blocks.SCULK, Blocks.SCULK_CATALYST,
                 Blocks.LILY_PAD, Blocks.FLOWER_POT
         );
+        this.tag(PVZBlockTags.WATER).add(Blocks.WATER);
     }
 
     public static final List<TagKey<Block>> LOGS = new ArrayList<>();
