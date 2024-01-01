@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.tags;
 
-import com.hungteen.pvz.Util;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;

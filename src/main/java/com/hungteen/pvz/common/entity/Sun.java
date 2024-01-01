@@ -1,12 +1,13 @@
 package com.hungteen.pvz.common.entity;
 
-import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.api.interfaces.ISun;
+import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -46,6 +47,16 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         sun.setDeltaMovement(speed);
         level.addFreshEntity(sun);
         return sun;
+    }
+    public static void spawnSunsRandomlyByAmount(Level level, BlockPos pos, int amount, int each, int range) {
+        while(amount >= each) {
+            amount -= each;
+            spawnSunRandomly(level, pos, each, range);
+        }
+        if(amount != 0) {
+            spawnSunRandomly(level, pos, amount, range);
+            amount = 0;
+        }
     }
 
     //ISun.
@@ -180,6 +191,15 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         return value < 6 ? 0 : value < 16 ? 1 : value < 26 ? 2 : 3;
     }
 
+
+    /**
+     * spawn sun entity in range randomly with specific amount.
+     */
+    public static void spawnSunRandomly(Level level, BlockPos pos, int amount, int dis) {
+        Sun sun = PVZEntities.SUN.get().create(level);
+        sun.setAmount(amount);
+        EntityUtil.onEntityRandomPosSpawn(level, sun, pos, dis);
+    }
     @Override
     public EntityDimensions getDimensions(Pose poseIn) {
         float w = this.getAmount() * 1f / 200 + 0.2f;

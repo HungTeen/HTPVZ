@@ -54,6 +54,7 @@
   "entity.pvz.pvz_chest_boat": "运输船",
   "entity.pvz.sun": "阳光",
   "entity.pvz.wall_nut": "坚果墙",
+  "entity.pvz.sun_flower": "向日葵",
   "hint.pvz.block.wisdom_tree_core": "不可破坏。一个智慧树核心可以长成一整株智慧树。",
   "hint.pvz.creative_only": "仅创造模式",
   "hint.pvz.plant.cant_plant_in_water": "%s不能种植在流体环境中",

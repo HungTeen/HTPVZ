@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.world.zen_garden;
 
 import com.google.common.collect.ImmutableList;
 import com.hungteen.pvz.common.register.PVZBlocks;
-import com.hungteen.pvz.Util;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.worldgen.features.FeatureUtils;

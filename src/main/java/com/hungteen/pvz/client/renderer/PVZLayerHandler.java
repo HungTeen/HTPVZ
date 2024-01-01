@@ -2,7 +2,8 @@ package com.hungteen.pvz.client.renderer;
 
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.model.GrassCarpModel;
-import com.hungteen.pvz.client.model.plants.WallNutModel;
+import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
+import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -18,8 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.hungteen.pvz.Util.name;
-import static com.hungteen.pvz.Util.prefix;
+import static com.hungteen.pvz.util.Util.name;
+import static com.hungteen.pvz.util.Util.prefix;
 
 @OnlyIn(Dist.CLIENT)
 public class PVZLayerHandler {
@@ -32,6 +33,11 @@ public class PVZLayerHandler {
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
+        L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
+        L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
+        L(e, PVZEntities.TALL_NUT, TallNutModel::createBodyLayer);
+        L(e, PVZEntities.PEA_SHOOTER, PeaShooterModel::createBodyLayer);
+        L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
 
         //simple rendered entities

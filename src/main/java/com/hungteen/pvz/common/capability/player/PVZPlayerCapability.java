@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.capability.player;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +21,6 @@ import net.minecraftforge.event.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -75,6 +75,14 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                     nbt.sunCountDown = 0;
                 }
+                if (EntityUtil.isSurvivalPlayer(player) && EntityUtil.isEntityPeace(player,100)&& player.tickCount%60==0) {
+                      int limitSun = nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond();
+                        int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
+                        if (curSun < limitSun) {
+                            nbt.addValue(PVZPlayerCapNBT.SUN,5);
+                        }
+                        nbt.sunCountDown = 0;
+               }
                 //cool down effects.
                 if (nbt.getValue("plant_have_cd") == 0) {
                     Set<Item> keyset = Set.copyOf(player.getCooldowns().cooldowns.keySet());

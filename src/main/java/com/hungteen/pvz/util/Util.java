@@ -1,5 +1,6 @@
-package com.hungteen.pvz;
+package com.hungteen.pvz.util;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

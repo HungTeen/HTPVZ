@@ -1,9 +1,9 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.Util;
 import com.hungteen.pvz.common.menu.EssenceFurnaceRecipe;
 import com.hungteen.pvz.common.world.zen_garden.GlowBerryDecorator;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.ItemStack;

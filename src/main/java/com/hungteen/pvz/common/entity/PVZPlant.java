@@ -1,10 +1,7 @@
 package com.hungteen.pvz.common.entity;
 
-import com.hungteen.pvz.api.*;
-import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
-import com.hungteen.pvz.api.interfaces.IHaveSkills;
-import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
-import com.hungteen.pvz.api.interfaces.IPlant;
+import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
@@ -26,7 +23,10 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -40,14 +40,16 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 import static java.lang.Math.ceil;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
-public class PVZPlant extends Mob implements IHaveSkills, IPlant {
+public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
 
 
     /**
@@ -64,6 +66,8 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
     public static final EntityDataAccessor<Integer> WILT_COUNTDOWN = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
     /**skill id. see {@link Skill}.*/
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> ATTACK_TIME = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
+
     public static List<Skill> staticSkillSet = new ArrayList<>();
 
 
@@ -173,8 +177,6 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
     }
 
 
-
-
     /**
      * control if this plant can push another entity.*/
     public Predicate<Entity> canPush(){
@@ -260,17 +262,23 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
         this.entityData.define(HAS_COINCIDE_DMG, true);
         this.entityData.define(WILT_COUNTDOWN, -1);
         this.entityData.define(SKILL, 0);
+        this.entityData.define(ATTACK_TIME, 0);
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("Skill", getSkillVal(this));
+        tag.putInt("PlantAttackTime", getAttackTime(this));
+
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
         if (tag.contains("Skill")) {
             setSkillVal(this, tag.getInt("Skill"));
+        }
+        if (tag.contains("PlantAttackTime")) {
+            this.setAttackTime(this,tag.getInt("PlantAttackTime"));
         }
     }
 
@@ -297,7 +305,13 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant {
             }
         }
     }
+    public int getAttackTime(Object obj) {
+        return entityData.get(ATTACK_TIME);
+    }
 
+    public void setAttackTime(Object obj,int cd) {
+        entityData.set(ATTACK_TIME, cd);
+    }
     @Nullable
     public ItemStack getPickResult() {
         AtomicReference<Item> packetItem = new AtomicReference<>();

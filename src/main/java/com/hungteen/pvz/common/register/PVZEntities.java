@@ -2,16 +2,18 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
-import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
-import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
-import com.hungteen.pvz.client.renderer.misc.SunRenderer;
-import com.hungteen.pvz.client.renderer.plants.WallNutRenderer;
-import com.hungteen.pvz.common.entity.*;
-import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.common.entity.plants.WallNut;
+import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
+import com.hungteen.pvz.client.renderer.bullet.PeaBulletRenderer;
+import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
+import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
+import com.hungteen.pvz.client.renderer.misc.SunRenderer;
+import com.hungteen.pvz.client.renderer.plants.*;
+import com.hungteen.pvz.common.entity.*;
+import com.hungteen.pvz.common.entity.bullet.PeaBullet;
+import com.hungteen.pvz.common.entity.plants.*;
 import com.hungteen.pvz.generator.loot.EntityLootGen;
-import com.hungteen.pvz.Util;
+import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -42,8 +44,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.hungteen.pvz.Util.name;
-import static com.hungteen.pvz.Util.prefix;
+import static com.hungteen.pvz.util.Util.name;
+import static com.hungteen.pvz.util.Util.prefix;
 
 public class PVZEntities {
     //init
@@ -71,6 +73,7 @@ public class PVZEntities {
     /**
      * silly carp do not forget to add attributes. use {@link PVZEntities#attribute(Supplier)}.
      */
+    public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F).entity("pea", PeaBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PVZBoat>> BOAT = collision(1.375F, 0.5625F).entity("pvz_boat", PVZBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = collision(1.375F, 0.5625F).entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<Sun>> SUN = collision(0.2F, 0.2F).entity("sun", Sun::new, MobCategory.MISC);
@@ -81,9 +84,17 @@ public class PVZEntities {
             .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
         //plants
-        public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes)
+     public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes)
                 .collision(0.8F, 1F).entity("wall_nut", WallNut::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes)
+            .collision(0.75F, 1.3F).entity("sun_flower", SunFlower::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes)
+            .collision(0.75F, 1.3F).entity("marigold", MariGold::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes)
+            .collision(0.8F, 2.0F).entity("tall_nut", TallNut::new, MobCategory.MISC);
 
+    public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes)
+            .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, MobCategory.MISC);
 
     //client
     /** For simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}.
@@ -106,6 +117,12 @@ public class PVZEntities {
         r(e, GRASSCARP, GrassCarpRenderer::new);
         r(e, WALL_NUT, WallNutRenderer::new);
         r(e, SUN, SunRenderer::new);
+        r(e, SUN_FLOWER, SunFlowerRenderer::new);
+        r(e, MARIGOLD, MariGoldRenderer::new);
+        r(e, TALL_NUT, TallNutRenderer::new);
+        r(e, PEA_SHOOTER, PeaShooterRenderer::new);
+        r(e, PEA, PeaBulletRenderer::new);
+
         //enter here
 
         //auto works

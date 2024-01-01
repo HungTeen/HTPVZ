@@ -2,12 +2,13 @@ package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
-import com.hungteen.pvz.common.entity.plants.WallNut;
+import com.hungteen.pvz.common.entity.plants.*;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -30,6 +31,14 @@ public class PVZSeedPackets {
         //pvz packets.
         add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillSet)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
+        add(PVZEntities.SUN_FLOWER).cost(25).coolDown(FAST).skillList(SunFlower.staticSkillSet)
+                .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
+        add(PVZEntities.PEA_SHOOTER).cost(75).coolDown(FAST).skillList(PeaShooter.staticSkillSet)
+                .recipe(Items.ARROW, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
+        add(PVZEntities.MARIGOLD).cost(75).coolDown(FAST).skillList(MariGold.staticSkillSet)
+                .recipe(Items.OXEYE_DAISY, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
+        add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillSet);
+
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();
         MinecraftForge.EVENT_BUS.post(event);
@@ -84,6 +93,10 @@ public class PVZSeedPackets {
             this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
             return this;
         }
+        public RecipeSeedPacketData<T> recipe(Item seed, RegistryObject<Item> packet, RegistryObject<Item> essence) {
+            this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
+            return this;
+        }
         public RegistryObject<Item> getBackCard() {
             Object packet = recipe.get("packet");
             if (packet instanceof RegistryObject) {
@@ -91,5 +104,6 @@ public class PVZSeedPackets {
             }
             return ((RecipeSeedPacketData) packet).getBackCard();
         }
+
     }
 }

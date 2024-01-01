@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.network;
 
-import com.hungteen.pvz.Util;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;

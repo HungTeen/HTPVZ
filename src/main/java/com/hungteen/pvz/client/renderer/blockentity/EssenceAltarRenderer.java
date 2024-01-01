@@ -1,9 +1,9 @@
 package com.hungteen.pvz.client.renderer.blockentity;
 
-import com.hungteen.pvz.Util;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.block.entity.EssenceAltarBlockEntity;
+import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;

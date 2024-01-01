@@ -28,7 +28,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.hungteen.pvz.Util.name;
+import static com.hungteen.pvz.util.Util.name;
 
 public class PVZItems {
 

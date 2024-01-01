@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.hungteen.pvz.Util.name;
-import static com.hungteen.pvz.Util.prefix;
 import static com.hungteen.pvz.common.register.PVZBlocks.woodList;
 import static com.hungteen.pvz.common.register.PVZBlocks.woodTypeList;
+import static com.hungteen.pvz.util.Util.name;
+import static com.hungteen.pvz.util.Util.prefix;
 
 public class RecipeGen extends RecipeProvider {
     private final Map<Pair<WoodType, Boolean>, Item> boatsToMatch = new HashMap<>();

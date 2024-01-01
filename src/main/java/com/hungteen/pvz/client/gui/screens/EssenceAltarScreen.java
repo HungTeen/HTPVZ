@@ -1,6 +1,5 @@
 package com.hungteen.pvz.client.gui.screens;
 
-import com.hungteen.pvz.Util;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
@@ -9,6 +8,7 @@ import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.menu.EssenceAltarMenu;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZAddSkillPacket;
+import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -32,7 +32,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.lang.Math.*;
+import static java.lang.Math.floor;
+import static java.lang.Math.min;
 
 @OnlyIn(Dist.CLIENT)
 public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu> {

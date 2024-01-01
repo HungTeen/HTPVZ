@@ -1,7 +1,7 @@
 package com.hungteen.pvz.client.gui.screens;
 
-import com.hungteen.pvz.Util;
 import com.hungteen.pvz.common.menu.EssenceFurnaceMenu;
+import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.ImageButton;

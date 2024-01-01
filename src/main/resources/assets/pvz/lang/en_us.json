@@ -54,6 +54,7 @@
   "entity.pvz.pvz_chest_boat": "Chest Boat",
   "entity.pvz.sun": "Sun",
   "entity.pvz.wall_nut": "Wall Nut",
+  "entity.pvz.sun_flower": "Sun Flower",
   "hint.pvz.block.wisdom_tree_core": "Unbreakable. A single core can grow up to an entire wisdom tree.",
   "hint.pvz.creative_only": "Creative mode only.",
   "hint.pvz.plant.cant_plant_in_water": "%s can't be planted in liquid",

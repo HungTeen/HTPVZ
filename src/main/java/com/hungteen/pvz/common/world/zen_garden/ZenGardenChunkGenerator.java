@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.world.zen_garden;
 
-import com.hungteen.pvz.Util;
+import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -23,8 +23,6 @@ import net.minecraft.world.level.levelgen.structure.StructureSet;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-
-import static java.lang.Math.*;
 
 /**Temporary work. Will be replaced somewhen.*/
 public class ZenGardenChunkGenerator extends ChunkGenerator {
