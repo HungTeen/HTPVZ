@@ -36,7 +36,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
         L(e, PVZEntities.TALL_NUT, TallNutModel::createBodyLayer);
-        L(e, PVZEntities.PEA_SHOOTER, PeaShooterModel::createBodyLayer);
+//        L(e, PVZEntities.PEA_SHOOTER, PeaShooterModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
 

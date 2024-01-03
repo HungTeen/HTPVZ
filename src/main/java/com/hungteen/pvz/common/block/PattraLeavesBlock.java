@@ -29,7 +29,7 @@ public class PattraLeavesBlock extends LeavesBlock {
             dropResources(blockState, level, pos);
             level.removeBlock(pos, false);
         } else if (blockState.getValue(DISTANCE) < 3) {
-            Direction direction = Direction.getRandom(random);
+            Direction direction = Direction.Plane.HORIZONTAL.getRandomDirection(random);
             if (level.getBlockState(pos.relative(direction)).isAir()) {
                 level.setBlockAndUpdate(pos.relative(direction), PVZBlocks.PATTRA_LEAVES.get().defaultBlockState()
                         .setValue(DISTANCE, blockState.getValue(DISTANCE) + 1));
@@ -43,7 +43,7 @@ public class PattraLeavesBlock extends LeavesBlock {
 
     //about distance
     public static int getDistanceAt(BlockState blockState) {
-        if (blockState.is(BlockTags.LOGS)) {
+        if (blockState.is(PVZBlocks.WISDOM_TREE_LOG.get()) && blockState.getValue(WisdomTreeLogBlock.DISTANCE) == 0) {
             return -1;
         } else if (! blockState.is(PVZBlocks.PATTRA_LEAVES.get())) {
             return 4;

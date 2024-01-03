@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.block;
 
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -62,6 +63,28 @@ public class WisdomTreeCoreBlock extends HorizontalDirectionalBlock {
         super.appendHoverText(stack, level, tooltip, flagIn);
     }
 
+    public boolean growAt(Level level, BlockPos pos, int rootLv, int lv) {
+        if (level.getBlockState(pos).isAir() || level.getBlockState(pos).is(PVZBlockTags.WISDOM_TREE_REPLACEABLE)) {
+            level.setBlockAndUpdate(pos, PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
+                    .setValue(WisdomTreeLogBlock.LV, lv - 1)
+                    .setValue(WisdomTreeLogBlock.ROOT_LV, rootLv)
+                    .setValue(WisdomTreeLogBlock.DISTANCE, rootLv)
+                    .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y)
+                    .setValue(WisdomTreeLogBlock.PERSISTENT, true));
+            return true;
+        } else if (level.getBlockState(pos).is(PVZBlocks.WISDOM_TREE_LOG.get()) &&
+                level.getBlockState(pos.above()).isAir() || level.getBlockState(pos.above()).is(PVZBlockTags.WISDOM_TREE_REPLACEABLE)) {
+            level.setBlockAndUpdate(pos.above(), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
+                    .setValue(WisdomTreeLogBlock.LV, lv - 1)
+                    .setValue(WisdomTreeLogBlock.ROOT_LV, rootLv)
+                    .setValue(WisdomTreeLogBlock.DISTANCE, rootLv - 1)
+                    .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void updateLevel(BlockState blockState, ServerLevel level, BlockPos pos) {
 
     }
@@ -71,20 +94,13 @@ public class WisdomTreeCoreBlock extends HorizontalDirectionalBlock {
         super.randomTick(blockState, level, pos, random);
         int lv = blockState.getValue(LV);
         if (!PVZRulesCapability.getBoolean("killWisdomTree") && random.nextInt(5) == 0) {
-            if (level.getBlockState(pos.above()).isAir()) {
+            if (level.getBlockState(pos.above()).isAir() || level.getBlockState(pos.above()).is(PVZBlockTags.WISDOM_TREE_REPLACEABLE)) {
                 level.setBlockAndUpdate(pos.above(), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
                         .setValue(WisdomTreeLogBlock.LV, lv)
                         .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
-                        .setValue(WisdomTreeLogBlock.DISTANCE, 1)
+                        .setValue(WisdomTreeLogBlock.DISTANCE, lv)
                         .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
-            } else if (lv > 1 && level.getBlockState(pos.above()).is(PVZBlocks.WISDOM_TREE_LOG.get()) &&
-                    level.getBlockState(pos.above().above()).isAir()) {
-                level.setBlockAndUpdate(pos.above().above(), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
-                        .setValue(WisdomTreeLogBlock.LV, lv)
-                        .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
-                        .setValue(WisdomTreeLogBlock.DISTANCE, 2)
-                        .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
-            } else if (lv > 4) {
+            } else if (lv > 3) {
                 Direction direction = blockState.getValue(FACING);
                 if (random.nextBoolean()) {
                     direction = random.nextBoolean() ? direction : direction.getOpposite();
@@ -93,59 +109,26 @@ public class WisdomTreeCoreBlock extends HorizontalDirectionalBlock {
                             direction.getClockWise().getOpposite();
                 }
                 if (direction != blockState.getValue(FACING)) {
-                    if (level.getBlockState(pos.relative(direction)).isAir()) {
-                        level.setBlockAndUpdate(pos.relative(direction), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
-                                .setValue(WisdomTreeLogBlock.LV, lv)
-                                .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
-                                .setValue(WisdomTreeLogBlock.DISTANCE, 1)
-                                .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
-                    } else if (level.getBlockState(pos.relative(direction)).is(PVZBlocks.WISDOM_TREE_LOG.get()) &&
-                            level.getBlockState(pos.relative(direction).above()).isAir()) {
-                        level.setBlockAndUpdate(pos.relative(direction).above(), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
-                                .setValue(WisdomTreeLogBlock.LV, lv)
-                                .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
-                                .setValue(WisdomTreeLogBlock.DISTANCE, 2)
-                                .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
-                    } else if (lv > 7) {
-                        BlockPos pos1 = pos.relative(direction).relative(random.nextBoolean() ? direction.getClockWise() : direction.getClockWise().getOpposite());
-                        if (level.getBlockState(pos1).isAir()) {
-                            level.setBlockAndUpdate(pos1, PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
-                                    .setValue(WisdomTreeLogBlock.LV, lv)
-                                    .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
-                                    .setValue(WisdomTreeLogBlock.DISTANCE, 1)
-                                    .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
-                        } else if (level.getBlockState(pos1).is(PVZBlocks.WISDOM_TREE_LOG.get()) &&
-                                level.getBlockState(pos1.above()).isAir()) {
-                            level.setBlockAndUpdate(pos1.above(), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
-                                    .setValue(WisdomTreeLogBlock.LV, lv)
-                                    .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
-                                    .setValue(WisdomTreeLogBlock.DISTANCE, 2)
-                                    .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
-                        } else if (lv > 8) {
-                            if (level.getBlockState(pos.relative(direction).relative(direction)).isAir()) {
-                                level.setBlockAndUpdate(pos.relative(direction).relative(direction), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
-                                        .setValue(WisdomTreeLogBlock.LV, lv)
-                                        .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
-                                        .setValue(WisdomTreeLogBlock.DISTANCE, 1)
-                                        .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
+                    if (! growAt(level, pos.relative(direction), lv, lv - 1)) {
+                        if (lv > 5) {
+                            BlockPos pos1 = pos.relative(direction).relative(random.nextBoolean() ? direction.getClockWise() : direction.getClockWise().getOpposite());
+                            if (! growAt(level, pos1, lv, lv - 2)) {
+                                if (lv > 7) {
+                                    if (level.getBlockState(pos.relative(direction).relative(direction)).isAir() ||
+                                            level.getBlockState(pos.relative(direction).relative(direction)).is(PVZBlockTags.WISDOM_TREE_REPLACEABLE)) {
+                                        level.setBlockAndUpdate(pos.relative(direction).relative(direction), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
+                                                .setValue(WisdomTreeLogBlock.LV, 1)
+                                                .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
+                                                .setValue(WisdomTreeLogBlock.DISTANCE, lv)
+                                                .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y)
+                                                .setValue(WisdomTreeLogBlock.PERSISTENT, true));
+                                    }
+                                }
                             }
                         }
                     }
                 } else {
-                    if (level.getBlockState(pos.relative(direction).above().above()).isAir()) {
-                        level.setBlockAndUpdate(pos.relative(direction).above().above(), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
-                                .setValue(WisdomTreeLogBlock.LV, lv)
-                                .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
-                                .setValue(WisdomTreeLogBlock.DISTANCE, 3)
-                                .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
-                    } else if (level.getBlockState(pos.relative(direction).above().above()).is(PVZBlocks.WISDOM_TREE_LOG.get()) &&
-                            level.getBlockState(pos.relative(direction).above().above().above()).isAir()) {
-                        level.setBlockAndUpdate(pos.relative(direction).above().above().above(), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
-                                .setValue(WisdomTreeLogBlock.LV, lv)
-                                .setValue(WisdomTreeLogBlock.ROOT_LV, lv)
-                                .setValue(WisdomTreeLogBlock.DISTANCE, 4)
-                                .setValue(RotatedPillarBlock.AXIS, Direction.Axis.Y));
-                    }
+                    growAt(level, pos.relative(direction).above().above(), lv, lv - 1);
                 }
             }
         }

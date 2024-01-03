@@ -38,7 +38,10 @@ public class AttractEnemyGoal extends Goal {
         double range = entity.getAttributeValue(Attributes.FOLLOW_RANGE);//recommended value is 2.
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
             //attracting limits about tergetEntity.
-            if (targetEntity instanceof Mob && ! PVZOwnedCapability.isTeammate(entity, targetEntity)) {
+            boolean outOfHeightRegion = (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() <= entity.getBbHeight() + entity.getY()) &&
+                    (targetEntity.getY() + targetEntity.getBbHeight() <= entity.getY()) == (targetEntity.getY() + targetEntity.getBbHeight() <= entity.getBbHeight() + entity.getY()) &&
+                    (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() + targetEntity.getBbHeight() <= entity.getY());
+            if (targetEntity instanceof Mob && ! PVZOwnedCapability.isTeammate(entity, targetEntity) && ! outOfHeightRegion) {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
                 if ((! PVZRulesCapability.getBoolean("teamBattle")) ||

@@ -3,33 +3,59 @@ package com.hungteen.pvz.common.entity.plants.base;
 import com.hungteen.pvz.common.entity.PVZPlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
 
-public abstract class PlantProducerEntity extends PVZPlant {
+public abstract class ProducerPlant extends PVZPlant {
+    public AnimationState idleAnimationState = new AnimationState();
+    public AnimationState produceAnimationState = new AnimationState();
+    protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(ProducerPlant.class, EntityDataSerializers.BOOLEAN);
 
 
-	public PlantProducerEntity(EntityType< ? extends Mob > type, Level worldIn){
+	public ProducerPlant(EntityType< ? extends Mob > type, Level worldIn){
             super(type, worldIn);
             this.setAttackTime(this,200);//the first gen just need 10 seconds CD.
         }
 
         @Override
-        protected void registerGoals () {
+        protected void registerGoals() {
             super.registerGoals();
             this.goalSelector.addGoal(0, new ProducerGenGoal(this));
         }
 
+        //animate realted.
+        @Override
+        protected void defineSynchedData() {
+            super.defineSynchedData();
+            this.entityData.define(POSE, false);
+        }
+        @Override
+        public void onSyncedDataUpdated(EntityDataAccessor<?> p_219422_) {
+            if (POSE.equals(p_219422_)) {
+                if (entityData.get(POSE)) {
+                    this.idleAnimationState.stop();
+                    this.produceAnimationState.start(this.tickCount);
+                } else {
+                    this.produceAnimationState.stop();
+                    this.idleAnimationState.start(this.tickCount);
+                }
+            }
 
+            super.onSyncedDataUpdated(p_219422_);
+        }
+
+        //sun produce related.
         /**
          * sun produce plant gen sun
          * such as sunflower or sunshroom
          */
-        protected void genSun ( int num, int cnt){
-            Sun.spawnSunsRandomlyByAmount(level, this.blockPosition(), num, num / cnt, 2);
+        protected void genSun(int num, int cnt) {
+            Sun.spawnSunsRandomlyByAmount(level, this.blockPosition(), num, num / cnt, 0.25F);
             EntityUtil.playSound(this, SoundEvents.EXPERIENCE_ORB_PICKUP);
         }
 
@@ -44,7 +70,7 @@ public abstract class PlantProducerEntity extends PVZPlant {
          * get next produce CD.
          * {@link ProducerGenGoal#tick()}
          */
-        public abstract int getGenCD ();
+        public abstract int getGenCD();
 
         public int getAnimGenCD () {
             return 20;
@@ -54,15 +80,15 @@ public abstract class PlantProducerEntity extends PVZPlant {
         /**
          * is producer going to gen, use for render sunflower sun layer.
          */
-        public boolean isPlantInGen () {
+        public boolean isPlantInGen() {
             return this.getAttackTime(this) <= 10 ;
         }
 
         static class ProducerGenGoal extends Goal {
 
-            private final PlantProducerEntity producer;
+            private final ProducerPlant producer;
 
-            public ProducerGenGoal(PlantProducerEntity entity) {
+            public ProducerGenGoal(ProducerPlant entity) {
                 this.producer = entity;
             }
 
@@ -92,6 +118,7 @@ public abstract class PlantProducerEntity extends PVZPlant {
                 } else {
                     this.producer.setAttackTime(this,Math.max(0, time - 1));
                 }
+                producer.entityData.set(POSE, this.producer.getGenCD() - time < 10 || time < 10);
             }
         }
 

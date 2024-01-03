@@ -5,9 +5,11 @@ import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
+import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
+import com.hungteen.pvz.common.network.SpawnParticlePacket;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.common.register.PVZParticles;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -48,15 +50,27 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         level.addFreshEntity(sun);
         return sun;
     }
-    public static void spawnSunsRandomlyByAmount(Level level, BlockPos pos, int amount, int each, int range) {
-        while(amount >= each) {
-            amount -= each;
-            spawnSunRandomly(level, pos, each, range);
+    /** drop multiple suns with effects. if each > 0 drop in each, else drop with 50/25/15/5.**/
+    public static void spawnSunsRandomlyByAmount(Level level, BlockPos pos, int amount, int each, float speed) {
+        for (int i = amount; i > 0; ) {
+            int singleSunAmount = i;
+            singleSunAmount = each > 0 ? each : singleSunAmount > 50 ? 50 : singleSunAmount > 25 ? 25 : singleSunAmount > 15 ? 15 : Math.min(singleSunAmount, 5);
+            i -= singleSunAmount;
+            spawnSunWithEffects(level, singleSunAmount, pos, speed);
         }
-        if(amount != 0) {
-            spawnSunRandomly(level, pos, amount, range);
-            amount = 0;
+    }
+    /**
+     * spawn sun entity in range randomly with specific amount.
+     */
+    public static Sun spawnSunWithEffects(Level level, int amount, BlockPos pos, float maxSpeed) {
+        Sun sun = spawnByAmount(level, amount, pos,
+                new Vec3((level.getRandom().nextFloat() - 0.5) * maxSpeed,
+                        level.getRandom().nextFloat() * 0.1 + 0.6 * maxSpeed,
+                        (level.getRandom().nextFloat() - 0.5) * maxSpeed));
+        for (int j = 10; j <= amount; j += 10){
+            SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(pos).add(0, 1, 0));
         }
+        return sun;
     }
 
     //ISun.
@@ -110,6 +124,8 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
     public void onAbsorb(ISun sun) {
         if (sun instanceof Entity) {
             setAmount(getAmount() + sun.getAmount());
+            SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(getOnPos()).add(0, 1, 0));
+            SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(getOnPos()).add(0, 1, 0));
             ((Entity) sun).remove(Entity.RemovalReason.DISCARDED);
         }
     }
@@ -125,7 +141,7 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
     @Override
     public int getContainingSun(){
         return getAmount();
-    }
+    }//TODO add to api.
 
 
     @Override
@@ -191,15 +207,6 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         return value < 6 ? 0 : value < 16 ? 1 : value < 26 ? 2 : 3;
     }
 
-
-    /**
-     * spawn sun entity in range randomly with specific amount.
-     */
-    public static void spawnSunRandomly(Level level, BlockPos pos, int amount, int dis) {
-        Sun sun = PVZEntities.SUN.get().create(level);
-        sun.setAmount(amount);
-        EntityUtil.onEntityRandomPosSpawn(level, sun, pos, dis);
-    }
     @Override
     public EntityDimensions getDimensions(Pose poseIn) {
         float w = this.getAmount() * 1f / 200 + 0.2f;

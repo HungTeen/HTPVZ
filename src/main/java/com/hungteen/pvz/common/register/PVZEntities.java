@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
+import com.hungteen.pvz.client.model.plants.PeaShooterModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.bullet.PeaBulletRenderer;
@@ -73,7 +74,6 @@ public class PVZEntities {
     /**
      * silly carp do not forget to add attributes. use {@link PVZEntities#attribute(Supplier)}.
      */
-    public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F).entity("pea", PeaBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PVZBoat>> BOAT = collision(1.375F, 0.5625F).entity("pvz_boat", PVZBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = collision(1.375F, 0.5625F).entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<Sun>> SUN = collision(0.2F, 0.2F).entity("sun", Sun::new, MobCategory.MISC);
@@ -83,18 +83,21 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<GrassCarp>> GRASSCARP = summonRule(Type.IN_WATER, Types.MOTION_BLOCKING_NO_LEAVES, GrassCarp::checkGrassCarpSpawnRules)
             .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
-        //plants
-     public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes)
-                .collision(0.8F, 1F).entity("wall_nut", WallNut::new, MobCategory.MISC);
+
+    //plants
+    public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes)
+            .collision(0.8F, 1F).entity("wall_nut", WallNut::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes)
             .collision(0.75F, 1.3F).entity("sun_flower", SunFlower::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes)
             .collision(0.75F, 1.3F).entity("marigold", MariGold::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes)
-            .collision(0.8F, 2.0F).entity("tall_nut", TallNut::new, MobCategory.MISC);
-
+            .collision(0.9F, 1.9F).entity("tall_nut", TallNut::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes)
             .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, MobCategory.MISC);
+    //bullets
+    public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.25F, 0.25F).entity("pea", PeaBullet::new, MobCategory.MISC);
+
 
     //client
     /** For simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}.
@@ -107,6 +110,7 @@ public class PVZEntities {
     @OnlyIn(Dist.CLIENT)
     public static void simpleRenderHandler() {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
+        rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.6F, "textures/entity/plants/pea_shooter/pea_shooter.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -120,7 +124,7 @@ public class PVZEntities {
         r(e, SUN_FLOWER, SunFlowerRenderer::new);
         r(e, MARIGOLD, MariGoldRenderer::new);
         r(e, TALL_NUT, TallNutRenderer::new);
-        r(e, PEA_SHOOTER, PeaShooterRenderer::new);
+//        r(e, PEA_SHOOTER, PeaShooterRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
 
         //enter here

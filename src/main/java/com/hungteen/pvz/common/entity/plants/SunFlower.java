@@ -1,14 +1,14 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.common.entity.PVZPlant;
-import com.hungteen.pvz.common.entity.plants.base.PlantProducerEntity;
+import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 
-public class SunFlower extends PlantProducerEntity {
+public class SunFlower extends ProducerPlant {
     public SunFlower(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
     }
@@ -20,7 +20,7 @@ public class SunFlower extends PlantProducerEntity {
 
     @Override
     public int getGenCD() {
-        final int time = 500;
+        final int time = 240;
         return this.level.isDay() ?(this.level.isRaining() ? 2 * time : time) : 3 * time;
     }
     public int getSunAmount(){

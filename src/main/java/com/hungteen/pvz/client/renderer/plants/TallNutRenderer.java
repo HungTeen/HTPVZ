@@ -19,7 +19,6 @@ public class TallNutRenderer<T extends TallNut> extends MobRenderer<T, EntityMod
 
     public TallNutRenderer(EntityRendererProvider.Context context) {
         super(context, new TallNutModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("tall_nut:main"))), 0.8F);
-        //this.addLayer(new WallNutColorLayer(this, context.getModelSet()));
     }
 
 

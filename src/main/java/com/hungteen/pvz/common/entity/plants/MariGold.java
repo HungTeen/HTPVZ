@@ -1,8 +1,8 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.common.entity.PVZPlant;
-import com.hungteen.pvz.common.entity.plants.base.PlantProducerEntity;
-import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -12,7 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
-public class MariGold extends PlantProducerEntity {
+public class MariGold extends ProducerPlant {
     public MariGold(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
     }
@@ -20,7 +20,10 @@ public class MariGold extends PlantProducerEntity {
     @Override
     public void genSomething() {
         ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), this.getRandomIngot().getDefaultInstance());
-        EntityUtil.onEntityRandomPosSpawn(level, itementity, blockPosition(), 2);
+//        EntityUtil.onEntityRandomPosSpawn(level, itementity, blockPosition().offset(0.5, -0.5, 0.5), 0);
+        BlockPos pos = blockPosition();
+        itementity.setPos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
+        level.addFreshEntity(itementity);
     }
 
     private Item getRandomIngot() {

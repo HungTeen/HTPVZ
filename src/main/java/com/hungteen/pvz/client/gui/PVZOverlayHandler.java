@@ -48,9 +48,9 @@ public class PVZOverlayHandler{
             float second = tickTime / 10;// accurate passed time in second.
             double tmp = Math.pow(0.9, second/0.04);
             int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapNBT.SUN);
-            int barLength = 94*bufferSunAmount/PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapNBT.SUN).getSecond();
+            int barLength = 94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapNBT.SUN).getSecond();
             bufferSunAmount = (int)(now * (1 - tmp) + tmp * bufferSunAmount);
-            bufferSunBarLength = (int)((barLength * (1 - tmp) + tmp * bufferSunBarLength));
+            bufferSunBarLength = (int) Math.min(94, (barLength * (1 - tmp) + tmp * bufferSunBarLength));
             if (bufferSunAmount != now && Math.abs(bufferSunAmount - now) <= 10) {
                 bufferSunAmount = now;
             }
@@ -176,7 +176,8 @@ public class PVZOverlayHandler{
 
     private static void renderCostOfCards(ForgeGui gui, PoseStack stack, float partialTick, int width, int height){
         Player player = getCameraPlayer();
-        if (player != null && PVZPlayerCapability.getValue(player, "plant_have_cost") != 0 && storedItemStack.getItem() instanceof SeedPacketItem<?>) {
+        if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements() &&
+                player != null && PVZPlayerCapability.getValue(player, "plant_have_cost") != 0 && storedItemStack.getItem() instanceof SeedPacketItem<?>) {
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
             RenderSystem.enableBlend();
             int x = player.getInventory().selected * 20 + width / 2 - 80;

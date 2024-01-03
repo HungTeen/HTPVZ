@@ -52,8 +52,6 @@ public class ItemTagGen extends ItemTagsProvider {
         //others
         this.tag(PVZItemTags.TO_TERRA_ESSENCE).add(Blocks.STONE.asItem(), Blocks.DEEPSLATE.asItem(), 
                 Blocks.GRANITE.asItem(), Blocks.DIORITE.asItem(), Blocks.ANDESITE.asItem(), Blocks.TUFF.asItem());
-        this.tag(PVZItemTags.TO_LUX_ESSENCE).add(Blocks.GLOWSTONE.asItem(), Blocks.SHROOMLIGHT.asItem(),
-                Blocks.PEARLESCENT_FROGLIGHT.asItem(), Blocks.OCHRE_FROGLIGHT.asItem(), Blocks.VERDANT_FROGLIGHT.asItem());
     }
 
     public static final List<TagKey<Item>> LOGS = new ArrayList<>();

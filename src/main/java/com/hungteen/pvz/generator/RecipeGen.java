@@ -74,15 +74,23 @@ public class RecipeGen extends RecipeProvider {
                 final Item packet = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet") instanceof RegistryObject<?> ?
                         ((RegistryObject<Item>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet")).get() :
                         PVZItems.seedPacketMap.get((RegisterSeedPacketsEvent.SeedPacketData<?>)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet")).get();
-                ShapedRecipeBuilder.shaped(itemObj.get())
-                        .pattern("CCC")
-                        .pattern("CBC")
-                        .pattern("CAC")
-                        .define('A', ((RegistryObject<Item>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed")).get())
-                        .define('B', packet)
-                        .define('C', ((RegistryObject<Item>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("essence")).get())
-                        .unlockedBy("has_origin", has(packet))
-                        .save(c, prefix("seed_packets/" + name(itemObj)));
+                if (((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed") != null) {
+                    Item seed = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed") instanceof RegistryObject<?> obj ?
+                            ((RegistryObject<Item>) obj).get() :
+                            (Item)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed");
+                    Item essence = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("essence") instanceof RegistryObject<?> obj ?
+                            ((RegistryObject<Item>) obj).get() :
+                            (Item)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("essence");
+                    ShapedRecipeBuilder.shaped(itemObj.get())
+                            .pattern("CCC")
+                            .pattern("CBC")
+                            .pattern("CAC")
+                            .define('A', seed)
+                            .define('B', packet)
+                            .define('C', essence)
+                            .unlockedBy("has_origin", has(packet))
+                            .save(c, prefix("seed_packets/" + name(itemObj)));
+                    }
                 if (PVZItems.seedMap.get(data) != null) {
                     ShapedRecipeBuilder.shaped(itemObj.get())
                             .pattern("BBB")

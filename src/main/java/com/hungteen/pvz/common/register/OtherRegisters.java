@@ -1,10 +1,13 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.menu.EssenceFurnaceRecipe;
 import com.hungteen.pvz.common.world.zen_garden.GlowBerryDecorator;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.RecipeBookCategories;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -49,6 +52,13 @@ public class OtherRegisters {
         ev.registerBookCategories(essenceFurnaceRecipeBookType, List.of(aggregateCategory, essenceFurnaceEssencesCategory, essenceFurnaceOthersCategory));
         ev.registerRecipeCategoryFinder(essenceFurnaceRecipeType.get(), (recipe) -> ((EssenceFurnaceRecipe)recipe).isEssence ? essenceFurnaceEssencesCategory : essenceFurnaceOthersCategory);
         ev.registerAggregateCategory(aggregateCategory, List.of(essenceFurnaceEssencesCategory, essenceFurnaceOthersCategory));
+    }
+
+    //Pea types.
+    public static EntityDataSerializer<PeaBullet.PeaType> peaTypeDataSerializer = EntityDataSerializer.simpleEnum(PeaBullet.PeaType.class);
+
+    static {
+        EntityDataSerializers.registerSerializer(peaTypeDataSerializer);
     }
 
     public static void modBusRegister(IEventBus bus){

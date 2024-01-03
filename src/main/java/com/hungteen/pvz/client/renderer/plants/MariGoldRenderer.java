@@ -17,7 +17,7 @@ public class MariGoldRenderer<T extends MariGold> extends MobRenderer<T, EntityM
     private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/marigold/marigold.png");
     public MariGoldRenderer(EntityRendererProvider.Context context) {
         super(context, new MariGoldModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("marigold:main"))), 0.6F);
-        this.addLayer(new SunLightLayer<>(this));
+        this.addLayer(new SunLightLayer<>(this, Util.prefix("textures/entity/plants/marigold/marigold_light.png")));
     }
 
 

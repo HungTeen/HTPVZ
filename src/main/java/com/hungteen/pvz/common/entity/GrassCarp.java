@@ -156,14 +156,14 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
             if (!item.isEmpty()) { //check item stack.
                 if (item.getItem() == Items.KELP && this.isBald()) {
                     this.setBald(false);
-                    item.setCount(item.getCount() - 1);
+                    item.shrink(1);
                     nextCheckLeft = 0;
                 }
                 if (item.getItem() == Items.BONE_MEAL) {
                     if (this.isBald()) {
                         this.setBald(false);
                     }
-                    item.setCount(item.getCount() - 1);
+                    item.shrink(1);
                     nextCheckLeft = 0;
                 } else {
                     boolean useItem = false;
@@ -176,7 +176,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
                             fish.finalizeSpawn((ServerLevelAccessor) this.level, this.level.getCurrentDifficultyAt(new BlockPos(this.position())), MobSpawnType.MOB_SUMMONED, null, null);
                             ((ServerLevelAccessor) level).addFreshEntityWithPassengers(fish);
                             useItem = true;
-                            item.setCount(item.getCount() - 1);
+                            item.shrink(1);
                             nextCheckLeft = 0;
                             break;
                         }

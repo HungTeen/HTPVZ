@@ -59,7 +59,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     if (player.hasEffect(MobEffects.DARKNESS)) {
                         player.removeEffect(MobEffects.DARKNESS);
                     }
-                    if (nbt.sunCountDown >= 30/(player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
+                    if (nbt.sunCountDown >= 15/(player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
                         int limitSun = getDifficultyLimitSun(player);
                         int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
                         if (curSun < limitSun) {
@@ -67,7 +67,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         }
                         nbt.sunCountDown = 0;
                     }
-                } else if (player.hasEffect(MobEffects.DARKNESS) && nbt.sunCountDown >= 30/(player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
+                } else if (player.hasEffect(MobEffects.DARKNESS) && nbt.sunCountDown >= 15/(player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
                     int limitSun = getDifficultyLimitSun(player);
                     int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
                     if (curSun > limitSun) {
@@ -75,14 +75,13 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                     nbt.sunCountDown = 0;
                 }
-                if (EntityUtil.isSurvivalPlayer(player) && EntityUtil.isEntityPeace(player,100)&& player.tickCount%60==0) {
-                      int limitSun = nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond();
-                        int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
-                        if (curSun < limitSun) {
-                            nbt.addValue(PVZPlayerCapNBT.SUN,5);
-                        }
-                        nbt.sunCountDown = 0;
-               }
+                if (EntityUtil.isSurvivalPlayer(player) && EntityUtil.isEntityPeace(player,100) && player.tickCount % 30 == 0) {
+                    int limitSun = nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond();
+                    int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
+                    if (curSun < limitSun) {
+                        nbt.addValue(PVZPlayerCapNBT.SUN, 5);
+                    }
+                }
                 //cool down effects.
                 if (nbt.getValue("plant_have_cd") == 0) {
                     Set<Item> keyset = Set.copyOf(player.getCooldowns().cooldowns.keySet());

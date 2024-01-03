@@ -5,12 +5,13 @@ import com.hungteen.pvz.util.AnimationUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.world.entity.Entity;
 
-public class SunFlowerModel<T extends Entity> extends EntityModel<T> {
+public class SunFlowerModel<T extends Entity> extends HierarchicalModel<T> {
     // This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
     private final ModelPart total;
     private final ModelPart body;
@@ -49,8 +50,11 @@ public class SunFlowerModel<T extends Entity> extends EntityModel<T> {
         PartDefinition stickd_r1 = body.addOrReplaceChild("stickd_r1", CubeListBuilder.create().texOffs(18, 30).addBox(-1.0F, -8.0F, -1.0F, 2.0F, 8.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.2618F, 0.0F, 0.0F));
 
         PartDefinition head = body.addOrReplaceChild("head", CubeListBuilder.create().texOffs(22, 20).addBox(-3.0F, -3.0F, 0.0F, 6.0F, 6.0F, 4.0F, new CubeDeformation(0.0F))
-                .texOffs(0, 13).addBox(-5.0F, -5.0F, -3.0F, 10.0F, 8.0F, 3.0F, new CubeDeformation(0.0F))
-                .texOffs(0, 0).addBox(-7.0F, -7.0F, -2.0F, 14.0F, 12.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -13.0F, 1.0F));
+                .texOffs(0, 13).addBox(-5.0F, -5.0F, -3.0F, 10.0F, 8.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -13.0F, 1.0F));
+
+        PartDefinition face_produce = head.addOrReplaceChild("face_produce", CubeListBuilder.create().texOffs(0, 40).addBox(-5.0F, -4.0F, -1.5F, 10.0F, 8.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, -1.0F, -1.5F));
+
+        PartDefinition petals = head.addOrReplaceChild("petals", CubeListBuilder.create().texOffs(0, 0).addBox(-7.0F, -6.0F, -0.5F, 14.0F, 12.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -1.0F, -1.5F));
 
         PartDefinition right_hand = body.addOrReplaceChild("right_hand", CubeListBuilder.create(), PartPose.offset(-0.5F, -3.5F, 1.0F));
 
@@ -60,33 +64,26 @@ public class SunFlowerModel<T extends Entity> extends EntityModel<T> {
 
         PartDefinition leafe_r1 = left_hand.addOrReplaceChild("leafe_r1", CubeListBuilder.create().texOffs(0, 31).addBox(0.5F, -0.5F, -1.0F, 3.0F, 1.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.1745F, 0.0F, -0.1745F));
 
-        PartDefinition getPlantWholeBody = partdefinition.addOrReplaceChild("getPlantWholeBody", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
-
         return LayerDefinition.create(meshdefinition, 64, 64);
     }
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         if(entity instanceof SunFlower sunFlower) {
-            final int tick = sunFlower.getAttackTime(sunFlower);
-            if (tick > 0 && tick < sunFlower.getAnimGenCD()) {
-                final int T = 10;
-                this.left_hand.zRot = AnimationUtil.getUpDownUpDown(ageInTicks % T, T, -30);
-                this.right_hand.zRot = AnimationUtil.getUpDownUpDown(ageInTicks % T, T, -30);
-            } else {
-                this.left_hand.zRot = 0;
-                this.right_hand.zRot = 0;
-            }
-            final int T = 60;
-            final int time = entity.tickCount % 60;
-            final float degree = 7.5F;
-            this.body.zRot = AnimationUtil.getUpDownUpDown(time, T, degree);
-            this.head.zRot = AnimationUtil.getUpDownUpDown(time, T, -degree);
+            this.total.getAllParts().forEach(ModelPart::resetPose);
+            float f = ageInTicks - (float)entity.tickCount;
+            this.animate(sunFlower.idleAnimationState, SunFlowerAnimation.idle, ageInTicks);
+            this.animate(sunFlower.produceAnimationState, SunFlowerAnimation.produce, ageInTicks);
         }
     }
 
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         total.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    }
+
+    @Override
+    public ModelPart root() {
+        return total;
     }
 }

@@ -7,11 +7,9 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.item.SeedPacketItem;
-import com.hungteen.pvz.common.network.SpawnParticlePacket;
 import com.hungteen.pvz.common.register.PVZEnchantments;
-import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.common.world.PVZDamageHandler;
+import com.hungteen.pvz.common.world.PVZDamageSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -107,7 +105,7 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
         //check plant situation damage.
         if (isPositionSafe(this.level, this.getOnPos()) != null && isVehicleSafe(getVehicle()) != null &&
                 this.getAttribute(Attributes.MAX_HEALTH) != null && ++ situationHurtCount > 10) {
-            this.hurt(PVZDamageHandler.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+            this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
             //TODO change this to a new dmg type.
             situationHurtCount = 0;
         }
@@ -237,15 +235,7 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
             int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
             PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
             if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
-                for (int i = (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)); i > 0; ) {
-                    int sunAmount = i;
-                    sunAmount = sunAmount > 50 ? 50 : sunAmount > 25 ? 25 : sunAmount > 15 ? 15 : Math.min(sunAmount, 5);
-                    i -= sunAmount;
-                    Sun.spawnByAmount(level, sunAmount, getOnPos().offset(0, 1, 0), new Vec3((random.nextFloat() - 0.5) * 0.25, random.nextFloat() * 0.1 + 0.15, (random.nextFloat() - 0.5) * 0.25));
-                    for (int j = 15; j <= sunAmount; j += 15){
-                        SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(this.getOnPos()).add(0, 1, 0));
-                    }
-                }
+                Sun.spawnSunsRandomlyByAmount(level, getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
             }
             this.remove(RemovalReason.DISCARDED);
             //TODO add particles.
@@ -267,6 +257,9 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        tag.putBoolean("Root", getEntityData().get(ROOT));
+        tag.putBoolean("HasCoincideDmg", getEntityData().get(HAS_COINCIDE_DMG));
+        tag.putInt("WiltCountDown", getEntityData().get(WILT_COUNTDOWN));
         tag.putInt("Skill", getSkillVal(this));
         tag.putInt("PlantAttackTime", getAttackTime(this));
 
@@ -279,6 +272,15 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
         }
         if (tag.contains("PlantAttackTime")) {
             this.setAttackTime(this,tag.getInt("PlantAttackTime"));
+        }
+        if (tag.contains("WiltCountDown")) {
+            this.getEntityData().set(WILT_COUNTDOWN, tag.getInt("WiltCountDown"));
+        }
+        if (tag.contains("Root")) {
+            this.getEntityData().set(ROOT, tag.getBoolean("Root"));
+        }
+        if (tag.contains("HasCoincideDmg")) {
+            this.getEntityData().set(HAS_COINCIDE_DMG, tag.getBoolean("HasCoincideDmg"));
         }
     }
 

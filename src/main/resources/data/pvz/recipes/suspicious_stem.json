@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:brown_mushroom"
+    },
+    {
+      "item": "minecraft:red_mushroom"
+    },
+    {
+      "item": "minecraft:sunflower"
+    },
+    {
+      "item": "minecraft:bowl"
+    }
+  ],
+  "result": {
+    "item": "minecraft:suspicious_stew",
+    "nbt": {
+      "Effects": [
+        {
+          "EffectDuration": 350,
+          "forge:effect_id": "pvz:brightness"
+        }
+      ]
+    }
+  }
+}

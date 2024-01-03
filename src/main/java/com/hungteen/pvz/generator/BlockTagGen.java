@@ -7,6 +7,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -46,9 +47,10 @@ public class BlockTagGen extends BlockTagsProvider {
                 Blocks.CRIMSON_NYLIUM, Blocks.WARPED_NYLIUM,
                 Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET, PVZBlocks.CARP_GRASS.get(),
                 Blocks.SCULK, Blocks.SCULK_CATALYST,
-                Blocks.LILY_PAD, Blocks.FLOWER_POT
+                Blocks.LILY_PAD
         );
-        this.tag(PVZBlockTags.WATER).add(Blocks.WATER);
+        this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTag(BlockTags.MOSS_REPLACEABLE)
+                .addTag(BlockTags.REPLACEABLE_PLANTS).addTag(BlockTags.LEAVES);
     }
 
     public static final List<TagKey<Block>> LOGS = new ArrayList<>();

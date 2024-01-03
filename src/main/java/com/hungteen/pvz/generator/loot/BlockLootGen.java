@@ -46,7 +46,6 @@ public class BlockLootGen extends BlockLoot {
         this.dropOther(PVZBlocks.NUT_LEAVES_WITH_NUTS.get(), PVZItems.NUT.get());
         this.addOreDrop(PVZBlocks.ORIGIN_ORE.get(), PVZItems.ORIGIN_ESSENCE.get());
         this.addSlabDrop(PVZBlocks.GARDEN_FLOWER_POT.get());
-//        this.add(PVZBlocks.CARP_GRASS.get(), noDrop());
         //TODO bug that essence alter and origin block drop self without tool.
 
         //the rest

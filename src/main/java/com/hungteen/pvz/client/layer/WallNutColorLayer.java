@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import static com.hungteen.pvz.common.entity.plants.WallNut.EXPLODE_COUNT;
 
-public class  WallNutColorLayer<T extends WallNut> extends RenderLayer<T, WallNutModel<T>> {
+public class WallNutColorLayer<T extends WallNut> extends RenderLayer<T, WallNutModel<T>> {
 
     private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/wall_nut/wall_nut_bleach.png");
     private static final ResourceLocation STATE1 = Util.prefix("textures/entity/plants/wall_nut/wall_nut_bleach_1.png");

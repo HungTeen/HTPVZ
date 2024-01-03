@@ -29,15 +29,16 @@ public class PVZSeedPackets {
 
     static {
         //pvz packets.
+        add(PVZEntities.SUN_FLOWER).cost(25).coolDown(SLOW).skillList(SunFlower.staticSkillSet)
+                .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.PEA_SHOOTER).cost(75).coolDown(FAST).skillList(PeaShooter.staticSkillSet)
+                .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
         add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillSet)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
-        add(PVZEntities.SUN_FLOWER).cost(25).coolDown(FAST).skillList(SunFlower.staticSkillSet)
-                .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
-        add(PVZEntities.PEA_SHOOTER).cost(75).coolDown(FAST).skillList(PeaShooter.staticSkillSet)
-                .recipe(Items.ARROW, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
-        add(PVZEntities.MARIGOLD).cost(75).coolDown(FAST).skillList(MariGold.staticSkillSet)
+        add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillSet)
+                .recipe(PVZItems.FLOWER_SEED_PACKET);
+        add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(MariGold.staticSkillSet)
                 .recipe(Items.OXEYE_DAISY, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
-        add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillSet);
 
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();
@@ -83,6 +84,10 @@ public class PVZSeedPackets {
         }
         public RecipeSeedPacketData<T> skillList(List<Skill> list) {
             this.skillList = list;
+            return this;
+        }
+        public RecipeSeedPacketData<T> recipe(RegistryObject<Item> packet) {
+            this.recipe = Map.of("packet", packet);
             return this;
         }
         public RecipeSeedPacketData<T> recipe(RegistryObject<Item> seed, RegistryObject<Item> packet, RegistryObject<Item> essence) {

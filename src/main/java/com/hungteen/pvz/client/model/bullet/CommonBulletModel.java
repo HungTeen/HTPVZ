@@ -24,18 +24,18 @@ public class CommonBulletModel<T extends Entity> extends EntityModel<T> {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
 
-        PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
-                .texOffs(0, 16).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(1.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+        PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create().texOffs(0, 0).addBox(-2.0F, -4.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
+                .texOffs(0, 8).addBox(-2.0F, -4.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.5F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-        return LayerDefinition.create(meshdefinition, 32, 32);
+        return LayerDefinition.create(meshdefinition, 16, 16);
     }
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        //if(entity instanceof PultProjectile){
-        //    this.total.xRot = ageInTicks * 0.1F;
-        //} else{
-            this.total.xRot = 0;
-       // }
+//        if(entity instanceof PultProjectile){
+//            this.total.xRot = ageInTicks * 0.1F;
+//        } else{
+//            this.total.xRot = 0;
+//       }
     }
 
     @Override

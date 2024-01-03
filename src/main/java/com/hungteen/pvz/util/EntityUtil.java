@@ -51,7 +51,6 @@ public class EntityUtil {
         if(attacker == null || target == null) {//prevent crash
             return false;
         }
-
         if(!isSurvivalPlayer(target)) {
             return false;
         }
@@ -85,14 +84,14 @@ public class EntityUtil {
         final double dx = b.getX() - a.getX();
         final double dz = b.getZ() - a.getZ();
         final double dis = Math.sqrt(dx * dx + dz * dz);
-        return new Vec3(dx / dis, 0, dz / dis);
+        return new Vec3(dis == 0 ? 0 : dx / dis, 0, dis == 0 ? 0 : dz / dis);
     }
 
     public static boolean isEntityValid(Entity target) {
         return target != null && target.isAlive();
     }
     public static boolean isEntityPeace(LivingEntity entity, int cd) {
-        return entity.getLastHurtByMobTimestamp()<entity.tickCount-cd || entity.getLastHurtByMob()==null;
+        return entity.getLastHurtByMobTimestamp() < entity.tickCount-cd || entity.getLastHurtByMob()==null;
     }
 
 }

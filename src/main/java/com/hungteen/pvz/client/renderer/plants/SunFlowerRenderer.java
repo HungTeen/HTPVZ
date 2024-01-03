@@ -18,7 +18,7 @@ public class SunFlowerRenderer<T extends SunFlower> extends MobRenderer<T, Entit
     private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/sun_flower/sun_flower.png");
     public SunFlowerRenderer(EntityRendererProvider.Context context) {
         super(context, new SunFlowerModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("sun_flower:main"))), 0.6F);
-        this.addLayer(new SunLightLayer<>(this));
+        this.addLayer(new SunLightLayer<>(this, Util.prefix("textures/entity/plants/sun_flower/sun_flower_light.png")));
     }
 
 

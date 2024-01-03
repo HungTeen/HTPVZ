@@ -183,19 +183,21 @@ public class PVZMod
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent ev) {
-        //global playerTeam
-        Scoreboard scoreboard = ev.getServer().getScoreboard();
-        if (scoreboard.getPlayerTeam(PLAYER_TEAM) == null) {
-            PlayerTeam playerteam = scoreboard.addPlayerTeam(PLAYER_TEAM);
-            playerteam.setDisplayName(Component.literal(PLAYER_TEAM));
+        if (ev.phase == TickEvent.Phase.START) {
+            //global playerTeam
+            Scoreboard scoreboard = ev.getServer().getScoreboard();
+            if (scoreboard.getPlayerTeam(PLAYER_TEAM) == null) {
+                PlayerTeam playerteam = scoreboard.addPlayerTeam(PLAYER_TEAM);
+                playerteam.setDisplayName(Component.literal(PLAYER_TEAM));
+            }
+            if (scoreboard.getPlayerTeam(ENEMY_TEAM) == null) {
+                PlayerTeam playerteam = scoreboard.addPlayerTeam(ENEMY_TEAM);
+                playerteam.setDisplayName(Component.literal(ENEMY_TEAM));
+            }
+            //caps tick
+            PVZPlayerCapability.tick(ev);
+            PVZOwnedCapability.tick(ev);
         }
-        if (scoreboard.getPlayerTeam(ENEMY_TEAM) == null) {
-            PlayerTeam playerteam = scoreboard.addPlayerTeam(ENEMY_TEAM);
-            playerteam.setDisplayName(Component.literal(ENEMY_TEAM));
-        }
-        //caps tick
-        PVZPlayerCapability.tick(ev);
-        PVZOwnedCapability.tick(ev);
     }
 
     @SubscribeEvent
