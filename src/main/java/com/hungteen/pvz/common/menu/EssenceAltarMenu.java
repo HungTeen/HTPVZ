@@ -11,7 +11,6 @@ import com.hungteen.pvz.common.register.PVZMenus;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -111,13 +110,13 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
     public boolean clickMenuButton(Player player, int skillID) {
         if (slots.get(0).hasItem() && slots.get(0).getItem().getItem() instanceof SeedPacketItem<?> item) {
             if (item.canBoost() && item.getStaticSkillList().size() > 0) {
-                if (item.getStaticSkillList().size() <= skillID) {
-                    PVZMod.LOGGER.info("Chosen skill of "+ player.getName().getString() +" not exists.");
-                }
+//                if (item.getStaticSkillList().size() <= skillID) {
+//                    PVZMod.LOGGER.info("Chosen skill of "+ player.getName().getString() +" not exists.");
+//                }
                 Skill skill = item.getStaticSkillList().get(skillID);
                 int costSeedPacket = skill.costSeed;
                 int costItem = skill.costItem;
-                if (isSkillAvailable(player, item.getStaticSkillList(), skillID)) {
+                if (isSkillAvailable(player, item.getStaticSkillList(), (short) skillID)) {
                     if (! player.getAbilities().instabuild) {
                         if (slots.get(2).hasItem()) {
                             slots.get(2).getItem().shrink(costSeedPacket);
@@ -128,9 +127,9 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
                     }
                     ((IHaveSkills) slots.get(0).getItem().getItem()).addSkill(slots.get(0).getItem(), skillID);
                     return true;
-                } else {
-                    PVZMod.LOGGER.info(player.getName().getString() +" not match the condition of attaching skill.");
-                    return false;
+//                } else {
+//                    PVZMod.LOGGER.info(player.getName().getString() +" not match the condition of attaching skill.");
+//                    return false;
                 }
             }
         }
@@ -154,19 +153,20 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
         super.removed(player);
     }
 
-    public boolean isSkillAvailable(Player player, List<Skill> list, int skillID) {
+    public boolean isSkillAvailable(Player player, List<Skill> list, short skillID) {
         ItemStack item = slots.get(0).getItem();
         if (item.getItem() instanceof SeedPacketItem<?> seedPacket) {
+            if (seedPacket.getStaticSkillList().size() <= skillID){
+                return false;
+            }
             if (item.getEnchantmentLevel(PVZEnchantments.FOOLISH_CURSE.get()) > 0 || !seedPacket.canBoost()) {
                 return false;
             }
-            for (int i :seedPacket.getSkills(slots.get(0).getItem())) {
-                if (i == skillID) {
-                    return false;
-                }
-                if (list.get(i).avoidSkills.contains(skillID)) {
-                    return false;
-                }
+            if (seedPacket.notCompatible(item, seedPacket.getStaticSkillList().get(skillID)) != null) {
+                return false;
+            }
+            if (seedPacket.hasSkill(item, skillID)) {
+                return false;
             }
             if (player.getAbilities().instabuild) {
                 return true;

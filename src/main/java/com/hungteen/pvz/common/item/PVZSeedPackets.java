@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-/**This class is used only when registering. Then all the data in PVZSeedPackets.seedPackets will be released.
+/**This class is used for convenience only when registering. Then all the data in PVZSeedPackets.seedPackets will be released.
  */
 public class PVZSeedPackets {
     public static final int FAST = 60;
@@ -29,15 +29,17 @@ public class PVZSeedPackets {
 
     static {
         //pvz packets.
-        add(PVZEntities.SUN_FLOWER).cost(25).coolDown(SLOW).skillList(SunFlower.staticSkillSet)
-                .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
-        add(PVZEntities.PEA_SHOOTER).cost(75).coolDown(FAST).skillList(PeaShooter.staticSkillSet)
-                .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
-        add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillSet)
+        add(PVZEntities.SUN_FLOWER).cost(50).coolDown(SLOW).skillList(List.of())//TODO add skills.
+                .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
+        add(PVZEntities.PEA_SHOOTER).cost(100).coolDown(FAST).skillList(PeaShooter.staticSkillList)
+                .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillList)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
-        add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillSet)
+        add(PVZEntities.REPEATER).cost(150).coolDown(FAST).skillList(Repeater.staticSkillList)
+                .recipe(PVZItems.PEA, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
-        add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(MariGold.staticSkillSet)
+        add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//TODO add skills.
                 .recipe(Items.OXEYE_DAISY, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
 
         //for other mods.

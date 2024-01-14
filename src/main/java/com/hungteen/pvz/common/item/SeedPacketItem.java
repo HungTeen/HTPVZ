@@ -5,11 +5,13 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
+import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -22,6 +24,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -29,6 +32,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,6 +42,8 @@ import net.minecraftforge.fml.common.Mod;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
@@ -66,16 +73,16 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
 
     /** This method returns the original cost of the itemStack, not including the effects of enchantments and buffs. To get the accurate number, use {@link PVZResourceEvent.CheckResourceEvent}.
      */
-    public int getCost(@Nullable ItemStack itemStack){
+    public int getBaseCost(@Nullable ItemStack itemStack){
         if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
             return itemStack.getTag().contains("Cost") ? itemStack.getTag().getInt("Cost") : cost;
         }
         return cost;
     }
 
-    /** This method returns the original cool down of the itemStack, not including the effects of enchantments and buffs. To get the accurate number, use {@link com.hungteen.pvz.common.event.PVZResourceEvent.CheckPlantConditionEvent}.
+    /** This method returns the original cool down of the itemStack, not including the effects of enchantments and buffs. To get the accurate number, use {@link PVZResourceEvent.CheckResourceEvent}.
      */
-    public int getCoolDown(@Nullable ItemStack itemStack){
+    public int getBaseCoolDown(@Nullable ItemStack itemStack){
         if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
             return itemStack.getTag().contains("CoolDown") ? itemStack.getTag().getInt("CoolDown") : coolDown;
         }
@@ -170,7 +177,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             if (canBoost() && entity instanceof IHaveSkills) {
                 ((IHaveSkills) entity).setSkillVal(entity, getSkillVal(context.getItemInHand()));
             }
-            MutableComponent posCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isPositionSafe(entity.level, pos.below()) : null;
+            MutableComponent posCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isPositionSafe(entity.level, pos.below(), true) : null;
             if (entity != null && posCheck == null) {
                 PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, context.getItemInHand(), entity);
                 MinecraftForge.EVENT_BUS.post(event);
@@ -185,11 +192,6 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                             }
                         });
                     }
-                    entity.moveTo(
-                            pos.getX() + 0.5,
-                            pos.below().getY() + (level.getBlockState(pos.below()).getCollisionShape(level, pos.below()).isEmpty() ? 0 :
-                                    level.getBlockState(pos.below()).getCollisionShape(level, pos.below()).bounds().maxY),
-                            pos.getZ() + 0.5);
                     ((ServerLevel) level).addFreshEntityWithPassengers(entity);
                     PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
                     if (cap != null) {
@@ -239,7 +241,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 if (item.canBoost() && entity instanceof IHaveSkills) {
                     ((IHaveSkills) entity).setSkillVal(entity, item.getSkillVal(itemStack));
                 }
-                MutableComponent targetCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isVehicleSafe(target) : null;
+                MutableComponent targetCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isVehicleSafe(target, true) : null;
                 if (entity != null && targetCheck == null) {
                     PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, itemStack, entity);
                     MinecraftForge.EVENT_BUS.post(event);
@@ -255,8 +257,6 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                             });
                         }
                         ((ServerLevel) level).addFreshEntityWithPassengers(entity);
-                        entity.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
-                        entity.startRiding(target);//TODO let plant decide this.
                         PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
                         if (cap != null) {
                             cap.setOwner(player);
@@ -284,24 +284,21 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     @SubscribeEvent
     public static void HandlePlantConditions(PVZResourceEvent.CheckResourceEvent ev) {
         if (! (ev.seedPacket.getItem() instanceof SeedPacketItem<?> item) || item.canBoost()) {
-            if (ev.getEntity().level.isClientSide() && PVZPlayerCapability.getValue(ev.getEntity(), "plant_have_cost") > 0) {
-                SeedPacketItem<?> item = ((SeedPacketItem<?>) ev.seedPacket.getItem());
-                for (int i : item.getSkills(ev.seedPacket)) {
-                    if (item.getStaticSkillList().size() - 1 >= i) {
+            SeedPacketItem<?> item = ((SeedPacketItem<?>) ev.seedPacket.getItem());
+            for (int i : item.getSkills(ev.seedPacket)) {
+                if (item.getStaticSkillList().size() - 1 >= i) {
+                    if (PVZPlayerCapability.getValue(ev.getEntity(), "plant_have_cost") > 0) {
                         ev.cost += item.getStaticSkillList().get(i).addCostResource;
                     }
+                    if (PVZPlayerCapability.getValue(ev.getEntity(), "plant_have_cd") > 0) {
+                        ev.coolDown += item.getStaticSkillList().get(i).addCoolDown;
+                    }
                 }
-            } else if (ev instanceof PVZResourceEvent.CheckPlantConditionEvent e) {
+            }
+            if (ev instanceof PVZResourceEvent.CheckPlantConditionEvent e) {
                 int level = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.QUICK_COOL_DOWN.get(), e.seedPacket);
                 if (level > 0) {
                     e.coolDown = e.coolDown * (10 - level) / 10;
-                }
-                if (PVZPlayerCapability.getValue(e.getEntity(), "plant_have_cost") > 0 &&
-                        e.spawningEntity instanceof IHaveSkills entity){
-                    for (int i : entity.getSkills(e.spawningEntity)) {
-                        e.cost += entity.getStaticSkillList().get(i).addCostResource;
-                        e.coolDown += entity.getStaticSkillList().get(i).addCoolDown;
-                    }
                 }
             }
         }
@@ -326,6 +323,18 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 tooltip.add(Component.translatable(getStaticSkillList().get(i).name).withStyle(ChatFormatting.DARK_AQUA));
             }
         }
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
+        Player player = !(ClientProxy.MC.getCameraEntity() instanceof Player) ? null : ClientProxy.getPlayer();
+        if (! player.isCreative() && ! player.isSpectator()) {
+            PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, itemStack);
+            MinecraftForge.EVENT_BUS.post(event);
+            return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, Objects.equals(getResource(itemStack), PVZPlayerCapNBT.SUN), false, true));
+        }
+        return Optional.empty();
     }
 
 }

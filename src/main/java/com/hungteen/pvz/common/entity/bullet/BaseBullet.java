@@ -3,7 +3,6 @@ package com.hungteen.pvz.common.entity.bullet;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.world.PVZDamageSource;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,6 +14,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -24,6 +25,8 @@ public class BaseBullet extends Projectile {
 	protected float airSlowDown = 0.99F;
 	protected float attackDamage = 0F;
 	protected float size = 1F;// need sync?
+	protected float knockBackStrengh = 0F;
+	protected String damageName = "pvz_bullet";
 
 	public BaseBullet(EntityType<? extends Projectile> type, Level worldIn, PVZOwnedCapability cap) {
 		super(type, worldIn);
@@ -111,7 +114,9 @@ public class BaseBullet extends Projectile {
 	}
 	@Override
 	protected void onHitEntity(EntityHitResult result) {
-		this.dealDamageTo(result.getEntity());
+		if (!this.level.isClientSide()) {
+			this.dealDamageTo(result.getEntity());
+		}
 	}
 	protected void onHitBlock(BlockHitResult result) {
 		super.onHitBlock(result);
@@ -120,17 +125,29 @@ public class BaseBullet extends Projectile {
 	protected void dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
 		//default normal damage.
-		target.hurt(PVZDamageSource.decreaseKnockBack(
-				PVZDamageSource.projectileDamageSource("pvz_bullet", this, getOwner())
+		target.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
+				PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
 						, getKnockBackStrength()), damage);
 		this.discard();
 	}
 
 	protected int getMaxLiveTick() {
-		return 120;
+		return 50;
 	}
 	public float getKnockBackStrength() {
-		return 0;
+		return knockBackStrengh;
+	}
+	public void setKnockBackStrength(float strength) {
+		knockBackStrengh = strength;
+	}
+	public String getDamageName() {
+		return damageName;
+	}
+
+	//use this in registry.
+	public BaseBullet setDamageName(String name) {
+		this.damageName = name;
+		return this;
 	}
 
 	public float getAttackDamage() {
@@ -170,23 +187,6 @@ public class BaseBullet extends Projectile {
 		return distance < d0 * d0;
 	}
 
-	/**
-	 * Updates the entity motion clientside, called by packets from the server
-	 */
-//	@OnlyIn(Dist.CLIENT)
-//	public void lerpMotion(double x, double y, double z) {
-//		this.setDeltaMovement(x, y, z);
-//		if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
-//			float f = Mth.sqrt((float) (x * x + z * z));
-//			this.yRot = (float) (Mth.atan2(x, z) * (double) (180F / (float) Math.PI));
-//			this.xRot = (float) (Mth.atan2(y, (double) f) * (double) (180F / (float) Math.PI));
-//			this.yRotO = this.yRot;
-//			this.xRotO = this.xRot;
-//			this.moveTo(this.getX(), this.getY(), this.getZ(), this.yRot,
-//					this.xRot);
-//		}
-//	}
-
 	@Override
 	protected void defineSynchedData() {
 
@@ -201,6 +201,9 @@ public class BaseBullet extends Projectile {
 		if (compound.contains("size")) {
 			this.size = compound.getFloat("size");
 		}
+		if (compound.contains("knock_back_strength")) {
+			this.size = compound.getFloat("knock_back_strength");
+		}
 	}
 
 	@Override
@@ -208,6 +211,7 @@ public class BaseBullet extends Projectile {
 		super.addAdditionalSaveData(compound);
 		compound.putFloat("attack_damage", this.attackDamage);
 		compound.putFloat("size", this.size);
+		compound.putFloat("knock_back_strength", this.knockBackStrengh);
 	}
 
 

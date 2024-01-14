@@ -5,7 +5,10 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -22,32 +25,63 @@ public class PVZDamageSource {
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
 
 
-
-    private static DamageSource teamFilterSource = null;
-    private static DamageSource decreaseKnockBackSource = null;
-    private static float decreaseKnockBackStrength = 1;
+    //damageSource decorators
     public static DamageSource teamFilter(DamageSource source) {
         teamFilterSource = source;
         return source;
     }
-    public static DamageSource decreaseKnockBack(DamageSource source, float strength) {
-        decreaseKnockBackSource = source;
-        decreaseKnockBackStrength = strength;
+    public static DamageSource knockBack(DamageSource source, float strength) {
+        knockBackSource = source;
+        knockBackStrength = strength;
         return source;
     }
-    public static DamageSource projectileDamageSource(String name, Entity projectile, Entity owner) {
-        return new IndirectEntityDamageSource(name, projectile, owner instanceof LivingEntity ? (LivingEntity) owner : projectile).setProjectile();
+    public static DamageSource ignoreInvTime(DamageSource source) {
+        ignoreInvTimeSource = source;
+        return source;
     }
 
+    //damageSource types
+    public static DamageSource projectileDamageSource(String name, Entity projectile, Entity owner) {
+        return new IndirectEntityDamageSource(name, projectile, owner instanceof LivingEntity ? owner : projectile).setProjectile();
+    }
+
+    //variables and methods used
+    private static DamageSource teamFilterSource = null;
+
+    private static DamageSource knockBackSource = null;
+    private static Entity knockBackEntity = null;
+    private static float knockBackStrength = 1;
+    private static DamageSource ignoreInvTimeSource = null;
+    private static int invTime = 0;
+
+
     @SubscribeEvent
-    public static void handleHurt(LivingAttackEvent ev){
+    public static void handleAttack(LivingAttackEvent ev){
         if (ev.getSource() == teamFilterSource){
             if (ev.getSource().getEntity() != null && isTeammate(ev.getSource().getEntity(), ev.getEntity())) {
                 ev.setCanceled(true);
             }
         }
-        if (ev.getSource() == decreaseKnockBackSource) {
-            //TODO handle knock back.
+        if (ev.getSource() == knockBackSource) {
+            knockBackEntity = ev.getEntity();
+        }
+        if (ev.getSource() == ignoreInvTimeSource && ev.getEntity() instanceof Player) {
+            invTime = ev.getEntity().invulnerableTime;
+            ev.getEntity().invulnerableTime = 0;
+        }
+    }
+
+    @SubscribeEvent
+    public static void handleHurt(LivingHurtEvent ev){
+        if (ev.getSource() == ignoreInvTimeSource) {
+            ev.getEntity().invulnerableTime = invTime;
+        }
+    }
+    @SubscribeEvent
+    public static void handleKnockBack(LivingKnockBackEvent ev) {
+        if (ev.getEntity() == knockBackEntity) {
+            ev.setStrength(knockBackStrength * ev.getStrength());
+            knockBackEntity = null;
         }
     }
     @SubscribeEvent

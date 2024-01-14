@@ -21,7 +21,7 @@ public class PVZMenus {
     public static final RegistryObject<MenuType<EssenceAltarMenu>> ESSENCE_ALTAR = MENU_TYPES.register("essence_altar",
             () -> IForgeMenuType.create((id, inv, data) -> new EssenceAltarMenu(inv, id)));
     public static final RegistryObject<MenuType<EssenceFurnaceMenu>> ESSENCE_FURNACE = MENU_TYPES.register("essence_furnace",
-            () -> IForgeMenuType.create((id, inv, data) -> new EssenceFurnaceMenu(inv, id, data.readBlockPos())));//TODO add sync.
+            () -> IForgeMenuType.create((id, inv, data) -> new EssenceFurnaceMenu(inv, id, data.readBlockPos())));
 
 
     @OnlyIn(Dist.CLIENT)

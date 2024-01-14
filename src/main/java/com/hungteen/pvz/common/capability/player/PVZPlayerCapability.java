@@ -32,6 +32,8 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     private final LazyOptional<PVZPlayerCapNBT> opt = LazyOptional.of(this::createNBT);
     public static int syncCount = 0;
 
+    //TODO need a decorator for aoe dmgs?
+
     public PVZPlayerCapability(Player player) {
         this.opt.ifPresent(cap -> cap.setPlayer(player));
     }
@@ -75,7 +77,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                     nbt.sunCountDown = 0;
                 }
-                if (EntityUtil.isSurvivalPlayer(player) && EntityUtil.isEntityPeace(player,100) && player.tickCount % 30 == 0) {
+                if (! player.hasEffect(MobEffects.DARKNESS) && EntityUtil.isSurvivalPlayer(player) && EntityUtil.isEntityPeace(player,100) && player.tickCount % 30 == 0) {
                     int limitSun = nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond();
                     int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
                     if (curSun < limitSun) {

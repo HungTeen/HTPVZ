@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
+import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
@@ -66,20 +67,24 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ATTACK_TIME = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
 
-    public static List<Skill> staticSkillSet = new ArrayList<>();
-
-
     private int situationHurtCount = 0;
     private boolean shouldAlign = true;
 
     protected PVZPlant(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
+        setPersistenceRequired();
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1)
                 .add(Attributes.MOVEMENT_SPEED, 0);
+    }
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(0, new ServerStressReleaseGoals.ServerStressReleaseGoal(this));
+        this.targetSelector.addGoal(0, new ServerStressReleaseGoals.ServerStressReleaseTargetGoal(this, false));
     }
 
     @Override
@@ -96,38 +101,34 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
     }
     @Override
     public List<Skill> getStaticSkillList(){
-        return staticSkillSet;
+        return List.of();
     }
 
     @Override
     public void baseTick() {
         super.baseTick();
         //check plant situation damage.
-        if (isPositionSafe(this.level, this.getOnPos()) != null && isVehicleSafe(getVehicle()) != null &&
+        if (isPositionSafe(this.level, this.getOnPos(), false) != null && isVehicleSafe(getVehicle(), false) != null &&
                 this.getAttribute(Attributes.MAX_HEALTH) != null && ++ situationHurtCount > 10) {
             this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
-            //TODO change this to a new dmg type.
             situationHurtCount = 0;
         }
         //about aligning blocks.
-        if (this.getDeltaMovement().distanceToSqr(new Vec3(0, 0, 0)) > 0.05 || ! this.isOnGround()) {
+        if (! this.isOnGround() || this.getDeltaMovement().distanceToSqr(new Vec3(0, 0, 0)) > 0.05) {
             shouldAlign = true;
         } else if (shouldAlign) {
             alignBlocks();
             setDeltaMovement(0, 0, 0);
             shouldAlign = false;
         }
-        //live time count and wilt.
-
         //TODO relative codes. add particle when plant is dying.
     }
-
 
     /**
      * see {@link INeedSafeSituation}  for the two methods below.
      */
     @Override
-    public MutableComponent isPositionSafe(Level level, BlockPos onPos) {
+    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean actuallyPlant) {
         //TODO replace with vanilla methods.
         VoxelShape tmpShape = level.getBlockState(onPos).getCollisionShape(level, onPos);
         double calcHeight = getBbHeight() + (tmpShape.isEmpty() ? 0 : tmpShape.bounds().maxY) - 1;
@@ -151,6 +152,13 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
         }
         if (! getEntityData().get(root()) || (level.getBlockState(onPos).is(PVZBlockTags.PLANTABLE_BLOCKS) && ! level.getBlockState(onPos).isAir())) {
             if (level.getBlockState(onPos).getFluidState().isEmpty()) {
+                if (actuallyPlant) {
+                    moveTo(
+                            onPos.getX() + 0.5,
+                            onPos.below().getY() + 1 + (level.getBlockState(onPos.below()).getCollisionShape(level, onPos.below()).isEmpty() ? 0 :
+                                    level.getBlockState(onPos.below()).getCollisionShape(level, onPos.below()).bounds().maxY),
+                            onPos.getZ() + 0.5);
+                }
                 return null;
             }
             return Component.translatable("hint.pvz.plant.cant_plant_in_water", getName());
@@ -160,17 +168,24 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
     }
 
     @Override
-    public MutableComponent isVehicleSafe(Entity vehicle) {
-        if (vehicle == null) {
+    public MutableComponent isVehicleSafe(Entity target, boolean actuallyPlant) {
+        if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
-        if (vehicle instanceof ICanBePlantedOn && ((ICanBePlantedOn) vehicle).canHold(this)) {
-            if (!canMountEntity(this, vehicle, this.getVehicle() == vehicle)) {
-                return Component.translatable("hint.pvz.plant.no_enough_place", getName());
+        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this)) {
+            if (PVZOwnedCapability.isTeammate(this, target)) {
+                if (!canMountEntity(this, target, this.getVehicle() == target)) {
+                    return Component.translatable("hint.pvz.plant.no_enough_place", getName());
+                }
+                if (actuallyPlant) {
+                    moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
+                    startRiding(target);
+                }
+                return null;
             }
-            return null;
+            return Component.translatable("hint.pvz.plant.need_own_team");
         } else {
-            return Component.translatable("hint.pvz.plant.cant_plant_on", getName(), vehicle.getName());
+            return Component.translatable("hint.pvz.plant.cant_plant_on", getName(), target.getName());
         }
     }
 

@@ -1,6 +1,8 @@
 package com.hungteen.pvz.api.interfaces;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.common.item.SeedPacketItem;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 
@@ -21,6 +23,22 @@ public interface IHaveSkills {
     default boolean hasSkill(Object obj, int id) {
         return (1 << id & getSkillVal(obj)) == 1 << id;
     }
+
+    default boolean hasSkill(Object obj, String name) {
+        short id = -1;
+        for (short i = 0; i < getStaticSkillList().size(); i ++) {
+            Skill skill = getStaticSkillList().get(i);
+            if (name.equals(skill.name)) {
+                id = i;
+                break;
+            }
+        }
+        if (id == -1) {
+            return false;
+        }
+        return hasSkill(obj, id);
+    }
+
     default Set<Integer> getSkills(Object obj) {
         Set<Integer> result = new HashSet<>();
         for (int i = 0; i < 32; i ++){
@@ -29,6 +47,16 @@ public interface IHaveSkills {
             }
         }
         return result;
+    }
+    default short getSkillId(Skill skill) {
+        short index = 0;
+        for (Skill i : getStaticSkillList()) {
+            if (i == skill) {
+                return index;
+            }
+            index ++;
+        }
+        return -1;
     }
     default boolean addSkill(Object obj, int id) {
         if (hasSkill(obj, id)) {
@@ -43,5 +71,15 @@ public interface IHaveSkills {
         } else {
             setSkillVal(obj, ~(~ getSkillVal(obj) | 1 << id));
         }
+    }
+    default Skill notCompatible(Object obj, Skill skill) {
+        for (Skill i : getStaticSkillList()) {
+            if (hasSkill(obj, getSkillId(i))) {
+                if (i.avoidSkills.contains(getSkillId(skill)) || skill.avoidSkills.contains(getSkillId(i))) {
+                    return i;
+                }
+            }
+        }
+        return null;
     }
 }

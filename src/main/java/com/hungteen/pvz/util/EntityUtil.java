@@ -19,23 +19,6 @@ import java.util.Random;
 public class EntityUtil {
     public static final Random RAND = new Random();
     /**
-     * spawn in random range position.
-     */
-    public static void onEntityRandomPosSpawn(Level level, Entity entity, BlockPos pos, int dis) {
-        pos = pos.offset(MathUtil.getRandomInRange(level.getRandom(), dis), level.getRandom().nextInt(dis) + 1, MathUtil.getRandomInRange(level.getRandom(), dis));
-        onEntitySpawn(level, entity, pos);
-    }
-    /**
-     * use to spawn entity in world.
-     */
-    public static void onEntitySpawn(Level level, Entity entity, BlockPos pos) {
-        entity.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-        if(entity instanceof Mob mob && level instanceof ServerLevel serverLevel) {
-            mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.SPAWNER, null, null);
-        }
-        level.addFreshEntity(entity);
-    }
-    /**
      * use to play sound in world.
      */
     public static void playSound(Entity entity, SoundEvent ev) {
@@ -48,19 +31,19 @@ public class EntityUtil {
      * check can AttackGoal continue to attack target.
      */
     public static boolean checkCanEntityBeAttack(Entity attacker, Entity target) {
-        if(attacker == null || target == null) {//prevent crash
+        if (attacker == null || target == null) {//prevent crash
             return false;
         }
-        if(!isSurvivalPlayer(target)) {
+        if (target instanceof Player && !isSurvivalPlayer(target)) {
             return false;
         }
-        if(PVZOwnedCapability.isTeammate(attacker, target)) {//enable team attack
+        if (PVZOwnedCapability.isTeammate(attacker, target)) {//enable team attack
             return false;
         }
         return true;
     }
     public static boolean isSurvivalPlayer(Entity entity) {
-        return entity instanceof Player player&&! player.isCreative() && ! player.isSpectator();
+        return entity instanceof Player player && ! player.isCreative() && ! player.isSpectator();
     }
 
     public static class EntitySorter implements Comparator<Entity> {
@@ -91,7 +74,7 @@ public class EntityUtil {
         return target != null && target.isAlive();
     }
     public static boolean isEntityPeace(LivingEntity entity, int cd) {
-        return entity.getLastHurtByMobTimestamp() < entity.tickCount-cd || entity.getLastHurtByMob()==null;
+        return entity.getLastHurtByMobTimestamp() < entity.tickCount - cd || entity.getLastHurtByMob() == null;
     }
 
 }

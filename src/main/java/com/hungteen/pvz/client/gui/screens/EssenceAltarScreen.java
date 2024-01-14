@@ -1,9 +1,11 @@
 package com.hungteen.pvz.client.gui.screens;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.menu.EssenceAltarMenu;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -16,10 +18,12 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -29,8 +33,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.Arrays;
+import java.awt.*;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.Math.floor;
 import static java.lang.Math.min;
@@ -39,6 +44,7 @@ import static java.lang.Math.min;
 public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu> {
     private static final ResourceLocation TEXTURE = Util.prefix("textures/gui/container/essence_altar.png");
     private static final ResourceLocation BLOCK_TEXTURE = Util.prefix("textures/blockentity/float_essence_block.png");
+    public static float nameRollTime = 0;
     private FloatEssenceBlockModel model;
     private int shownFirstSkill;
     private List<Skill> skills = List.of();
@@ -113,7 +119,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         Lighting.setupFor3DItems();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         //render buttons.
-        if (this.getMenu().slots.get(0).hasItem() && this.getMenu().slots.get(0).getItem().getItem() instanceof SeedPacketItem<?> item) {
+        if (this.getMenu().slots.get(0).hasItem() && this.getMenu().slots.get(0).getItem().getItem() instanceof SeedPacketItem<?>) {
             if (skills.size() > 0) {
                 int x = leftPos + 60;
                 int y = topPos;
@@ -124,9 +130,18 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     int costSeedPacket = skills.get(i + shownFirstSkill).costSeed;
                     int costItem = skills.get(i + shownFirstSkill).costItem;
-                    Component skillName = Component.translatable(skills.get(i + shownFirstSkill).name);
+                    //handle skill name rendering.
+                    String skillName = Language.getInstance().getOrDefault(skills.get(i + shownFirstSkill).name);
+                    int j = 0;
+                    while (font.width(skillName.substring(j)) > 54 && j < Math.floor((nameRollTime - 80) / 20)) {
+                        j ++;
+                    }
+                    skillName = skillName.substring(j);
+                    while (font.width(skillName) > 54) {
+                        skillName = skillName.substring(0, skillName.length() - 1);
+                    }
                     int color;
-                    if (getMenu().isSkillAvailable(ClientProxy.getPlayer(), skills, i + shownFirstSkill)) {
+                    if (getMenu().isSkillAvailable(ClientProxy.getPlayer(), skills, (short) (i + shownFirstSkill))) {
                         //available.
                         int mouseRelativeX = mouseX - x;
                         int mouseRelativeY = mouseY - (y + 14 + 19 * i);
@@ -166,10 +181,25 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         int bottom = top + 57;
         if (mouseX > leftPos + 60 && mouseX < leftPos + 152 && mouseY > top && mouseY <= bottom) {
             if (skills.size() > (mouseY - top) / 19 + shownFirstSkill) {
-                ClientProxy.MC.screen.renderComponentTooltip(stack, Arrays.asList(
-                        Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name),
-                        Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name + ".disc").withStyle(Style.EMPTY.withColor(0x545454))
-                ), mouseX, mouseY);
+                int cost = skills.get((mouseY - top) / 19 + shownFirstSkill).addCostResource;
+                int cd = skills.get((mouseY - top) / 19 + shownFirstSkill).addCoolDown;
+                List<Component> list = new java.util.ArrayList<>(List.of(
+                        Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_AQUA)),
+                        Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name + ".disc").withStyle(Style.EMPTY.withColor(0x545454))));
+                if (menu.getItems().get(0).getItem() instanceof SeedPacketItem<?> seedPacket) {
+                    if (seedPacket.hasSkill(menu.getItems().get(0), (mouseY - top) / 19 + shownFirstSkill)){
+                        list.add(Component.translatable("tooltip.pvz.already_attached").withStyle(Style.EMPTY.withColor(Color.RED.getRGB())));
+                    } else {
+                        Skill skill = seedPacket.notCompatible(menu.getItems().get(0), skills.get((mouseY - top) / 19 + shownFirstSkill));
+                        if (skill != null) {
+                            list.add(Component.translatable("tooltip.pvz.not_compatible", Component.translatable(skill.name)).withStyle(Style.EMPTY.withColor(Color.RED.getRGB())));
+                        }
+                    }
+                }
+                ClientProxy.MC.screen.renderTooltip(stack, list,
+                        Optional.of(new SunImageToolTipComponent(cost, cd,
+                                ((SeedPacketItem<?>) menu.getItems().get(0).getItem()).getResource(menu.getItems().get(0)).equals(PVZPlayerCapNBT.SUN), true, true)),
+                        mouseX, mouseY, font, ItemStack.EMPTY);
             }
         } else {
             this.renderTooltip(stack, mouseX, mouseY);

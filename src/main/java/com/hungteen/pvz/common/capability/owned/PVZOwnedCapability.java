@@ -9,6 +9,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -62,6 +64,12 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
         this.owner = entity;
         if (entity == null) {
             scoreboard.removePlayerFromTeam(this.entity.getScoreboardName());
+        } else {
+            Scoreboard scoreboard = this.entity.getServer().getScoreboard();
+            PlayerTeam team = scoreboard.getPlayersTeam(entity.getScoreboardName());
+            if (team != null) {
+                scoreboard.addPlayerToTeam(this.entity.getScoreboardName(), team);
+            }
         }
     }
 

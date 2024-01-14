@@ -23,6 +23,6 @@ public interface IShooter {
 	/**
 	 * is suitable angle
 	 */
-	boolean checkY(Entity target);
+	boolean isHeightAvailable(Entity target);
 	
 }

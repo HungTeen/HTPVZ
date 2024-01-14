@@ -9,6 +9,9 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 public abstract class ProducerPlant extends PVZPlant {
@@ -25,7 +28,9 @@ public abstract class ProducerPlant extends PVZPlant {
         @Override
         protected void registerGoals() {
             super.registerGoals();
-            this.goalSelector.addGoal(0, new ProducerGenGoal(this));
+            this.goalSelector.addGoal(1, new ProducerGenGoal(this));
+            this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 6.0F));
+            this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         }
 
         //animate realted.

@@ -1,6 +1,8 @@
 package com.hungteen.pvz;
 
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
+import com.hungteen.pvz.client.gui.components.ClientSunImageToolTipComponent;
+import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
 import com.hungteen.pvz.common.capability.CapabilityHandler;
@@ -9,6 +11,7 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.OwnCommand;
 import com.hungteen.pvz.common.command.PVZRulesCommand;
 import com.hungteen.pvz.common.command.PlayerStatsCommand;
+import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
 import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
@@ -89,6 +92,7 @@ public class PVZMod
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modBus.addListener(PVZOverlayHandler::registerOverlay);
+            modBus.addListener(ClientSunImageToolTipComponent::register);
         }
 
 
@@ -197,6 +201,8 @@ public class PVZMod
             //caps tick
             PVZPlayerCapability.tick(ev);
             PVZOwnedCapability.tick(ev);
+            //server stress releasing
+            ServerStressReleaseGoals.averageTickTime = Math.round(ev.getServer().getAverageTickTime());
         }
     }
 
@@ -205,10 +211,15 @@ public class PVZMod
         if (ClientProxy.getPlayer() != null){
             PVZOverlayHandler.tick(ev.renderTickTime);
         }
-        EssenceAltarRenderer.time += ev.renderTickTime;
+        EssenceAltarRenderer.time += Minecraft.getInstance().isPaused() ? 0 : ev.renderTickTime;
         if (EssenceAltarRenderer.time > 1500) {
             EssenceAltarRenderer.time -= 1500;
         }
+        EssenceAltarScreen.nameRollTime += ev.renderTickTime;
+        if (EssenceAltarScreen.nameRollTime > 400) {
+            EssenceAltarScreen.nameRollTime -= 400;
+        }
+
     }
 
     @SubscribeEvent

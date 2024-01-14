@@ -2,6 +2,8 @@ package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
+import com.hungteen.pvz.api.interfaces.IDefenderPlant;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -44,8 +46,8 @@ public class AttractEnemyGoal extends Goal {
             if (targetEntity instanceof Mob && ! PVZOwnedCapability.isTeammate(entity, targetEntity) && ! outOfHeightRegion) {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
-                if ((! PVZRulesCapability.getBoolean("teamBattle")) ||
-                        (targetEntity instanceof Enemy || targetOfTarget == null || !targetOfTarget.isAlive() || targetOfTarget.getTeam() == entity.getTeam())) {
+                if (! (targetOfTarget instanceof IDefenderPlant) && ((! PVZRulesCapability.getBoolean("teamBattle")) ||
+                        (! EntityUtil.isEntityValid(targetOfTarget) || PVZOwnedCapability.isTeammate(entity, targetOfTarget)))) {
                     //test if can attract.
                     ((Mob) targetEntity).targetSelector.getAvailableGoals().forEach((goal) -> {
                         if (goal.getGoal() instanceof TargetGoal) {

@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.model.plants.PeaShooterModel;
+import com.hungteen.pvz.client.model.plants.RepeaterModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.bullet.PeaBulletRenderer;
@@ -95,6 +96,8 @@ public class PVZEntities {
             .collision(0.9F, 1.9F).entity("tall_nut", TallNut::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes)
             .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<PeaShooter>> REPEATER = attribute(PeaShooter::createAttributes)
+            .collision(0.7F, 1.3F).entity("repeater", Repeater::new, MobCategory.MISC);
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.25F, 0.25F).entity("pea", PeaBullet::new, MobCategory.MISC);
 
@@ -111,6 +114,7 @@ public class PVZEntities {
     public static void simpleRenderHandler() {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
         rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.6F, "textures/entity/plants/pea_shooter/pea_shooter.png");
+        rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.6F, "textures/entity/plants/repeater/repeater.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -124,7 +128,6 @@ public class PVZEntities {
         r(e, SUN_FLOWER, SunFlowerRenderer::new);
         r(e, MARIGOLD, MariGoldRenderer::new);
         r(e, TALL_NUT, TallNutRenderer::new);
-//        r(e, PEA_SHOOTER, PeaShooterRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
 
         //enter here

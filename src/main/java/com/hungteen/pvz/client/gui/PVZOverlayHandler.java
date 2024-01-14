@@ -72,7 +72,7 @@ public class PVZOverlayHandler{
     }
 
     private static void renderSunAsBar(ForgeGui gui, PoseStack stack, float partialTick, int width, int height){
-        if (PVZConfig.renderSunAsBar() && !gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
+        if (PVZConfig.renderSunAsNumber() && !gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
             stack.pushPose();
             RenderSystem.enableBlend();
             int x = PVZConfig.renderSunBarX();
@@ -102,7 +102,7 @@ public class PVZOverlayHandler{
     }
 
     private static void renderSunAsStats(ForgeGui gui, PoseStack stack, float partialTick, int width, int height){
-        if (!PVZConfig.renderSunAsBar() && !gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
+        if (!PVZConfig.renderSunAsNumber() && !gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
             Minecraft mc = gui.getMinecraft();
             mc.getProfiler().push("sun");
 
@@ -184,7 +184,7 @@ public class PVZOverlayHandler{
             int y = height - 32;
             int w;
             if (itemStackResourceIsSun) {
-                if (PVZConfig.renderSunAsBar()) {
+                if (PVZConfig.renderSunAsNumber()) {
                     w = ClientProxy.MC.font.width(itemStackCost + "") + 10;
                     blit(stack, x - w / 2, y, 40, 0, 9, 9);
                     ClientProxy.MC.font.draw(stack, itemStackCost + "", x - (float) w / 2 + 11, y + 2, 0x663600);

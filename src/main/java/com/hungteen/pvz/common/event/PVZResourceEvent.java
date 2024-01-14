@@ -12,12 +12,14 @@ import net.minecraftforge.eventbus.api.Cancelable;
 
 public class PVZResourceEvent extends PlayerEvent {
     public int cost;
+    public int coolDown;
     public String resource;
 
-    public PVZResourceEvent(Player player, String resource, int cost) {
+    public PVZResourceEvent(Player player, String resource, int cost, int coolDown) {
         super(player);
         this.cost = cost;
         this.resource = resource;
+        this.coolDown = coolDown;
     }
 
     /**
@@ -27,13 +29,15 @@ public class PVZResourceEvent extends PlayerEvent {
     public static class CheckResourceEvent extends PVZResourceEvent {
         public final ItemStack seedPacket;
         public CheckResourceEvent(Player player, ItemStack plantCard) {
-            super(player, null, 0);
+            super(player, null, 0, 0);
             this.seedPacket = plantCard;
             SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
             resource = item.getResource(plantCard);
             cost = (resource.equals(PVZPlayerCapNBT.SUN)
                     && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
-                    0 : item.getCost(plantCard);
+                    0 : item.getBaseCost(plantCard);
+            coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
+                    0 : item.getBaseCoolDown(plantCard);
         }
     }
 
@@ -45,14 +49,10 @@ public class PVZResourceEvent extends PlayerEvent {
      */
     @Cancelable
     public static class CheckPlantConditionEvent extends CheckResourceEvent {
-        public int coolDown;
         public Entity spawningEntity;
 
         public CheckPlantConditionEvent(Player player, ItemStack plantCard, Entity spawningEntity) {
             super(player, plantCard);
-            SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
-            coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
-                    0 : item.getCoolDown(plantCard);
             this.spawningEntity = spawningEntity;
         }
     }

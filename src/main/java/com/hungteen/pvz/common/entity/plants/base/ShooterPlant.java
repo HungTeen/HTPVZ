@@ -2,20 +2,18 @@ package com.hungteen.pvz.common.entity.plants.base;
 
 import com.hungteen.pvz.api.interfaces.IShooter;
 import com.hungteen.pvz.common.entity.PVZPlant;
-import com.hungteen.pvz.common.entity.ai.goal.PVZNearestTargetGoal;
+import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
@@ -23,45 +21,35 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 
 public abstract class ShooterPlant extends PVZPlant implements IShooter {
+	public Vec3 storedEnemyPos = null;
+	public int aimTime = 0;
+	public AnimationState idleAnimationState = new AnimationState();
+	public AnimationState shootAnimationState = new AnimationState();
+	protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(ShooterPlant.class, EntityDataSerializers.BOOLEAN);
 
-	//use for normal shoot attack animation and shoot goal.
-	public static final int SHOOT_ANIM_CD = 10;
-	public static final int SHOOT_POINT = SHOOT_ANIM_CD * 3 / 4;
-	public static final int SHOOT_POINT_OFFSET = SHOOT_ANIM_CD - SHOOT_POINT;
-	
 	public ShooterPlant(EntityType<? extends Mob> type, Level worldIn) {
 		super(type, worldIn);
+		this.setAttackTime(this,40);
 	}
 
-	
-
-	public static AttributeSupplier.Builder createAttributes() {
-		return PVZPlant.createAttributes()
-				.add(Attributes.FOLLOW_RANGE, 15D);
-	}
-	
 	@Override
 	protected void registerGoals() {
 		super.registerGoals();
-	    this.goalSelector.addGoal(0, new ShooterAttackGoal(this));
-	    this.addTargetGoals();
+	    this.goalSelector.addGoal(1, new ShooterAttackGoal(this));
+		this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
+		this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
+		this.targetSelector.addGoal(1, new ShooterTargetGoal(this));
 	}
-	
-	protected void addTargetGoals() {
-//		this.targetSelector.addGoal(0, new ShooterNearestTargetGoal(this, true, false, getShootRange(), getShootHeight()));
-		//TODO make a ShooterTargetGoal extends TargetGoal. make sure use vanilla methods more.
-		this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Zombie.class, true));
-	}
-
 
 	/**
 	 * shoot pea with offsets.
 	 */
 	public void performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
 		Optional.ofNullable(this.getTarget()).ifPresent(target -> {
-		 	//offset
+		 	//create bullet
 			final Vec3 vec = EntityUtil.getNormalisedVector2d(this, target);
 		    final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
 		    final double deltaX = forwardOffset * vec.x - rightOffset * vec.z;
@@ -70,13 +58,35 @@ public abstract class ShooterPlant extends PVZPlant implements IShooter {
 		    bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
 		    //predict
 			float speed = this.getBulletSpeed();
-			Vec3 targetSpeed = target.getDeltaMovement();
-			float time = distanceTo(target) / speed;
+			Vec3 targetSpeed;
+			if (storedEnemyPos != null) {
+ 				targetSpeed = target.position().subtract(storedEnemyPos)
+						.multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
+				aimTime = 0;
+				storedEnemyPos = getTarget().position();
+			} else {
+				targetSpeed = target.getDeltaMovement();
+			}
+			int time = Math.round(distanceTo(target) / speed);
+			Vec3 deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
+			target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),//angle limit move to targeting goals.
+					target.getZ() + targetSpeed.z * time - bullet.getZ());
+			for (int tmp = 0; tmp < 3; tmp ++) {
+				//recurse to increase accuracy.
+				time = (int) Math.round(Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y + deltaPos.z * deltaPos.z) / speed);
+				deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
+						target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),
+						target.getZ() + targetSpeed.z * time - bullet.getZ());
+			}
+			double horizontal = Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.z * deltaPos.z);
+			double vertical = Math.sqrt(deltaPos.y * deltaPos.y);
+			if (vertical > horizontal * getMaxShootAngleTangent()) {
+				deltaPos = new Vec3 (deltaPos.x, horizontal * getMaxShootAngleTangent(), deltaPos.z);
+			} else if (vertical < - horizontal * getMaxShootAngleTangent()) {
+				deltaPos = new Vec3 (deltaPos.x, - horizontal * getMaxShootAngleTangent(), deltaPos.z);
+			}
 			//shoot
-		    bullet.shoot(target.getX() + targetSpeed.x * time - bullet.getX(),
-					target.getY() + targetSpeed.y * time + target.getEyeHeight() - bullet.getY(),//angle limit move to targeting goals.
-					target.getZ() + targetSpeed.z * time - bullet.getZ(),
-				    speed, (float) randomAngle);
+		    bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, speed, (float) randomAngle);
 			if(needSound) {
 				EntityUtil.playSound(this, this.getShootSound());
 			}
@@ -88,140 +98,128 @@ public abstract class ShooterPlant extends PVZPlant implements IShooter {
 		});
 	}
 
-	protected abstract BaseBullet createBullet();
-	
+	@Override
+	public void tick() {
+		super.tick();
+		if (EntityUtil.isEntityValid(getTarget())) {
+			if (storedEnemyPos == null || aimTime % 50 == 0) {
+				storedEnemyPos = getTarget().position();
+				aimTime = 0;
+			}
+			aimTime ++;
+		} else {
+			storedEnemyPos = null;
+			aimTime = 0;
+		}
+	}
+	//animate related.
+	@Override
+	protected void defineSynchedData() {
+		super.defineSynchedData();
+		this.entityData.define(POSE, false);
+	}
+	@Override
+	public void onSyncedDataUpdated(EntityDataAccessor<?> p_219422_) {
+		if (POSE.equals(p_219422_)) {
+			if (entityData.get(POSE)) {
+				this.idleAnimationState.stop();
+				this.shootAnimationState.start(this.tickCount);
+			} else {
+				this.shootAnimationState.stop();
+				this.idleAnimationState.start(this.tickCount);
+			}
+		}
+
+		super.onSyncedDataUpdated(p_219422_);
+	}
+
+	protected abstract Projectile createBullet();
+
 	protected SoundEvent getShootSound() {
 		return SoundEvents.SNOW_GOLEM_SHOOT;
 	}
-	
-	protected boolean canAttackNow() {
-		return this.getAttackTime(this) <= 0;
-	}
-	
+
 	/**
 	 * get shooter bullet attack damage.
 	 */
 	public abstract float getAttackDamage();
-	
+
 
 	@Override
-	public boolean checkY(Entity target) {
+	public boolean isHeightAvailable(Entity target) {
 		final double dx = target.getX() - this.getX();
 		final double dz = target.getZ() - this.getZ();
 		final double minY = target.getY() - this.getY() - this.getEyeHeight();
 		final double maxY = minY + target.getBbHeight();
 		final double dis = Math.sqrt(dx * dx + dz * dz);
-		final double y = dis / getMaxShootAngle();
+		final double y = dis * getMaxShootAngleTangent();
 		return minY < y && maxY > - y;
 	}
-	
+
 	/**
 	 * use to check horizontal shoot path.
-	 * {@link #checkY(Entity)}
+	 * {@link #isHeightAvailable(Entity)}
 	 */
-	public double getMaxShootAngle() {
-		return 12;
+	public double getMaxShootAngleTangent() {
+		return 0.1;
 	}
-	
-	/**
-	 * max target horizontal distance.
-	 */
-	public float getShootRange() {
-		return 16;
-	}
-	
-	/**
-	 * max target height.
-	 */
-	public float getShootHeight() {
-		return 2;
-	}
-	
 
 	public boolean canShoot() {
 		return this.isAlive();
 	}
-	
+
 	@Override
 	public abstract int getShootCD();
-	
+
+	protected boolean canAttackNow() {
+		return shootTimes().contains(getAttackTime(this));
+	}
+	protected Set<Integer> shootTimes() {
+		return Set.of(10);
+	}
+	protected int shootAnimLength() {
+		return 20;
+	}
+
 	@Override
 	public float getBulletSpeed() {
 		return 1F;
 	}
-	
+
 
 	static class ShooterAttackGoal extends Goal {
 
 		protected final ShooterPlant shooter;
-		protected LivingEntity target;
-		
+
 		public ShooterAttackGoal(ShooterPlant shooter) {
 			this.shooter = shooter;
 			this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
 		}
-		
+
 		@Override
 		public boolean canUse() {
-		//if(! this.shooter.canShoot()) {//can not shoot because of the shooter itself.
-		//	this.shooter.setShootTick(0);
-		//	return false;
-		//}
-		//this.target = this.shooter.getTarget();
-		//if(! this.checkTarget()) {//can not shoot because of its target.
-		//	this.target = null;
-		//	this.shooter.setTarget(null);
-		//	return false;
-		//}
-			return true;
+			return this.shooter.canShoot();
 		}
-		
+
 		@Override
 		public boolean canContinueToUse() {
 			return this.canUse();
 		}
-		
-		@Override
-		public void stop() {
-
-		}
 
 		@Override
 		public void tick() {
-			if (!this.shooter.isEffectiveAi()) {
-				return;
-			}
+			LivingEntity target = this.shooter.getTarget();
 			final int time = this.shooter.getAttackTime(this);
-			if (time <= 1) {
+			if (this.shooter.shootTimes().contains(time)) {
 				this.shooter.shootBullet();
-				this.shooter.setAttackTime(this,this.shooter.getShootCD());
-			} else {
-				this.shooter.setAttackTime(this,Math.max(0, time - 1));
 			}
-		}
-		
-		private boolean checkTarget() {
-			if(EntityUtil.checkCanEntityBeAttack(this.shooter, this.target)) {
-				return this.shooter.getSensing().hasLineOfSight(this.target);
+			if (! (time == this.shooter.shootAnimLength()) || EntityUtil.isEntityValid(target)) {
+				this.shooter.setAttackTime(this, time > 0 ? time - 1 : this.shooter.getShootCD());
 			}
-			return false;
+			if (EntityUtil.isEntityValid(target)) {
+				this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
+			}
+			shooter.entityData.set(POSE, (time < this.shooter.shootAnimLength()));
 		}
-		
-	}
-
-	protected static class ShooterNearestTargetGoal extends PVZNearestTargetGoal {
-
-		private final ShooterPlant shooter;
-
-		public ShooterNearestTargetGoal(ShooterPlant mobIn, boolean checkSight, boolean memory, float w, float h) {
-			super(mobIn, checkSight, memory, w, h);
-			this.shooter = mobIn;
-		}
-
-		@Override
-		protected boolean checkOther(LivingEntity entity) {
-			return super.checkOther(entity) && this.shooter.checkY(entity);
-		}
-
 	}
 }
