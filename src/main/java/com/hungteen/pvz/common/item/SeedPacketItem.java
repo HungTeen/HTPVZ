@@ -168,7 +168,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             if (entity != null && context.getItemInHand().hasCustomHoverName()) {
                 entity.setCustomName(context.getItemInHand().getHoverName());
             }
-            //check pos.
+            //enchantment.
             if (entity instanceof IPlant && (EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), context.getItemInHand()) > 0 ||
                     context.getItemInHand().getOrCreateTag().contains("CanPlaceOn"))) {
                 entity.getEntityData().set(((IPlant) entity).root(), false);
@@ -177,6 +177,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             if (canBoost() && entity instanceof IHaveSkills) {
                 ((IHaveSkills) entity).setSkillVal(entity, getSkillVal(context.getItemInHand()));
             }
+            //check position.
             MutableComponent posCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isPositionSafe(entity.level, pos.below(), true) : null;
             if (entity != null && posCheck == null) {
                 PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, context.getItemInHand(), entity);
@@ -232,7 +233,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 if (entity != null && itemStack.hasCustomHoverName()) {
                     entity.setCustomName(itemStack.getHoverName());
                 }
-                //check pos.
+                //enchantment.
                 if (entity instanceof IPlant && (EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), itemStack) > 0 ||
                         itemStack.getOrCreateTag().contains("CanPlaceOn"))) {
                     entity.getEntityData().set(((IPlant) entity).root(), false);
@@ -241,6 +242,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 if (item.canBoost() && entity instanceof IHaveSkills) {
                     ((IHaveSkills) entity).setSkillVal(entity, item.getSkillVal(itemStack));
                 }
+                //check position.
                 MutableComponent targetCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isVehicleSafe(target, true) : null;
                 if (entity != null && targetCheck == null) {
                     PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, itemStack, entity);

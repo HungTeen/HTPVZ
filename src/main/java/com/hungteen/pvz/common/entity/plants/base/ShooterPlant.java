@@ -79,7 +79,7 @@ public abstract class ShooterPlant extends PVZPlant implements IShooter {
 						target.getZ() + targetSpeed.z * time - bullet.getZ());
 			}
 			double horizontal = Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.z * deltaPos.z);
-			double vertical = Math.sqrt(deltaPos.y * deltaPos.y);
+			double vertical = deltaPos.y;
 			if (vertical > horizontal * getMaxShootAngleTangent()) {
 				deltaPos = new Vec3 (deltaPos.x, horizontal * getMaxShootAngleTangent(), deltaPos.z);
 			} else if (vertical < - horizontal * getMaxShootAngleTangent()) {

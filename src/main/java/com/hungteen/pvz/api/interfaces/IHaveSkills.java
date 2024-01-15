@@ -26,8 +26,8 @@ public interface IHaveSkills {
 
     default boolean hasSkill(Object obj, String name) {
         short id = -1;
-        for (short i = 0; i < getStaticSkillList().size(); i ++) {
-            Skill skill = getStaticSkillList().get(i);
+        for (short i = 0; i < this.getStaticSkillList().size(); i ++) {
+            Skill skill = this.getStaticSkillList().get(i);
             if (name.equals(skill.name)) {
                 id = i;
                 break;

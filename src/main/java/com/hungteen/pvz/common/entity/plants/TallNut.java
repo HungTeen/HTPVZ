@@ -23,6 +23,10 @@ public class TallNut extends WallNut{
     public TallNut(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
     }
+    @Override
+    public List<Skill> getStaticSkillList(){
+        return staticSkillList;
+    }
 
     public static AttributeSupplier.Builder createAttributes() {
         return PVZPlant.createAttributes()

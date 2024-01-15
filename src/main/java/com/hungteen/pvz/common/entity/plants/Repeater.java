@@ -18,6 +18,10 @@ public class Repeater extends PeaShooter{
     public Repeater(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
     }
+    @Override
+    public List<Skill> getStaticSkillList(){
+        return staticSkillList;
+    }
 
     protected Set<Integer> shootTimes() {
         return hasSkill(this, "skill.pvz.repeater.triple_tap") ? Set.of(10, 11, 12) : Set.of(10, 11);

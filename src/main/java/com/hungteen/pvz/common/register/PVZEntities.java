@@ -89,7 +89,7 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes)
             .collision(0.8F, 1F).entity("wall_nut", WallNut::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes)
-            .collision(0.75F, 1.3F).entity("sun_flower", SunFlower::new, MobCategory.MISC);
+            .collision(0.75F, 1.1F).entity("sun_flower", SunFlower::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes)
             .collision(0.75F, 1.3F).entity("marigold", MariGold::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes)
