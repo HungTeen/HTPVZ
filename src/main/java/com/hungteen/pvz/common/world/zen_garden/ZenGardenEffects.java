@@ -17,6 +17,6 @@ public class ZenGardenEffects extends DimensionSpecialEffects {
 
     @Override
     public boolean isFoggyAt(int p_108874_, int p_108875_) {
-        return false;
+        return true;
     }
 }

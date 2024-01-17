@@ -23,8 +23,6 @@ import net.minecraft.world.level.levelgen.placement.*;
 import java.util.List;
 
 public class LunarStoneFeature extends Feature<NoneFeatureConfiguration> {
-    public static Holder<ConfiguredFeature<NoneFeatureConfiguration, ?>> LUNAR_STONE_CF;
-    public static Holder<PlacedFeature> LUNAR_STONE_PF;
     public static Holder<ConfiguredFeature<OreConfiguration, ?>> ORE_LUNAR_STONE_CF;
     public static Holder<PlacedFeature> ORE_LUNAR_STONE_PF;
 
@@ -67,9 +65,6 @@ public class LunarStoneFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     public static void init() {
-        LUNAR_STONE_CF = FeatureUtils.register("pvz:lunar_stone", PVZFeatures.LUNAR_STONE.get());
-        LUNAR_STONE_PF = PlacementUtils.register("pvz:lunar_stone", LUNAR_STONE_CF, RarityFilter.onAverageOnceEvery(20),
-                InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
         ORE_LUNAR_STONE_CF = FeatureUtils.register("pvz:ore_lunar_stone", Feature.ORE,
                 new OreConfiguration(List.of(
                         OreConfiguration.target(OreFeatures.STONE_ORE_REPLACEABLES, PVZBlocks.LUNAR_STONE.get().defaultBlockState()),

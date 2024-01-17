@@ -57,8 +57,8 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     private final BlockState grass = Blocks.GRASS_BLOCK.defaultBlockState();
     private final BlockState mycelium = Blocks.MYCELIUM.defaultBlockState();
 
-    //TODO still not finished: 1) add seed. 2) add structure features. 3) wisdom tree. 4) dimension effects including weather change, daylight cycle, shadow, fog.
-    //TODO 5) random fog particle. 6) mobs (Garden Bee, Veloci Radish, Redstone Bug, Snail, Snailrillum). 7) BGM.
+    //TODO still not finished: 1) add seed. 2) add structure features. 3) wisdom tree. 4) dimension effects including weather change, daylight cycle, fog.
+    //TODO 5) random fog particle. 6) mobs (Garden Bee, Redstone Bug, Snail, Snailrillum). 7) BGM.
 
 
     public ZenGardenChunkGenerator(Registry<StructureSet> structureSetRegistry, Registry<Biome> registry, Settings settings) {

@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity.plants.base;
 
 import com.hungteen.pvz.api.interfaces.IShooter;
-import com.hungteen.pvz.common.entity.PVZPlant;
+import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.util.EntityUtil;
@@ -23,7 +23,7 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract class ShooterPlant extends PVZPlant implements IShooter {
+public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public Vec3 storedEnemyPos = null;
 	public int aimTime = 0;
 	public AnimationState idleAnimationState = new AnimationState();

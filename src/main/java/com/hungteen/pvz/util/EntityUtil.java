@@ -42,27 +42,11 @@ public class EntityUtil {
         }
         return true;
     }
+
     public static boolean isSurvivalPlayer(Entity entity) {
         return entity instanceof Player player && ! player.isCreative() && ! player.isSpectator();
     }
 
-    public static class EntitySorter implements Comparator<Entity> {
-        private final Entity entity;
-
-        public EntitySorter(Entity entityIn) {
-            this.entity = entityIn;
-        }
-
-        public int compare(Entity a, Entity b) {
-            double d0 = this.entity.distanceToSqr(a);
-            double d1 = this.entity.distanceToSqr(b);
-            if (d0 < d1) {
-                return -1;
-            } else {
-                return d0 > d1 ? 1 : 0;
-            }
-        }
-    }
     public static Vec3 getNormalisedVector2d(@Nonnull Entity a, @Nonnull Entity b) {
         final double dx = b.getX() - a.getX();
         final double dz = b.getZ() - a.getZ();

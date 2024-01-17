@@ -13,12 +13,10 @@ import java.util.function.Predicate;
 
 public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingEntity> {
 
-    protected final EntityUtil.EntitySorter sorter;
     protected final Predicate<Entity> predicate;
 
     public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate) {
         super(mobIn, LivingEntity.class, true);
-        this.sorter = new EntityUtil.EntitySorter(mob);
         this.predicate = predicate;
     }
     public DisperseEnemyTargetGoal(Mob mobIn) {

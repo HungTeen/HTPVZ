@@ -8,6 +8,7 @@ import com.hungteen.pvz.util.Util;
 import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -60,6 +61,9 @@ public class OtherRegisters {
     static {
         EntityDataSerializers.registerSerializer(peaTypeDataSerializer);
     }
+
+    //Mob Category.
+    public static MobCategory PVZPlantMobCategory = MobCategory.create("pvz_plant", "pvz:pvz_plant", 64, true, false, 64);
 
     public static void modBusRegister(IEventBus bus){
         TREE_DECORATORS.register(bus);

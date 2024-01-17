@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
-import com.hungteen.pvz.common.entity.PVZPlant;
+import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -27,8 +27,8 @@ public class SunFlower extends ProducerPlant {
         return 25;
     }
     public static AttributeSupplier.Builder createAttributes() {
-        return PVZPlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 10D)
+        return SimplePlant.createAttributes()
+                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
 }

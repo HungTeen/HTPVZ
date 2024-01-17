@@ -20,8 +20,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
-    public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown) {
-        super(p_41383_, entitySupplier, List.of(), resource, cost, coolDown);
+    public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown, boolean creativeOnly) {
+        super(p_41383_, entitySupplier, List.of(), resource, cost, coolDown, creativeOnly);
     }
 
     @Override

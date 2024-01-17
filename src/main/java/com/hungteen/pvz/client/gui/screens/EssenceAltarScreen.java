@@ -188,11 +188,11 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                         Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name + ".disc").withStyle(Style.EMPTY.withColor(0x545454))));
                 if (menu.getItems().get(0).getItem() instanceof SeedPacketItem<?> seedPacket) {
                     if (seedPacket.hasSkill(menu.getItems().get(0), (mouseY - top) / 19 + shownFirstSkill)){
-                        list.add(Component.translatable("tooltip.pvz.already_attached").withStyle(Style.EMPTY.withColor(Color.RED.getRGB())));
+                        list.add(Component.translatable("tooltip.pvz.already_attached").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
                     } else {
                         Skill skill = seedPacket.notCompatible(menu.getItems().get(0), skills.get((mouseY - top) / 19 + shownFirstSkill));
                         if (skill != null) {
-                            list.add(Component.translatable("tooltip.pvz.not_compatible", Component.translatable(skill.name)).withStyle(Style.EMPTY.withColor(Color.RED.getRGB())));
+                            list.add(Component.translatable("tooltip.pvz.not_compatible", Component.translatable(skill.name)).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
                         }
                     }
                 }

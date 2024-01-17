@@ -13,6 +13,6 @@ public class PVZFeatures {
     public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, PVZMod.MODID);
 
     //zen garden.
-    public static final RegistryObject<Feature<NoneFeatureConfiguration>> LUNAR_STONE =  FEATURES.register("lunar_stone", () -> new LunarStoneFeature(NoneFeatureConfiguration.CODEC));
+    //public static final RegistryObject<Feature<NoneFeatureConfiguration>> LUNAR_STONE =  FEATURES.register("lunar_stone", () -> new LunarStoneFeature(NoneFeatureConfiguration.CODEC));
 
 }

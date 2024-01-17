@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.world.zen_garden;
 
+import com.hungteen.pvz.common.register.OtherRegisters;
 import com.hungteen.pvz.common.register.PVZBiomes;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.mojang.serialization.Codec;
@@ -120,10 +121,11 @@ public class ZenGardenBiomeSource extends BiomeSource {
 
     public static Biome gardenPlains() {
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
-        mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(PVZEntities.WALL_NUT.get(), 15, 4, 8));
+        mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(PVZEntities.MOOBLOOM.get(), 50, 3, 4));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.WALL_NUT.get(), 10, 2, 4));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.VELOCI_TURNIP.get(), 20, 3, 6));
         BiomeGenerationSettings.Builder BiomeGenBuilder = new BiomeGenerationSettings.Builder();
         addNutTrees(BiomeGenBuilder);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, LunarStoneFeature.LUNAR_STONE_PF);
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUNFLOWER);
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.FLOWER_MEADOW);
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_PLAIN);

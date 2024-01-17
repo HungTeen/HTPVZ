@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.model.plants.PeaShooterModel;
 import com.hungteen.pvz.client.model.plants.RepeaterModel;
+import com.hungteen.pvz.client.model.plants.VelociTurnipModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.bullet.PeaBulletRenderer;
@@ -87,17 +88,21 @@ public class PVZEntities {
 
     //plants
     public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes)
-            .collision(0.8F, 1F).entity("wall_nut", WallNut::new, MobCategory.MISC);
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, WallNut::checkSpawnRules)
+            .collision(0.8F, 1F).entity("wall_nut", WallNut::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes)
-            .collision(0.75F, 1.1F).entity("sun_flower", SunFlower::new, MobCategory.MISC);
+            .collision(0.75F, 1.1F).entity("sun_flower", SunFlower::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes)
-            .collision(0.75F, 1.3F).entity("marigold", MariGold::new, MobCategory.MISC);
+            .collision(0.75F, 1.3F).entity("marigold", MariGold::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes)
-            .collision(0.9F, 1.9F).entity("tall_nut", TallNut::new, MobCategory.MISC);
+            .collision(0.9F, 1.9F).entity("tall_nut", TallNut::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes)
-            .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, MobCategory.MISC);
+            .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<PeaShooter>> REPEATER = attribute(PeaShooter::createAttributes)
-            .collision(0.7F, 1.3F).entity("repeater", Repeater::new, MobCategory.MISC);
+            .collision(0.7F, 1.3F).entity("repeater", Repeater::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<VelociTurnip>> VELOCI_TURNIP = attribute(VelociTurnip::createAttributes)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, VelociTurnip::checkSpawnRules)
+            .collision(0.5F, 0.5F).entity("veloci_turnip", VelociTurnip::new, OtherRegisters.PVZPlantMobCategory);
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.25F, 0.25F).entity("pea", PeaBullet::new, MobCategory.MISC);
 
@@ -115,6 +120,7 @@ public class PVZEntities {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
         rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.6F, "textures/entity/plants/pea_shooter/pea_shooter.png");
         rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.6F, "textures/entity/plants/repeater/repeater.png");
+        rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_turnip/veloci_turnip.png");
     }
 
     @OnlyIn(Dist.CLIENT)

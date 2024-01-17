@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
@@ -12,13 +13,13 @@ import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.world.PVZDamageSource;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -35,46 +36,55 @@ import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
-import static java.lang.Math.ceil;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
+/**
+ * Not including all plants.<br>
+ * To identify if a mob is plant or not, use {@link com.hungteen.pvz.api.interfaces.IPlant} which supports more.
+ */
 
-public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
+@Mod.EventBusSubscriber(modid = PVZMod.MODID)
+public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
 
 
     /**
      * whether this plant need proper plant-able blocks.
      */
-    public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(SimplePlant.class, EntityDataSerializers.BOOLEAN);
     /**
      * whether this plant occupy an area so other plants can't plant on.
      */
-    public static final EntityDataAccessor<Boolean> HAS_COINCIDE_DMG = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> TAKES_COINCIDE_DMG = SynchedEntityData.defineId(SimplePlant.class, EntityDataSerializers.BOOLEAN);
     /**
      * how long can this plant still live. When player is too far, this countdown goes faster.
      */
-    public static final EntityDataAccessor<Integer> WILT_COUNTDOWN = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> WILT_COUNTDOWN = SynchedEntityData.defineId(SimplePlant.class, EntityDataSerializers.INT);
     /**skill id. see {@link Skill}.*/
-    public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> ATTACK_TIME = SynchedEntityData.defineId(PVZPlant.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(SimplePlant.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> ATTACK_TIME = SynchedEntityData.defineId(SimplePlant.class, EntityDataSerializers.INT);
 
     private int situationHurtCount = 0;
-    private boolean shouldAlign = true;
+    protected boolean shouldAlign = true;
 
-    protected PVZPlant(EntityType<? extends Mob> entityType, Level level) {
+    protected SimplePlant(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
-        setPersistenceRequired();
     }
-
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1)
@@ -87,10 +97,92 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
         this.targetSelector.addGoal(0, new ServerStressReleaseGoals.ServerStressReleaseTargetGoal(this, false));
     }
 
+    //IPlant
     @Override
     public EntityDataAccessor<Boolean> root() {
         return ROOT;
     }
+    @Override
+    public boolean takesCoincideDmg() {
+        return this.getEntityData().get(TAKES_COINCIDE_DMG);
+    }
+    /** control if this plant has coincide dmg.
+     */
+    public boolean shouldHaveCoincideDmg(Level level, BlockPos onPos) {
+        if (! takesCoincideDmg()) {
+            return false;
+        } else {
+            BlockPos subPos = this.getOnPos();
+            List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-subPos.getX(), -subPos.getY(), -subPos.getZ())),
+                    (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg());
+            return !list.isEmpty();
+        }
+    }
+    public Set<TagKey<Block>> getAcceptableTags() {
+        return Set.of(PVZBlockTags.PLANTABLE_BLOCKS);
+    }
+    /**
+     * see {@link INeedSafeSituation}  for the two methods below.
+     */
+    @Override
+    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean actuallyPlant) {
+        AABB aabb = AABB.ofSize(new Vec3(getX(), getY() + getBbHeight() / 2, getZ()), getBbWidth() / 2, getBbHeight() / 2, getBbWidth() / 2);
+        if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
+            BlockState blockstate = this.level.getBlockState(p_201942_);
+            return !blockstate.isAir() && blockstate.isSuffocating(this.level, p_201942_) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, p_201942_).move((double)p_201942_.getX(), (double)p_201942_.getY(), (double)p_201942_.getZ()), Shapes.create(aabb), BooleanOp.AND);
+        })) {
+            return Component.translatable("hint.pvz.plant.no_enough_place");
+        }
+        //
+        if (shouldHaveCoincideDmg(level, onPos)) {
+            return Component.translatable("hint.pvz.plant.no_enough_place");
+        }
+        boolean plantableOn = false;
+        for (TagKey<Block> tag: getAcceptableTags()) {
+            if (level.getBlockState(onPos).is(tag)) {
+                plantableOn = true;
+                break;
+            }
+        }
+        if (! this.getEntityData().get(root()) || (plantableOn && ! level.getBlockState(onPos).isAir())) {
+            if (level.getBlockState(onPos).getFluidState().isEmpty()) {
+                if (actuallyPlant) {
+                    this.moveTo(
+                            onPos.getX() + 0.5,
+                            onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ? 0 :
+                                    level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
+                            onPos.getZ() + 0.5);
+                }
+                return null;
+            }
+            return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
+        } else {
+            return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(onPos).getBlock().getName());
+        }
+    }
+    @Override
+    public MutableComponent isVehicleSafe(Entity target, boolean actuallyPlant) {
+        if (target == null) {
+            return Component.translatable("hint.pvz.plant.entity_not_present");
+        }
+        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this)) {
+            if (PVZOwnedCapability.isTeammate(this, target)) {
+                if (!canMountEntity(this, target, this.getVehicle() == target)) {
+                    return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
+                }
+                if (actuallyPlant) {
+                    this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
+                    this.startRiding(target);
+                }
+                return null;
+            }
+            return Component.translatable("hint.pvz.plant.need_own_team");
+        } else {
+            return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), target.getName());
+        }
+    }
+
+    //skill
     @Override
     public int getSkillVal(Object obj) {
         return entityData.get(SKILL);
@@ -104,6 +196,7 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
         return List.of();
     }
 
+    //overrides
     @Override
     public void baseTick() {
         super.baseTick();
@@ -125,72 +218,6 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
     }
 
     /**
-     * see {@link INeedSafeSituation}  for the two methods below.
-     */
-    @Override
-    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean actuallyPlant) {
-        //TODO replace with vanilla methods.
-        VoxelShape tmpShape = level.getBlockState(onPos).getCollisionShape(level, onPos);
-        double calcHeight = getBbHeight() + (tmpShape.isEmpty() ? 0 : tmpShape.bounds().maxY) - 1;
-        for (int i = 1; i <= ceil(calcHeight); i ++) {
-            if (! level.getBlockState(onPos.offset(new Vec3i(0, i, 0))).isAir()) {
-                if (calcHeight - i >= 1) {
-                    return Component.translatable("hint.pvz.plant.no_enough_place");
-                } else if (calcHeight > 0) {
-                    tmpShape = level.getBlockState(onPos.offset(new Vec3i(0, i, 0))).getCollisionShape(level, onPos.offset(new Vec3i(0, i, 0)));
-                    if ((tmpShape.isEmpty() ? 1 : tmpShape.bounds().minY) < calcHeight - i + 1) {
-                        return Component.translatable("hint.pvz.plant.no_enough_place");
-                    }
-                }
-            }
-            if (! level.getBlockState(onPos.offset(new Vec3i(0, i, 0))).getFluidState().isEmpty()) {
-                return Component.translatable("hint.pvz.plant.cant_plant_in_water", getName());
-            }
-        }
-        if (shouldHaveCoincideDmg(level, onPos)) {
-            return Component.translatable("hint.pvz.plant.no_enough_place");
-        }
-        if (! getEntityData().get(root()) || (level.getBlockState(onPos).is(PVZBlockTags.PLANTABLE_BLOCKS) && ! level.getBlockState(onPos).isAir())) {
-            if (level.getBlockState(onPos).getFluidState().isEmpty()) {
-                if (actuallyPlant) {
-                    moveTo(
-                            onPos.getX() + 0.5,
-                            onPos.below().getY() + 1 + (level.getBlockState(onPos.below()).getCollisionShape(level, onPos.below()).isEmpty() ? 0 :
-                                    level.getBlockState(onPos.below()).getCollisionShape(level, onPos.below()).bounds().maxY),
-                            onPos.getZ() + 0.5);
-                }
-                return null;
-            }
-            return Component.translatable("hint.pvz.plant.cant_plant_in_water", getName());
-        } else {
-            return Component.translatable("hint.pvz.plant.cant_plant_on", getName(), level.getBlockState(onPos).getBlock().getName());
-        }
-    }
-
-    @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean actuallyPlant) {
-        if (target == null) {
-            return Component.translatable("hint.pvz.plant.entity_not_present");
-        }
-        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this)) {
-            if (PVZOwnedCapability.isTeammate(this, target)) {
-                if (!canMountEntity(this, target, this.getVehicle() == target)) {
-                    return Component.translatable("hint.pvz.plant.no_enough_place", getName());
-                }
-                if (actuallyPlant) {
-                    moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
-                    startRiding(target);
-                }
-                return null;
-            }
-            return Component.translatable("hint.pvz.plant.need_own_team");
-        } else {
-            return Component.translatable("hint.pvz.plant.cant_plant_on", getName(), target.getName());
-        }
-    }
-
-
-    /**
      * control if this plant can push another entity.*/
     public Predicate<Entity> canPush(){
         return (entity) -> this.isPushable();
@@ -201,32 +228,26 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
     public boolean isPushable(){
         return false;
     }
-    /** control if this plant has coincide dmg.
-     */
-    public boolean shouldHaveCoincideDmg(Level level, BlockPos onPos){
-        if (!this.getEntityData().get(HAS_COINCIDE_DMG)) {
-            return false;
-        } else {
-            BlockPos subPos = this.getOnPos();
-            List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-subPos.getX(), -subPos.getY(), -subPos.getZ())),
-                    (entity) -> entity instanceof PVZPlant && entity.getEntityData().get(HAS_COINCIDE_DMG));
-            return !list.isEmpty();
-        }
+
+    public boolean canBeLeashed(Player p_21418_) {
+        return false;
     }
     public void alignBlocks() {
         BlockPos pos = this.getOnPos();
         moveTo(pos.getX() + 0.5, this.getY(), pos.getZ() + 0.5);
     }
 
-    @Override
-    public InteractionResult mobInteract(Player player, InteractionHand handIn) {
+    @SubscribeEvent
+    public static void handleShovel(PlayerInteractEvent.EntityInteract ev) {
+        Player player = ev.getEntity();
+        InteractionHand handIn = ev.getHand();
+        Entity entity = ev.getTarget();
         ItemStack itemstack = player.getItemInHand(handIn);
-        if (itemstack.getItem() instanceof ShovelItem) {
-            if (onBeingShoveled(player, handIn)) {
-                return InteractionResult.SUCCESS;
+        if (itemstack.getItem() instanceof ShovelItem && entity instanceof IPlant plant) {
+            if (plant.onBeingShoveled(player, handIn)) {
+                ev.setCancellationResult(InteractionResult.SUCCESS);
             }
         }
-        return super.mobInteract(player, handIn);
     }
 
     public boolean onBeingShoveled(Player player, InteractionHand handIn) {
@@ -264,7 +285,7 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ROOT, true);
-        this.entityData.define(HAS_COINCIDE_DMG, true);
+        this.entityData.define(TAKES_COINCIDE_DMG, true);
         this.entityData.define(WILT_COUNTDOWN, -1);
         this.entityData.define(SKILL, 0);
         this.entityData.define(ATTACK_TIME, 0);
@@ -273,7 +294,7 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Root", getEntityData().get(ROOT));
-        tag.putBoolean("HasCoincideDmg", getEntityData().get(HAS_COINCIDE_DMG));
+        tag.putBoolean("HasCoincideDmg", getEntityData().get(TAKES_COINCIDE_DMG));
         tag.putInt("WiltCountDown", getEntityData().get(WILT_COUNTDOWN));
         tag.putInt("Skill", getSkillVal(this));
         tag.putInt("PlantAttackTime", getAttackTime(this));
@@ -295,7 +316,7 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
             this.getEntityData().set(ROOT, tag.getBoolean("Root"));
         }
         if (tag.contains("HasCoincideDmg")) {
-            this.getEntityData().set(HAS_COINCIDE_DMG, tag.getBoolean("HasCoincideDmg"));
+            this.getEntityData().set(TAKES_COINCIDE_DMG, tag.getBoolean("HasCoincideDmg"));
         }
     }
 
@@ -337,5 +358,10 @@ public class PVZPlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
                 packetItem.set(item);
         }});
         return packetItem.get() == null ? super.getPickResult() : new ItemStack(packetItem.get());
+    }
+    @Override
+    public boolean removeWhenFarAway(double p_27598_) {
+        PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
+        return cap.getOwner() == null;
     }
 }

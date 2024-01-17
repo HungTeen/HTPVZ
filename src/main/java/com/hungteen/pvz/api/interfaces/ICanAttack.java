@@ -5,10 +5,6 @@ import com.hungteen.pvz.api.Skill;
 import java.util.List;
 
 public interface ICanAttack {
-    default List<Skill> getStaticSkillList() {
-        return null;
-    }
-
     int getAttackTime(Object obj/*to support items*/);
     void setAttackTime(Object obj,int value);
 

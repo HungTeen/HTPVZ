@@ -1,8 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.entity.PVZPlant;
-import com.hungteen.pvz.common.entity.bullet.BaseBullet;
+import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -61,7 +60,7 @@ public class PeaShooter extends ShooterPlant {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return PVZPlant.createAttributes()
+        return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
                 .add(Attributes.ATTACK_DAMAGE, 5D)

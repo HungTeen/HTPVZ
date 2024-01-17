@@ -2,11 +2,13 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import com.hungteen.pvz.common.entity.PVZPlant;
+import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.api.interfaces.IDefenderPlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -14,22 +16,24 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static com.hungteen.pvz.common.world.PVZDamageSource.teamFilter;
 
-public class WallNut extends PVZPlant implements IDefenderPlant {
+public class WallNut extends SimplePlant implements IDefenderPlant {
     float storedHealth;
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
     public static List<Skill> staticSkillList = List.of(
@@ -49,7 +53,7 @@ public class WallNut extends PVZPlant implements IDefenderPlant {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return PVZPlant.createAttributes()
+        return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 30D)
                 .add(Attributes.ARMOR, 25D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20D)
@@ -67,18 +71,10 @@ public class WallNut extends PVZPlant implements IDefenderPlant {
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 
-    //deliberate. about wallNut pushing.
     @Override
     public Predicate<Entity> canPush(){
         return entity -> true;
     }
-//    @Override
-//    //TODO not effective, why?
-//    public void push(Entity entity){
-//        super.push(entity);
-//        super.push(entity);
-//        super.push(entity);
-//    }
 
     @Override
     public MutableComponent isVehicleSafe(Entity target, boolean actuallyPlant) {
@@ -137,6 +133,10 @@ public class WallNut extends PVZPlant implements IDefenderPlant {
             this.setHealth(0.1F);
             this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) == -1 ? 0 : this.getEntityData().get(EXPLODE_COUNT));
         }
+    }
+
+    public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
+        return level.getBlockState(pos.below()).is(PVZBlockTags.PLANTABLE_BLOCKS);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.entity.plants.base;
 
-import com.hungteen.pvz.common.entity.PVZPlant;
+import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-public abstract class ProducerPlant extends PVZPlant {
+public abstract class ProducerPlant extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState produceAnimationState = new AnimationState();
     protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(ProducerPlant.class, EntityDataSerializers.BOOLEAN);

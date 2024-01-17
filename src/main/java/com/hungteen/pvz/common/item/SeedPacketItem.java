@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -55,15 +56,17 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     private final String resource;
     private final int cost;
     private final int coolDown;
-    private List<Skill> skillList;
+    private final List<Skill> skillList;
+    private boolean creativeOnly;
 
-    public SeedPacketItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, List<Skill> skillList, String resource, int cost, int coolDown) {
+    public SeedPacketItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, List<Skill> skillList, String resource, int cost, int coolDown, boolean creativeOnly) {
         super(p_41383_);
         this.entitySupplier = entitySupplier;
         this.skillList = skillList;
         this.resource = resource;
         this.cost = cost;
         this.coolDown = coolDown;
+        this.creativeOnly = creativeOnly;
         seedPacketItemList.add(this);
     }
 
@@ -140,15 +143,13 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             if (event.cost > PVZPlayerCapability.getValue(player, event.resource)) {
                 PVZOverlayHandler.notEnoughHint = 3;
             }
-            return InteractionResultHolder.success(player.getItemInHand(handIn));
+            return InteractionResultHolder.fail(player.getItemInHand(handIn));
         }
         return super.use(level, player, handIn);
     }
 
     protected void used(ItemStack itemstack, Player player, InteractionHand hand) {
-        itemstack.hurtAndBreak(1, player, (entity1) -> {
-            entity1.broadcastBreakEvent(hand);
-        });
+        itemstack.hurtAndBreak(1, player, (entity1) -> entity1.broadcastBreakEvent(hand));
     }
 
     @Override
@@ -207,14 +208,14 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 //display massage when not have enough resource.
                 player.displayClientMessage(Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource)), true);
                 entity.discard();
-                return InteractionResult.FAIL;
+                return InteractionResult.PASS;
             }
             //display massage when not on a proper place.
             player.displayClientMessage(posCheck, true);
             if (entity != null) {
                 entity.discard();
             }
-            return InteractionResult.FAIL;
+            return InteractionResult.PASS;
         }
         return super.useOn(context);
     }
@@ -318,12 +319,16 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn){
         super.appendHoverText(stack, level, tooltip, flagIn);
         for (int i : getSkills(stack)) {
             if (getStaticSkillList().size() - 1 >= i) {
                 tooltip.add(Component.translatable(getStaticSkillList().get(i).name).withStyle(ChatFormatting.DARK_AQUA));
             }
+        }
+        if (creativeOnly && ClientProxy.getPlayer().isCreative()) {
+            tooltip.add(Component.translatable("hint.pvz.creative_only").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
         }
     }
 

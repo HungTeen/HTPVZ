@@ -143,14 +143,14 @@ public class PVZItems {
             }
             seedPacketMap.put(data,
                     item(name + "_seed_packet", () -> new SeedPacketItem(
-                            new Item.Properties().stacksTo(1).defaultDurability(150).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown
+                            new Item.Properties().stacksTo(1).defaultDurability(150).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly
                     )));
             if (data instanceof PVZSeedPackets.RecipeSeedPacketData<?> && ((PVZSeedPackets.RecipeSeedPacketData<?>)data).recipe != null) {
                 model(Model.SeedPacket, res("seed_packets/seed"), res("plants/" + name));
             }
             seedMap.put(data,
                     item(name + "_seed", () -> new SeedItem(
-                            new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.resource, data.cost, data.coolDown
+                            new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.resource, data.cost, data.coolDown, data.creativeOnly
                     )));
         });
     }

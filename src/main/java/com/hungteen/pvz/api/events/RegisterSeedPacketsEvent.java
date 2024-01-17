@@ -45,6 +45,7 @@ public class RegisterSeedPacketsEvent extends Event {
         public int cost = 0;
         public int coolDown = 5;
         public String resource = PVZAPI.get().getSunString();
+        public boolean creativeOnly;
 
         public SeedPacketData(Supplier<EntityType<T>> entitySupplier){
             this.entitySupplier = entitySupplier;
@@ -55,6 +56,9 @@ public class RegisterSeedPacketsEvent extends Event {
             this.cost = cost;
             this.resource = resource;
             this.coolDown = coolDown;
+        }
+        public void setCreativeOnly(){
+            creativeOnly = true;
         }
     }
 }

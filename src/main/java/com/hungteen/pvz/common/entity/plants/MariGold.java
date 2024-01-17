@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
-import com.hungteen.pvz.common.entity.PVZPlant;
+import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
@@ -45,7 +45,7 @@ public class MariGold extends ProducerPlant {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return PVZPlant.createAttributes()
+        return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 10D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
