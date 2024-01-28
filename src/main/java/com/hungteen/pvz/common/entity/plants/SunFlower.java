@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -16,6 +17,12 @@ public class SunFlower extends ProducerPlant {
     @Override
     protected void genSomething() {
         this.genSun(this.getSunAmount(),1);
+    }
+
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
     }
 
     @Override

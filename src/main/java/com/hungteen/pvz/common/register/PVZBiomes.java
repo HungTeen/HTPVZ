@@ -5,7 +5,6 @@ import com.hungteen.pvz.common.world.zen_garden.LunarStoneFeature;
 import com.hungteen.pvz.common.world.zen_garden.NutTreeGrower;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenBiomeSource;
 import net.minecraft.sounds.Music;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.*;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -28,15 +27,16 @@ public class PVZBiomes {
     //definitions
 
     public static Biome biome(Biome.Precipitation precipitation, int skyColor, int fogColor, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable Music music) {
-        return biome(precipitation, skyColor, fogColor, 0x3f76e4, 0x050533, downfall, mobSpawnBuilder, biomeGenBuilder, music);
+        return biome(precipitation, skyColor, fogColor, 0x3f76e4, 0x050533, downfall, mobSpawnBuilder, biomeGenBuilder, null, music);
     }
 
-    public static Biome biome(Biome.Precipitation precipitation, int skyColor, int fogColor, int waterColor, int waterFogColor, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable Music backgroundMusic) {
+    public static Biome biome(Biome.Precipitation precipitation, int skyColor, int fogColor, int waterColor, int waterFogColor, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable AmbientParticleSettings particleSettings, @Nullable Music backgroundMusic) {
         return (new Biome.BiomeBuilder()).precipitation(precipitation).temperature(skyColor).downfall(downfall)
                 .specialEffects(
                         (new BiomeSpecialEffects.Builder())
                         .waterColor(waterColor).waterFogColor(waterFogColor)
                         .fogColor(fogColor).skyColor(skyColor)
+                        .ambientParticle(particleSettings)
                         .backgroundMusic(backgroundMusic).build()
                 )
                 .mobSpawnSettings(mobSpawnBuilder.build())

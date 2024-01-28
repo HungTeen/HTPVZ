@@ -57,7 +57,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     private final BlockState grass = Blocks.GRASS_BLOCK.defaultBlockState();
     private final BlockState mycelium = Blocks.MYCELIUM.defaultBlockState();
 
-    //TODO still not finished: 1) add seed. 2) add structure features. 3) wisdom tree. 4) dimension effects including weather change, daylight cycle, fog.
+    //TODO still not finished: 1) add seed. 2) add structure features. 3) wisdom tree. 4) daylight cycle.
     //TODO 5) random fog particle. 6) mobs (Garden Bee, Redstone Bug, Snail, Snailrillum). 7) BGM.
 
 
@@ -67,7 +67,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
         random = new Random();
 
         mainIslandPos = new Vec3i(0, 80, 0);
-        random.setSeed(735629912);//replace this.
+        random.setSeed(299123567);//TODO replace this.
         riverCircle = new Vec3i((random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1),
                 random.nextInt(30) + 100,
                 (random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1));
@@ -204,7 +204,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
         if (smallVectorTable.containsKey(Pair.of(x, z))) {
             return smallVectorTable.get(Pair.of(x, z));
         }
-        random.setSeed(7356L * x + 2991L * z);//replace this.
+        random.setSeed(7356L * x + 2991L * z);//TODO replace this.
         Pair<Integer, Integer> vector = Pair.of(random.nextInt(32) - 16, random.nextInt(32) - 16);
         smallVectorTable.put(Pair.of(x, z), vector);
         return vector;
@@ -213,7 +213,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
         if (bigVectorTable.containsKey(Pair.of(x, z))) {
             return bigVectorTable.get(Pair.of(x, z));
         }
-        random.setSeed(2991L * x + 7356L * z);//replace this.
+        random.setSeed(2991L * x + 7356L * z);//TODO replace this.
         Pair<Integer, Integer> vector = Pair.of(random.nextInt(128) - 64, random.nextInt(128) - 64);
         bigVectorTable.put(Pair.of(x, z), vector);
         return vector;

@@ -15,6 +15,7 @@ import com.hungteen.pvz.client.renderer.plants.*;
 import com.hungteen.pvz.common.entity.*;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.*;
+import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.generator.loot.EntityLootGen;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
@@ -23,6 +24,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,9 +43,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -70,6 +70,15 @@ public class PVZEntities {
     //attributes
     private static Supplier<AttributeSupplier.Builder> storedAttribute = null;
     public static Map<RegistryObject, Supplier<AttributeSupplier.Builder>> attributesMap = new HashMap<>();
+    //loot
+    private static boolean storedNoLoot = false;
+    @Deprecated // will be cleared after register.
+    public static List<RegistryObject> noLootList = new ArrayList<>();
+    //tag
+    private static List<TagKey<EntityType<?>>> storedTags = null;
+    @Deprecated // will be cleared after register.
+    public static Map<RegistryObject, List<TagKey<EntityType<?>>>> tagMap = new HashMap<>();
+
 
 
     //registry
@@ -87,22 +96,27 @@ public class PVZEntities {
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
 
     //plants
-    public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes)
+    public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, WallNut::checkSpawnRules)
             .collision(0.8F, 1F).entity("wall_nut", WallNut::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes)
+    public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SunFlower::checkSpawnRules)
             .collision(0.75F, 1.1F).entity("sun_flower", SunFlower::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes)
+    public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.75F, 1.3F).entity("marigold", MariGold::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes)
+    public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TallNut::checkSpawnRules)
             .collision(0.9F, 1.9F).entity("tall_nut", TallNut::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes)
+    public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PeaShooter::checkSpawnRules)
             .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<PeaShooter>> REPEATER = attribute(PeaShooter::createAttributes)
+    public static final RegistryObject<EntityType<Repeater>> REPEATER = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.7F, 1.3F).entity("repeater", Repeater::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<VelociTurnip>> VELOCI_TURNIP = attribute(VelociTurnip::createAttributes)
+    public static final RegistryObject<EntityType<Plantern>> PLANTERN = attribute(Plantern::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.8F, 2F).entity("plantern", Plantern::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<VelociTurnip>> VELOCI_TURNIP = attribute(VelociTurnip::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, VelociTurnip::checkSpawnRules)
-            .collision(0.5F, 0.5F).entity("veloci_turnip", VelociTurnip::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.5F, 0.5825F).entity("veloci_radish", VelociTurnip::new, OtherRegisters.PVZPlantMobCategory);
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.25F, 0.25F).entity("pea", PeaBullet::new, MobCategory.MISC);
 
@@ -120,7 +134,7 @@ public class PVZEntities {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
         rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.6F, "textures/entity/plants/pea_shooter/pea_shooter.png");
         rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.6F, "textures/entity/plants/repeater/repeater.png");
-        rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_turnip/veloci_turnip.png");
+        rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -134,6 +148,7 @@ public class PVZEntities {
         r(e, SUN_FLOWER, SunFlowerRenderer::new);
         r(e, MARIGOLD, MariGoldRenderer::new);
         r(e, TALL_NUT, TallNutRenderer::new);
+        r(e, PLANTERN, PlanternRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
 
         //enter here
@@ -164,11 +179,33 @@ public class PVZEntities {
             attributesMap.put(entity, storedAttribute);
             storedAttribute = null;
         }
+        //noloot
+        if (storedNoLoot) {
+            noLootList.add(entity);
+            storedNoLoot = false;
+        }
+        //tag
+        if (storedTags != null) {
+            tagMap.put(entity, storedTags);
+            storedTags = null;
+        }
+
         return entity;
     }
 
     private static PVZEntities collision(Float width, Float height) {
         storedCollision = Pair.of(width, height);
+        return reflector;
+    }
+    private static PVZEntities noLoot() {
+        storedNoLoot = true;
+        return reflector;
+    }
+    private static PVZEntities tag(TagKey<EntityType<?>>... tags){
+        return tag(Arrays.asList(tags));
+    }
+    private static PVZEntities tag(List<TagKey<EntityType<?>>> list){
+        storedTags = list;
         return reflector;
     }
 
@@ -228,6 +265,7 @@ public class PVZEntities {
     }
 
     public static void release() {
-        List.of(spawnEggMap, spawnPlacementMap).forEach(Map::clear);
+        noLootList.clear();
+        List.of(spawnEggMap, spawnPlacementMap, tagMap).forEach(Map::clear);
     }
 }

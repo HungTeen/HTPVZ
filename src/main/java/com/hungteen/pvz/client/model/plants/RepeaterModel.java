@@ -3,16 +3,16 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.2
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.common.entity.plants.PeaShooter;
+import com.hungteen.pvz.client.model.plants.animation.RepeaterAnimation;
+import com.hungteen.pvz.common.entity.plants.Repeater;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.world.entity.Entity;
 
-public class RepeaterModel<T extends Entity> extends HierarchicalModel<T> {
+public class RepeaterModel<T extends Repeater> extends HierarchicalModel<T> {
 	private final ModelPart total;
 
 	public RepeaterModel(ModelPart root) {
@@ -73,14 +73,11 @@ public class RepeaterModel<T extends Entity> extends HierarchicalModel<T> {
 	}
 
 	@Override
-	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		if(entity instanceof PeaShooter peaShooter) {
-			this.total.getAllParts().forEach(ModelPart::resetPose);
-			float f = ageInTicks - (float) entity.tickCount;
-			this.animate(peaShooter.idleAnimationState, RepeaterAnimation.idle, ageInTicks);
-			this.animate(peaShooter.shootAnimationState, RepeaterAnimation.shoot, ageInTicks);
-		}
-
+	public void setupAnim(T peaShooter, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+		this.total.getAllParts().forEach(ModelPart::resetPose);
+		float f = ageInTicks - (float) peaShooter.tickCount;
+		this.animate(peaShooter.idleAnimationState, RepeaterAnimation.idle, ageInTicks);
+		this.animate(peaShooter.shootAnimationState, RepeaterAnimation.shoot, ageInTicks);
 	}
 
 	@Override

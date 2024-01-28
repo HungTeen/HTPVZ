@@ -33,7 +33,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -190,7 +189,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                     if (seedPacket.hasSkill(menu.getItems().get(0), (mouseY - top) / 19 + shownFirstSkill)){
                         list.add(Component.translatable("tooltip.pvz.already_attached").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
                     } else {
-                        Skill skill = seedPacket.notCompatible(menu.getItems().get(0), skills.get((mouseY - top) / 19 + shownFirstSkill));
+                        Skill skill = seedPacket.getNotCompatibleWith(menu.getItems().get(0), skills.get((mouseY - top) / 19 + shownFirstSkill));
                         if (skill != null) {
                             list.add(Component.translatable("tooltip.pvz.not_compatible", Component.translatable(skill.name)).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
                         }

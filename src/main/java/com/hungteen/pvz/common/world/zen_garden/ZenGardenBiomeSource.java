@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.world.zen_garden;
 import com.hungteen.pvz.common.register.OtherRegisters;
 import com.hungteen.pvz.common.register.PVZBiomes;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZParticles;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.*;
 import net.minecraft.data.BuiltinRegistries;
@@ -122,8 +123,11 @@ public class ZenGardenBiomeSource extends BiomeSource {
     public static Biome gardenPlains() {
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
         mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(PVZEntities.MOOBLOOM.get(), 50, 3, 4));
-        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.WALL_NUT.get(), 10, 2, 4));
-        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.VELOCI_TURNIP.get(), 20, 3, 6));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.PEA_SHOOTER.get(), 10, 2, 3));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.SUN_FLOWER.get(), 20, 4, 6));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.WALL_NUT.get(), 40, 4, 6));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.TALL_NUT.get(), 1, 1, 1));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.VELOCI_TURNIP.get(), 80, 5, 8));
         BiomeGenerationSettings.Builder BiomeGenBuilder = new BiomeGenerationSettings.Builder();
         addNutTrees(BiomeGenBuilder);
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUNFLOWER);
@@ -137,7 +141,8 @@ public class ZenGardenBiomeSource extends BiomeSource {
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_DIRT);
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134, 0.5F, mobSpawnBuilder, BiomeGenBuilder, music);
+        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134, 0.5F,
+                mobSpawnBuilder, BiomeGenBuilder, new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
     public static Biome gardenMushroom() {
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
@@ -151,7 +156,8 @@ public class ZenGardenBiomeSource extends BiomeSource {
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_DIRT);
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x7575df, 0xad7ee6, 0x47bbc5, 0x053134, 0.5F, mobSpawnBuilder, BiomeGenBuilder, music);
+        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x7575df, 0xad7ee6, 0x47bbc5, 0x053134, 0.5F,
+                mobSpawnBuilder, BiomeGenBuilder,  new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
 
     public static Biome gardenIsland(){
@@ -163,7 +169,8 @@ public class ZenGardenBiomeSource extends BiomeSource {
         BiomeDefaultFeatures.addDefaultUndergroundVariety(BiomeGenBuilder);
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134, 0.5F, mobSpawnBuilder, BiomeGenBuilder, music);
+        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134, 0.5F,
+                mobSpawnBuilder, BiomeGenBuilder,  new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
     public static Biome gardenRiver(){
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
@@ -177,7 +184,8 @@ public class ZenGardenBiomeSource extends BiomeSource {
         BiomeDefaultFeatures.addDefaultUndergroundVariety(BiomeGenBuilder);
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134, 0.5F, mobSpawnBuilder, BiomeGenBuilder, music);
+        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134, 0.5F,
+                mobSpawnBuilder, BiomeGenBuilder,  new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
 
     public static void addNutTrees(BiomeGenerationSettings.Builder builder) {

@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.capability;
 
+import com.hungteen.pvz.common.capability.fog.PVZFogCapability;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
@@ -19,6 +20,7 @@ public class CapabilityHandler {
         ev.register(PVZPlayerCapability.class);
         ev.register(PVZOwnedCapability.class);
         ev.register(PVZRulesCapability.class);
+        ev.register(PVZFogCapability.class);
     }
 
     @SubscribeEvent
@@ -36,6 +38,7 @@ public class CapabilityHandler {
     public static void initPVZRules(AttachCapabilitiesEvent<Level> ev) {
         if (ev.getObject() instanceof ServerLevel) {
             ev.addCapability(Util.prefix("pvz_rules"), new PVZRulesCapability());
+            ev.addCapability(Util.prefix("pvz_fog"), new PVZFogCapability());
         }
     }
 }

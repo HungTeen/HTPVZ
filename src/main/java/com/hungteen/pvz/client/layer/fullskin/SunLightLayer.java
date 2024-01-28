@@ -21,7 +21,7 @@ public class SunLightLayer<T extends LivingEntity, M extends EntityModel<T>> ext
 		if(entity instanceof ProducerPlant) {
 			return ((ProducerPlant) entity).isPlantInGen();
 		}
-		return false;
+		return true;
 	}
 
 	@Override

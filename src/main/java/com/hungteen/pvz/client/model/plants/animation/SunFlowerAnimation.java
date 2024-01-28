@@ -1,4 +1,4 @@
-package com.hungteen.pvz.client.model.plants;
+package com.hungteen.pvz.client.model.plants.animation;
 
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationDefinition;

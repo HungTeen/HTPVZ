@@ -9,6 +9,7 @@ import com.hungteen.pvz.common.capability.CapabilityHandler;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.OwnCommand;
+import com.hungteen.pvz.common.command.PVZFogCommand;
 import com.hungteen.pvz.common.command.PVZRulesCommand;
 import com.hungteen.pvz.common.command.PlayerStatsCommand;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
@@ -16,6 +17,8 @@ import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
+import com.hungteen.pvz.common.world.PVZFog;
+import com.hungteen.pvz.common.world.zen_garden.ZenGardenEffects;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
@@ -93,6 +96,7 @@ public class PVZMod
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modBus.addListener(PVZOverlayHandler::registerOverlay);
             modBus.addListener(ClientSunImageToolTipComponent::register);
+            modBus.addListener(ZenGardenEffects::register);
         }
 
 
@@ -219,7 +223,9 @@ public class PVZMod
         if (EssenceAltarScreen.nameRollTime > 400) {
             EssenceAltarScreen.nameRollTime -= 400;
         }
-
+        if (! Minecraft.getInstance().isPaused()) {
+            PVZFog.fogsTick(ev.renderTickTime);
+        }
     }
 
     @SubscribeEvent
@@ -228,5 +234,6 @@ public class PVZMod
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);
         PVZRulesCommand.register(dispatcher);
+        PVZFogCommand.register(dispatcher);
     }
 }

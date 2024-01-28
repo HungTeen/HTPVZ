@@ -15,6 +15,7 @@ import net.minecraft.world.level.storage.loot.functions.SmeltItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,10 @@ import java.util.List;
 public class EntityLootGen extends EntityLoot {
     @Override
     public void addTables(){
+        for (RegistryObject<EntityType<?>> obj: PVZEntities.noLootList) {
+            this.add(obj.get(), LootTable.lootTable());
+        }
+
         this.add(PVZEntities.MOOBLOOM.get(), LootTable.lootTable()
                 .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.LEATHER)

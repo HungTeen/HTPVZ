@@ -10,6 +10,7 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
+import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -25,15 +26,14 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -44,9 +44,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
@@ -56,8 +58,8 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     private int animationTick = 0;
     private boolean animationChangeable = false;
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.veloci_turnip.veloci_nip", PVZItems.ORIGIN_ESSENCE, 8, 4, 75, 340).avoidSkills((short) 1),
-            new Skill("skill.pvz.veloci_turnip.clever_girls", PVZItems.ORIGIN_ESSENCE, 8, 4, 150, 340).avoidSkills((short) 0)
+            new Skill("skill.pvz.veloci_radish.veloci_nip", PVZItems.ORIGIN_ESSENCE, 8, 4, 75, 340).avoidSkills((short) 1),
+            new Skill("skill.pvz.veloci_radish.clever_girls", PVZItems.ORIGIN_ESSENCE, 8, 4, 150, 340).avoidSkills((short) 0)
     );
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
@@ -182,17 +184,17 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
         if (! this.getEntityData().get(root()) || ! level.getBlockState(onPos).isAir()) {
-            if (level.getBlockState(onPos).getFluidState().isEmpty()) {
-                if (actuallyPlant) {
-                    this.moveTo(
-                            onPos.getX() + 0.5,
-                            onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ? 0 :
-                                    level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
-                            onPos.getZ() + 0.5);
+            if (actuallyPlant) {
+                if (! level.getBlockState(onPos).getFluidState().isEmpty()) {
+                    return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
                 }
-                return null;
+                this.moveTo(
+                        onPos.getX() + 0.5,
+                        onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ? 0 :
+                                level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
+                        onPos.getZ() + 0.5);
             }
-            return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
+            return null;
         } else {
             return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(onPos).getBlock().getName());
         }
@@ -222,23 +224,34 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
             return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), target.getName());
         }
     }
+    @Nullable
+    public ItemStack getPickResult() {
+        AtomicReference<Item> packetItem = new AtomicReference<>();
+        SeedPacketItem.seedPacketItemList.forEach(item -> {
+            if (item.getEntity().equals(this.getType())) {
+                packetItem.set(item);
+            }});
+        return packetItem.get() == null ? super.getPickResult() : new ItemStack(packetItem.get());
+    }
+
     @Override
     public void tick() {
         // skill
-        if (hasSkill(this, "skill.pvz.veloci_turnip.veloci_nip")) {
+        if (hasSkill(this, "skill.pvz.veloci_radish.veloci_nip")) {
             if (!level.isClientSide) {
                 setGlowingTag(tickCount < 200 && (tickCount <= 100 || tickCount % 10 < 5));
-                 if (! this.skillBoosted) {
-                     this.skillBoosted = true;
-                     this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTACK_MODIFIER_UUID, "skill bonus", 26, AttributeModifier.Operation.ADDITION));
-                     this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 8, AttributeModifier.Operation.ADDITION));
-                 } else if (tickCount > 200) {
-                     this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(ATTACK_MODIFIER_UUID);
-                     this.getAttribute(Attributes.MAX_HEALTH).removeModifier(HEALTH_MODIFIER_UUID);
-                 }
+                if (!skillBoosted) {
+                    skillBoosted = true;
+                    this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTACK_MODIFIER_UUID, "skill bonus", 26, AttributeModifier.Operation.ADDITION));
+                    this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 8, AttributeModifier.Operation.ADDITION));
+                } else if (tickCount > 200) {
+                    this.removeSkill(this, getSkillFromName("skill.pvz.veloci_radish.veloci_nip"));
+                    this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(ATTACK_MODIFIER_UUID);
+                    this.getAttribute(Attributes.MAX_HEALTH).removeModifier(HEALTH_MODIFIER_UUID);
+                }
             }
-        } else if (hasSkill(this, "skill.pvz.veloci_turnip.clever_girls")) {
-            if (!level.isClientSide && ! skillBoosted) {
+        } else if (hasSkill(this, "skill.pvz.veloci_radish.clever_girls")) {
+            if (!level.isClientSide) {
                 for (int i = 0; i < 3; i ++) {
                     VelociTurnip turnip = PVZEntities.VELOCI_TURNIP.get().create(level);
                     turnip.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
@@ -251,7 +264,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
                     cap.setOwner(thisCap.getOwner());
                     turnip.startFollowing(this);
                 }
-                skillBoosted = true;
+                this.removeSkill(this, getSkillFromName("skill.pvz.veloci_radish.clever_girls"));
                 this.setDeltaMovement(this.getDeltaMovement().add(0.1, 0 ,0));
             }
         }

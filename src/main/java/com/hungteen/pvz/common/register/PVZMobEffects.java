@@ -20,6 +20,9 @@ public class PVZMobEffects {
     public static RegistryObject<InstantenousMobEffect> EXCITEMENT = EFFECTS.register("excitement", () ->
             new InstantenousMobEffect(MobEffectCategory.BENEFICIAL, 0xdddddd)
     );
+    public static RegistryObject<MobEffect> FOG = EFFECTS.register("fog", () ->
+            new MobEffect(MobEffectCategory.HARMFUL, 0xd4e9e7)
+    );
 
     public static class MobEffect extends net.minecraft.world.effect.MobEffect {
 

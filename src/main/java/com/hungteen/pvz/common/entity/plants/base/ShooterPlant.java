@@ -40,7 +40,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 		super.registerGoals();
 	    this.goalSelector.addGoal(1, new ShooterAttackGoal(this));
 		this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
-		this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
+		this.goalSelector.addGoal(2, new RandomLookAroundGoal(this));
 		this.targetSelector.addGoal(1, new ShooterTargetGoal(this));
 	}
 
@@ -198,7 +198,15 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 		@Override
 		public boolean canUse() {
-			return this.shooter.canShoot();
+			if (! this.shooter.canShoot()) {
+				return false;
+			}
+			final int time = this.shooter.getAttackTime(this);
+			if (! (time == this.shooter.shootAnimLength()) || EntityUtil.isEntityValid(shooter.getTarget())) {
+				this.shooter.setAttackTime(this, time > 0 ? time - 1 : this.shooter.getShootCD());
+			}
+			shooter.entityData.set(POSE, (this.shooter.getAttackTime(this) < this.shooter.shootAnimLength()));
+			return EntityUtil.isEntityValid(shooter.getTarget());
 		}
 
 		@Override
@@ -209,17 +217,12 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 		@Override
 		public void tick() {
 			LivingEntity target = this.shooter.getTarget();
-			final int time = this.shooter.getAttackTime(this);
-			if (this.shooter.shootTimes().contains(time)) {
+			if (this.shooter.shootTimes().contains(this.shooter.getAttackTime(this))) {
 				this.shooter.shootBullet();
-			}
-			if (! (time == this.shooter.shootAnimLength()) || EntityUtil.isEntityValid(target)) {
-				this.shooter.setAttackTime(this, time > 0 ? time - 1 : this.shooter.getShootCD());
 			}
 			if (EntityUtil.isEntityValid(target)) {
 				this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
 			}
-			shooter.entityData.set(POSE, (time < this.shooter.shootAnimLength()));
 		}
 	}
 }

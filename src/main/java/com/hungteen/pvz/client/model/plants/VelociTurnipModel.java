@@ -3,6 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 // Paste this class into your mod and generate all required imports
 
 
+import com.hungteen.pvz.client.model.plants.animation.VelociTurnipAnimation;
 import com.hungteen.pvz.common.entity.plants.VelociTurnip;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

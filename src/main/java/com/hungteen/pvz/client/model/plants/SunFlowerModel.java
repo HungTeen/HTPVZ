@@ -1,32 +1,19 @@
 package com.hungteen.pvz.client.model.plants;
 
+import com.hungteen.pvz.client.model.plants.animation.SunFlowerAnimation;
 import com.hungteen.pvz.common.entity.plants.SunFlower;
-import com.hungteen.pvz.util.AnimationUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.world.entity.Entity;
 
-public class SunFlowerModel<T extends Entity> extends HierarchicalModel<T> {
+public class SunFlowerModel<T extends SunFlower> extends HierarchicalModel<T> {
     // This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
     private final ModelPart total;
-    private final ModelPart body;
-    private final ModelPart leaves;
-    private final ModelPart head;
-    private final ModelPart right_hand;
-    private final ModelPart left_hand;
     public SunFlowerModel(ModelPart root) {
         this.total = root.getChild("total");
-        this.body = total.getChild("body");
-        this.leaves = total.getChild("leaves");
-        this.head = body.getChild("head");
-        this.right_hand = body.getChild("right_hand");
-        this.left_hand = body.getChild("left_hand");
-
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -68,13 +55,11 @@ public class SunFlowerModel<T extends Entity> extends HierarchicalModel<T> {
     }
 
     @Override
-    public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        if(entity instanceof SunFlower sunFlower) {
-            this.total.getAllParts().forEach(ModelPart::resetPose);
-            float f = ageInTicks - (float)entity.tickCount;
-            this.animate(sunFlower.idleAnimationState, SunFlowerAnimation.idle, ageInTicks);
-            this.animate(sunFlower.produceAnimationState, SunFlowerAnimation.produce, ageInTicks);
-        }
+    public void setupAnim(T sunFlower, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        this.total.getAllParts().forEach(ModelPart::resetPose);
+        float f = ageInTicks - (float)sunFlower.tickCount;
+        this.animate(sunFlower.idleAnimationState, SunFlowerAnimation.idle, ageInTicks);
+        this.animate(sunFlower.produceAnimationState, SunFlowerAnimation.produce, ageInTicks);
     }
 
     @Override

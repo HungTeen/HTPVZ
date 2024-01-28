@@ -1,17 +1,15 @@
 package com.hungteen.pvz.client.model.plants;
 
+import com.hungteen.pvz.client.model.plants.animation.PeaShooterAnimation;
 import com.hungteen.pvz.common.entity.plants.PeaShooter;
-import com.hungteen.pvz.common.entity.plants.SunFlower;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.world.entity.Entity;
 
-public class PeaShooterModel<T extends Entity> extends HierarchicalModel<T> {
+public class PeaShooterModel<T extends PeaShooter> extends HierarchicalModel<T> {
     private final ModelPart total;
 
     public PeaShooterModel(ModelPart root) {
@@ -56,13 +54,11 @@ public class PeaShooterModel<T extends Entity> extends HierarchicalModel<T> {
 
 
     @Override
-    public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        if(entity instanceof PeaShooter peaShooter) {
-            this.total.getAllParts().forEach(ModelPart::resetPose);
-            float f = ageInTicks - (float) entity.tickCount;
-            this.animate(peaShooter.idleAnimationState, PeaShooterAnimation.idle, ageInTicks);
-            this.animate(peaShooter.shootAnimationState, PeaShooterAnimation.shoot, ageInTicks);
-        }
+    public void setupAnim(T peaShooter, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        this.total.getAllParts().forEach(ModelPart::resetPose);
+        float f = ageInTicks - (float) peaShooter.tickCount;
+        this.animate(peaShooter.idleAnimationState, PeaShooterAnimation.idle, ageInTicks);
+        this.animate(peaShooter.shootAnimationState, PeaShooterAnimation.shoot, ageInTicks);
     }
 
     @Override

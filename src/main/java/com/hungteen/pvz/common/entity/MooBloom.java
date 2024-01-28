@@ -5,7 +5,6 @@ import com.hungteen.pvz.common.register.PVZMobEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -65,19 +64,6 @@ public class MooBloom extends Cow implements Shearable, net.minecraftforge.commo
             return super.mobInteract(p_28941_, p_28942_);
         }
     }
-
-//    private Optional<Pair<MobEffect, Integer>> getEffectFromItemStack(ItemStack p_28957_) {
-//        Item item = p_28957_.getItem();
-//        if (item instanceof BlockItem) {
-//            Block block = ((BlockItem)item).getBlock();
-//            if (block instanceof FlowerBlock) {
-//                FlowerBlock flowerblock = (FlowerBlock)block;
-//                return Optional.of(Pair.of(flowerblock.getSuspiciousStewEffect(), flowerblock.getEffectDuration()));
-//            }
-//        }
-//
-//        return Optional.empty();
-//    }
 
     public MooBloom getBreedOffspring(ServerLevel p_148942_, AgeableMob p_148943_) {
         return PVZEntities.MOOBLOOM.get().create(p_148942_);

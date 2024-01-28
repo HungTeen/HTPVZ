@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.menu;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.common.item.SeedItem;
@@ -162,7 +161,7 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
             if (item.getEnchantmentLevel(PVZEnchantments.FOOLISH_CURSE.get()) > 0 || !seedPacket.canBoost()) {
                 return false;
             }
-            if (seedPacket.notCompatible(item, seedPacket.getStaticSkillList().get(skillID)) != null) {
+            if (seedPacket.getNotCompatibleWith(item, seedPacket.getStaticSkillList().get(skillID)) != null) {
                 return false;
             }
             if (seedPacket.hasSkill(item, skillID)) {

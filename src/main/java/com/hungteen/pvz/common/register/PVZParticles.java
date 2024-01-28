@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.client.particle.FogParticle;
 import com.hungteen.pvz.client.particle.SunParticle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleType;
@@ -22,6 +23,7 @@ public class PVZParticles {
 
 
     public static final RegistryObject<SimpleParticleType> SUN = particle("sun", (sprite) -> new SunParticle.Provider(sprite));
+    public static final RegistryObject<SimpleParticleType> FOG = particle("fog", (sprite) -> new FogParticle.Provider(sprite));
 
 
 

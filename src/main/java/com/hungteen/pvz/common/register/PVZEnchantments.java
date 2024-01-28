@@ -33,10 +33,11 @@ public class PVZEnchantments {
     public static final EnchantmentCategory SHOVEL = EnchantmentCategory.create("shovel", (item) -> item instanceof ShovelItem);
 
     public static void handleEnchantmentTypes() {
+        //tool category
         List<EnchantmentCategory> list = new java.util.ArrayList<>(Stream.of(CreativeModeTab.TAB_TOOLS.getEnchantmentCategories()).toList());
         list.add(PVZEnchantments.SHOVEL);
         CreativeModeTab.TAB_TOOLS.setEnchantmentCategories(list.toArray(new EnchantmentCategory[]{}));
-
+        //pvz card category
         PVZItemTabs.PVZ_PLANT_CARDS.setEnchantmentCategories(PVZEnchantments.SUMMON_CARD);
     }
 }

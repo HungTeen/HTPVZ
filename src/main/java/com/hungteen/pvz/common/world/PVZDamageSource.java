@@ -24,7 +24,7 @@ public class PVZDamageSource {
 
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
 
-
+    //TODO need a decorator for AOE damages?
     //damageSource decorators
     public static DamageSource teamFilter(DamageSource source) {
         teamFilterSource = source;
