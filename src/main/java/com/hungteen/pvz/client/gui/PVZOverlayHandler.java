@@ -5,6 +5,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
@@ -12,6 +13,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -69,6 +71,44 @@ public class PVZOverlayHandler{
             storedHaveCost = (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1);
         }
         storedItemStack = itemStack;
+    }
+    private static void renderArmorHealth(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+        if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
+
+            Minecraft mc = gui.getMinecraft();
+            mc.getProfiler().push("sun");
+
+            Player player = getCameraPlayer();
+            int armorHealth = 0;
+            for (ItemStack itemStack : player.getArmorSlots()) {
+                if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
+                    armorHealth += itemStack.getMaxDamage() - itemStack.getDamageValue();
+                }
+            }
+            int health = (int) (player.getMaxHealth() + Mth.ceil(player.getAbsorptionAmount()));
+            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
+            RenderSystem.enableBlend();
+
+            int healthRows = Mth.ceil((health) / 2.0F / 10.0F);
+            int rowHeight = Math.max(12 - healthRows, 3);
+            int left = width / 2 - 100;
+            int top = height - gui.leftHeight + healthRows * rowHeight + (rowHeight != 10 ? 10 - rowHeight : 0);
+
+            for (int i = 0; armorHealth > 0 && health > 0; ++i) {
+                int x = left + (i % 10) * 8 + 9;
+                int y = top - (i / 10) * rowHeight;
+                health -= 2;
+                if (2 <= armorHealth) {
+                    blit(stack, x, y, 90, 0, 9, 9);
+                    armorHealth -= 2;
+                } else {
+                    blit(stack, x, y, 100, 0, 9, 9);
+                    armorHealth -= 1;
+                }
+            }
+            RenderSystem.disableBlend();
+            mc.getProfiler().pop();
+        }
     }
 
     private static void renderSunAsBar(ForgeGui gui, PoseStack stack, float partialTick, int width, int height){
@@ -235,6 +275,7 @@ public class PVZOverlayHandler{
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_level", PVZOverlayHandler::renderSunAsStats);
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_bar", PVZOverlayHandler::renderSunAsBar);
         ev.registerAbove(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "card_cost", PVZOverlayHandler::renderCostOfCards);
+        ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "player_health", PVZOverlayHandler::renderArmorHealth);
     }
 
 }

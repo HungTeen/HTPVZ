@@ -1,5 +1,6 @@
 package com.hungteen.pvz.client.renderer.plants;
 
+import com.hungteen.pvz.client.layer.WallNutArmorLayer;
 import com.hungteen.pvz.client.layer.WallNutColorLayer;
 import com.hungteen.pvz.client.model.plants.WallNutModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
@@ -18,13 +19,14 @@ import static com.hungteen.pvz.common.entity.plants.WallNut.EXPLODE_COUNT;
 
 public class WallNutRenderer<T extends WallNut> extends MobRenderer<T, EntityModel<T>> {
 
-    private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/wall_nut/wall_nut.png");
+    private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/wall_nut/wall_nut_0.png");
     private static final ResourceLocation STATE1 = Util.prefix("textures/entity/plants/wall_nut/wall_nut_1.png");
     private static final ResourceLocation STATE2 = Util.prefix("textures/entity/plants/wall_nut/wall_nut_2.png");
 
     public WallNutRenderer(EntityRendererProvider.Context context) {
         super(context, new WallNutModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("wall_nut:main"))), 0.6F);
         this.addLayer(new WallNutColorLayer(this, context.getModelSet()));
+        this.addLayer(new WallNutArmorLayer(this, context.getModelSet()));
     }
 
 
@@ -34,7 +36,7 @@ public class WallNutRenderer<T extends WallNut> extends MobRenderer<T, EntityMod
 
     @Override
     protected void scale(T wallNut, PoseStack p_114047_, float p_114048_) {
-        float f = wallNut.hasSkill(this, 0) ? wallNut.getEntityData().get(EXPLODE_COUNT) < 20 ? 0 :
+        float f = wallNut.hasSkill(this, "skill.pvz.wall_nut.explode") ? wallNut.getEntityData().get(EXPLODE_COUNT) < 20 ? 0 :
                 (float) wallNut.getEntityData().get(EXPLODE_COUNT) / 20 - 1 : 0;
         float f1 = 1.0F + Mth.sin(f * 100.0F) * f * 0.01F;
         f = Mth.clamp(f, 0.0F, 1.0F);

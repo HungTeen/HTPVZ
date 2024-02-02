@@ -110,7 +110,6 @@ public class BaseBullet extends Projectile {
 		if (type != HitResult.Type.MISS) { //TODO what for?
 			this.gameEvent(GameEvent.PROJECTILE_LAND, this.getOwner());
 		}
-
 	}
 	@Override
 	protected void onHitEntity(EntityHitResult result) {

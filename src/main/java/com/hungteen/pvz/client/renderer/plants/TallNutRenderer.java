@@ -1,5 +1,6 @@
 package com.hungteen.pvz.client.renderer.plants;
 
+import com.hungteen.pvz.client.layer.TallNutArmorLayer;
 import com.hungteen.pvz.client.model.plants.TallNutModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.TallNut;
@@ -19,6 +20,7 @@ public class TallNutRenderer<T extends TallNut> extends MobRenderer<T, EntityMod
 
     public TallNutRenderer(EntityRendererProvider.Context context) {
         super(context, new TallNutModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("tall_nut:main"))), 0.8F);
+        this.addLayer(new TallNutArmorLayer(this, context.getModelSet()));
     }
 
 

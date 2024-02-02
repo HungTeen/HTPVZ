@@ -19,15 +19,14 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public Vec3 storedEnemyPos = null;
 	public int aimTime = 0;
 	public AnimationState idleAnimationState = new AnimationState();
 	public AnimationState shootAnimationState = new AnimationState();
+	protected List<Entity> targetCandidates = new ArrayList<>();
 	protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(ShooterPlant.class, EntityDataSerializers.BOOLEAN);
 
 	public ShooterPlant(EntityType<? extends Mob> type, Level worldIn) {
@@ -96,6 +95,13 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			}
 			this.level.addFreshEntity(bullet);
 		});
+	}
+
+	public void setTargetCandidates(List<Entity> set) {
+		this.targetCandidates = set;
+	}
+	public List<Entity> getTargetCandidates() {
+		return targetCandidates;
 	}
 
 	@Override

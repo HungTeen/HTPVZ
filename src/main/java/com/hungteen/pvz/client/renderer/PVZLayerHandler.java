@@ -2,9 +2,13 @@ package com.hungteen.pvz.client.renderer;
 
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.model.GrassCarpModel;
+import com.hungteen.pvz.client.model.armor.BucketHelmetModel;
+import com.hungteen.pvz.client.model.armor.ConeHelmetModel;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZItems;
+import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.world.entity.Entity;
@@ -33,12 +37,16 @@ public class PVZLayerHandler {
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
+        L(e, PVZEntities.WALL_NUT, "armor", WallNutArmorModel::createBodyLayer);
         L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
         L(e, PVZEntities.TALL_NUT, TallNutModel::createBodyLayer);
+        L(e, PVZEntities.TALL_NUT, "armor", TallNutArmorModel::createBodyLayer);
         L(e, PVZEntities.PLANTERN, PlanternModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
+        L(e, PVZItems.CONE_HELMET, () -> ConeHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
+        L(e, PVZItems.BUCKET_HELMET, () -> BucketHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
 
         //simple rendered entities
         for (EntityType<? extends Entity> entity: PVZEntities.simpleRenderedMap.keySet()){

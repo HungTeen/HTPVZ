@@ -44,4 +44,10 @@ public class Skill {
         }
         return this;
     }
+    public Skill avoidSkills(int... skills) {
+        for (int i : skills) {
+            avoidSkills.add((short) i);
+        }
+        return this;
+    }
 }

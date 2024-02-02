@@ -22,7 +22,7 @@ public abstract class ProducerPlant extends SimplePlant {
 
 	public ProducerPlant(EntityType< ? extends Mob > type, Level worldIn){
             super(type, worldIn);
-            this.setAttackTime(this,200);//the first gen just need 10 seconds CD.
+            this.setAttackTime(this,120);
         }
 
         @Override
@@ -77,7 +77,7 @@ public abstract class ProducerPlant extends SimplePlant {
          */
         public abstract int getGenCD();
 
-        public int getAnimGenCD () {
+        public int getAnimGenCD() {
             return 20;
         }
 

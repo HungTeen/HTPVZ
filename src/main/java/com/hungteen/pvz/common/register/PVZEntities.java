@@ -12,9 +12,11 @@ import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
 import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
 import com.hungteen.pvz.client.renderer.misc.SunRenderer;
 import com.hungteen.pvz.client.renderer.plants.*;
+import com.hungteen.pvz.client.renderer.zombie.PVZZombieRenderer;
 import com.hungteen.pvz.common.entity.*;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.*;
+import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.generator.loot.EntityLootGen;
 import com.hungteen.pvz.util.Util;
@@ -32,6 +34,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacements.SpawnPredicate;
 import net.minecraft.world.entity.SpawnPlacements.Type;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -117,6 +120,10 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<VelociTurnip>> VELOCI_TURNIP = attribute(VelociTurnip::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, VelociTurnip::checkSpawnRules)
             .collision(0.5F, 0.5825F).entity("veloci_radish", VelociTurnip::new, OtherRegisters.PVZPlantMobCategory);
+    //zombies
+    public static final RegistryObject<EntityType<PVZZombie>> ZOMBIE = attribute(Zombie::createAttributes).noLoot()
+            .tag(PVZEntityTags.ZOMBIE).spawnEgg(0xb97141, 0x799587)
+            .entity("zombie", PVZZombie::new, MobCategory.MONSTER);
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.25F, 0.25F).entity("pea", PeaBullet::new, MobCategory.MISC);
 
@@ -132,8 +139,8 @@ public class PVZEntities {
     @OnlyIn(Dist.CLIENT)
     public static void simpleRenderHandler() {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
-        rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.6F, "textures/entity/plants/pea_shooter/pea_shooter.png");
-        rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.6F, "textures/entity/plants/repeater/repeater.png");
+        rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.5F, "textures/entity/plants/pea_shooter/pea_shooter.png");
+        rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.5F, "textures/entity/plants/repeater/repeater.png");
         rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
     }
 
@@ -150,6 +157,7 @@ public class PVZEntities {
         r(e, TALL_NUT, TallNutRenderer::new);
         r(e, PLANTERN, PlanternRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
+        r(e, ZOMBIE, PVZZombieRenderer::new);
 
         //enter here
 

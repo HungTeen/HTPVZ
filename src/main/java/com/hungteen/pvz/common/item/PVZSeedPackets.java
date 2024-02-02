@@ -22,14 +22,14 @@ import java.util.function.Supplier;
 public class PVZSeedPackets {
     public static final int FAST = 60;
     public static final int MIDDLE = 200;
-    public static final int SLOW = 400;
-    public static final int VERY_SLOW = 750;
+    public static final int SLOW = 500;
+    public static final int VERY_SLOW = 900;
     @Deprecated //clear after registry.
     public static List<RegisterSeedPacketsEvent.SeedPacketData> seedPackets = new ArrayList<>();
 
     static {
         //pvz packets.
-        add(PVZEntities.SUN_FLOWER).cost(50).coolDown(SLOW).skillList(List.of())//TODO add skills.
+        add(PVZEntities.SUN_FLOWER).cost(50).coolDown(SLOW).skillList(List.of())//No skills.
                 .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
         add(PVZEntities.PEA_SHOOTER).cost(100).coolDown(FAST).skillList(PeaShooter.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
@@ -37,15 +37,14 @@ public class PVZSeedPackets {
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
-        add(PVZEntities.PLANTERN).cost(25).coolDown(SLOW).skillList(Plantern.staticSkillList)
-                .recipe(Items.GLOW_BERRIES, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
         add(PVZEntities.VELOCI_TURNIP).cost(50).coolDown(FAST).skillList(VelociTurnip.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.
-                .recipe(PVZItems.FLOWER_SEED_PACKET)
-                .setCreativeOnly();
+                .recipe(PVZItems.FLOWER_SEED_PACKET).setCreativeOnly();
         add(PVZEntities.REPEATER).cost(150).coolDown(FAST).skillList(Repeater.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
+                .recipe(Items.GLOW_BERRIES, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE); //TODO change glow berries to a plantern block.
 
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();

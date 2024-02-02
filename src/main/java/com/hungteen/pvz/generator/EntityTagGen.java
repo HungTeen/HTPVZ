@@ -2,6 +2,7 @@ package com.hungteen.pvz.generator;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.tags.PVZEntityTags;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
@@ -19,6 +20,7 @@ public class EntityTagGen extends EntityTypeTagsProvider {
 
     @Override
     public void addTags(){
+        this.tag(PVZEntityTags.IRON).add(EntityType.IRON_GOLEM);
         //atEntityRegister
         PVZEntities.tagMap.forEach((entity, tagList)-> tagList.forEach((tag) -> this.tag(tag).add((EntityType<?>) entity.get())));
     }

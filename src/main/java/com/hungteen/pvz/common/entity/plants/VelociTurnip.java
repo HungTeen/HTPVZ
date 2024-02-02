@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
+import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.item.SeedPacketItem;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
@@ -58,8 +60,8 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     private int animationTick = 0;
     private boolean animationChangeable = false;
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.veloci_radish.veloci_nip", PVZItems.ORIGIN_ESSENCE, 8, 4, 75, 340).avoidSkills((short) 1),
-            new Skill("skill.pvz.veloci_radish.clever_girls", PVZItems.ORIGIN_ESSENCE, 8, 4, 150, 340).avoidSkills((short) 0)
+            new Skill("skill.pvz.veloci_radish.veloci_nip", PVZItems.ORIGIN_ESSENCE, 8, 4, 75, 440).avoidSkills(1),
+            new Skill("skill.pvz.veloci_radish.clever_girls", PVZItems.ORIGIN_ESSENCE, 8, 4, 150, 440).avoidSkills(0)
     );
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
@@ -78,7 +80,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 12)
+                .add(Attributes.MAX_HEALTH, 5)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0)
                 .add(Attributes.MOVEMENT_SPEED, 0.35)
                 .add(Attributes.ATTACK_DAMAGE, 4)
@@ -96,9 +98,12 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new TurnipAttackGoal(this, 1, true));
-        this.goalSelector.addGoal(2, new FollowGroupLeaderGoal(this));
-        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(1, new AvoidTargetGoal(this,
+                (entity -> entity instanceof Mob mob && mob.getTarget() == this && getTarget() == mob),
+                4.0F, 1.0D, 1.0D));
+        this.goalSelector.addGoal(2, new TurnipAttackGoal(this, 1, true));
+        this.goalSelector.addGoal(3, new FollowGroupLeaderGoal(this));
+        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(1, new TurnipShareTargetGoal(this));
@@ -357,7 +362,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
     @Override
     public int getGroupRangeSqr(){
-        return 49;
+        return 64;
     }
 
     private static class TurnipAttackGoal extends MeleeAttackGoal {

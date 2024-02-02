@@ -60,7 +60,7 @@ public interface ICanGroupUp {
     }
 
     default void pathToLeader() {
-        if (this.isFollower()) {
+        if (this.isFollower() && ((Entity)this).position().distanceToSqr(((Entity) getLeader()).position()) > getGroupRangeSqr() / 4) {
             ((Mob) this).getNavigation().moveTo((Entity) this.getLeader(), 1.0D);
         }
     }

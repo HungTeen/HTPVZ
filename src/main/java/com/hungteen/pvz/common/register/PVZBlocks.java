@@ -83,14 +83,12 @@ public class PVZBlocks {
     public static final RegistryObject<Block> WISDOM_TREE_CORE = tag(BlockTags.MINEABLE_WITH_AXE).loot(false).model(Model.Modeled).block("wisdom_tree_core", () -> new WisdomTreeCoreBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(-1.0F, 3600000.0F).noLootTable().randomTicks().lightLevel(i-> 12)));
     public static final RegistryObject<Block> WISDOM_TREE_LOG = tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS).loot(false).model(Model.Column, res("wisdom_tree_log"), res("nut_log_top")).block("wisdom_tree_log", () -> new WisdomTreeLogBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(10F).noLootTable().randomTicks().lightLevel(i-> 3)));
     public static final RegistryObject<Block> PATTRA_LEAVES = tag(BlockTags.LEAVES).renderType("cutout").loot(false).block("pattra_leaves", () -> new PattraLeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES).strength(5F).noLootTable()));
-
-    //PVZ_FUNCTIONAL
-    public static final RegistryObject<Block> ESSENCE_ALTAR = tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).tab(PVZItemTabs.PVZ_FUNCTIONAL).model(Model.Modeled).renderType("cutout").blockEntity("essence_altar").block("essence_altar", () -> new EssenceAltarBlock(BlockBehaviour.Properties.copy(Blocks.ENCHANTING_TABLE)));
+    public static final RegistryObject<Block> ESSENCE_ALTAR = tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).renderType("cutout").blockEntity("essence_altar").block("essence_altar", () -> new EssenceAltarBlock(BlockBehaviour.Properties.copy(Blocks.ENCHANTING_TABLE)));
     public static final RegistryObject<Block> ESSENCE_FURNACE = tag(BlockTags.NEEDS_STONE_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).blockEntity("essence_furnace").block("essence_furnace", () -> new EssenceFurnaceBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).lightLevel(litBlockEmission(13))));
     public static final RegistryObject<Block> GARDEN_FLOWER_POT = tag(BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).itemModel(PVZItems.Model.Block).block("garden_flower_pot", () -> new GardenFlowerPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0.5F)));
 
     //NO_TAB
-    public static final RegistryObject<Block> PLANTERN_LIGHT = loot(false).model(Model.Modeled).blockEntity("plantern_light").block("plantern_light", () -> new PlanternLightBlock(BlockBehaviour.Properties.of(Material.AIR).strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> 15)));
+    public static final RegistryObject<Block> PLANTERN_LIGHT = loot(false).model(Model.Modeled).blockEntity("plantern_light").noItem().block("plantern_light", () -> new PlanternLightBlock(BlockBehaviour.Properties.of(Material.AIR).strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> 15)));
 
     /**Default loots self. Use {@link BlockLootGen#addTables()} to modify.*/
 

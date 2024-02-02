@@ -1,5 +1,6 @@
 package com.hungteen.pvz.client.model.plants;
 
+import com.hungteen.pvz.common.entity.plants.TallNut;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
@@ -8,7 +9,7 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.world.entity.Entity;
 
-public class TallNutModel<T extends Entity> extends EntityModel<T> {
+public class TallNutModel<T extends TallNut> extends EntityModel<T> {
     private final ModelPart body;
     private final ModelPart eye_close;
 

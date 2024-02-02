@@ -13,7 +13,8 @@ import java.util.List;
 
 public class TallNut extends WallNut{
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0)
+            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0),
+            new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 75, 0)
     );
     public TallNut(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -29,5 +30,9 @@ public class TallNut extends WallNut{
                 .add(Attributes.ARMOR, 60D)
                 .add(Attributes.ARMOR_TOUGHNESS, 30D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
+    }
+
+    public float getMaxIronArmor() {
+        return 300;
     }
 }

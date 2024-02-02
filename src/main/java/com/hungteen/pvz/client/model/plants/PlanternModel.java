@@ -80,11 +80,10 @@ public class PlanternModel<T extends Plantern> extends HierarchicalModel<T> {
 
 	@Override
 	public void setupAnim(T plantern, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		float f = ageInTicks - (float) plantern.tickCount;
-		eyesOpen.visible = plantern.tickCount % 50 < 3;
-		eyesClosed.visible = plantern.tickCount % 50 >= 3;
+		eyesOpen.visible = plantern.tickCount % 100 >= 3;
+		eyesClosed.visible = ! eyesOpen.visible;
 		this.animate(plantern.idleAnimationState, PlanternAnimation.idle, ageInTicks);
 	}
 

@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.interfaces.IIronEntity;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
@@ -15,36 +16,64 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.common.ForgeHooks;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import static com.hungteen.pvz.common.world.PVZDamageSource.teamFilter;
 
-public class WallNut extends SimplePlant implements IDefenderPlant {
+public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity {
     float storedHealth;
+    float storedArmor;
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Float> IRON_ARMOR = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.FLOAT);
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.wall_nut.explode", PVZItems.IGNIS_ESSENCE, 3, 8, 150, 250),
-            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0)
+            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0),
+            new Skill("skill.pvz.wall_nut.explode", PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
+            new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(1)
     );
 
     public WallNut(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
         storedHealth = 0;
+        storedArmor = 0;
     }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(EXPLODE_COUNT, -1);
+        this.entityData.define(IRON_ARMOR, 0F);
+    }
+
+    //about iron armor
+    public boolean isIronMaterial() {
+        return hasIronArmor();
+    }
+    public boolean hasIronArmor() {
+        return entityData.get(IRON_ARMOR) > 0;
+    }
+    public float getIronArmor() {
+        return entityData.get(IRON_ARMOR);
+    }
+    public void setIronArmor(float value) {
+        entityData.set(IRON_ARMOR, value);
+    }
+    public float getMaxIronArmor() {
+        return 200;
+    }
+
+    //entity settings
+    public void setSecondsOnFire(int seconds) {
+        super.setSecondsOnFire(seconds * 3);//balance test.
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -95,6 +124,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant {
         return super.isVehicleSafe(target, actuallyPlant);
     }
 
+    //overrides
     @Override
     public void baseTick() {
         super.baseTick();
@@ -105,11 +135,22 @@ public class WallNut extends SimplePlant implements IDefenderPlant {
             }
         }
         storedHealth = getHealth();
+        if (getIronArmor() < storedArmor && level.isClientSide()) {
+            for (int i = 0; i < 3; i ++) {
+                level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.ANVIL.defaultBlockState()).setPos(this.getOnPos()),
+                        getX()+random.nextFloat() - 0.5, getY() + 1.1, getZ()+random.nextFloat() - 0.5, 0, 0, 0);
+            }
+        }
+        storedArmor = getIronArmor();
+
         if (this.hasSkill(this, "skill.pvz.wall_nut.explode") && this.getEntityData().get(EXPLODE_COUNT) > -1) {
             this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) + 1);
             if (this.getEntityData().get(EXPLODE_COUNT) > 40) {
                 this.explode();
             }
+        }
+        if (this.hasSkill(this, "skill.pvz.wall_nut.iron_armor") && getIronArmor() == 0) {
+            setIronArmor(getMaxIronArmor());
         }
     }
 
@@ -130,4 +171,28 @@ public class WallNut extends SimplePlant implements IDefenderPlant {
         }
     }
 
+    @Override
+    public boolean hurt(DamageSource dmgSource, float dmgNum) {
+        if (!ForgeHooks.onLivingAttack(this, dmgSource, dmgNum)) return false;
+        if (this.isInvulnerableTo(dmgSource)) {
+            return false;
+        } else if (this.level.isClientSide) {
+            return false;
+        } else if (this.isDeadOrDying()) {
+            return false;
+        } else if (dmgSource.isFire() && this.hasEffect(MobEffects.FIRE_RESISTANCE)) {
+            return false;
+        }
+        if (dmgNum > 0 && !dmgSource.isBypassArmor()) {
+            if (this.hasIronArmor()) {
+                double blocked = Math.min(dmgNum, this.getIronArmor());
+                setIronArmor((float) (getIronArmor() - blocked));
+                dmgNum -= blocked;
+                if (getIronArmor() <= 0) {
+                    setIronArmor(-1);
+                }
+            }
+        }
+        return super.hurt(dmgSource, dmgNum);
+    }
 }

@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -28,7 +29,7 @@ public class SunFlower extends ProducerPlant {
     @Override
     public int getGenCD() {
         final int time = 240;
-        return this.level.isDay() ?(this.level.isRaining() ? 2 * time : time) : 3 * time;
+        return (this.level.isDay() || this.hasEffect(PVZMobEffects.BRIGHTNESS.get())) ?(this.level.isRaining() ? 2 * time : time) : 3 * time;
     }
     public int getSunAmount(){
         return 25;

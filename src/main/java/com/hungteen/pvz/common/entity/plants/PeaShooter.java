@@ -20,7 +20,8 @@ public class PeaShooter extends ShooterPlant {
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 4, 150, 0),
-            new Skill("skill.pvz.pea_shooter.sniper", PVZItems.VENTUS_ESSENCE, 4, 12, 500, 800).avoidSkills((short) 0) //for pvp.
+            new Skill("skill.pvz.pea_shooter.sniper", PVZItems.VENTUS_ESSENCE, 4, 12, 500, 800).avoidSkills(0), //for pvp.
+            new Skill("skill.pvz.pea_shooter.fire_shooter", PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0).avoidSkills(0, 1)
     );
 
     public PeaShooter(EntityType<? extends Mob> type, Level worldIn) {
@@ -41,12 +42,16 @@ public class PeaShooter extends ShooterPlant {
         PeaBullet bullet = new PeaBullet(this.level, this, PeaBullet.PeaType.Common);
         if (hasSkill(this, "skill.pvz.pea_shooter.punch")) {
             bullet.setKnockBackStrength(1F);
+        } else if (hasSkill(this, "skill.pvz.pea_shooter.fire_shooter")) {
+            bullet.setPeaType(PeaBullet.PeaType.Fire);
         }
         return bullet;
     }
 
     public float getAttackDamage() {
-        return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue() * (this.hasSkill(this, "skill.pvz.pea_shooter.sniper") ? 6 : 1);
+        return (float) (getAttribute(Attributes.ATTACK_DAMAGE).getValue() *
+                        (this.hasSkill(this, "skill.pvz.pea_shooter.sniper") ? 6 :
+                                this.hasSkill(this, "skill.pvz.pea_shooter.fire_shooter") ? 1.5 : 1));
     }
 
     @Override

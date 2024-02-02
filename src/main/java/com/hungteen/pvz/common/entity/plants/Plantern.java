@@ -6,14 +6,13 @@ import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.AnimationState;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -28,8 +27,8 @@ import java.util.List;
 
 public class Plantern extends SimplePlant {
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.plantern.land_mark", PVZItems.LUX_ESSENCE, 8, 12, 150, 250),
-            new Skill("skill.pvz.plantern.lantern_radar", PVZItems.LUX_ESSENCE, 8, 12, 0, 0).avoidSkills((short) 0)
+            new Skill("skill.pvz.plantern.light_house", PVZItems.LUX_ESSENCE, 8, 8, 0, 350),
+            new Skill("skill.pvz.plantern.lantern_radar", PVZItems.LUX_ESSENCE, 8, 8, 125, 350).avoidSkills(0)
     );
     public AnimationState idleAnimationState = new AnimationState();
 
@@ -73,6 +72,9 @@ public class Plantern extends SimplePlant {
             level.setBlock(getOnPos().above().above(),
                     level.getBlockState(getOnPos().above().above()).setValue(PlanternLightBlock.HAS_SOURCE, true), 2);
         }
+        if (hasSkill(this, "skill.pvz.plantern.light_house")) {
+            this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(0D); //can't attract enemy with lightHouse skill.
+        }
     }
 
     public static class OfferBrightnessGoal extends Goal {
@@ -93,6 +95,16 @@ public class Plantern extends SimplePlant {
                                 entity.getX() + 4, entity.getY() + 4, entity.getZ() + 4),
                         (player) -> PVZOwnedCapability.isTeammate(player, entity));
                 list.forEach((player -> player.addEffect(new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 100), this.entity)));
+                List<SunFlower> list1 = entity.level.getEntities(EntityTypeTest.forClass(SunFlower.class),
+                        new AABB(entity.getX() - 4, entity.getY() - 4, entity.getZ() - 4,
+                                entity.getX() + 4, entity.getY() + 4, entity.getZ() + 4),
+                        (plant) -> PVZOwnedCapability.isTeammate(plant, entity));
+                list1.forEach((plant -> plant.addEffect(new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 100), this.entity)));
+                List<LivingEntity> list2 = entity.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
+                        new AABB(entity.getX() - 4, entity.getY() - 4, entity.getZ() - 4,
+                                entity.getX() + 4, entity.getY() + 4, entity.getZ() + 4),
+                        (entity) -> ! PVZOwnedCapability.isTeammate(entity, this.entity) && entity.hasEffect(MobEffects.INVISIBILITY));
+                list2.forEach((entity -> entity.removeEffect(MobEffects.INVISIBILITY)));
             }
             return false;
         }
