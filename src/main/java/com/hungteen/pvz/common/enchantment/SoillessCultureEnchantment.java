@@ -6,7 +6,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 
 public class SoillessCultureEnchantment extends Enchantment {
     public SoillessCultureEnchantment() {
-        super(Rarity.RARE, PVZEnchantments.SUMMON_CARD, new EquipmentSlot[]{EquipmentSlot.MAINHAND});
+        super(Rarity.VERY_RARE, PVZEnchantments.SUMMON_CARD, new EquipmentSlot[]{EquipmentSlot.MAINHAND});
     }
     @Override
     public int getMinCost(int p_45102_) {

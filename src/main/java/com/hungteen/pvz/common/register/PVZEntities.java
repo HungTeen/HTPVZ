@@ -2,9 +2,7 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
-import com.hungteen.pvz.client.model.plants.PeaShooterModel;
-import com.hungteen.pvz.client.model.plants.RepeaterModel;
-import com.hungteen.pvz.client.model.plants.VelociTurnipModel;
+import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.bullet.PeaBulletRenderer;
@@ -115,6 +113,12 @@ public class PVZEntities {
             .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Repeater>> REPEATER = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.7F, 1.3F).entity("repeater", Repeater::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<Pumpkin>> PUMPKIN = attribute(Pumpkin::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(1F, 0.5F).entity("pumpkin", Pumpkin::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<FlowerPot>> FLOWER_POT = attribute(FlowerPot::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.75F, 0.475F).entity("flower_pot", FlowerPot::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<LilyPad>> LILY_PAD = attribute(LilyPad::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.875F, 0.2F).entity("lily_pad", LilyPad::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Plantern>> PLANTERN = attribute(Plantern::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.8F, 2F).entity("plantern", Plantern::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<VelociTurnip>> VELOCI_TURNIP = attribute(VelociTurnip::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
@@ -142,6 +146,7 @@ public class PVZEntities {
         rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.5F, "textures/entity/plants/pea_shooter/pea_shooter.png");
         rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.5F, "textures/entity/plants/repeater/repeater.png");
         rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
+        rS(LILY_PAD, LilyPadModel::new, LilyPadModel::createBodyLayer, 0.5F, "textures/entity/plants/lily_pad/lily_pad.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -151,11 +156,13 @@ public class PVZEntities {
         r(e, CHEST_BOAT, (c) -> new PVZBoatRenderer(c, true));
         r(e, GRASSCARP, GrassCarpRenderer::new);
         r(e, WALL_NUT, WallNutRenderer::new);
+        r(e, PUMPKIN, PumpkinRenderer::new);
         r(e, SUN, SunRenderer::new);
         r(e, SUN_FLOWER, SunFlowerRenderer::new);
         r(e, MARIGOLD, MariGoldRenderer::new);
         r(e, TALL_NUT, TallNutRenderer::new);
         r(e, PLANTERN, PlanternRenderer::new);
+        r(e, FLOWER_POT, FlowerPotRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
         r(e, ZOMBIE, PVZZombieRenderer::new);
 

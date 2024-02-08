@@ -33,11 +33,14 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
@@ -131,12 +134,17 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         return true;
     }
 
+    protected void used(ItemStack itemstack, Player player, InteractionHand hand) {
+        itemstack.hurtAndBreak(1, player, (entity1) -> entity1.broadcastBreakEvent(hand));
+    }
+
     /**
-     * Only checks if sun is enough for planting here.
-     * check {@link SeedPacketItem#useOn(UseOnContext)} for planting a plant.
+     * checks if sun is enough for planting here, and then test situations of planting on fluids.<br>
+     * see {@link SeedPacketItem#useOn(UseOnContext)} for planting a plant on non-fluid blocks.
      */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
+        //sun check
         if (level.isClientSide() && getResource(player.getItemInHand(handIn)).equals(PVZPlayerCapNBT.SUN)) {
             PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, player.getItemInHand(handIn));
             MinecraftForge.EVENT_BUS.post(event);
@@ -145,43 +153,36 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             }
             return InteractionResultHolder.fail(player.getItemInHand(handIn));
         }
-        return super.use(level, player, handIn);
-    }
-
-    protected void used(ItemStack itemstack, Player player, InteractionHand hand) {
-        itemstack.hurtAndBreak(1, player, (entity1) -> entity1.broadcastBreakEvent(hand));
-    }
-
-    @Override
-    public InteractionResult useOn(UseOnContext context) {
-        Player player = context.getPlayer();
-        Level level = context.getLevel();
-        if (player != null && !level.isClientSide()) {
-            //handle position.
-            BlockPos pos = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY).getBlockPos();
-            if (pos.equals(context.getClickedPos())) {
-                pos = pos.offset(context.getClickedFace().getNormal());
+        //planting.
+        //reason of not using Item.useOn() for not supporting planting on fluid.
+        //TODO fix bug of also planting on floor behind entity while clicking it.
+        BlockHitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
+        if (result.getType() != HitResult.Type.MISS) {
+            BlockPos pos = result.getBlockPos();
+            if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
+                pos = pos.offset(result.getDirection().getNormal()).below();
             }
+            ItemStack itemStack = player.getItemInHand(handIn);
             //check entity.
             Entity entity = getEntity().create((ServerLevel) level, null,
-                    context.getItemInHand().hasCustomHoverName() ? getName(context.getItemInHand()) : null,
+                    itemStack.hasCustomHoverName() ? getName(itemStack) : null,
                     player, pos, MobSpawnType.SPAWN_EGG, false, false);
-            if (entity != null && context.getItemInHand().hasCustomHoverName()) {
-                entity.setCustomName(context.getItemInHand().getHoverName());
+            if (entity != null && itemStack.hasCustomHoverName()) {
+                entity.setCustomName(itemStack.getHoverName());
             }
             //enchantment.
-            if (entity instanceof IPlant && (EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), context.getItemInHand()) > 0 ||
-                    context.getItemInHand().getOrCreateTag().contains("CanPlaceOn"))) {
+            if (entity instanceof IPlant && (EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), itemStack) > 0 ||
+                    itemStack.getOrCreateTag().contains("CanPlaceOn"))) {
                 entity.getEntityData().set(((IPlant) entity).root(), false);
             }
             //handle skills.
             if (canBoost() && entity instanceof IHaveSkills) {
-                ((IHaveSkills) entity).setSkillVal(entity, getSkillVal(context.getItemInHand()));
+                ((IHaveSkills) entity).setSkillVal(entity, getSkillVal(itemStack));
             }
             //check position.
-            MutableComponent posCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isPositionSafe(entity.level, pos.below(), true) : null;
+            MutableComponent posCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isPositionSafe(entity.level, pos, true) : null;
             if (entity != null && posCheck == null) {
-                PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, context.getItemInHand(), entity);
+                PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, itemStack, entity);
                 MinecraftForge.EVENT_BUS.post(event);
                 //check sun.
                 if (event.cost <= PVZPlayerCapability.getValue(player, event.resource)) {
@@ -189,7 +190,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                     PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, -event.cost));
                     if (event.coolDown > 0) {
                         SeedPacketItem.seedPacketItemList.forEach(item -> {
-                            if (item.getEntity().equals(((SeedPacketItem<?>) context.getItemInHand().getItem()).entitySupplier.get())) {
+                            if (item.getEntity().equals(((SeedPacketItem<?>) itemStack.getItem()).entitySupplier.get())) {
                                 player.getCooldowns().addCooldown(item, event.coolDown);
                             }
                         });
@@ -202,23 +203,25 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                         cap.resource = event.resource;
                     }
                     //TODO add particles.
-                    used(context.getItemInHand(), player, context.getHand());
-                    return InteractionResult.SUCCESS;
+                    used(itemStack, player, handIn);
+                    return InteractionResultHolder.consume(itemStack);
                 }
                 //display massage when not have enough resource.
                 player.displayClientMessage(Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource)), true);
                 entity.discard();
-                return InteractionResult.PASS;
+                return InteractionResultHolder.fail(itemStack);
             }
             //display massage when not on a proper place.
             player.displayClientMessage(posCheck, true);
             if (entity != null) {
                 entity.discard();
+                return InteractionResultHolder.fail(itemStack);
             }
-            return InteractionResult.PASS;
         }
-        return super.useOn(context);
+        return super.use(level, player, handIn);
     }
+
+    /**Situation of interacting with mobs.*/
     @SubscribeEvent
     public static void useOnMob(PlayerInteractEvent.EntityInteract ev) {
         Level level = ev.getLevel();
@@ -309,7 +312,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
 
     @Override
     public int getEnchantmentValue(ItemStack stack){
-        return 15;
+        return 10;
     }
     @Override
     public boolean isValidRepairItem(ItemStack itemToFix, ItemStack material) {

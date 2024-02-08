@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.world;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.interfaces.IArmorEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
@@ -56,8 +57,15 @@ public class PVZDamageSource {
 
 
     @SubscribeEvent
-    public static void handleAttack(LivingAttackEvent ev){
-        if (ev.getSource() == teamFilterSource){
+    public static void handleAttack(LivingAttackEvent ev) {
+        //handle IArmorEntity
+        if (ev.getEntity().getVehicle() instanceof IArmorEntity vehicle && vehicle.canRecieveDamage(ev.getSource(), ev.getAmount(), ev.getEntity())) {
+            ev.setCanceled(true);
+            ((Entity) vehicle).hurt(ev.getSource(), ev.getAmount());
+            return;
+        }
+        //handle damageSource decorators.
+        if (ev.getSource() == teamFilterSource) {
             if (ev.getSource().getEntity() != null && isTeammate(ev.getSource().getEntity(), ev.getEntity())) {
                 ev.setCanceled(true);
             }

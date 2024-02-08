@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
+import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.item.*;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.mojang.datafixers.util.Pair;
@@ -72,11 +73,13 @@ public class PVZItems {
     public static final RegistryObject<Item> POP_SMARTS = item("pop_smarts", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.5F).build())));
 
     //spawners
+    public static final RegistryObject<Item> CONEHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("conehead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.coneHead_zombie_consumer,0xff9c03, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> BUCKETHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("buckethead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.bucketHead_zombie_consumer,0xe1d6d6, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> GRASSCARP_BUCKET = item("grass_carp_bucket", () -> new MobBucketItem(PVZEntities.GRASSCARP, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
 
     //equipments
     public static final RegistryObject<Item> CONE_HELMET = item("cone_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.CONE, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(30), EquipmentSlot.HEAD));
-    public static final RegistryObject<Item> BUCKET_HELMET = item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(80), EquipmentSlot.HEAD));
+    public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(80), EquipmentSlot.HEAD));
 
     static {
         createSpawnEggs();

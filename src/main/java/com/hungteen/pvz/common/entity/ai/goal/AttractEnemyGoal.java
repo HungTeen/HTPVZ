@@ -9,15 +9,18 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
-import net.minecraft.world.entity.monster.Enemy;
 
 public class AttractEnemyGoal extends Goal {
     public Mob entity;
     public int countDown;
-
-    public AttractEnemyGoal(Mob entity) {
+    public boolean mustNotHavePassenger;
+    public AttractEnemyGoal(Mob entity, boolean mustNotHavePassenger) {
         this.entity = entity;
+        this.mustNotHavePassenger = mustNotHavePassenger;
         countDown = 15;
+    }
+    public AttractEnemyGoal(Mob entity) {
+        this(entity, true);
     }
 
     @Override
@@ -38,6 +41,9 @@ public class AttractEnemyGoal extends Goal {
 
     public void attractEnemies(Mob entity) {
         double range = entity.getAttributeValue(Attributes.FOLLOW_RANGE);//recommended value is 2.
+        if (mustNotHavePassenger && entity.getFirstPassenger() != null) {
+            return;
+        }
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
             //attracting limits about tergetEntity.
             boolean outOfHeightRegion = (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() <= entity.getBbHeight() + entity.getY()) &&

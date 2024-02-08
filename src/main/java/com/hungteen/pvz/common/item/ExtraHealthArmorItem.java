@@ -40,7 +40,7 @@ public class ExtraHealthArmorItem extends ArmorItem {
             for (ItemStack stack : event.getEntity().getArmorSlots()) {
                 if (stack.getItem() instanceof ExtraHealthArmorItem) {
                     int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
-                    stack.hurtAndBreak(blocked, event.getEntity() instanceof ServerPlayer player ? player : null, (entity) -> {});
+                    stack.hurtAndBreak(blocked, event.getEntity(), (entity) -> {});
                     event.setAmount(event.getAmount() - blocked);
                 }
             }

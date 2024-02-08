@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 /**This class is used for convenience only when registering. Then all the data in PVZSeedPackets.seedPackets will be released.
  */
 public class PVZSeedPackets {
+    public static final int VERY_FAST = 10; //will a plant really use this?
     public static final int FAST = 60;
     public static final int MIDDLE = 200;
     public static final int SLOW = 500;
@@ -35,8 +36,12 @@ public class PVZSeedPackets {
                 .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillList)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
+        add(PVZEntities.LILY_PAD).cost(25).coolDown(FAST).skillList(LilyPad.staticSkillList)
+                .recipe(Items.LILY_PAD, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE);
         add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
+        add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
+                .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.VELOCI_TURNIP).cost(50).coolDown(FAST).skillList(VelociTurnip.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.
@@ -45,6 +50,8 @@ public class PVZSeedPackets {
                 .recipe(PVZItems.PEA, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
                 .recipe(Items.GLOW_BERRIES, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE); //TODO change glow berries to a plantern block.
+        add(PVZEntities.PUMPKIN).cost(125).coolDown(SLOW).skillList(Pumpkin.staticSkillList)
+                .recipe(Items.PUMPKIN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
 
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();

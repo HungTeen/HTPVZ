@@ -180,8 +180,8 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
 
     //overrides
     @Override
-    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean actuallyPlant) {
-        AABB aabb = AABB.ofSize(new Vec3(getX(), getY() + getBbHeight() / 2, getZ()), getBbWidth() / 2, getBbHeight() / 2, getBbWidth() / 2);
+    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean isPlanting) {
+        AABB aabb = AABB.ofSize(new Vec3(onPos.getX() + 0.5, onPos.getY() + 1 + getBbHeight() / 2, onPos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
         if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
             BlockState blockstate = this.level.getBlockState(p_201942_);
             return !blockstate.isAir() && blockstate.isSuffocating(this.level, p_201942_) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, p_201942_).move((double)p_201942_.getX(), (double)p_201942_.getY(), (double)p_201942_.getZ()), Shapes.create(aabb), BooleanOp.AND);
@@ -189,13 +189,14 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
         if (! this.getEntityData().get(root()) || ! level.getBlockState(onPos).isAir()) {
-            if (actuallyPlant) {
+            if (isPlanting) {
                 if (! level.getBlockState(onPos).getFluidState().isEmpty()) {
                     return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
                 }
                 this.moveTo(
                         onPos.getX() + 0.5,
-                        onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ? 0 :
+                        onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ?
+                                (level.getFluidState(onPos).isEmpty() ? 0: level.getFluidState(onPos).getHeight(level, onPos)) :
                                 level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
                         onPos.getZ() + 0.5);
             }
@@ -209,7 +210,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
 
     @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean actuallyPlant) {
+    public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
@@ -218,7 +219,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
                 if (!canMountEntity(this, target, this.getVehicle() == target)) {
                     return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
                 }
-                if (actuallyPlant) {
+                if (isPlanting) {
                     this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
                     this.startRiding(target);
                 }

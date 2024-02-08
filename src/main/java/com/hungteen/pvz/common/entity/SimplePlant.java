@@ -113,7 +113,19 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         } else {
             BlockPos subPos = this.getOnPos();
             List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-subPos.getX(), -subPos.getY(), -subPos.getZ())),
-                    (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg());
+                    (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
+            //if can mount one of them then mount.
+            if (this.getVehicle() == null) {
+                list.forEach((entity) -> {
+                    if (entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this)) {
+                        this.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), 0.0F);
+                        this.startRiding(entity);
+                    }
+                });
+                if (this.getVehicle() != null) {
+                    list.remove(this.getVehicle());
+                }
+            }
             return !list.isEmpty();
         }
     }
@@ -124,12 +136,12 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
      * see {@link INeedSafeSituation}  for the two methods below.
      */
     @Override
-    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean actuallyPlant) {
-        AABB aabb = AABB.ofSize(new Vec3(getX(), getY() + getBbHeight() / 2, getZ()), getBbWidth() / 2, getBbHeight() / 2, getBbWidth() / 2);
-        if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
-            BlockState blockstate = this.level.getBlockState(p_201942_);
-            return !blockstate.isAir() && blockstate.isSuffocating(this.level, p_201942_) &&
-                    Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, p_201942_).move(p_201942_.getX(), p_201942_.getY(), p_201942_.getZ()), Shapes.create(aabb), BooleanOp.AND);
+    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean isPlanting) {
+        AABB aabb = AABB.ofSize(new Vec3(onPos.getX() + 0.5, onPos.getY() + 1 + getBbHeight() / 2, onPos.getZ() + 0.5), getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
+        if (BlockPos.betweenClosedStream(aabb).anyMatch((pos) -> {
+            BlockState blockstate = this.level.getBlockState(pos);
+            return !blockstate.isAir() && blockstate.isSuffocating(this.level, pos) &&
+                    Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, pos).move(pos.getX(), pos.getY(), pos.getZ()), Shapes.create(aabb), BooleanOp.AND);
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
@@ -146,10 +158,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
         if (! this.getEntityData().get(root()) || (plantableOn && ! level.getBlockState(onPos).isAir())) {
             if (level.getBlockState(onPos).getFluidState().isEmpty()) {
-                if (actuallyPlant) {
+                if (isPlanting) {
                     this.moveTo(
                             onPos.getX() + 0.5,
-                            onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ? 0 :
+                            onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ?
+                                    (level.getFluidState(onPos).isEmpty() ? 0: level.getFluidState(onPos).getHeight(level, onPos)) :
                                     level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
                             onPos.getZ() + 0.5);
                 }
@@ -161,16 +174,18 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
     }
     @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean actuallyPlant) {
+    public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
         if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this)) {
             if (PVZOwnedCapability.isTeammate(this, target)) {
-                if (!canMountEntity(this, target, this.getVehicle() == target)) {
-                    return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
+                if (! canMountEntity(this, target, this.getVehicle() == target)) {
+                    return isPlanting && target.getFirstPassenger() != null ?
+                            isVehicleSafe(target.getFirstPassenger(), true) :
+                            Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
                 }
-                if (actuallyPlant) {
+                if (isPlanting) {
                     this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
                     this.startRiding(target);
                 }
@@ -229,6 +244,10 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         return false;
     }
 
+    public int getMaxAirSupply() {
+        return 50;
+    }
+
     public boolean canBeLeashed(Player p_21418_) {
         return false;
     }
@@ -246,6 +265,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         if (itemstack.getItem() instanceof ShovelItem && entity instanceof IPlant plant) {
             if (plant.onBeingShoveled(player, handIn)) {
                 ev.setCancellationResult(InteractionResult.SUCCESS);
+                ev.setCanceled(true);
             }
         }
     }
@@ -363,6 +383,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public boolean removeWhenFarAway(double p_27598_) {
         PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
         return cap.getOwner() == null;
+        //TODO handle situation when player is not available when loading.
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
         return level.getBlockState(pos.below()).is(PVZBlockTags.PLANTABLE_BLOCKS);

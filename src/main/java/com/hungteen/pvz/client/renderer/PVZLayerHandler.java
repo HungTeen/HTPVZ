@@ -43,6 +43,8 @@ public class PVZLayerHandler {
         L(e, PVZEntities.TALL_NUT, TallNutModel::createBodyLayer);
         L(e, PVZEntities.TALL_NUT, "armor", TallNutArmorModel::createBodyLayer);
         L(e, PVZEntities.PLANTERN, PlanternModel::createBodyLayer);
+        L(e, PVZEntities.PUMPKIN, PumpkinModel::createBodyLayer);
+        L(e, PVZEntities.FLOWER_POT, FlowerPotModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
         L(e, PVZItems.CONE_HELMET, () -> ConeHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));

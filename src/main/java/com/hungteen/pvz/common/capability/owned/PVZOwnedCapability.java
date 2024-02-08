@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.capability.owned;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.ServerScoreboard;
@@ -21,6 +22,7 @@ import net.minecraftforge.event.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> {
@@ -28,6 +30,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public String resource = "";
     public int cost = 0;
     private Entity owner = null;
+    private UUID ownerUuid = null;
     private final ServerScoreboard scoreboard;
     public static short tickCount = 0;
 
@@ -40,23 +43,25 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public static void tick(TickEvent.ServerTickEvent ev) {
         if (++ tickCount > 10) {
             tickCount = 0;
-            ev.getServer().getAllLevels().forEach((level -> {
-                level.getAllEntities().forEach((entity1 -> {
-                    entity1.getCapability(CAP).ifPresent((cap) -> {
-                        String name = cap.entity.getScoreboardName();
-                        if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
-                            cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
-                        }
-                        if (cap.owner != null) {
-                            if (!cap.owner.isAlive()) {
-                                cap.setOwner(null);
-                            } else if (cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()) != cap.scoreboard.getPlayersTeam(name)) {
-                                cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()));
-                            }
-                        }
-                    });
-                }));
-            }));
+            ev.getServer().getAllLevels().forEach((level -> level.getAllEntities().forEach((entity1 -> entity1.getCapability(CAP).ifPresent((cap) -> {
+                if (! EntityUtil.isEntityValid(cap.owner)) {//TODO will this lag?
+                    Entity entity = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
+                    if (entity != null) {
+                        cap.setOwner(entity);
+                    }
+                }
+                String name = cap.entity.getScoreboardName();
+                if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
+                    cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
+                }
+                if (cap.owner != null) {
+                    if (!cap.owner.isAlive()) {
+                        cap.setOwner(null);
+                    } else if (cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()) != cap.scoreboard.getPlayersTeam(name)) {
+                        cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()));
+                    }
+                }
+            })))));
         }
     }
 
@@ -73,7 +78,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
         }
     }
 
-    public Entity getOwner(){
+    public Entity getOwner() {
         return owner;
     }
 
@@ -130,7 +135,9 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
             this.cost = nbt.getInt("cost");
         }
         if (nbt.contains("owner")) {
-            this.owner = ((ServerLevel) (entity.level)).getEntity(nbt.getUUID("owner"));
+            this.ownerUuid = nbt.getUUID("owner");
+            //TODO handle situation when player is not available when loading.
+            this.owner = ((ServerLevel) (entity.level)).getEntity(ownerUuid);
         }
     }
 }

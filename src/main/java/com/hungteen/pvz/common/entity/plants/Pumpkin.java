@@ -1,12 +1,11 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.interfaces.IIronEntity;
+import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.api.interfaces.IDefenderPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -17,9 +16,13 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -29,19 +32,18 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static com.hungteen.pvz.common.world.PVZDamageSource.teamFilter;
+import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
-public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity {
+public class Pumpkin extends SimplePlant implements IDefenderPlant, IIronEntity, IArmorEntity, ICanBePlantedOn {
     float storedHealth;
     float storedArmor;
-    public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Float> IRON_ARMOR = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Float> IRON_ARMOR = SynchedEntityData.defineId(Pumpkin.class, EntityDataSerializers.FLOAT);
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0),
-            new Skill("skill.pvz.wall_nut.explode", PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
             new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(1)
     );
 
-    public WallNut(EntityType<? extends Mob> entityType, Level level) {
+    public Pumpkin(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
         storedHealth = 0;
         storedArmor = 0;
@@ -50,7 +52,6 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(EXPLODE_COUNT, -1);
         this.entityData.define(IRON_ARMOR, 0F);
     }
 
@@ -101,15 +102,27 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     }
 
     @Override
+    public boolean canHold(LivingEntity plant) {
+        return ! (plant instanceof IArmorEntity);
+    }
+
+    @Override
+    public double getPassengersRidingOffset() {
+        return 0.05;
+    }
+    @Override
     public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
+        if (target == null) {
+            return Component.translatable("hint.pvz.plant.entity_not_present");
+        }
         if (hasSkill(this, "skill.pvz.wall_nut.wall_nut_first_aid") && target != null && target.getClass() == this.getClass()) {
             if (PVZOwnedCapability.isTeammate(this, target)) {
-                if (((WallNut) target).getHealth() > ((WallNut) target).getMaxHealth() * 0.67) {
+                if (((Pumpkin) target).getHealth() > ((Pumpkin) target).getMaxHealth() * 0.67) {
                     return Component.translatable("hint.pvz.plant.wall_nut.not_broken");
                 }
                 if (isPlanting) {
                     moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot());
-                    yBodyRot = ((WallNut) target).yBodyRot;
+                    yBodyRot = ((Pumpkin) target).yBodyRot;
                     if (target.hasCustomName()) {
                         setCustomName(target.getCustomName());
                         setCustomNameVisible(target.isCustomNameVisible());
@@ -121,7 +134,43 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
             }
             return Component.translatable("hint.pvz.plant.need_own_team");
         }
-        return super.isVehicleSafe(target, isPlanting);
+        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this)) {
+            if (PVZOwnedCapability.isTeammate(this, target)) {
+                if (! canMountEntity(this, target, this.getVehicle() == target)) {
+                    return isPlanting && target.getFirstPassenger() != null ?
+                            isVehicleSafe(target.getFirstPassenger(), true) :
+                            Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
+                }
+                if (isPlanting) {
+                    this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
+                    this.startRiding(target);
+                }
+                return null;
+            }
+            return Component.translatable("hint.pvz.plant.need_own_team");
+        } else if (isPlanting && target instanceof LivingEntity livingEntity && this.canHold(livingEntity)){
+            if (target.getVehicle() instanceof ICanBePlantedOn entityRiding && ((ICanBePlantedOn) target.getVehicle()).canHold(this)) {
+                target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                target.startRiding(this);
+                this.moveTo(((Entity) entityRiding).getX(), ((Entity) entityRiding).getY(), ((Entity) entityRiding).getZ(),
+                        ((Entity) entityRiding).getYRot(), 0.0F);
+                this.startRiding((Entity) entityRiding);
+                return null;
+            } else if (target.getVehicle() == null) {
+                target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                target.startRiding(this);
+                if (isPositionSafe(target.level, target.blockPosition().below(), true) == null) {
+                    return null;
+                } else {
+                    target.stopRiding();
+                    return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
+                }
+            } else {
+                return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
+            }
+        } else {
+            return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), target.getName());
+        }
     }
 
     //overrides
@@ -142,34 +191,11 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
             }
         }
         storedArmor = getIronArmor();
-
-        if (this.hasSkill(this, "skill.pvz.wall_nut.explode") && this.getEntityData().get(EXPLODE_COUNT) > -1) {
-            this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) + 1);
-            if (this.getEntityData().get(EXPLODE_COUNT) > 40) {
-                this.explode();
-            }
-        }
         if (this.hasSkill(this, "skill.pvz.wall_nut.iron_armor") && getIronArmor() == 0) {
             setIronArmor(getMaxIronArmor());
         }
     }
 
-    private void explode() {
-        if (!this.level.isClientSide) {
-            this.dead = true;
-            level.explode(this, teamFilter(DamageSource.explosion(this)), null, this.getX(), this.getY(), this.getZ(), 3F, false, Explosion.BlockInteraction.NONE);
-            this.discard();
-        }
-    }
-
-    @Override
-    public void actuallyHurt(DamageSource dmgSource, float dmg) {
-        super.actuallyHurt(dmgSource, dmg);
-        if (this.hasSkill(this, "skill.pvz.wall_nut.explode") && this.getHealth() <= 0) {
-            this.setHealth(0.1F);
-            this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) == -1 ? 0 : this.getEntityData().get(EXPLODE_COUNT));
-        }
-    }
 
     @Override
     public boolean hurt(DamageSource dmgSource, float dmgNum) {

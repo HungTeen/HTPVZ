@@ -49,6 +49,9 @@ public class BlockTagGen extends BlockTagsProvider {
                 Blocks.SCULK, Blocks.SCULK_CATALYST,
                 Blocks.LILY_PAD
         );
+        this.tag(PVZBlockTags.PLANTABLE_WATER).add(
+                Blocks.WATER
+        );
         this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTag(BlockTags.MOSS_REPLACEABLE)
                 .addTag(BlockTags.REPLACEABLE_PLANTS).addTag(BlockTags.LEAVES);
     }
