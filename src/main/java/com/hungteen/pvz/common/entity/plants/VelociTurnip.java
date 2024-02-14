@@ -279,10 +279,16 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
             }
         }
         //check plant situation damage.
-        if (isPositionSafe(this.level, this.getOnPos(), false) != null && isVehicleSafe(getVehicle(), false) != null &&
-                this.getAttribute(Attributes.MAX_HEALTH) != null && ++ situationHurtCount > 10) {
-            this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
-            situationHurtCount = 0;
+        if (! level.isClientSide) {
+            if (isPositionSafe(this.level, this.getOnPos(), false) != null && isVehicleSafe(getVehicle(), false) != null &&
+                    this.getAttribute(Attributes.MAX_HEALTH) != null) {
+                if (++ situationHurtCount > 100) {
+                    this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.4 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+                    situationHurtCount = 0;
+                }
+            } else {
+                situationHurtCount = 0;
+            }
         }
         //animation
         animationTick ++;
