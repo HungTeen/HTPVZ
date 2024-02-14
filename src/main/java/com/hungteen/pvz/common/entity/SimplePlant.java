@@ -412,51 +412,12 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     @Override
     @Nullable
     public <T extends Mob> T convertTo(EntityType<T> p_21407_, boolean p_21408_) {
-        if (this.isRemoved()) {
-            return (T)null;
-        } else {
-            T t = p_21407_.create(this.level);
-            t.copyPosition(this);
-            t.setBaby(this.isBaby());
-            t.setNoAi(this.isNoAi());
-            if (this.hasCustomName()) {
-                t.setCustomName(this.getCustomName());
-                t.setCustomNameVisible(this.isCustomNameVisible());
-            }
-
-            if (this.isPersistenceRequired()) {
-                t.setPersistenceRequired();
-            }
-
-            t.setInvulnerable(this.isInvulnerable());
-            if (p_21408_) {
-                t.setCanPickUpLoot(this.canPickUpLoot());
-
-                for(EquipmentSlot equipmentslot : EquipmentSlot.values()) {
-                    ItemStack itemstack = this.getItemBySlot(equipmentslot);
-                    if (!itemstack.isEmpty()) {
-                        t.setItemSlot(equipmentslot, itemstack.copy());
-                        t.setDropChance(equipmentslot, this.getEquipmentDropChance(equipmentslot));
-                        itemstack.setCount(0);
-                    }
-                }
-            }
-
-            this.level.addFreshEntity(t);
-            if (this.isPassenger()) {
-                Entity entity = this.getVehicle();
-                this.stopRiding();
-                t.startRiding(entity, true);
-            }
-
-            //PVZ changed. Why are passengers not included?
-            this.getPassengers().forEach((entity) -> {
-                entity.startRiding(t);
-            });
-
-            this.discard();
-            return t;
+        List<Entity> passengers = getPassengers();
+        T entity = super.convertTo(p_21407_, p_21408_);
+        if (entity != null) {
+            passengers.forEach((passenger) -> passenger.startRiding(this));
         }
+        return entity;
     }
 
 }
