@@ -53,7 +53,6 @@ import org.slf4j.Logger;
 
 import java.util.HashMap;
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(PVZMod.MODID)
 public class PVZMod
 {

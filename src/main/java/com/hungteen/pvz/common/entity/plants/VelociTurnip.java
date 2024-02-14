@@ -18,6 +18,8 @@ import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.world.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -199,6 +201,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
                                 (level.getFluidState(onPos).isEmpty() ? 0: level.getFluidState(onPos).getHeight(level, onPos)) :
                                 level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
                         onPos.getZ() + 0.5);
+                ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
             }
             return null;
         } else {
@@ -221,6 +224,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
                 }
                 if (isPlanting) {
                     this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
+                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                     this.startRiding(target);
                 }
                 return null;
@@ -318,8 +322,8 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
             if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
                 Sun.spawnSunsRandomlyByAmount(level, getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
             }
+            ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
             this.remove(RemovalReason.DISCARDED);
-            //TODO add particles.
             return true;
         }
         return false;

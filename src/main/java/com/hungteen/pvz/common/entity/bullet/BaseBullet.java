@@ -14,8 +14,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,11 +25,6 @@ public class BaseBullet extends Projectile {
 	protected float size = 1F;// need sync?
 	protected float knockBackStrengh = 0F;
 	protected String damageName = "pvz_bullet";
-
-	public BaseBullet(EntityType<? extends Projectile> type, Level worldIn, PVZOwnedCapability cap) {
-		super(type, worldIn);
-		this.setNoGravity(true);
-	}
 
 	public BaseBullet(EntityType<? extends Projectile> type, Level worldIn, LivingEntity shooter) {
 		super(type, worldIn);

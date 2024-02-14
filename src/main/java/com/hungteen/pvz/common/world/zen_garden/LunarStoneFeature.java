@@ -71,7 +71,7 @@ public class LunarStoneFeature extends Feature<NoneFeatureConfiguration> {
                         OreConfiguration.target(OreFeatures.DEEPSLATE_ORE_REPLACEABLES, PVZBlocks.LUNAR_STONE.get().defaultBlockState())),
                         18));
         ORE_LUNAR_STONE_PF = PlacementUtils.register("pvz:ore_lunar_stone", ORE_LUNAR_STONE_CF,
-                List.of(CountPlacement.of(5),
+                List.of(CountPlacement.of(3),
                         InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.top()),
                         BiomeFilter.biome()));
     }

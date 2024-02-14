@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.capability.owned;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -9,6 +10,7 @@ import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
@@ -43,25 +45,29 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public static void tick(TickEvent.ServerTickEvent ev) {
         if (++ tickCount > 10) {
             tickCount = 0;
-            ev.getServer().getAllLevels().forEach((level -> level.getAllEntities().forEach((entity1 -> entity1.getCapability(CAP).ifPresent((cap) -> {
-                if (! EntityUtil.isEntityValid(cap.owner)) {//TODO will this lag?
-                    Entity entity = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
-                    if (entity != null) {
-                        cap.setOwner(entity);
+            ev.getServer().getAllLevels().forEach((level -> level.getAllEntities().forEach((entity1 -> {
+                entity1.getCapability(CAP).ifPresent((cap) -> {
+                    //owner
+                    if (! EntityUtil.isEntityValid(cap.owner)) {//TODO will this lag?
+                        Entity entity = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
+                        if (entity != null) {
+                            cap.setOwner(entity);
+                        }
                     }
-                }
-                String name = cap.entity.getScoreboardName();
-                if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
-                    cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
-                }
-                if (cap.owner != null) {
-                    if (!cap.owner.isAlive()) {
-                        cap.setOwner(null);
-                    } else if (cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()) != cap.scoreboard.getPlayersTeam(name)) {
-                        cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()));
+                    String name = cap.entity.getScoreboardName();
+                    if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
+                        cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
                     }
-                }
-            })))));
+                    if (cap.owner != null) {
+                        if (!cap.owner.isAlive()) {
+                            cap.setOwner(null);
+                        } else if (cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()) != cap.scoreboard.getPlayersTeam(name)) {
+                            cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()));
+                        }
+                    }
+                });
+            }
+            ))));
         }
     }
 

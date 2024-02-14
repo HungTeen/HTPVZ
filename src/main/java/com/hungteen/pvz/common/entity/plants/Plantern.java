@@ -27,6 +27,7 @@ import java.util.List;
 
 public class Plantern extends SimplePlant {
     public static List<Skill> staticSkillList = List.of(
+            //TODO Skills not done!
             new Skill("skill.pvz.plantern.light_house", PVZItems.LUX_ESSENCE, 8, 8, 0, 350),
             new Skill("skill.pvz.plantern.lantern_radar", PVZItems.LUX_ESSENCE, 8, 8, 125, 350).avoidSkills(0)
     );

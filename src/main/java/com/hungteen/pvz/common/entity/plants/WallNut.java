@@ -10,11 +10,13 @@ import com.hungteen.pvz.api.interfaces.IDefenderPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -109,12 +111,9 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
                 }
                 if (isPlanting) {
                     moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot());
-                    yBodyRot = ((WallNut) target).yBodyRot;
-                    if (target.hasCustomName()) {
-                        setCustomName(target.getCustomName());
-                        setCustomNameVisible(target.isCustomNameVisible());
-                    }
-                    setInvulnerable(target.isInvulnerable());
+                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
+                    ((WallNut) target).convertTo(((EntityType<Mob>) this.getType()), true);
+                    this.discard();
                     target.discard();
                 }
                 return null;
@@ -194,5 +193,19 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
             }
         }
         return super.hurt(dmgSource, dmgNum);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putDouble("IronArmor", getIronArmor());
+
+    }
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag){
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("IronArmor")) {
+            setIronArmor((float) tag.getDouble("IronArmor"));
+        }
     }
 }

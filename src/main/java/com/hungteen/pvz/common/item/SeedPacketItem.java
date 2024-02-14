@@ -155,7 +155,6 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         }
         //planting.
         //reason of not using Item.useOn() for not supporting planting on fluid.
-        //TODO fix bug of also planting on floor behind entity while clicking it.
         BlockHitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         if (result.getType() != HitResult.Type.MISS) {
             BlockPos pos = result.getBlockPos();
@@ -163,12 +162,17 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 pos = pos.offset(result.getDirection().getNormal()).below();
             }
             ItemStack itemStack = player.getItemInHand(handIn);
+            player.getCooldowns().addCooldown(itemStack.getItem(), 1);//to prevent bug of also planting on floor behind entity while clicking it.
             //check entity.
             Entity entity = getEntity().create((ServerLevel) level, null,
                     itemStack.hasCustomHoverName() ? getName(itemStack) : null,
                     player, pos, MobSpawnType.SPAWN_EGG, false, false);
             if (entity != null && itemStack.hasCustomHoverName()) {
                 entity.setCustomName(itemStack.getHoverName());
+            }
+            PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
+            if (cap != null) {
+                cap.setOwner(player);
             }
             //enchantment.
             if (entity instanceof IPlant && (EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), itemStack) > 0 ||
@@ -181,7 +185,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             }
             //check position.
             MutableComponent posCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isPositionSafe(entity.level, pos, true) : null;
-            if (entity != null && posCheck == null) {
+            if (posCheck == null) {
                 PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, itemStack, entity);
                 MinecraftForge.EVENT_BUS.post(event);
                 //check sun.
@@ -196,13 +200,10 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                         });
                     }
                     ((ServerLevel) level).addFreshEntityWithPassengers(entity);
-                    PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
                     if (cap != null) {
-                        cap.setOwner(player);
                         cap.cost = event.cost;
                         cap.resource = event.resource;
                     }
-                    //TODO add particles.
                     used(itemStack, player, handIn);
                     return InteractionResultHolder.consume(itemStack);
                 }
@@ -229,6 +230,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             ItemStack itemStack = ev.getItemStack();
             Player player = ev.getEntity();
             if (itemStack.getItem() instanceof SeedPacketItem<?> item && !player.getCooldowns().isOnCooldown(item)) {
+                player.getCooldowns().addCooldown(item, 1);//to prevent bug of also planting on floor behind entity while clicking it.
                 Entity target = ev.getTarget();
                 //check entity.
                 Entity entity = item.getEntity().create((ServerLevel) level, null,
@@ -236,6 +238,10 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                         player, target.blockPosition(), MobSpawnType.SPAWN_EGG, false, false);
                 if (entity != null && itemStack.hasCustomHoverName()) {
                     entity.setCustomName(itemStack.getHoverName());
+                }
+                PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
+                if (cap != null) {
+                    cap.setOwner(player);
                 }
                 //enchantment.
                 if (entity instanceof IPlant && (EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), itemStack) > 0 ||
@@ -248,7 +254,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 }
                 //check position.
                 MutableComponent targetCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isVehicleSafe(target, true) : null;
-                if (entity != null && targetCheck == null) {
+                if (targetCheck == null) {
                     PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, itemStack, entity);
                     MinecraftForge.EVENT_BUS.post(event);
                     //check sun.
@@ -263,13 +269,11 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                             });
                         }
                         ((ServerLevel) level).addFreshEntityWithPassengers(entity);
-                        PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
                         if (cap != null) {
                             cap.setOwner(player);
                             cap.cost = event.cost;
                             cap.resource = event.resource;
                         }
-                        //TODO add particles.
                         item.used(itemStack, player, ev.getHand());
                     } else {
                         //display massage when not have enough resource.

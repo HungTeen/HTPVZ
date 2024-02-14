@@ -10,6 +10,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,7 +32,7 @@ public class PeaBullet extends BaseBullet {
         this.damageName = "pea";
     }
 
-    public PeaBullet(Level worldIn, PeaShooter peaShooter, PeaType type) {
+    public PeaBullet(Level worldIn, LivingEntity peaShooter, PeaType type) {
         super(PVZEntities.PEA.get(), worldIn, peaShooter);
         setOwner(peaShooter);
         setPeaType(type);
@@ -41,6 +42,7 @@ public class PeaBullet extends BaseBullet {
     @Override
     public void tick() {
         super.tick();
+        //change type
         if (getPeaType() == PeaType.Fire || level.getBlockState(this.blockPosition()).is(Blocks.FIRE) || level.getBlockState(this.blockPosition()).is(Blocks.SOUL_FIRE)) {
             setSecondsOnFire(1);
         }
@@ -55,6 +57,7 @@ public class PeaBullet extends BaseBullet {
         } else if (level.getBlockState(this.blockPosition()).is(Blocks.LAVA)) {
             setPeaType(PeaType.Fire);
         }
+        //particles
         if (level.isClientSide) {
             Vec3 movement = getDeltaMovement();
             if (movement.distanceToSqr(Vec3.ZERO) > 2) {
@@ -111,6 +114,8 @@ public class PeaBullet extends BaseBullet {
         super.onHitEntity(result);
         if (getPeaType() == PeaType.Fire) {
             result.getEntity().setSecondsOnFire(5);
+        } else if (getPeaType() == PeaType.Ice) {
+            result.getEntity().setTicksFrozen(400);
         }
     }
     @Override

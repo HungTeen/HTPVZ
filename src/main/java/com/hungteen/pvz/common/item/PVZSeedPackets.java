@@ -30,16 +30,22 @@ public class PVZSeedPackets {
 
     static {
         //pvz packets.
-        add(PVZEntities.SUN_FLOWER).cost(50).coolDown(SLOW).skillList(List.of())//No skills.
-                .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
         add(PVZEntities.PEA_SHOOTER).cost(100).coolDown(FAST).skillList(PeaShooter.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.SUN_FLOWER).cost(50).coolDown(SLOW).skillList(List.of())//No skills.
+                .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
         add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillList)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
+        add(PVZEntities.SNOW_PEA).cost(175).coolDown(MIDDLE).skillList(SnowPea.staticSkillList)
+                .recipe(PVZItems.PEA, getRecipePacket(PVZEntities.PEA_SHOOTER), PVZItems.GELUM_ESSENCE);
+        add(PVZEntities.POTATO_MINE).cost(25).coolDown(SLOW).skillList(PotatoMine.staticSkillList)
+                .recipe(Items.POTATO, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.LILY_PAD).cost(25).coolDown(FAST).skillList(LilyPad.staticSkillList)
                 .recipe(Items.LILY_PAD, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE);
         add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
+            add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
+                .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.VELOCI_TURNIP).cost(50).coolDown(FAST).skillList(VelociTurnip.staticSkillList)
@@ -65,14 +71,13 @@ public class PVZSeedPackets {
         return newPacket;
     }
 
-    public static <T extends LivingEntity> List<RegisterSeedPacketsEvent.SeedPacketData<T>> getPacket(EntityType<T> entity) {
-        List<RegisterSeedPacketsEvent.SeedPacketData<T>> list = new ArrayList<>();
-        for (RegisterSeedPacketsEvent.SeedPacketData<T> card : seedPackets) {
-            if (card.entitySupplier.get().equals(entity.getDescriptionId())) {
-                list.add(card);
+    public static <T extends LivingEntity> RecipeSeedPacketData<T> getRecipePacket(Supplier<EntityType<T>> goalEntity) {
+        for (RegisterSeedPacketsEvent.SeedPacketData<?> card : seedPackets) {
+            if (card.entitySupplier.equals(goalEntity) && card instanceof RecipeSeedPacketData) {
+                return (RecipeSeedPacketData<T>) card;
             }
         }
-        return list;
+        return null;
     }
 
     public static class RecipeSeedPacketData<T extends LivingEntity> extends RegisterSeedPacketsEvent.SeedPacketData<T> {
@@ -107,7 +112,7 @@ public class PVZSeedPackets {
             this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
             return this;
         }
-        public RecipeSeedPacketData<T> recipe(RegistryObject<Item> seed, RecipeSeedPacketData<T> packet, RegistryObject<Item> essence) {
+        public RecipeSeedPacketData<T> recipe(RegistryObject<Item> seed, RecipeSeedPacketData<? extends LivingEntity> packet, RegistryObject<Item> essence) {
             this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
             return this;
         }

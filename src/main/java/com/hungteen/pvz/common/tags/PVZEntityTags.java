@@ -15,6 +15,8 @@ public class PVZEntityTags {
     /** For non-pvz entities, with this tag will it be regarded as iron. <br>
      * {@link com.hungteen.pvz.api.interfaces.IIronEntity} has the same effect and is more controllable.*/
     public static TagKey<EntityType<?>> IRON = pvzTag("iron");
+    /**Entities with this tag cannot be planted on Lily Pads, but still can be planted on Flower Pots.*/
+    public static TagKey<EntityType<?>> MUST_PLANT_IN_DIRT = pvzTag("must_plant_in_dirt");
 
     //definition
 

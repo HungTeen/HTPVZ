@@ -13,12 +13,15 @@ import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.world.PVZDamageSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -114,18 +117,6 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             BlockPos subPos = this.getOnPos();
             List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-subPos.getX(), -subPos.getY(), -subPos.getZ())),
                     (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
-            //if can mount one of them then mount.
-            if (this.getVehicle() == null) {
-                list.forEach((entity) -> {
-                    if (entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this)) {
-                        this.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), 0.0F);
-                        this.startRiding(entity);
-                    }
-                });
-                if (this.getVehicle() != null) {
-                    list.remove(this.getVehicle());
-                }
-            }
             return !list.isEmpty();
         }
     }
@@ -145,7 +136,6 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        //
         if (shouldHaveCoincideDmg(level, onPos)) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
@@ -165,6 +155,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                                     (level.getFluidState(onPos).isEmpty() ? 0: level.getFluidState(onPos).getHeight(level, onPos)) :
                                     level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
                             onPos.getZ() + 0.5);
+                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 }
                 return null;
             }
@@ -176,6 +167,21 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     @Override
     public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
         if (target == null) {
+            if (! isPlanting) {
+                BlockPos onPos = this.getOnPos();
+                List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-onPos.getX(), -onPos.getY() - 0.05, -onPos.getZ())),
+                        (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
+                if (this.getVehicle() == null) {
+                    list.forEach((entity) -> {
+                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this)) {
+                            this.startRiding(entity);
+                        }
+                    });
+                    if (this.getVehicle() != null) {
+                        return null;
+                    }
+                }
+            }
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
         if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this)) {
@@ -187,6 +193,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                 }
                 if (isPlanting) {
                     this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
+                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                     this.startRiding(target);
                 }
                 return null;
@@ -293,8 +300,15 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
                 Sun.spawnSunsRandomlyByAmount(level, getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
             }
+            ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
             this.remove(RemovalReason.DISCARDED);
-            //TODO add particles.
+            if (this.isPassenger()) {
+                this.getPassengers().forEach((entity -> {
+                    if (entity instanceof INeedSafeSituation entity1) {
+                        entity1.isVehicleSafe(this.getVehicle(), true);
+                    }
+                }));
+            }
             return true;
         }
         return false;
@@ -387,6 +401,56 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
         return level.getBlockState(pos.below()).is(PVZBlockTags.PLANTABLE_BLOCKS);
+    }
+
+    @Override
+    @Nullable
+    public <T extends Mob> T convertTo(EntityType<T> p_21407_, boolean p_21408_) {
+        if (this.isRemoved()) {
+            return (T)null;
+        } else {
+            T t = p_21407_.create(this.level);
+            t.copyPosition(this);
+            t.setBaby(this.isBaby());
+            t.setNoAi(this.isNoAi());
+            if (this.hasCustomName()) {
+                t.setCustomName(this.getCustomName());
+                t.setCustomNameVisible(this.isCustomNameVisible());
+            }
+
+            if (this.isPersistenceRequired()) {
+                t.setPersistenceRequired();
+            }
+
+            t.setInvulnerable(this.isInvulnerable());
+            if (p_21408_) {
+                t.setCanPickUpLoot(this.canPickUpLoot());
+
+                for(EquipmentSlot equipmentslot : EquipmentSlot.values()) {
+                    ItemStack itemstack = this.getItemBySlot(equipmentslot);
+                    if (!itemstack.isEmpty()) {
+                        t.setItemSlot(equipmentslot, itemstack.copy());
+                        t.setDropChance(equipmentslot, this.getEquipmentDropChance(equipmentslot));
+                        itemstack.setCount(0);
+                    }
+                }
+            }
+
+            this.level.addFreshEntity(t);
+            if (this.isPassenger()) {
+                Entity entity = this.getVehicle();
+                this.stopRiding();
+                t.startRiding(entity, true);
+            }
+
+            //PVZ changed. Why are passengers not included?
+            this.getPassengers().forEach((entity) -> {
+                entity.startRiding(t);
+            });
+
+            this.discard();
+            return t;
+        }
     }
 
 }

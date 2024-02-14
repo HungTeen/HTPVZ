@@ -20,8 +20,8 @@ public class PVZMobEffects {
     public static RegistryObject<InstantenousMobEffect> EXCITEMENT = EFFECTS.register("excitement", () ->
             new InstantenousMobEffect(MobEffectCategory.BENEFICIAL, 0xdddddd)
     );
-    public static RegistryObject<MobEffect> FOG = EFFECTS.register("fog", () ->
-            new MobEffect(MobEffectCategory.HARMFUL, 0xd4e9e7)
+    public static RegistryObject<MobEffect> FREEZE = EFFECTS.register("freeze", () ->
+            new MobEffect(MobEffectCategory.HARMFUL, 0x92eae2)// not used for now.
     );
 
     public static class MobEffect extends net.minecraft.world.effect.MobEffect {

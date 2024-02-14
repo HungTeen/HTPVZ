@@ -208,11 +208,12 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
     @Override
     public boolean mouseScrolled(double p_99127_, double p_99128_, double p_99129_) {
         int skillsNum = skills.size();
-        if (skillsNum > 4) {
+        if (skillsNum >= 4) {
             int allowedMax = skillsNum - 3;
             this.shownFirstSkill = Mth.clamp((int) ((double) this.shownFirstSkill - p_99129_), 0, allowedMax);
+            return true;
         }
-        return true;
+        return super.mouseScrolled(p_99127_, p_99128_, p_99129_);
     }
 
     @Override
@@ -237,7 +238,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         int bottom = top + 57;
         int allowedMax = skills.size() - 3;
         float current = shownFirstSkill / (float) allowedMax * (bottom - 15 - top);
-        if (skills.size() > 4 && mouseX > (double)(leftPos + 156) && mouseX < (double)(leftPos + 168) && mouseY > (double) top + current && mouseY <= (double)(top + current + 15)) {
+        if (skills.size() >= 4 && mouseX > (double)(leftPos + 156) && mouseX < (double)(leftPos + 168) && mouseY > (double) top + current && mouseY <= (double)(top + current + 15)) {
             this.isDragging = true;
         } else if (mouseX > leftPos + 60 && mouseX < leftPos + 152 && mouseY > top && mouseY <= bottom) {
             if (skills.size() > (mouseY - top) / 19 + shownFirstSkill) {

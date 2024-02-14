@@ -7,6 +7,7 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZItems;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -14,6 +15,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -34,42 +36,15 @@ import java.util.function.Predicate;
 import static com.hungteen.pvz.common.world.PVZDamageSource.teamFilter;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
-public class Pumpkin extends SimplePlant implements IDefenderPlant, IIronEntity, IArmorEntity, ICanBePlantedOn {
+public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity, ICanBePlantedOn {
     float storedHealth;
-    float storedArmor;
-    public static final EntityDataAccessor<Float> IRON_ARMOR = SynchedEntityData.defineId(Pumpkin.class, EntityDataSerializers.FLOAT);
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0),
-            new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(1)
+            new Skill("skill.pvz.pumpkin.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0)
     );
 
     public Pumpkin(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
         storedHealth = 0;
-        storedArmor = 0;
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(IRON_ARMOR, 0F);
-    }
-
-    //about iron armor
-    public boolean isIronMaterial() {
-        return hasIronArmor();
-    }
-    public boolean hasIronArmor() {
-        return entityData.get(IRON_ARMOR) > 0;
-    }
-    public float getIronArmor() {
-        return entityData.get(IRON_ARMOR);
-    }
-    public void setIronArmor(float value) {
-        entityData.set(IRON_ARMOR, value);
-    }
-    public float getMaxIronArmor() {
-        return 200;
     }
 
     //entity settings
@@ -97,13 +72,8 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IIronEntity,
     }
 
     @Override
-    public Predicate<Entity> canPush(){
-        return entity -> true;
-    }
-
-    @Override
     public boolean canHold(LivingEntity plant) {
-        return ! (plant instanceof IArmorEntity);
+        return ! (plant instanceof IArmorEntity) && PVZOwnedCapability.isTeammate(this, plant);
     }
 
     @Override
@@ -113,21 +83,34 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IIronEntity,
     @Override
     public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
         if (target == null) {
+            if (! isPlanting) {
+                BlockPos onPos = this.getOnPos();
+                List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-onPos.getX(), -onPos.getY() - 0.05, -onPos.getZ())),
+                        (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
+                if (this.getVehicle() == null) {
+                    list.forEach((entity) -> {
+                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this)) {
+                            this.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), 0.0F);
+                            this.startRiding(entity);
+                        }
+                    });
+                    if (this.getVehicle() != null) {
+                        return null;
+                    }
+                }
+            }
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
-        if (hasSkill(this, "skill.pvz.wall_nut.wall_nut_first_aid") && target != null && target.getClass() == this.getClass()) {
+        if (hasSkill(this, "skill.pvz.pumpkin.wall_nut_first_aid") && target.getClass() == this.getClass()) {
             if (PVZOwnedCapability.isTeammate(this, target)) {
                 if (((Pumpkin) target).getHealth() > ((Pumpkin) target).getMaxHealth() * 0.67) {
-                    return Component.translatable("hint.pvz.plant.wall_nut.not_broken");
+                    return Component.translatable("hint.pvz.plant.pumpkin.not_broken");
                 }
                 if (isPlanting) {
                     moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot());
-                    yBodyRot = ((Pumpkin) target).yBodyRot;
-                    if (target.hasCustomName()) {
-                        setCustomName(target.getCustomName());
-                        setCustomNameVisible(target.isCustomNameVisible());
-                    }
-                    setInvulnerable(target.isInvulnerable());
+                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
+                    ((Pumpkin) target).convertTo(((EntityType<Mob>) this.getType()), true);
+                    this.discard();
                     target.discard();
                 }
                 return null;
@@ -184,41 +167,6 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IIronEntity,
             }
         }
         storedHealth = getHealth();
-        if (getIronArmor() < storedArmor && level.isClientSide()) {
-            for (int i = 0; i < 3; i ++) {
-                level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.ANVIL.defaultBlockState()).setPos(this.getOnPos()),
-                        getX()+random.nextFloat() - 0.5, getY() + 1.1, getZ()+random.nextFloat() - 0.5, 0, 0, 0);
-            }
-        }
-        storedArmor = getIronArmor();
-        if (this.hasSkill(this, "skill.pvz.wall_nut.iron_armor") && getIronArmor() == 0) {
-            setIronArmor(getMaxIronArmor());
-        }
     }
 
-
-    @Override
-    public boolean hurt(DamageSource dmgSource, float dmgNum) {
-        if (!ForgeHooks.onLivingAttack(this, dmgSource, dmgNum)) return false;
-        if (this.isInvulnerableTo(dmgSource)) {
-            return false;
-        } else if (this.level.isClientSide) {
-            return false;
-        } else if (this.isDeadOrDying()) {
-            return false;
-        } else if (dmgSource.isFire() && this.hasEffect(MobEffects.FIRE_RESISTANCE)) {
-            return false;
-        }
-        if (dmgNum > 0 && !dmgSource.isBypassArmor()) {
-            if (this.hasIronArmor()) {
-                double blocked = Math.min(dmgNum, this.getIronArmor());
-                setIronArmor((float) (getIronArmor() - blocked));
-                dmgNum -= blocked;
-                if (getIronArmor() <= 0) {
-                    setIronArmor(-1);
-                }
-            }
-        }
-        return super.hurt(dmgSource, dmgNum);
-    }
 }

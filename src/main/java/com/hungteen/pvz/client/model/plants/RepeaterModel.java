@@ -75,7 +75,6 @@ public class RepeaterModel<T extends Repeater> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T peaShooter, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		float f = ageInTicks - (float) peaShooter.tickCount;
 		this.animate(peaShooter.idleAnimationState, RepeaterAnimation.idle, ageInTicks);
 		this.animate(peaShooter.shootAnimationState, RepeaterAnimation.shoot, ageInTicks);
 	}

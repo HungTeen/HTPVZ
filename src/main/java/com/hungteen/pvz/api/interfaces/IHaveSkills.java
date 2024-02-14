@@ -21,6 +21,9 @@ public interface IHaveSkills {
     default boolean hasSkill(Object obj, int id) {
         return (1 << id & getSkillVal(obj)) == 1 << id;
     }
+    default boolean hasSkill(int id) {
+        return hasSkill(this, id);
+    }
 
     default boolean hasSkill(Object obj, String name) {
         short id = -1;
@@ -35,6 +38,9 @@ public interface IHaveSkills {
             return false;
         }
         return hasSkill(obj, id);
+    }
+    default boolean hasSkill(String name) {
+        return hasSkill(this, name);
     }
 
     default Set<Integer> getSkills(Object obj) {

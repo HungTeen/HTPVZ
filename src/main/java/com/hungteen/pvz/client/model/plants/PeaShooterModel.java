@@ -56,7 +56,6 @@ public class PeaShooterModel<T extends PeaShooter> extends HierarchicalModel<T> 
     @Override
     public void setupAnim(T peaShooter, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.total.getAllParts().forEach(ModelPart::resetPose);
-        float f = ageInTicks - (float) peaShooter.tickCount;
         this.animate(peaShooter.idleAnimationState, PeaShooterAnimation.idle, ageInTicks);
         this.animate(peaShooter.shootAnimationState, PeaShooterAnimation.shoot, ageInTicks);
     }

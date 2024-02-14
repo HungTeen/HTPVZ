@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.interfaces.IArmorEntity;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
@@ -9,9 +10,13 @@ import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.common.tags.PVZEntityTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
@@ -48,7 +53,10 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         super(entityType, level);
     }
 
-
+    @Override
+    public boolean canHold(LivingEntity plant) {
+        return ! (plant.getType().is(PVZEntityTags.MUST_PLANT_IN_DIRT)) && PVZOwnedCapability.isTeammate(this, plant);
+    }
 
     @Override
     protected void defineSynchedData() {
@@ -217,6 +225,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
                                     (level.getFluidState(onPos).isEmpty() ? 0: level.getFluidState(onPos).getHeight(level, onPos)) :
                                     level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
                             onPos.getZ() + 0.5);
+                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 }
                 return null;
             }
