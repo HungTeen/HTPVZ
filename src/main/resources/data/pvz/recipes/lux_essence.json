@@ -1,0 +1,12 @@
+{
+  "type": "pvz:essence_furnace",
+  "is_essence": true,
+  "cost_ingredient": true,
+  "ingredient": {
+    "item": "minecraft:glowstone_dust"
+  },
+  "fuel": {
+    "item": "pvz:origin_essence"
+  },
+  "result": "pvz:lux_essence"
+}

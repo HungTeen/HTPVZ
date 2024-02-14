@@ -1,0 +1,12 @@
+{
+  "type": "pvz:essence_furnace",
+  "is_essence": true,
+  "cost_ingredient": true,
+  "ingredient": {
+    "item": "minecraft:blaze_powder"
+  },
+  "fuel": {
+    "item": "pvz:origin_essence"
+  },
+  "result": "pvz:ignis_essence"
+}

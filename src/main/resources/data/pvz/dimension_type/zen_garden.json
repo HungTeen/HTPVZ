@@ -1,0 +1,22 @@
+{
+  "name": "Zen Garden Dimension",
+  "ultrawarm": false,
+  "natural": true,
+  "coordinate_scale": 1,
+  "height": 256,
+  "min_y": 0,
+  "shrunk": false,
+  "has_skylight": true,
+  "has_ceiling": false,
+  "ambient_light": 0.2,
+  "fixed_time": 6000,
+  "piglin_safe": false,
+  "bed_works": false,
+  "respawn_anchor_works": false,
+  "has_raids": false,
+  "logical_height": 256,
+  "monster_spawn_block_light_limit": 0,
+  "monster_spawn_light_level": 0,
+  "infiniburn": "#minecraft:infiniburn_overworld",
+  "effects": "pvz:zen_garden"
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "pvz:block/wisdom_tree_core",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "pvz:block/wisdom_tree_core"
+    },
+    "facing=south": {
+      "model": "pvz:block/wisdom_tree_core",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "pvz:block/wisdom_tree_core",
+      "y": 270
+    }
+  }
+}

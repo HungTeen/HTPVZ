@@ -1,0 +1,286 @@
+package com.hungteen.pvz.common.register;
+
+import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.client.model.MooBloomModel;
+import com.hungteen.pvz.client.model.plants.*;
+import com.hungteen.pvz.client.renderer.PVZLayerHandler;
+import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
+import com.hungteen.pvz.client.renderer.bullet.PeaBulletRenderer;
+import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
+import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
+import com.hungteen.pvz.client.renderer.misc.SunRenderer;
+import com.hungteen.pvz.client.renderer.plants.*;
+import com.hungteen.pvz.client.renderer.zombie.PVZZombieRenderer;
+import com.hungteen.pvz.common.entity.*;
+import com.hungteen.pvz.common.entity.bullet.PeaBullet;
+import com.hungteen.pvz.common.entity.plants.*;
+import com.hungteen.pvz.common.entity.zombies.PVZZombie;
+import com.hungteen.pvz.common.tags.PVZEntityTags;
+import com.hungteen.pvz.generator.loot.EntityLootGen;
+import com.hungteen.pvz.util.Util;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.SpawnPlacements.SpawnPredicate;
+import net.minecraft.world.entity.SpawnPlacements.Type;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static com.hungteen.pvz.util.Util.name;
+import static com.hungteen.pvz.util.Util.prefix;
+
+public class PVZEntities {
+    //init
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, PVZMod.MODID);
+    public static final PVZEntities reflector = new PVZEntities();
+    //client
+    public static Map<EntityType<? extends Entity>, List</*0:model, 1:layerDefinition, 2:shadowSize*/?>> simpleRenderedMap = new HashMap<>();
+    public static Map<EntityType<? extends Entity>, ResourceLocation> simpleTextureLocationMap = new HashMap<>();
+    //collision
+    private static Pair<Float, Float> storedCollision = Pair.of(0.6F, 1.8F);
+    //spawn egg
+    private static Pair<Integer, Integer> storedSpawnEgg = null;
+    @Deprecated // will be cleared after register.
+    public static Map<RegistryObject, Pair<Integer, Integer>> spawnEggMap = new HashMap<>();
+    //spawn placements
+    private static List</*0:SpawnPlacements.type, 1:HeightMap.types, 2:checkSpawnRulesMethod*/?> storedSpawnPlacement = null;
+    @Deprecated // will be cleared after register.
+    public static Map<RegistryObject, List</*0:SpawnPlacements.type, 1:HeightMap.types, 2:checkSpawnRulesMethod*/?>> spawnPlacementMap = new HashMap<>();
+    //attributes
+    private static Supplier<AttributeSupplier.Builder> storedAttribute = null;
+    public static Map<RegistryObject, Supplier<AttributeSupplier.Builder>> attributesMap = new HashMap<>();
+    //loot
+    private static boolean storedNoLoot = false;
+    @Deprecated // will be cleared after register.
+    public static List<RegistryObject> noLootList = new ArrayList<>();
+    //tag
+    private static List<TagKey<EntityType<?>>> storedTags = null;
+    @Deprecated // will be cleared after register.
+    public static Map<RegistryObject, List<TagKey<EntityType<?>>>> tagMap = new HashMap<>();
+
+
+
+    //registry
+    /**
+     * silly carp do not forget to add attributes. use {@link PVZEntities#attribute(Supplier)}.
+     */
+    public static final RegistryObject<EntityType<PVZBoat>> BOAT = collision(1.375F, 0.5625F).entity("pvz_boat", PVZBoat::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = collision(1.375F, 0.5625F).entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<Sun>> SUN = collision(0.2F, 0.2F).entity("sun", Sun::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<MooBloom>> MOOBLOOM = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, MooBloom::checkMooBloomSpawnRules)
+            .spawnEgg(0xffc100, 0x88b830).attribute(MooBloom::createAttributes)
+            .collision(0.9F, 1.4F).entity("moo_bloom", MooBloom::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<GrassCarp>> GRASSCARP = summonRule(Type.IN_WATER, Types.MOTION_BLOCKING_NO_LEAVES, GrassCarp::checkGrassCarpSpawnRules)
+            .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
+            .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
+
+    //plants
+    public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, WallNut::checkSpawnRules)
+            .collision(0.8F, 1F).entity("wall_nut", WallNut::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SunFlower::checkSpawnRules)
+            .collision(0.75F, 1.1F).entity("sun_flower", SunFlower::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.75F, 1.3F).entity("marigold", MariGold::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TallNut::checkSpawnRules)
+            .collision(0.9F, 1.9F).entity("tall_nut", TallNut::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PeaShooter::checkSpawnRules)
+            .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<Repeater>> REPEATER = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.7F, 1.3F).entity("repeater", Repeater::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<Pumpkin>> PUMPKIN = attribute(Pumpkin::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(1F, 0.5F).entity("pumpkin", Pumpkin::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<FlowerPot>> FLOWER_POT = attribute(FlowerPot::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.75F, 0.475F).entity("flower_pot", FlowerPot::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<LilyPad>> LILY_PAD = attribute(LilyPad::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.875F, 0.2F).entity("lily_pad", LilyPad::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<Plantern>> PLANTERN = attribute(Plantern::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.8F, 2F).entity("plantern", Plantern::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<VelociTurnip>> VELOCI_TURNIP = attribute(VelociTurnip::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, VelociTurnip::checkSpawnRules)
+            .collision(0.5F, 0.5825F).entity("veloci_radish", VelociTurnip::new, OtherRegisters.PVZPlantMobCategory);
+    //zombies
+    public static final RegistryObject<EntityType<PVZZombie>> ZOMBIE = attribute(Zombie::createAttributes).noLoot()
+            .tag(PVZEntityTags.ZOMBIE).spawnEgg(0xb97141, 0x799587)
+            .entity("zombie", PVZZombie::new, MobCategory.MONSTER);
+    //bullets
+    public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.25F, 0.25F).entity("pea", PeaBullet::new, MobCategory.MISC);
+
+
+    //client
+    /** For simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}.
+     * <br>
+     * <br> For other renderers, register renderer at {@link PVZEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}. And then handle ModelLayers and LayerDefinitions in {@link PVZLayerHandler#createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions)}.
+     * <br>
+     * <br> LootTables gen in {@link EntityLootGen#addTables()}.
+     */
+
+    @OnlyIn(Dist.CLIENT)
+    public static void simpleRenderHandler() {
+        rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
+        rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.5F, "textures/entity/plants/pea_shooter/pea_shooter.png");
+        rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.5F, "textures/entity/plants/repeater/repeater.png");
+        rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
+        rS(LILY_PAD, LilyPadModel::new, LilyPadModel::createBodyLayer, 0.5F, "textures/entity/plants/lily_pad/lily_pad.png");
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void registerRenderer(EntityRenderersEvent.RegisterRenderers e) {
+        r(e, BOAT, (c) -> new PVZBoatRenderer(c, false));
+        r(e, CHEST_BOAT, (c) -> new PVZBoatRenderer(c, true));
+        r(e, GRASSCARP, GrassCarpRenderer::new);
+        r(e, WALL_NUT, WallNutRenderer::new);
+        r(e, PUMPKIN, PumpkinRenderer::new);
+        r(e, SUN, SunRenderer::new);
+        r(e, SUN_FLOWER, SunFlowerRenderer::new);
+        r(e, MARIGOLD, MariGoldRenderer::new);
+        r(e, TALL_NUT, TallNutRenderer::new);
+        r(e, PLANTERN, PlanternRenderer::new);
+        r(e, FLOWER_POT, FlowerPotRenderer::new);
+        r(e, PEA, PeaBulletRenderer::new);
+        r(e, ZOMBIE, PVZZombieRenderer::new);
+
+        //enter here
+
+        //auto works
+        rendererSimple(e);
+    }
+
+
+    //definitions
+    private static <T extends Entity> RegistryObject<EntityType<T>> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
+        float coh = storedCollision.getFirst();
+        float cov = storedCollision.getSecond();
+        RegistryObject<EntityType<T>> entity = ENTITIES.register(name, () -> EntityType.Builder.of(factory, classification).sized(coh, cov).build(Util.prefix(name).toString()));
+        storedCollision = Pair.of(0.6F, 1.8F);
+        //spawn egg
+        if (storedSpawnEgg != null) {
+            spawnEggMap.put(entity, storedSpawnEgg);
+            storedSpawnEgg = null;
+        }
+        //summon rule
+        if (storedSpawnPlacement != null) {
+            spawnPlacementMap.put(entity, storedSpawnPlacement);
+            storedSpawnPlacement = null;
+        }
+        //attributes
+        if (storedAttribute != null) {
+            attributesMap.put(entity, storedAttribute);
+            storedAttribute = null;
+        }
+        //noloot
+        if (storedNoLoot) {
+            noLootList.add(entity);
+            storedNoLoot = false;
+        }
+        //tag
+        if (storedTags != null) {
+            tagMap.put(entity, storedTags);
+            storedTags = null;
+        }
+
+        return entity;
+    }
+
+    private static PVZEntities collision(Float width, Float height) {
+        storedCollision = Pair.of(width, height);
+        return reflector;
+    }
+    private static PVZEntities noLoot() {
+        storedNoLoot = true;
+        return reflector;
+    }
+    private static PVZEntities tag(TagKey<EntityType<?>>... tags){
+        return tag(Arrays.asList(tags));
+    }
+    private static PVZEntities tag(List<TagKey<EntityType<?>>> list){
+        storedTags = list;
+        return reflector;
+    }
+
+    private static PVZEntities spawnEgg(Integer bgColor, Integer hlColor) {
+        storedSpawnEgg = Pair.of(bgColor, hlColor);
+        return reflector;
+    }
+
+    private static PVZEntities summonRule(Type type, Types types, SpawnPredicate predicate) {
+        storedSpawnPlacement = List.of(type, types, predicate);
+        return reflector;
+    }
+
+    private static PVZEntities attribute(Supplier<AttributeSupplier.Builder> attribute) {
+        storedAttribute = attribute;
+        return reflector;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static <T extends Entity> void r(EntityRenderersEvent.RegisterRenderers event, RegistryObject<EntityType<T>> entity, EntityRendererProvider rendererMethod) {
+        event.registerEntityRenderer(entity.get(), rendererMethod);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void rendererSimple(EntityRenderersEvent.RegisterRenderers event) {
+        for (EntityType<?> entity : simpleRenderedMap.keySet()) {
+            event.registerEntityRenderer(entity, (context) -> new SimpleMobRenderer(context, entity));
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static <T extends Entity> void rS(RegistryObject<EntityType<T>> entity, Function<ModelPart, EntityModel<T>> model, Supplier<LayerDefinition> layer, float shadowSize, String textureDirectory) {
+        simpleRenderedMap.put(entity.get(), List.of(model, layer, shadowSize));
+        simpleTextureLocationMap.put(entity.get(), prefix(textureDirectory));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static <T extends Entity> void rS(RegistryObject<EntityType<T>> entity, Function<ModelPart, EntityModel<T>> model, Supplier<LayerDefinition> layer, float shadowSize) {
+        rS(entity, model, layer, shadowSize, "textures/entity/" + name(entity) + "/" + name(entity.get()) + ".png");
+    }
+
+    @SubscribeEvent
+    public static void addSummonRules(SpawnPlacementRegisterEvent e) {
+        spawnPlacementMap.forEach((obj, list) ->
+                e.register((EntityType<? extends Entity>) obj.get(), (Type) list.get(0),
+                        (Types) list.get(1), (SpawnPredicate) list.get(2),
+                        SpawnPlacementRegisterEvent.Operation.OR
+                )
+        );
+    }
+
+    @SubscribeEvent
+    public static void addEntityAttributes(EntityAttributeCreationEvent e) {
+        attributesMap.forEach((obj, sup) -> e.put((EntityType<? extends LivingEntity>) obj.get(), sup.get().build()));
+    }
+
+    public static void release() {
+        noLootList.clear();
+        List.of(spawnEggMap, spawnPlacementMap, tagMap).forEach(Map::clear);
+    }
+}
