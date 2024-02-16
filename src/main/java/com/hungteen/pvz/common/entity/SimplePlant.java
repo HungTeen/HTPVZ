@@ -173,7 +173,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                         (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
                 if (this.getVehicle() == null) {
                     list.forEach((entity) -> {
-                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this)) {
+                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false)) {
                             this.startRiding(entity);
                         }
                     });
@@ -184,7 +184,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             }
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
-        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this)) {
+        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this, isPlanting)) {
             if (PVZOwnedCapability.isTeammate(this, target)) {
                 if (! canMountEntity(this, target, this.getVehicle() == target)) {
                     return isPlanting && target.getFirstPassenger() != null ?
@@ -308,7 +308,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             }
             ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
             this.remove(RemovalReason.DISCARDED);
-            if (this.isPassenger()) {
+            if (this.isVehicle()) {
                 this.getPassengers().forEach((entity -> {
                     if (entity instanceof INeedSafeSituation entity1) {
                         entity1.isVehicleSafe(this.getVehicle(), true);
@@ -415,7 +415,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         List<Entity> passengers = getPassengers();
         T entity = super.convertTo(p_21407_, p_21408_);
         if (entity != null) {
-            passengers.forEach((passenger) -> passenger.startRiding(this));
+            passengers.forEach((passenger) -> passenger.startRiding(entity));
         }
         return entity;
     }

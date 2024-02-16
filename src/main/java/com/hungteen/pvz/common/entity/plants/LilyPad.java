@@ -54,8 +54,8 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     }
 
     @Override
-    public boolean canHold(LivingEntity plant) {
-        return ! (plant.getType().is(PVZEntityTags.MUST_PLANT_IN_DIRT)) && PVZOwnedCapability.isTeammate(this, plant);
+    public boolean canHold(LivingEntity plant, boolean isPlanting) {
+        return ! (plant.getType().is(PVZEntityTags.MUST_PLANT_IN_DIRT)) && (!isPlanting || getPassengers().isEmpty()) && PVZOwnedCapability.isTeammate(this, plant);
     }
 
     @Override

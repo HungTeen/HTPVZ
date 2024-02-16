@@ -72,8 +72,8 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
     }
 
     @Override
-    public boolean canHold(LivingEntity plant) {
-        return ! (plant instanceof IArmorEntity) && PVZOwnedCapability.isTeammate(this, plant);
+    public boolean canHold(LivingEntity plant, boolean isPlanting) {
+        return ! (plant instanceof IArmorEntity) && (!isPlanting || getPassengers().isEmpty()) && PVZOwnedCapability.isTeammate(this, plant);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                         (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
                 if (this.getVehicle() == null) {
                     list.forEach((entity) -> {
-                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this)) {
+                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false)) {
                             this.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), 0.0F);
                             this.startRiding(entity);
                         }
@@ -117,7 +117,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
             }
             return Component.translatable("hint.pvz.plant.need_own_team");
         }
-        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this)) {
+        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this, isPlanting)) {
             if (PVZOwnedCapability.isTeammate(this, target)) {
                 if (! canMountEntity(this, target, this.getVehicle() == target)) {
                     return isPlanting && target.getFirstPassenger() != null ?
@@ -131,8 +131,8 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                 return null;
             }
             return Component.translatable("hint.pvz.plant.need_own_team");
-        } else if (isPlanting && target instanceof LivingEntity livingEntity && this.canHold(livingEntity)){
-            if (target.getVehicle() instanceof ICanBePlantedOn entityRiding && ((ICanBePlantedOn) target.getVehicle()).canHold(this)) {
+        } else if (isPlanting && target instanceof LivingEntity livingEntity && this.canHold(livingEntity, true)){
+            if (target.getVehicle() instanceof ICanBePlantedOn entityRiding && ((ICanBePlantedOn) target.getVehicle()).canHold(this, false)) {
                 target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
                 target.startRiding(this);
                 this.moveTo(((Entity) entityRiding).getX(), ((Entity) entityRiding).getY(), ((Entity) entityRiding).getZ(),
