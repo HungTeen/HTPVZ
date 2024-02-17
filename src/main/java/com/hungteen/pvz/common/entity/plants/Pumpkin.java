@@ -1,7 +1,10 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.interfaces.*;
+import com.hungteen.pvz.api.interfaces.IArmorEntity;
+import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
+import com.hungteen.pvz.api.interfaces.IDefenderPlant;
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
@@ -12,28 +15,18 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.ForgeHooks;
 
 import java.util.List;
-import java.util.function.Predicate;
 
-import static com.hungteen.pvz.common.world.PVZDamageSource.teamFilter;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
 public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity, ICanBePlantedOn {
@@ -67,7 +60,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
+        this.goalSelector.addGoal(1, new AttractEnemyGoal(this, false));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 
@@ -84,13 +77,13 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
     public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
         if (target == null) {
             if (! isPlanting) {
+                this.boardingCooldown = 0;
                 BlockPos onPos = this.getOnPos();
-                List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-onPos.getX(), -onPos.getY() - 0.05, -onPos.getZ())),
+                List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-onPos.getX(), -onPos.getY() - 0.0001, -onPos.getZ())).inflate(0, 0.0001, 0),
                         (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
                 if (this.getVehicle() == null) {
                     list.forEach((entity) -> {
                         if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false)) {
-                            this.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), 0.0F);
                             this.startRiding(entity);
                         }
                     });
@@ -111,7 +104,6 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                     ((Pumpkin) target).convertTo(((EntityType<Mob>) this.getType()), true);
                     this.discard();
-                    target.discard();
                 }
                 return null;
             }
@@ -162,7 +154,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
         super.baseTick();
         if (getHealth() < storedHealth && level.isClientSide()) {
             for (int i = 0; i < 3; i ++) {
-            level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.BIRCH_PLANKS.defaultBlockState()).setPos(this.getOnPos()),
+            level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.PUMPKIN.defaultBlockState()).setPos(this.getOnPos()),
                     getX()+random.nextFloat() - 0.5, getY() + 1.1, getZ()+random.nextFloat() - 0.5, 0, 0, 0);
             }
         }

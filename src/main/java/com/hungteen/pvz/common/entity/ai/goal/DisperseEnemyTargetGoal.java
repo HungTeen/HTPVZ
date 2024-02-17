@@ -39,15 +39,6 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
     }
 
     @Override
-    protected AABB getTargetSearchArea(double distance) {
-//        return super.getTargetSearchArea(distance);
-        AABB box = this.mob.getBoundingBox()
-                .move(this.mob.getLookAngle().normalize().multiply(distance / 2.5, distance / 2.5, distance / 2.5))
-                .inflate(distance / 2, 4.0D, distance / 2);
-        return box;
-    }
-
-    @Override
     protected void findTarget() {
         //from candidates
         if (! targetCandidates.isEmpty()) {

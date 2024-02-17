@@ -25,7 +25,7 @@ public class AttractEnemyGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return -- countDown <= 0;
+        return -- countDown <= 0 && (! mustNotHavePassenger || entity.getFirstPassenger() == null);
     }
 
     @Override
@@ -41,9 +41,6 @@ public class AttractEnemyGoal extends Goal {
 
     public void attractEnemies(Mob entity) {
         double range = entity.getAttributeValue(Attributes.FOLLOW_RANGE);//recommended value is 2.
-        if (mustNotHavePassenger && entity.getFirstPassenger() != null) {
-            return;
-        }
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
             //attracting limits about tergetEntity.
             boolean outOfHeightRegion = (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() <= entity.getBbHeight() + entity.getY()) &&

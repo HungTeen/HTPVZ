@@ -93,7 +93,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
+        this.goalSelector.addGoal(1, new AttractEnemyGoal(this, false));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 
@@ -114,7 +114,6 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                     ((WallNut) target).convertTo(((EntityType<Mob>) this.getType()), true);
                     this.discard();
-                    target.discard();
                 }
                 return null;
             }

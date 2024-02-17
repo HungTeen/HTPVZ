@@ -47,6 +47,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.lily_pad.lily_boat", PVZItems.AQUA_ESSENCE, 6, 4, 0, 0),
             new Skill("skill.pvz.lily_pad.friendship_of_lily_pad", PVZItems.LUX_ESSENCE, 6, 12, -25, 0).avoidSkills(0)
+            //new Skill("skill.pvz.lily_pad.lava_swimmer", PVZItems.IGNIS_ESSENCE, 9, 4, 75, 0).avoidSkills(0)
     );
 
     public LilyPad(EntityType<? extends Mob> entityType, Level level) {
@@ -102,6 +103,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     @Override
     public void tick() {
         if (! this.noPhysics) {
+            //TODO find a way to support lava situation.
             if (! level.getFluidState(new BlockPos(position().add(0, this.getBbHeight(), 0))).isEmpty()) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0, 0.04, 0).multiply(0.5, 0.5, 0.5));
             } else if (! level.getFluidState(new BlockPos(position().add(0, this.getEyeHeight(), 0))).isEmpty()) {
@@ -154,7 +156,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hasSkill(this, "skill.pvz.lily_pad.lily_boat")) {
-            if (PVZOwnedCapability.isTeammate(this, player) && getPassengers().isEmpty() && player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
+            if (PVZOwnedCapability.isTeammate(this, player) && getPassengers().isEmpty() && player.getItemInHand(hand).isEmpty()) {
                 player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
                 player.startRiding(this);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
@@ -167,14 +169,14 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     public Predicate<Entity> canPush(){
         return entity -> true;
     }
-    public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_WATER);
-    }
     public boolean canBreatheUnderwater() {
         return true;
     }
     public int getMaxAirSupply() {
         return 500;
+    }
+    public boolean fireImmune() {
+        return super.fireImmune() || this.hasSkill(this, "skill.pvz.lily_pad.lava_swimmer");
     }
     protected void handleAirSupply(int p_30344_) {
         if (this.isAlive() && !this.isInWaterOrBubble()) {
@@ -209,15 +211,9 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         if (shouldHaveCoincideDmg(level, onPos)) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        boolean plantableOn = false;
-        for (TagKey<Block> tag: getAcceptableTags()) {
-            if (level.getBlockState(onPos).is(tag)) {
-                plantableOn = true;
-                break;
-            }
-        }
-        if (! this.getEntityData().get(root()) || (plantableOn && ! level.getBlockState(onPos).isAir())) {
-            if (level.getBlockState(onPos).getFluidState().is(FluidTags.WATER)) {
+        if (! this.getEntityData().get(root()) || (! level.getBlockState(onPos).isAir())) {
+            if (level.getBlockState(onPos).getFluidState().is(FluidTags.WATER) ||
+                    (this.hasSkill("skill.pvz.lily_pad.lava_swimmer") && level.getBlockState(onPos).getFluidState().is(FluidTags.LAVA))) {
                 if (isPlanting) {
                     this.moveTo(
                             onPos.getX() + 0.5,

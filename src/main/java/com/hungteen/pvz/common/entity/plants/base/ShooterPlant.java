@@ -28,6 +28,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public AnimationState shootAnimationState = new AnimationState();
 	protected List<Entity> targetCandidates = new ArrayList<>();
 	protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(ShooterPlant.class, EntityDataSerializers.BOOLEAN);
+	protected ShooterAttackGoal shooterAttackGoal;
 
 	public ShooterPlant(EntityType<? extends Mob> type, Level worldIn) {
 		super(type, worldIn);
@@ -37,7 +38,8 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	@Override
 	protected void registerGoals() {
 		super.registerGoals();
-	    this.goalSelector.addGoal(1, new ShooterAttackGoal(this));
+		this.shooterAttackGoal = new ShooterAttackGoal(this);
+	    this.goalSelector.addGoal(1, shooterAttackGoal);
 		this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
 		this.goalSelector.addGoal(2, new RandomLookAroundGoal(this));
 		this.targetSelector.addGoal(1, new ShooterTargetGoal(this));
@@ -47,19 +49,21 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	 * shoot pea with offsets.
 	 */
 	public void performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
-		Optional.ofNullable(this.getTarget()).ifPresent(target -> {
-		 	//create bullet
-			final Vec3 vec = EntityUtil.getNormalisedVector2d(this, target);
-		    final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
-		    final double deltaX = forwardOffset * vec.x - rightOffset * vec.z;
-		    final double deltaZ = forwardOffset * vec.z + rightOffset * vec.x;
-		    Projectile bullet = this.createBullet();
-		    bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-		    //predict
-			float speed = this.getBulletSpeed();
+		LivingEntity target = Optional.ofNullable(this.getTarget()).isPresent() ? Optional.ofNullable(this.getTarget()).get() : null;
+		//create bullet
+		final Vec3 vec = getShootAngle(target);
+		final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
+		final double deltaX = forwardOffset * vec.x - rightOffset * vec.z;
+		final double deltaZ = forwardOffset * vec.z + rightOffset * vec.x;
+		Projectile bullet = this.createBullet();
+		bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
+		//predict
+		float speed = this.getBulletSpeed();
+		Vec3 deltaPos;
+		if (target != null) {
 			Vec3 targetSpeed;
 			if (storedEnemyPos != null) {
- 				targetSpeed = target.position().subtract(storedEnemyPos)
+				targetSpeed = target.position().subtract(storedEnemyPos)
 						.multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
 				aimTime = 0;
 				storedEnemyPos = getTarget().position();
@@ -67,7 +71,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 				targetSpeed = target.getDeltaMovement();
 			}
 			int time = Math.round(distanceTo(target) / speed);
-			Vec3 deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
+			deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
 			target.getY() + targetSpeed.y * time + target.getEyeHeight() - bullet.getY(),//angle limit move to targeting goals.
 					target.getZ() + targetSpeed.z * time - bullet.getZ());
 			for (int tmp = 0; tmp < 3; tmp ++) {
@@ -77,24 +81,26 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 						target.getY() + targetSpeed.y * time + target.getEyeHeight() - bullet.getY(),
 						target.getZ() + targetSpeed.z * time - bullet.getZ());
 			}
-			double horizontal = Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.z * deltaPos.z);
-			double vertical = deltaPos.y;
-			if (vertical > horizontal * getMaxShootAngleTangent()) {
-				deltaPos = new Vec3 (deltaPos.x, horizontal * getMaxShootAngleTangent(), deltaPos.z);
-			} else if (vertical < - horizontal * getMaxShootAngleTangent()) {
-				deltaPos = new Vec3 (deltaPos.x, - horizontal * getMaxShootAngleTangent(), deltaPos.z);
-			}
-			//shoot
-		    bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, speed, (float) randomAngle);
-			if(needSound) {
-				EntityUtil.playSound(this, this.getShootSound());
-			}
-			bullet.setOwner(this);
-			if (bullet instanceof BaseBullet bullet1) {
-				bullet1.setAttackDamage(this.getAttackDamage());
-			}
-			this.level.addFreshEntity(bullet);
-		});
+		} else {
+			deltaPos = vec;
+		}
+		double horizontal = Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.z * deltaPos.z);
+		double vertical = deltaPos.y;
+		if (vertical > horizontal * getMaxShootAngleTangent()) {
+			deltaPos = new Vec3 (deltaPos.x, horizontal * getMaxShootAngleTangent(), deltaPos.z);
+		} else if (vertical < - horizontal * getMaxShootAngleTangent()) {
+			deltaPos = new Vec3 (deltaPos.x, - horizontal * getMaxShootAngleTangent(), deltaPos.z);
+		}
+		//shoot
+		bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, speed, (float) randomAngle);
+		if(needSound) {
+			EntityUtil.playSound(this, this.getShootSound());
+		}
+		bullet.setOwner(this);
+		if (bullet instanceof BaseBullet bullet1) {
+			bullet1.setAttackDamage(this.getAttackDamage());
+		}
+		this.level.addFreshEntity(bullet);
 	}
 
 	public void setTargetCandidates(List<Entity> set) {
@@ -169,6 +175,13 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public double getMaxShootAngleTangent() {
 		return 0.1;
 	}
+	public Vec3 getShootAngle(Entity target) {
+		if (target != null) {
+			return EntityUtil.getNormalisedVector2d(this, target);
+		} else {
+			return this.getLookAngle().normalize();
+		}
+	}
 
 	public boolean canShoot() {
 		return this.isAlive();
@@ -183,7 +196,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	protected Set<Integer> shootTimes() {
 		return Set.of(10);
 	}
-	protected int shootAnimLength() {
+	public int shootAnimLength() {
 		return 20;
 	}
 
@@ -193,7 +206,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	}
 
 
-	static class ShooterAttackGoal extends Goal {
+	public static class ShooterAttackGoal extends Goal {
 
 		protected final ShooterPlant shooter;
 

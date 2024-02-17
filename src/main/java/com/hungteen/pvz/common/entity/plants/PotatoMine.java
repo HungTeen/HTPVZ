@@ -69,6 +69,9 @@ public class PotatoMine extends SimplePlant {
     @Override
     public void baseTick() {
         super.baseTick();
+        if (getEntityData().get(PREPARE_COUNT) - 1 <= 7) {
+            getEntityData().set(DATA_POSE, Pose.STANDING);
+        }
         if (hasSkill("skill.pvz.potato_mine.quick_load") && this.getEntityData().get(PREPARE_COUNT) > 10) {
             this.getEntityData().set(PREPARE_COUNT, 10);
         }
@@ -158,9 +161,6 @@ public class PotatoMine extends SimplePlant {
         public void tick() {
             int currentTick = potatoMine.getEntityData().get(PREPARE_COUNT) - 1;
             potatoMine.getEntityData().set(PREPARE_COUNT, currentTick);
-            if (currentTick <= 7) {
-                potatoMine.getEntityData().set(DATA_POSE, Pose.STANDING);
-            }
         }
     }
 

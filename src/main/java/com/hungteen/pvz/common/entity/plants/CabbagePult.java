@@ -59,7 +59,7 @@ public class CabbagePult extends ShooterPlant {
         Entity target = this.getTarget();
         if (target != null) {
             double distance = target.distanceTo(this);
-            return (float) (Math.min(0.5 * distance / 12, distance));
+            return (float) (Math.max(0.5 * distance / 12, 0.05));
         }
         return 0.5F;
     }
@@ -69,7 +69,7 @@ public class CabbagePult extends ShooterPlant {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 8D)
+                .add(Attributes.ATTACK_DAMAGE, 7D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

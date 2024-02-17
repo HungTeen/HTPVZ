@@ -168,8 +168,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
         if (target == null) {
             if (! isPlanting) {
+                this.boardingCooldown = 0;
                 BlockPos onPos = this.getOnPos();
-                List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-onPos.getX(), -onPos.getY() - 0.05, -onPos.getZ())),
+                List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-onPos.getX(), -onPos.getY() - 0.0001, -onPos.getZ())).inflate(0, 1, 0),
                         (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
                 if (this.getVehicle() == null) {
                     list.forEach((entity) -> {
@@ -226,8 +227,8 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         if (! level.isClientSide) {
             if (isPositionSafe(this.level, this.getOnPos(), false) != null && isVehicleSafe(getVehicle(), false) != null &&
                     this.getAttribute(Attributes.MAX_HEALTH) != null) {
-                if (++ situationHurtCount > 100) {
-                    this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.4 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+                if (++ situationHurtCount > 10) {
+                    this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
                     situationHurtCount = 0;
                 }
             } else {
@@ -407,17 +408,6 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
         return level.getBlockState(pos.below()).is(PVZBlockTags.PLANTABLE_BLOCKS);
-    }
-
-    @Override
-    @Nullable
-    public <T extends Mob> T convertTo(EntityType<T> p_21407_, boolean p_21408_) {
-        List<Entity> passengers = getPassengers();
-        T entity = super.convertTo(p_21407_, p_21408_);
-        if (entity != null) {
-            passengers.forEach((passenger) -> passenger.startRiding(entity));
-        }
-        return entity;
     }
 
 }
