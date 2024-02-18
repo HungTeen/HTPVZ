@@ -23,7 +23,7 @@ public class Repeater extends PeaShooter{
         return staticSkillList;
     }
 
-    protected Set<Integer> shootTimes() {
+    public Set<Integer> shootTimes() {
         return hasSkill(this, "skill.pvz.repeater.triple_tap") ? Set.of(10, 11, 12) : Set.of(10, 11);
     }
 

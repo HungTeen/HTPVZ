@@ -14,6 +14,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
@@ -29,6 +30,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	protected List<Entity> targetCandidates = new ArrayList<>();
 	protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(ShooterPlant.class, EntityDataSerializers.BOOLEAN);
 	protected ShooterAttackGoal shooterAttackGoal;
+	protected TargetGoal targetGoal;
 
 	public ShooterPlant(EntityType<? extends Mob> type, Level worldIn) {
 		super(type, worldIn);
@@ -42,7 +44,9 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	    this.goalSelector.addGoal(1, shooterAttackGoal);
 		this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
 		this.goalSelector.addGoal(2, new RandomLookAroundGoal(this));
-		this.targetSelector.addGoal(1, new ShooterTargetGoal(this));
+
+		this.targetGoal = new ShooterTargetGoal(this);
+		this.targetSelector.addGoal(1, targetGoal);
 	}
 
 	/**
@@ -193,7 +197,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	protected boolean canAttackNow() {
 		return shootTimes().contains(getAttackTime(this));
 	}
-	protected Set<Integer> shootTimes() {
+	public Set<Integer> shootTimes() {
 		return Set.of(10);
 	}
 	public int shootAnimLength() {
@@ -217,15 +221,19 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 		@Override
 		public boolean canUse() {
-			if (! this.shooter.canShoot()) {
-				return false;
+			//looking control.
+			LivingEntity target = this.shooter.getTarget();
+			if (EntityUtil.isEntityValid(target)) {
+				this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
 			}
+			//countdown.
 			final int time = this.shooter.getAttackTime(this);
-			if (! (time == this.shooter.shootAnimLength()) || EntityUtil.isEntityValid(shooter.getTarget())) {
+			if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && EntityUtil.isEntityValid(shooter.getTarget()))) {
 				this.shooter.setAttackTime(this, time > 0 ? time - 1 : this.shooter.getShootCD());
 			}
 			shooter.entityData.set(POSE, (this.shooter.getAttackTime(this) < this.shooter.shootAnimLength()));
-			return EntityUtil.isEntityValid(shooter.getTarget());
+			//can shoot.
+			return this.shooter.canShoot();
 		}
 
 		@Override
@@ -235,12 +243,8 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 		@Override
 		public void tick() {
-			LivingEntity target = this.shooter.getTarget();
 			if (this.shooter.shootTimes().contains(this.shooter.getAttackTime(this))) {
 				this.shooter.shootBullet();
-			}
-			if (EntityUtil.isEntityValid(target)) {
-				this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
 			}
 		}
 	}

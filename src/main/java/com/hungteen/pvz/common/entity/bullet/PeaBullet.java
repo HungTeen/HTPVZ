@@ -43,9 +43,9 @@ public class PeaBullet extends BaseBullet {
     public void tick() {
         super.tick();
         //change type
-        if (getPeaType() == PeaType.Fire || level.getBlockState(this.blockPosition()).is(Blocks.FIRE) || level.getBlockState(this.blockPosition()).is(Blocks.SOUL_FIRE)) {
-            setSecondsOnFire(1);
-        }
+//        if (getPeaType() == PeaType.Fire || level.getBlockState(this.blockPosition()).is(Blocks.FIRE) || level.getBlockState(this.blockPosition()).is(Blocks.SOUL_FIRE)) {
+//            setSecondsOnFire(1);
+//        }
         if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
             if (getPeaType() == PeaType.Fire) {
                 setPeaType(PeaType.Common);
@@ -60,7 +60,7 @@ public class PeaBullet extends BaseBullet {
         //particles
         if (level.isClientSide) {
             Vec3 movement = getDeltaMovement();
-            if (movement.distanceToSqr(Vec3.ZERO) > 2) {
+            if (movement.distanceToSqr(Vec3.ZERO) >= 3) {
                 for (int i = 5; i < 10; i ++) {
                     level.addParticle(ParticleTypes.CLOUD,
                             getX() - movement.x / 5 * i + this.random.nextFloat() / 5,

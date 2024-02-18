@@ -118,7 +118,7 @@ public class PVZOverlayHandler{
             mc.getProfiler().push("gatling_overheat");
 
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
-            int j = (int) (gatlingPea.getOverheat() * 183.0F / 750F);
+            int j = (int) (gatlingPea.getOverheat() * 182.0F / GatlingPea.MAX_OVERHEAT);
             int k = height - 32 + 3;
             blit(stack, width / 2 - 91, k, 0, 30, 182, 5);
             if (j > 0) {

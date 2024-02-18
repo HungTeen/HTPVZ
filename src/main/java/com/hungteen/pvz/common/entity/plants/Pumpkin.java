@@ -103,6 +103,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                     moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot());
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                     ((Pumpkin) target).convertTo(((EntityType<Mob>) this.getType()), true);
+                    ((Pumpkin) target).setSkillVal(this.getSkillVal());
                     this.discard();
                 }
                 return null;
