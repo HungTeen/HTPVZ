@@ -16,9 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
-
-import java.util.List;
 
 public class SeedCrossbowItem extends CrossbowItem {
     public SeedCrossbowItem(Properties properties) {
@@ -70,31 +67,6 @@ public class SeedCrossbowItem extends CrossbowItem {
             p_40895_.playSound((Player)null, p_40896_.getX(), p_40896_.getY(), p_40896_.getZ(), SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 1.0F, p_40900_);
         }
     }
-    public static void performShooting(Level p_40888_, LivingEntity p_40889_, InteractionHand p_40890_, ItemStack p_40891_, float p_40892_, float p_40893_) {
-        if (p_40889_ instanceof Player player) {
-            if (ForgeEventFactory.onArrowLoose(p_40891_, p_40889_.level, player, 1, true) < 0) {
-                return;
-            }
-        }
 
-        List<ItemStack> list = getChargedProjectiles(p_40891_);
-        float[] afloat = getShotPitches(p_40889_.getRandom());
-
-        for(int i = 0; i < list.size(); ++i) {
-            ItemStack itemstack = (ItemStack)list.get(i);
-            boolean flag = p_40889_ instanceof Player && ((Player)p_40889_).getAbilities().instabuild;
-            if (!itemstack.isEmpty()) {
-                if (i == 0) {
-                    shootProjectile(p_40888_, p_40889_, p_40890_, p_40891_, itemstack, afloat[i], flag, p_40892_, p_40893_, 0.0F);
-                } else if (i == 1) {
-                    shootProjectile(p_40888_, p_40889_, p_40890_, p_40891_, itemstack, afloat[i], flag, p_40892_, p_40893_, -10.0F);
-                } else if (i == 2) {
-                    shootProjectile(p_40888_, p_40889_, p_40890_, p_40891_, itemstack, afloat[i], flag, p_40892_, p_40893_, 10.0F);
-                }
-            }
-        }
-
-        onCrossbowShot(p_40888_, p_40889_, p_40891_);
-    }
 
 }
