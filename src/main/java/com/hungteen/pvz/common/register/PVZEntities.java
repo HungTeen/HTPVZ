@@ -122,6 +122,8 @@ public class PVZEntities {
             .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Repeater>> REPEATER = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.7F, 1.3F).entity("repeater", Repeater::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<GatlingPea>> GATLING_PEA = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.7F, 1.3F).entity("gatling_pea", GatlingPea::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<SnowPea>> SNOW_PEA = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.7F, 1.3F).entity("snow_pea", SnowPea::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Pumpkin>> PUMPKIN = attribute(Pumpkin::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
@@ -166,6 +168,7 @@ public class PVZEntities {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
         rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.5F, "textures/entity/plants/pea_shooter/pea_shooter.png");
         rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.5F, "textures/entity/plants/repeater/repeater.png");
+        rS(GATLING_PEA, GatlingPeaModel::new, GatlingPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/gatling_pea/gatling_pea.png");
         rS(SNOW_PEA, SnowPeaModel::new, SnowPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/snow_pea/snow_pea.png");
         rS(CABBAGE_PULT, CabbagePultModel::new, CabbagePultModel::createBodyLayer, 0.5F, "textures/entity/plants/cabbage_pult/cabbage_pult.png");
         rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");

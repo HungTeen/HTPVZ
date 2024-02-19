@@ -64,26 +64,25 @@ public class ClientSunImageToolTipComponent implements ClientTooltipComponent {
     public void renderImage(Font font, int x, int y, PoseStack stack, ItemRenderer renderer, int p_194053_) {
         if (! renderAsNumber) {
             RenderSystem.setShaderTexture(0, ICON_TEXTURE);
-            stack.scale(0.5F, 0.5F, 0.5F);
-            x = x * 2 + font.width(sunText) * 2;
-            y = y * 2 - 1;
+            x = x + font.width(sunText);
+            y = y - 1;
             cost = cost < 0 ? - cost : cost;
-            int xoffset = cost > 500 ? 10 : 16;
+            int xoffset = cost > 500 ? 5 : 9;
             while (cost > 0) {
                 if (cost >= 100) {
-                    blit(stack, x, y, 80, 0, 18, 18);
+                    blit(stack, x, y, 40, 0, 9, 9);
                     cost -= 100;
                 } else if (cost >= 75) {
-                    blit(stack, x, y, 60, 0, 18, 18);
+                    blit(stack, x, y, 30, 0, 9, 9);
                     break;
                 } else if (cost >= 50) {
-                    blit(stack, x, y, 40, 0, 18, 18);
+                    blit(stack, x, y, 20, 0, 9, 9);
                     break;
                 } else if (cost >= 25) {
-                    blit(stack, x, y, 20, 0, 18, 18);
+                    blit(stack, x, y, 10, 0, 9, 9);
                     break;
                 } else {
-                    blit(stack, x, y, 0, 0, 18, 18);
+                    blit(stack, x, y, 0, 0, 9, 9);
                     break;
                 }
                 x += xoffset;

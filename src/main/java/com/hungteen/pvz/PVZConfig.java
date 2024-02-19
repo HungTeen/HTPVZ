@@ -9,6 +9,28 @@ public class PVZConfig {
 //    private static Common COMMON_CONFIG;
     private static Client CLIENT_CONFIG;
 
+    //overlay settings
+    public static boolean renderSunAsNumber(){
+        return Client.renderSunAsNumber.get();
+    }
+    public static int renderSunBarX(){
+        return Client.renderSunBarX.get();
+    }
+    public static int renderSunBarY(){
+        return Client.renderSunBarY.get();
+    }
+    public static double renderSunBarScale(){
+        return Client.renderSunBarScale.get();
+    }
+
+    //model settings
+    public static boolean renderBulletAsModel(){
+        return Client.renderBulletAsModel.get();
+    }
+    public static boolean zombieDropParts(){
+        return Client.zombiesDropParts.get();
+    }
+
     public static void init(){
 //        {
 //            final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
@@ -57,7 +79,7 @@ public class PVZConfig {
             renderSunBarScale = builder
                     .translation("config.pvz.client.render_sun_bar_scale")
                     .comment("control scale of displaying the sun amount bar.")
-                    .defineInRange("renderSunBarScale", 1, 0.1, 10);
+                    .defineInRange("renderSunBarScale", 0.75, 0.1, 10);
 
             builder.comment("Settings about models").push("Model Settings");
             //model settings
@@ -70,18 +92,5 @@ public class PVZConfig {
                     .comment("if on, zombies will drop arms and heads when taking damage.")
                     .define("ZombiesDropParts", true);
         }
-    }
-    //overlay settings
-    public static boolean renderSunAsNumber(){
-        return Client.renderSunAsNumber.get();
-    }
-    public static int renderSunBarX(){
-        return Client.renderSunBarX.get();
-    }
-    public static int renderSunBarY(){
-        return Client.renderSunBarY.get();
-    }
-    public static double renderSunBarScale(){
-        return Client.renderSunBarScale.get();
     }
 }

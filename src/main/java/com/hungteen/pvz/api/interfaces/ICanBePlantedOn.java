@@ -5,7 +5,7 @@ import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import net.minecraft.world.entity.LivingEntity;
 
 public interface ICanBePlantedOn {
-    default boolean canHold(LivingEntity plant) {
-        return PVZOwnedCapability.isTeammate((LivingEntity) this, plant);
+    default boolean canHold(LivingEntity plant, boolean isPlanting) {
+        return (!isPlanting || ((LivingEntity) this).getPassengers().isEmpty()) && PVZOwnedCapability.isTeammate((LivingEntity) this, plant);
     }
 }

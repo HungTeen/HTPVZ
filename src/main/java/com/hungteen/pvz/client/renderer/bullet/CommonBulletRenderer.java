@@ -24,7 +24,7 @@ public abstract class CommonBulletRenderer <T extends BaseBullet> extends Entity
 
     public void render(T bullet, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn) {
         poseStack.pushPose();
-        if (PVZConfig.Client.renderBulletAsModel.get()) {
+        if (PVZConfig.renderBulletAsModel()) {
             poseStack.scale(-1, -1, 1);
             final float size = bullet.getSize();
             poseStack.scale(size, size, size);

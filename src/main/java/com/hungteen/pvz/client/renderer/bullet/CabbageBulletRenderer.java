@@ -18,7 +18,7 @@ public class CabbageBulletRenderer extends CommonBulletRenderer<CabbageBullet>{
 
     @Override
     public ResourceLocation getTextureLocation(CabbageBullet bullet) {
-        if (PVZConfig.Client.renderBulletAsModel.get()) {
+        if (PVZConfig.renderBulletAsModel()) {
             return MODEL;
         } else {
             return ITEM;

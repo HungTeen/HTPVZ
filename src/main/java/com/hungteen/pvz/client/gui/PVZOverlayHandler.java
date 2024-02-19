@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.entity.plants.GatlingPea;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
@@ -45,10 +46,10 @@ public class PVZOverlayHandler{
     public static int itemStackCost = 0;
     public static boolean storedHaveCost = false;
 
-    public static void tick(float tickTime){
+    public static void tick(float tickTime) {
         if (PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).isPresent()) {
             float second = tickTime / 10;// accurate passed time in second.
-            double tmp = Math.pow(0.9, second/0.04);
+            double tmp = Math.pow(0.9, second / 0.04);
             int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapNBT.SUN);
             int barLength = 94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapNBT.SUN).getSecond();
             bufferSunAmount = (int)(now * (1 - tmp) + tmp * bufferSunAmount);
@@ -61,7 +62,6 @@ public class PVZOverlayHandler{
             }
             if (notEnoughHint > 0) {
                 notEnoughHint -= second;
-                PVZMod.LOGGER.info(tickTime + " || " + notEnoughHint);
             }
         }
         ItemStack itemStack = getCameraPlayer() == null ? null : getCameraPlayer().getItemInHand(InteractionHand.MAIN_HAND);
@@ -111,7 +111,24 @@ public class PVZOverlayHandler{
         }
     }
 
-    private static void renderSunAsBar(ForgeGui gui, PoseStack stack, float partialTick, int width, int height){
+    private static void renderGatlingOverheat(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+        Player player = getCameraPlayer();
+        if (player.getVehicle() instanceof GatlingPea gatlingPea) {
+            Minecraft mc = gui.getMinecraft();
+            mc.getProfiler().push("gatling_overheat");
+
+            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
+            int j = (int) (gatlingPea.getOverheat() * 182.0F / GatlingPea.MAX_OVERHEAT);
+            int k = height - 32 + 3;
+            blit(stack, width / 2 - 91, k, 0, 30, 182, 5);
+            if (j > 0) {
+                blit(stack, width / 2 - 91, k, 0, 35, j, 5);
+            }
+            mc.getProfiler().pop();
+        }
+    }
+
+    private static void renderSunAsBar(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
         if (PVZConfig.renderSunAsNumber() && !gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
             stack.pushPose();
             RenderSystem.enableBlend();
@@ -119,21 +136,21 @@ public class PVZOverlayHandler{
             int y = PVZConfig.renderSunBarY();
             double scale = PVZConfig.renderSunBarScale();
 
-            stack.scale((float) (0.5F*scale), (float) (0.5F*scale), (float) (0.5F*scale));
+            stack.scale((float) (scale), (float) (scale), (float) (scale));
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
 
             int drawX = x >= 0 ? x + 35 : (int) (width/scale) - 134 + x;
             int drawY = y >= 0 ? y : (int) (height/scale) - 15 + y;
-            Util.GuiBiltScaled(stack, drawX, drawY, 28, 112, 100, 16, 2);
-            Util.GuiBiltScaled(stack, drawX + 3, drawY, 31, 96, bufferSunBarLength, 16, 2);
-            Util.GuiBiltScaled(stack, x >= 0 ? x : (int) (width/scale) - 33 + x, y >= 0 ? y : (int) (height/scale) - 33 + y, 94, 62, 34, 34, 2);
+            Util.GuiBiltScaled(stack, drawX, drawY, 156, 240, 100, 16, 1);
+            Util.GuiBiltScaled(stack, drawX + 3, drawY, 159, 224, bufferSunBarLength, 16, 1);
+            Util.GuiBiltScaled(stack, x >= 0 ? x : (int) (width/scale) - 33 + x, y >= 0 ? y : (int) (height/scale) - 33 + y, 222, 190, 34, 34, 1);
 
             if ((notEnoughHint * 1.5) % 2 >= 1) {
-                Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 86 : (int) (width / scale) - 84 + x) * 2, (y >= 0 ? y + 5 : (int) (height / scale) - 11 + y) * 2, 0xEF1010, 2f);
+                Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 86 : (int) (width / scale) - 84 + x), (y >= 0 ? y + 5 : (int) (height / scale) - 11 + y), 0xEF1010, 1f);
             } else {
-                Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 86 : (int) (width / scale) - 84 + x) * 2, (y >= 0 ? y + 5 : (int) (height / scale) - 11 + y) * 2, 0x663600, 2f);
+                Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 86 : (int) (width / scale) - 84 + x), (y >= 0 ? y + 5 : (int) (height / scale) - 11 + y), 0x663600, 1f);
             }
-            Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 85 : (int) (width/scale) - 85 + x)*2, (y >= 0 ? y + 4 : (int) (height/scale) - 12 + y)*2, 0xFFFFFF, 2f);
+            Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 85 : (int) (width/scale) - 85 + x), (y >= 0 ? y + 4 : (int) (height/scale) - 12 + y), 0xFFFFFF, 1f);
 
             RenderSystem.disableBlend();
             stack.popPose();
@@ -141,7 +158,7 @@ public class PVZOverlayHandler{
         }
     }
 
-    private static void renderSunAsStats(ForgeGui gui, PoseStack stack, float partialTick, int width, int height){
+    private static void renderSunAsStats(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
         if (!PVZConfig.renderSunAsNumber() && !gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
             Minecraft mc = gui.getMinecraft();
             mc.getProfiler().push("sun");
@@ -214,7 +231,7 @@ public class PVZOverlayHandler{
         }
     }
 
-    private static void renderCostOfCards(ForgeGui gui, PoseStack stack, float partialTick, int width, int height){
+    private static void renderCostOfCards(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
         Player player = getCameraPlayer();
         if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements() &&
                 player != null && PVZPlayerCapability.getValue(player, "plant_have_cost") != 0 && storedItemStack.getItem() instanceof SeedPacketItem<?>) {
@@ -256,14 +273,14 @@ public class PVZOverlayHandler{
     }
 
     public static void blit(PoseStack stack,int x, int y, float u, float v, int width, int height) {
-        GuiComponent.blit(stack,x,y,0,u,v,width,height,128,128);
+        GuiComponent.blit(stack,x,y,0,u,v,width,height,256,256);
     }
 
     private static Player getCameraPlayer() {
         return !(ClientProxy.MC.getCameraEntity() instanceof Player) ? null : ClientProxy.getPlayer();
     }
 
-    public static void refreshItemStack(Player player, ItemStack itemStack){
+    public static void refreshItemStack(Player player, ItemStack itemStack) {
         PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, itemStack);
         MinecraftForge.EVENT_BUS.post(event);
         itemStackResourceIsSun = event.resource.equals(PVZPlayerCapNBT.SUN);
@@ -271,9 +288,10 @@ public class PVZOverlayHandler{
     }
 
     @SubscribeEvent
-    public static void registerOverlay(RegisterGuiOverlaysEvent ev){
+    public static void registerOverlay(RegisterGuiOverlaysEvent ev) {
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_level", PVZOverlayHandler::renderSunAsStats);
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_bar", PVZOverlayHandler::renderSunAsBar);
+        ev.registerBelow(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "gatling_overheat", PVZOverlayHandler::renderGatlingOverheat);
         ev.registerAbove(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "card_cost", PVZOverlayHandler::renderCostOfCards);
         ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "player_health", PVZOverlayHandler::renderArmorHealth);
     }

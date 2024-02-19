@@ -47,19 +47,19 @@ public class CabbagePult extends ShooterPlant {
         return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue();
     }
     @Override
-    protected Set<Integer> shootTimes() {
+    public Set<Integer> shootTimes() {
         return Set.of(17);
     }
     @Override
     public int getShootCD() {
-        return 80;
+        return 40;
     }
     @Override
     public float getBulletSpeed() {
         Entity target = this.getTarget();
         if (target != null) {
             double distance = target.distanceTo(this);
-            return (float) (Math.min(0.5 * distance / 12, 2));
+            return (float) (Math.max(0.5 * distance / 12, 0.05));
         }
         return 0.5F;
     }
@@ -69,7 +69,7 @@ public class CabbagePult extends ShooterPlant {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 10D)
+                .add(Attributes.ATTACK_DAMAGE, 7D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

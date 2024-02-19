@@ -217,7 +217,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
-        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this)) {
+        if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this, isPlanting)) {
             if (PVZOwnedCapability.isTeammate(this, target)) {
                 if (!canMountEntity(this, target, this.getVehicle() == target)) {
                     return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());

@@ -24,7 +24,7 @@ public class PVZSeedPackets {
     public static final int FAST = 60;
     public static final int MIDDLE = 200;
     public static final int SLOW = 500;
-    public static final int VERY_SLOW = 900;
+    public static final int VERY_SLOW = 1200;
     @Deprecated //clear after registry.
     public static List<RegisterSeedPacketsEvent.SeedPacketData> seedPackets = new ArrayList<>();
 
@@ -44,7 +44,7 @@ public class PVZSeedPackets {
                 .recipe(Items.LILY_PAD, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE);
         add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
-        add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
+            add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
                 .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
@@ -52,14 +52,15 @@ public class PVZSeedPackets {
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.
                 .recipe(PVZItems.FLOWER_SEED_PACKET).setCreativeOnly();
-        add(PVZEntities.REPEATER).cost(150).coolDown(FAST).skillList(Repeater.staticSkillList)
+        add(PVZEntities.REPEATER).cost(175).coolDown(FAST).skillList(Repeater.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
                 .recipe(Items.GLOW_BERRIES, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE); //TODO change glow berries to a plantern block.
         add(PVZEntities.PUMPKIN).cost(125).coolDown(SLOW).skillList(Pumpkin.staticSkillList)
                 .recipe(Items.PUMPKIN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
-        add(PVZEntities.KERNEL_PULT).cost(125).coolDown(FAST).skillList(KernelPult.staticSkillList)
-                .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
+                .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
+
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();
         MinecraftForge.EVENT_BUS.post(event);

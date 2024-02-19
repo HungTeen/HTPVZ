@@ -16,7 +16,13 @@ public interface IHaveSkills {
     }
 
     int getSkillVal(Object obj/*to support items*/);
+    default int getSkillVal() {
+        return getSkillVal(this);
+    }
     void setSkillVal(Object obj,int value);
+    default void setSkillVal(int value) {
+        setSkillVal(this, value);
+    }
 
     default boolean hasSkill(Object obj, int id) {
         return (1 << id & getSkillVal(obj)) == 1 << id;

@@ -32,7 +32,7 @@ public class PeaBulletRenderer extends CommonBulletRenderer<PeaBullet>{
     @Override
     public ResourceLocation getTextureLocation(PeaBullet bullet) {
         ResourceLocation res;
-        if (PVZConfig.Client.renderBulletAsModel.get()) {
+        if (PVZConfig.renderBulletAsModel()) {
             switch (bullet.getPeaType()) {
                 case Ice -> res = ICE;
                 case Fire -> res = FIRE;
