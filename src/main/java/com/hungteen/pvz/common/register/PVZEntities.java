@@ -5,7 +5,9 @@ import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
+import com.hungteen.pvz.client.renderer.bullet.ButterBulletRenderer;
 import com.hungteen.pvz.client.renderer.bullet.CabbageBulletRenderer;
+import com.hungteen.pvz.client.renderer.bullet.CornBulletRenderer;
 import com.hungteen.pvz.client.renderer.bullet.PeaBulletRenderer;
 import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
 import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
@@ -13,7 +15,9 @@ import com.hungteen.pvz.client.renderer.misc.SunRenderer;
 import com.hungteen.pvz.client.renderer.plants.*;
 import com.hungteen.pvz.client.renderer.zombie.PVZZombieRenderer;
 import com.hungteen.pvz.common.entity.*;
+import com.hungteen.pvz.common.entity.bullet.ButterBullet;
 import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
+import com.hungteen.pvz.common.entity.bullet.CornBullet;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.*;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
@@ -53,6 +57,9 @@ import java.util.function.Supplier;
 import static com.hungteen.pvz.util.Util.name;
 import static com.hungteen.pvz.util.Util.prefix;
 
+
+
+@SuppressWarnings("ALL")
 public class PVZEntities {
     //init
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, PVZMod.MODID);
@@ -132,6 +139,9 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<VelociTurnip>> VELOCI_TURNIP = attribute(VelociTurnip::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, VelociTurnip::checkSpawnRules)
             .collision(0.5F, 0.5825F).entity("veloci_radish", VelociTurnip::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<KernelPult>> KERNEL_PULT = attribute(KernelPult::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.7F, 1F).entity("kernel_pult", KernelPult::new, OtherRegisters.PVZPlantMobCategory);
+
     //zombies
     public static final RegistryObject<EntityType<PVZZombie>> ZOMBIE = attribute(Zombie::createAttributes).noLoot()
             .tag(PVZEntityTags.ZOMBIE).spawnEgg(0xb97141, 0x799587)
@@ -139,6 +149,8 @@ public class PVZEntities {
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F).entity("pea", PeaBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<CabbageBullet>> CABBAGE = collision(0.4F, 0.4F).entity("cabbage", CabbageBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<CornBullet>> CORN = collision(0.25F, 0.25F).entity("corn", CornBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<ButterBullet>> BUTTER = collision(0.5F, 0.5F).entity("butter", ButterBullet::new, MobCategory.MISC);
 
 
     //client
@@ -158,6 +170,8 @@ public class PVZEntities {
         rS(CABBAGE_PULT, CabbagePultModel::new, CabbagePultModel::createBodyLayer, 0.5F, "textures/entity/plants/cabbage_pult/cabbage_pult.png");
         rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
         rS(LILY_PAD, LilyPadModel::new, LilyPadModel::createBodyLayer, 0.5F, "textures/entity/plants/lily_pad/lily_pad.png");
+        rS(KERNEL_PULT, KernelPultModel::new, KernelPultModel::createBodyLayer, 0.5F, "textures/entity/plants/kernel_pult/kernel_pult.png");
+
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -176,6 +190,8 @@ public class PVZEntities {
         r(e, FLOWER_POT, FlowerPotRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
         r(e, CABBAGE, CabbageBulletRenderer::new);
+        r(e, CORN, CornBulletRenderer::new);
+        r(e, BUTTER, ButterBulletRenderer::new);
         r(e, POTATO_MINE, PotatoMineRenderer::new);
         r(e, ZOMBIE, PVZZombieRenderer::new);
 

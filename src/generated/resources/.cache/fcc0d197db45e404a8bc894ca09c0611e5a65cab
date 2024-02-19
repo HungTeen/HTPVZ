@@ -1,0 +1,5 @@
+// 1.19.2	2024-02-15T18:49:08.2278399	Tags for minecraft:entity_type
+29671cfa11d074462c259806e9d60468451e3cdb data/pvz/tags/entity_types/iron.json
+1dd8417555bf87d95e5bf798733cf4584312271f data/pvz/tags/entity_types/must_plant_in_dirt.json
+51827f882c61cd1ff21ad318bcefb54a7888ce6f data/pvz/tags/entity_types/plant.json
+c98391d3fa478a48d598e994ef0736da63a40bb7 data/pvz/tags/entity_types/zombie.json

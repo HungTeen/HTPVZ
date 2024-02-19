@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": {
+      "item": "minecraft:glow_berries"
+    },
+    "B": {
+      "item": "pvz:nether_wart_seed_packet"
+    },
+    "C": {
+      "item": "pvz:lux_essence"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "CBC",
+    "CAC"
+  ],
+  "result": {
+    "item": "pvz:plantern_seed_packet"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": {
+      "item": "pvz:flower_pot_seed"
+    },
+    "C": {
+      "item": "pvz:flower_seed_packet"
+    }
+  },
+  "pattern": [
+    "BBB",
+    "BCB",
+    "BBB"
+  ],
+  "result": {
+    "item": "pvz:flower_pot_seed_packet"
+  }
+}

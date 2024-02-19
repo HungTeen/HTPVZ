@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": {
+      "item": "pvz:cabbage_pult_seed"
+    },
+    "C": {
+      "item": "pvz:flower_seed_packet"
+    }
+  },
+  "pattern": [
+    "BBB",
+    "BCB",
+    "BBB"
+  ],
+  "result": {
+    "item": "pvz:cabbage_pult_seed_packet"
+  }
+}

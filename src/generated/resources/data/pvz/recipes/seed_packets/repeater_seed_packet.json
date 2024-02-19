@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": {
+      "item": "pvz:pea"
+    },
+    "B": {
+      "item": "pvz:nether_wart_seed_packet"
+    },
+    "C": {
+      "item": "pvz:ventus_essence"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "CBC",
+    "CAC"
+  ],
+  "result": {
+    "item": "pvz:repeater_seed_packet"
+  }
+}

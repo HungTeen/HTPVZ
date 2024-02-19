@@ -83,6 +83,9 @@ public class PVZItems {
     public static final RegistryObject<Item> CONE_HELMET = item("cone_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.CONE, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(30), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(80), EquipmentSlot.HEAD));
 
+    //utils tools
+    public static final RegistryObject<Item> SEED_CROSSBOW = item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+
     static {
         createSpawnEggs();
         createSeedPackets();

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "pvz:item/seed_packets/nether_wart_seed_packet",
+    "layer1": "pvz:item/plants/pumpkin"
+  }
+}

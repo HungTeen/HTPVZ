@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "pvz:item/seed_packets/seed",
+    "layer1": "pvz:item/plants/veloci_radish"
+  }
+}
