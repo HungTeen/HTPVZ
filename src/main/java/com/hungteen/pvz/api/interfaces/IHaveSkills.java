@@ -2,7 +2,9 @@ package com.hungteen.pvz.api.interfaces;
 
 import com.hungteen.pvz.api.Skill;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public interface IHaveSkills {
     /**

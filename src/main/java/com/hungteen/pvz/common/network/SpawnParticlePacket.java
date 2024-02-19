@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.network;
 
-import com.hungteen.pvz.PVZMod;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.FriendlyByteBuf;

@@ -1,7 +1,10 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.interfaces.*;
+import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
+import com.hungteen.pvz.api.interfaces.ICanGroupUp;
+import com.hungteen.pvz.api.interfaces.IHaveSkills;
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
@@ -52,7 +55,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
 
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 

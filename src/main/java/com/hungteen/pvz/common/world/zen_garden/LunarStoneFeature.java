@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.world.zen_garden;
 
 import com.hungteen.pvz.common.register.PVZBlocks;
-import com.hungteen.pvz.common.register.PVZFeatures;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;

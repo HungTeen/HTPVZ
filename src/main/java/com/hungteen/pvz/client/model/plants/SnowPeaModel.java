@@ -3,7 +3,6 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.PeaShooterAnimation;
 import com.hungteen.pvz.client.model.plants.animation.SnowPeaAnimation;
 import com.hungteen.pvz.common.entity.plants.SnowPea;
 import com.mojang.blaze3d.vertex.PoseStack;

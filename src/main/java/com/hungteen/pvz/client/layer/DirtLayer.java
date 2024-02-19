@@ -1,11 +1,8 @@
 package com.hungteen.pvz.client.layer;
 
 import com.hungteen.pvz.client.model.DirtModel;
-import com.hungteen.pvz.client.model.plants.TallNutArmorModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.common.entity.plants.TallNut;
 import com.hungteen.pvz.common.network.ClientProxy;
-import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.EntityModelSet;

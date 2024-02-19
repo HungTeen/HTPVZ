@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": {
+      "item": "pvz:nut"
+    },
+    "B": {
+      "item": "pvz:flower_seed_packet"
+    },
+    "C": {
+      "item": "pvz:terra_essence"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "CBC",
+    "CAC"
+  ],
+  "result": {
+    "item": "pvz:wall_nut_seed_packet"
+  }
+}

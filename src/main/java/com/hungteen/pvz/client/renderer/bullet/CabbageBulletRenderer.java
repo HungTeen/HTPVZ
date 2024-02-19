@@ -2,10 +2,8 @@ package com.hungteen.pvz.client.renderer.bullet;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
-import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 
 public class CabbageBulletRenderer extends CommonBulletRenderer<CabbageBullet>{

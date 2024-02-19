@@ -1,8 +1,8 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
+import com.hungteen.pvz.api.interfaces.IDefenderPlant;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
-import com.hungteen.pvz.api.interfaces.IDefenderPlant;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;

@@ -1,7 +1,6 @@
 package com.hungteen.pvz.client.renderer.zombie;
 
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
-import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;

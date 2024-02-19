@@ -1,9 +1,6 @@
 package com.hungteen.pvz.client.renderer.bullet;
 
 import com.hungteen.pvz.PVZConfig;
-import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
-import com.hungteen.pvz.client.model.plants.TallNutModel;
-import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "render_type": "minecraft:solid",
+  "textures": {
+    "bottom": "pvz:block/nut_planks",
+    "side": "pvz:block/nut_planks",
+    "top": "pvz:block/nut_planks"
+  }
+}
