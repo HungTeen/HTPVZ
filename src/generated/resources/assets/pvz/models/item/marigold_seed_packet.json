@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "pvz:item/seed_packets/flower_seed_packet",
-    "layer1": "pvz:item/plants/marigold"
-  }
-}

@@ -60,7 +60,7 @@ public class KernelPult extends ShooterPlant {
         return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue();
     }
     @Override
-    protected Set<Integer> shootTimes() {
+    public Set<Integer> shootTimes() {
         return Set.of(17);
     }
     @Override
