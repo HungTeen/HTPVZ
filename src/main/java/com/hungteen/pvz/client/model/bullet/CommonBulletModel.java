@@ -32,7 +32,8 @@ public class CommonBulletModel<T extends Entity> extends EntityModel<T> {
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 //        if(entity instanceof PultProjectile){
-//            this.total.xRot = ageInTicks * 0.1F;
+        this.total.xRot = entity.getXRot();
+        this.total.yRot = entity.getYRot();
 //        } else{
 //            this.total.xRot = 0;
 //       }

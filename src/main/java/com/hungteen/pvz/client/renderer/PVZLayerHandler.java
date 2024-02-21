@@ -4,6 +4,7 @@ import com.hungteen.pvz.client.model.DirtModel;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.client.model.armor.BucketHelmetModel;
+import com.hungteen.pvz.client.model.armor.ButterHeadModel;
 import com.hungteen.pvz.client.model.armor.ConeHelmetModel;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
 import com.hungteen.pvz.client.model.plants.*;
@@ -41,6 +42,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.WALL_NUT, "armor", WallNutArmorModel::createBodyLayer);
         L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.POTATO_MINE, PotatoMineModel::createBodyLayer);
+        L(e, PVZEntities.SNOW_PEA, SnowPeaModel::createBodyLayer);
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
         L(e, PVZEntities.TALL_NUT, TallNutModel::createBodyLayer);
         L(e, PVZEntities.TALL_NUT, "armor", TallNutArmorModel::createBodyLayer);
@@ -50,6 +52,7 @@ public class PVZLayerHandler {
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
         L(e, "dirt", DirtModel::createBodyLayer);
+        L(e, "butter", ButterHeadModel::createBodyLayer);
         L(e, PVZItems.CONE_HELMET, () -> ConeHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
         L(e, PVZItems.BUCKET_HELMET, () -> BucketHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
 

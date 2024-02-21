@@ -32,6 +32,7 @@ import java.util.function.ToIntFunction;
 
 import static com.hungteen.pvz.common.register.PVZItemTabs.PVZ_BLOCKS;
 
+@SuppressWarnings("all")
 public class PVZBlocks {
 
     //init

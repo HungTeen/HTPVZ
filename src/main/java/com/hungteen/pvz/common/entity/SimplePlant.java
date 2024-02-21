@@ -5,14 +5,17 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
+import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.world.PVZDamageSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -46,6 +49,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
@@ -62,7 +66,7 @@ import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
  */
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
-public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
+public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSituation, ICanAttack {
 
 
     /**
@@ -123,49 +127,69 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public Set<TagKey<Block>> getAcceptableTags() {
         return Set.of(PVZBlockTags.PLANTABLE_BLOCKS);
     }
+
+    /**The direction used for testing whether this situation is safe.
+     * @see INeedSafeSituation#isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent, Level, BlockPos, Direction, boolean) */
+    public Direction getRootDirection() {
+        return Direction.UP;
+    }
+
     /**
-     * see {@link INeedSafeSituation}  for the two methods below.
+     * @see INeedSafeSituation
      */
     @Override
-    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean isPlanting) {
-        AABB aabb = AABB.ofSize(new Vec3(onPos.getX() + 0.5, onPos.getY() + 1 + getBbHeight() / 2, onPos.getZ() + 0.5), getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
-        if (BlockPos.betweenClosedStream(aabb).anyMatch((pos) -> {
-            BlockState blockstate = this.level.getBlockState(pos);
-            return !blockstate.isAir() && blockstate.isSuffocating(this.level, pos) &&
-                    Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, pos).move(pos.getX(), pos.getY(), pos.getZ()), Shapes.create(aabb), BooleanOp.AND);
+    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
+        if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
+            pos = pos.offset(direction.getNormal()).below();
+        }
+        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
+        if (BlockPos.betweenClosedStream(aabb).anyMatch((pos1) -> {
+            BlockState blockstate = this.level.getBlockState(pos1);
+            return !blockstate.isAir() && blockstate.isSuffocating(this.level, pos1) &&
+                    Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, pos1).move(pos1.getX(), pos1.getY(), pos1.getZ()), Shapes.create(aabb), BooleanOp.AND);
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        if (shouldHaveCoincideDmg(level, onPos)) {
+        if (shouldHaveCoincideDmg(level, pos)) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
         boolean plantableOn = false;
         for (TagKey<Block> tag: getAcceptableTags()) {
-            if (level.getBlockState(onPos).is(tag)) {
+            if (level.getBlockState(pos).is(tag)) {
                 plantableOn = true;
                 break;
             }
         }
-        if (! this.getEntityData().get(root()) || (plantableOn && ! level.getBlockState(onPos).isAir())) {
-            if (level.getBlockState(onPos).getFluidState().isEmpty()) {
+        if (! this.getEntityData().get(root()) || (plantableOn && ! level.getBlockState(pos).isAir())) {
+            if (level.getBlockState(pos).getFluidState().isEmpty()) {
                 if (isPlanting) {
                     this.moveTo(
-                            onPos.getX() + 0.5,
-                            onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ?
-                                    (level.getFluidState(onPos).isEmpty() ? 0: level.getFluidState(onPos).getHeight(level, onPos)) :
-                                    level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
-                            onPos.getZ() + 0.5);
+                            pos.getX() + 0.5,
+                            pos.getY() + (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
+                                    (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
+                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY),
+                            pos.getZ() + 0.5);
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 }
                 return null;
             }
             return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
         } else {
-            return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(onPos).getBlock().getName());
+            return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(pos).getBlock().getName());
         }
     }
     @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
+    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
         if (target == null) {
             if (! isPlanting) {
                 this.boardingCooldown = 0;
@@ -189,7 +213,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             if (PVZOwnedCapability.isTeammate(this, target)) {
                 if (! canMountEntity(this, target, this.getVehicle() == target)) {
                     return isPlanting && target.getFirstPassenger() != null ?
-                            isVehicleSafe(target.getFirstPassenger(), true) :
+                            isVehicleSafe(event, target.getFirstPassenger(), true) :
                             Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
                 }
                 if (isPlanting) {
@@ -225,7 +249,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         super.baseTick();
         //check plant situation damage.
         if (! level.isClientSide) {
-            if (isPositionSafe(this.level, this.getOnPos(), false) != null && isVehicleSafe(getVehicle(), false) != null &&
+            if (isPositionSafe(null, this.level, this.getOnPos(), Direction.UP, false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
                     this.getAttribute(Attributes.MAX_HEALTH) != null) {
                 if (++ situationHurtCount > 10) {
                     this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
@@ -299,9 +323,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         //shovel plant.
         if (!player.level.isClientSide() && permission[0]) {
             ItemStack itemstack = player.getItemInHand(handIn);
-            itemstack.hurtAndBreak(2, player, (entity) -> {
-                entity.broadcastBreakEvent(handIn);
-            });
+            itemstack.hurtAndBreak(2, player, (entity) -> entity.broadcastBreakEvent(handIn));
             int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
             PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
             if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
@@ -312,7 +334,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             if (this.isVehicle()) {
                 this.getPassengers().forEach((entity -> {
                     if (entity instanceof INeedSafeSituation entity1) {
-                        entity1.isVehicleSafe(this.getVehicle(), true);
+                        entity1.isVehicleSafe(null, this.getVehicle(), true);
                     }
                 }));
             }

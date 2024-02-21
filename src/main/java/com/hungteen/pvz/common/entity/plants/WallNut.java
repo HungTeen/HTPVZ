@@ -4,9 +4,11 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IDefenderPlant;
 import com.hungteen.pvz.api.interfaces.IIronEntity;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -105,7 +107,12 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     }
 
     @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
+    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
         if (hasSkill(this, "skill.pvz.wall_nut.wall_nut_first_aid") && target != null && target.getClass() == this.getClass()) {
             if (PVZOwnedCapability.isTeammate(this, target)) {
                 if (((WallNut) target).getHealth() > ((WallNut) target).getMaxHealth() * 0.67) {
@@ -122,7 +129,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
             }
             return Component.translatable("hint.pvz.plant.need_own_team");
         }
-        return super.isVehicleSafe(target, isPlanting);
+        return super.isVehicleSafe(event, target, isPlanting);
     }
 
     //overrides

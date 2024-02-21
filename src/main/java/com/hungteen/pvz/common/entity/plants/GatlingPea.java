@@ -2,12 +2,15 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -22,6 +25,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -83,13 +87,12 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
     public void shootBullet() {
         this.performShoot(SHOOT_OFFSET, 0, 0, true,
                 this.getOverheat() > MAX_OVERHEAT * 0.67 ? (this.getOverheat() - MAX_OVERHEAT * 0.67) / 50 : 0);
-        this.setOverheat(this.getOverheat() + 12);
+        this.setOverheat(this.getOverheat() + 12 * (this.getFirstPassenger() instanceof Player player && player.isCreative() ? 0 : 1));
         if (getOverheat() > MAX_OVERHEAT && ! this.entityData.get(FUSING)) {
-            final Vec3 vec = new Vec3(- Math.sin(yBodyRot / 360 * 2 * Math.PI) * 0.6, 0, Math.cos(yBodyRot / 360 * 2 * Math.PI) * 0.6);
-            level.addParticle(ParticleTypes.EXPLOSION, getX() + vec.x + (random.nextFloat() - 0.5) * 0.25,
-                    getY() + getEyeHeight() + (random.nextFloat() - 0.5) * 0.25,
-                    getZ() + vec.z + (random.nextFloat() - 0.5) * 0.25, 0, 0, 0);
             this.entityData.set(FUSING, true);
+        }
+        if (this.getFirstPassenger() instanceof Player player) {
+            player.yHeadRot += 5;
         }
     }
 
@@ -100,7 +103,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
     }
 
     public float getAttackDamage() {
-        return (float) (this.getFirstPassenger() instanceof Player ? 0.4 : 1) * super.getAttackDamage();
+        return (float) (this.getFirstPassenger() instanceof Player ? 0.6 : 1) * super.getAttackDamage();
     }
 
     @Override
@@ -115,6 +118,11 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
             level.addParticle(ParticleTypes.SMOKE, getX() + vec.x + (random.nextFloat() - 0.5) * 0.25,
                     getY() + getEyeHeight() + (random.nextFloat() - 0.5) * 0.25,
                     getZ() + vec.z + (random.nextFloat() - 0.5) * 0.25, 0, 0, 0);
+            if (this.getOverheat() > MAX_OVERHEAT) {
+                level.addParticle(ParticleTypes.EXPLOSION, getX() + vec.x + (random.nextFloat() - 0.5) * 0.5,
+                        getY() + getEyeHeight() + (random.nextFloat() - 0.5) * 0.5,
+                        getZ() + vec.z + (random.nextFloat() - 0.5) * 0.5, 0, 0, 0);
+            }
         }
         if (! (this.getFirstPassenger() instanceof Player)) {
             playerFire = false;
@@ -178,23 +186,32 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (! hasSkill("skill.pvz.gatling_pea.low_budget_configuration")) {
-            if (PVZOwnedCapability.isTeammate(this, player) && getPassengers().isEmpty() && player.getItemInHand(hand).isEmpty()) {
+            if (PVZOwnedCapability.isTeammate(this, player) && getPassengers().isEmpty()
+                    && player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()
+                    && ! (player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShovelItem)) {
                 player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
                 player.startRiding(this);
+                this.setTarget(null);
+                this.setAttackTime(this, 30);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }
         return super.mobInteract(player, hand);
     }
     @Override
-    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean isPlanting) {
+    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting) {
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());
         }
-        return super.isPositionSafe(level, onPos, false);
+        return super.isPositionSafe(event, level, pos, direction, false);
     }
     @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
+    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
         if (isPlanting) {
             if (target.getType() == PVZEntities.REPEATER.get()) {
                 GatlingPea gatlingPea = ((Mob) target).convertTo(PVZEntities.GATLING_PEA.get(), true);
@@ -209,7 +226,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
             }
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());
         }
-        return super.isVehicleSafe(target, false);
+        return super.isVehicleSafe(event, target, false);
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

@@ -9,6 +9,7 @@ import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,6 +18,8 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -113,7 +116,7 @@ public class PVZOverlayHandler{
 
     private static void renderGatlingOverheat(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
         Player player = getCameraPlayer();
-        if (player.getVehicle() instanceof GatlingPea gatlingPea) {
+        if (player != null && player.getVehicle() instanceof GatlingPea gatlingPea) {
             Minecraft mc = gui.getMinecraft();
             mc.getProfiler().push("gatling_overheat");
 
@@ -125,6 +128,15 @@ public class PVZOverlayHandler{
                 blit(stack, width / 2 - 91, k, 0, 35, j, 5);
             }
             mc.getProfiler().pop();
+        }
+    }
+
+    private static void renderButter(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+        if (ClientProxy.MC.getCameraEntity() instanceof LivingEntity entity &&
+                entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null)
+        {
+            gui.renderTextureOverlay(Util.prefix("textures/gui/butter_outline.png"),
+                    entity.hasEffect(PVZMobEffects.BUTTER.get()) ? Math.min(1, (float) entity.getEffect(PVZMobEffects.BUTTER.get()).getDuration() / 60) : 0);
         }
     }
 
@@ -294,6 +306,7 @@ public class PVZOverlayHandler{
         ev.registerBelow(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "gatling_overheat", PVZOverlayHandler::renderGatlingOverheat);
         ev.registerAbove(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "card_cost", PVZOverlayHandler::renderCostOfCards);
         ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "player_health", PVZOverlayHandler::renderArmorHealth);
+        ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "butter", PVZOverlayHandler::renderButter);
     }
 
 }

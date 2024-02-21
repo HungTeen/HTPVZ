@@ -20,8 +20,9 @@ import java.util.Set;
 
 public class KernelPult extends ShooterPlant {
     public static final EntityDataAccessor<Integer> CURRENT_BULLET = SynchedEntityData.defineId(KernelPult.class, EntityDataSerializers.INT);
-    private static final int BUTTER_CHANCE = 10;
+    private static final int BUTTER_CHANCE = 3;
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
+
     public static List<Skill> staticSkillList = List.of(
     );
 
@@ -57,28 +58,29 @@ public class KernelPult extends ShooterPlant {
 
     @Override
     public float getAttackDamage() {
-        return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+        return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue() * (getCurrentBullet() == CornTypes.BUTTER ? 2 : 1);
     }
     @Override
     public Set<Integer> shootTimes() {
-        return Set.of(17);
+        return Set.of(10);
     }
     @Override
     public int getShootCD() {
-        return 50;
+        return 40;
+    }
+    @Override
+    public int shootAnimLength() {
+        return 15;
     }
     @Override
     public float getBulletSpeed() {
         Entity target = this.getTarget();
         if (target != null) {
             double distance = target.distanceTo(this);
-            return (float) (Math.min(0.5 * distance / 12, 2));
+            return (float) (Math.max(0.5 * distance / 12, 0.05));
         }
         return 0.5F;
     }
-   /// public EffectInstance getButterEffect() {
-   ///     return new EffectInstance(EffectRegister.BUTTER_EFFECT.get(), this.getButterDuration(), 1, false, false);
-   /// }
 
     protected void changeBullet() {
         this.setCurrentBullet(this.getRandom().nextInt(BUTTER_CHANCE) == 0 ? CornTypes.BUTTER : CornTypes.KERNEL);
@@ -108,7 +110,7 @@ public class KernelPult extends ShooterPlant {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 10D)
+                .add(Attributes.ATTACK_DAMAGE, 4D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 
@@ -116,7 +118,7 @@ public class KernelPult extends ShooterPlant {
     public EntityDimensions getDimensions(Pose poseIn) {
         return EntityDimensions.scalable(0.7F, 1.0F);
     }
-    public static enum CornTypes{
+    public enum CornTypes{
         KERNEL,
         BUTTER
     }

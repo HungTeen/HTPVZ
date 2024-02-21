@@ -57,9 +57,7 @@ import java.util.function.Supplier;
 import static com.hungteen.pvz.util.Util.name;
 import static com.hungteen.pvz.util.Util.prefix;
 
-
-
-@SuppressWarnings("ALL")
+@SuppressWarnings("all")
 public class PVZEntities {
     //init
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, PVZMod.MODID);
@@ -138,6 +136,8 @@ public class PVZEntities {
             .collision(0.7F, 1F).entity("cabbage_pult", CabbagePult::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<PotatoMine>> POTATO_MINE = attribute(PotatoMine::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
             .collision(0.4F, 0.4F).entity("potato_mine", PotatoMine::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<SpikeWeed>> SPIKE_WEED = attribute(SpikeWeed::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
+            .collision(1F, 0.125F).entity("spike_weed", SpikeWeed::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<VelociTurnip>> VELOCI_TURNIP = attribute(VelociTurnip::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, VelociTurnip::checkSpawnRules)
             .collision(0.5F, 0.5825F).entity("veloci_radish", VelociTurnip::new, OtherRegisters.PVZPlantMobCategory);
@@ -169,12 +169,11 @@ public class PVZEntities {
         rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.5F, "textures/entity/plants/pea_shooter/pea_shooter.png");
         rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.5F, "textures/entity/plants/repeater/repeater.png");
         rS(GATLING_PEA, GatlingPeaModel::new, GatlingPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/gatling_pea/gatling_pea.png");
-        rS(SNOW_PEA, SnowPeaModel::new, SnowPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/snow_pea/snow_pea.png");
         rS(CABBAGE_PULT, CabbagePultModel::new, CabbagePultModel::createBodyLayer, 0.5F, "textures/entity/plants/cabbage_pult/cabbage_pult.png");
         rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
         rS(LILY_PAD, LilyPadModel::new, LilyPadModel::createBodyLayer, 0.5F, "textures/entity/plants/lily_pad/lily_pad.png");
         rS(KERNEL_PULT, KernelPultModel::new, KernelPultModel::createBodyLayer, 0.5F, "textures/entity/plants/kernel_pult/kernel_pult.png");
-
+        rS(SPIKE_WEED, SpikeWeedModel::new, SpikeWeedModel::createBodyLayer, 0.5F, "textures/entity/plants/spike_weed/spike_weed.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -185,6 +184,7 @@ public class PVZEntities {
         r(e, GRASSCARP, GrassCarpRenderer::new);
         r(e, WALL_NUT, WallNutRenderer::new);
         r(e, PUMPKIN, PumpkinRenderer::new);
+        r(e, SNOW_PEA, SnowPeaRenderer::new);
         r(e, SUN, SunRenderer::new);
         r(e, SUN_FLOWER, SunFlowerRenderer::new);
         r(e, MARIGOLD, MariGoldRenderer::new);

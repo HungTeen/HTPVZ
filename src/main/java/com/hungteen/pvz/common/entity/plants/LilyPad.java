@@ -3,12 +3,15 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -25,6 +28,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -33,6 +37,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.IFluidBlock;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -153,7 +158,9 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hasSkill(this, "skill.pvz.lily_pad.lily_boat")) {
-            if (PVZOwnedCapability.isTeammate(this, player) && getPassengers().isEmpty() && player.getItemInHand(hand).isEmpty()) {
+            if (PVZOwnedCapability.isTeammate(this, player) && getPassengers().isEmpty()
+                    && player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()
+                    && ! (player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShovelItem)) {
                 player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
                 player.startRiding(this);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
@@ -195,8 +202,16 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         return true;
     }
     @Override
-    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean isPlanting) {
-        AABB aabb = AABB.ofSize(new Vec3(onPos.getX() + 0.5, onPos.getY() + 1 + getBbHeight() / 2, onPos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
+    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
+        if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
+            pos = pos.offset(direction.getNormal()).below();
+        }
+        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
         if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
             BlockState blockstate = this.level.getBlockState(p_201942_);
             return !blockstate.isAir() && blockstate.isSuffocating(this.level, p_201942_) &&
@@ -205,19 +220,19 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
 
-        if (shouldHaveCoincideDmg(level, onPos)) {
+        if (shouldHaveCoincideDmg(level, pos)) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        if (! this.getEntityData().get(root()) || (! level.getBlockState(onPos).isAir())) {
-            if (level.getBlockState(onPos).getFluidState().is(FluidTags.WATER) ||
-                    (this.hasSkill("skill.pvz.lily_pad.lava_swimmer") && level.getBlockState(onPos).getFluidState().is(FluidTags.LAVA))) {
+        if (! this.getEntityData().get(root()) || (! level.getBlockState(pos).isAir())) {
+            if (level.getBlockState(pos).getFluidState().is(FluidTags.WATER) ||
+                    (this.hasSkill("skill.pvz.lily_pad.lava_swimmer") && level.getBlockState(pos).getFluidState().is(FluidTags.LAVA))) {
                 if (isPlanting) {
                     this.moveTo(
-                            onPos.getX() + 0.5,
-                            onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ?
-                                    (level.getFluidState(onPos).isEmpty() ? 0: level.getFluidState(onPos).getHeight(level, onPos)) :
-                                    level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
-                            onPos.getZ() + 0.5);
+                            pos.getX() + 0.5,
+                            pos.getY() + (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
+                                    (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
+                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY),
+                            pos.getZ() + 0.5);
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 }
                 return null;
@@ -229,7 +244,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         return null;
     }
     @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
+    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }

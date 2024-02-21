@@ -27,7 +27,7 @@ public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, Ent
     @Override
     protected void scale(T wallNut, PoseStack p_114047_, float p_114048_) {
         float f = wallNut.getEntityData().get(EXPLODE_COUNT) < 0 ? 0 :
-                (float) wallNut.getEntityData().get(EXPLODE_COUNT) / 20;
+                (float) wallNut.getEntityData().get(EXPLODE_COUNT) / 10;
         float f1 = 1.0F + Mth.sin(f * 100.0F) * f * 0.01F;
         f = Mth.clamp(f, 0.0F, 1.0F);
         f *= f;

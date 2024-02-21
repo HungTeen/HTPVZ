@@ -22,9 +22,9 @@ public class ButterBullet extends BaseBullet {
         this.damageName = "butter";
     }
 
-    public ButterBullet(Level worldIn, LivingEntity cabbagePult) {
-        super(PVZEntities.BUTTER.get(), worldIn, cabbagePult);
-        setOwner(cabbagePult);
+    public ButterBullet(Level worldIn, LivingEntity kernelPult) {
+        super(PVZEntities.BUTTER.get(), worldIn, kernelPult);
+        setOwner(kernelPult);
         this.setNoGravity(false);
         this.damageName = "butter";
     }
@@ -51,7 +51,7 @@ public class ButterBullet extends BaseBullet {
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
         for (int i = 0; i < 5; i ++) {
-            level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.CABBAGE.get())),
+            level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.LUX_ESSENCE.get())),//TODO change that.
                     getX(), getY(), getZ(),
                     - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.12,
                     - movement.y * 0.25 + random.nextFloat() * 0.25,
@@ -61,10 +61,6 @@ public class ButterBullet extends BaseBullet {
     @Override
     public float getSize() {
         return this.size;
-    }
-    @Override
-    public float getAttackDamage() {
-        return this.attackDamage*2;
     }
     @Override
     public void tick() {

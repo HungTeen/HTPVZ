@@ -6,11 +6,14 @@ import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.api.interfaces.IDefenderPlant;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -74,7 +77,12 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
         return 0.05;
     }
     @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
+    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
         if (target == null) {
             if (! isPlanting) {
                 this.boardingCooldown = 0;
@@ -114,7 +122,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
             if (PVZOwnedCapability.isTeammate(this, target)) {
                 if (! canMountEntity(this, target, this.getVehicle() == target)) {
                     return isPlanting && target.getFirstPassenger() != null ?
-                            isVehicleSafe(target.getFirstPassenger(), true) :
+                            isVehicleSafe(event, target.getFirstPassenger(), true) :
                             Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
                 }
                 if (isPlanting) {
@@ -135,7 +143,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
             } else if (target.getVehicle() == null) {
                 target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
                 target.startRiding(this);
-                if (isPositionSafe(target.level, target.blockPosition().below(), true) == null) {
+                if (isPositionSafe(event, target.level, target.blockPosition().below(), Direction.UP, true) == null) {
                     return null;
                 } else {
                     target.stopRiding();

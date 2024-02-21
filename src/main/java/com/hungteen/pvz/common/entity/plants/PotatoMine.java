@@ -77,7 +77,7 @@ public class PotatoMine extends SimplePlant {
         }
         if (this.getEntityData().get(EXPLODE_COUNT) > -1) {
             this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) + 1);
-            if (this.getEntityData().get(EXPLODE_COUNT) > 20) {
+            if (this.getEntityData().get(EXPLODE_COUNT) > 10) {
                 this.explode();
             }
         }
@@ -173,7 +173,7 @@ public class PotatoMine extends SimplePlant {
         @Override
         public boolean canUse() {
             if (potatoMine.getEntityData().get(EXPLODE_COUNT) == -1 && potatoMine.getEntityData().get(PREPARE_COUNT) == 0) {
-                List<Entity> targets = this.potatoMine.level.getEntities(potatoMine, potatoMine.getBoundingBox().inflate(1),
+                List<Entity> targets = this.potatoMine.level.getEntities(potatoMine, potatoMine.getBoundingBox(),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(potatoMine, entity));
                 if (! targets.isEmpty()) {
                     potatoMine.getEntityData().set(EXPLODE_COUNT, 0);

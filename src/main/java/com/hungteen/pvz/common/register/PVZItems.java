@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 
 import static com.hungteen.pvz.util.Util.name;
 
+@SuppressWarnings("all")
 public class PVZItems {
 
     //init
@@ -68,6 +69,7 @@ public class PVZItems {
     public static final RegistryObject<Item> FLOWER_SEED_PACKET = item("flower_seed_packet", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
     public static final RegistryObject<Item> NETHER_WART_SEED_PACKET = item("nether_wart_seed_packet", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
     public static final RegistryObject<Item> CHORUS_FRUIT_SEED_PACKET = item("chorus_fruit_seed_packet", ()-> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
+    public static final RegistryObject<Item> FLUORESCENT_DAISY_SEED_PACKET = item("fluorescent_daisy_seed_packet", ()-> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
 
     //food
     public static final RegistryObject<Item> POP_SMARTS = item("pop_smarts", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.5F).build())));
@@ -84,7 +86,7 @@ public class PVZItems {
     public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(80), EquipmentSlot.HEAD));
 
     //utils tools
-    public static final RegistryObject<Item> SEED_CROSSBOW = item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 
     static {
         createSpawnEggs();

@@ -56,7 +56,4 @@ public class EntityUtil {
     public static boolean isEntityPeace(LivingEntity entity, int cd) {
         return entity.getLastHurtByMobTimestamp() < entity.tickCount - cd || entity.getLastHurtByMob() == null;
     }
-    public static boolean isEntityButter(LivingEntity entity) {
-        return entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null;
-    }
 }

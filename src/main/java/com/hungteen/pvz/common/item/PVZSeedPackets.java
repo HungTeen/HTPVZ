@@ -42,10 +42,12 @@ public class PVZSeedPackets {
                 .recipe(Items.POTATO, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.LILY_PAD).cost(25).coolDown(FAST).skillList(LilyPad.staticSkillList)
                 .recipe(Items.LILY_PAD, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE);
+        add(PVZEntities.SPIKE_WEED).cost(100).coolDown(FAST).skillList(SpikeWeed.staticSkillList)
+                .recipe(Items.GLOW_LICHEN, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
-            add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
-                .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
+            .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.VELOCI_TURNIP).cost(50).coolDown(FAST).skillList(VelociTurnip.staticSkillList)
@@ -60,6 +62,8 @@ public class PVZSeedPackets {
                 .recipe(Items.PUMPKIN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
+        add(PVZEntities.KERNEL_PULT).cost(100).coolDown(MIDDLE).skillList(KernelPult.staticSkillList)
+                .recipe(PVZItems.CABBAGE, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE); //TODO change cabbage to kernel.
 
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();

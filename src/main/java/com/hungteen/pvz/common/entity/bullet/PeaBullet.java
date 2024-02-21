@@ -36,10 +36,10 @@ public class PeaBullet extends BaseBullet {
     @Override
     public void tick() {
         super.tick();
-        //change type
 //        if (getPeaType() == PeaType.Fire || level.getBlockState(this.blockPosition()).is(Blocks.FIRE) || level.getBlockState(this.blockPosition()).is(Blocks.SOUL_FIRE)) {
 //            setSecondsOnFire(1);
 //        }
+        //change type
         if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
             if (getPeaType() == PeaType.Fire) {
                 setPeaType(PeaType.Common);
@@ -107,10 +107,14 @@ public class PeaBullet extends BaseBullet {
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
         if (getPeaType() == PeaType.Fire) {
-            result.getEntity().setSecondsOnFire(5);
+            if (! result.getEntity().fireImmune()) {
+                result.getEntity().setSecondsOnFire(5);
+            }
         } else if (getPeaType() == PeaType.Ice) {
             result.getEntity().clearFire();
-            result.getEntity().setTicksFrozen(400);
+            if (result.getEntity().canFreeze()) {
+                result.getEntity().setTicksFrozen(400);
+            }
         }
     }
     @Override

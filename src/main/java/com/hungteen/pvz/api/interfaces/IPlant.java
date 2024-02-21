@@ -9,7 +9,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
  * If need skills, implements {@link IHaveSkills} .<br>
  * Also, override {@link net.minecraft.world.entity.Mob#removeWhenFarAway(double)} .
  */
-public interface IPlant extends INeedSafeSituation {
+public interface IPlant{
 
     /**EntityData controlling if the plant need proper block to plant on.*/
     EntityDataAccessor<Boolean> root();

@@ -5,6 +5,7 @@ import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -90,7 +91,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     }
 
     @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
+    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }

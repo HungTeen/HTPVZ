@@ -76,13 +76,13 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			}
 			int time = Math.round(distanceTo(target) / speed);
 			deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
-			target.getY() + targetSpeed.y * time + target.getEyeHeight() - bullet.getY(),//angle limit move to targeting goals.
+			target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),//angle limit move to targeting goals.
 					target.getZ() + targetSpeed.z * time - bullet.getZ());
 			for (int tmp = 0; tmp < 3; tmp ++) {
 				//recurse to increase accuracy.
 				time = (int) Math.round(Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y + deltaPos.z * deltaPos.z) / speed);
 				deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
-						target.getY() + targetSpeed.y * time + target.getEyeHeight() - bullet.getY(),
+						target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),
 						target.getZ() + targetSpeed.z * time - bullet.getZ());
 			}
 		} else {

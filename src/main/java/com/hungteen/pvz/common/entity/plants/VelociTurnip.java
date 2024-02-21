@@ -7,13 +7,16 @@ import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
+import com.hungteen.pvz.common.entity.INeedSafeSituation;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
+import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -21,6 +24,7 @@ import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.world.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -49,6 +53,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.fluids.IFluidBlock;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -58,7 +63,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
-public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, IHaveSkills {
+public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, INeedSafeSituation, IHaveSkills {
     private static final UUID ATTACK_MODIFIER_UUID = UUID.fromString("191e7725-e0a8-45cf-93ac-5a1749b36d03");
     private static final UUID HEALTH_MODIFIER_UUID = UUID.fromString("45e5f868-f733-423f-81b0-b3df87d3f266");
     private int animationTick = 0;
@@ -184,30 +189,38 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
 
     //overrides
     @Override
-    public MutableComponent isPositionSafe(Level level, BlockPos onPos, boolean isPlanting) {
-        AABB aabb = AABB.ofSize(new Vec3(onPos.getX() + 0.5, onPos.getY() + 1 + getBbHeight() / 2, onPos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
+    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
+        if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
+            pos = pos.offset(direction.getNormal()).below();
+        }
+        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
         if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
             BlockState blockstate = this.level.getBlockState(p_201942_);
             return !blockstate.isAir() && blockstate.isSuffocating(this.level, p_201942_) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, p_201942_).move((double)p_201942_.getX(), (double)p_201942_.getY(), (double)p_201942_.getZ()), Shapes.create(aabb), BooleanOp.AND);
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        if (! this.getEntityData().get(root()) || ! level.getBlockState(onPos).isAir()) {
+        if (! this.getEntityData().get(root()) || ! level.getBlockState(pos).isAir()) {
             if (isPlanting) {
-                if (! level.getBlockState(onPos).getFluidState().isEmpty()) {
+                if (! level.getBlockState(pos).getFluidState().isEmpty()) {
                     return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
                 }
                 this.moveTo(
-                        onPos.getX() + 0.5,
-                        onPos.getY() + (level.getBlockState(onPos).getCollisionShape(level, onPos).isEmpty() ?
-                                (level.getFluidState(onPos).isEmpty() ? 0: level.getFluidState(onPos).getHeight(level, onPos)) :
-                                level.getBlockState(onPos).getCollisionShape(level, onPos).bounds().maxY),
-                        onPos.getZ() + 0.5);
+                        pos.getX() + 0.5,
+                        pos.getY() + (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
+                                (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
+                                level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY),
+                        pos.getZ() + 0.5);
                 ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
             }
             return null;
         } else {
-            return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(onPos).getBlock().getName());
+            return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(pos).getBlock().getName());
         }
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
@@ -215,7 +228,12 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
 
     @Override
-    public MutableComponent isVehicleSafe(Entity target, boolean isPlanting) {
+    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
@@ -282,7 +300,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
         }
         //check plant situation damage.
         if (! level.isClientSide) {
-            if (isPositionSafe(this.level, this.getOnPos(), false) != null && isVehicleSafe(getVehicle(), false) != null &&
+            if (isPositionSafe(null, this.level, this.getOnPos(), Direction.UP,false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
                     this.getAttribute(Attributes.MAX_HEALTH) != null) {
                 if (++ situationHurtCount > 100) {
                     this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.4 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
@@ -322,9 +340,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
         //shovel plant.
         if (!player.level.isClientSide() && permission[0]) {
             ItemStack itemstack = player.getItemInHand(handIn);
-            itemstack.hurtAndBreak(2, player, (entity) -> {
-                entity.broadcastBreakEvent(handIn);
-            });
+            itemstack.hurtAndBreak(2, player, (entity) -> entity.broadcastBreakEvent(handIn));
             int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
             PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
             if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
