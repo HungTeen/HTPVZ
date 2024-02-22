@@ -26,6 +26,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.SpyglassItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -187,7 +188,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (! hasSkill("skill.pvz.gatling_pea.low_budget_configuration")) {
             if (PVZOwnedCapability.isTeammate(this, player) && getPassengers().isEmpty()
-                    && player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()
+                    && (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty() || player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof SpyglassItem)
                     && ! (player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShovelItem)) {
                 player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
                 player.startRiding(this);

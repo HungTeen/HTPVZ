@@ -1,11 +1,12 @@
 package com.hungteen.pvz.client.renderer;
 
-import com.hungteen.pvz.client.model.DirtModel;
+import com.hungteen.pvz.client.model.attached.DirtModel;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.model.GrassCarpModel;
-import com.hungteen.pvz.client.model.armor.BucketHelmetModel;
-import com.hungteen.pvz.client.model.armor.ButterHeadModel;
-import com.hungteen.pvz.client.model.armor.ConeHelmetModel;
+import com.hungteen.pvz.client.model.attached.BucketHelmetModel;
+import com.hungteen.pvz.client.model.attached.ButterHeadModel;
+import com.hungteen.pvz.client.model.attached.ConeHelmetModel;
+import com.hungteen.pvz.client.model.attached.FrozenModel;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -38,21 +39,23 @@ public class PVZLayerHandler {
         PVZEntities.simpleRenderHandler();
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
+        L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, "armor", WallNutArmorModel::createBodyLayer);
-        L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.POTATO_MINE, PotatoMineModel::createBodyLayer);
         L(e, PVZEntities.SNOW_PEA, SnowPeaModel::createBodyLayer);
-        L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
+        L(e, PVZEntities.SPIKE_WEED, SpikeWeedModel::createBodyLayer);
         L(e, PVZEntities.TALL_NUT, TallNutModel::createBodyLayer);
         L(e, PVZEntities.TALL_NUT, "armor", TallNutArmorModel::createBodyLayer);
         L(e, PVZEntities.PLANTERN, PlanternModel::createBodyLayer);
         L(e, PVZEntities.PUMPKIN, PumpkinModel::createBodyLayer);
         L(e, PVZEntities.FLOWER_POT, FlowerPotModel::createBodyLayer);
+        L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
         L(e, "dirt", DirtModel::createBodyLayer);
         L(e, "butter", ButterHeadModel::createBodyLayer);
+        L(e, "ice", FrozenModel::createBodyLayer);
         L(e, PVZItems.CONE_HELMET, () -> ConeHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
         L(e, PVZItems.BUCKET_HELMET, () -> BucketHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
 

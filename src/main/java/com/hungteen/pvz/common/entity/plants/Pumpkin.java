@@ -27,6 +27,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -86,12 +87,11 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
         if (target == null) {
             if (! isPlanting) {
                 this.boardingCooldown = 0;
-                BlockPos onPos = this.getOnPos();
-                List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-onPos.getX(), -onPos.getY() - 0.0001, -onPos.getZ())).inflate(0, 0.0001, 0),
+                List<Entity> list = level.getEntities(this, this.getBoundingBox().inflate(0, 1, 0),
                         (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
                 if (this.getVehicle() == null) {
                     list.forEach((entity) -> {
-                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false)) {
+                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false) && PVZOwnedCapability.isTeammate(this, entity)) {
                             this.startRiding(entity);
                         }
                     });
@@ -132,14 +132,21 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                 return null;
             }
             return Component.translatable("hint.pvz.plant.need_own_team");
-        } else if (isPlanting && target instanceof LivingEntity livingEntity && this.canHold(livingEntity, true)){
+        } else if (isPlanting && target instanceof LivingEntity livingEntity && this.canHold(livingEntity, true)) {
+            if (! PVZOwnedCapability.isTeammate(this, target)) {
+                return Component.translatable("hint.pvz.plant.need_own_team");
+            }
             if (target.getVehicle() instanceof ICanBePlantedOn entityRiding && ((ICanBePlantedOn) target.getVehicle()).canHold(this, false)) {
-                target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                target.startRiding(this);
-                this.moveTo(((Entity) entityRiding).getX(), ((Entity) entityRiding).getY(), ((Entity) entityRiding).getZ(),
-                        ((Entity) entityRiding).getYRot(), 0.0F);
-                this.startRiding((Entity) entityRiding);
-                return null;
+                if (PVZOwnedCapability.isTeammate(this, target.getVehicle())) {
+                    target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                    target.startRiding(this);
+                    this.moveTo(((Entity) entityRiding).getX(), ((Entity) entityRiding).getY(), ((Entity) entityRiding).getZ(),
+                            ((Entity) entityRiding).getYRot(), 0.0F);
+                    this.startRiding((Entity) entityRiding);
+                    return null;
+                } else {
+                    return Component.translatable("hint.pvz.plant.need_own_team");
+                }
             } else if (target.getVehicle() == null) {
                 target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
                 target.startRiding(this);

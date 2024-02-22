@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.item;
 
-import com.hungteen.pvz.client.model.armor.BucketHelmetModel;
-import com.hungteen.pvz.client.model.armor.ConeHelmetModel;
+import com.hungteen.pvz.client.model.attached.BucketHelmetModel;
+import com.hungteen.pvz.client.model.attached.ConeHelmetModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.sounds.SoundEvent;

@@ -24,6 +24,7 @@ public class PVZDamageSource {
 
 
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
+    public static final DamageSource SPIKE_WEED = new DamageSource("spike_weed");
 
     //TODO need a decorator for AOE damages?
     //damageSource decorators

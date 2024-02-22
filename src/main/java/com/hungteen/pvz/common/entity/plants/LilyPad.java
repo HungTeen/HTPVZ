@@ -220,7 +220,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
 
-        if (shouldHaveCoincideDmg(level, pos)) {
+        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(direction.getNormal())))) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
         if (! this.getEntityData().get(root()) || (! level.getBlockState(pos).isAir())) {

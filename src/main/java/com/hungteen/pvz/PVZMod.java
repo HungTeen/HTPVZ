@@ -1,5 +1,6 @@
 package com.hungteen.pvz;
 
+import com.hungteen.pvz.client.PVZClientEventHandler;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.gui.components.ClientSunImageToolTipComponent;
 import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
@@ -74,6 +75,7 @@ public class PVZMod
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addSummonRules);
         modBus.addListener(EventPriority.NORMAL, CapabilityHandler::registerCapabilities);
         PVZMobEffects.EFFECTS.register(modBus);
+        PVZMobEffects.POTIONS.register(modBus);
 
         PVZBiomeModifier.BIOME_MODIFIER.register(modBus);
 
@@ -96,6 +98,7 @@ public class PVZMod
             modBus.addListener(PVZOverlayHandler::registerOverlay);
             modBus.addListener(ClientSunImageToolTipComponent::register);
             modBus.addListener(ZenGardenEffects::register);
+            modBus.addListener(PVZClientEventHandler::addLayers);
         }
 
 

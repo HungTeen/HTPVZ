@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.layer;
 
-import com.hungteen.pvz.client.model.DirtModel;
+import com.hungteen.pvz.client.model.attached.DirtModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;

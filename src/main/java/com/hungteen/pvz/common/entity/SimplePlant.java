@@ -16,6 +16,7 @@ import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.world.PVZDamageSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Position;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -112,26 +113,34 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
     public boolean takesCoincideDmg() {
         return this.getEntityData().get(TAKES_COINCIDE_DMG);
     }
+
     /** control if this plant has coincide dmg.
      */
-    public boolean shouldHaveCoincideDmg(Level level, BlockPos onPos) {
+    public boolean shouldHaveCoincideDmg(Level level, Vec3 position) {
         if (! takesCoincideDmg()) {
             return false;
         } else {
-            BlockPos subPos = this.getOnPos();
-            List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-subPos.getX(), -subPos.getY(), -subPos.getZ())),
+            Vec3 subPos = this.position();
+            AABB range = this.getBoundingBox().move(position.add(-subPos.x, -subPos.y, -subPos.z)).inflate(-1e-4);
+            List<Entity> list = level.getEntities(this, range,
                     (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
             return !list.isEmpty();
         }
     }
+
+    /**blockTags this plant can plant on. if {@link SimplePlant#ROOT} is false then any block is accepted.*/
     public Set<TagKey<Block>> getAcceptableTags() {
         return Set.of(PVZBlockTags.PLANTABLE_BLOCKS);
     }
 
-    /**The direction used for testing whether this situation is safe.
-     * @see INeedSafeSituation#isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent, Level, BlockPos, Direction, boolean) */
-    public Direction getRootDirection() {
+    /**These two methods are direction and blockPos used for testing whether this situation is safe,
+     * especially for wall-attaching plants like {@link com.hungteen.pvz.common.entity.plants.SpikeWeed SpikeWeed}.
+     * @see SimplePlant#baseTick() */
+    public Direction getGrowDirection() {
         return Direction.UP;
+    }
+    public BlockPos getRootBlockPos() {
+        return getOnPos();
     }
 
     /**
@@ -145,9 +154,14 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             }
         }
         if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
-            pos = pos.offset(direction.getNormal()).below();
+            pos = pos.offset(direction.getNormal()).offset(getGrowDirection().getOpposite().getNormal());
+            direction = getGrowDirection();
         }
-        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
+
+        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + direction.getNormal().getX(),
+                pos.getY() + direction.getNormal().getY() + getBbHeight() / 2,
+                pos.getZ() + 0.5 + direction.getNormal().getZ()),
+                getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
         if (BlockPos.betweenClosedStream(aabb).anyMatch((pos1) -> {
             BlockState blockstate = this.level.getBlockState(pos1);
             return !blockstate.isAir() && blockstate.isSuffocating(this.level, pos1) &&
@@ -155,7 +169,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        if (shouldHaveCoincideDmg(level, pos)) {
+        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(direction.getNormal())))) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
         boolean plantableOn = false;
@@ -169,11 +183,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             if (level.getBlockState(pos).getFluidState().isEmpty()) {
                 if (isPlanting) {
                     this.moveTo(
-                            pos.getX() + 0.5,
-                            pos.getY() + (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
+                            pos.getX() + 0.5 + direction.getNormal().getX(),
+                            pos.getY() + (direction == Direction.UP ? (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
                                     (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
-                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY),
-                            pos.getZ() + 0.5);
+                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY) : direction.getNormal().getY()),
+                            pos.getZ() + 0.5 + direction.getNormal().getZ());
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 }
                 return null;
@@ -193,12 +207,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         if (target == null) {
             if (! isPlanting) {
                 this.boardingCooldown = 0;
-                BlockPos onPos = this.getOnPos();
-                List<Entity> list = level.getEntities(this, this.getBoundingBox().move(onPos.offset(-onPos.getX(), -onPos.getY() - 0.0001, -onPos.getZ())).inflate(0, 1, 0),
+                List<Entity> list = level.getEntities(this, this.getBoundingBox().inflate(0, 1, 0),
                         (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
                 if (this.getVehicle() == null) {
                     list.forEach((entity) -> {
-                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false)) {
+                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false) && PVZOwnedCapability.isTeammate(this, entity)) {
                             this.startRiding(entity);
                         }
                     });
@@ -214,7 +227,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
                 if (! canMountEntity(this, target, this.getVehicle() == target)) {
                     return isPlanting && target.getFirstPassenger() != null ?
                             isVehicleSafe(event, target.getFirstPassenger(), true) :
-                            Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
+                            Component.translatable("hint.pvz.plant.no_enough_place");
                 }
                 if (isPlanting) {
                     this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
@@ -249,7 +262,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         super.baseTick();
         //check plant situation damage.
         if (! level.isClientSide) {
-            if (isPositionSafe(null, this.level, this.getOnPos(), Direction.UP, false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
+            if (isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
                     this.getAttribute(Attributes.MAX_HEALTH) != null) {
                 if (++ situationHurtCount > 10) {
                     this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));

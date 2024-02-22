@@ -1,4 +1,4 @@
-package com.hungteen.pvz.client.model;// Made with Blockbench 4.9.3
+package com.hungteen.pvz.client.model.attached;// Made with Blockbench 4.9.3
 // Exported for Minecraft version 1.17 or later with Mojang mappings
 // Paste this class into your mod and generate all required imports
 

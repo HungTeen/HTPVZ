@@ -173,7 +173,6 @@ public class PVZEntities {
         rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
         rS(LILY_PAD, LilyPadModel::new, LilyPadModel::createBodyLayer, 0.5F, "textures/entity/plants/lily_pad/lily_pad.png");
         rS(KERNEL_PULT, KernelPultModel::new, KernelPultModel::createBodyLayer, 0.5F, "textures/entity/plants/kernel_pult/kernel_pult.png");
-        rS(SPIKE_WEED, SpikeWeedModel::new, SpikeWeedModel::createBodyLayer, 0.5F, "textures/entity/plants/spike_weed/spike_weed.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -188,6 +187,7 @@ public class PVZEntities {
         r(e, SUN, SunRenderer::new);
         r(e, SUN_FLOWER, SunFlowerRenderer::new);
         r(e, MARIGOLD, MariGoldRenderer::new);
+        r(e, SPIKE_WEED, SpikeWeedRenderer::new);
         r(e, TALL_NUT, TallNutRenderer::new);
         r(e, PLANTERN, PlanternRenderer::new);
         r(e, FLOWER_POT, FlowerPotRenderer::new);

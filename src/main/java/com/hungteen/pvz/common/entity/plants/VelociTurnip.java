@@ -243,9 +243,8 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
                     return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
                 }
                 if (isPlanting) {
-                    this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
+                    this.moveTo(target.getX(), target.getY() + target.getPassengersRidingOffset(), target.getZ(), target.getYRot(), 0.0F);
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
-                    this.startRiding(target);
                 }
                 return null;
             }

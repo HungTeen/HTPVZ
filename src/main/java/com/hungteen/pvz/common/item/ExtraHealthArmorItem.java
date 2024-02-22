@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.client.model.armor.BucketHelmetModel;
+import com.hungteen.pvz.client.model.attached.BucketHelmetModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
