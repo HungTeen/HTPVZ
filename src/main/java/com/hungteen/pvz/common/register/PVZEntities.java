@@ -5,20 +5,14 @@ import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
-import com.hungteen.pvz.client.renderer.bullet.ButterBulletRenderer;
-import com.hungteen.pvz.client.renderer.bullet.CabbageBulletRenderer;
-import com.hungteen.pvz.client.renderer.bullet.CornBulletRenderer;
-import com.hungteen.pvz.client.renderer.bullet.PeaBulletRenderer;
+import com.hungteen.pvz.client.renderer.bullet.*;
 import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
 import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
 import com.hungteen.pvz.client.renderer.misc.SunRenderer;
 import com.hungteen.pvz.client.renderer.plants.*;
 import com.hungteen.pvz.client.renderer.zombie.PVZZombieRenderer;
 import com.hungteen.pvz.common.entity.*;
-import com.hungteen.pvz.common.entity.bullet.ButterBullet;
-import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
-import com.hungteen.pvz.common.entity.bullet.CornBullet;
-import com.hungteen.pvz.common.entity.bullet.PeaBullet;
+import com.hungteen.pvz.common.entity.bullet.*;
 import com.hungteen.pvz.common.entity.plants.*;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
@@ -153,6 +147,7 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<CabbageBullet>> CABBAGE = collision(0.4F, 0.4F).entity("cabbage", CabbageBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<CornBullet>> CORN = collision(0.25F, 0.25F).entity("corn", CornBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<ButterBullet>> BUTTER = collision(0.5F, 0.5F).entity("butter", ButterBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<SeedArrow>> SEED_ARROW = collision(0.2F, 0.2F).entity("seed_arrow", SeedArrow::new, MobCategory.MISC);
 
 
     //client
@@ -197,6 +192,7 @@ public class PVZEntities {
         r(e, BUTTER, ButterBulletRenderer::new);
         r(e, POTATO_MINE, PotatoMineRenderer::new);
         r(e, ZOMBIE, PVZZombieRenderer::new);
+        r(e, SEED_ARROW, SeedArrowRenderer::new);
 
         //enter here
 

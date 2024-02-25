@@ -12,6 +12,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class BlockTagGen extends BlockTagsProvider {
         this.tag(PVZBlockTags.PLANTABLE_WATER).add(
                 Blocks.WATER
         );
+        this.tag(PVZBlockTags.PLANTABLE_STONE).addTag(Tags.Blocks.STONE).add(Blocks.NETHERRACK, Blocks.BLACKSTONE);
         this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTag(BlockTags.MOSS_REPLACEABLE)
                 .addTag(BlockTags.REPLACEABLE_PLANTS).addTag(BlockTags.LEAVES);
     }

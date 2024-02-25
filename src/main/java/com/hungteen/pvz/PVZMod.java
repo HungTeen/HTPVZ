@@ -170,6 +170,7 @@ public class PVZMod
                 //registerScreens
                 PVZMenus.registerScreens();
             });
+            PVZItems.registerProperties();
 
             //clear variables
             PVZParticles.particleMap.clear();

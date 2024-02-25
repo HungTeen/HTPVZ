@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.FlyingAnimal;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraftforge.common.extensions.IForgePotion;
 import net.minecraftforge.event.TickEvent;
@@ -48,15 +49,17 @@ public class PVZMobEffects {
             new FrozenMobEffect(MobEffectCategory.HARMFUL, 0x92eae2)
                     .addAttributeModifier(Attributes.MOVEMENT_SPEED, FREEZE_EFFECT_UUID.toString(), -1, AttributeModifier.Operation.MULTIPLY_TOTAL)
                     .addAttributeModifier(Attributes.JUMP_STRENGTH, FREEZE_EFFECT_UUID.toString(), -1, AttributeModifier.Operation.MULTIPLY_TOTAL)
-            // not used for now.
-    ).registerPotion(60).build();
+    ).registerPotion(120).registerPotion("long_freeze", 240, 0, true).build();
 
     public static final UUID BUTTER_EFFECT_UUID = UUID.fromString("a8e46cba-102c-a828-4342-305ece91d14e");
     public static RegistryObject<net.minecraft.world.effect.MobEffect> BUTTER = effect("butter", () ->
             new ButterMobEffect(MobEffectCategory.HARMFUL, 0xffe054)
                     .addAttributeModifier(Attributes.MOVEMENT_SPEED, BUTTER_EFFECT_UUID.toString(), -0.5F, AttributeModifier.Operation.MULTIPLY_TOTAL)
-    ).registerPotion(200).build();
+    ).registerPotion(300, false).registerPotion("long_butter", 700, 0, false).build();
 
+
+
+    //methods
     public RegistryObject<net.minecraft.world.effect.MobEffect> build() {
         return handlingEffect;
     }
@@ -64,16 +67,24 @@ public class PVZMobEffects {
         handlingEffect = EFFECTS.register(name, supplier);
         return reflector;
     }
-    public static PVZMobEffects registerPotion(String name, String potionName, int length, int strength) {
+    public static PVZMobEffects registerPotion(String name, String potionName, int length, int strength, boolean foil) {
         RegistryObject<net.minecraft.world.effect.MobEffect> effect = handlingEffect;
-        potionMap.put(name, POTIONS.register(name, () -> new Potion(potionName, new MobEffectInstance(effect.get(), length, strength))));
+        potionMap.put(name, POTIONS.register(name, () -> new Potion(potionName, new MobEffectInstance(effect.get(), length, strength)) {
+            @Override
+            public boolean isFoil(ItemStack stack) {
+                return foil;
+            };
+        }));
         return reflector;
     }
-    public static PVZMobEffects registerPotion(String name, int length, int strength) {
-        return registerPotion(name, Util.name(handlingEffect), length, strength);
+    public static PVZMobEffects registerPotion(String name, int length, int strength, boolean foil) {
+        return registerPotion(name, Util.name(handlingEffect), length, strength, foil);
+    }
+    public static PVZMobEffects registerPotion(int length, boolean foil) {
+        return registerPotion(Util.name(handlingEffect), Util.name(handlingEffect), length, 0, foil);
     }
     public static PVZMobEffects registerPotion(int length) {
-        return registerPotion(Util.name(handlingEffect), Util.name(handlingEffect), length, 0);
+        return registerPotion(length, true);
     }
 
     public static class MobEffect extends net.minecraft.world.effect.MobEffect {
@@ -86,6 +97,8 @@ public class PVZMobEffects {
     }
 
 
+
+    //effects
     public static class ButterMobEffect extends MobEffect {
         protected ButterMobEffect(MobEffectCategory p_19451_, int p_19452_) {
             super(p_19451_, p_19452_);
@@ -116,7 +129,7 @@ public class PVZMobEffects {
                 //two systems controlling gravity...
                 mob.setNoGravity(false);
                 if (mob instanceof FlyingMob) {
-                    mob.setDeltaMovement(mob.getDeltaMovement().add(0, -0.1, 0));
+                    mob.setDeltaMovement(mob.getDeltaMovement().add(0, -0.105, 0));
                 }
             }
         }
@@ -130,8 +143,11 @@ public class PVZMobEffects {
         }
 
         public void applyEffectTick(LivingEntity entity, int level) {
+            if (entity.isOnFire()) {
+                entity.removeEffect(PVZMobEffects.FREEZE.get());
+            }
             if (entity.canFreeze()) {
-                entity.setTicksFrozen(500);
+                entity.setTicksFrozen(350);
             }
         }
     }

@@ -14,8 +14,7 @@ import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.hungteen.pvz.common.capability.owned.PVZOwnedCapability.isTeammate;
 
@@ -41,19 +40,30 @@ public class PVZDamageSource {
         ignoreInvTimeSource = source;
         return source;
     }
+    public static DamageSource setSharp(DamageSource source) {
+        sharpSource = source;
+        return source;
+    }
+    public static boolean isSharp(DamageSource source) {
+        return sharpSource == source || storedSharpSources.contains(source);
+    }
 
     //damageSource types
     public static DamageSource projectileDamageSource(String name, Entity projectile, Entity owner) {
         return new IndirectEntityDamageSource(name, projectile, owner instanceof LivingEntity ? owner : projectile).setProjectile();
     }
 
+
     //variables and methods used
     private static DamageSource teamFilterSource = null;
 
     private static DamageSource knockBackSource = null;
+
+    private static DamageSource sharpSource = null;
     private static Entity knockBackEntity = null;
     private static float knockBackStrength = 1;
     private static DamageSource ignoreInvTimeSource = null;
+    private static Set<DamageSource> storedSharpSources = Set.of(DamageSource.CACTUS);
     private static int invTime = 0;
 
 

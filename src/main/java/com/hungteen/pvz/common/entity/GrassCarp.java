@@ -39,7 +39,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.IForgeShearable;
-import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -222,7 +221,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
             if (this.level.getBlockState(pos).is(PVZBlockTags.UNPLANTABLE_DIRT)) {
                 this.level.setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), 3);
                 return true;
-            } else if (this.level.getBlockState(pos).is(Tags.Blocks.STONE)) {
+            } else if (this.level.getBlockState(pos).is(PVZBlockTags.PLANTABLE_STONE)) {
                 this.level.setBlock(pos.above(), PVZBlocks.CARP_GRASS.get().defaultBlockState(), 3);
                 return true;
             }

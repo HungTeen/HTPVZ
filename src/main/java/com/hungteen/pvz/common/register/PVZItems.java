@@ -86,7 +86,8 @@ public class PVZItems {
     public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(80), EquipmentSlot.HEAD));
 
     //utils tools
-    public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 
     static {
         createSpawnEggs();
@@ -94,6 +95,9 @@ public class PVZItems {
     }
 
 
+    public static void registerProperties() {
+        SeedCrossbowItem.registerProperties();
+    }
 
     //definitions
     private static PVZItems model(Model model, ResourceLocation... res){
@@ -150,7 +154,7 @@ public class PVZItems {
         PVZEntities.spawnEggMap.forEach((entity, pair) -> spawnEgg((RegistryObject<EntityType<? extends Mob>>) entity, pair.getFirst(), pair.getSecond()));
     }
 
-    public static void createSeedPackets(){
+    public static void createSeedPackets() {
         PVZSeedPackets.seedPackets.forEach((data) -> {
             String name = data.entitySupplier instanceof RegistryObject<?> ? name((RegistryObject<?>) data.entitySupplier) : name((EntityType<?>) data.entitySupplier.get());
             if (data instanceof PVZSeedPackets.RecipeSeedPacketData<?> && ((PVZSeedPackets.RecipeSeedPacketData<?>)data).recipe != null) {

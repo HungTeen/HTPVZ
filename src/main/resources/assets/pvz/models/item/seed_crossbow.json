@@ -62,7 +62,7 @@
     {
       "predicate": {
         "charged": 1,
-        "plant": 1
+        "pvz:seed": 1
       },
       "model": "pvz:item/seed_crossbow_plant"
     }

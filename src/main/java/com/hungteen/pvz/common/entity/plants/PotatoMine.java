@@ -21,7 +21,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.Tags;
 
 import java.util.List;
 import java.util.Set;
@@ -38,7 +37,6 @@ public class PotatoMine extends SimplePlant {
 
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.potato_mine.potato_miner", PVZItems.TERRA_ESSENCE, 4, 6, 0, 0),
-            new Skill("skill.pvz.potato_mine.torpedo_mine", PVZItems.TERRA_ESSENCE, 4, 4, 0, 400),//TODO not completed.
             new Skill("skill.pvz.potato_mine.lethal_dose", PVZItems.IGNIS_ESSENCE, 8, 8, 75, 0).avoidSkills(1),
             new Skill("skill.pvz.potato_mine.quick_load", PVZItems.LUX_ESSENCE, 12, 8, 25, 0).avoidSkills(1, 2)
     );
@@ -128,7 +126,7 @@ public class PotatoMine extends SimplePlant {
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
         return this.hasSkill("skill.pvz.potato_mine.potato_miner") ?
-                Set.of(PVZBlockTags.PLANTABLE_BLOCKS, PVZBlockTags.UNPLANTABLE_DIRT, Tags.Blocks.STONE):
+                Set.of(PVZBlockTags.PLANTABLE_BLOCKS, PVZBlockTags.UNPLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE):
                 Set.of(PVZBlockTags.PLANTABLE_BLOCKS, PVZBlockTags.UNPLANTABLE_DIRT);
     }
     public static AttributeSupplier.Builder createAttributes() {
@@ -175,6 +173,8 @@ public class PotatoMine extends SimplePlant {
             if (potatoMine.getEntityData().get(EXPLODE_COUNT) == -1 && potatoMine.getEntityData().get(PREPARE_COUNT) == 0) {
                 List<Entity> targets = this.potatoMine.level.getEntities(potatoMine, potatoMine.getBoundingBox(),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(potatoMine, entity));
+                targets.addAll(this.potatoMine.level.getEntities(potatoMine, new AABB(potatoMine.getRootBlockPos()),
+                        (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(potatoMine, entity)));
                 if (! targets.isEmpty()) {
                     potatoMine.getEntityData().set(EXPLODE_COUNT, 0);
                 }

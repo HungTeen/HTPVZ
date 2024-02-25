@@ -78,27 +78,25 @@ public class PeaBullet extends BaseBullet {
             for (int i = 0; i < 5; i ++) {
                 level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.PEA.get())),
                         getX(), getY(), getZ(),
-                        - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.12,
+                        - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
                         - movement.y * 0.25 + random.nextFloat() * 0.25,
-                        - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.12);
+                        - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
             }
         } else if (getPeaType() == PeaType.Ice) {
             for (int i = 0; i < 5; i ++) {
                 level.addParticle(ParticleTypes.ITEM_SNOWBALL,
                         getX(), getY(), getZ(),
-                        - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.12,
+                        - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
                         - movement.y * 0.25 + random.nextFloat() * 0.25,
-                        - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.12);
+                        - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
             }
         } else if (getPeaType() == PeaType.Fire) {
-            for (int i = 0; i < 5; i ++) {
-                level.addParticle(ParticleTypes.FLAME,
-                        getX() + random.nextFloat() - 0.5,
-                        getY() + random.nextFloat() - 0.5,
-                        getZ() + random.nextFloat() - 0.5,
-                        - movement.x * 0.1 + random.nextFloat() * 0.1 - 0.05,
-                        - movement.y * 0.1 + random.nextFloat() * 0.1,
-                        - movement.z * 0.1 + random.nextFloat() * 0.1 - 0.05);
+            for (int i = 0; i < 3; i ++) {
+                level.addParticle(ParticleTypes.LAVA,
+                        getX(), getY(), getZ(),
+                        - movement.x * 0.25 + random.nextFloat() * 0.15 - 0.075,
+                        - movement.y * 0.25 + random.nextFloat() * 0.15,
+                        - movement.z * 0.25 + random.nextFloat() * 0.15 - 0.075);
             }
         }
     }

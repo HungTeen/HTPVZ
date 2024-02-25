@@ -17,6 +17,8 @@ public class PVZEntityTags {
     public static TagKey<EntityType<?>> IRON = pvzTag("iron");
     /**Entities with this tag cannot be planted on Lily Pads, but still can be planted on Flower Pots.*/
     public static TagKey<EntityType<?>> MUST_PLANT_IN_DIRT = pvzTag("must_plant_in_dirt");
+    /**With this tag entity will not be affected by butter effect.*/
+    public static TagKey<EntityType<?>> BUTTER_INVULNERABLE = pvzTag("butter_invulnerable");
 
     //definition
 

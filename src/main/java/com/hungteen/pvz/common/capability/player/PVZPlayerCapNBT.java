@@ -35,7 +35,7 @@ public class PVZPlayerCapNBT {
         setValue("plant_have_cost", 1, 0, 1);//naturally creative:0, survival:1.
         setValue("plant_have_cd", 1, 0, 1);//naturally creative:0, survival:1.
         //resource
-        setValue(SUN, 50, 0, 500);
+        setValue(SUN, 50, 0, 500);// TODO remove sun to another PVZPlanterCap cap.
     }
 
 

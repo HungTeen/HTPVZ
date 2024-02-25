@@ -315,8 +315,8 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         ItemStack itemstack = player.getItemInHand(handIn);
         if (itemstack.getItem() instanceof ShovelItem && entity instanceof IPlant plant) {
             if (plant.onBeingShoveled(player, handIn)) {
-                ev.setCancellationResult(InteractionResult.SUCCESS);
                 ev.setCanceled(true);
+                ev.setCancellationResult(InteractionResult.CONSUME);
             }
         }
     }
@@ -334,24 +334,28 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             }
         });
         //shovel plant.
-        if (!player.level.isClientSide() && permission[0]) {
-            ItemStack itemstack = player.getItemInHand(handIn);
-            itemstack.hurtAndBreak(2, player, (entity) -> entity.broadcastBreakEvent(handIn));
-            int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
-            PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
-            if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
-                Sun.spawnSunsRandomlyByAmount(level, getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
+        if (!player.level.isClientSide()) {
+            if (! permission[0]) {
+                player.displayClientMessage(Component.translatable("hint.pvz.plant.need_own_team"), true);
+            } else {
+                ItemStack itemstack = player.getItemInHand(handIn);
+                itemstack.hurtAndBreak(2, player, (entity) -> entity.broadcastBreakEvent(handIn));
+                int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
+                PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
+                if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
+                    Sun.spawnSunsRandomlyByAmount(level, getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
+                }
+                ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
+                this.remove(RemovalReason.DISCARDED);
+                if (this.isVehicle()) {
+                    this.getPassengers().forEach((entity -> {
+                        if (entity instanceof INeedSafeSituation entity1) {
+                            entity1.isVehicleSafe(null, this.getVehicle(), true);
+                        }
+                    }));
+                }
+                return true;
             }
-            ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
-            this.remove(RemovalReason.DISCARDED);
-            if (this.isVehicle()) {
-                this.getPassengers().forEach((entity -> {
-                    if (entity instanceof INeedSafeSituation entity1) {
-                        entity1.isVehicleSafe(null, this.getVehicle(), true);
-                    }
-                }));
-            }
-            return true;
         }
         return false;
     }

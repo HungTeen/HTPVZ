@@ -135,8 +135,6 @@ public class BaseBullet extends Projectile {
 	public String getDamageName() {
 		return damageName;
 	}
-
-	//use this in registry.
 	public BaseBullet setDamageName(String name) {
 		this.damageName = name;
 		return this;

@@ -24,7 +24,8 @@ public class PVZResourceEvent extends PlayerEvent {
 
     /**
      * fired whenever the cost of a seedPacket is needed, fired on both server and client.
-     * <p> if you want to refresh the number shows in gui, call {@link com.hungteen.pvz.client.gui.PVZOverlayHandler#refreshItemStack(Player, ItemStack)}.
+     * <p> if you want to refresh the number shows in gui, call <br> {@link com.hungteen.pvz.client.gui.PVZOverlayHandler#refreshMainHandItemStack(Player)}
+     * or <br> {@link com.hungteen.pvz.client.gui.PVZOverlayHandler#refreshOffHandItemStack(Player)}.
      */
     public static class CheckResourceEvent extends PVZResourceEvent {
         public final ItemStack seedPacket;
