@@ -193,7 +193,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
                 player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
                 player.startRiding(this);
                 this.setTarget(null);
-                this.setAttackTime(this, 30);
+                this.setAttackTime(30);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }
@@ -252,7 +252,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
     @Override
     protected void removePassenger(Entity entity) {
         super.removePassenger(entity);
-        this.setAttackTime(this, getShootCD());
+        this.setAttackTime(getShootCD());
     }
 
     @Override
@@ -279,8 +279,8 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
     @Override
     public void handleStartJump(int p_21695_) {
         playerFire = !playerFire;
-        if (getAttackTime(this) < shootAnimLength()) {
-            setAttackTime(this, 0);
+        if (getAttackTime() < shootAnimLength()) {
+            setAttackTime(0);
         }
     }
     @Override
@@ -304,13 +304,13 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
                 this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
             }
             //countdown.
-            final int time = this.shooter.getAttackTime(this);
+            final int time = this.shooter.getAttackTime();
             if (time != this.shooter.shootAnimLength() || (shooter.canShoot() &&
                     (EntityUtil.isEntityValid(target) ||
                     (this.shooter.getFirstPassenger() instanceof Player && ((GatlingPea) shooter).playerFire)))) {
-                this.shooter.setAttackTime(this, time > 0 ? time - 1 : this.shooter.getShootCD());
+                this.shooter.setAttackTime(time > 0 ? time - 1 : this.shooter.getShootCD());
             }
-            shooter.getEntityData().set(POSE, (this.shooter.getAttackTime(this) < this.shooter.shootAnimLength()));
+            shooter.getEntityData().set(POSE, (this.shooter.getAttackTime() < this.shooter.shootAnimLength()));
             //can shoot.
             return this.shooter.canShoot();
         }

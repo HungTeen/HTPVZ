@@ -1,5 +1,7 @@
 package com.hungteen.pvz.common.capability.player;
 
+import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.entity.plants.UmbrellaLeaf;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -10,8 +12,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -21,6 +26,7 @@ import net.minecraftforge.event.TickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,7 +51,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         return nbt;
     }
 
-    public static void tick(TickEvent.ServerTickEvent ev){
+    public static void tick(TickEvent.ServerTickEvent ev) {
         //timed sync
         if (++ syncCount > 20){
             for (Player player : ev.getServer().getPlayerList().getPlayers()){

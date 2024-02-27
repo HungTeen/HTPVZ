@@ -16,7 +16,6 @@ import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.world.PVZDamageSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Position;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -43,6 +42,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -153,11 +153,13 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
+        if (level.getBlockState(pos).getBlock() instanceof BushBlock) {
+            pos = pos.offset(direction.getOpposite().getNormal());
+        }
         if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
             pos = pos.offset(direction.getNormal()).offset(getGrowDirection().getOpposite().getNormal());
             direction = getGrowDirection();
         }
-
         AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + direction.getNormal().getX(),
                 pos.getY() + direction.getNormal().getY() + getBbHeight() / 2,
                 pos.getZ() + 0.5 + direction.getNormal().getZ()),
@@ -330,7 +332,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             permission[0] = PVZRulesCapability.getBoolean("shovelPermission") ?
                     (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.getBoolean("teamBattle")) : owner.is(player);
             } else {
-                permission[0] = PVZRulesCapability.getBoolean("shovelPermission");
+                permission[0] = PVZRulesCapability.getBoolean("shovelPermission") && PVZOwnedCapability.isTeammate(this, player);
             }
         });
         //shovel plant.
@@ -377,7 +379,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         tag.putBoolean("HasCoincideDmg", getEntityData().get(TAKES_COINCIDE_DMG));
         tag.putInt("WiltCountDown", getEntityData().get(WILT_COUNTDOWN));
         tag.putInt("Skill", getSkillVal(this));
-        tag.putInt("PlantAttackTime", getAttackTime(this));
+        tag.putInt("PlantAttackTime", getAttackTime());
 
     }
     @Override
@@ -387,7 +389,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             setSkillVal(this, tag.getInt("Skill"));
         }
         if (tag.contains("PlantAttackTime")) {
-            this.setAttackTime(this,tag.getInt("PlantAttackTime"));
+            this.setAttackTime(tag.getInt("PlantAttackTime"));
         }
         if (tag.contains("WiltCountDown")) {
             this.getEntityData().set(WILT_COUNTDOWN, tag.getInt("WiltCountDown"));
@@ -423,11 +425,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             }
         }
     }
-    public int getAttackTime(Object obj) {
+    public int getAttackTime() {
         return entityData.get(ATTACK_TIME);
     }
 
-    public void setAttackTime(Object obj,int cd) {
+    public void setAttackTime(int cd) {
         entityData.set(ATTACK_TIME, cd);
     }
     @Nullable

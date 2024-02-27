@@ -34,7 +34,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 	public ShooterPlant(EntityType<? extends Mob> type, Level worldIn) {
 		super(type, worldIn);
-		this.setAttackTime(this,40);
+		this.setAttackTime(40);
 	}
 
 	@Override
@@ -195,7 +195,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public abstract int getShootCD();
 
 	protected boolean canAttackNow() {
-		return shootTimes().contains(getAttackTime(this));
+		return shootTimes().contains(getAttackTime());
 	}
 	public Set<Integer> shootTimes() {
 		return Set.of(10);
@@ -227,11 +227,11 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 				this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
 			}
 			//countdown.
-			final int time = this.shooter.getAttackTime(this);
+			final int time = this.shooter.getAttackTime();
 			if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && EntityUtil.isEntityValid(shooter.getTarget()))) {
-				this.shooter.setAttackTime(this, time > 0 ? time - 1 : this.shooter.getShootCD());
+				this.shooter.setAttackTime(time > 0 ? time - 1 : this.shooter.getShootCD());
 			}
-			shooter.entityData.set(POSE, (this.shooter.getAttackTime(this) < this.shooter.shootAnimLength()));
+			shooter.entityData.set(POSE, (this.shooter.getAttackTime() < this.shooter.shootAnimLength()));
 			//can shoot.
 			return this.shooter.canShoot();
 		}
@@ -243,7 +243,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 		@Override
 		public void tick() {
-			if (this.shooter.shootTimes().contains(this.shooter.getAttackTime(this))) {
+			if (this.shooter.shootTimes().contains(this.shooter.getAttackTime())) {
 				this.shooter.shootBullet();
 			}
 		}

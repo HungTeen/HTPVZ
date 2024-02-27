@@ -50,6 +50,8 @@ public class PVZSeedPackets {
             .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
+        add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
+                .recipe(Items.BIG_DRIPLEAF, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.VELOCI_TURNIP).cost(50).coolDown(FAST).skillList(VelociTurnip.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.

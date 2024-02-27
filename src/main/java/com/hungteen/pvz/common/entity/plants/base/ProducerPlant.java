@@ -25,7 +25,7 @@ public abstract class ProducerPlant extends SimplePlant {
 
 	public ProducerPlant(EntityType< ? extends Mob > type, Level worldIn){
         super(type, worldIn);
-        this.setAttackTime(this,120);
+        this.setAttackTime(120);
     }
 
     @Override
@@ -57,19 +57,6 @@ public abstract class ProducerPlant extends SimplePlant {
 
         super.onSyncedDataUpdated(p_219422_);
     }
-    @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.putInt("ProduceTime", getAttackTime(this));
-
-    }
-    @Override
-    public void readAdditionalSaveData(CompoundTag tag){
-        super.readAdditionalSaveData(tag);
-        if (tag.contains("ProduceTime")) {
-            setAttackTime(this, tag.getInt("ProduceTime"));
-        }
-    }
 
     //sun produce related.
     /**
@@ -99,7 +86,7 @@ public abstract class ProducerPlant extends SimplePlant {
      * is producer going to gen, use for render sunflower sun layer.
      */
     public boolean isPlantInGen() {
-        return this.getAttackTime(this) <= 10 ;
+        return this.getAttackTime() <= 10 ;
     }
 
     static class ProducerGenGoal extends Goal {
@@ -129,12 +116,12 @@ public abstract class ProducerPlant extends SimplePlant {
             if (!this.producer.isEffectiveAi()) {
                 return;
             }
-            final int time = this.producer.getAttackTime(this);
+            final int time = this.producer.getAttackTime();
             if (time <= 1) {
                 this.producer.genSomething();
-                this.producer.setAttackTime(this,this.producer.getGenCD());
+                this.producer.setAttackTime(this.producer.getGenCD());
             } else {
-                this.producer.setAttackTime(this,Math.max(0, time - 1));
+                this.producer.setAttackTime(Math.max(0, time - 1));
             }
             producer.entityData.set(POSE, this.producer.getGenCD() - time < 10 || time < 10);
         }

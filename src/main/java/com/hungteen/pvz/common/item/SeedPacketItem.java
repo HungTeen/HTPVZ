@@ -1,5 +1,7 @@
 package com.hungteen.pvz.common.item;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
@@ -24,10 +26,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
@@ -41,6 +42,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -48,10 +50,7 @@ import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
@@ -230,7 +229,13 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         }
         return null;
     }
-
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
+    {
+        if (slot != EquipmentSlot.MAINHAND) return super.getAttributeModifiers(slot, stack);
+        Multimap<Attribute, AttributeModifier> map = ImmutableMap.of(ForgeMod.ATTACK_RANGE.get(), new AttributeModifier(UUID.fromString("58cc12bd-c4cf-224f-f4ac-a9d811fd8fea"),
+                "seed_packet", 2, AttributeModifier.Operation.ADDITION)).asMultimap();
+        return map;
+    }
 
     /**Situation of interacting with mobs.*/
     @Override

@@ -128,6 +128,8 @@ public class PVZEntities {
             .collision(0.8F, 2F).entity("plantern", Plantern::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<CabbagePult>> CABBAGE_PULT = attribute(CabbagePult::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.7F, 1F).entity("cabbage_pult", CabbagePult::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<UmbrellaLeaf>> UMBRELLA_LEAF = attribute(UmbrellaLeaf::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.7F, 1F).entity("umbrella_leaf", UmbrellaLeaf::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<PotatoMine>> POTATO_MINE = attribute(PotatoMine::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
             .collision(0.4F, 0.4F).entity("potato_mine", PotatoMine::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<SpikeWeed>> SPIKE_WEED = attribute(SpikeWeed::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
@@ -168,6 +170,7 @@ public class PVZEntities {
         rS(VELOCI_TURNIP, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
         rS(LILY_PAD, LilyPadModel::new, LilyPadModel::createBodyLayer, 0.5F, "textures/entity/plants/lily_pad/lily_pad.png");
         rS(KERNEL_PULT, KernelPultModel::new, KernelPultModel::createBodyLayer, 0.5F, "textures/entity/plants/kernel_pult/kernel_pult.png");
+        rS(UMBRELLA_LEAF, UmbrellaLeafModel::new, UmbrellaLeafModel::createBodyLayer, 0.5F, "textures/entity/plants/umbrella_leaf/umbrella_leaf.png");
     }
 
     @OnlyIn(Dist.CLIENT)

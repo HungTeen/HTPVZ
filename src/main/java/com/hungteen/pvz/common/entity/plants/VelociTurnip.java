@@ -47,6 +47,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
@@ -194,6 +195,9 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
+        }
+        if (level.getBlockState(pos).getBlock() instanceof BushBlock) {
+            pos = pos.offset(direction.getOpposite().getNormal());
         }
         if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
             pos = pos.offset(direction.getNormal()).below();
