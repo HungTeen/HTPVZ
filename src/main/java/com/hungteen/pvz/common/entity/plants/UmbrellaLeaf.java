@@ -55,9 +55,12 @@ public class UmbrellaLeaf extends SimplePlant {
     @Override
     public void tick() {
         super.tick();
+        if (hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf")) {
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1D);
+        }
         if (level.isClientSide) {
-            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(1.5, 1, 1.5),
-                    (entity) -> entity instanceof Player player && ClientProxy.getPlayer() == player && player.getDeltaMovement().length() > 0.6);
+            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(1.5, 0.5, 1.5),
+                    (entity) -> entity instanceof Player player && ClientProxy.getPlayer() == player && player.getDeltaMovement().length() > 0.5);
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
@@ -88,7 +91,8 @@ public class UmbrellaLeaf extends SimplePlant {
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D);
+                .add(Attributes.MAX_HEALTH, 8D)
+                .add(Attributes.FOLLOW_RANGE, 1D);// only for enemy attraction.
     }
     @Override
     public List<Skill> getStaticSkillList(){
@@ -127,7 +131,7 @@ public class UmbrellaLeaf extends SimplePlant {
             List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 1, 2).move(0, 0.5, 0),
                     (entity) -> (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this.entity)
                             || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this.entity)))
-                            && entity.getDeltaMovement().length() > 0.6);
+                            && entity.getDeltaMovement().length() > 0.5);
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();

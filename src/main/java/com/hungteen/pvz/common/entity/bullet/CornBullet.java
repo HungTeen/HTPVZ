@@ -12,11 +12,11 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class CornBullet extends BaseBullet {
-    protected float size = 0.5F;// need sync?
     public CornBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);
         this.noPhysics = true;
         this.damageName = "corn";
+        this.size = 0.5F;
     }
 
     public CornBullet(Level worldIn, LivingEntity cabbagePult) {
@@ -24,6 +24,7 @@ public class CornBullet extends BaseBullet {
         setOwner(cabbagePult);
         this.setNoGravity(false);
         this.damageName = "corn";
+        this.size = 0.5F;
     }
 
     public void shoot(double deltaX, double deltaY, double deltaZ, float speed, float randomAngle) {
@@ -49,14 +50,6 @@ public class CornBullet extends BaseBullet {
                     - movement.y * 0.25 + random.nextFloat() * 0.25,
                     - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.12);
         }
-    }
-    @Override
-    public float getAttackDamage() {
-        return this.attackDamage/2;
-    }
-    @Override
-    public float getSize() {
-        return this.size;
     }
     @Override
     public void tick() {

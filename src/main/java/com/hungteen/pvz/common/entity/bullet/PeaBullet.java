@@ -5,6 +5,7 @@ import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
@@ -100,7 +101,18 @@ public class PeaBullet extends BaseBullet {
             }
         }
     }
-
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putInt("pea_type", getPeaType().ordinal());
+    }
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag){
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("pea_type")) {
+            setPeaType(PeaType.values()[tag.getInt("pea_type")]);
+        }
+    }
     @Override
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);

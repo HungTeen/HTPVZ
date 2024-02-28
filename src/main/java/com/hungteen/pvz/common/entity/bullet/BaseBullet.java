@@ -110,6 +110,7 @@ public class BaseBullet extends Projectile {
 			this.dealDamageTo(result.getEntity());
 		}
 	}
+	@Override
 	protected void onHitBlock(BlockHitResult result) {
 		super.onHitBlock(result);
 		this.discard();

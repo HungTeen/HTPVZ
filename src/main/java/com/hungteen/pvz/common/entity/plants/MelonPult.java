@@ -2,8 +2,11 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.bullet.ButterBullet;
 import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
+import com.hungteen.pvz.common.entity.bullet.MelonBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -12,13 +15,15 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 import java.util.Set;
 
-public class CabbagePult extends ShooterPlant {
+public class MelonPult extends ShooterPlant {
 
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
     public static List<Skill> staticSkillList = List.of(
+            new Skill("skill.pvz.melon_pult.glistering_melon", PVZItems.AQUA_ESSENCE, 8, 4, 100, 0),
+            new Skill("skill.pvz.melon_pult.gravitational_potential", PVZItems.TERRA_ESSENCE, 8, 8, 100, 0).avoidSkills(0)
     );
 
-    public CabbagePult(EntityType<? extends Mob> type, Level worldIn) {
+    public MelonPult(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
     }
     @Override
@@ -36,8 +41,12 @@ public class CabbagePult extends ShooterPlant {
     }
 
     @Override
-    protected CabbageBullet createBullet() {
-        return new CabbageBullet(this.level, this);
+    protected MelonBullet createBullet() {
+        MelonBullet bullet = new MelonBullet(this.level, this, MelonBullet.MelonType.Common);
+        if (this.hasSkill("skill.pvz.melon_pult.glistering_melon")) {
+            bullet.setMelonSkill(MelonBullet.MelonSkill.POTION);
+        }
+        return bullet;
     }
 
     @Override
@@ -46,11 +55,11 @@ public class CabbagePult extends ShooterPlant {
     }
     @Override
     public Set<Integer> shootTimes() {
-        return Set.of(17);
+        return Set.of(15);
     }
     @Override
     public int getShootCD() {
-        return 40;
+        return 100;
     }
     @Override
     public float getBulletSpeed() {
@@ -67,7 +76,7 @@ public class CabbagePult extends ShooterPlant {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 7D)
+                .add(Attributes.ATTACK_DAMAGE, 12D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

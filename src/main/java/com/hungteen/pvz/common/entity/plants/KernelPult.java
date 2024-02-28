@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.common.entity.bullet.ButterBullet;
 import com.hungteen.pvz.common.entity.bullet.CornBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -24,6 +25,8 @@ public class KernelPult extends ShooterPlant {
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
 
     public static List<Skill> staticSkillList = List.of(
+            new Skill("skill.pvz.kernel_pult.butter_pult", PVZItems.TERRA_ESSENCE, 8, 8, 200, 300),
+            new Skill("skill.pvz.kernel_pult.butter_trap", PVZItems.AQUA_ESSENCE, 8, 8, 50, 0).avoidSkills(0)
     );
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {
@@ -37,6 +40,7 @@ public class KernelPult extends ShooterPlant {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(CURRENT_BULLET, CornTypes.KERNEL.ordinal());
+        changeBullet();
     }
     @Override
     public void shootBullet() {
@@ -51,7 +55,11 @@ public class KernelPult extends ShooterPlant {
     @Override
     protected BaseBullet createBullet() {
         if(this.getCurrentBullet() == CornTypes.BUTTER) {
-            return new ButterBullet(level, this);
+            ButterBullet bullet = new ButterBullet(level, this);
+            if (this.hasSkill("skill.pvz.kernel_pult.butter_trap")) {
+                bullet.setButterSkill(ButterBullet.ButterSkill.POTION);
+            }
+            return bullet;
         }
         return new CornBullet(level, this);
     }
@@ -83,6 +91,10 @@ public class KernelPult extends ShooterPlant {
     }
 
     protected void changeBullet() {
+        if (hasSkill("skill.pvz.kernel_pult.butter_pult")) {
+            setCurrentBullet(CornTypes.BUTTER);
+            return;
+        }
         this.setCurrentBullet(this.getRandom().nextInt(BUTTER_CHANCE) == 0 ? CornTypes.BUTTER : CornTypes.KERNEL);
     }
     @Override
@@ -110,13 +122,8 @@ public class KernelPult extends ShooterPlant {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 4D)
+                .add(Attributes.ATTACK_DAMAGE, 3D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
-    }
-
-    @Override
-    public EntityDimensions getDimensions(Pose poseIn) {
-        return EntityDimensions.scalable(0.7F, 1.0F);
     }
     public enum CornTypes{
         KERNEL,

@@ -54,8 +54,8 @@ public class PVZMobEffects {
     public static final UUID BUTTER_EFFECT_UUID = UUID.fromString("a8e46cba-102c-a828-4342-305ece91d14e");
     public static RegistryObject<net.minecraft.world.effect.MobEffect> BUTTER = effect("butter", () ->
             new ButterMobEffect(MobEffectCategory.HARMFUL, 0xffe054)
-                    .addAttributeModifier(Attributes.MOVEMENT_SPEED, BUTTER_EFFECT_UUID.toString(), -0.5F, AttributeModifier.Operation.MULTIPLY_TOTAL)
-    ).registerPotion(300, false).registerPotion("long_butter", 700, 0, false).build();
+                    .addAttributeModifier(Attributes.MOVEMENT_SPEED, BUTTER_EFFECT_UUID.toString(), -0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL)
+    ).registerPotion(150, false).registerPotion("long_butter", 300, 0, false).build();
 
 
 

@@ -2,6 +2,7 @@ package com.hungteen.pvz.client.renderer.bullet;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
+import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -19,7 +20,7 @@ public abstract class CommonBulletRenderer <T extends BaseBullet> extends Entity
     private final CommonBulletModel<BaseBullet> model;
     public CommonBulletRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.model = new CommonBulletModel<>(context.bakeLayer(CommonBulletModel.LAYER_LOCATION));
+        this.model = new CommonBulletModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("common_bullet:main")));
     }
 
     public void render(T bullet, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLightIn) {

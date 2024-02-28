@@ -62,10 +62,12 @@ public class PVZSeedPackets {
                 .recipe(Items.GLOW_BERRIES, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE); //TODO change glow berries to a plantern block.
         add(PVZEntities.PUMPKIN).cost(125).coolDown(SLOW).skillList(Pumpkin.staticSkillList)
                 .recipe(Items.PUMPKIN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
+        add(PVZEntities.MELON_PULT).cost(350).coolDown(MIDDLE).skillList(MelonPult.staticSkillList)
+                .recipe(Items.MELON, PVZItems.CHORUS_FRUIT_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
         add(PVZEntities.KERNEL_PULT).cost(100).coolDown(MIDDLE).skillList(KernelPult.staticSkillList)
-                .recipe(PVZItems.CABBAGE, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE); //TODO change cabbage to kernel.
+                .recipe(PVZItems.CABBAGE, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly(); //TODO change cabbage to kernel.
 
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();

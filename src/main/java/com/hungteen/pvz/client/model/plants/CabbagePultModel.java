@@ -49,7 +49,6 @@ public class CabbagePultModel<T extends CabbagePult> extends HierarchicalModel<T
 	@Override
 	public void setupAnim(T cabbagePult, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		float f = ageInTicks - (float) cabbagePult.tickCount;
 		this.animate(cabbagePult.idleAnimationState, CabbagePultAnimation.idle, ageInTicks);
 		this.animate(cabbagePult.shootAnimationState, CabbagePultAnimation.shoot, ageInTicks);
 	}

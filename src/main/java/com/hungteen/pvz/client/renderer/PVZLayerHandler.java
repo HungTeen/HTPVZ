@@ -8,6 +8,7 @@ import com.hungteen.pvz.client.model.attached.ButterHeadModel;
 import com.hungteen.pvz.client.model.attached.ConeHelmetModel;
 import com.hungteen.pvz.client.model.attached.FrozenModel;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
+import com.hungteen.pvz.client.model.bullet.MelonBulletModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -51,6 +52,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.PUMPKIN, PumpkinModel::createBodyLayer);
         L(e, PVZEntities.FLOWER_POT, FlowerPotModel::createBodyLayer);
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
+        L(e, "melon_bullet", MelonBulletModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
         L(e, "dirt", DirtModel::createBodyLayer);
