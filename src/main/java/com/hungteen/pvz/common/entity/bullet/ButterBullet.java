@@ -99,11 +99,13 @@ public class ButterBullet extends BaseBullet {
             Vec3 pos = this.position();
             Particle particle = ClientProxy.MC.levelRenderer.addParticleInternal(ParticleTypes.ENTITY_EFFECT.getType(), false,
                     pos.x + random.nextFloat() * 0.6 - 0.3, pos.y + random.nextFloat() * 1.0 - 0.3, pos.z + random.nextFloat() * 0.6 - 0.3, 0, 0, 0);
-            int color = PVZMobEffects.BUTTER.get().getColor();
-            float r = (float)(color >> 16 & 255) / 255.0F;
-            float g = (float)(color >> 8 & 255) / 255.0F;
-            float b = (float)(color >> 0 & 255) / 255.0F;
-            particle.setColor(r, g, b);
+            if (particle != null) {
+                int color = PVZMobEffects.BUTTER.get().getColor();
+                float r = (float)(color >> 16 & 255) / 255.0F;
+                float g = (float)(color >> 8 & 255) / 255.0F;
+                float b = (float)(color & 255) / 255.0F;
+                particle.setColor(r, g, b);
+            }
         }
     }
 

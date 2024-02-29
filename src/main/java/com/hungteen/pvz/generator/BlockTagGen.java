@@ -55,6 +55,7 @@ public class BlockTagGen extends BlockTagsProvider {
         );
         this.tag(PVZBlockTags.PLANTABLE_STONE).addTags(Tags.Blocks.STONE, Tags.Blocks.NETHERRACK);
         this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTags(BlockTags.MOSS_REPLACEABLE, BlockTags.REPLACEABLE_PLANTS, BlockTags.LEAVES);
+        this.tag(PVZBlockTags.PLANTABLE_SNOW).add(Blocks.SNOW, Blocks.SNOW_BLOCK, Blocks.ICE, Blocks.BLUE_ICE, Blocks.PACKED_ICE, Blocks.FROSTED_ICE);
     }
 
     public static final List<TagKey<Block>> LOGS = new ArrayList<>();

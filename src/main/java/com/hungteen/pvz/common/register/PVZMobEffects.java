@@ -104,14 +104,14 @@ public class PVZMobEffects {
             super(p_19451_, p_19452_);
         }
         public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int level) {
-            if(entity instanceof Mob mob) {
+            if (entity instanceof Mob mob) {
                 mob.targetSelector.enableControlFlag(Goal.Flag.TARGET);
             }
             super.removeAttributeModifiers(entity, attributeMap, level);
         }
 
         public void addAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int level) {
-            if(entity instanceof Mob mob) {
+            if (entity instanceof Mob mob) {
                 mob.targetSelector.disableControlFlag(Goal.Flag.TARGET);
                 mob.setTarget(null);
                 mob.getNavigation().stop();

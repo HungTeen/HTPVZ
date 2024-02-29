@@ -37,7 +37,7 @@ public class MelonPult extends ShooterPlant {
     }
     @Override
     public double getMaxShootAngleTangent() {
-        return 10;
+        return Double.POSITIVE_INFINITY;
     }
 
     @Override
@@ -59,7 +59,11 @@ public class MelonPult extends ShooterPlant {
     }
     @Override
     public int getShootCD() {
-        return 100;
+        return 50;
+    }
+    @Override
+    public int shootAnimLength() {
+        return 20;
     }
     @Override
     public float getBulletSpeed() {
@@ -76,7 +80,7 @@ public class MelonPult extends ShooterPlant {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 12D)
+                .add(Attributes.ATTACK_DAMAGE, 10D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

@@ -11,6 +11,7 @@ public class PVZBlockTags {
     public static final TagKey<Block> PLANTABLE_BLOCKS = pvzTag("plantable_dirt");
     public static final TagKey<Block> PLANTABLE_WATER = pvzTag("plantable_water");
     public static final TagKey<Block> PLANTABLE_STONE = pvzTag("plantable_stone");
+    public static final TagKey<Block> PLANTABLE_SNOW = pvzTag("plantable_snow");
     public static final TagKey<Block> WISDOM_TREE_REPLACEABLE = pvzTag("wisdom_tree_replaceable");
 
     //definition

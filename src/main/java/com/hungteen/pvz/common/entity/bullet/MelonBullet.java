@@ -70,7 +70,7 @@ public class MelonBullet extends BaseBullet {
             if (this.getMelonSkill() == MelonSkill.POTION) {
                 applySplash(getMobEffects(), result.getEntity());
             } else {
-                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(2, 1, 2),
+                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(1, 1, 1),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity));
                 entities.forEach((entity -> {
                     entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
@@ -91,7 +91,7 @@ public class MelonBullet extends BaseBullet {
             if (this.getMelonSkill() == MelonSkill.POTION) {
                 applySplash(getMobEffects(), null);
             } else {
-                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(2, 1, 2),
+                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(1, 1, 1),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity));
                 entities.forEach((entity -> {
                     entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
@@ -186,11 +186,14 @@ public class MelonBullet extends BaseBullet {
             Vec3 pos = this.position();
             Particle particle = ClientProxy.MC.levelRenderer.addParticleInternal(ParticleTypes.ENTITY_EFFECT.getType(), false,
                     pos.x + random.nextFloat() * 0.6 - 0.3, pos.y + random.nextFloat() * 1.0 - 0.3, pos.z + random.nextFloat() * 0.6 - 0.3, 0, 0, 0);
-            int color = PotionUtils.getColor(getMobEffects());
-            float r = (float)(color >> 16 & 255) / 255.0F;
-            float g = (float)(color >> 8 & 255) / 255.0F;
-            float b = (float)(color >> 0 & 255) / 255.0F;
-            particle.setColor(r, g, b);
+
+            if (particle != null) {
+                int color = PotionUtils.getColor(getMobEffects());
+                float r = (float)(color >> 16 & 255) / 255.0F;
+                float g = (float)(color >> 8 & 255) / 255.0F;
+                float b = (float)(color & 255) / 255.0F;
+                particle.setColor(r, g, b);
+            }
         }
     }
     @Override

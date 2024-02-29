@@ -1,7 +1,7 @@
 package com.hungteen.pvz.client.gui.components;
 
 import com.hungteen.pvz.PVZConfig;
-import com.hungteen.pvz.common.item.PVZSeedPackets;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

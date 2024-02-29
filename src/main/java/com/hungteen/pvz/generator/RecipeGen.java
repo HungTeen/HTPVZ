@@ -1,7 +1,7 @@
 package com.hungteen.pvz.generator;
 
 import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
-import com.hungteen.pvz.common.item.PVZSeedPackets;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZBlocks.WoodSet;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -75,9 +75,14 @@ public class RecipeGen extends RecipeProvider {
                         ((RegistryObject<Item>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet")).get() :
                         PVZItems.seedPacketMap.get((RegisterSeedPacketsEvent.SeedPacketData<?>)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet")).get();
                 if (((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed") != null) {
-                    Item seed = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed") instanceof RegistryObject<?> obj ?
-                            ((RegistryObject<Item>) obj).get() :
-                            (Item)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed");
+                    Item seed;
+                    try {
+                        seed = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed") instanceof RegistryObject<?> obj ?
+                                ((RegistryObject<Item>) obj).get() :
+                                (Item)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed");
+                    } catch (ClassCastException error) {
+                        seed = ((RegistryObject<Block>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed")).get().asItem();
+                    }
                     Item essence = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("essence") instanceof RegistryObject<?> obj ?
                             ((RegistryObject<Item>) obj).get() :
                             (Item)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("essence");

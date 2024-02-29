@@ -1,14 +1,13 @@
-package com.hungteen.pvz.common.item;
+package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
 import com.hungteen.pvz.common.entity.plants.*;
-import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -47,17 +46,21 @@ public class PVZSeedPackets {
         add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
-            .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+                .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
                 .recipe(Items.BIG_DRIPLEAF, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.ICEBERG_LETTUCE).cost(0).coolDown(MIDDLE).skillList(IcebergLettuce.staticSkillList)
+                .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.GELUM_ESSENCE);
         add(PVZEntities.VELOCI_TURNIP).cost(50).coolDown(FAST).skillList(VelociTurnip.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.
                 .recipe(PVZItems.FLOWER_SEED_PACKET).setCreativeOnly();
         add(PVZEntities.REPEATER).cost(175).coolDown(FAST).skillList(Repeater.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.TORCH_WOOD).cost(175).coolDown(SLOW).skillList(TorchWood.staticSkillList)
+                .recipeBlock(PVZBlocks.woodList.get(0).get(PVZBlocks.WoodSet.Log), PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
         add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
                 .recipe(Items.GLOW_BERRIES, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE); //TODO change glow berries to a plantern block.
         add(PVZEntities.PUMPKIN).cost(125).coolDown(SLOW).skillList(Pumpkin.staticSkillList)
@@ -123,6 +126,10 @@ public class PVZSeedPackets {
             return this;
         }
         public RecipeSeedPacketData<T> recipe(RegistryObject<Item> seed, RecipeSeedPacketData<? extends LivingEntity> packet, RegistryObject<Item> essence) {
+            this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
+            return this;
+        }
+        public RecipeSeedPacketData<T> recipeBlock(RegistryObject<Block> seed, RegistryObject<Item> packet, RegistryObject<Item> essence) {
             this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
             return this;
         }

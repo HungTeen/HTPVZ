@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -65,8 +66,8 @@ public class BaseBullet extends Projectile {
 		if (! this.isNoGravity()) {
 			dy -= 0.06F;
 		}
-		if (this.isInWaterOrBubble()) {
-			dx -= 0.15 * dx * dx;
+		if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
+ 			dx -= 0.15 * dx * dx;
 			dy -= 0.15 * dy * dy;
 			dz -= 0.15 * dz * dz;
 		}
@@ -106,7 +107,7 @@ public class BaseBullet extends Projectile {
 	}
 	@Override
 	protected void onHitEntity(EntityHitResult result) {
-		if (!this.level.isClientSide()) {
+		if (!this.level.isClientSide() && result.getEntity() instanceof LivingEntity) {
 			this.dealDamageTo(result.getEntity());
 		}
 	}
@@ -125,7 +126,7 @@ public class BaseBullet extends Projectile {
 	}
 
 	protected int getMaxLiveTick() {
-		return 50;
+		return 80;
 	}
 	public float getKnockBackStrength() {
 		return knockBackStrengh;

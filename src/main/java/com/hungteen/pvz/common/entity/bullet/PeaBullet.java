@@ -149,6 +149,6 @@ public class PeaBullet extends BaseBullet {
     }
 
     public enum PeaType {
-        Common, Fire, Ice, Poison
+        Common, SoulFire, Fire, Ice, Poison
     }
 }

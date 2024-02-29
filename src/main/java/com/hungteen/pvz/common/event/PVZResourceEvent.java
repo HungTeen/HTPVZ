@@ -38,7 +38,7 @@ public class PVZResourceEvent extends PlayerEvent {
                     && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
                     0 : item.getBaseCost(plantCard);
             coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
-                    0 : item.getBaseCoolDown(plantCard);
+                    1 : item.getBaseCoolDown(plantCard);
         }
     }
 

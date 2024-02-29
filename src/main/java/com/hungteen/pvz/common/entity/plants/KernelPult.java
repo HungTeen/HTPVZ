@@ -49,7 +49,7 @@ public class KernelPult extends ShooterPlant {
     }
     @Override
     public double getMaxShootAngleTangent() {
-        return 10;
+        return Double.POSITIVE_INFINITY;
     }
 
     @Override

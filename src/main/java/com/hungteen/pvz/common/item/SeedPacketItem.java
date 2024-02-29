@@ -160,24 +160,24 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             return InteractionResultHolder.fail(player.getItemInHand(handIn));
         }
         //planting. not using Item.useOn() for not supporting planting on fluid.
-        if (true) {
-            BlockHitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
-            if (result.getType() != HitResult.Type.MISS) {
-                InteractionResultHolder<ItemStack> plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, result.getBlockPos(), result.getDirection());
-                if (plantResult != null) {
-                    if (plantResult.getResult() == InteractionResult.CONSUME) {
-                        used(player.getItemInHand(handIn), player);
-                    }
-                    return plantResult;
+        BlockHitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
+        if (result.getType() != HitResult.Type.MISS) {
+            MutableComponent plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, result.getBlockPos(), result.getDirection());
+            if (plantResult == null) {
+                used(player.getItemInHand(handIn), player);
+            } else {
+                if (! player.getCooldowns().isOnCooldown(this)) {
+                    player.getCooldowns().addCooldown(this, 1);//to prevent bug of also planting on floor behind entity while clicking it.
                 }
+                //display massage when not in a proper place.
+                player.displayClientMessage(plantResult, true);
             }
         }
         return super.use(level, player, handIn);
     }
 
-    public InteractionResultHolder<ItemStack> plantOnBlock(Player player, ItemStack itemStack, Level level, BlockPos pos, Direction direction) {
+    public MutableComponent plantOnBlock(Player player, ItemStack itemStack, Level level, BlockPos pos, Direction direction) {
         if (itemStack.getItem() instanceof SeedPacketItem<?> item && !player.getCooldowns().isOnCooldown(this)) {
-            player.getCooldowns().addCooldown(item, 1);//to prevent bug of also planting on floor behind entity while clicking it.
             //check entity.
             Entity entity = getEntity().create((ServerLevel) level, null,
                     itemStack.hasCustomHoverName() ? getName(itemStack) : null,
@@ -218,42 +218,38 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                     cap.cost = event.cost;
                     cap.resource = event.resource;
                 }
-                return InteractionResultHolder.consume(itemStack);
+                return null;
             }
             //display massage when not on a proper place.
             player.displayClientMessage(posCheck, true);
             if (entity != null) {
                 entity.discard();
-                return InteractionResultHolder.fail(itemStack);
+                return posCheck;
             }
         }
-        return null;
-    }
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack)
-    {
-        if (slot != EquipmentSlot.MAINHAND) return super.getAttributeModifiers(slot, stack);
-        Multimap<Attribute, AttributeModifier> map = ImmutableMap.of(ForgeMod.ATTACK_RANGE.get(), new AttributeModifier(UUID.fromString("58cc12bd-c4cf-224f-f4ac-a9d811fd8fea"),
-                "seed_packet", 2, AttributeModifier.Operation.ADDITION)).asMultimap();
-        return map;
+        return Component.translatable("");
     }
 
     /**Situation of interacting with mobs.*/
     @Override
     public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {
         Level level = player.getLevel();
-        InteractionResultHolder<ItemStack> plantResult = this.plantOnEntity(player, itemStack, level, target);
-        if (plantResult != null) {
-            if (plantResult.getResult() == InteractionResult.CONSUME) {
-                this.used(itemStack, player);
-                return InteractionResult.CONSUME;
+        MutableComponent plantResult = this.plantOnEntity(player, itemStack, level, target);
+        if (plantResult == null) {
+            this.used(itemStack, player);
+            return InteractionResult.CONSUME;
+        } else {
+            if (! player.getCooldowns().isOnCooldown(this)) {
+                player.getCooldowns().addCooldown(this, 1);//to prevent bug of also planting on floor behind entity while clicking it.
             }
+            //display massage when not in a proper place.
+            player.displayClientMessage(plantResult, true);
         }
         return super.interactLivingEntity(itemStack, player, target, hand);
     }
 
-    public InteractionResultHolder<ItemStack> plantOnEntity(Player player, ItemStack itemStack, Level level, Entity target) {
+    public MutableComponent plantOnEntity(Player player, ItemStack itemStack, Level level, Entity target) {
         if (! level.isClientSide && itemStack.getItem() instanceof SeedPacketItem<?> item && !player.getCooldowns().isOnCooldown(item)) {
-            player.getCooldowns().addCooldown(item, 1);//to prevent bug...
             //check entity.
             Entity entity = item.getEntity().create((ServerLevel) level, null,
                     itemStack.hasCustomHoverName() ? item.getName(itemStack) : null,
@@ -295,17 +291,15 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                     cap.resource = event.resource;
                 }
                 item.used(itemStack, player);
-                return InteractionResultHolder.consume(itemStack);
+                return null;
             } else {
-                //display massage when not in a proper place.
-                player.displayClientMessage(targetCheck, true);
                 if (entity != null) {
                     entity.discard();
-                    return InteractionResultHolder.fail(itemStack);
+                    return targetCheck;
                 }
             }
         }
-        return null;
+        return Component.translatable("");
     }
 
     @SubscribeEvent

@@ -7,6 +7,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -58,9 +60,9 @@ public class UmbrellaLeaf extends SimplePlant {
         if (hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf")) {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1D);
         }
-        if (level.isClientSide) {
+        if (level.isClientSide && canBounce()) {
             List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(1.5, 0.5, 1.5),
-                    (entity) -> entity instanceof Player player && ClientProxy.getPlayer() == player && player.getDeltaMovement().length() > 0.5);
+                    (entity) -> entity instanceof Player player && ClientProxy.getPlayer() == player && player.getDeltaMovement().length() > 0.5 && (! PVZOwnedCapability.isTeammate(this, player) || ! player.isShiftKeyDown()));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
@@ -104,6 +106,21 @@ public class UmbrellaLeaf extends SimplePlant {
         return entity -> true;
     }
 
+    public boolean canBounce() {
+        for (int x = -1; x < 2; x ++ ){
+            for (int z = -1; z < 2; z ++ ){
+                for (int y = 0; y < 2; y ++ ){
+                    BlockPos pos = blockPosition().offset(x, y, z);
+                    BlockState state = level.getBlockState(pos);
+                    if (state.getBlock().isScaffolding(state, level, pos, this)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     private static class UmbrellaLeafBounceGoal extends Goal {
         UmbrellaLeaf entity;
         public UmbrellaLeafBounceGoal(UmbrellaLeaf entity) {
@@ -120,7 +137,7 @@ public class UmbrellaLeaf extends SimplePlant {
             if (entity.getAttackTime() == 22 && entity.hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf")) {
                 entity.discard();
             }
-            return entity.getAttackTime() <= 20;
+            return entity.getAttackTime() <= 20 && entity.canBounce();
         }
         @Override
         public boolean requiresUpdateEveryTick() {

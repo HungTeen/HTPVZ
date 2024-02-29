@@ -4,6 +4,7 @@ import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -48,9 +49,12 @@ public class SeedArrow <T extends Entity> extends Arrow {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         if (owner instanceof Player player && seedPacket != null && seedPacket.getItem() instanceof SeedPacketItem<?> item) {
-            InteractionResult result1 = item.plantOnEntity(player, seedPacket, this.level, result.getEntity()).getResult();
-            if (! result1.consumesAction()) {
-                item.plantOnBlock(player, seedPacket, this.level, result.getEntity().blockPosition(), Direction.UP);
+            MutableComponent result1 = item.plantOnEntity(player, seedPacket, this.level, result.getEntity());
+            if (result1 != null) {
+                result1 = item.plantOnBlock(player, seedPacket, this.level, result.getEntity().blockPosition().below(), Direction.UP);
+            }
+            if (result1 != null) {
+                player.displayClientMessage(result1, true);
             }
             this.discard();
         }
@@ -59,8 +63,11 @@ public class SeedArrow <T extends Entity> extends Arrow {
     @Override
     protected void onHitBlock(BlockHitResult result) {
         if (owner instanceof Player player && seedPacket != null && seedPacket.getItem() instanceof SeedPacketItem<?> item) {
-            item.plantOnBlock(player, seedPacket, this.level, result.getBlockPos(), result.getDirection());
+            MutableComponent result1 = item.plantOnBlock(player, seedPacket, this.level, result.getBlockPos(), result.getDirection());
             this.discard();
+            if (result1 != null) {
+                player.displayClientMessage(result1, true);
+            }
         }
         super.onHitBlock(result);
     }
