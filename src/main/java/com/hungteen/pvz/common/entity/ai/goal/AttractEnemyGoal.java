@@ -10,22 +10,26 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 
+import java.util.function.Supplier;
+
 public class AttractEnemyGoal extends Goal {
     public Mob entity;
     public int countDown;
-    public boolean mustNotHavePassenger;
-    public AttractEnemyGoal(Mob entity, boolean mustNotHavePassenger) {
+    public Supplier<Boolean> condition;
+    public double range;
+    public AttractEnemyGoal(Mob entity, Supplier<Boolean> condition, double range) {
         this.entity = entity;
-        this.mustNotHavePassenger = mustNotHavePassenger;
+        this.condition = condition;
+        this.range = range;
         countDown = 15;
     }
     public AttractEnemyGoal(Mob entity) {
-        this(entity, true);
+        this(entity, () -> true, entity.getAttribute(Attributes.FOLLOW_RANGE).getValue());
     }
 
     @Override
     public boolean canUse() {
-        return -- countDown <= 0 && (! mustNotHavePassenger || entity.getFirstPassenger() == null);
+        return -- countDown <= 0 && condition.get();
     }
 
     @Override
@@ -40,7 +44,6 @@ public class AttractEnemyGoal extends Goal {
     }
 
     public void attractEnemies(Mob entity) {
-        double range = entity.getAttributeValue(Attributes.FOLLOW_RANGE);//recommended value is 2.
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
             //attracting limits about tergetEntity.
             boolean outOfHeightRegion = (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() <= entity.getBbHeight() + entity.getY()) &&
@@ -49,7 +52,7 @@ public class AttractEnemyGoal extends Goal {
             if (targetEntity instanceof Mob && ! PVZOwnedCapability.isTeammate(entity, targetEntity) && ! outOfHeightRegion) {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
-                if (! (targetOfTarget instanceof IDefenderPlant) && ((! PVZRulesCapability.getBoolean("teamBattle")) ||
+                if (! (targetOfTarget instanceof IDefenderPlant) && ((! PVZRulesCapability.getBoolean("TeamBattle")) ||
                         (! EntityUtil.isEntityValid(targetOfTarget) || PVZOwnedCapability.isTeammate(entity, targetOfTarget)))) {
                     //test if can attract.
                     ((Mob) targetEntity).targetSelector.getAvailableGoals().forEach((goal) -> {

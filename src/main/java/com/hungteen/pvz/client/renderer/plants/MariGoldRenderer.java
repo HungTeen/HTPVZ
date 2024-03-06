@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.renderer.plants;
 
-import com.hungteen.pvz.client.layer.fullskin.SunLightLayer;
+import com.hungteen.pvz.client.layer.fullskin.LightLayer;
 import com.hungteen.pvz.client.model.plants.MariGoldModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.MariGold;
@@ -17,7 +17,7 @@ public class MariGoldRenderer<T extends MariGold> extends MobRenderer<T, EntityM
     private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/marigold/marigold.png");
     public MariGoldRenderer(EntityRendererProvider.Context context) {
         super(context, new MariGoldModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("marigold:main"))), 0.6F);
-        this.addLayer(new SunLightLayer<>(this, Util.prefix("textures/entity/plants/marigold/marigold_light.png")));
+        this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/marigold/marigold_light.png")));
     }
 
 

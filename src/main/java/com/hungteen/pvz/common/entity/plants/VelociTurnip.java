@@ -80,7 +80,6 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     private int situationHurtCount = 0;
     protected static final EntityDataAccessor<Integer> POSE = SynchedEntityData.defineId(VelociTurnip.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(VelociTurnip.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Integer> WILT_COUNTDOWN = SynchedEntityData.defineId(VelociTurnip.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(VelociTurnip.class, EntityDataSerializers.INT);
     public VelociTurnip(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -103,7 +102,6 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
         this.entityData.define(ROOT, false);
         this.entityData.define(POSE, 0);
         this.entityData.define(SKILL, 0);
-        this.entityData.define(WILT_COUNTDOWN, -1);
     }
     @Override
     protected void registerGoals() {
@@ -123,7 +121,6 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Root", getEntityData().get(ROOT));
-        tag.putInt("WiltCountDown", getEntityData().get(WILT_COUNTDOWN));
         tag.putInt("Skill", getSkillVal(this));
         tag.putInt("TickCount", tickCount);
 
@@ -133,9 +130,6 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
         super.readAdditionalSaveData(tag);
         if (tag.contains("Skill")) {
             setSkillVal(this, tag.getInt("Skill"));
-        }
-        if (tag.contains("WiltCountDown")) {
-            this.getEntityData().set(WILT_COUNTDOWN, tag.getInt("WiltCountDown"));
         }
         if (tag.contains("Root")) {
             this.getEntityData().set(ROOT, tag.getBoolean("Root"));
@@ -259,12 +253,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
     @Nullable
     public ItemStack getPickResult() {
-        AtomicReference<Item> packetItem = new AtomicReference<>();
-        SeedPacketItem.seedPacketItemList.forEach(item -> {
-            if (item.getEntity().equals(this.getType())) {
-                packetItem.set(item);
-            }});
-        return packetItem.get() == null ? super.getPickResult() : new ItemStack(packetItem.get());
+        return SimplePlant.getPickResult(this);
     }
 
     @Override
@@ -329,31 +318,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
 
     public boolean onBeingShoveled(Player player, InteractionHand handIn) {
-        //check permission.
-        final boolean[] permission = {false};
-        this.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> {
-            Entity owner = cap.getOwner();
-            if (owner != null) {
-                permission[0] = PVZRulesCapability.getBoolean("shovelPermission") ?
-                        (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.getBoolean("teamBattle")) : owner.is(player);
-            } else {
-                permission[0] = PVZRulesCapability.getBoolean("shovelPermission");
-            }
-        });
-        //shovel plant.
-        if (!player.level.isClientSide() && permission[0]) {
-            ItemStack itemstack = player.getItemInHand(handIn);
-            itemstack.hurtAndBreak(2, player, (entity) -> entity.broadcastBreakEvent(handIn));
-            int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
-            PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
-            if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
-                Sun.spawnSunsRandomlyByAmount(level, getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
-            }
-            ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
-            this.remove(RemovalReason.DISCARDED);
-            return true;
-        }
-        return false;
+        return SimplePlant.onBeingShoveled(player, handIn, this);
     }
     @Override
     public boolean isPushable(){

@@ -44,8 +44,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
-                .add(Attributes.FOLLOW_RANGE, 2D);
+                .add(Attributes.MAX_HEALTH, 8D);
     }
     @Override
     public List<Skill> getStaticSkillList(){
@@ -85,7 +84,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
+        this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getFirstPassenger() == null, 2));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 

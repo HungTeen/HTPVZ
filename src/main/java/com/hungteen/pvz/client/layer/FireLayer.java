@@ -18,11 +18,11 @@ public class FireLayer<T extends TorchWood, M extends TorchWoodModel<T>> extends
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource p_117350_, int p_117351_, T torchWood, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
+    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int p_117351_, T torchWood, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
         poseStack.pushPose();
         poseStack.scale(1, -1, 1);
         poseStack.translate(-0.5, -0.8, -0.5);
-        this.blockRenderer.renderSingleBlock(torchWood.hasSkill("skill.pvz.torch_wood.soul_torch") ? Blocks.SOUL_FIRE.defaultBlockState() : Blocks.FIRE.defaultBlockState(), poseStack, p_117350_, p_117351_, OverlayTexture.NO_OVERLAY);
+        this.blockRenderer.renderSingleBlock(torchWood.isSoulFire() ? Blocks.SOUL_FIRE.defaultBlockState() : Blocks.FIRE.defaultBlockState(), poseStack, bufferSource, p_117351_, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }
 }

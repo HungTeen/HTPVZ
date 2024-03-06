@@ -4,6 +4,7 @@ import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 
 import java.util.ArrayList;
@@ -16,14 +17,19 @@ import java.util.function.Predicate;
 public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingEntity> {
 
     protected final Predicate<Entity> predicate;
+    protected double range;
     protected List<Entity> targetCandidates = new ArrayList<>();
 
-    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate) {
+    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, double range) {
         super(mobIn, LivingEntity.class, true);
         this.predicate = predicate;
+        this.range = range;
     }
     public DisperseEnemyTargetGoal(Mob mobIn) {
-        this(mobIn, (entity)-> EntityUtil.checkCanEntityBeAttack(mobIn, entity));
+        this(mobIn, (entity)-> EntityUtil.checkCanEntityBeAttack(mobIn, entity), -1);
+    }
+    protected double getFollowDistance() {
+        return range < 0 ? this.mob.getAttributeValue(Attributes.FOLLOW_RANGE) : range;
     }
 
     @Override

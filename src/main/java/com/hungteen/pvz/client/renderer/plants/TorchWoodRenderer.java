@@ -37,7 +37,7 @@ public class TorchWoodRenderer<T extends TorchWood> extends MobRenderer<T, Entit
     }
     @Override
     public ResourceLocation getTextureLocation(T torchWood) {
-        return torchWood.hasSkill("skill.pvz.torch_wood.soul_torch") ? BLUE : COMMON;
+        return torchWood.isSoulFire() ? BLUE : COMMON;
     }
 
 }

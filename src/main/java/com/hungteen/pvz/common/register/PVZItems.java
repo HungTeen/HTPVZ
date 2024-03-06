@@ -14,6 +14,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.MobBucketItem;
@@ -88,6 +89,7 @@ public class PVZItems {
     //utils tools
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> ARROW_WITH_A_TARGET = item("arrow_with_a_target", () -> new ArrowItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 
     static {
         createSpawnEggs();

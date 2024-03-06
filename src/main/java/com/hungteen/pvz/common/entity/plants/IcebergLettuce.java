@@ -4,9 +4,12 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -15,6 +18,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.Snowball;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 import java.util.Set;
@@ -42,6 +46,10 @@ public class IcebergLettuce extends ShooterPlant {
         return staticSkillList;
     }
 
+    @Override
+    public Set<TagKey<Block>> getAcceptableTags() {
+        return Set.of(PVZBlockTags.PLANTABLE_DIRT, BlockTags.SNOW);
+    }
     @Override
     protected void registerGoals() {
         super.registerGoals();

@@ -42,8 +42,8 @@ public class BlockTagGen extends BlockTagsProvider {
             );
         }
         //others
-        this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT);
-        this.tag(PVZBlockTags.PLANTABLE_BLOCKS).add(
+        this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT, Blocks.SOUL_SAND, Blocks.SOUL_SOIL);
+        this.tag(PVZBlockTags.PLANTABLE_DIRT).add(
                 Blocks.GRASS_BLOCK, Blocks.MYCELIUM, Blocks.PODZOL, Blocks.DIRT_PATH,
                 Blocks.CRIMSON_NYLIUM, Blocks.WARPED_NYLIUM,
                 Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET, PVZBlocks.CARP_GRASS.get(),
@@ -53,9 +53,12 @@ public class BlockTagGen extends BlockTagsProvider {
         this.tag(PVZBlockTags.PLANTABLE_WATER).add(
                 Blocks.WATER
         );
-        this.tag(PVZBlockTags.PLANTABLE_STONE).addTags(Tags.Blocks.STONE, Tags.Blocks.NETHERRACK);
+        this.tag(PVZBlockTags.PLANTABLE_STONE).addTags(
+                Tags.Blocks.STONE, Tags.Blocks.NETHERRACK, BlockTags.TERRACOTTA, Tags.Blocks.COBBLESTONE,
+                Tags.Blocks.SANDSTONE, Tags.Blocks.SAND, Tags.Blocks.GRAVEL)
+                .add(Blocks.BLACKSTONE, Blocks.PRISMARINE, Blocks.DRIPSTONE_BLOCK);
         this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTags(BlockTags.MOSS_REPLACEABLE, BlockTags.REPLACEABLE_PLANTS, BlockTags.LEAVES);
-        this.tag(PVZBlockTags.PLANTABLE_SNOW).add(Blocks.SNOW, Blocks.SNOW_BLOCK, Blocks.ICE, Blocks.BLUE_ICE, Blocks.PACKED_ICE, Blocks.FROSTED_ICE);
+        this.tag(PVZBlockTags.SCULK).add(Blocks.SCULK, Blocks.SCULK_CATALYST, Blocks.SCULK_VEIN, Blocks.SCULK_SENSOR, Blocks.SCULK_SHRIEKER);
     }
 
     public static final List<TagKey<Block>> LOGS = new ArrayList<>();

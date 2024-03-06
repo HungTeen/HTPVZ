@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -27,7 +28,7 @@ import java.util.function.Predicate;
 
 import static com.hungteen.pvz.common.world.PVZDamageSource.teamFilter;
 
-public class UmbrellaLeaf extends SimplePlant {
+public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState openAnimationState = new AnimationState();
@@ -61,7 +62,7 @@ public class UmbrellaLeaf extends SimplePlant {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1D);
         }
         if (level.isClientSide && canBounce()) {
-            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(1.5, 0.5, 1.5),
+            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(2, 1, 2).move(0, 0.5, 0),
                     (entity) -> entity instanceof Player player && ClientProxy.getPlayer() == player && player.getDeltaMovement().length() > 0.5 && (! PVZOwnedCapability.isTeammate(this, player) || ! player.isShiftKeyDown()));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
@@ -71,7 +72,7 @@ public class UmbrellaLeaf extends SimplePlant {
                             0.5 * Math.min((entity1.getZ() - this.getZ()), 1));
                     entity1.fallDistance = 0;
                 }));
-                this.setAttackTime(30);
+                sendPVZPacketToServer(0);
             }
         }
     }
@@ -119,6 +120,11 @@ public class UmbrellaLeaf extends SimplePlant {
             }
         }
         return true;
+    }
+
+    @Override
+    public void handlePVZPacket(int val) {
+        setAttackTime(30);
     }
 
     private static class UmbrellaLeafBounceGoal extends Goal {

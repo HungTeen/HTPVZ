@@ -14,9 +14,9 @@ import java.util.HashMap;
  * to use PVZ rules, go to {@link PVZRulesCapability}.
  */
 
-public class PVZRulesCommand {
+public class PVZRuleCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("pvzrules").requires((ctx) -> ctx.hasPermission(2));
+        LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("pvzrule").requires((ctx) -> ctx.hasPermission(2));
         HashMap<String, Boolean> booleanMap = PVZRulesCapability.initBooleanMap();
         for (String key : booleanMap.keySet()) {
             builder.then(Commands.literal(key)
@@ -41,9 +41,11 @@ public class PVZRulesCommand {
         if (curValue != value) {
             PVZRulesCapability.get().booleanMap.put(key, value);
             source.sendSuccess(Component.translatable("commands.gamerule.set", key, value), true);
+            PVZRulesCapability.get().dirtyList.add(key);
             return 1;
         } else {
             source.sendSuccess(Component.translatable("commands.pvz.pvzrules.set", key, value), true);
+            PVZRulesCapability.get().dirtyList.add(key);
             return 0;
         }
     }

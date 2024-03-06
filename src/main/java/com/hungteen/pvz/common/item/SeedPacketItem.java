@@ -181,7 +181,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             //check entity.
             Entity entity = getEntity().create((ServerLevel) level, null,
                     itemStack.hasCustomHoverName() ? getName(itemStack) : null,
-                    player, pos, MobSpawnType.SPAWN_EGG, false, false);
+                    player, pos.above(), MobSpawnType.SPAWN_EGG, false, false);
             if (entity != null && itemStack.hasCustomHoverName()) {
                 entity.setCustomName(itemStack.getHoverName());
             }

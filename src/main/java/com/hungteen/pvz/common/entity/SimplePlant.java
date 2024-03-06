@@ -130,17 +130,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
 
     /**blockTags this plant can plant on. if {@link SimplePlant#ROOT} is false then any block is accepted.*/
     public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_BLOCKS);
-    }
-
-    /**These two methods are direction and blockPos used for testing whether this situation is safe,
-     * especially for wall-attaching plants like {@link com.hungteen.pvz.common.entity.plants.SpikeWeed SpikeWeed}.
-     * @see SimplePlant#baseTick() */
-    public Direction getGrowDirection() {
-        return Direction.UP;
-    }
-    public BlockPos getRootBlockPos() {
-        return getOnPos();
+        return Set.of(PVZBlockTags.PLANTABLE_DIRT);
     }
 
     /**
@@ -323,16 +313,21 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         }
     }
 
+    /**For plants not extending SimplePlant, use {@link SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity)}*/
     public boolean onBeingShoveled(Player player, InteractionHand handIn) {
+        return onBeingShoveled(player, handIn, this);
+    }
+
+    public static boolean onBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
         //check permission.
         final boolean[] permission = {false};
-        this.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> {
+        target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> {
             Entity owner = cap.getOwner();
             if (owner != null) {
-            permission[0] = PVZRulesCapability.getBoolean("shovelPermission") ?
-                    (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.getBoolean("teamBattle")) : owner.is(player);
+                permission[0] = PVZRulesCapability.getBoolean("ShovelPermission") ?
+                        (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.getBoolean("TeamBattle")) : owner.is(player);
             } else {
-                permission[0] = PVZRulesCapability.getBoolean("shovelPermission") && PVZOwnedCapability.isTeammate(this, player);
+                permission[0] = PVZRulesCapability.getBoolean("ShovelPermission") && PVZOwnedCapability.isTeammate(target, player);
             }
         });
         //shovel plant.
@@ -343,16 +338,16 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
                 ItemStack itemstack = player.getItemInHand(handIn);
                 itemstack.hurtAndBreak(2, player, (entity) -> entity.broadcastBreakEvent(handIn));
                 int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
-                PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
+                PVZOwnedCapability cap = target.getCapability(PVZOwnedCapability.CAP).orElse(null);
                 if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
-                    Sun.spawnSunsRandomlyByAmount(level, getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
+                    Sun.spawnSunsRandomlyByAmount(target.level, target.getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
                 }
-                ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
-                this.remove(RemovalReason.DISCARDED);
-                if (this.isVehicle()) {
-                    this.getPassengers().forEach((entity -> {
+                ((ServerLevel)target.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, target.level.getBlockState(target.getOnPos())).setPos(target.getOnPos()), target.getX(), target.getY(), target.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
+                target.remove(RemovalReason.DISCARDED);
+                if (target.isVehicle()) {
+                    target.getPassengers().forEach((entity -> {
                         if (entity instanceof INeedSafeSituation entity1) {
-                            entity1.isVehicleSafe(null, this.getVehicle(), true);
+                            entity1.isVehicleSafe(null, target.getVehicle(), true);
                         }
                     }));
                 }
@@ -432,14 +427,19 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
     public void setAttackTime(int cd) {
         entityData.set(ATTACK_TIME, cd);
     }
+
+    /**For Plants that not extending SimplePlant, use {@link SimplePlant#getPickResult(LivingEntity)}*/
     @Nullable
     public ItemStack getPickResult() {
+        return getPickResult(this);
+    }
+    public static ItemStack getPickResult(LivingEntity entity) {
         AtomicReference<Item> packetItem = new AtomicReference<>();
         SeedPacketItem.seedPacketItemList.forEach(item -> {
-            if (item.getEntity().equals(this.getType())) {
+            if (item.getEntity().equals(entity.getType())) {
                 packetItem.set(item);
-        }});
-        return packetItem.get() == null ? super.getPickResult() : new ItemStack(packetItem.get());
+            }});
+        return new ItemStack(packetItem.get());
     }
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
@@ -448,7 +448,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         //TODO handle situation when player is not available when loading.
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
-        return level.getBlockState(pos.below()).is(PVZBlockTags.PLANTABLE_BLOCKS);
+        return level.getBlockState(pos.below()).is(PVZBlockTags.PLANTABLE_DIRT);
     }
 
 }

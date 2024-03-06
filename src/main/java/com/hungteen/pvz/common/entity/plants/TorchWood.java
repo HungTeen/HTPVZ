@@ -1,40 +1,34 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.common.block.PlanternLightBlock;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
-import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.register.PVZMobEffects;
-import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public class TorchWood extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.torch_wood.soul_torch", PVZItems.IGNIS_ESSENCE, 8, 4, 100, 0),
+            new Skill("skill.pvz.torch_wood.soul_torch", PVZItems.IGNIS_ESSENCE, 8, 4, 50, 0),
             new Skill("skill.pvz.torch_wood.tough_bark", PVZItems.TERRA_ESSENCE, 8, 4, 50, 0)
     );
 
@@ -42,10 +36,11 @@ public class TorchWood extends SimplePlant {
         super(entityType, level);
     }
 
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.set(ROOT, false);
+    public boolean isSoulFire() {
+        return hasSkill("skill.pvz.torch_wood.soul_torch") && level.getBlockState(getOnPos()).is(BlockTags.SOUL_SPEED_BLOCKS);
+    }
+    public boolean canBurn() {
+        return true;
     }
 
     //entity settings
@@ -61,6 +56,10 @@ public class TorchWood extends SimplePlant {
     }
 
     @Override
+    public Set<TagKey<Block>> getAcceptableTags() {
+        return Set.of(PVZBlockTags.UNPLANTABLE_DIRT, PVZBlockTags.PLANTABLE_DIRT);
+    }
+    @Override
     public void tick() {
         super.tick();
         if (level.isClientSide && ! this.idleAnimationState.isStarted()) {
@@ -74,7 +73,7 @@ public class TorchWood extends SimplePlant {
                     0, 0, 0);
         }
         if (hasSkill(this, "skill.pvz.torch_wood.tough_bark")) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20D);
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(15D);
             this.getAttribute(Attributes.ARMOR).setBaseValue(20D);
         }
         if (level.isClientSide() || ! this.canBurn()) {
@@ -90,9 +89,6 @@ public class TorchWood extends SimplePlant {
             level.setBlock(getOnPos().above().above(),
                     level.getBlockState(getOnPos().above().above()).setValue(PlanternLightBlock.HAS_SOURCE, true), 2);
         }
-    }
-    public boolean canBurn() {
-        return true;
     }
     @Override
     public boolean canBeCollidedWith() {
@@ -134,10 +130,10 @@ public class TorchWood extends SimplePlant {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {
                         return;
                     } else if (pea.getPeaType() == PeaBullet.PeaType.Common) {
-                        pea.setAttackDamage((float) (pea.getAttackDamage() * (this.entity.hasSkill("skill.pvz.torch_wood.soul_torch") ? 2.5 : 1.5)));
+                        pea.setAttackDamage(pea.getAttackDamage() * (this.entity.isSoulFire() ? 2 : 1));
                     }
                     pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :
-                            this.entity.hasSkill("skill.pvz.torch_wood.soul_torch") ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);
+                            this.entity.isSoulFire() ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);
                 }
             });
         }

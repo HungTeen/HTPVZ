@@ -52,7 +52,9 @@ public class PVZDamageSource {
     public static DamageSource projectileDamageSource(String name, Entity projectile, Entity owner) {
         return new IndirectEntityDamageSource(name, projectile, owner instanceof LivingEntity ? owner : projectile).setProjectile();
     }
-
+    public static DamageSource chomperHurt(LivingEntity source) {
+        return PVZDamageSource.teamFilter(PVZDamageSource.setSharp(DamageSource.mobAttack(source)).bypassArmor());
+    }
 
     //variables and methods used
     private static DamageSource teamFilterSource = null;

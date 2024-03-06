@@ -151,7 +151,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
+        this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getFirstPassenger() == null, 2));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 

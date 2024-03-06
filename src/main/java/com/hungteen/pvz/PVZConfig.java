@@ -5,8 +5,11 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PVZConfig {
-//    private static Common COMMON_CONFIG;
+    private static Common COMMON_CONFIG;
     private static Client CLIENT_CONFIG;
 
     //overlay settings
@@ -32,23 +35,54 @@ public class PVZConfig {
     }
 
     public static void init(){
-//        {
-//            final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
-//            ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, specPair.getRight());
-//            PVZConfig.COMMON_CONFIG = specPair.getLeft();
-//        }
+        {
+            final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+            ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, specPair.getRight());
+            PVZConfig.COMMON_CONFIG = specPair.getLeft();
+        }
         {
             final Pair<PVZConfig.Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
             ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, specPair.getRight());
             PVZConfig.CLIENT_CONFIG = specPair.getLeft();
         }
     }
-//
-//    public static class Common {
-//        public Common(ForgeConfigSpec.Builder builder){
-//
-//        }
-//    }
+
+    public static class Common {
+        public static Map<String, ForgeConfigSpec.ConfigValue<Boolean>> pvzRules = new HashMap<>();
+        public static ForgeConfigSpec.ConfigValue<Boolean> shovelPermission;
+        public static ForgeConfigSpec.ConfigValue<Boolean> sunDisappear;
+        public static ForgeConfigSpec.ConfigValue<Boolean> teamBattle;
+        public static ForgeConfigSpec.ConfigValue<Boolean> killWisdomTree;
+        public Common(ForgeConfigSpec.Builder builder){
+            builder.comment("All these configs are the default values of pvz rules.")
+                    .comment("In the game you can also modify them separately for each world with /pvzrule command.")
+                    .comment("All these configs are only effective in server.")
+                    .push("PVZ Rules");
+            shovelPermission = add(builder
+                    .translation("config.pvz.common.shovel_permission")
+                    .comment("whether a player in the same team can shovel a plant if the player is NOT the owner of the plant."),
+                    "ShovelPermission", true);
+            sunDisappear = add(builder
+                    .translation("config.pvz.common.sun_disappear")
+                    .comment("whether sun disappear after a while it is generated."),
+                    "SunDisappear", true);
+            teamBattle = add(builder
+                    .translation("config.pvz.common.team_battle")
+                    .comment("whether plants in different teams regard each other as enemy."),
+                    "TeamBattle", false);
+            killWisdomTree = add(builder
+                    .translation("config.pvz.common.kill_wisdom_tree")
+                    .comment("if on, wisdom trees wilts itself and not grows."),
+                    "KillWisdomTree", false);
+            builder.pop();
+        }
+
+        public ForgeConfigSpec.ConfigValue<Boolean> add(ForgeConfigSpec.Builder builder, String name, Boolean defaultValue) {
+            ForgeConfigSpec.ConfigValue<Boolean> value = builder.define(name, defaultValue);
+            pvzRules.put(name, value);
+            return value;
+        }
+    }
     public static class Client {
 
         //overlay settings
@@ -80,7 +114,7 @@ public class PVZConfig {
                     .translation("config.pvz.client.render_sun_bar_scale")
                     .comment("control scale of displaying the sun amount bar.")
                     .defineInRange("renderSunBarScale", 0.75, 0.1, 10);
-
+            builder.pop();
             builder.comment("Settings about models").push("Model Settings");
             //model settings
             renderBulletAsModel = builder
@@ -91,6 +125,7 @@ public class PVZConfig {
                     .translation("config.pvz.client.zombies_drop_parts")
                     .comment("if on, zombies will drop arms and heads when taking damage.")
                     .define("ZombiesDropParts", true);
+            builder.pop();
         }
     }
 }

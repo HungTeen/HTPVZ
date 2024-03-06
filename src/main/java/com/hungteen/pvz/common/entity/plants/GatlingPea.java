@@ -3,12 +3,17 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -33,7 +38,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Set;
 
-public class GatlingPea extends Repeater implements PlayerRideableJumping {
+public class GatlingPea extends Repeater implements PlayerRideableJumping{
 
     public AnimationState controlledAnimationState = new AnimationState();
     private boolean playerFire = false;
@@ -92,9 +97,6 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
         if (getOverheat() > MAX_OVERHEAT && ! this.entityData.get(FUSING)) {
             this.entityData.set(FUSING, true);
         }
-        if (this.getFirstPassenger() instanceof Player player) {
-            player.yHeadRot += 5;
-        }
     }
 
     public Set<Integer> shootTimes() {
@@ -104,7 +106,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
     }
 
     public float getAttackDamage() {
-        return (float) (this.getFirstPassenger() instanceof Player ? 0.6 : 1) * super.getAttackDamage();
+        return (float) (this.getFirstPassenger() instanceof Player ? 0.4 : 1) * super.getAttackDamage();
     }
 
     @Override
@@ -125,8 +127,15 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping {
                         getZ() + vec.z + (random.nextFloat() - 0.5) * 0.5, 0, 0, 0);
             }
         }
-        if (! (this.getFirstPassenger() instanceof Player)) {
+        if (! (this.getFirstPassenger() instanceof Player player)) {
             playerFire = false;
+        } else if (level.isClientSide) {
+            if (this.controlledAnimationState.isStarted()) {
+                boolean usingSpyGlass = PlayerRenderer.getArmPose((AbstractClientPlayer) player, InteractionHand.MAIN_HAND) == HumanoidModel.ArmPose.SPYGLASS ||
+                        PlayerRenderer.getArmPose((AbstractClientPlayer) player, InteractionHand.OFF_HAND) == HumanoidModel.ArmPose.SPYGLASS;
+                this.getFirstPassenger().xRot -= random.nextFloat() * 1.5 * (usingSpyGlass ? 0.2 : 1);
+                this.getFirstPassenger().yRot -= (random.nextFloat() * 1 - 0.4) * (usingSpyGlass ? 0.2 : 1);
+            }
         }
     }
 

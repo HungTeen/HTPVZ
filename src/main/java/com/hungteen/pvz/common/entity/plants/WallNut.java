@@ -97,7 +97,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new AttractEnemyGoal(this, false));
+        this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 

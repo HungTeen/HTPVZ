@@ -145,6 +145,8 @@ public class PVZEntities {
             .collision(0.5F, 0.5825F).entity("veloci_radish", VelociTurnip::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<KernelPult>> KERNEL_PULT = attribute(KernelPult::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.6F, 1F).entity("kernel_pult", KernelPult::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<Chomper>> CHOMPER = attribute(Chomper::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(1.2F, 1.8F).entity("chomper", Chomper::new, OtherRegisters.PVZPlantMobCategory);
 
     //zombies
     public static final RegistryObject<EntityType<PVZZombie>> ZOMBIE = attribute(Zombie::createAttributes).noLoot()
@@ -205,6 +207,7 @@ public class PVZEntities {
         r(e, BUTTER, ButterBulletRenderer::new);
         r(e, MELON, MelonBulletRenderer::new);
         r(e, POTATO_MINE, PotatoMineRenderer::new);
+        r(e, CHOMPER, ChomperRenderer::new);
         r(e, ZOMBIE, PVZZombieRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
 

@@ -126,8 +126,8 @@ public class PotatoMine extends SimplePlant {
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
         return this.hasSkill("skill.pvz.potato_mine.potato_miner") ?
-                Set.of(PVZBlockTags.PLANTABLE_BLOCKS, PVZBlockTags.UNPLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE):
-                Set.of(PVZBlockTags.PLANTABLE_BLOCKS, PVZBlockTags.UNPLANTABLE_DIRT);
+                Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.UNPLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE):
+                Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.UNPLANTABLE_DIRT);
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()

@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.capability.pvzRules;
 
+import com.hungteen.pvz.PVZConfig;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
@@ -8,7 +9,9 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PVZRulesCapability implements ICapabilitySerializable<CompoundTag> {
@@ -17,11 +20,13 @@ public class PVZRulesCapability implements ICapabilitySerializable<CompoundTag> 
 
     //rules.
     public Map<String, Boolean> booleanMap;
+    public List<String> dirtyList;
 
 
     public PVZRulesCapability() {
         cap = this;
         booleanMap = initBooleanMap();
+        dirtyList = new ArrayList<>();
     }
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
@@ -30,10 +35,9 @@ public class PVZRulesCapability implements ICapabilitySerializable<CompoundTag> 
 
     public static HashMap<String, Boolean> initBooleanMap() {
         HashMap<String, Boolean> map = new HashMap<>();
-        register(map, "shovelPermission", true);//if on, player can shovel plants planted by not only itself.
-        register(map, "sunDisappear", true);//if on, sun will automatically disappear.
-        register(map, "teamBattle", false);//if on, plants in different team will attack each other.
-        register(map, "killWisdomTree", false);//if on, wisdom tree will die.
+        for (String name : PVZConfig.Common.pvzRules.keySet()) {
+            register(map, name, PVZConfig.Common.pvzRules.get(name).get());
+        }
         return map;
     }
 
@@ -53,7 +57,9 @@ public class PVZRulesCapability implements ICapabilitySerializable<CompoundTag> 
     public CompoundTag serializeNBT() {
         CompoundTag basicTag = new CompoundTag();
         for (String key : booleanMap.keySet()) {
-            basicTag.putBoolean(key, booleanMap.get(key));
+            if (dirtyList.contains(key)) {
+                basicTag.putBoolean(key, booleanMap.get(key));
+            }
         }
         return basicTag;
     }
@@ -63,6 +69,7 @@ public class PVZRulesCapability implements ICapabilitySerializable<CompoundTag> 
         for (String key : booleanMap.keySet()) {
             if (booleanMap.containsKey(key)) {
                 booleanMap.put(key, nbt.getBoolean(key));
+                dirtyList.add(key);
             }
         }
     }

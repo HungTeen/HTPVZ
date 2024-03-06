@@ -59,13 +59,15 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
                     if (cap.owner != null) {
                         if (!cap.owner.isAlive()) {
                             cap.setOwner(null);
-                        } else if (cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()) != cap.scoreboard.getPlayersTeam(name)) {
-                            cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()));
+                        } else {
+                            PlayerTeam team = cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName());
+                            if (team != null && team != cap.scoreboard.getPlayersTeam(name)) {
+                                cap.scoreboard.addPlayerToTeam(name, team);
+                            }
                         }
                     }
                 });
-            }
-            ))));
+            }))));
         }
     }
 
@@ -97,7 +99,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
             playerTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
             enemyTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.ENEMY_TEAM));
         });
-        boolean teamBattle = PVZRulesCapability.get().booleanMap.get("teamBattle");
+        boolean teamBattle = PVZRulesCapability.getBoolean("TeamBattle");
 
         if (teamA == teamB) {
             return teamA != null || (A instanceof Enemy == B instanceof Enemy);

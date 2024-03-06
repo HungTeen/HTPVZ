@@ -6,17 +6,29 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
+import java.util.function.Function;
 
-public class SunLightLayer<T extends LivingEntity, M extends EntityModel<T>> extends PVZFullSkinLayer<T,M>{
+
+public class LightLayer<T extends LivingEntity, M extends EntityModel<T>> extends PVZFullSkinLayer<T,M>{
 	ResourceLocation res;
+	Function<T, Boolean> condition;
 
-	public SunLightLayer(RenderLayerParent<T, M> entityRendererIn, ResourceLocation lightPicture) {
+	public LightLayer(RenderLayerParent<T, M> entityRendererIn, ResourceLocation lightPicture) {
 		super(entityRendererIn);
 		res = lightPicture;
+		condition = this::defaultCondition;
 	}
-
+	public LightLayer(RenderLayerParent<T, M> entityRendererIn, ResourceLocation lightPicture, Function<T, Boolean> condition) {
+		super(entityRendererIn);
+		res = lightPicture;
+		this.condition = condition;
+	}
 	@Override
 	protected boolean canRender(T entity) {
+		return condition.apply(entity);
+	}
+
+	public boolean defaultCondition(T entity) {
 		if(entity.isInvisible()) return false;
 		if(entity instanceof ProducerPlant) {
 			return ((ProducerPlant) entity).isPlantInGen();

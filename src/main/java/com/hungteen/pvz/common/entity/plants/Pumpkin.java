@@ -64,13 +64,13 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new AttractEnemyGoal(this, false));
+        this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 
     @Override
     public boolean canHold(LivingEntity plant, boolean isPlanting) {
-        return ! (plant instanceof IArmorEntity) && (!isPlanting || getPassengers().isEmpty()) && PVZOwnedCapability.isTeammate(this, plant);
+        return ! (plant instanceof IArmorEntity) && (!isPlanting || getPassengers().isEmpty()) && PVZOwnedCapability.isTeammate(this, plant) && plant.getBbWidth() < 1;
     }
 
     @Override

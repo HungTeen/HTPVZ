@@ -24,19 +24,18 @@ public  abstract class PVZFullSkinLayer<T extends LivingEntity, M extends Entity
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, T entitylivingbaseIn,
+    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, T livingEntity,
                        float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw,
                        float headPitch) {
-        if (this.canRender(entitylivingbaseIn)) {
+        if (this.canRender(livingEntity)) {
             poseStack.pushPose();
             poseStack.scale(this.scale, this.scale, this.scale);
-            float f = (float) entitylivingbaseIn.tickCount + partialTicks;
-            VertexConsumer ivertexbuilder = bufferIn.getBuffer(RenderType.energySwirl(this.getResourceLocation(entitylivingbaseIn), this.getU(f), this.getV(f)));
-            entityModel.renderToBuffer(poseStack, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F, 1.0F);
+            float f = (float) livingEntity.tickCount + partialTicks;
+            VertexConsumer ivertexbuilder = bufferIn.getBuffer(RenderType.energySwirl(this.getResourceLocation(livingEntity), this.getU(f), this.getV(f)));
+            entityModel.renderToBuffer(poseStack, ivertexbuilder, packedLightIn, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F, 1F);
             poseStack.popPose();
         }
     }
-
     protected float getU(float f) {
         return 0f;
     }

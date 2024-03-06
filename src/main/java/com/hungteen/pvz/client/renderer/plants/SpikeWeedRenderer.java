@@ -1,11 +1,8 @@
 package com.hungteen.pvz.client.renderer.plants;
 
-import com.hungteen.pvz.client.layer.fullskin.SunLightLayer;
 import com.hungteen.pvz.client.model.plants.SpikeWeedModel;
-import com.hungteen.pvz.client.model.plants.SunFlowerModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.SpikeWeed;
-import com.hungteen.pvz.common.entity.plants.SunFlower;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;

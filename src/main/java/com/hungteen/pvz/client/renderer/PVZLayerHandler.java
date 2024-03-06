@@ -45,6 +45,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.WALL_NUT, "armor", WallNutArmorModel::createBodyLayer);
         L(e, PVZEntities.POTATO_MINE, PotatoMineModel::createBodyLayer);
         L(e, PVZEntities.SNOW_PEA, SnowPeaModel::createBodyLayer);
+        L(e, PVZEntities.CHOMPER, ChomperModel::createBodyLayer);
         L(e, PVZEntities.SPIKE_WEED, SpikeWeedModel::createBodyLayer);
         L(e, PVZEntities.TORCH_WOOD, TorchWoodModel::createBodyLayer);
         L(e, PVZEntities.TALL_NUT, TallNutModel::createBodyLayer);

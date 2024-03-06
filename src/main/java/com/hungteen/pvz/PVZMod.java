@@ -11,7 +11,7 @@ import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.OwnCommand;
 import com.hungteen.pvz.common.command.PVZFogCommand;
-import com.hungteen.pvz.common.command.PVZRulesCommand;
+import com.hungteen.pvz.common.command.PVZRuleCommand;
 import com.hungteen.pvz.common.command.PlayerStatsCommand;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -236,7 +236,7 @@ public class PVZMod
         CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);
-        PVZRulesCommand.register(dispatcher);
+        PVZRuleCommand.register(dispatcher);
         PVZFogCommand.register(dispatcher);
     }
 }

@@ -1,7 +1,7 @@
 package com.hungteen.pvz.client.renderer.plants;
 
 import com.hungteen.pvz.client.layer.DirtLayer;
-import com.hungteen.pvz.client.layer.fullskin.SunLightLayer;
+import com.hungteen.pvz.client.layer.fullskin.LightLayer;
 import com.hungteen.pvz.client.model.plants.PotatoMineModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.PotatoMine;
@@ -20,7 +20,7 @@ public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, Ent
     private static final ResourceLocation TEXTURE = Util.prefix("textures/entity/plants/potato_mine/potato_mine.png");
     public PotatoMineRenderer(EntityRendererProvider.Context context) {
         super(context, new PotatoMineModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("potato_mine:main"))), 0.2F);
-        this.addLayer(new SunLightLayer<>(this, Util.prefix("textures/entity/plants/potato_mine/potato_mine_light.png")));
+        this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/potato_mine/potato_mine_light.png")));
         this.addLayer(new DirtLayer(this, context.getModelSet()));
     }
 
