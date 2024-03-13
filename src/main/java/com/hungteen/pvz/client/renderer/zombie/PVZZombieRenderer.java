@@ -20,7 +20,8 @@ public class PVZZombieRenderer extends AbstractZombieRenderer {
     }
 
     public ResourceLocation getTextureLocation(Zombie zombie) {
-        return zombie instanceof PVZZombie pvzZombie ? Util.prefix("textures/entity/zombie/" + pvzZombie.getStyle().getPath() + "_zombie.png") :
+        return zombie instanceof PVZZombie pvzZombie ? pvzZombie.getStyle().getPath().equals("") ? OVERWORLD_LOCATION :
+                Util.prefix("textures/entity/zombie/" + pvzZombie.getStyle().getPath() + "_zombie.png") :
                 super.getTextureLocation(zombie);
     }
 }

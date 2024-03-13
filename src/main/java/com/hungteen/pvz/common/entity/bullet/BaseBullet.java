@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import com.hungteen.pvz.common.world.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

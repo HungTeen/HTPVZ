@@ -1,4 +1,4 @@
-package com.hungteen.pvz.common.world;
+package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IArmorEntity;
@@ -24,6 +24,7 @@ public class PVZDamageSource {
 
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
     public static final DamageSource SPIKE_WEED = new DamageSource("spike_weed");
+    public static final DamageSource TANGLE_KELP = setSharp(new DamageSource("tangle_kelp").bypassArmor());
 
     //TODO need a decorator for AOE damages?
     //damageSource decorators
@@ -53,7 +54,7 @@ public class PVZDamageSource {
         return new IndirectEntityDamageSource(name, projectile, owner instanceof LivingEntity ? owner : projectile).setProjectile();
     }
     public static DamageSource chomperHurt(LivingEntity source) {
-        return PVZDamageSource.teamFilter(PVZDamageSource.setSharp(DamageSource.mobAttack(source)).bypassArmor());
+        return teamFilter(PVZDamageSource.setSharp(DamageSource.mobAttack(source)).bypassArmor());
     }
 
     //variables and methods used

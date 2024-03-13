@@ -3,11 +3,9 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
-import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
@@ -48,7 +46,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping{
 
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 4, 150, 0),
-            new Skill("skill.pvz.gatling_pea.low_budget_configuration", PVZItems.ORIGIN_ESSENCE, 8, 4, -250, -1000),
+            new Skill("skill.pvz.gatling_pea.low_budget_configuration", PVZItems.LUX_ESSENCE, 8, 4, -250, -1000),
             new Skill("skill.pvz.pea_shooter.fire_shooter", PVZItems.IGNIS_ESSENCE, 4, 4, 150, 0).avoidSkills(0)
     );
     public GatlingPea(EntityType<? extends Mob> type, Level worldIn) {

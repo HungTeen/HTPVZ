@@ -24,7 +24,7 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class TallNut extends WallNut{
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0),
+            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
             new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 75, 0),
             new Skill("skill.pvz.tall_nut.projectile_protection", PVZItems.VENTUS_ESSENCE, 8, 8, 50, 0)
     );

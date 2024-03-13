@@ -6,7 +6,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.common.world.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,8 +17,11 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -35,7 +38,8 @@ import java.util.Set;
 public class SpikeWeed extends SimplePlant {
     protected static final EntityDataAccessor<Direction> ATTACH_FACE = SynchedEntityData.defineId(SpikeWeed.class, EntityDataSerializers.DIRECTION);
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.spike_weed.viscous_pseudoroots", PVZItems.TERRA_ESSENCE, 6, 4, 0, 0)
+            new Skill("skill.pvz.spike_weed.viscous_pseudoroots", PVZItems.TERRA_ESSENCE, 6, 4, 0, 0),
+            new Skill("skill.pvz.spike_weed.poison_attenna", PVZItems.ORIGIN_ESSENCE, 6, 4, 100, 0)
     );
 
     public SpikeWeed(EntityType<? extends Mob> entityType, Level level) {
@@ -150,7 +154,12 @@ public class SpikeWeed extends SimplePlant {
             List<Entity> list = entity.level.getEntities(entity,
                     entity.getBoundingBox().inflate(0.1 * Math.abs(direction.getX()), 0.1 * Math.abs(direction.getY()), 0.1 * Math.abs(direction.getZ())),
                     (entity1) -> EntityUtil.checkCanEntityBeAttack(entity, entity1));
-            list.forEach((entity1 -> entity1.hurt(PVZDamageSource.SPIKE_WEED, (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue())));
+            list.forEach((entity1 -> {
+                entity1.hurt(PVZDamageSource.SPIKE_WEED, (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
+                if (entity1 instanceof LivingEntity && entity.hasSkill("skill.pvz.spike_weed.poison_attenna")) {
+                    ((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 10));
+                }
+            }));
         }
     }
 }

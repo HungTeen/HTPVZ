@@ -4,7 +4,7 @@ import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.OtherRegisters;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZMobEffects;
-import com.hungteen.pvz.common.world.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -70,7 +70,7 @@ public class MelonBullet extends BaseBullet {
             if (this.getMelonSkill() == MelonSkill.POTION) {
                 applySplash(getMobEffects(), result.getEntity());
             } else {
-                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(1, 1, 1),
+                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(1.5, 1, 1.5).move(0, -0.5, 0),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity));
                 entities.forEach((entity -> {
                     entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(

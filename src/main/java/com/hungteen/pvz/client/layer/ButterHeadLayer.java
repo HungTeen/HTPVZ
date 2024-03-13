@@ -98,7 +98,6 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
         for (ModelPart.Cube cube : part.cubes) {
             result = Math.max(Math.max(cube.maxY, cube.maxY - cube.minY), result);
         }
-        result *= part.yScale;
         return result;
     }
 }

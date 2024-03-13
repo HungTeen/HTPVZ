@@ -50,9 +50,6 @@ public class BlockTagGen extends BlockTagsProvider {
                 Blocks.SCULK, Blocks.SCULK_CATALYST,
                 Blocks.LILY_PAD
         );
-        this.tag(PVZBlockTags.PLANTABLE_WATER).add(
-                Blocks.WATER
-        );
         this.tag(PVZBlockTags.PLANTABLE_STONE).addTags(
                 Tags.Blocks.STONE, Tags.Blocks.NETHERRACK, BlockTags.TERRACOTTA, Tags.Blocks.COBBLESTONE,
                 Tags.Blocks.SANDSTONE, Tags.Blocks.SAND, Tags.Blocks.GRAVEL)

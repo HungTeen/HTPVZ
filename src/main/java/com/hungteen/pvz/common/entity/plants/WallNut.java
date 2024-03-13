@@ -34,7 +34,7 @@ import net.minecraftforge.common.ForgeHooks;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.hungteen.pvz.common.world.PVZDamageSource.teamFilter;
+import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 
 public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity {
     float storedHealth;
@@ -42,7 +42,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Float> IRON_ARMOR = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.FLOAT);
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0),
+            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
             new Skill("skill.pvz.wall_nut.explode", PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
             new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(1)
     );

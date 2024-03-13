@@ -3,14 +3,10 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.ICanAttack;
-import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
-import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.INeedSafeSituation;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
@@ -18,12 +14,9 @@ import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
-import com.hungteen.pvz.common.item.SeedPacketItem;
-import com.hungteen.pvz.common.network.SpawnParticlePacket;
-import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.common.world.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
@@ -49,11 +42,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.Minecart;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -72,13 +61,9 @@ import net.minecraftforge.fluids.IFluidBlock;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-
-import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
 public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeedSafeSituation, ICanAttack, VibrationListener.VibrationListenerConfig {
     public AnimationState idleAnimationState = new AnimationState();
@@ -99,7 +84,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.chomper.energy_transduction", PVZItems.LUX_ESSENCE, 8, 8, 50, 0)
     );
-
+    Vec3 storedPosition;
     private BlockPos originalPos;
 
     public int animTick = 0;
@@ -166,7 +151,6 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
     @Override
     public void baseTick() {
         super.baseTick();
-        PVZMod.LOGGER.info((level.isClientSide ? "client " : "server ") + this.position());
         if (level.isClientSide && (this.getPose() == Pose.DIGGING || this.getPose() == Pose.SWIMMING)) {
             for (int i = 0; i < 5; i ++) {
                 this.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX() + (this.random.nextDouble() - 0.5D) - this.getDeltaMovement().x / 2, this.getY() + 0.1D, this.getZ() + (this.random.nextDouble() - 0.5D) - this.getDeltaMovement().z / 2, (this.random.nextDouble() - 0.5) * 6.0D, 2D, (this.random.nextDouble() - 0.5) * 4.0D);
@@ -190,7 +174,22 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
 
     @Override
     public void tick() {
-        super.tick();
+        if (this.storedPosition == null) {
+            this.storedPosition = Vec3.ZERO;
+        }
+        if (this.getPose() == Pose.SWIMMING && ((this.position().distanceTo(this.storedPosition) < 0.1 && this.tickCount % 10 == 0) || super.isInWall())) {
+            this.noPhysics = true;
+            this.setNoGravity(true);
+            if (level.getBlockState(this.blockPosition()).isSuffocating(level, this.blockPosition())) {
+                this.setDeltaMovement(this.getDeltaMovement().add(0, 0.05, 0));
+            }
+            super.tick();
+            this.setNoGravity(false);
+            this.noPhysics = false;
+            this.storedPosition = this.position();
+        } else {
+            super.tick();
+        }
         if (level instanceof ServerLevel serverlevel) {
             this.dynamicGameEventListener.getListener().tick(serverlevel);
         }
@@ -443,8 +442,12 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
         return this.getPose() == Pose.SWIMMING ? super.makeBoundingBox().inflate(-0.2,-0.8, -0.2).move(0, -0.8, 0) : super.makeBoundingBox();
     }
     @Override
+    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+        return this.getPose() == Pose.SWIMMING ? 0.1F : super.getStandingEyeHeight(pose, dimensions);
+    }
+    @Override
     public boolean isInWall() {
-        return !this.isSleeping() && super.isInWall() && this.getPose() != Pose.SWIMMING;
+        return super.isInWall() && this.getPose() != Pose.SWIMMING;
     }
     @Override
     protected void pushEntities(){
@@ -573,7 +576,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) && chomper.position().distanceTo(target.position()) <= 1.5) {
                             target.startRiding(chomper);
                         }
-                    } else if (chomper.animTick >= 33 && chomper.animTick < 36) {
+                    } else if (chomper.animTick >= 53 && chomper.animTick < 56) {
                         Entity rider = chomper.getFirstPassenger();
                         if (rider != null) {
                             chomper.setAttackTime(chomper.getAttackCD());
@@ -584,22 +587,29 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                                 rider.discard();
                             }
                         }
-                    } else if (chomper.animTick > 59) {
+                    } else if (chomper.animTick > 79) {
                         chomper.setPose(chomper.blockPosition().below().equals(chomper.getOriginalPos()) ?
                                 (chomper.getAttackTime() <= 0 ? Pose.STANDING : Pose.CROUCHING) : Pose.DIGGING);
+                        if (chomper.getPose() == Pose.CROUCHING) {
+                            chomper.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400));
+                        }
                         chomper.animTick = 0;
                     }
                 }
                 case EMERGING -> {
                     chomper.setPose(chomper.getAttackTime() <= 0 ? Pose.STANDING : Pose.CROUCHING);
+                    if (chomper.getPose() == Pose.CROUCHING) {
+                        chomper.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400));
+                    }
                     chomper.animTick = 0;
                 }
                 case CROAKING -> {
                     if (chomper.hasSkill("skill.pvz.chomper.energy_transduction")) {
-                        Sun.spawnSunWithEffects(this.chomper.level, 75, this.chomper.getOnPos().above(), 0.3F);
+                        Sun.spawnSunWithEffects(this.chomper.level, 50, this.chomper.getOnPos().above(), 0.4F);
+                        Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.4F);
+                        Sun.spawnSunWithEffects(this.chomper.level, 5, this.chomper.getOnPos().above(), 0.5F);
+                        Sun.spawnSunWithEffects(this.chomper.level, 5, this.chomper.getOnPos().above(), 0.5F);
                     }
-                    chomper.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 300));
-                    chomper.addEffect(new MobEffectInstance(MobEffects.HEAL, 15));
                     chomper.setPose(Pose.STANDING);
                     chomper.animTick = 0;
                 }
@@ -610,7 +620,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                 case SWIMMING -> {
                     LivingEntity target = chomper.getTarget();
                     PathNavigation navigation = chomper.getNavigation();
-                    if (target == null || chomper.getAttackTime() != 0) {
+                    if (! EntityUtil.isEntityValid(target) || chomper.getAttackTime() != 0) {
                         BlockPos pos = chomper.getOriginalPos().above();
                         boolean homeSafe = chomper.isPositionSafe(null, chomper.level, pos.below(), Direction.UP, false) == null;
                         if (chomper.blockPosition().distSqr(pos) < 3 || ! homeSafe) {
@@ -629,7 +639,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                     } else if (navigation.isDone()) {
                         navigation.moveTo(navigation.createPath(target, 0), 1);
                     }
-                    if (chomper.getAttackTime() == 0 && target != null && chomper.position().distanceTo(target.position()) <= 1) {
+                    if (chomper.getAttackTime() == 0 && EntityUtil.isEntityValid(target) && chomper.position().distanceTo(target.position()) <= 1) {
                         chomper.setPose(Pose.USING_TONGUE);
                         navigation.stop();
                         chomper.setDeltaMovement(Vec3.ZERO);

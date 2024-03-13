@@ -13,7 +13,7 @@ import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.common.world.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -324,10 +324,10 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> {
             Entity owner = cap.getOwner();
             if (owner != null) {
-                permission[0] = PVZRulesCapability.getBoolean("ShovelPermission") ?
-                        (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.getBoolean("TeamBattle")) : owner.is(player);
+                permission[0] = PVZRulesCapability.getBoolean("shovelPermission") ?
+                        (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.getBoolean("teamBattle")) : owner.is(player);
             } else {
-                permission[0] = PVZRulesCapability.getBoolean("ShovelPermission") && PVZOwnedCapability.isTeammate(target, player);
+                permission[0] = PVZRulesCapability.getBoolean("shovelPermission") && PVZOwnedCapability.isTeammate(target, player);
             }
         });
         //shovel plant.

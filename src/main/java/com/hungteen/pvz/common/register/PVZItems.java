@@ -58,6 +58,7 @@ public class PVZItems {
     //registry
     public static final RegistryObject<Item> PEA = item("pea");
     public static final RegistryObject<Item> NUT = item("nut");
+    public static final RegistryObject<Item> PEPPER = item("pepper");
     public static final RegistryObject<Item> JEWEL = item("jewel");
     public static final RegistryObject<Item> ALAYA_RESIN = item("alaya_resin");
     public static final RegistryObject<Item> ORIGIN_ESSENCE = tag(PVZItemTags.ESSENCE).item("origin_essence");
@@ -78,18 +79,19 @@ public class PVZItems {
 
 
     //spawners
+    public static final RegistryObject<Item> GRASSCARP_BUCKET = item("grass_carp_bucket", () -> new MobBucketItem(PVZEntities.GRASSCARP, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> TANGLE_KELP_BUCKET = item("tangle_kelp_bucket", () -> new MobBucketItem(PVZEntities.TANGLE_KELP, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> CONEHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("conehead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.coneHead_zombie_consumer,0xff9c03, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> BUCKETHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("buckethead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.bucketHead_zombie_consumer,0xe1d6d6, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
-    public static final RegistryObject<Item> GRASSCARP_BUCKET = item("grass_carp_bucket", () -> new MobBucketItem(PVZEntities.GRASSCARP, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
 
     //equipments
     public static final RegistryObject<Item> CONE_HELMET = item("cone_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.CONE, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(30), EquipmentSlot.HEAD));
-    public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(80), EquipmentSlot.HEAD));
+    public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(100), EquipmentSlot.HEAD));
 
-    //utils tools
+    //tools
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> ARROW_WITH_A_TARGET = item("arrow_with_a_target", () -> new ArrowItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 
     static {
         createSpawnEggs();
@@ -135,6 +137,10 @@ public class PVZItems {
         RegistryObject<Item> itemObj = ITEMS.register(name, sup);
         if (storedModel.getFirst() != Model.Modeled){
             modelList.add(Pair.of(itemObj, storedModel));
+        }
+        if (! storedTag.isEmpty()) {
+            tagMap.put(itemObj, List.copyOf(storedTag));
+            storedTag.clear();
         }
         storedModel = Pair.of(Model.Simple, new ArrayList<>());
         return itemObj;

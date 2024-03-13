@@ -30,7 +30,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public String resource = "";
     public int cost = 0;
     private Entity owner = null;
-    private UUID ownerUuid = null;
+    public UUID ownerUuid = null;
     private final ServerScoreboard scoreboard;
     public static short tickCount = 0;
 
@@ -74,8 +74,10 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public void setOwner(Entity entity) {
         this.owner = entity;
         if (entity == null) {
+            this.ownerUuid = null;
             scoreboard.removePlayerFromTeam(this.entity.getScoreboardName());
         } else {
+            this.ownerUuid = entity.getUUID();
             Scoreboard scoreboard = this.entity.getServer().getScoreboard();
             PlayerTeam team = scoreboard.getPlayersTeam(entity.getScoreboardName());
             if (team != null) {
@@ -85,10 +87,12 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     }
 
     public Entity getOwner() {
+        this.owner = owner == null ? ((ServerLevel) (entity.level)).getEntity(ownerUuid) : owner;
         return owner;
     }
 
     public static boolean isTeammate(Entity A, Entity B) {
+        if (A == null || B == null) return false;
         Team teamA = A.getTeam();
         Team teamB = B.getTeam();
 
@@ -99,7 +103,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
             playerTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
             enemyTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.ENEMY_TEAM));
         });
-        boolean teamBattle = PVZRulesCapability.getBoolean("TeamBattle");
+        boolean teamBattle = PVZRulesCapability.getBoolean("teamBattle");
 
         if (teamA == teamB) {
             return teamA != null || (A instanceof Enemy == B instanceof Enemy);

@@ -93,7 +93,7 @@ public class WisdomTreeCoreBlock extends HorizontalDirectionalBlock {
     public void randomTick(BlockState blockState, ServerLevel level, BlockPos pos, RandomSource random) {
         super.randomTick(blockState, level, pos, random);
         int lv = blockState.getValue(LV);
-        if (!PVZRulesCapability.getBoolean("KillWisdomTree") && random.nextInt(5) == 0) {
+        if (!PVZRulesCapability.getBoolean("killWisdomTree") && random.nextInt(5) == 0) {
             if (level.getBlockState(pos.above()).isAir() || level.getBlockState(pos.above()).is(PVZBlockTags.WISDOM_TREE_REPLACEABLE)) {
                 level.setBlockAndUpdate(pos.above(), PVZBlocks.WISDOM_TREE_LOG.get().defaultBlockState()
                         .setValue(WisdomTreeLogBlock.LV, lv)

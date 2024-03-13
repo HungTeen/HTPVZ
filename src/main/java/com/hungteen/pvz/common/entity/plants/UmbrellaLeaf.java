@@ -26,8 +26,6 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.hungteen.pvz.common.world.PVZDamageSource.teamFilter;
-
 public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     public AnimationState idleAnimationState = new AnimationState();

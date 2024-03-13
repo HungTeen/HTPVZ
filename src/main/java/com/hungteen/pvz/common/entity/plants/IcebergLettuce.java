@@ -2,11 +2,13 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -39,6 +41,17 @@ public class IcebergLettuce extends ShooterPlant {
         return ShooterPlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 2D)
                 .add(Attributes.FOLLOW_RANGE, 6D);
+    }
+
+    @Override
+    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        MutableComponent result = super.isVehicleSafe(event, target, isPlanting);
+        if (EntityUtil.checkCanEntityBeAttack(this, target)) {
+            this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
+            this.startRiding(target);
+            return null;
+        }
+        return result;
     }
 
     @Override
@@ -105,14 +118,14 @@ public class IcebergLettuce extends ShooterPlant {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox(),
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(0.1, 0.1, 0.1),
                     (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(entity, this.entity) && ! ((LivingEntity) entity).hasEffect(PVZMobEffects.FREEZE.get())));
             if (entities.isEmpty() && this.entity.tickCount < 300) {
                 return;
             }
             MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 120);
             if (entity.hasSkill("skill.pvz.iceberg_lettuce.ice_storm")) {
-                entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 0, 2),
+                entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 0.25, 2),
                         (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(entity, this.entity)));
                 entities.forEach((entity) -> ((LivingEntity) entity).addEffect(instance));
             } else {

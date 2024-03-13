@@ -319,10 +319,10 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     }
 
 
-    //TODO sounds has not changed.
     //sounds
     @Override
     public SoundEvent getPickupSound() {
+        //TODO sounds has not changed.
         return SoundEvents.BUCKET_FILL_AXOLOTL;
     }
 

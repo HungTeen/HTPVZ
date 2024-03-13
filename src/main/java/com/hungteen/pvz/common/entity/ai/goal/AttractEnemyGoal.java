@@ -52,7 +52,7 @@ public class AttractEnemyGoal extends Goal {
             if (targetEntity instanceof Mob && ! PVZOwnedCapability.isTeammate(entity, targetEntity) && ! outOfHeightRegion) {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
-                if (! (targetOfTarget instanceof IDefenderPlant) && ((! PVZRulesCapability.getBoolean("TeamBattle")) ||
+                if (! (targetOfTarget instanceof IDefenderPlant) && ((! PVZRulesCapability.getBoolean("teamBattle")) ||
                         (! EntityUtil.isEntityValid(targetOfTarget) || PVZOwnedCapability.isTeammate(entity, targetOfTarget)))) {
                     //test if can attract.
                     ((Mob) targetEntity).targetSelector.getAvailableGoals().forEach((goal) -> {

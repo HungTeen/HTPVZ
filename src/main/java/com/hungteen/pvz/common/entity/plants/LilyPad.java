@@ -9,6 +9,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -30,6 +32,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -40,6 +43,7 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.IFluidBlock;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public class LilyPad extends SimplePlant implements ICanBePlantedOn {
@@ -177,7 +181,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         return true;
     }
     public int getMaxAirSupply() {
-        return 500;
+        return 300;
     }
     public boolean fireImmune() {
         return super.fireImmune() || this.hasSkill(this, "skill.pvz.lily_pad.lava_swimmer");
@@ -190,7 +194,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
                 this.hurt(DamageSource.DROWN, 2.0F);
             }
         } else {
-            this.setAirSupply(300);
+            this.setAirSupply(this.getMaxAirSupply());
         }
     }
     public void baseTick() {

@@ -41,30 +41,36 @@ public class PVZSeedPackets {
                 .recipe(Items.POTATO, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.LILY_PAD).cost(25).coolDown(FAST).skillList(LilyPad.staticSkillList)
                 .recipe(Items.LILY_PAD, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE);
-        add(PVZEntities.SPIKE_WEED).cost(100).coolDown(FAST).skillList(SpikeWeed.staticSkillList)
-                .recipe(Items.GLOW_LICHEN, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
-        add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
+        add(PVZEntities.TANGLE_KELP).cost(25).coolDown(SLOW).skillList(TangleKelp.staticSkillList)
+                .recipe(Items.KELP, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE);
+        add(PVZEntities.SPLIT_PEA).cost(125).coolDown(FAST).skillList(SplitPea.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
                 .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
-        add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
-                .recipe(Items.BIG_DRIPLEAF, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.ICEBERG_LETTUCE).cost(0).coolDown(MIDDLE).skillList(IcebergLettuce.staticSkillList)
                 .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.GELUM_ESSENCE);
-        add(PVZEntities.VELOCI_TURNIP).cost(50).coolDown(FAST).skillList(VelociTurnip.staticSkillList)
+        add(PVZEntities.VELOCI_RADISH).cost(50).coolDown(FAST).skillList(VelociRadish.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.
                 .recipe(PVZItems.FLOWER_SEED_PACKET).setCreativeOnly();
         add(PVZEntities.REPEATER).cost(175).coolDown(FAST).skillList(Repeater.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.JALAPENO).cost(125).coolDown(VERY_SLOW).skillList(Jalapeno.staticSkillList)
+                .recipe(PVZItems.IGNIS_ESSENCE, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);//TODO change ignis essence to a pepper.
         add(PVZEntities.TORCH_WOOD).cost(450).coolDown(SLOW).skillList(TorchWood.staticSkillList)
                 .recipeBlock(PVZBlocks.woodList.get(0).get(PVZBlocks.WoodSet.Log), PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
+        add(PVZEntities.SPIKE_WEED).cost(100).coolDown(FAST).skillList(SpikeWeed.staticSkillList)
+                .recipe(Items.GLOW_LICHEN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
+        add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
+                .recipe(PVZItems.NETHER_WART_SEED_PACKET);
         add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
                 .recipe(Items.GLOW_BERRIES, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE); //TODO change glow berries to a plantern block.
         add(PVZEntities.PUMPKIN).cost(125).coolDown(SLOW).skillList(Pumpkin.staticSkillList)
                 .recipe(Items.PUMPKIN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
+        add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
+                .recipe(Items.BIG_DRIPLEAF, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.MELON_PULT).cost(350).coolDown(MIDDLE).skillList(MelonPult.staticSkillList)
                 .recipe(Items.MELON, PVZItems.CHORUS_FRUIT_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)

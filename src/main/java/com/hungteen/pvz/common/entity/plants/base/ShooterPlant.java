@@ -53,7 +53,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	 * shoot pea with offsets.
 	 */
 	public void performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
-		LivingEntity target = Optional.ofNullable(this.getTarget()).isPresent() ? Optional.ofNullable(this.getTarget()).get() : null;
+		LivingEntity target = this.getTarget();
 		//create bullet
 		final Vec3 vec = getShootAngle(target);
 		final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
@@ -69,8 +69,6 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			if (storedEnemyPos != null) {
 				targetSpeed = target.position().subtract(storedEnemyPos)
 						.multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
-				aimTime = 0;
-				storedEnemyPos = getTarget().position();
 			} else {
 				targetSpeed = target.getDeltaMovement();
 			}
@@ -97,7 +95,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 		}
 		//shoot
 		bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, speed, (float) randomAngle);
-		if(needSound) {
+		if (needSound) {
 			EntityUtil.playSound(this, this.getShootSound());
 		}
 		bullet.setOwner(this);
@@ -228,8 +226,9 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			}
 			//countdown.
 			final int time = this.shooter.getAttackTime();
-			if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && EntityUtil.isEntityValid(shooter.getTarget()))) {
+			if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && EntityUtil.isEntityValid(target))) {
 				this.shooter.setAttackTime(time > 0 ? time - 1 : this.shooter.getShootCD());
+
 			}
 			shooter.entityData.set(POSE, (this.shooter.getAttackTime() < this.shooter.shootAnimLength()));
 			//can shoot.
@@ -245,6 +244,10 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 		public void tick() {
 			if (this.shooter.shootTimes().contains(this.shooter.getAttackTime())) {
 				this.shooter.shootBullet();
+				if (EntityUtil.isEntityValid(this.shooter.getTarget())) {
+					shooter.aimTime = 0;
+					shooter.storedEnemyPos = this.shooter.getTarget().position();
+				}
 			}
 		}
 	}

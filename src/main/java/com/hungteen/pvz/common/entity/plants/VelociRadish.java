@@ -6,22 +6,16 @@ import com.hungteen.pvz.api.interfaces.ICanGroupUp;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
-import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.INeedSafeSituation;
 import com.hungteen.pvz.common.entity.SimplePlant;
-import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
-import com.hungteen.pvz.common.item.SeedPacketItem;
-import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.world.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,9 +36,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BushBlock;
@@ -58,30 +50,28 @@ import net.minecraftforge.fluids.IFluidBlock;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
-public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, INeedSafeSituation, IHaveSkills {
+public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, INeedSafeSituation, IHaveSkills {
     private static final UUID ATTACK_MODIFIER_UUID = UUID.fromString("191e7725-e0a8-45cf-93ac-5a1749b36d03");
     private static final UUID HEALTH_MODIFIER_UUID = UUID.fromString("45e5f868-f733-423f-81b0-b3df87d3f266");
     private int animationTick = 0;
     private boolean animationChangeable = false;
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.veloci_radish.veloci_nip", PVZItems.ORIGIN_ESSENCE, 8, 4, 75, 440).avoidSkills(1),
-            new Skill("skill.pvz.veloci_radish.clever_girls", PVZItems.ORIGIN_ESSENCE, 8, 4, 150, 440).avoidSkills(0)
+            new Skill("skill.pvz.veloci_radish.clever_girls", PVZItems.LUX_ESSENCE, 8, 4, 150, 440).avoidSkills(0)
     );
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
     public final AnimationState attackAnimationState = new AnimationState();
     public boolean skillBoosted = false;
     private int situationHurtCount = 0;
-    protected static final EntityDataAccessor<Integer> POSE = SynchedEntityData.defineId(VelociTurnip.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(VelociTurnip.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(VelociTurnip.class, EntityDataSerializers.INT);
-    public VelociTurnip(EntityType<? extends PathfinderMob> entityType, Level level) {
+    protected static final EntityDataAccessor<Integer> POSE = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
+    public VelociRadish(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
@@ -275,7 +265,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
         } else if (hasSkill(this, "skill.pvz.veloci_radish.clever_girls")) {
             if (!level.isClientSide) {
                 for (int i = 0; i < 3; i ++) {
-                    VelociTurnip turnip = PVZEntities.VELOCI_TURNIP.get().create(level);
+                    VelociRadish turnip = PVZEntities.VELOCI_RADISH.get().create(level);
                     turnip.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
                     ((ServerLevel) level).addFreshEntityWithPassengers(turnip);
                     if (hasCustomName()) {
@@ -363,17 +353,17 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
 
     private static class TurnipAttackGoal extends MeleeAttackGoal {
-        public TurnipAttackGoal(VelociTurnip p_25552_, double p_25553_, boolean p_25554_) {
+        public TurnipAttackGoal(VelociRadish p_25552_, double p_25553_, boolean p_25554_) {
             super(p_25552_, p_25553_, p_25554_);
         }
         @Override
         protected void checkAndPerformAttack(LivingEntity entity, double p_25558_) {
             double d0 = this.getAttackReachSqr(entity);
-            if (p_25558_ <= d0 && ((VelociTurnip) this.mob).animationChangeable) {
-                ((VelociTurnip) this.mob).animationChangeable = false;
+            if (p_25558_ <= d0 && ((VelociRadish) this.mob).animationChangeable) {
+                ((VelociRadish) this.mob).animationChangeable = false;
                 this.mob.getEntityData().set(POSE, 2);
             }
-            if (((VelociTurnip) this.mob).animationTick == 5 && this.mob.getEntityData().get(POSE) == 2) {
+            if (((VelociRadish) this.mob).animationTick == 5 && this.mob.getEntityData().get(POSE) == 2) {
                 this.mob.swing(InteractionHand.MAIN_HAND);
                 this.mob.doHurtTarget(entity);
             }
@@ -384,9 +374,9 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
         }
     }
     private static class TurnipShareTargetGoal extends Goal{
-        VelociTurnip turnip;
+        VelociRadish turnip;
         int count = 5;
-        public TurnipShareTargetGoal(VelociTurnip turnip) {
+        public TurnipShareTargetGoal(VelociRadish turnip) {
             this.turnip = turnip;
         }
 
@@ -399,7 +389,7 @@ public class VelociTurnip extends PathfinderMob implements ICanGroupUp, IPlant, 
         public void tick(){
             if (-- count == 0) {
                 count = 5;
-                for (VelociTurnip entity : turnip.level.getEntitiesOfClass(VelociTurnip.class, this.turnip.getBoundingBox().inflate(2),
+                for (VelociRadish entity : turnip.level.getEntitiesOfClass(VelociRadish.class, this.turnip.getBoundingBox().inflate(2),
                         (target) -> PVZOwnedCapability.isTeammate(this.turnip, target))) {
                     if ((turnip.getLeader() == entity.getLeader() || turnip.getLeader() == entity) && ! EntityUtil.checkCanEntityBeAttack(entity, entity.getTarget())) {
                         entity.setTarget(turnip.getTarget());

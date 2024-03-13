@@ -75,7 +75,7 @@ public class SeedCrossbowItem extends CrossbowItem {
                 }
             } else {
                 projectile = getArrow(level, entity, itemStack, bullet);
-                if (! (projectile instanceof SeedArrow<?>) && p_40901_ || p_40904_ != 0.0F) {
+                if (p_40901_ || p_40904_ != 0.0F) {
                     ((AbstractArrow)projectile).pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
                 }
             }

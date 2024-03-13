@@ -127,7 +127,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
         mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.SUN_FLOWER.get(), 20, 4, 6));
         mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.WALL_NUT.get(), 40, 4, 6));
         mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.TALL_NUT.get(), 1, 1, 1));
-        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.VELOCI_TURNIP.get(), 80, 5, 8));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.VELOCI_RADISH.get(), 80, 5, 8));
         BiomeGenerationSettings.Builder BiomeGenBuilder = new BiomeGenerationSettings.Builder();
         addNutTrees(BiomeGenBuilder);
         BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUNFLOWER);

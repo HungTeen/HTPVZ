@@ -36,7 +36,7 @@ import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity, ICanBePlantedOn {
     float storedHealth;
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.pumpkin.wall_nut_first_aid", PVZItems.ORIGIN_ESSENCE, 4, 4, 0, 0)
+            new Skill("skill.pvz.pumpkin.wall_nut_first_aid", PVZItems.LUX_ESSENCE, 4, 4, 0, 0)
     );
 
     public Pumpkin(EntityType<? extends Mob> entityType, Level level) {

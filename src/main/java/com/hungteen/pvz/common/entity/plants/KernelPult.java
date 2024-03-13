@@ -25,7 +25,7 @@ public class KernelPult extends ShooterPlant {
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.kernel_pult.butter_pult", PVZItems.TERRA_ESSENCE, 8, 8, 200, 300),
+            new Skill("skill.pvz.kernel_pult.butter_pult", PVZItems.ORIGIN_ESSENCE, 8, 8, 200, 300),
             new Skill("skill.pvz.kernel_pult.butter_trap", PVZItems.AQUA_ESSENCE, 8, 8, 50, 0).avoidSkills(0)
     );
 

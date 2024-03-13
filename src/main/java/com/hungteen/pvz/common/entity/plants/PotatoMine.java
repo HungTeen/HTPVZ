@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
@@ -25,7 +26,7 @@ import net.minecraft.world.phys.AABB;
 import java.util.List;
 import java.util.Set;
 
-import static com.hungteen.pvz.common.world.PVZDamageSource.teamFilter;
+import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 
 public class PotatoMine extends SimplePlant {
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
@@ -95,6 +96,14 @@ public class PotatoMine extends SimplePlant {
     @Override
     public EntityDimensions getDimensions(Pose p_19975_) {
         return this.entityData.get(DATA_POSE) == Pose.DIGGING ? this.getType().getDimensions() : EntityDimensions.scalable(0.7F, 0.4F);
+    }
+
+    @Override
+    public void die(DamageSource damageSource) {
+        if (this.entityData.get(PREPARE_COUNT) <= 0 && ! damageSource.isMagic() && PVZOwnedCapability.isTeammate(this, damageSource.getEntity())) {
+            this.explode();
+        }
+        super.die(damageSource);
     }
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_219422_) {

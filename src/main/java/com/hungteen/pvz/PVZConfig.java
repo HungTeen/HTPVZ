@@ -53,6 +53,7 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> sunDisappear;
         public static ForgeConfigSpec.ConfigValue<Boolean> teamBattle;
         public static ForgeConfigSpec.ConfigValue<Boolean> killWisdomTree;
+        public static ForgeConfigSpec.ConfigValue<Boolean> canCanCanKelp;
         public Common(ForgeConfigSpec.Builder builder){
             builder.comment("All these configs are the default values of pvz rules.")
                     .comment("In the game you can also modify them separately for each world with /pvzrule command.")
@@ -61,19 +62,23 @@ public class PVZConfig {
             shovelPermission = add(builder
                     .translation("config.pvz.common.shovel_permission")
                     .comment("whether a player in the same team can shovel a plant if the player is NOT the owner of the plant."),
-                    "ShovelPermission", true);
+                    "shovelPermission", true);
             sunDisappear = add(builder
                     .translation("config.pvz.common.sun_disappear")
                     .comment("whether sun disappear after a while it is generated."),
-                    "SunDisappear", true);
+                    "sunDisappear", true);
             teamBattle = add(builder
                     .translation("config.pvz.common.team_battle")
                     .comment("whether plants in different teams regard each other as enemy."),
-                    "TeamBattle", false);
+                    "teamBattle", false);
             killWisdomTree = add(builder
                     .translation("config.pvz.common.kill_wisdom_tree")
                     .comment("if on, wisdom trees wilts itself and not grows."),
-                    "KillWisdomTree", false);
+                    "killWisdomTree", false);
+            canCanCanKelp = add(builder
+                    .translation("config.pvz.common.can_can_can_kelp")
+                    .comment("if on, players can interact with Tangle Kelps using buckets to bucket them."),
+                    "canCanCanKelp", false);
             builder.pop();
         }
 

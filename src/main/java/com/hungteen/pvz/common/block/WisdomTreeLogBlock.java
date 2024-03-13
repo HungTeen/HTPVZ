@@ -121,7 +121,7 @@ public class WisdomTreeLogBlock extends RotatedPillarBlock {
         if (level.getBlockState(pos).getValue(PERSISTENT)) {
             return;
         }
-        if (PVZRulesCapability.getBoolean("KillWisdomTree")) {
+        if (PVZRulesCapability.getBoolean("killWisdomTree")) {
             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
             return;
         }
