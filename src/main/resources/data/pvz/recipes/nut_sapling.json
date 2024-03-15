@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "orange_dye",
+  "ingredients": [
+    {
+      "item": "pvz:nut"
+    },
+    {
+      "item": "pvz:origin_essence"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "pvz:nut_sapling"
+  }
+}

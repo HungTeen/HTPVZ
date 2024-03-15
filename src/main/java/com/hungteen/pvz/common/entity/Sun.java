@@ -50,7 +50,7 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         return sun;
     }
     /** drop multiple suns with effects. if each > 0 drop in each, else drop with 50/25/15/5.**/
-    public static void spawnSunsRandomlyByAmount(Level level, BlockPos pos, int amount, int each, float speed) {
+    public static void spawnSunsWithEffectsByAmount(Level level, BlockPos pos, int amount, int each, float speed) {
         for (int i = amount; i > 0; ) {
             int singleSunAmount = i;
             singleSunAmount = each > 0 ? each : singleSunAmount > 50 ? 50 : singleSunAmount > 25 ? 25 : singleSunAmount > 15 ? 15 : Math.min(singleSunAmount, 5);

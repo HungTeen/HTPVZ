@@ -3,7 +3,6 @@ package com.hungteen.pvz.common.entity.plants.base;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.util.EntityUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -64,7 +63,7 @@ public abstract class ProducerPlant extends SimplePlant {
      * such as sunflower or sunshroom
      */
     protected void genSun(int num, int cnt) {
-        Sun.spawnSunsRandomlyByAmount(level, this.blockPosition(), num, num / cnt, 0.25F);
+        Sun.spawnSunsWithEffectsByAmount(level, this.blockPosition(), num, num / cnt, 0.25F);
         EntityUtil.playSound(this, SoundEvents.EXPERIENCE_ORB_PICKUP);
     }
 

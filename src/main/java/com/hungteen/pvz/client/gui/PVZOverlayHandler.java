@@ -196,7 +196,7 @@ public class PVZOverlayHandler{
             int levelMax = PVZPlayerCapability.getValueLimit(player, PVZPlayerCapNBT.SUN).getSecond();
             int levelActual = PVZPlayerCapability.getValue(player, PVZPlayerCapNBT.SUN);
 
-            for (int i = 0; i < (Math.min(levelMax / 100, 10)); ++i) {
+            for (int i = 0; i < (Math.min((float) levelMax / 100, 10)); ++i) {
                 int x = left - i * 8 - 9;
                 int y = top;
                 int v = player.hasEffect(MobEffects.DARKNESS) ? 10 : 0;

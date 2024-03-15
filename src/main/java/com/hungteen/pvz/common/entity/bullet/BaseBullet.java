@@ -101,7 +101,7 @@ public class BaseBullet extends Projectile {
 	protected void onHit(HitResult result) {
 		super.onHit(result);
 		HitResult.Type type = result.getType();
-		if (type != HitResult.Type.MISS) { //TODO what for?
+		if (type != HitResult.Type.MISS) {
 			this.gameEvent(GameEvent.PROJECTILE_LAND, this.getOwner());
 		}
 	}

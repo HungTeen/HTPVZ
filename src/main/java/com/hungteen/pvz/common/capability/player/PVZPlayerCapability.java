@@ -1,21 +1,27 @@
 package com.hungteen.pvz.common.capability.player;
 
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import com.hungteen.pvz.common.entity.plants.UmbrellaLeaf;
+import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
+import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
+import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
+import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -28,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -53,7 +60,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
 
     public static void tick(TickEvent.ServerTickEvent ev) {
         //timed sync
-        if (++ syncCount > 20){
+        if (++ syncCount > 20) {
             for (Player player : ev.getServer().getPlayerList().getPlayers()){
                 getPlayerData(player).ifPresent(PVZPlayerCapNBT::syncAll);
             }
@@ -88,6 +95,48 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
                     if (curSun < limitSun) {
                         nbt.addValue(PVZPlayerCapNBT.SUN, 5);
+                    }
+                }
+                //max sun calculation.
+                if (! PVZRulesCapability.getBoolean("dynamicSunRule")) {
+                    player.getAttribute(PVZAttributes.SUN.get()).removeModifiers();
+                    player.getAttribute(PVZAttributes.SUN.get()).addPermanentModifier(
+                            new AttributeModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9"), "extra_max_sun",
+                                    300, AttributeModifier.Operation.ADDITION));
+                } else {
+                    player.getAttribute(PVZAttributes.SUN.get()).getModifiers().forEach((modifier) -> {
+                        Entity entity = ((ServerLevel) player.level).getEntity(modifier.getId());
+                        if (! EntityUtil.isEntityValid(entity) || entity.distanceToSqr(player) > 144) {
+                            player.getAttribute(PVZAttributes.SUN.get()).removeModifier(modifier.getId());
+                        }
+                    });
+                    List<Entity> entities = player.level.getEntities(player, player.getBoundingBox().inflate(6, 6, 6).move(0, -3, 0),
+                            EntitySelector.NO_SPECTATORS.and((entity) -> entity instanceof IMaxSunExpander));
+                    entities.forEach((entity) -> {
+                        if (entity instanceof IMaxSunExpander sunExpander) {
+                            if (! player.getAttribute(PVZAttributes.SUN.get()).modifierById.containsKey(entity.getUUID())) {
+                                player.getAttribute(PVZAttributes.SUN.get()).addTransientModifier(
+                                        new AttributeModifier(entity.getUUID(), "extra_max_sun", sunExpander.extraMaxSun(player), AttributeModifier.Operation.ADDITION));
+                            }
+                        }
+                    });
+                }
+                int toMax = (int) player.getAttributeValue(PVZAttributes.SUN.get());
+                int overFlow = nbt.getValue(PVZPlayerCapNBT.SUN) - toMax;
+                while (overFlow > 0) {
+                    Sun.spawnSunWithEffects(player.level, 25, player.blockPosition(), 0.3F);
+                    overFlow -= 25;
+                }
+                nbt.setValueLimit(PVZPlayerCapNBT.SUN, 0, toMax);
+                //natural sun spawn
+                if (player.tickCount % 300 == 0 && PVZRulesCapability.getBoolean("naturallySpawnSun")) {
+                    int light = player.level.getRawBrightness(player.blockPosition(), 0);
+                    if (light > 9) {
+                        int x = player.blockPosition().getX() + player.getRandom().nextInt(20) - 10;
+                        int z = player.blockPosition().getZ() + player.getRandom().nextInt(20) - 10;
+                        Sun.spawnByAmount(player.level, light == 15 ? 25 : 15, new BlockPos(x,
+                                        Math.max(player.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z),
+                                                player.blockPosition().getY()) + 10, z), Vec3.ZERO);
                     }
                 }
                 //cool down effects.

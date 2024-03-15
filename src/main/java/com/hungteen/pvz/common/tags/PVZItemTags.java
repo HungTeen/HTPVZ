@@ -13,6 +13,7 @@ public class PVZItemTags {
     public static final TagKey<Item> IRON = pvzTag("iron");
 
     public static final TagKey<Item> CABBAGE = forgeTag("crops/cabbage");
+    public static final TagKey<Item> CORN = forgeTag("crops/kernel");
 
     //definition
 

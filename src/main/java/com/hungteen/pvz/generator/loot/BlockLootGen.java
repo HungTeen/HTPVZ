@@ -6,12 +6,15 @@ import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.data.loot.BlockLoot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 
@@ -42,7 +45,9 @@ public class BlockLootGen extends BlockLoot {
                 this.addSlabDrop(map.get(PVZBlocks.WoodSet.Slab).get());
         }
         );
-
+        this.addCropDrop(PVZBlocks.PEA.get(), PVZItems.PEA.get(), PVZItems.PEA.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.PEA.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
+        this.addCropDrop(PVZBlocks.CABBAGE_SEEDS.get(), PVZItems.CABBAGE.get(), PVZItems.CABBAGE_SEED.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.CABBAGE_SEEDS.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
+        this.addCropDrop(PVZBlocks.PEA.get(), PVZItems.CORN.get(), PVZItems.CORN_KERNELS.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.CORN_KERNELS.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
         this.dropOther(PVZBlocks.NUT_LEAVES_WITH_NUTS.get(), PVZItems.NUT.get());
         this.addOreDrop(PVZBlocks.ORIGIN_ORE.get(), PVZItems.ORIGIN_ESSENCE.get());
         this.addSlabDrop(PVZBlocks.GARDEN_FLOWER_POT.get());
@@ -86,6 +91,11 @@ public class BlockLootGen extends BlockLoot {
         outPut(block);
         lootedList.add(block);
         this.add(block, createPotFlowerItemTable(((FlowerPotBlock)block).getContent()));
+    }
+    protected void addCropDrop(Block block, Item result, Item seed, LootItemCondition.Builder condition) {
+        outPut(block);
+        lootedList.add(block);
+        this.add(block, createCropDrops(block, result, seed, condition));
     }
 
     private void outPut(Block block){

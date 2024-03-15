@@ -50,8 +50,7 @@ public class SpawnParticlePacket {
 
 
     //methods
-    public static void particle(Level level, ParticleType<?> particleType, Vec3 vec){
-        //TODO change to sendToClients.
+    public static void particle(Level level, ParticleType<?> particleType, Vec3 vec) {
         PVZPacketHandler.sendToNearByClient(level, vec, 50, new SpawnParticlePacket(ForgeRegistries.PARTICLE_TYPES.getKey(particleType).toString(), vec.x, vec.y, vec.z));
     }
 }

@@ -54,6 +54,8 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> teamBattle;
         public static ForgeConfigSpec.ConfigValue<Boolean> killWisdomTree;
         public static ForgeConfigSpec.ConfigValue<Boolean> canCanCanKelp;
+        public static ForgeConfigSpec.ConfigValue<Boolean> testSunRule;
+        public static ForgeConfigSpec.ConfigValue<Boolean> naturallySpawnSun;
         public Common(ForgeConfigSpec.Builder builder){
             builder.comment("All these configs are the default values of pvz rules.")
                     .comment("In the game you can also modify them separately for each world with /pvzrule command.")
@@ -79,6 +81,14 @@ public class PVZConfig {
                     .translation("config.pvz.common.can_can_can_kelp")
                     .comment("if on, players can interact with Tangle Kelps using buckets to bucket them."),
                     "canCanCanKelp", false);
+            testSunRule = add(builder
+                            .translation("config.pvz.common.dynamic_sun_rule")
+                            .comment("if on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),
+                    "dynamicSunRule", false);
+            naturallySpawnSun = add(builder
+                            .translation("config.pvz.common.naturally_spawn_sun")
+                            .comment("if on, sun will naturally spawn by players in the sky when skylight matches the condition."),
+                    "naturallySpawnSun", true);
             builder.pop();
         }
 

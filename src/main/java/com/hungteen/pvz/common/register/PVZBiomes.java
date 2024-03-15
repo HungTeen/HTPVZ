@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.common.world.zen_garden.LunarStoneFeature;
+import com.hungteen.pvz.common.world.OverWorldFeatures;
 import com.hungteen.pvz.common.world.zen_garden.NutTreeGrower;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenBiomeSource;
 import net.minecraft.sounds.Music;
@@ -47,7 +47,7 @@ public class PVZBiomes {
     public static void checkFeatures(){
         if (!features){
             NutTreeGrower.init();
-            LunarStoneFeature.init();
+            OverWorldFeatures.init();
         }
     }
 }

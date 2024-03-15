@@ -82,10 +82,6 @@ public class Jalapeno extends SimplePlant {
     }
 
     @Override
-    public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_DIRT, BlockTags.SNOW);
-    }
-    @Override
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(0, new JalapenoExplodeGoal(this));

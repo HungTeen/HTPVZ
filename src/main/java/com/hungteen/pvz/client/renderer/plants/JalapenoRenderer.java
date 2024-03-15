@@ -30,7 +30,7 @@ public class JalapenoRenderer<T extends Jalapeno> extends MobRenderer<T, EntityM
         return true;
     }
     @Override
-    public ResourceLocation getTextureLocation(T sunflower) {
+    public ResourceLocation getTextureLocation(T jalapeno) {
         return TEXTURE;
     }
 

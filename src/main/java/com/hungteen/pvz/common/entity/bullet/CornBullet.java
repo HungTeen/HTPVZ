@@ -44,7 +44,7 @@ public class CornBullet extends BaseBullet {
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
         for (int i = 0; i < 5; i ++) {
-            level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.LUX_ESSENCE.get())),
+            level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.CORN_KERNELS.get())),
                     getX(), getY(), getZ(),
                     - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.12,
                     - movement.y * 0.25 + random.nextFloat() * 0.25,

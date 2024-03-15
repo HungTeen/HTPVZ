@@ -175,7 +175,8 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
     @Override
     public void tick() {
         if (this.storedPosition == null) {
-            this.storedPosition = Vec3.ZERO;
+            this.storedPosition = this.position();
+            this.setOriginalPos(new BlockPos((int) storedPosition.x - 1, (int) storedPosition.y - 1, (int) storedPosition.z - 1));
         }
         if (this.getPose() == Pose.SWIMMING && ((this.position().distanceTo(this.storedPosition) < 0.1 && this.tickCount % 10 == 0) || super.isInWall())) {
             this.noPhysics = true;

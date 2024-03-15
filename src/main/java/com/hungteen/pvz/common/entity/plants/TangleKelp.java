@@ -263,7 +263,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         Bucketable.saveDefaultDataToBucketTag(this, itemStack);
         CompoundTag compoundtag = itemStack.getOrCreateTag();
         PVZOwnedCapability cap = getCapability(PVZOwnedCapability.CAP).orElse(null);
-        if (cap != null) {
+        if (cap != null && cap.ownerUuid != null) {
             compoundtag.putUUID("Owner", cap.ownerUuid);
         }
     }

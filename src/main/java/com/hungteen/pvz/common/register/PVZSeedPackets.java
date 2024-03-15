@@ -58,7 +58,7 @@ public class PVZSeedPackets {
         add(PVZEntities.REPEATER).cost(175).coolDown(FAST).skillList(Repeater.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.JALAPENO).cost(125).coolDown(VERY_SLOW).skillList(Jalapeno.staticSkillList)
-                .recipe(PVZItems.IGNIS_ESSENCE, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);//TODO change ignis essence to a pepper.
+                .recipe(PVZItems.PEPPER, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
         add(PVZEntities.TORCH_WOOD).cost(450).coolDown(SLOW).skillList(TorchWood.staticSkillList)
                 .recipeBlock(PVZBlocks.woodList.get(0).get(PVZBlocks.WoodSet.Log), PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
         add(PVZEntities.SPIKE_WEED).cost(100).coolDown(FAST).skillList(SpikeWeed.staticSkillList)
@@ -66,7 +66,7 @@ public class PVZSeedPackets {
         add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.NETHER_WART_SEED_PACKET);
         add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
-                .recipe(Items.GLOW_BERRIES, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE); //TODO change glow berries to a plantern block.
+                .recipeBlock(PVZBlocks.PLANTERN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE);
         add(PVZEntities.PUMPKIN).cost(125).coolDown(SLOW).skillList(Pumpkin.staticSkillList)
                 .recipe(Items.PUMPKIN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
@@ -76,9 +76,11 @@ public class PVZSeedPackets {
         add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
         add(PVZEntities.CHOMPER).cost(150).coolDown(MIDDLE).skillList(Chomper.staticSkillList)
-                .recipe(PVZItems.CABBAGE, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.TERRA_ESSENCE).setCreativeOnly(); //TODO change cabbage to chomper block.
+                .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly(); //TODO change cabbage to chomper block.
         add(PVZEntities.KERNEL_PULT).cost(100).coolDown(SLOW).skillList(KernelPult.staticSkillList)
-                .recipe(PVZItems.CABBAGE, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly(); //TODO change cabbage to kernel.
+                .recipe(PVZItems.CORN, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly();
+        add(PVZEntities.GOLD_BLOOM).cost(0).coolDown(VERY_SLOW).skillList(GoldBloom.staticSkillList)
+                .recipe(Items.GLOW_BERRIES, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.LUX_ESSENCE).setCreativeOnly();
 
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();

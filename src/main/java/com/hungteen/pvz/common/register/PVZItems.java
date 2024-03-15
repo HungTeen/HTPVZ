@@ -14,7 +14,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.MobBucketItem;
@@ -56,9 +56,11 @@ public class PVZItems {
 
 
     //registry
-    public static final RegistryObject<Item> PEA = item("pea");
+    public static final RegistryObject<Item> PEA = item("pea", () -> new BlockItem(PVZBlocks.PEA.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> NUT = item("nut");
     public static final RegistryObject<Item> PEPPER = item("pepper");
+    public static final RegistryObject<Item> CABBAGE_SEED = item("cabbage_seeds", () -> new BlockItem(PVZBlocks.CABBAGE_SEEDS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
+    public static final RegistryObject<Item> CORN_KERNELS = item("corn_kernels", () -> new BlockItem(PVZBlocks.CORN_KERNELS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> JEWEL = item("jewel");
     public static final RegistryObject<Item> ALAYA_RESIN = item("alaya_resin");
     public static final RegistryObject<Item> ORIGIN_ESSENCE = tag(PVZItemTags.ESSENCE).item("origin_essence");
@@ -75,7 +77,9 @@ public class PVZItems {
 
     //food
     public static final RegistryObject<Item> POP_SMARTS = item("pop_smarts", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.5F).build())));
-    public static final RegistryObject<Item> CABBAGE = tag(PVZItemTags.CABBAGE).item("cabbage", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(1F).build())));
+    public static final RegistryObject<Item> CABBAGE = tag(PVZItemTags.CABBAGE).item("cabbage", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(3).saturationMod(1F).build())));
+    public static final RegistryObject<Item> CORN = tag(PVZItemTags.CORN).item("corn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.2F).build())));
+    public static final RegistryObject<Item> POPCORN = item("popcorn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(1).saturationMod(0.5F).build())));
 
 
     //spawners

@@ -145,6 +145,8 @@ public class PVZEntities {
             .collision(0.4F, 0.4F).entity("iceberg_lettuce", IcebergLettuce::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Jalapeno>> JALAPENO = attribute(Jalapeno::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.6F, 1.6F).entity("jalapeno", Jalapeno::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<GoldBloom>> GOLD_BLOOM = attribute(GoldBloom::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.6F, 0.6F).entity("gold_bloom", GoldBloom::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<SpikeWeed>> SPIKE_WEED = attribute(SpikeWeed::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
             .collision(0.95F, 0.125F).entity("spike_weed", SpikeWeed::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<TorchWood>> TORCH_WOOD = attribute(TorchWood::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
@@ -222,6 +224,7 @@ public class PVZEntities {
         r(e, MELON, MelonBulletRenderer::new);
         r(e, POTATO_MINE, PotatoMineRenderer::new);
         r(e, CHOMPER, ChomperRenderer::new);
+        r(e, GOLD_BLOOM, GoldBloomRenderer::new);
         r(e, ZOMBIE, PVZZombieRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);

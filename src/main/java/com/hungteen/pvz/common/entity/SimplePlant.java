@@ -340,7 +340,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
                 int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
                 PVZOwnedCapability cap = target.getCapability(PVZOwnedCapability.CAP).orElse(null);
                 if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
-                    Sun.spawnSunsRandomlyByAmount(target.level, target.getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
+                    Sun.spawnSunsWithEffectsByAmount(target.level, target.getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
                 }
                 ((ServerLevel)target.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, target.level.getBlockState(target.getOnPos())).setPos(target.getOnPos()), target.getX(), target.getY(), target.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 target.remove(RemovalReason.DISCARDED);

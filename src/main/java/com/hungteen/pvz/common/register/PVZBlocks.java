@@ -48,6 +48,7 @@ public class PVZBlocks {
     private static List<ResourceLocation> storedModelTexture = List.of();
     private static Pair<PVZItems.Model, List<ResourceLocation>> storedItemModel = Pair.of(PVZItems.Model.Block, new ArrayList<>());
     private static boolean hasItem = true;
+    private static boolean flowerPot = false;
     @Deprecated // will be cleared after register.
     public static List<Pair<RegistryObject<Block>, Pair<Model, List<ResourceLocation>>>> modelList = new ArrayList<>();
     //tag
@@ -75,6 +76,8 @@ public class PVZBlocks {
 
     //registry
     //PVZ_BLOCKS
+    public static final RegistryObject<Block> PLANTERN = tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.REPLACEABLE_PLANTS).model(Model.Cross).itemModel(PVZItems.Model.Simple, res("plantern")).renderType("cutout").flammable(10, 5).block("plantern", () -> new FlowerBlock(PVZMobEffects.BRIGHTNESS, 5, BlockBehaviour.Properties.of(Material.PLANT).noCollission().instabreak().sound(SoundType.GRASS).offsetType(BlockBehaviour.OffsetType.XZ).lightLevel(i -> 8)));
+    public static final RegistryObject<Block> POTTED_PLANTERN = tag(BlockTags.FLOWER_POTS).flowerPot().model(Model.Potted, res("plantern")).renderType("cutout").noItem().block("potted_plantern", () -> new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, PLANTERN, BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion().lightLevel(i -> 8)));
     public static final RegistryObject<Block> NUT_LEAVES_WITH_NUTS = tag(BlockTags.LEAVES).renderType("cutout").flammable(30, 60).loot(false).block("nut_leaves_with_nuts", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES)));
     public static final Map<WoodSet, RegistryObject<Block>> NUT = wood("nut", new NutTreeGrower());
     public static final RegistryObject<Block> CARP_GRASS = tag(BlockTags.REPLACEABLE_PLANTS /*PVZBlockTags.PLANTABLE_BLOCKS added in generator*/).model(Model.Modeled).renderType("cutout").flammable(5, 5).loot(false).block("carp_grass", () -> new CarpMossBlock(BlockBehaviour.Properties.copy(Blocks.GLOW_LICHEN).randomTicks().noLootTable()));
@@ -90,7 +93,9 @@ public class PVZBlocks {
 
     //NO_TAB
     public static final RegistryObject<Block> PLANTERN_LIGHT = loot(false).model(Model.Modeled).blockEntity("plantern_light").noItem().block("plantern_light", () -> new PlanternLightBlock(BlockBehaviour.Properties.of(Material.AIR).strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> 15)));
-
+    public static final RegistryObject<Block> PEA = model(Model.Modeled).renderType("cutout").noItem().block("pea", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)));
+    public static final RegistryObject<Block> CABBAGE_SEEDS = model(Model.Modeled).renderType("cutout").noItem().block("cabbage_seeds", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)));
+    public static final RegistryObject<Block> CORN_KERNELS = model(Model.Modeled).renderType("cutout").noItem().block("corn_kernels", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.MELON_STEM)));
     /**Default loots self. Use {@link BlockLootGen#addTables()} to modify.*/
 
 
@@ -121,6 +126,11 @@ public class PVZBlocks {
         storedModel = Model.Simple;
         storedModelTexture = List.of();
         storedItemModel = Pair.of(PVZItems.Model.Block, new ArrayList<>());
+        //flower pot
+        if (flowerPot) {
+            ((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(Util.prefix(name.substring(7)), blockObj);
+            flowerPot = false;
+        }
         //tag
         tagMap.put(blockObj, storedTag);
         storedTag = new ArrayList<>();
@@ -169,8 +179,7 @@ public class PVZBlocks {
         //register
         set.put(WoodSet.Plank, tag(BlockTags.PLANKS).tag(tags).flammable(flame*5, flame*20).block(name+"_planks"));
         set.put(WoodSet.Sapling, tag(BlockTags.SAPLINGS).tag(tags).model(Model.Cross).renderType("cutout").itemModel(PVZItems.Model.Simple, res(name+"_sapling")).block(name+"_sapling", () -> new SaplingBlock(treeGrower, BlockBehaviour.Properties.copy(Blocks.OAK_SAPLING))));
-        set.put(WoodSet.PottedSapling, tag(BlockTags.FLOWER_POTS).model(Model.Potted, res(name + "_sapling")).renderType("cutout").noItem().block("potted_"+name+"_sapling", () ->  new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, set.get(WoodSet.Sapling), BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion())));
-        ((FlowerPotBlock) Blocks.FLOWER_POT).addPlant(Util.prefix(name + "_sapling"), set.get(WoodSet.PottedSapling));
+        set.put(WoodSet.PottedSapling, tag(BlockTags.FLOWER_POTS).flowerPot().model(Model.Potted, res(name + "_sapling")).renderType("cutout").noItem().block("potted_"+name+"_sapling", () -> new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, set.get(WoodSet.Sapling), BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion())));
         set.put(WoodSet.Leaves, tag(BlockTags.LEAVES).tag(tags).renderType("cutout").flammable(flame*5, flame*60).loot(false).block(name+"_leaves", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES))));
         if (flame == 1) {
             set.put(WoodSet.Wood, tag(BlockTags.LOGS, BlockTags.LOGS_THAT_BURN).tag(tags).model(Model.Column, res(name + "_log"), res(name + "_log")).flammable(5, 5).block(name + "_wood", () -> new RotatedPillarBlock(BlockBehaviour.Properties.copy(Blocks.OAK_WOOD))));
@@ -228,7 +237,7 @@ public class PVZBlocks {
     private static PVZBlocks model(Model model, ResourceLocation... res){
         return model(model, List.of(res));
     }
-    private static PVZBlocks model(Model model, List<ResourceLocation> list){
+    private static PVZBlocks model(Model model, List<ResourceLocation> list) {
         storedModel = model;
         storedModelTexture = list;
         return reflector;
@@ -242,6 +251,10 @@ public class PVZBlocks {
     }
     private static ResourceLocation res(String path){
         return new ResourceLocation(PVZMod.MODID, ModelProvider.BLOCK_FOLDER + "/" + path);
+    }
+    private static PVZBlocks flowerPot() {
+        flowerPot = true;
+        return reflector;
     }
     private static PVZBlocks noItem(){
         hasItem = false;

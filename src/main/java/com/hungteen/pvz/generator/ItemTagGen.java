@@ -50,8 +50,7 @@ public class ItemTagGen extends ItemTagsProvider {
             LOGS.add(tag);
         }
         //others
-        this.tag(PVZItemTags.TO_TERRA_ESSENCE).add(Blocks.STONE.asItem(), Blocks.DEEPSLATE.asItem(), 
-                Blocks.GRANITE.asItem(), Blocks.DIORITE.asItem(), Blocks.ANDESITE.asItem(), Blocks.TUFF.asItem());
+        this.tag(PVZItemTags.TO_TERRA_ESSENCE).add(Items.CLAY_BALL);
         this.tag(PVZItemTags.IRON).add(Blocks.IRON_BARS.asItem(), Blocks.IRON_BLOCK.asItem(), Blocks.IRON_DOOR.asItem(),
                 Blocks.IRON_TRAPDOOR.asItem(), Blocks.RAW_IRON_BLOCK.asItem(), Blocks.ANVIL.asItem(),
                 Items.IRON_AXE, Items.IRON_HOE, Items.IRON_PICKAXE, Items.IRON_SHOVEL, Items.IRON_SWORD, Items.IRON_INGOT, Items.IRON_NUGGET,

@@ -76,6 +76,8 @@ public class PVZMod
         modBus.addListener(EventPriority.NORMAL, CapabilityHandler::registerCapabilities);
         PVZMobEffects.EFFECTS.register(modBus);
         PVZMobEffects.POTIONS.register(modBus);
+        PVZAttributes.ATTRIBUTE.register(modBus);
+        modBus.addListener(PVZAttributes::addAttributes);
 
         PVZBiomeModifier.BIOME_MODIFIER.register(modBus);
 
