@@ -47,7 +47,7 @@ public class BlockLootGen extends BlockLoot {
         );
         this.addCropDrop(PVZBlocks.PEA.get(), PVZItems.PEA.get(), PVZItems.PEA.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.PEA.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
         this.addCropDrop(PVZBlocks.CABBAGE_SEEDS.get(), PVZItems.CABBAGE.get(), PVZItems.CABBAGE_SEED.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.CABBAGE_SEEDS.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
-        this.addCropDrop(PVZBlocks.PEA.get(), PVZItems.CORN.get(), PVZItems.CORN_KERNELS.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.CORN_KERNELS.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
+        this.addCropDrop(PVZBlocks.CORN_KERNELS.get(), PVZItems.CORN.get(), PVZItems.CORN_KERNELS.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.CORN_KERNELS.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
         this.dropOther(PVZBlocks.NUT_LEAVES_WITH_NUTS.get(), PVZItems.NUT.get());
         this.addOreDrop(PVZBlocks.ORIGIN_ORE.get(), PVZItems.ORIGIN_ESSENCE.get());
         this.addSlabDrop(PVZBlocks.GARDEN_FLOWER_POT.get());

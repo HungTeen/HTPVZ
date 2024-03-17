@@ -1,6 +1,7 @@
 package com.hungteen.pvz.client.renderer.zombie;
 
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -9,6 +10,8 @@ import net.minecraft.client.renderer.entity.AbstractZombieRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Zombie;
+
+import java.io.FileNotFoundException;
 
 public class PVZZombieRenderer extends AbstractZombieRenderer {
     private static final ResourceLocation OVERWORLD_LOCATION = Util.prefix("textures/entity/zombie/overworld_zombie.png");
@@ -20,8 +23,14 @@ public class PVZZombieRenderer extends AbstractZombieRenderer {
     }
 
     public ResourceLocation getTextureLocation(Zombie zombie) {
-        return zombie instanceof PVZZombie pvzZombie ? pvzZombie.getStyle().getPath().equals("") ? OVERWORLD_LOCATION :
-                Util.prefix("textures/entity/zombie/" + pvzZombie.getStyle().getPath() + "_zombie.png") :
-                super.getTextureLocation(zombie);
+        try {
+            ResourceLocation res = zombie instanceof PVZZombie pvzZombie ? pvzZombie.getStyle().getPath().equals("") ? OVERWORLD_LOCATION :
+                    Util.prefix("textures/entity/zombie/" + pvzZombie.getStyle().getPath() + "_zombie.png") :
+                    super.getTextureLocation(zombie);
+            ClientProxy.MC.getResourceManager().getResourceOrThrow(res);
+            return res;
+        } catch (FileNotFoundException e) {
+            return OVERWORLD_LOCATION;
+        }
     }
 }

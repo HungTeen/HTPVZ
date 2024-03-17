@@ -52,7 +52,7 @@ public class SunRenderer extends EntityRenderer<Sun> {
 		green = (int) (sun.ColorBase.y + Math.sin(tick) * sun.ColorChange.y);
 		blue = (int) (sun.ColorBase.z + Math.sin(tick) * sun.ColorChange.z);
 		if (sun.getMaxLiveTick() > -1) {
-			int tmp = sun.getMaxLiveTick() - sun.sunLiveTick;
+			int tmp = sun.getMaxLiveTick() - sun.getLiveTick();
 			if (tmp >= 90) {
 				alpha = 255;
 			} else if (tmp > 10) {

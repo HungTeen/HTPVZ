@@ -13,6 +13,7 @@ import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -75,7 +76,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
-                .add(Attributes.MOVEMENT_SPEED, 0.5D)
+                .add(Attributes.MOVEMENT_SPEED, 0.25D)
                 .add(ForgeMod.SWIM_SPEED.get(), 50D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
@@ -127,15 +128,15 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     public void travel(Vec3 vec3) {
         if (this.isAlive()) {
             if (this.isVehicle() && this.getFirstPassenger() instanceof Player player) {
-                this.setRot(this.getYRot() + ((player.getYRot() % 360F - this.getYRot() + 180F) % 360F - 180F) * 0.2F, 0);
+                boolean inWater = ! level.getFluidState(new BlockPos(position().add(0, this.getEyeHeight(), 0))).isEmpty();
+                this.setRot(this.getYRot() + ((player.getYRot() % 360F - this.getYRot() + 180F) % 360F - 180F) * (inWater ? 0.2F : 0.02F), 0);
                 this.yBodyRot = this.getYRot();
                 this.yHeadRot = this.yBodyRot;
-                boolean inWater = ! level.getFluidState(new BlockPos(position().add(0, this.getEyeHeight(), 0))).isEmpty();
 
                 xCurrentSpeed *= inWater ? 0.95 : 0.5;
                 zCurrentSpeed *= inWater ? 0.95 : 0.5;
-                double lr = Math.max(xCurrentSpeed, inWater ? player.xxa : 0);
-                double fb = Math.max(zCurrentSpeed, inWater ? player.zza : 0);
+                double lr = xCurrentSpeed * 0.75 + (inWater ? 1 : 0.25) * player.xxa * 0.25;
+                double fb = zCurrentSpeed * 0.75 + (inWater ? 0.5 : 0.15) * player.zza * 0.25;
                 if (fb <= 0.0F) {
                     fb *= 0.25F;
                 }
@@ -150,6 +151,10 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
                 super.travel(vec3);
             }
         }
+    }
+
+    public double getFluidJumpThreshold() {
+        return 0D;
     }
 
     @Override
@@ -181,7 +186,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         return true;
     }
     public int getMaxAirSupply() {
-        return 300;
+        return 750;
     }
     public boolean fireImmune() {
         return super.fireImmune() || this.hasSkill(this, "skill.pvz.lily_pad.lava_swimmer");
@@ -198,13 +203,19 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         }
     }
     public void baseTick() {
+        int i = this.getAirSupply();
         super.baseTick();
-        this.handleAirSupply(this.getAirSupply());
+        this.handleAirSupply(i);
     }
 
     public boolean isPushedByFluid() {
         return true;
     }
+    @Override
+    public Direction getGrowDirection() {
+        return null;
+    }
+
     @Override
     public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting && event != null) {
@@ -212,10 +223,14 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
-            pos = pos.offset(direction.getNormal()).below();
-        }
-        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
+        Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        direction = getGrowDirection();
+        offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + offset.getX(),
+                        pos.getY() + offset.getY() + getBbHeight() / 2,
+                        pos.getZ() + 0.5 + offset.getZ()),
+                getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
         if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
             BlockState blockstate = this.level.getBlockState(p_201942_);
             return !blockstate.isAir() && blockstate.isSuffocating(this.level, p_201942_) &&
@@ -223,20 +238,18 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-
-        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(direction.getNormal())))) {
+        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(offset)))) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
         if (! this.getEntityData().get(root()) || (! level.getBlockState(pos).isAir())) {
-            if (level.getBlockState(pos).getFluidState().is(FluidTags.WATER) ||
-                    (this.hasSkill("skill.pvz.lily_pad.lava_swimmer") && level.getBlockState(pos).getFluidState().is(FluidTags.LAVA))) {
+            if (level.getBlockState(pos).getFluidState().is(FluidTags.WATER)) {
                 if (isPlanting) {
                     this.moveTo(
-                            pos.getX() + 0.5,
+                            pos.getX() + 0.5 + offset.getX(),
                             pos.getY() + (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
-                                    (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
+                                    level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos) :
                                     level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY),
-                            pos.getZ() + 0.5);
+                            pos.getZ() + 0.5 + offset.getZ());
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 }
                 return null;

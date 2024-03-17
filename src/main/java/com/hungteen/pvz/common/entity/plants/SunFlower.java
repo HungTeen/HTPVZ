@@ -35,7 +35,7 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
         return (this.level.isDay() || this.hasEffect(PVZMobEffects.BRIGHTNESS.get())) ?(this.level.isRaining() ? 2 * time : time) : 3 * time;
     }
     public int getSunAmount(){
-        return 25;
+        return 50;
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()

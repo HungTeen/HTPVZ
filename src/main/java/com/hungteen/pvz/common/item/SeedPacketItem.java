@@ -145,8 +145,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     /**
-     * checks if sun is enough for planting here, and then test situations of planting on fluids.<br>
-     * see {@link SeedPacketItem#useOn(UseOnContext)} for planting a plant on non-fluid blocks.
+     * checks if sun is enough for planting here, and then test situations of planting on fluids.
      */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
@@ -160,9 +159,15 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             return InteractionResultHolder.fail(player.getItemInHand(handIn));
         }
         //planting. not using Item.useOn() for not supporting planting on fluid.
-        BlockHitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
-        if (result.getType() != HitResult.Type.MISS) {
-            MutableComponent plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, result.getBlockPos(), result.getDirection());
+        BlockHitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
+        BlockHitResult result1 = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+        if (result.getType() != HitResult.Type.MISS || result1.getType() != HitResult.Type.MISS) {
+            MutableComponent plantResult;
+            if (! player.isInFluidType() && result1.getBlockPos().distSqr(player.blockPosition()) < result.getBlockPos().distSqr(player.blockPosition())) {
+                plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, result.getBlockPos(), null); // in fluid
+            } else {
+                plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, result1.getBlockPos(), result1.getDirection()); // on ground
+            }
             if (plantResult == null) {
                 used(player.getItemInHand(handIn), player);
             } else {

@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.capability.owned;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -103,7 +103,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
             playerTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
             enemyTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.ENEMY_TEAM));
         });
-        boolean teamBattle = PVZRulesCapability.getBoolean("teamBattle");
+        boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, "teamBattle");
 
         if (teamA == teamB) {
             return teamA != null || (A instanceof Enemy == B instanceof Enemy);
@@ -122,7 +122,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return LazyOptional.of(() -> this).cast();
+        return cap == CAP ? LazyOptional.of(() -> (T) this) : LazyOptional.empty();
     }
 
     @Override

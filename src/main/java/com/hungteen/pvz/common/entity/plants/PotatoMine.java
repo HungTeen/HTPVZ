@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
@@ -59,6 +60,7 @@ public class PotatoMine extends SimplePlant {
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new PotatoExplodeGoal(this));
+        this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
         this.goalSelector.addGoal(1, new PotatoPrepareGoal(this));
     }
     @Override
@@ -140,7 +142,7 @@ public class PotatoMine extends SimplePlant {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.FOLLOW_RANGE, 8D);
+                .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

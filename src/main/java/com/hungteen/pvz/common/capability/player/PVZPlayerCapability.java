@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.capability.player;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
-import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
@@ -21,6 +21,7 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
@@ -74,7 +75,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     if (player.hasEffect(MobEffects.DARKNESS)) {
                         player.removeEffect(MobEffects.DARKNESS);
                     }
-                    if (nbt.sunCountDown >= 15/(player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
+                    if (nbt.sunCountDown >= 15 / (player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
                         int limitSun = getDifficultyLimitSun(player);
                         int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
                         if (curSun < limitSun) {
@@ -98,7 +99,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                 }
                 //max sun calculation.
-                if (! PVZRulesCapability.getBoolean("dynamicSunRule")) {
+                if (! PVZConfig.PVZGameRules.getBoolean(player.level, "dynamicSunRule")) {
                     player.getAttribute(PVZAttributes.SUN.get()).removeModifiers();
                     player.getAttribute(PVZAttributes.SUN.get()).addPermanentModifier(
                             new AttributeModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9"), "extra_max_sun",
@@ -129,14 +130,15 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 }
                 nbt.setValueLimit(PVZPlayerCapNBT.SUN, 0, toMax);
                 //natural sun spawn
-                if (player.tickCount % 300 == 0 && PVZRulesCapability.getBoolean("naturallySpawnSun")) {
-                    int light = player.level.getRawBrightness(player.blockPosition(), 0);
+                if (player.tickCount % 300 == 0 && PVZConfig.PVZGameRules.getBoolean(player.level, "naturallySpawnSun")) {
+                    int x = player.blockPosition().getX() + player.getRandom().nextInt(20) - 10;
+                    int z = player.blockPosition().getZ() + player.getRandom().nextInt(20) - 10;
+                    BlockPos pos = new BlockPos(x,
+                            Math.max(player.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z),
+                                    player.blockPosition().getY()) + 6, z);
+                    int light = player.level.getBrightness(LightLayer.SKY, pos) - player.level.getSkyDarken();
                     if (light > 9) {
-                        int x = player.blockPosition().getX() + player.getRandom().nextInt(20) - 10;
-                        int z = player.blockPosition().getZ() + player.getRandom().nextInt(20) - 10;
-                        Sun.spawnByAmount(player.level, light == 15 ? 25 : 15, new BlockPos(x,
-                                        Math.max(player.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z),
-                                                player.blockPosition().getY()) + 10, z), Vec3.ZERO);
+                        Sun sun = Sun.spawnByAmount(player.level, light >= 12 ? 50 : 25, pos, Vec3.ZERO);
                     }
                 }
                 //cool down effects.

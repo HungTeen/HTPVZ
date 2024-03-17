@@ -1,11 +1,21 @@
 package com.hungteen.pvz;
 
+import com.google.common.collect.ImmutableMap;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PVZConfig {
@@ -48,7 +58,7 @@ public class PVZConfig {
     }
 
     public static class Common {
-        public static Map<String, ForgeConfigSpec.ConfigValue<Boolean>> pvzRules = new HashMap<>();
+        public static Map<String, ForgeConfigSpec.ConfigValue<Boolean>> pvzBooleanRules = new HashMap<>();
         public static ForgeConfigSpec.ConfigValue<Boolean> shovelPermission;
         public static ForgeConfigSpec.ConfigValue<Boolean> sunDisappear;
         public static ForgeConfigSpec.ConfigValue<Boolean> teamBattle;
@@ -94,7 +104,7 @@ public class PVZConfig {
 
         public ForgeConfigSpec.ConfigValue<Boolean> add(ForgeConfigSpec.Builder builder, String name, Boolean defaultValue) {
             ForgeConfigSpec.ConfigValue<Boolean> value = builder.define(name, defaultValue);
-            pvzRules.put(name, value);
+            pvzBooleanRules.put(name, value);
             return value;
         }
     }
@@ -141,6 +151,55 @@ public class PVZConfig {
                     .comment("if on, zombies will drop arms and heads when taking damage.")
                     .define("ZombiesDropParts", true);
             builder.pop();
+        }
+    }
+    @Mod.EventBusSubscriber(modid = PVZMod.MODID)
+    public static class PVZGameRules {
+        //rules.
+        public Map<String, GameRules.Key<GameRules.BooleanValue>> booleanMap;
+        public List<String> dirtyList;
+
+        private static PVZGameRules instance;
+
+
+        public PVZGameRules() {
+            booleanMap = initBooleanMap();
+            dirtyList = new ArrayList<>();
+        }
+
+        public static HashMap<String, GameRules.Key<GameRules.BooleanValue>> initBooleanMap() {
+            HashMap<String, GameRules.Key<GameRules.BooleanValue>> map = new HashMap<>();
+            for (String name : Common.pvzBooleanRules.keySet()) {
+                GameRules.Key<GameRules.BooleanValue> key = GameRules.register(PVZMod.MODID + ":" + name, GameRules.Category.MISC, GameRules.BooleanValue.create(Common.pvzBooleanRules.get(name).get()));
+                map.put(name, key);
+            }
+            return map;
+        }
+        public static PVZGameRules createInstance() {
+            instance = new PVZGameRules();
+            return instance;
+        }
+
+        @SubscribeEvent
+        public static void init(LevelEvent.Load ev) {
+            PVZGameRules pvzRules = instance == null ? PVZGameRules.createInstance() : instance;
+            if (ev.getLevel() instanceof ServerLevel level && level.getLevelData() instanceof PrimaryLevelData data) {
+                data.getGameRules().rules = pvzRules.loadMissingRules(data.getGameRules());
+            }
+        }
+
+        public Map<GameRules.Key<?>, GameRules.Value<?>> loadMissingRules(GameRules rules) {
+            HashMap<GameRules.Key<?>, GameRules.Value<?>> ruleMap = new HashMap<>(rules.rules);
+            for (Map.Entry<GameRules.Key<?>, GameRules.Type<?>> pair: GameRules.GAME_RULE_TYPES.entrySet()) {
+                if (! ruleMap.containsKey(pair.getKey())) {
+                    ruleMap.put(pair.getKey(), pair.getValue().createRule());
+                }
+            }
+            return ImmutableMap.copyOf(ruleMap);
+        }
+
+        public static boolean getBoolean(Level level, String name) {
+            return level.getGameRules().getBoolean(instance.booleanMap.get(name));
         }
     }
 }

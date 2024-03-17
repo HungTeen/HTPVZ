@@ -6,6 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,6 +44,9 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
         return flag;
     }
 
+    protected AABB getTargetSearchArea(double p_26069_) {
+        return this.mob.getBoundingBox().inflate(p_26069_, 12.0D, p_26069_);
+    }
     @Override
     protected void findTarget() {
         //from candidates

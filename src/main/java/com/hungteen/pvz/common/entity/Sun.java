@@ -1,10 +1,10 @@
 package com.hungteen.pvz.common.entity;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.interfaces.ISun;
 import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.network.SpawnParticlePacket;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -29,12 +29,12 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
     public static final float SUN_FALL_SPEED = 0.03F;
     public static final int DEFAULT_AMOUNT = 50;
     public static final int MAX_LIVE_TICK = 500;
-    public int sunLiveTick = 0;
     public LivingEntity controller = null;
     public Vec3 ColorBase = new Vec3(255,230,15);
     public Vec3 ColorChange = new Vec3(0,25,15);
     private Entity attractedBy;
     private static final EntityDataAccessor<Integer> AMOUNT = SynchedEntityData.defineId(Sun.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> LIVE_TICK = SynchedEntityData.defineId(Sun.class, EntityDataSerializers.INT);
 
     public Sun(EntityType<?> p_19870_, Level p_19871_) {
         super(p_19870_, p_19871_);
@@ -83,6 +83,12 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         this.entityData.set(AMOUNT, num);
     }
 
+    public int getLiveTick() {
+        return this.entityData.get(LIVE_TICK);
+    }
+    public void setLiveTick(int value) {
+        this.entityData.set(LIVE_TICK, value);
+    }
 
     @Override
     public boolean canAttractThis(Entity entity) {
@@ -131,8 +137,8 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
 
     @Override
     public boolean canAbsorb(ISun sun){
-        if (sun instanceof Entity) {
-            return getAmount() < 150 && sun.getAmount() < 150 && ((Entity) sun).getId() < getId() && distanceToSqr(((Entity) sun)) < 4;
+        if (sun instanceof Entity sun1) {
+            return getAmount() < 250 && sun.getAmount() < 250 && sun1.getId() < getId() && distanceToSqr(sun1) < 4;
         } else {
             return false;
         }
@@ -148,13 +154,12 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         super.baseTick();
 
         //about sun disappear.
-        if (PVZRulesCapability.getBoolean("sunDisappear")) {
+        if (! level.isClientSide && PVZConfig.PVZGameRules.getBoolean(level, "sunDisappear")) {
             if(! level.isClientSide) {
-                if (++ this.sunLiveTick >= this.getMaxLiveTick()) {
+                this.setLiveTick(this.getLiveTick() + 1);
+                if (this.getLiveTick() >= this.getMaxLiveTick()) {
                     this.remove(Entity.RemovalReason.DISCARDED);
                 }
-            } else {
-                ++ this.sunLiveTick;
             }
         }
         //natural fall.
@@ -203,7 +208,7 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
 
     public int getIcon() {
         final int value = this.getAmount();
-        return value < 6 ? 0 : value < 16 ? 1 : value < 26 ? 2 : 3;
+        return value < 6 ? 0 : value < 26 ? 1 : value < 51 ? 2 : 3;
     }
 
     @Override
@@ -214,13 +219,14 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
 
 
     public int getMaxLiveTick() {
-        return PVZRulesCapability.getBoolean("sunDisappear") ? MAX_LIVE_TICK : -1;
+        return PVZConfig.PVZGameRules.getBoolean(level, "sunDisappear") ? MAX_LIVE_TICK : -1;
     }
 
 
     @Override
     protected void defineSynchedData() {
         this.entityData.define(AMOUNT, 1);
+        this.entityData.define(LIVE_TICK, 0);
     }
 
     @Override
@@ -229,14 +235,14 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
             setAmount(tag.getInt("Amount"));
         }
         if (tag.contains("SunLiveTick")) {
-            this.sunLiveTick = tag.getInt("SunLiveTick");
+            this.setLiveTick(tag.getInt("SunLiveTick"));
         }
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
         tag.putInt("Amount", this.getAmount());
-        tag.putInt("SunLiveTick", this.sunLiveTick);
+        tag.putInt("SunLiveTick", this.getLiveTick());
     }
 
     @Override

@@ -13,6 +13,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SignItem;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -93,9 +94,9 @@ public class PVZBlocks {
 
     //NO_TAB
     public static final RegistryObject<Block> PLANTERN_LIGHT = loot(false).model(Model.Modeled).blockEntity("plantern_light").noItem().block("plantern_light", () -> new PlanternLightBlock(BlockBehaviour.Properties.of(Material.AIR).strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> 15)));
-    public static final RegistryObject<Block> PEA = model(Model.Modeled).renderType("cutout").noItem().block("pea", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)));
-    public static final RegistryObject<Block> CABBAGE_SEEDS = model(Model.Modeled).renderType("cutout").noItem().block("cabbage_seeds", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)));
-    public static final RegistryObject<Block> CORN_KERNELS = model(Model.Modeled).renderType("cutout").noItem().block("corn_kernels", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.MELON_STEM)));
+    public static final RegistryObject<Block> PEA = model(Model.Modeled).renderType("cutout").noItem().block("pea", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)) {@Override public ItemLike getBaseSeedId() {return PVZItems.PEA.get();}});
+    public static final RegistryObject<Block> CABBAGE_SEEDS = model(Model.Modeled).renderType("cutout").noItem().block("cabbage_seeds", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)) {@Override public ItemLike getBaseSeedId() {return PVZItems.CABBAGE_SEED.get();}});
+    public static final RegistryObject<Block> CORN_KERNELS = model(Model.Modeled).renderType("cutout").noItem().block("corn_kernels", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.MELON_STEM)) {@Override public ItemLike getBaseSeedId() {return PVZItems.CORN_KERNELS.get();}});
     /**Default loots self. Use {@link BlockLootGen#addTables()} to modify.*/
 
 

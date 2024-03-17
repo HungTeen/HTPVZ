@@ -1,12 +1,12 @@
 package com.hungteen.pvz.common.entity;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
@@ -16,6 +16,7 @@ import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -143,16 +144,16 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if (level.getBlockState(pos).getBlock() instanceof BushBlock) {
+        if (level.getBlockState(pos).getBlock() instanceof BushBlock && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
-        if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
-            pos = pos.offset(direction.getNormal()).offset(getGrowDirection().getOpposite().getNormal());
-            direction = getGrowDirection();
-        }
-        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + direction.getNormal().getX(),
-                pos.getY() + direction.getNormal().getY() + getBbHeight() / 2,
-                pos.getZ() + 0.5 + direction.getNormal().getZ()),
+        Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        direction = getGrowDirection();
+        offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + offset.getX(),
+                pos.getY() + offset.getY() + getBbHeight() / 2,
+                pos.getZ() + 0.5 + offset.getZ()),
                 getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
         if (BlockPos.betweenClosedStream(aabb).anyMatch((pos1) -> {
             BlockState blockstate = this.level.getBlockState(pos1);
@@ -161,7 +162,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(direction.getNormal())))) {
+        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(offset)))) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
         boolean plantableOn = false;
@@ -175,11 +176,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             if (level.getBlockState(pos).getFluidState().isEmpty()) {
                 if (isPlanting) {
                     this.moveTo(
-                            pos.getX() + 0.5 + direction.getNormal().getX(),
+                            pos.getX() + 0.5 + offset.getX(),
                             pos.getY() + (direction == Direction.UP ? (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
                                     (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
-                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY) : direction.getNormal().getY()),
-                            pos.getZ() + 0.5 + direction.getNormal().getZ());
+                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
+                            pos.getZ() + 0.5 + offset.getZ());
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 }
                 return null;
@@ -324,10 +325,10 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> {
             Entity owner = cap.getOwner();
             if (owner != null) {
-                permission[0] = PVZRulesCapability.getBoolean("shovelPermission") ?
-                        (PVZOwnedCapability.isTeammate(owner, player) || ! PVZRulesCapability.getBoolean("teamBattle")) : owner.is(player);
+                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, "shovelPermission") ?
+                        (PVZOwnedCapability.isTeammate(owner, player) || ! PVZConfig.PVZGameRules.getBoolean(player.level, "teamBattle")) : owner.is(player);
             } else {
-                permission[0] = PVZRulesCapability.getBoolean("shovelPermission") && PVZOwnedCapability.isTeammate(target, player);
+                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, "shovelPermission") && PVZOwnedCapability.isTeammate(target, player);
             }
         });
         //shovel plant.

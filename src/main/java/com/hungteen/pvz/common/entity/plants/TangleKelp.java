@@ -1,9 +1,9 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
@@ -14,6 +14,7 @@ import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -105,7 +106,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
                 this.setDeltaMovement(this.getDeltaMovement().add(0, - 0.08, 0));
             }
             if (! level.getFluidState(new BlockPos(position().add(0, 0.8, 0))).isEmpty() && this.getFirstPassenger() == null) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0, 0.04, 0).multiply(0.5, 0.5, 0.5));
+                this.setDeltaMovement(this.getDeltaMovement().add(0, 0.08, 0).multiply(0.5, 0.5, 0.5));
             } else if (! level.getFluidState(new BlockPos(position().add(0, 0.5, 0))).isEmpty()) {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.5, 0.5));
                 if (Math.abs(this.getDeltaMovement().y) < 0.001 && this.getDeltaMovement().y != 0) {
@@ -148,8 +149,9 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         }
     }
     public void baseTick() {
+        int i = this.getAirSupply();
         super.baseTick();
-        this.handleAirSupply(this.getAirSupply());
+        this.handleAirSupply(i);
     }
 
     public boolean isPushedByFluid() {
@@ -159,6 +161,10 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     public boolean isPushable(){
         return this.getFirstPassenger() != null;
     }
+    @Override
+    public Direction getGrowDirection() {
+        return null;
+    }
 
     @Override
     public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
@@ -167,10 +173,14 @@ public class TangleKelp extends SimplePlant implements Bucketable {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
-            pos = pos.offset(direction.getNormal()).below();
-        }
-        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
+        Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        direction = getGrowDirection();
+        offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + offset.getX(),
+                        pos.getY() + offset.getY() + getBbHeight() / 2,
+                        pos.getZ() + 0.5 + offset.getZ()),
+                getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
         if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
             BlockState blockstate = this.level.getBlockState(p_201942_);
             return !blockstate.isAir() && blockstate.isSuffocating(this.level, p_201942_) &&
@@ -178,19 +188,18 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-
-        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(direction.getNormal())))) {
+        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(offset)))) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
         if (! this.getEntityData().get(root()) || (! level.getBlockState(pos).isAir())) {
             if (level.getBlockState(pos).getFluidState().is(FluidTags.WATER)) {
                 if (isPlanting) {
                     this.moveTo(
-                            pos.getX() + 0.5,
+                            pos.getX() + 0.5 + offset.getX(),
                             pos.getY() + (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
-                                    (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
+                                    level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos) :
                                     level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY),
-                            pos.getZ() + 0.5);
+                            pos.getZ() + 0.5 + offset.getZ());
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 }
                 return null;
@@ -237,7 +246,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
 
     private static <T extends TangleKelp & Bucketable> Optional<InteractionResult> bucketMobPickup(Player player, InteractionHand hand, T tangleKelp) {
         ItemStack itemstack = player.getItemInHand(hand);
-        if (PVZRulesCapability.getBoolean("canCanCanKelp") && itemstack.getItem() == Items.WATER_BUCKET && tangleKelp.isAlive() && PVZOwnedCapability.isTeammate(player, tangleKelp)) {
+        if (PVZConfig.PVZGameRules.getBoolean(tangleKelp.level, "canCanCanKelp") && itemstack.getItem() == Items.WATER_BUCKET && tangleKelp.isAlive() && PVZOwnedCapability.isTeammate(player, tangleKelp)) {
             tangleKelp.playSound(tangleKelp.getPickupSound(), 1.0F, 1.0F);
             ItemStack itemstack1 = tangleKelp.getBucketItemStack();
             tangleKelp.saveToBucketTag(itemstack1);
@@ -298,8 +307,8 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         public void tick() {
             if (tangleKelp.tickCount % 50 < 2 && tangleKelp.hasSkill("skill.pvz.tangle_kelp.oxygen_algae")) {
                 List<Player> list = tangleKelp.level.getEntities(EntityTypeTest.forClass(Player.class),
-                        new AABB(tangleKelp.getX() - 4, tangleKelp.getY() - 4, tangleKelp.getZ() - 4,
-                                tangleKelp.getX() + 4, tangleKelp.getY(), tangleKelp.getZ() + 4),
+                        new AABB(tangleKelp.getX() - 6, tangleKelp.getY() - 6, tangleKelp.getZ() - 6,
+                                tangleKelp.getX() + 6, tangleKelp.getY(), tangleKelp.getZ() + 6),
                         (player) -> PVZOwnedCapability.isTeammate(player, tangleKelp));
                 list.forEach((player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 100), this.tangleKelp)));
             }
@@ -310,20 +319,24 @@ public class TangleKelp extends SimplePlant implements Bucketable {
                                 .scale(tangleKelp.getAttributeValue(Attributes.MOVEMENT_SPEED)))
                         );
             }
-            if (tangleKelp.isInWaterOrBubble() && ! EntityUtil.isEntityValid(tangleKelp.getFirstPassenger())) {
-                List<Entity> entities = tangleKelp.level.getEntities(tangleKelp, tangleKelp.getBoundingBox().inflate(0, 0.5, 0),
-                    (entity) -> (entity instanceof LivingEntity && entity.isAlive() && ! entity.isPassenger() &&
-                            EntityUtil.checkCanEntityBeAttack(entity, this.tangleKelp)));
-                if (! entities.isEmpty()) {
-                    entities.get(0).startRiding(this.tangleKelp);
+            if (tangleKelp.isInWaterOrBubble()) {
+                if (! EntityUtil.isEntityValid(tangleKelp.getFirstPassenger())) {
+                    List<Entity> entities = tangleKelp.level.getEntities(tangleKelp, tangleKelp.getBoundingBox().inflate(0, 0.5, 0),
+                        (entity) -> (entity instanceof LivingEntity && entity.isAlive() && ! entity.isPassenger() &&
+                                EntityUtil.checkCanEntityBeAttack(entity, this.tangleKelp)));
+                    if (! entities.isEmpty()) {
+                        entities.get(0).startRiding(this.tangleKelp);
+                    }
+                } else if (tangleKelp.tickCount % 20 < 2) {
+                    Entity target = tangleKelp.getFirstPassenger();
+                    target.hurt(PVZDamageSource.TANGLE_KELP, (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                    tangleKelp.hurt(PVZDamageSource.TANGLE_KELP, 1);
+                    if (! target.isAlive()) {
+                        this.tangleKelp.discard();
+                    }
                 }
-            } else if (tangleKelp.tickCount % 20 < 2) {
-                Entity target = tangleKelp.getFirstPassenger();
-                target.hurt(PVZDamageSource.TANGLE_KELP, (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE));
-                tangleKelp.hurt(PVZDamageSource.TANGLE_KELP, 1);
-                if (! target.isAlive()) {
-                    this.tangleKelp.discard();
-                }
+            } else {
+
             }
         }
     }

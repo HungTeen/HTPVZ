@@ -62,9 +62,10 @@ public class SplitPea extends PeaShooter{
         if (POSE.equals(p_219422_)) {
             if (entityData.get(POSE)) {
                 this.idleAnimationState.start(this.tickCount);
-                if (entityData.get(TARGET) % 2 == 0) {
+                if (entityData.get(TARGET) > 1) {
                     this.forwardAnimationState.start(this.tickCount);
-                } else if (entityData.get(TARGET) < 2) {
+                }
+                if (entityData.get(TARGET) % 2 != 0) {
                     this.backwardAnimationState.start(this.tickCount);
                 }
             } else {
@@ -85,6 +86,8 @@ public class SplitPea extends PeaShooter{
             } else if (entity != backwardTarget) {
                 super.setTarget(entity);
             }
+        } else {
+            super.setTarget(null);
         }
     }
 
@@ -100,8 +103,8 @@ public class SplitPea extends PeaShooter{
                 //create bullet
                 final Vec3 vec = EntityUtil.getNormalisedVector2d(this, target);
                 final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
-                final double deltaX = forwardOffset * vec.x - rightOffset * vec.z;
-                final double deltaZ = forwardOffset * vec.z + rightOffset * vec.x;
+                final double deltaX = - forwardOffset * vec.x + rightOffset * vec.z;
+                final double deltaZ = - forwardOffset * vec.z - rightOffset * vec.x;
                 Projectile bullet = this.createBullet();
                 bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
                 //predict
@@ -186,6 +189,8 @@ public class SplitPea extends PeaShooter{
                 } else {
                     target += 2;
                 }
+            } else {
+                splitPea.setTarget(null);
             }
             this.splitPea.entityData.set(TARGET, target);
             return this.splitPea.backwardTarget != null ^ this.splitPea.getTarget() != null;
@@ -194,12 +199,12 @@ public class SplitPea extends PeaShooter{
         @Override
         public void tick() {
             double range = this.splitPea.getAttribute(Attributes.FOLLOW_RANGE).getValue();
-            Vec3 vec = this.splitPea.getLookAngle().normalize();
+            Vec3 vec = this.splitPea.getLookAngle().multiply(1, 0, 1).normalize();
             AABB area = this.splitPea.getBoundingBox().inflate(range / 2, 4.0, range / 2);
             if (this.splitPea.backwardTarget != null) {
-                area = area.move(vec.x * range, vec.y * range, vec.z * range);
+                area = area.move(vec.x * range / 2, 0, vec.z * range / 2);
             } else {
-                area = area.move(- vec.x * range, - vec.y * range, - vec.z * range);
+                area = area.move(- vec.x * range / 2, 0, - vec.z * range / 2);
             }
             LivingEntity target = this.splitPea.level.getNearestEntity(this.splitPea.level.getEntitiesOfClass(LivingEntity.class, area,
                     (entity) -> EntityUtil.checkCanEntityBeAttack(splitPea, entity)), TargetingConditions.forCombat().range(range).selector(null),

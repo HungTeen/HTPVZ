@@ -30,7 +30,7 @@ public class EntityUtil {
         if (attacker == null || target == null) {//prevent crash
             return false;
         }
-        if (target instanceof Player && ! isSurvivalPlayer(target) || !isEntityValid(target)) {
+        if ((target instanceof Player && ! isSurvivalPlayer(target)) || !isEntityValid(target)) {
             return false;
         }
         if (PVZOwnedCapability.isTeammate(attacker, target)) {//enable team attack

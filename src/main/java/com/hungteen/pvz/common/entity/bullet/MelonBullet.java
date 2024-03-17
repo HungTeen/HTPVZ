@@ -107,7 +107,7 @@ public class MelonBullet extends BaseBullet {
     }
     @Override
     public float getAttackDamage() {
-        return (float) (this.attackDamage * (this.getMelonSkill() == MelonSkill.GRAVITY ? this.getDeltaMovement().distanceToSqr(Vec3.ZERO) : 1));
+        return (float) (this.attackDamage * (this.getMelonSkill() == MelonSkill.GRAVITY ? this.getDeltaMovement().distanceToSqr(Vec3.ZERO) * this.getDeltaMovement().distanceToSqr(Vec3.ZERO) : 1));
     }
     public List<MobEffectInstance> getMobEffects() {
         List<MobEffectInstance> list = new java.util.ArrayList<>(List.of(new MobEffectInstance(MobEffects.HEAL, 1)));

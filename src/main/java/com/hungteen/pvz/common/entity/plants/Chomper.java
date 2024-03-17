@@ -21,6 +21,7 @@ import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -41,6 +42,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
@@ -176,7 +178,9 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
     public void tick() {
         if (this.storedPosition == null) {
             this.storedPosition = this.position();
-            this.setOriginalPos(new BlockPos((int) storedPosition.x - 1, (int) storedPosition.y - 1, (int) storedPosition.z - 1));
+            this.setOriginalPos(new BlockPos((int) (storedPosition.x > 0 ? storedPosition.x : storedPosition.x - 1),
+                    (int) storedPosition.y - 1,
+                    (int) (storedPosition.z > 0 ? storedPosition.z : storedPosition.z - 1)));
         }
         if (this.getPose() == Pose.SWIMMING && ((this.position().distanceTo(this.storedPosition) < 0.1 && this.tickCount % 10 == 0) || super.isInWall())) {
             this.noPhysics = true;
@@ -211,7 +215,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getPose() != Pose.SWIMMING, 2));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
         this.goalSelector.addGoal(3, new ChomperAttackGoal(this));
-        this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this, (entity)-> EntityUtil.checkCanEntityBeAttack(this, entity), 8));
+        this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this, (entity)-> EntityUtil.checkCanEntityBeAttack(this, entity) && ! (entity instanceof Slime), 8));
     }
     @Override
     protected void defineSynchedData() {
@@ -367,16 +371,16 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if (level.getBlockState(pos).getBlock() instanceof BushBlock) {
+        if (level.getBlockState(pos).getBlock() instanceof BushBlock && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
-        if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
-            pos = pos.offset(direction.getNormal()).offset(getGrowDirection().getOpposite().getNormal());
-            direction = getGrowDirection();
-        }
-        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + direction.getNormal().getX(),
-                        pos.getY() + direction.getNormal().getY() + getBbHeight() / 2,
-                        pos.getZ() + 0.5 + direction.getNormal().getZ()),
+        Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        direction = getGrowDirection();
+        offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + offset.getX(),
+                        pos.getY() + offset.getY() + getBbHeight() / 2,
+                        pos.getZ() + 0.5 + offset.getZ()),
                 getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
         if (BlockPos.betweenClosedStream(aabb).anyMatch((pos1) -> {
             BlockState blockstate = this.level.getBlockState(pos1);
@@ -385,7 +389,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(direction.getNormal())))) {
+        if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(offset)))) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
         boolean plantableOn = false;
@@ -399,13 +403,12 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
             if (level.getBlockState(pos).getFluidState().isEmpty()) {
                 if (isPlanting) {
                     this.moveTo(
-                            pos.getX() + 0.5 + direction.getNormal().getX(),
+                            pos.getX() + 0.5 + offset.getX(),
                             pos.getY() + (direction == Direction.UP ? (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
                                     (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
-                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY) : direction.getNormal().getY()),
-                            pos.getZ() + 0.5 + direction.getNormal().getZ());
+                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
+                            pos.getZ() + 0.5 + offset.getZ());
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
-                    this.setOriginalPos(pos);
                 }
                 return null;
             }
@@ -487,7 +490,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
 
     @Override
     public boolean shouldListen(ServerLevel p_223872_, GameEventListener p_223873_, BlockPos p_223874_, GameEvent p_223875_, GameEvent.Context context) {
-        return isSculk(this) && EntityUtil.checkCanEntityBeAttack(this, context.sourceEntity());
+        return isSculk(this) && EntityUtil.checkCanEntityBeAttack(this, context.sourceEntity()) && ! (context.sourceEntity() instanceof Slime);
     }
 
     @Override
@@ -572,9 +575,10 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                     chomper.animTick = 0;
                 }
                 case USING_TONGUE -> {
+                    chomper.targetSelector.disableControlFlag(Flag.MOVE);
                     LivingEntity target = chomper.getTarget();
                     if (chomper.animTick >= 11 && chomper.animTick < 14) {
-                        if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) && chomper.position().distanceTo(target.position()) <= 1.5) {
+                        if (EntityUtil.checkCanEntityBeAttack(chomper, target) && ! (target instanceof Slime) && !(target.getVehicle() instanceof Chomper) && chomper.position().distanceTo(target.position()) <= 1.5) {
                             target.startRiding(chomper);
                         }
                     } else if (chomper.animTick >= 53 && chomper.animTick < 56) {
@@ -589,6 +593,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                             }
                         }
                     } else if (chomper.animTick > 79) {
+                        chomper.targetSelector.enableControlFlag(Flag.MOVE);
                         chomper.setPose(chomper.blockPosition().below().equals(chomper.getOriginalPos()) ?
                                 (chomper.getAttackTime() <= 0 ? Pose.STANDING : Pose.CROUCHING) : Pose.DIGGING);
                         if (chomper.getPose() == Pose.CROUCHING) {

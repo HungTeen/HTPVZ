@@ -9,6 +9,7 @@ import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -53,6 +54,32 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
     }
+
+    public boolean canBounce(Entity entity, boolean isClient) {
+        if (entity.getDeltaMovement().length() < 0.5) {
+            return false;
+        }
+        Vec3 subPosition = entity.position().subtract(this.position()).multiply(1, 0, 1);
+        if (subPosition.distanceToSqr(Vec3.ZERO) > 1) {
+            Vec3i detectDirection = new Vec3i(
+                    Math.abs(subPosition.x) < 0.5 ? 0 : subPosition.x > 0 ? 1 : -1, 0, Math.abs(subPosition.z) < 0.5 ? 0 : subPosition.z > 0 ? 1 : -1);
+            if (level.getBlockState(this.blockPosition().offset(detectDirection)).isSuffocating(level, this.blockPosition().offset(detectDirection))) {
+                return false;
+            }
+            if (subPosition.distanceToSqr(Vec3.ZERO) > 4 && detectDirection.getX() != 0 && detectDirection.getZ() != 0) {
+                if (level.getBlockState(this.blockPosition().offset(detectDirection).offset(detectDirection.getX(), 0, 0))
+                        .isSuffocating(level, this.blockPosition().offset(detectDirection)) &&
+                        level.getBlockState(this.blockPosition().offset(detectDirection).offset(0, 0, detectDirection.getZ()))
+                                .isSuffocating(level, this.blockPosition().offset(detectDirection))) {
+                    return false;
+                }
+            }
+        }
+        return isClient ? (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this)
+                || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this))) :
+                entity instanceof Player player && ClientProxy.getPlayer() == player && (! PVZOwnedCapability.isTeammate(this, player) || ! player.isShiftKeyDown());
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -60,8 +87,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1D);
         }
         if (level.isClientSide && canBounce()) {
-            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(2, 1, 2).move(0, 0.5, 0),
-                    (entity) -> entity instanceof Player player && ClientProxy.getPlayer() == player && player.getDeltaMovement().length() > 0.5 && (! PVZOwnedCapability.isTeammate(this, player) || ! player.isShiftKeyDown()));
+            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(1.5, 1, 1.5).move(0, 0.5, 0),
+                    (entity) -> canBounce(entity, true));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
@@ -149,10 +176,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 1, 2).move(0, 0.5, 0),
-                    (entity) -> (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this.entity)
-                            || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this.entity)))
-                            && entity.getDeltaMovement().length() > 0.5);
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(1.5, 1, 1.5).move(0, 0.5, 0),
+                    (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
