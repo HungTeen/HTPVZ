@@ -212,6 +212,8 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     }
 
     protected boolean checkBlock(BlockPos pos) {
+        if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.level, this)) return false;
+
         if (!this.level.getFluidState(pos.above()).isEmpty()) {
             return false;
         } else if (this.level.getBlockState(pos.above()).is(PVZBlocks.CARP_GRASS.get()) && this.level.getBlockState(pos.above()).getValue(BlockStateProperties.AGE_3) != 0) {

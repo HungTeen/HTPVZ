@@ -88,12 +88,15 @@ public class PVZMod
 
         PVZBiomes.BIOMES.register(modBus);
         PVZFeatures.FEATURES.register(modBus);
-        PVZParticles.PARTICLES.register(modBus);
+        if (FMLEnvironment.dist != Dist.DEDICATED_SERVER) {
+            PVZParticles.PARTICLES.register(modBus);
+        }
 
         PVZMenus.MENU_TYPES.register(modBus);
 
         OtherRegisters.modBusRegister(modBus);
         modBus.addListener(EventPriority.NORMAL, OtherRegisters::essenceFurnaceRecipeBookRegister);
+        modBus.addListener(PVZConfig.PVZGameRules::init);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modBus.addListener(PVZOverlayHandler::registerOverlay);

@@ -121,8 +121,13 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
                 if (isPlanting) {
                     moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot());
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
-                    ((WallNut) target).convertTo(((EntityType<Mob>) this.getType()), true);
-                    ((WallNut) target).setSkillVal(this.getSkillVal());
+                    target = ((WallNut) target).convertTo(((EntityType<Mob>) this.getType()), true);
+                    if (target != null) {
+                        ((WallNut) target).setSkillVal(this.getSkillVal());
+                        if (event != null) {
+                            target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                        }
+                    }
                     this.discard();
                 }
                 return null;

@@ -117,7 +117,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
         if (teamA == enemyTeam.get() || teamB == enemyTeam.get()) {
             return false;
         }
-        return teamBattle;
+        return ! teamBattle;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
@@ -24,10 +25,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -51,6 +49,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
 
     double xCurrentSpeed = 0;//can not understand how vanilla methods work...
     double zCurrentSpeed = 0;
+    Vec3 storedPosition = Vec3.ZERO;
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.lily_pad.lily_boat", PVZItems.AQUA_ESSENCE, 6, 4, 0, 0),
             new Skill("skill.pvz.lily_pad.friendship_of_lily_pad", PVZItems.LUX_ESSENCE, 6, 12, -25, 0).avoidSkills(0)
@@ -120,6 +119,20 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
                 }
             }
         }
+        if (level.isClientSide && ! level.getFluidState(new BlockPos(position().add(0, this.getEyeHeight(), 0))).isEmpty()) {
+            Vec3 deltaMovement = this.position().subtract(storedPosition);
+            if (deltaMovement.distanceToSqr(Vec3.ZERO) > 0.1) {
+                for (int i = 0; i < 3; i ++) {
+                level.addParticle(ParticleTypes.SPLASH,
+                        this.getX() - (deltaMovement.x + 1) * random.nextFloat() + 0.5,
+                        this.getY() - deltaMovement.y * random.nextFloat(),
+                        this.getZ() - (deltaMovement.z + 1) * random.nextFloat() + 0.5,
+                        0, 0, 0);
+                }
+            }
+            storedPosition = this.position();
+
+        }
         this.shouldAlign = false;
         super.tick();
     }
@@ -135,8 +148,8 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
 
                 xCurrentSpeed *= inWater ? 0.95 : 0.5;
                 zCurrentSpeed *= inWater ? 0.95 : 0.5;
-                double lr = xCurrentSpeed * 0.75 + (inWater ? 1 : 0.25) * player.xxa * 0.25;
-                double fb = zCurrentSpeed * 0.75 + (inWater ? 0.5 : 0.15) * player.zza * 0.25;
+                double lr = xCurrentSpeed * 0.9 + (inWater ? 0.3 : 0.1) * player.xxa * 0.1;
+                double fb = zCurrentSpeed * 0.9 + (inWater ? 0.5 : 0.15) * player.zza * 0.1;
                 if (fb <= 0.0F) {
                     fb *= 0.25F;
                 }

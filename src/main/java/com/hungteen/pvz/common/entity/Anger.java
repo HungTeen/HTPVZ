@@ -5,12 +5,15 @@ import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.List;
 
 public class Anger extends FlyingMob {
     public int maxLife = 20;
+    public boolean preciseStrike = false;
     public Anger(EntityType<? extends FlyingMob> p_218310_, Level p_218311_) {
         super(p_218310_, p_218311_);
     }
@@ -65,12 +69,16 @@ public class Anger extends FlyingMob {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("Life", this.maxLife);
+        tag.putBoolean("PreciseStrike", this.preciseStrike);
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
         if (tag.contains("Life")) {
             maxLife =tag.getInt("Life");
+        }
+        if (tag.contains("PreciseStrike")) {
+            preciseStrike =tag.getBoolean("PreciseStrike");
         }
     }
 
@@ -107,10 +115,22 @@ public class Anger extends FlyingMob {
                 if (! PVZOwnedCapability.isTeammate(anger, entity)) {
                     entity.hurt(DamageSource.ON_FIRE, (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
                     entity.setRemainingFireTicks(300);
-                } else {
+                } else if (! preciseStrike) {
                     entity.setRemainingFireTicks(80);
                 }
             });
+            if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(anger.level, anger)) {
+                for (int x = -2; x < 3; x ++) {
+                    for (int z = -2; z < 3; z ++) {
+                        for (int y = -2; y < 3; y ++) {
+                            int dist = Math.abs(x) + Math.abs(y) + Math.abs(z) + 1;
+                            if (dist < 6 && anger.random.nextInt(dist) == 0 && level.getBlockState(this.anger.blockPosition().offset(x, y, z)).is(BlockTags.SNOW)) {
+                                level.setBlock(this.anger.blockPosition().offset(x, y, z), Blocks.AIR.defaultBlockState(), 3);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

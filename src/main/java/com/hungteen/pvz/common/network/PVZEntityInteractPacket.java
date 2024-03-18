@@ -31,7 +31,7 @@ public class PVZEntityInteractPacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         NetworkEvent.Context context = ctx.get();
         if (((ServerLevel) context.getSender().level).getEntity(this.entityID) instanceof IEntityPacketHandler entity) {
-            entity.handlePVZPacket(type);
+            entity.handlePVZPacket(ctx.get().getSender(), type);
         }
     }
 }

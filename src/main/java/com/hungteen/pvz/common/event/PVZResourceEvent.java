@@ -23,7 +23,7 @@ public class PVZResourceEvent extends PlayerEvent {
     }
 
     /**
-     * fired whenever the cost of a seedPacket is needed, fired on both server and client.
+     * fired whenever the cost of a seedPacket is needed, on both server and client.
      * <p> if you want to refresh the number shows in gui, call <br> {@link com.hungteen.pvz.client.gui.PVZOverlayHandler#refreshMainHandItemStack(Player)}
      * or <br> {@link com.hungteen.pvz.client.gui.PVZOverlayHandler#refreshOffHandItemStack(Player)}.
      */

@@ -20,8 +20,8 @@ public class SeedDispensaryItem extends Item {
             ItemStack itemStack1 = target.getPickResult();
             if (itemStack1 != null && !itemStack1.isEmpty()) {
                 if (((IPlant) target).onBeingShoveled(player, hand)) {
-                itemStack.hurtAndBreak(1, player, (entity) -> entity.broadcastBreakEvent(hand));
-                player.getInventory().add(itemStack1);
+                    player.getInventory().add(itemStack1);
+                    itemStack.shrink(1);
                 return InteractionResult.CONSUME;
                 }
             }

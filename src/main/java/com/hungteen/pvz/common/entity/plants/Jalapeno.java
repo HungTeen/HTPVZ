@@ -28,7 +28,8 @@ import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 public class Jalapeno extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.jalapeno.tracking_fire", PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0)
+            new Skill("skill.pvz.jalapeno.tracking_fire", PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0),
+            new Skill("skill.pvz.jalapeno.precise_strike", PVZItems.IGNIS_ESSENCE, 4, 4, 100, 0)
     );
 
     public Jalapeno(EntityType<? extends Mob> entityType, Level level) {
@@ -46,6 +47,9 @@ public class Jalapeno extends SimplePlant {
         if (! level.isClientSide) {
             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {
                 Anger anger = new Anger(level);
+                if (this.hasSkill("skill.pvz.jalapeno.precise_strike")) {
+                    anger.preciseStrike = true;
+                }
                 anger.setPos(this.position().add(0, 1, 0));
                 anger.getCapability(PVZOwnedCapability.CAP).orElse(null).setOwner(this);
                 anger.yRot = direction.toYRot();

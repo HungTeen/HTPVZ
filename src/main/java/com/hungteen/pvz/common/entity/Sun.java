@@ -154,12 +154,14 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         super.baseTick();
 
         //about sun disappear.
-        if (! level.isClientSide && PVZConfig.PVZGameRules.getBoolean(level, "sunDisappear")) {
-            if(! level.isClientSide) {
+        if(! level.isClientSide) {
+            if (PVZConfig.PVZGameRules.getBoolean(level, "sunDisappear")) {
                 this.setLiveTick(this.getLiveTick() + 1);
                 if (this.getLiveTick() >= this.getMaxLiveTick()) {
                     this.remove(Entity.RemovalReason.DISCARDED);
                 }
+            } else {
+                this.setLiveTick(0);
             }
         }
         //natural fall.
@@ -171,11 +173,11 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
                 speedY = -SUN_FALL_SPEED;
             }
             this.setDeltaMovement(this.getDeltaMovement().x * 0.94, speedY, this.getDeltaMovement().z * 0.94);
-        } else{
+        } else {
             this.setDeltaMovement(new Vec3(0, 0, 0));
         }
         //choose attractor.
-        if ((this.tickCount+this.getId()) % ((this.attractedBy != null) ? 250 : 50) == 0 || (this.attractedBy != null && this.attractedBy.distanceToSqr(this) > 64.0D)) {
+        if (! level.isClientSide && (this.tickCount+this.getId()) % ((this.attractedBy != null) ? 250 : 50) == 0 || (this.attractedBy != null && this.attractedBy.distanceToSqr(this) > 64.0D)) {
             this.attractedBy = null;
             level.getEntities(this, this.getBoundingBox().inflate(6)).forEach((targetEntity) -> {
                 if ((this.attractedBy == null || distanceToSqr(targetEntity) < distanceToSqr(attractedBy)) && canAttractThis(targetEntity)) {
@@ -219,7 +221,7 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
 
 
     public int getMaxLiveTick() {
-        return PVZConfig.PVZGameRules.getBoolean(level, "sunDisappear") ? MAX_LIVE_TICK : -1;
+        return MAX_LIVE_TICK;
     }
 
 

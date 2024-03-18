@@ -3,9 +3,11 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
@@ -21,6 +23,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
@@ -36,7 +39,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Set;
 
-public class GatlingPea extends Repeater implements PlayerRideableJumping{
+public class GatlingPea extends Repeater implements PlayerRideableJumping, IEntityPacketHandler {
 
     public AnimationState controlledAnimationState = new AnimationState();
     private boolean playerFire = false;
@@ -131,7 +134,11 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping{
             if (this.controlledAnimationState.isStarted()) {
                 boolean usingSpyGlass = PlayerRenderer.getArmPose((AbstractClientPlayer) player, InteractionHand.MAIN_HAND) == HumanoidModel.ArmPose.SPYGLASS ||
                         PlayerRenderer.getArmPose((AbstractClientPlayer) player, InteractionHand.OFF_HAND) == HumanoidModel.ArmPose.SPYGLASS;
-                this.getFirstPassenger().xRot -= random.nextFloat() * 1.5 * (usingSpyGlass ? 0.2 : 1);
+                if (this.getFirstPassenger().xRot < 21 && this.getFirstPassenger().xRot > -21) {
+                    this.getFirstPassenger().xRot = (float) Math.max(-20 - random.nextFloat(), Math.min(20 + random.nextFloat(), this.getFirstPassenger().xRot - random.nextFloat() * 1.5 * (usingSpyGlass ? 0.2 : 1)));
+                } else {
+                    this.getFirstPassenger().xRot += random.nextFloat() - 0.5;
+                }
                 this.getFirstPassenger().yRot -= (random.nextFloat() * 1 - 0.4) * (usingSpyGlass ? 0.2 : 1);
             }
         }
@@ -148,8 +155,8 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping{
     }
 
     @Override
+    /** shoot cd is also affected by {@link FUSING}.*/
     public int getShootCD() {
-        // shoot cd is also affected by FUSING (line 36).
         return this.getFirstPassenger() instanceof Player ? 21 : 40;
     }
 
@@ -193,16 +200,9 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping{
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (! hasSkill("skill.pvz.gatling_pea.low_budget_configuration")) {
-            if (PVZOwnedCapability.isTeammate(this, player) && getPassengers().isEmpty()
-                    && (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty() || player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof SpyglassItem)
-                    && ! (player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShovelItem)) {
-                player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
-                player.startRiding(this);
-                this.setTarget(null);
-                this.setAttackTime(30);
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
-            }
+        if (level.isClientSide && getPassengers().isEmpty() && (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty() || player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof SpyglassItem)
+                && ! (player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShovelItem)) {
+            sendPVZPacketToServer();
         }
         return super.mobInteract(player, hand);
     }
@@ -225,6 +225,9 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping{
                 GatlingPea gatlingPea = ((Mob) target).convertTo(PVZEntities.GATLING_PEA.get(), true);
                 if (gatlingPea != null) {
                     gatlingPea.setSkillVal(this.getSkillVal());
+                    if (event != null) {
+                        target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                    }
                     if (this.hasCustomName()) {
                         gatlingPea.setCustomName(this.getCustomName());
                     }
@@ -292,6 +295,18 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping{
     }
     @Override
     public void handleStopJump() {
+    }
+
+    @Override
+    public void handlePVZPacket(ServerPlayer player, int val) {
+        if (! hasSkill("skill.pvz.gatling_pea.low_budget_configuration")) {
+            if (PVZOwnedCapability.isTeammate(this, player)) {
+                player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
+                player.startRiding(this);
+                this.setTarget(null);
+                this.setAttackTime(30);
+            }
+        }
     }
 
     //goals.

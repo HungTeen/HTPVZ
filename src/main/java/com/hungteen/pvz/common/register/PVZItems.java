@@ -94,7 +94,7 @@ public class PVZItems {
 
     //tools
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 
     static {

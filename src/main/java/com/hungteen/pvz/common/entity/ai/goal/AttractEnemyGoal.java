@@ -54,17 +54,9 @@ public class AttractEnemyGoal extends Goal {
                 ///attracting limits about targetEntity's target.
                 if (! (targetOfTarget instanceof IDefenderPlant) && ((! PVZConfig.PVZGameRules.getBoolean(entity.level, "teamBattle")) ||
                         (! EntityUtil.isEntityValid(targetOfTarget) || PVZOwnedCapability.isTeammate(entity, targetOfTarget)))) {
-                    //test if can attract.
-                    ((Mob) targetEntity).targetSelector.getAvailableGoals().forEach((goal) -> {
-                        if (goal.getGoal() instanceof TargetGoal) {
-                            LivingEntity tmpEntity = ((Mob) targetEntity).getTarget();
-                            ((Mob) targetEntity).setTarget(entity);
-                            if (!goal.getGoal().canContinueToUse()) {
-                                //redraw setting target if not match.
-                                ((Mob) targetEntity).setTarget(tmpEntity);
-                            }
-                        }
-                    });
+                    if (((Mob) targetEntity).targetSelector.getAvailableGoals().stream().anyMatch((goal) -> goal.getGoal() instanceof TargetGoal)) {
+                        ((Mob) targetEntity).setTarget(entity);
+                    }
                 }
             }
         });

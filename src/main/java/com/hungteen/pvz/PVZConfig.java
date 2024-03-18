@@ -1,22 +1,17 @@
 package com.hungteen.pvz;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PVZConfig {
     private static Common COMMON_CONFIG;
@@ -153,7 +148,7 @@ public class PVZConfig {
             builder.pop();
         }
     }
-    @Mod.EventBusSubscriber(modid = PVZMod.MODID)
+
     public static class PVZGameRules {
         //rules.
         public Map<String, GameRules.Key<GameRules.BooleanValue>> booleanMap;
@@ -175,27 +170,13 @@ public class PVZConfig {
             }
             return map;
         }
-        public static PVZGameRules createInstance() {
+
+        public static void initRules() {
             instance = new PVZGameRules();
-            return instance;
         }
 
-        @SubscribeEvent
-        public static void init(LevelEvent.Load ev) {
-            PVZGameRules pvzRules = instance == null ? PVZGameRules.createInstance() : instance;
-            if (ev.getLevel() instanceof ServerLevel level && level.getLevelData() instanceof PrimaryLevelData data) {
-                data.getGameRules().rules = pvzRules.loadMissingRules(data.getGameRules());
-            }
-        }
-
-        public Map<GameRules.Key<?>, GameRules.Value<?>> loadMissingRules(GameRules rules) {
-            HashMap<GameRules.Key<?>, GameRules.Value<?>> ruleMap = new HashMap<>(rules.rules);
-            for (Map.Entry<GameRules.Key<?>, GameRules.Type<?>> pair: GameRules.GAME_RULE_TYPES.entrySet()) {
-                if (! ruleMap.containsKey(pair.getKey())) {
-                    ruleMap.put(pair.getKey(), pair.getValue().createRule());
-                }
-            }
-            return ImmutableMap.copyOf(ruleMap);
+        public static void init(final FMLLoadCompleteEvent ev) {
+            PVZConfig.PVZGameRules.initRules();
         }
 
         public static boolean getBoolean(Level level, String name) {

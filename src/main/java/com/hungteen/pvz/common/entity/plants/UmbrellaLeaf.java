@@ -13,6 +13,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -75,7 +76,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                 }
             }
         }
-        return isClient ? (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this)
+        return ! isClient ? (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this)
                 || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this))) :
                 entity instanceof Player player && ClientProxy.getPlayer() == player && (! PVZOwnedCapability.isTeammate(this, player) || ! player.isShiftKeyDown());
     }
@@ -86,8 +87,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         if (hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf")) {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1D);
         }
-        if (level.isClientSide && canBounce()) {
-            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(1.5, 1, 1.5).move(0, 0.5, 0),
+        if (level.isClientSide) {
+            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(2, 1, 2).move(0, 0.5, 0),
                     (entity) -> canBounce(entity, true));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
@@ -97,7 +98,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                             0.5 * Math.min((entity1.getZ() - this.getZ()), 1));
                     entity1.fallDistance = 0;
                 }));
-                sendPVZPacketToServer(0);
+                sendPVZPacketToServer();
             }
         }
     }
@@ -132,23 +133,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         return entity -> true;
     }
 
-    public boolean canBounce() {
-        for (int x = -1; x < 2; x ++ ){
-            for (int z = -1; z < 2; z ++ ){
-                for (int y = 0; y < 2; y ++ ){
-                    BlockPos pos = blockPosition().offset(x, y, z);
-                    BlockState state = level.getBlockState(pos);
-                    if (state.getBlock().isScaffolding(state, level, pos, this)) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
     @Override
-    public void handlePVZPacket(int val) {
+    public void handlePVZPacket(ServerPlayer player, int val) {
         setAttackTime(30);
     }
 
@@ -168,7 +154,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             if (entity.getAttackTime() == 22 && entity.hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf")) {
                 entity.discard();
             }
-            return entity.getAttackTime() <= 20 && entity.canBounce();
+            return entity.getAttackTime() <= 20;
         }
         @Override
         public boolean requiresUpdateEveryTick() {
@@ -176,7 +162,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(1.5, 1, 1.5).move(0, 0.5, 0),
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 1, 2).move(0, 0.5, 0),
                     (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
