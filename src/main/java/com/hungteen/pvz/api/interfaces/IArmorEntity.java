@@ -1,6 +1,5 @@
 package com.hungteen.pvz.api.interfaces;
 
-import com.hungteen.pvz.common.register.PVZDamageSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;

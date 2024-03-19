@@ -1,6 +1,5 @@
 package com.hungteen.pvz.api.interfaces;
 
-import com.hungteen.pvz.common.entity.SimplePlant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.syncher.EntityDataAccessor;

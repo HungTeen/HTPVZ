@@ -122,7 +122,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         }
                     });
                 }
-                int toMax = (int) player.getAttributeValue(PVZAttributes.SUN.get());
+                int toMax = (int) player.getAttributeValue(PVZAttributes.SUN.get()) - (PVZConfig.PVZGameRules.getBoolean(player.level, "dynamicSunRule") ? 0 : 300);
                 int overFlow = nbt.getValue(PVZPlayerCapNBT.SUN) - toMax;
                 while (overFlow > 0) {
                     Sun.spawnSunWithEffects(player.level, 25, player.blockPosition(), 0.3F);

@@ -1,13 +1,10 @@
 package com.hungteen.pvz;
 
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -59,7 +56,7 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> teamBattle;
         public static ForgeConfigSpec.ConfigValue<Boolean> killWisdomTree;
         public static ForgeConfigSpec.ConfigValue<Boolean> canCanCanKelp;
-        public static ForgeConfigSpec.ConfigValue<Boolean> testSunRule;
+        public static ForgeConfigSpec.ConfigValue<Boolean> dynamicSunRule;
         public static ForgeConfigSpec.ConfigValue<Boolean> naturallySpawnSun;
         public Common(ForgeConfigSpec.Builder builder){
             builder.comment("All these configs are the default values of pvz rules.")
@@ -86,10 +83,10 @@ public class PVZConfig {
                     .translation("config.pvz.common.can_can_can_kelp")
                     .comment("if on, players can interact with Tangle Kelps using buckets to bucket them."),
                     "canCanCanKelp", false);
-            testSunRule = add(builder
+            dynamicSunRule = add(builder
                             .translation("config.pvz.common.dynamic_sun_rule")
                             .comment("if on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),
-                    "dynamicSunRule", false);
+                    "dynamicSunRule", true);
             naturallySpawnSun = add(builder
                             .translation("config.pvz.common.naturally_spawn_sun")
                             .comment("if on, sun will naturally spawn by players in the sky when skylight matches the condition."),

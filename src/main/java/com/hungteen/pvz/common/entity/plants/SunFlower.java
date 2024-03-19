@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 
 public class SunFlower extends ProducerPlant implements IMaxSunExpander {
     public SunFlower(EntityType<? extends Mob> type, Level worldIn) {
@@ -32,7 +33,8 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
     @Override
     public int getGenCD() {
         final int time = 240;
-        return (this.level.isDay() || this.hasEffect(PVZMobEffects.BRIGHTNESS.get())) ?(this.level.isRaining() ? 2 * time : time) : 3 * time;
+        int light = level.getBrightness(LightLayer.SKY, this.blockPosition()) - level.getSkyDarken();
+        return (light > 12 || this.hasEffect(PVZMobEffects.BRIGHTNESS.get())) ? time : (light > 9 ? 2 * time: 3 * time);
     }
     public int getSunAmount(){
         return 50;
