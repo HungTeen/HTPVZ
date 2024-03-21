@@ -63,9 +63,6 @@ public class BaseBullet extends Projectile {
 		double dy = vec3.y;
 		double dz = vec3.z;
 		this.updateRotation();
-		if (! this.isNoGravity()) {
-			dy -= 0.06F;
-		}
 		if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
  			dx -= 0.08 * dx;
 			dy -= 0.08 * dy;
