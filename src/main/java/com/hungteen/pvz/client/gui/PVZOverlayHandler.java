@@ -15,6 +15,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
@@ -25,6 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
@@ -51,11 +53,11 @@ public class PVZOverlayHandler{
     public static boolean offHandResourceIsSun = true;
     public static int offHandStackCost = 0;
     public static boolean storedHaveCost = false;
+    public static boolean renderArmorInSingleBar = false;
 
     public static void tick(float tickTime) {
         if (PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).isPresent()) {
-            float second = tickTime / 10;// transform to time in second.
-            double tmp = Math.pow(0.9, second / 0.04);
+            double tmp = Math.pow(0.9, tickTime / 0.04);
             int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapNBT.SUN);
             int barLength = 94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapNBT.SUN).getSecond();
             bufferSunAmount = (int)(now * (1 - tmp) + tmp * bufferSunAmount);
@@ -67,7 +69,7 @@ public class PVZOverlayHandler{
                 bufferSunBarLength = barLength;
             }
             if (notEnoughHint > 0) {
-                notEnoughHint -= second;
+                notEnoughHint -= tickTime;
             }
         }
         boolean needCost = getCameraPlayer() != null && (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1) != storedHaveCost;
@@ -84,13 +86,76 @@ public class PVZOverlayHandler{
         }
         storedOffHandItemStack = itemStack;
     }
-    private static void renderArmorHealth(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+
+    @SubscribeEvent
+    public static void banVanillaArmorBar(RenderGuiOverlayEvent.Pre ev) {
+        int armorHealth = 0;
+        Player player = getCameraPlayer();
+        if (player == null) return;
+        for (ItemStack itemStack : player.getArmorSlots()) {
+            if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
+                armorHealth += itemStack.getMaxDamage() - itemStack.getDamageValue();
+            }
+        }
+        if (armorHealth == 0) return;
+
+        if (PVZConfig.renderSeparateArmorBar() && ev.getOverlay().id().equals(new ResourceLocation("armor_level"))) {
+            ev.setCanceled(true);
+            renderArmorInSingleBar = true;
+        }
+    }
+    private static void renderArmorAsSingleBar(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+        if (! renderArmorInSingleBar) return;
+        renderArmorInSingleBar = false;
         if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
-
-            Minecraft mc = gui.getMinecraft();
-            mc.getProfiler().push("sun");
-
             Player player = getCameraPlayer();
+            if (player == null) return;
+            Minecraft mc = gui.getMinecraft();
+            mc.getProfiler().push("pvz_armor");
+
+            int armorHealth = 0;
+            for (ItemStack itemStack : player.getArmorSlots()) {
+                if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
+                    armorHealth += itemStack.getMaxDamage() - itemStack.getDamageValue();
+                }
+            }
+
+            if (armorHealth == 0) return;
+
+            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
+            RenderSystem.enableBlend();
+
+            int armorRows = (int) Math.ceil((float) armorHealth / 5.0F / 10.0F);
+            int rowHeight = Math.max(6 - armorRows, 3);
+            int left = width / 2 - 100;
+            int top = height - gui.leftHeight;
+            int draws = Mth.ceil((float) armorHealth / 5.0F);
+            for (int i = draws; armorHealth > 0; -- i) {
+                int x = left + ((i - 1) % 10) * 8 + 9;
+                int y = top - ((i - 1) / 10) * rowHeight;
+                if (i == draws && Math.round((float) armorHealth / 5.0F) != draws) {
+                    blit(stack, x, y, 100, 10, 9, 9);
+                } else {
+                    blit(stack, x, y, 90, 10, 9, 9);
+                }
+                armorHealth -= 5;
+            }
+            RenderSystem.disableBlend();
+
+
+            gui.leftHeight += 10;
+            mc.getProfiler().pop();
+        }
+    }
+
+    private static void renderArmorOnHealthBar(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+        if (PVZConfig.renderSeparateArmorBar()) return;
+        if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
+            Player player = getCameraPlayer();
+            if (player == null) return;
+            Minecraft mc = gui.getMinecraft();
+            mc.getProfiler().push("pvz_armor");
+
             int armorHealth = 0;
             for (ItemStack itemStack : player.getArmorSlots()) {
                 if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
@@ -352,7 +417,8 @@ public class PVZOverlayHandler{
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_bar", PVZOverlayHandler::renderSunAsBar);
         ev.registerBelow(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "gatling_overheat", PVZOverlayHandler::renderGatlingOverheat);
         ev.registerAbove(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "card_cost", PVZOverlayHandler::renderCostOfSeeds);
-        ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "player_health", PVZOverlayHandler::renderArmorHealth);
+        ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "pvz_armor_on_health", PVZOverlayHandler::renderArmorOnHealthBar);
+        ev.registerAbove(VanillaGuiOverlay.ARMOR_LEVEL.id(), "pvz_armor_bar", PVZOverlayHandler::renderArmorAsSingleBar);
         ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "butter", PVZOverlayHandler::renderButter);
     }
 

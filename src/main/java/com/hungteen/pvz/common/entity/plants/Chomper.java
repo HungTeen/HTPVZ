@@ -49,6 +49,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.EntityPositionSource;
@@ -215,7 +216,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getPose() != Pose.SWIMMING, 2));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
         this.goalSelector.addGoal(3, new ChomperAttackGoal(this));
-        this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this, (entity)-> EntityUtil.checkCanEntityBeAttack(this, entity) && ! (entity instanceof Slime), 8));
+        this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this, (entity)-> this.getPose() != Pose.SWIMMING && EntityUtil.checkCanEntityBeAttack(this, entity), 8));
     }
     @Override
     protected void defineSynchedData() {
@@ -371,7 +372,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if (level.getBlockState(pos).getBlock() instanceof BushBlock && direction != null) {
+        if ((level.getBlockState(pos).getBlock() instanceof BushBlock || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
@@ -426,7 +427,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
     }
 
     public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_DIRT);
+        return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.UNPLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE);
     }
 
     public boolean shouldHaveCoincideDmg(Level level, Vec3 position) {
@@ -578,8 +579,10 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                     chomper.targetSelector.disableControlFlag(Flag.MOVE);
                     LivingEntity target = chomper.getTarget();
                     if (chomper.animTick >= 11 && chomper.animTick < 14) {
-                        if (EntityUtil.checkCanEntityBeAttack(chomper, target) && ! (target instanceof Slime) && !(target.getVehicle() instanceof Chomper) && chomper.position().distanceTo(target.position()) <= 1.5) {
-                            target.startRiding(chomper);
+                        if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) && chomper.position().distanceTo(target.position()) <= 1.5) {
+                            if (target instanceof Slime /*to prevent vanilla bug*/ || target.getBbWidth() > 2 || ! target.startRiding(chomper)) {
+                                target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper), 2F), 10);
+                            }
                         }
                     } else if (chomper.animTick >= 53 && chomper.animTick < 56) {
                         Entity rider = chomper.getFirstPassenger();
@@ -641,9 +644,15 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                             chomper.animTick = 0;
                         } else if (navigation.isDone()) {
                             navigation.moveTo(navigation.createPath(pos, 0), 1);
+                            if (navigation.getPath() == null) {
+                                chomper.setOriginalPos(this.chomper.blockPosition().below());
+                            }
                         }
                     } else if (navigation.isDone()) {
                         navigation.moveTo(navigation.createPath(target, 0), 1);
+                        if (navigation.getPath() == null) {
+                            chomper.setTarget(null);
+                        }
                     }
                     if (chomper.getAttackTime() == 0 && EntityUtil.isEntityValid(target) && chomper.position().distanceTo(target.position()) <= 1) {
                         chomper.setPose(Pose.USING_TONGUE);

@@ -19,6 +19,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class PeaBullet extends BaseBullet {
+    public int changeCoolDown = 0;
     protected static final EntityDataAccessor<PeaType> TYPE = SynchedEntityData.defineId(PeaBullet.class, OtherRegisters.peaTypeDataSerializer);
 
     public PeaBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
@@ -41,16 +42,23 @@ public class PeaBullet extends BaseBullet {
 //            setSecondsOnFire(1);
 //        }
         //change type
-        if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
-            if (getPeaType() == PeaType.Fire) {
-                setPeaType(PeaType.Common);
+        if (changeCoolDown <= 0) {
+            if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
+                if (getPeaType() == PeaType.Fire) {
+                    setPeaType(PeaType.Common);
+                    this.changeCoolDown = 5;
+                }
+            } else if (isOnFire()) {
+                if (getPeaType() == PeaType.Ice) {
+                    setPeaType(PeaType.Common);
+                    this.changeCoolDown = 5;
+                }
+            } else if (level.getBlockState(this.blockPosition()).is(Blocks.LAVA)) {
+                setPeaType(this.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common : PeaBullet.PeaType.Fire);
+                this.changeCoolDown = 5;
             }
-        } else if (isOnFire()) {
-            if (getPeaType() == PeaType.Ice) {
-                setPeaType(PeaType.Common);
-            }
-        } else if (level.getBlockState(this.blockPosition()).is(Blocks.LAVA)) {
-            setPeaType(PeaType.Fire);
+        } else {
+            changeCoolDown -= 1;
         }
         //particles
         if (level.isClientSide) {

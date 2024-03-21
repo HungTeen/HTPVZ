@@ -228,6 +228,10 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     public Direction getGrowDirection() {
         return null;
     }
+    @Override
+    public BlockPos getRootBlockPos() {
+        return this.getOnPos().above();
+    }
 
     @Override
     public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {

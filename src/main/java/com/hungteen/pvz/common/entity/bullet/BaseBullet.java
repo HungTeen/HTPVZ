@@ -59,19 +59,20 @@ public class BaseBullet extends Projectile {
 			this.onHit(hitresult);
 		}
 		Vec3 vec3 = this.getDeltaMovement();
-		double dx = this.getX() + vec3.x;
-		double dy = this.getY() + vec3.y;
-		double dz = this.getZ() + vec3.z;
+		double dx = vec3.x;
+		double dy = vec3.y;
+		double dz = vec3.z;
 		this.updateRotation();
 		if (! this.isNoGravity()) {
 			dy -= 0.06F;
 		}
 		if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
- 			dx -= 0.15 * dx * dx;
-			dy -= 0.15 * dy * dy;
-			dz -= 0.15 * dz * dz;
+ 			dx -= 0.08 * dx;
+			dy -= 0.08 * dy;
+			dz -= 0.08 * dz;
 		}
-		this.setPos(dx, dy, dz);
+		this.setDeltaMovement(dx, dy, dz);
+		this.setPos(this.getX() + dx, this.getY() + dy, this.getZ() + dz);
 
 		if (this.tickCount > getMaxLiveTick()) {
 			this.discard();

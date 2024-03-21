@@ -122,7 +122,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         }
                     });
                 }
-                int toMax = (int) player.getAttributeValue(PVZAttributes.SUN.get()) - (PVZConfig.PVZGameRules.getBoolean(player.level, "dynamicSunRule") ? 0 : 300);
+                int toMax = (int) player.getAttributeValue(PVZAttributes.SUN.get());
                 int overFlow = nbt.getValue(PVZPlayerCapNBT.SUN) - toMax;
                 while (overFlow > 0) {
                     Sun.spawnSunWithEffects(player.level, 25, player.blockPosition(), 0.3F);
@@ -138,7 +138,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                                     player.blockPosition().getY()) + 6, z);
                     int light = player.level.getBrightness(LightLayer.SKY, pos) - player.level.getSkyDarken();
                     if (light > 9) {
-                        Sun sun = Sun.spawnByAmount(player.level, light >= 12 ? 50 : 25, pos, Vec3.ZERO);
+                        Sun sun = Sun.spawnByAmount(player.level, light > 12 ? 50 : 25, pos, Vec3.ZERO);
                     }
                 }
                 //cool down effects.

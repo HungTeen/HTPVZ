@@ -165,7 +165,10 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     public Direction getGrowDirection() {
         return null;
     }
-
+    @Override
+    public BlockPos getRootBlockPos() {
+        return new BlockPos(this.position());
+    }
     @Override
     public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting && event != null) {

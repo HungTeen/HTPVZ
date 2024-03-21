@@ -27,6 +27,9 @@ public class PVZConfig {
     public static double renderSunBarScale(){
         return Client.renderSunBarScale.get();
     }
+    public static boolean renderSeparateArmorBar(){
+        return Client.renderSeparateArmorBar.get();
+    }
 
     //model settings
     public static boolean renderBulletAsModel(){
@@ -34,6 +37,9 @@ public class PVZConfig {
     }
     public static boolean zombieDropParts(){
         return Client.zombiesDropParts.get();
+    }
+    public static boolean renderButterOnHead(){
+        return Client.renderButterOnHead.get();
     }
 
     public static void init(){
@@ -108,8 +114,10 @@ public class PVZConfig {
         public static ForgeConfigSpec.IntValue renderSunBarX;
         public static ForgeConfigSpec.IntValue renderSunBarY;
         public static ForgeConfigSpec.DoubleValue renderSunBarScale;
+        public static ForgeConfigSpec.BooleanValue renderSeparateArmorBar;
         public static ForgeConfigSpec.BooleanValue renderBulletAsModel;
         public static ForgeConfigSpec.BooleanValue zombiesDropParts;
+        public static ForgeConfigSpec.BooleanValue renderButterOnHead;
 
 
         public Client(ForgeConfigSpec.Builder builder){
@@ -118,7 +126,7 @@ public class PVZConfig {
             renderSunAsNumber = builder
                     .translation("config.pvz.client.render_sun_as_number")
                     .comment("turn on to display sun amount as number, or else display as icons.")
-                    .define("RenderSunAsNumber", false);
+                    .define("renderSunAsNumber", false);
             renderSunBarX = builder
                     .translation("config.pvz.client.render_sun_bar_x")
                     .comment("control x coordinate of displaying the sun amount bar. count from the right if set negative.")
@@ -131,17 +139,25 @@ public class PVZConfig {
                     .translation("config.pvz.client.render_sun_bar_scale")
                     .comment("control scale of displaying the sun amount bar.")
                     .defineInRange("renderSunBarScale", 0.75, 0.1, 10);
+            renderSeparateArmorBar = builder
+                    .translation("config.pvz.client.render_separate_armor_bar")
+                    .comment("turn on to display armor amount on health bar, or else display as a single bar and hide valina armor display.")
+                    .define("renderSeparateArmorBar", true);
             builder.pop();
             builder.comment("Settings about models").push("Model Settings");
             //model settings
             renderBulletAsModel = builder
                     .translation("config.pvz.client.render_bullet_as_model")
                     .comment("turn on to display bullet as 3D model, or else display as item model.")
-                    .define("RenderBulletAsModel", true);
+                    .define("renderBulletAsModel", true);
             zombiesDropParts = builder
                     .translation("config.pvz.client.zombies_drop_parts")
                     .comment("if on, zombies will drop arms and heads when taking damage.")
-                    .define("ZombiesDropParts", true);
+                    .define("zombiesDropParts", true);
+            renderButterOnHead = builder
+                    .translation("config.pvz.client.render_butter_on_head")
+                    .comment("Render butter on heads of entities. This Option can lead to Some rendering bug, especially when the model of the target entity is scaled.")
+                    .define("renderButter", false);
             builder.pop();
         }
     }

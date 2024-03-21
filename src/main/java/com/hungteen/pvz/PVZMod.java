@@ -18,6 +18,7 @@ import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.world.PVZFog;
+import com.hungteen.pvz.common.world.zen_garden.ZenGardenBiomeSource;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenEffects;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
@@ -29,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.scores.PlayerTeam;
@@ -88,9 +90,7 @@ public class PVZMod
 
         PVZBiomes.BIOMES.register(modBus);
         PVZFeatures.FEATURES.register(modBus);
-        if (FMLEnvironment.dist != Dist.DEDICATED_SERVER) {
-            PVZParticles.PARTICLES.register(modBus);
-        }
+        PVZParticles.PARTICLES.register(modBus);
 
         PVZMenus.MENU_TYPES.register(modBus);
 
@@ -116,8 +116,6 @@ public class PVZMod
 
         forgeBus.register(this);
     }
-
-
 
 
 
@@ -219,19 +217,22 @@ public class PVZMod
 
     @SubscribeEvent
     public static void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (ClientProxy.getPlayer() != null){
-            PVZOverlayHandler.tick(ev.renderTickTime);
-        }
-        EssenceAltarRenderer.time += Minecraft.getInstance().isPaused() ? 0 : ev.renderTickTime;
-        if (EssenceAltarRenderer.time > 1500) {
-            EssenceAltarRenderer.time -= 1500;
-        }
-        EssenceAltarScreen.nameRollTime += ev.renderTickTime;
-        if (EssenceAltarScreen.nameRollTime > 400) {
-            EssenceAltarScreen.nameRollTime -= 400;
-        }
-        if (! Minecraft.getInstance().isPaused()) {
-            PVZFog.fogsTick(ev.renderTickTime);
+        float time = 1F / Minecraft.fps > 10 ? 10 : 1F / Minecraft.fps;
+        if (ev.phase == TickEvent.Phase.START) {
+            if (ClientProxy.getPlayer() != null) {
+                PVZOverlayHandler.tick(time);
+            }
+            EssenceAltarRenderer.time += Minecraft.getInstance().isPaused() ? 0 : time;
+            if (EssenceAltarRenderer.time > 200) {
+                EssenceAltarRenderer.time -= 200;
+            }
+            EssenceAltarScreen.nameRollTime += time;
+            if (EssenceAltarScreen.nameRollTime > 10) {
+                EssenceAltarScreen.nameRollTime -= 10;
+            }
+            if (! Minecraft.getInstance().isPaused()) {
+                PVZFog.fogsTick(time);
+            }
         }
     }
 

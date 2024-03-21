@@ -45,6 +45,8 @@ public class MelonPult extends ShooterPlant {
         MelonBullet bullet = new MelonBullet(this.level, this, MelonBullet.MelonType.Common);
         if (this.hasSkill("skill.pvz.melon_pult.glistering_melon")) {
             bullet.setMelonSkill(MelonBullet.MelonSkill.POTION);
+        } else if (this.hasSkill("skill.pvz.melon_pult.gravitational_potential")) {
+            bullet.setMelonSkill(MelonBullet.MelonSkill.GRAVITY);
         }
         return bullet;
     }

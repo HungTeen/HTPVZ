@@ -26,18 +26,23 @@ public class PVZBiomes {
 
     //definitions
 
-    public static Biome biome(Biome.Precipitation precipitation, int skyColor, int fogColor, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable Music music) {
-        return biome(precipitation, skyColor, fogColor, 0x3f76e4, 0x050533, downfall, mobSpawnBuilder, biomeGenBuilder, null, music);
+    public static Biome biome(Biome.Precipitation precipitation, int skyColor, int fogColor, float temperature, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable Music music) {
+        return biome(precipitation, skyColor, fogColor, 0x3f76e4, 0x050533, temperature, downfall, mobSpawnBuilder, biomeGenBuilder, null, music);
     }
 
-    public static Biome biome(Biome.Precipitation precipitation, int skyColor, int fogColor, int waterColor, int waterFogColor, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable AmbientParticleSettings particleSettings, @Nullable Music backgroundMusic) {
-        return (new Biome.BiomeBuilder()).precipitation(precipitation).temperature(skyColor).downfall(downfall)
+    public static Biome biome(Biome.Precipitation precipitation, int skyColor, int fogColor, int waterColor, int waterFogColor, float temperature, float downfall, MobSpawnSettings.Builder mobSpawnBuilder, BiomeGenerationSettings.Builder biomeGenBuilder, @Nullable AmbientParticleSettings particleSettings, @Nullable Music backgroundMusic) {
+        return (new Biome.BiomeBuilder()).precipitation(precipitation).temperature(temperature).downfall(downfall)
                 .specialEffects(
+                        particleSettings != null ?
                         (new BiomeSpecialEffects.Builder())
                         .waterColor(waterColor).waterFogColor(waterFogColor)
                         .fogColor(fogColor).skyColor(skyColor)
                         .ambientParticle(particleSettings)
-                        .backgroundMusic(backgroundMusic).build()
+                        .backgroundMusic(backgroundMusic).build() :
+                                (new BiomeSpecialEffects.Builder())
+                                        .waterColor(waterColor).waterFogColor(waterFogColor)
+                                        .fogColor(fogColor).skyColor(skyColor)
+                                        .backgroundMusic(backgroundMusic).build()
                 )
                 .mobSpawnSettings(mobSpawnBuilder.build())
                 .generationSettings(biomeGenBuilder.build())

@@ -40,6 +40,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
@@ -180,11 +181,8 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if (level.getBlockState(pos).getBlock() instanceof BushBlock) {
+        if ((level.getBlockState(pos).getBlock() instanceof BushBlock || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
-        }
-        if (! (level.getBlockState(pos).getBlock() instanceof IFluidBlock)) {
-            pos = pos.offset(direction.getNormal()).below();
         }
         AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
         if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {

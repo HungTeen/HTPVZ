@@ -6,6 +6,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -79,6 +80,11 @@ public class PVZDamageSource {
             return;
         }
         //handle damageSource decorators.
+        if (ev.getEntity() instanceof EnderDragon) {
+            if (! (ev.getSource().getEntity() instanceof Player) || ! ev.getSource().isExplosion()) {
+                ev.getEntity().hurt(new DamageSource(ev.getSource().msgId).setExplosion(), ev.getAmount() * 0.01F);
+            }
+        }
         if (ev.getSource() == teamFilterSource) {
             if (ev.getSource().getEntity() != null && isTeammate(ev.getSource().getEntity(), ev.getEntity())) {
                 ev.setCanceled(true);

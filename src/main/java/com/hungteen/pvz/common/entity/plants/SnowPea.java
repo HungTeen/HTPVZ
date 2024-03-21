@@ -30,7 +30,7 @@ public class SnowPea extends PeaShooter{
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return SimplePlant.createAttributes()
+        return PeaShooter.createAttributes()
                 .add(Attributes.ATTACK_DAMAGE, 4D);
     }
     @Override

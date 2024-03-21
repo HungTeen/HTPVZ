@@ -132,7 +132,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                     //handle skill name rendering.
                     String skillName = Language.getInstance().getOrDefault(skills.get(i + shownFirstSkill).name);
                     int j = 0;
-                    while (font.width(skillName.substring(j)) > 54 && j < Math.floor((nameRollTime - 80) / 20)) {
+                    while (font.width(skillName.substring(j)) > 54 && j < Math.floor((nameRollTime - 4))) {
                         j ++;
                     }
                     skillName = skillName.substring(j);

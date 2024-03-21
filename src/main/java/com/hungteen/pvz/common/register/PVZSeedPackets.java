@@ -54,7 +54,7 @@ public class PVZSeedPackets {
         add(PVZEntities.VELOCI_RADISH).cost(50).coolDown(FAST).skillList(VelociRadish.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.
-                .recipe(PVZItems.FLOWER_SEED_PACKET).setCreativeOnly();
+                .recipe(PVZItems.FLOWER_SEED_PACKET).noAutoRecipe().setCreativeOnly();
         add(PVZEntities.REPEATER).cost(175).coolDown(FAST).skillList(Repeater.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.JALAPENO).cost(125).coolDown(VERY_SLOW).skillList(Jalapeno.staticSkillList)
@@ -76,7 +76,7 @@ public class PVZSeedPackets {
         add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
         add(PVZEntities.CHOMPER).cost(150).coolDown(MIDDLE).skillList(Chomper.staticSkillList)
-                .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly(); //TODO change cabbage to chomper block.
+                .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly(); //TODO change to chomper block.
         add(PVZEntities.KERNEL_PULT).cost(100).coolDown(SLOW).skillList(KernelPult.staticSkillList)
                 .recipe(PVZItems.CORN, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly();
         add(PVZEntities.GOLD_BLOOM).cost(0).coolDown(VERY_SLOW).skillList(GoldBloom.staticSkillList)
@@ -107,6 +107,7 @@ public class PVZSeedPackets {
 
         //for recipe generator.
         public Map<String, ?> recipe = null;
+        public boolean noAutoRecipe = false;
         public RecipeSeedPacketData(Supplier<EntityType<T>> entitySupplier) {
             super(entitySupplier);
             this.entitySupplier = entitySupplier;
@@ -147,6 +148,10 @@ public class PVZSeedPackets {
             this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
             return this;
         }
+        public RecipeSeedPacketData<T> noAutoRecipe() {
+            noAutoRecipe = true;
+            return this;
+        }
         public RegistryObject<Item> getBackCard() {
             Object packet = recipe.get("packet");
             if (packet instanceof RegistryObject) {
@@ -154,6 +159,5 @@ public class PVZSeedPackets {
             }
             return ((RecipeSeedPacketData) packet).getBackCard();
         }
-
     }
 }

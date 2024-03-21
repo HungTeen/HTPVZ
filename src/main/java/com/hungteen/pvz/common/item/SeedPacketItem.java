@@ -159,14 +159,18 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             return InteractionResultHolder.fail(player.getItemInHand(handIn));
         }
         //planting. not using Item.useOn() for not supporting planting on fluid.
-        BlockHitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
-        BlockHitResult result1 = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-        if (result.getType() != HitResult.Type.MISS || result1.getType() != HitResult.Type.MISS) {
+        BlockHitResult fluidResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
+        BlockHitResult blockResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+        if (fluidResult.getType() != HitResult.Type.MISS || blockResult.getType() != HitResult.Type.MISS) {
             MutableComponent plantResult;
-            if (! player.isInFluidType() && result1.getBlockPos().distSqr(player.blockPosition()) < result.getBlockPos().distSqr(player.blockPosition())) {
-                plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, result.getBlockPos(), null); // in fluid
+            if (! level.getBlockState(player.blockPosition().above()).getFluidState().isEmpty()) {
+                plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, blockResult.getBlockPos(), blockResult.getDirection()); // on ground
             } else {
-                plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, result1.getBlockPos(), result1.getDirection()); // on ground
+                if (blockResult.getBlockPos().distSqr(player.blockPosition()) > fluidResult.getBlockPos().distSqr(player.blockPosition())) {
+                    plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, fluidResult.getBlockPos(), null); // in fluid
+                } else {
+                    plantResult = plantOnBlock(player, player.getItemInHand(handIn), level, blockResult.getBlockPos(), blockResult.getDirection()); // on ground
+                }
             }
             if (plantResult == null) {
                 used(player.getItemInHand(handIn), player);

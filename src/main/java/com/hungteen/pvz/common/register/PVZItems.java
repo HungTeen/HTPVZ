@@ -152,7 +152,7 @@ public class PVZItems {
 
     public static RegistryObject<Item> boat(boolean hasChest, WoodType woodType){
         RegistryObject<Item> itemObj = tag(ItemTags.BOATS).item(woodType.name() + (hasChest ? "_chest_boat" : "_boat"),
-                () -> new PVZBoatItem(hasChest, woodType, (new Item.Properties()).stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+                () -> new PVZBoatItem(hasChest, woodType, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION)));
         boatItemMap.put(Pair.of(woodType, hasChest), itemObj);
         return itemObj;
     }

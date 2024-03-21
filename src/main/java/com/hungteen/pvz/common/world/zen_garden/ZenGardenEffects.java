@@ -1,14 +1,12 @@
 package com.hungteen.pvz.common.world.zen_garden;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class ZenGardenEffects extends DimensionSpecialEffects {
 
     public ZenGardenEffects() {
@@ -25,7 +23,7 @@ public class ZenGardenEffects extends DimensionSpecialEffects {
         return true;
     }
 
-    @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
     public static void register(RegisterDimensionSpecialEffectsEvent ev) {
         ev.register(Util.prefix("zen_garden"), new ZenGardenEffects());
     }

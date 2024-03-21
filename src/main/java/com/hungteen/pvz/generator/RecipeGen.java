@@ -69,23 +69,24 @@ public class RecipeGen extends RecipeProvider {
             }
         });
         //seed packets
-        PVZItems.seedPacketMap.forEach((data, itemObj) -> {
-            if (data instanceof PVZSeedPackets.RecipeSeedPacketData<?> && ((PVZSeedPackets.RecipeSeedPacketData<?>)data).recipe != null) {
-                final Item packet = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet") instanceof RegistryObject<?> ?
-                        ((RegistryObject<Item>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet")).get() :
-                        PVZItems.seedPacketMap.get((RegisterSeedPacketsEvent.SeedPacketData<?>)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("packet")).get();
-                if (((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed") != null) {
+        PVZItems.seedPacketMap.forEach((dat, itemObj) -> {
+            if (dat instanceof PVZSeedPackets.RecipeSeedPacketData<?> data && data.recipe != null) {
+                if (data.noAutoRecipe) return;
+                final Item packet = data.recipe.get("packet") instanceof RegistryObject<?> ?
+                        ((RegistryObject<Item>) data.recipe.get("packet")).get() :
+                        PVZItems.seedPacketMap.get((RegisterSeedPacketsEvent.SeedPacketData<?>)data.recipe.get("packet")).get();
+                if (data.recipe.get("seed") != null) {
                     Item seed;
                     try {
-                        seed = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed") instanceof RegistryObject<?> obj ?
+                        seed = data.recipe.get("seed") instanceof RegistryObject<?> obj ?
                                 ((RegistryObject<Item>) obj).get() :
-                                (Item)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed");
+                                (Item)data.recipe.get("seed");
                     } catch (ClassCastException error) {
-                        seed = ((RegistryObject<Block>) ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("seed")).get().asItem();
+                        seed = ((RegistryObject<Block>) data.recipe.get("seed")).get().asItem();
                     }
-                    Item essence = ((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("essence") instanceof RegistryObject<?> obj ?
+                    Item essence = data.recipe.get("essence") instanceof RegistryObject<?> obj ?
                             ((RegistryObject<Item>) obj).get() :
-                            (Item)((PVZSeedPackets.RecipeSeedPacketData<?>) data).recipe.get("essence");
+                            (Item)data.recipe.get("essence");
                     ShapedRecipeBuilder.shaped(itemObj.get())
                             .pattern("CCC")
                             .pattern("CBC")
@@ -102,7 +103,7 @@ public class RecipeGen extends RecipeProvider {
                             .pattern("BCB")
                             .pattern("BBB")
                             .define('B', PVZItems.seedMap.get(data).get())
-                            .define('C', ((PVZSeedPackets.RecipeSeedPacketData<?>) data).getBackCard().get())
+                            .define('C', data.getBackCard().get())
                             .unlockedBy("has_origin", has(packet))
                             .save(c, prefix("seed_packets/fusion/" + name(itemObj)));
                 }

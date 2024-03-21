@@ -44,6 +44,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -144,7 +145,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if (level.getBlockState(pos).getBlock() instanceof BushBlock && direction != null) {
+        if ((level.getBlockState(pos).getBlock() instanceof BushBlock || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();

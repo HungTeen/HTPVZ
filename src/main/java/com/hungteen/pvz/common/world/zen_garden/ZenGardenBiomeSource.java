@@ -29,6 +29,7 @@ import net.minecraft.world.level.levelgen.placement.*;
 
 import java.util.List;
 import java.util.Random;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,7 +69,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
         mushroom = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_MUSHROOM.getKey());
         river = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_RIVER.getKey());
         island = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_ISLAND.getKey());
-        Random random = new Random(735629912);
+        Random random = new Random(735629912);//TODO change this.
         riverCircle = new Vec3i((random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1),
                 random.nextInt(30) + 100,
                 (random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1));
@@ -128,64 +129,68 @@ public class ZenGardenBiomeSource extends BiomeSource {
         mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.WALL_NUT.get(), 40, 4, 6));
         mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.TALL_NUT.get(), 1, 1, 1));
         mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.VELOCI_RADISH.get(), 80, 5, 8));
-        BiomeGenerationSettings.Builder BiomeGenBuilder = new BiomeGenerationSettings.Builder();
-        addNutTrees(BiomeGenBuilder);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUNFLOWER);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.FLOWER_MEADOW);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_PLAIN);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_ROOTED_AZALEA_TREE);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CLASSIC_VINES);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.GLOW_LICHEN);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.LUSH_CAVES_VEGETATION);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_CLAY);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_DIRT);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
+        BiomeGenerationSettings.Builder biomeGenBuilder = new BiomeGenerationSettings.Builder();
+        addNutTrees(biomeGenBuilder);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUNFLOWER);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.FLOWER_MEADOW);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_PLAIN);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_ROOTED_AZALEA_TREE);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CLASSIC_VINES);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.GLOW_LICHEN);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.LUSH_CAVES_VEGETATION);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_CLAY);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_DIRT);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134, 0.5F,
-                mobSpawnBuilder, BiomeGenBuilder, new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
+        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134,
+                0.8F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
+                new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
     public static Biome gardenMushroom() {
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
         mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.MOOSHROOM, 25, 4, 8));
-        BiomeGenerationSettings.Builder BiomeGenBuilder = new BiomeGenerationSettings.Builder();
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CLASSIC_VINES);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.GLOW_LICHEN);
-        BiomeDefaultFeatures.addMushroomFieldVegetation(BiomeGenBuilder);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, HUGE_MUSHROOMS_GARDEN);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_CLAY);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_DIRT);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
+        BiomeGenerationSettings.Builder biomeGenBuilder = new BiomeGenerationSettings.Builder();
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CLASSIC_VINES);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.GLOW_LICHEN);
+        BiomeDefaultFeatures.addMushroomFieldVegetation(biomeGenBuilder);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, HUGE_MUSHROOMS_GARDEN);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_CLAY);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_DIRT);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x7575df, 0xad7ee6, 0x47bbc5, 0x053134, 0.5F,
-                mobSpawnBuilder, BiomeGenBuilder,  new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
+        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x7575df, 0xad7ee6, 0x47bbc5, 0x053134,
+                0.8F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
+                new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
 
     public static Biome gardenIsland(){
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
-        BiomeGenerationSettings.Builder BiomeGenBuilder = new BiomeGenerationSettings.Builder();
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_ROOTED_AZALEA_TREE);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CLASSIC_VINES);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CAVE_VINES);
-        BiomeDefaultFeatures.addDefaultUndergroundVariety(BiomeGenBuilder);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
+        BiomeGenerationSettings.Builder biomeGenBuilder = new BiomeGenerationSettings.Builder();
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_ROOTED_AZALEA_TREE);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CLASSIC_VINES);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CAVE_VINES);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(biomeGenBuilder);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134, 0.5F,
-                mobSpawnBuilder, BiomeGenBuilder,  new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
+        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134,
+                0.8F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
+                new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
     public static Biome gardenRiver(){
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
-        BiomeGenerationSettings.Builder BiomeGenBuilder = new BiomeGenerationSettings.Builder();
-        BiomeDefaultFeatures.addWaterTrees(BiomeGenBuilder);
-        BiomeDefaultFeatures.addDefaultFlowers(BiomeGenBuilder);
-        BiomeDefaultFeatures.addDefaultGrass(BiomeGenBuilder);
-        BiomeDefaultFeatures.addDefaultExtraVegetation(BiomeGenBuilder);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_WATERLILY);
-        BiomeDefaultFeatures.addDefaultSoftDisks(BiomeGenBuilder);
-        BiomeDefaultFeatures.addDefaultUndergroundVariety(BiomeGenBuilder);
-        BiomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
+        BiomeGenerationSettings.Builder biomeGenBuilder = new BiomeGenerationSettings.Builder();
+        BiomeDefaultFeatures.addWaterTrees(biomeGenBuilder);
+        BiomeDefaultFeatures.addDefaultFlowers(biomeGenBuilder);
+        BiomeDefaultFeatures.addDefaultGrass(biomeGenBuilder);
+        BiomeDefaultFeatures.addDefaultExtraVegetation(biomeGenBuilder);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_WATERLILY);
+        BiomeDefaultFeatures.addDefaultSoftDisks(biomeGenBuilder);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(biomeGenBuilder);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134, 0.5F,
-                mobSpawnBuilder, BiomeGenBuilder,  new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
+        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134,
+                0.8F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
+                new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
 
     public static void addNutTrees(BiomeGenerationSettings.Builder builder) {
