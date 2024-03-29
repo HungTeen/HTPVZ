@@ -12,6 +12,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -41,19 +42,20 @@ public class BlockTagGen extends BlockTagsProvider {
             );
         }
         //others
-        this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT);
-        this.tag(PVZBlockTags.PLANTABLE_BLOCKS).add(
+        this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT, Blocks.SOUL_SAND, Blocks.SOUL_SOIL);
+        this.tag(PVZBlockTags.PLANTABLE_DIRT).add(
                 Blocks.GRASS_BLOCK, Blocks.MYCELIUM, Blocks.PODZOL, Blocks.DIRT_PATH,
                 Blocks.CRIMSON_NYLIUM, Blocks.WARPED_NYLIUM,
                 Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET, PVZBlocks.CARP_GRASS.get(),
                 Blocks.SCULK, Blocks.SCULK_CATALYST,
                 Blocks.LILY_PAD
         );
-        this.tag(PVZBlockTags.PLANTABLE_WATER).add(
-                Blocks.WATER
-        );
-        this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTag(BlockTags.MOSS_REPLACEABLE)
-                .addTag(BlockTags.REPLACEABLE_PLANTS).addTag(BlockTags.LEAVES);
+        this.tag(PVZBlockTags.PLANTABLE_STONE).addTags(
+                Tags.Blocks.STONE, Tags.Blocks.NETHERRACK, BlockTags.TERRACOTTA, Tags.Blocks.COBBLESTONE,
+                Tags.Blocks.SANDSTONE, Tags.Blocks.SAND, Tags.Blocks.GRAVEL)
+                .add(Blocks.BLACKSTONE, Blocks.PRISMARINE, Blocks.DRIPSTONE_BLOCK);
+        this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTags(BlockTags.MOSS_REPLACEABLE, BlockTags.REPLACEABLE_PLANTS, BlockTags.LEAVES);
+        this.tag(PVZBlockTags.SCULK).add(Blocks.SCULK, Blocks.SCULK_CATALYST, Blocks.SCULK_VEIN, Blocks.SCULK_SENSOR, Blocks.SCULK_SHRIEKER);
     }
 
     public static final List<TagKey<Block>> LOGS = new ArrayList<>();

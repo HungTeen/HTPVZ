@@ -38,9 +38,9 @@ public class FloatEssenceBlockModel extends Model {
 	}
 
 	public void setupAnim(float time) {
-		this.total.xRot = time * Mth.PI / 100F;
-		this.total.yRot = time * Mth.PI / 120F;
-		this.total.zRot = time * Mth.PI / 150F;
+		this.total.xRot = time * Mth.PI / 5F;
+		this.total.yRot = time * Mth.PI / 6F;
+		this.total.zRot = time * Mth.PI / 8F;
 	}
 
 	@Override

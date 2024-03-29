@@ -1,0 +1,6 @@
+{
+    "parent": "pvz:item/seed_crossbow",
+    "textures": {
+        "layer0": "pvz:item/seed_crossbow_pulling_0"
+    }
+}

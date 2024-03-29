@@ -9,14 +9,17 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.UUID;
 
 public class PeaShooter extends ShooterPlant {
-
+    protected static final UUID KNOCKBACK_MODIFIER_UUID = UUID.fromString("fa192025-b0e7-65ef-9bc3-546a895a193d");
+    protected boolean skillBoosted = false;
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 4, 150, 0),
@@ -39,13 +42,17 @@ public class PeaShooter extends ShooterPlant {
 
     @Override
     protected PeaBullet createBullet() {
-        PeaBullet bullet = new PeaBullet(this.level, this, PeaBullet.PeaType.Common);
-        if (hasSkill(this, "skill.pvz.pea_shooter.punch")) {
-            bullet.setKnockBackStrength(1F);
-        } else if (hasSkill(this, "skill.pvz.pea_shooter.fire_shooter")) {
-            bullet.setPeaType(PeaBullet.PeaType.Fire);
-        }
+        PeaBullet bullet = new PeaBullet(this.level, this,
+                hasSkill("skill.pvz.pea_shooter.fire_shooter") ? PeaBullet.PeaType.Fire : PeaBullet.PeaType.Common);
         return bullet;
+    }
+    @Override
+    public void baseTick() {
+        if (!skillBoosted && this.hasSkill("skill.pvz.pea_shooter.punch")) {
+            skillBoosted = true;
+            this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(KNOCKBACK_MODIFIER_UUID, "skill bonus", 1, AttributeModifier.Operation.ADDITION));
+        }
+        super.baseTick();
     }
 
     public float getAttackDamage() {

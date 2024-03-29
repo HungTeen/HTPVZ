@@ -4,6 +4,7 @@ import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.phys.AABB;
 
@@ -17,14 +18,19 @@ import java.util.function.Predicate;
 public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingEntity> {
 
     protected final Predicate<Entity> predicate;
+    protected double range;
     protected List<Entity> targetCandidates = new ArrayList<>();
 
-    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate) {
+    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, double range) {
         super(mobIn, LivingEntity.class, true);
         this.predicate = predicate;
+        this.range = range;
     }
     public DisperseEnemyTargetGoal(Mob mobIn) {
-        this(mobIn, (entity)-> EntityUtil.checkCanEntityBeAttack(mobIn, entity));
+        this(mobIn, (entity)-> EntityUtil.checkCanEntityBeAttack(mobIn, entity), -1);
+    }
+    protected double getFollowDistance() {
+        return range < 0 ? this.mob.getAttributeValue(Attributes.FOLLOW_RANGE) : range;
     }
 
     @Override
@@ -38,15 +44,9 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
         return flag;
     }
 
-    @Override
-    protected AABB getTargetSearchArea(double distance) {
-//        return super.getTargetSearchArea(distance);
-        AABB box = this.mob.getBoundingBox()
-                .move(this.mob.getLookAngle().normalize().multiply(distance / 2.5, distance / 2.5, distance / 2.5))
-                .inflate(distance / 2, 4.0D, distance / 2);
-        return box;
+    protected AABB getTargetSearchArea(double p_26069_) {
+        return this.mob.getBoundingBox().inflate(p_26069_, 12.0D, p_26069_);
     }
-
     @Override
     protected void findTarget() {
         //from candidates

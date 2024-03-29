@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.capability.owned;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -30,7 +30,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public String resource = "";
     public int cost = 0;
     private Entity owner = null;
-    private UUID ownerUuid = null;
+    public UUID ownerUuid = null;
     private final ServerScoreboard scoreboard;
     public static short tickCount = 0;
 
@@ -43,33 +43,41 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     public static void tick(TickEvent.ServerTickEvent ev) {
         if (++ tickCount > 10) {
             tickCount = 0;
-            ev.getServer().getAllLevels().forEach((level -> level.getAllEntities().forEach((entity1 -> entity1.getCapability(CAP).ifPresent((cap) -> {
-                if (! EntityUtil.isEntityValid(cap.owner)) {//TODO will this lag?
-                    Entity entity = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
-                    if (entity != null) {
-                        cap.setOwner(entity);
+            ev.getServer().getAllLevels().forEach((level -> level.getAllEntities().forEach((entity1 -> {
+                entity1.getCapability(CAP).ifPresent((cap) -> {
+                    //owner
+                    if (! EntityUtil.isEntityValid(cap.owner)) {//TODO will this lag?
+                        Entity entity = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
+                        if (entity != null) {
+                            cap.setOwner(entity);
+                        }
                     }
-                }
-                String name = cap.entity.getScoreboardName();
-                if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
-                    cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
-                }
-                if (cap.owner != null) {
-                    if (!cap.owner.isAlive()) {
-                        cap.setOwner(null);
-                    } else if (cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()) != cap.scoreboard.getPlayersTeam(name)) {
-                        cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName()));
+                    String name = cap.entity.getScoreboardName();
+                    if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
+                        cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
                     }
-                }
-            })))));
+                    if (cap.owner != null) {
+                        if (!cap.owner.isAlive()) {
+                            cap.setOwner(null);
+                        } else {
+                            PlayerTeam team = cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName());
+                            if (team != null && team != cap.scoreboard.getPlayersTeam(name)) {
+                                cap.scoreboard.addPlayerToTeam(name, team);
+                            }
+                        }
+                    }
+                });
+            }))));
         }
     }
 
     public void setOwner(Entity entity) {
         this.owner = entity;
         if (entity == null) {
+            this.ownerUuid = null;
             scoreboard.removePlayerFromTeam(this.entity.getScoreboardName());
         } else {
+            this.ownerUuid = entity.getUUID();
             Scoreboard scoreboard = this.entity.getServer().getScoreboard();
             PlayerTeam team = scoreboard.getPlayersTeam(entity.getScoreboardName());
             if (team != null) {
@@ -79,10 +87,12 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
     }
 
     public Entity getOwner() {
+        this.owner = owner == null ? ((ServerLevel) (entity.level)).getEntity(ownerUuid) : owner;
         return owner;
     }
 
     public static boolean isTeammate(Entity A, Entity B) {
+        if (A == null || B == null) return false;
         Team teamA = A.getTeam();
         Team teamB = B.getTeam();
 
@@ -93,7 +103,7 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
             playerTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
             enemyTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.ENEMY_TEAM));
         });
-        boolean teamBattle = PVZRulesCapability.get().booleanMap.get("teamBattle");
+        boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, "teamBattle");
 
         if (teamA == teamB) {
             return teamA != null || (A instanceof Enemy == B instanceof Enemy);
@@ -107,12 +117,12 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
         if (teamA == enemyTeam.get() || teamB == enemyTeam.get()) {
             return false;
         }
-        return teamBattle;
+        return ! teamBattle;
     }
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return LazyOptional.of(() -> this).cast();
+        return cap == CAP ? LazyOptional.of(() -> (T) this) : LazyOptional.empty();
     }
 
     @Override

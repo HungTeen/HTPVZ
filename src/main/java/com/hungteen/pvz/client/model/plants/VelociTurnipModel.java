@@ -4,7 +4,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 
 
 import com.hungteen.pvz.client.model.plants.animation.VelociTurnipAnimation;
-import com.hungteen.pvz.common.entity.plants.VelociTurnip;
+import com.hungteen.pvz.common.entity.plants.VelociRadish;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HierarchicalModel;
@@ -12,7 +12,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 
-public class VelociTurnipModel<T extends VelociTurnip> extends HierarchicalModel<T> {
+public class VelociTurnipModel<T extends VelociRadish> extends HierarchicalModel<T> {
 	private final ModelPart total;
 	private final ModelPart root;
 

@@ -27,7 +27,6 @@ public class EssenceFurnaceRecipe implements Recipe<Container> {
     public final boolean isEssence;
     public final short needTime;
 
-    //TODO allow custom essence position item and custom time.
     public EssenceFurnaceRecipe(ResourceLocation location, Ingredient ingredient, Ingredient fuel, ItemStack result, short needTime, String group, boolean costIngredient, boolean costFuel, boolean isEssence) {
         this.id = location;
         this.ingredient = ingredient;

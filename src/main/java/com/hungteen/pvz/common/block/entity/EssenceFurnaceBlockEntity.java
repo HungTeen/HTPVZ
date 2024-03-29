@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.block.entity;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.block.EssenceFurnaceBlock;
 import com.hungteen.pvz.common.menu.EssenceFurnaceRecipe;
 import com.hungteen.pvz.common.register.PVZBlockEntities;

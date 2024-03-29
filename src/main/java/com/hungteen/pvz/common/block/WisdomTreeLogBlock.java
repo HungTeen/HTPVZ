@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.block;
 
-import com.hungteen.pvz.common.capability.pvzRules.PVZRulesCapability;
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.BlockPos;
@@ -121,7 +121,7 @@ public class WisdomTreeLogBlock extends RotatedPillarBlock {
         if (level.getBlockState(pos).getValue(PERSISTENT)) {
             return;
         }
-        if (PVZRulesCapability.getBoolean("killWisdomTree")) {
+        if (PVZConfig.PVZGameRules.getBoolean(level, "killWisdomTree")) {
             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
             return;
         }

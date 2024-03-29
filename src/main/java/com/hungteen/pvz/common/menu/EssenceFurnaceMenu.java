@@ -58,28 +58,29 @@ public class EssenceFurnaceMenu extends RecipeBookMenu<Container>{
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int num) {
+    public ItemStack quickMoveStack(Player player, int slotId) {
         ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = this.slots.get(num);
+        Slot slot = this.slots.get(slotId);
         if (slot.hasItem()) {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
-            if (num == 2) {
+            if (slotId == 2) {
                 if (!this.moveItemStackTo(itemstack1, 3, 39, true)) {
                     return ItemStack.EMPTY;
                 }
-
                 slot.onQuickCraft(itemstack1, itemstack);
-            } else if (num != 1 && num != 0) {
-                    if (num >= 3 && num < 30) {
-                    if (!this.moveItemStackTo(itemstack1, 30, 39, false)) {
+            } else if (slotId > 2) {
+                if (!this.moveItemStackTo(itemstack1, 0, 2, false)) {
+                    if (slotId < 30) {
+                        if (!this.moveItemStackTo(itemstack1, 30, 39, false)) {
+                            return ItemStack.EMPTY;
+                        }
+                    } else if (slotId < 39 && !this.moveItemStackTo(itemstack1, 3, 30, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (num >= 30 && num < 39 && !this.moveItemStackTo(itemstack1, 3, 30, false)) {
-                    return ItemStack.EMPTY;
                 }
             } else if (!this.moveItemStackTo(itemstack1, 3, 39, false)) {
-                return ItemStack.EMPTY;
+            return ItemStack.EMPTY;
             }
 
             if (itemstack1.isEmpty()) {

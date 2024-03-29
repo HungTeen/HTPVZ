@@ -2,7 +2,9 @@ package com.hungteen.pvz.api.interfaces;
 
 import com.hungteen.pvz.api.Skill;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public interface IHaveSkills {
     /**
@@ -16,10 +18,19 @@ public interface IHaveSkills {
     }
 
     int getSkillVal(Object obj/*to support items*/);
+    default int getSkillVal() {
+        return getSkillVal(this);
+    }
     void setSkillVal(Object obj,int value);
+    default void setSkillVal(int value) {
+        setSkillVal(this, value);
+    }
 
     default boolean hasSkill(Object obj, int id) {
         return (1 << id & getSkillVal(obj)) == 1 << id;
+    }
+    default boolean hasSkill(int id) {
+        return hasSkill(this, id);
     }
 
     default boolean hasSkill(Object obj, String name) {
@@ -35,6 +46,9 @@ public interface IHaveSkills {
             return false;
         }
         return hasSkill(obj, id);
+    }
+    default boolean hasSkill(String name) {
+        return hasSkill(this, name);
     }
 
     default Set<Integer> getSkills(Object obj) {

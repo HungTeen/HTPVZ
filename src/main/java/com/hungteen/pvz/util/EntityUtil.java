@@ -1,19 +1,15 @@
 package com.hungteen.pvz.util;
 
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
-import java.util.Comparator;
 import java.util.Random;
 
 public class EntityUtil {
@@ -34,7 +30,7 @@ public class EntityUtil {
         if (attacker == null || target == null) {//prevent crash
             return false;
         }
-        if (target instanceof Player && ! isSurvivalPlayer(target) || !isEntityValid(target)) {
+        if ((target instanceof Player && ! isSurvivalPlayer(target)) || !isEntityValid(target)) {
             return false;
         }
         if (PVZOwnedCapability.isTeammate(attacker, target)) {//enable team attack
@@ -60,5 +56,4 @@ public class EntityUtil {
     public static boolean isEntityPeace(LivingEntity entity, int cd) {
         return entity.getLastHurtByMobTimestamp() < entity.tickCount - cd || entity.getLastHurtByMob() == null;
     }
-
 }

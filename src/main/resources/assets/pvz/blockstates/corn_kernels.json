@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "pvz:block/maize_0"
+    },
+    "age=1": {
+      "model": "pvz:block/maize_0"
+    },
+    "age=2": {
+      "model": "pvz:block/maize_1"
+    },
+    "age=3": {
+      "model": "pvz:block/maize_1"
+    },
+    "age=4": {
+      "model": "pvz:block/maize_2"
+    },
+    "age=5": {
+      "model": "pvz:block/maize_2"
+    },
+    "age=6": {
+      "model": "pvz:block/maize_2"
+    },
+    "age=7": {
+      "model": "pvz:block/maize_3"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 package com.hungteen.pvz;
 
+import com.hungteen.pvz.client.PVZClientEventHandler;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.gui.components.ClientSunImageToolTipComponent;
 import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
@@ -10,14 +11,14 @@ import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.OwnCommand;
 import com.hungteen.pvz.common.command.PVZFogCommand;
-import com.hungteen.pvz.common.command.PVZRulesCommand;
 import com.hungteen.pvz.common.command.PlayerStatsCommand;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
-import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.world.PVZFog;
+import com.hungteen.pvz.common.world.zen_garden.ZenGardenBiomeSource;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenEffects;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
@@ -29,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.scores.PlayerTeam;
@@ -39,6 +41,7 @@ import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -46,14 +49,12 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(PVZMod.MODID)
 public class PVZMod
 {
@@ -75,6 +76,9 @@ public class PVZMod
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addSummonRules);
         modBus.addListener(EventPriority.NORMAL, CapabilityHandler::registerCapabilities);
         PVZMobEffects.EFFECTS.register(modBus);
+        PVZMobEffects.POTIONS.register(modBus);
+        PVZAttributes.ATTRIBUTE.register(modBus);
+        modBus.addListener(PVZAttributes::addAttributes);
 
         PVZBiomeModifier.BIOME_MODIFIER.register(modBus);
 
@@ -92,11 +96,13 @@ public class PVZMod
 
         OtherRegisters.modBusRegister(modBus);
         modBus.addListener(EventPriority.NORMAL, OtherRegisters::essenceFurnaceRecipeBookRegister);
+        modBus.addListener(PVZConfig.PVZGameRules::init);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modBus.addListener(PVZOverlayHandler::registerOverlay);
             modBus.addListener(ClientSunImageToolTipComponent::register);
             modBus.addListener(ZenGardenEffects::register);
+            modBus.addListener(PVZClientEventHandler::addLayers);
         }
 
 
@@ -110,8 +116,6 @@ public class PVZMod
 
         forgeBus.register(this);
     }
-
-
 
 
 
@@ -168,6 +172,7 @@ public class PVZMod
                 //registerScreens
                 PVZMenus.registerScreens();
             });
+            PVZItems.registerProperties();
 
             //clear variables
             PVZParticles.particleMap.clear();
@@ -212,19 +217,22 @@ public class PVZMod
 
     @SubscribeEvent
     public static void onRenderTick(TickEvent.RenderTickEvent ev) {
-        if (ClientProxy.getPlayer() != null){
-            PVZOverlayHandler.tick(ev.renderTickTime);
-        }
-        EssenceAltarRenderer.time += Minecraft.getInstance().isPaused() ? 0 : ev.renderTickTime;
-        if (EssenceAltarRenderer.time > 1500) {
-            EssenceAltarRenderer.time -= 1500;
-        }
-        EssenceAltarScreen.nameRollTime += ev.renderTickTime;
-        if (EssenceAltarScreen.nameRollTime > 400) {
-            EssenceAltarScreen.nameRollTime -= 400;
-        }
-        if (! Minecraft.getInstance().isPaused()) {
-            PVZFog.fogsTick(ev.renderTickTime);
+        float time = 1F / Minecraft.fps > 10 ? 10 : 1F / Minecraft.fps;
+        if (ev.phase == TickEvent.Phase.START) {
+            if (ClientProxy.getPlayer() != null) {
+                PVZOverlayHandler.tick(time);
+            }
+            EssenceAltarRenderer.time += Minecraft.getInstance().isPaused() ? 0 : time;
+            if (EssenceAltarRenderer.time > 200) {
+                EssenceAltarRenderer.time -= 200;
+            }
+            EssenceAltarScreen.nameRollTime += time;
+            if (EssenceAltarScreen.nameRollTime > 10) {
+                EssenceAltarScreen.nameRollTime -= 10;
+            }
+            if (! Minecraft.getInstance().isPaused()) {
+                PVZFog.fogsTick(time);
+            }
         }
     }
 
@@ -233,7 +241,6 @@ public class PVZMod
         CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);
-        PVZRulesCommand.register(dispatcher);
         PVZFogCommand.register(dispatcher);
     }
 }

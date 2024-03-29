@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.hungteen.pvz.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "pvz.refmap.json",
+  "mixins": [
+  ],
+  "server": [
+    "SlimeAttackGoalMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

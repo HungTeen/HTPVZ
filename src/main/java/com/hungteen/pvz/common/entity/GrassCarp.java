@@ -21,7 +21,9 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -37,7 +39,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.IForgeShearable;
-import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -211,6 +212,8 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     }
 
     protected boolean checkBlock(BlockPos pos) {
+        if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.level, this)) return false;
+
         if (!this.level.getFluidState(pos.above()).isEmpty()) {
             return false;
         } else if (this.level.getBlockState(pos.above()).is(PVZBlocks.CARP_GRASS.get()) && this.level.getBlockState(pos.above()).getValue(BlockStateProperties.AGE_3) != 0) {
@@ -220,7 +223,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
             if (this.level.getBlockState(pos).is(PVZBlockTags.UNPLANTABLE_DIRT)) {
                 this.level.setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), 3);
                 return true;
-            } else if (this.level.getBlockState(pos).is(Tags.Blocks.STONE)) {
+            } else if (this.level.getBlockState(pos).is(PVZBlockTags.PLANTABLE_STONE)) {
                 this.level.setBlock(pos.above(), PVZBlocks.CARP_GRASS.get().defaultBlockState(), 3);
                 return true;
             }
@@ -318,10 +321,10 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     }
 
 
-    //TODO sounds has not changed.
     //sounds
     @Override
     public SoundEvent getPickupSound() {
+        //TODO sounds has not changed.
         return SoundEvents.BUCKET_FILL_AXOLOTL;
     }
 

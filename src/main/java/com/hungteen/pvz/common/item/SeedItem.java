@@ -34,7 +34,8 @@ public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
         return false;
     }
 
-    protected void used(ItemStack itemstack, Player player, InteractionHand hand) {
+    @Override
+    protected void used(ItemStack itemstack, Player player) {
         player.awardStat(Stats.ITEM_USED.get(itemstack.getItem()));
         if (!player.getAbilities().instabuild) {
             itemstack.shrink(1);

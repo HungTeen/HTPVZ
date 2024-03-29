@@ -2,7 +2,7 @@
   "type": "pvz:essence_furnace",
   "is_essence": true,
   "ingredient": {
-    "item": "minecraft:blue_ice"
+    "item": "minecraft:snowball"
   },
   "fuel": {
     "item": "pvz:origin_essence"

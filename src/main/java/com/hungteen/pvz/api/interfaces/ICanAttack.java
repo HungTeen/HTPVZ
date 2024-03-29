@@ -1,20 +1,16 @@
 package com.hungteen.pvz.api.interfaces;
 
-import com.hungteen.pvz.api.Skill;
-
-import java.util.List;
-
 public interface ICanAttack {
-    int getAttackTime(Object obj/*to support items*/);
-    void setAttackTime(Object obj,int value);
+    int getAttackTime();
+    void setAttackTime(int value);
 
-    default boolean canAttack(Object obj, boolean enable) {
+    default boolean canAttack(boolean enable) {
         return (enable);
     }
 
-    default int addAttackTime(Object obj, int id) {
-        int result = getAttackTime(obj);
-        if(canAttack(obj,true))  result = getAttackTime(obj)+id;
+    default int addAttackTime(int id) {
+        int result = getAttackTime();
+        if(canAttack(true))  result = getAttackTime()+id;
         return result;
     }
 

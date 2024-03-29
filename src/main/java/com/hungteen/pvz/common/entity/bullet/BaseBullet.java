@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import com.hungteen.pvz.common.world.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -9,13 +9,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,11 +26,6 @@ public class BaseBullet extends Projectile {
 	protected float size = 1F;// need sync?
 	protected float knockBackStrengh = 0F;
 	protected String damageName = "pvz_bullet";
-
-	public BaseBullet(EntityType<? extends Projectile> type, Level worldIn, PVZOwnedCapability cap) {
-		super(type, worldIn);
-		this.setNoGravity(true);
-	}
 
 	public BaseBullet(EntityType<? extends Projectile> type, Level worldIn, LivingEntity shooter) {
 		super(type, worldIn);
@@ -65,19 +59,17 @@ public class BaseBullet extends Projectile {
 			this.onHit(hitresult);
 		}
 		Vec3 vec3 = this.getDeltaMovement();
-		double dx = this.getX() + vec3.x;
-		double dy = this.getY() + vec3.y;
-		double dz = this.getZ() + vec3.z;
+		double dx = vec3.x;
+		double dy = vec3.y;
+		double dz = vec3.z;
 		this.updateRotation();
-		if (! this.isNoGravity()) {
-			dy -= 0.06F;
+		if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
+ 			dx -= 0.08 * dx;
+			dy -= 0.08 * dy;
+			dz -= 0.08 * dz;
 		}
-		if (this.isInWaterOrBubble()) {
-			dx -= 0.15 * dx * dx;
-			dy -= 0.15 * dy * dy;
-			dz -= 0.15 * dz * dz;
-		}
-		this.setPos(dx, dy, dz);
+		this.setDeltaMovement(dx, dy, dz);
+		this.setPos(this.getX() + dx, this.getY() + dy, this.getZ() + dz);
 
 		if (this.tickCount > getMaxLiveTick()) {
 			this.discard();
@@ -107,16 +99,17 @@ public class BaseBullet extends Projectile {
 	protected void onHit(HitResult result) {
 		super.onHit(result);
 		HitResult.Type type = result.getType();
-		if (type != HitResult.Type.MISS) { //TODO what for?
+		if (type != HitResult.Type.MISS) {
 			this.gameEvent(GameEvent.PROJECTILE_LAND, this.getOwner());
 		}
 	}
 	@Override
 	protected void onHitEntity(EntityHitResult result) {
-		if (!this.level.isClientSide()) {
+		if (!this.level.isClientSide() && result.getEntity() instanceof LivingEntity) {
 			this.dealDamageTo(result.getEntity());
 		}
 	}
+	@Override
 	protected void onHitBlock(BlockHitResult result) {
 		super.onHitBlock(result);
 		this.discard();
@@ -131,7 +124,7 @@ public class BaseBullet extends Projectile {
 	}
 
 	protected int getMaxLiveTick() {
-		return 50;
+		return 80;
 	}
 	public float getKnockBackStrength() {
 		return knockBackStrengh;
@@ -142,8 +135,6 @@ public class BaseBullet extends Projectile {
 	public String getDamageName() {
 		return damageName;
 	}
-
-	//use this in registry.
 	public BaseBullet setDamageName(String name) {
 		this.damageName = name;
 		return this;

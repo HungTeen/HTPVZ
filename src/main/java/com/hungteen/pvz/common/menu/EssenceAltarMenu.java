@@ -70,17 +70,17 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
         if (slot.hasItem()) {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
-            if (slotId < 4) {
-                if (!this.moveItemStackTo(itemstack1, 4, this.slots.size(), true)) {
+            if (slotId < 3) {
+                if (!this.moveItemStackTo(itemstack1, 3, 3 + 27, false) && !this.moveItemStackTo(itemstack1, 3 + 27, this.slots.size(), false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if(slotId < 4 + 27){
-                if (!this.moveItemStackTo(itemstack1, 0, 4, true) && !this.moveItemStackTo(itemstack1, 4 + 27, this.slots.size(), true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else {
-                if (!this.moveItemStackTo(itemstack1, 0, 4 + 27, true)) {
-                    return ItemStack.EMPTY;
+            } else if (slotId < 3 + 36) {
+                if (! this.moveItemStackTo(itemstack1, 0, 1, false) && !this.moveItemStackTo(itemstack1, 2, 3, false) && !this.moveItemStackTo(itemstack1, 1, 2, false)) {
+                    if (slotId < 3 + 27 && ! this.moveItemStackTo(itemstack1, 3 + 27, this.slots.size(), false)) {
+                        return ItemStack.EMPTY;
+                    } else if (!this.moveItemStackTo(itemstack1, 3, 3 + 27, false)) {
+                        return ItemStack.EMPTY;
+                    }
                 }
             }
 

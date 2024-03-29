@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#minecraft:has_closer_water_fog",
+  "features": "pvz:plantern",
+  "step": "vegetal_decoration"
+}

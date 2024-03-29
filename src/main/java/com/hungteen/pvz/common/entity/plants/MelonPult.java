@@ -1,0 +1,89 @@
+package com.hungteen.pvz.common.entity.plants;
+
+import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.bullet.ButterBullet;
+import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
+import com.hungteen.pvz.common.entity.bullet.MelonBullet;
+import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.register.PVZItems;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.level.Level;
+
+import java.util.List;
+import java.util.Set;
+
+public class MelonPult extends ShooterPlant {
+
+    protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
+    public static List<Skill> staticSkillList = List.of(
+            new Skill("skill.pvz.melon_pult.glistering_melon", PVZItems.AQUA_ESSENCE, 8, 4, 100, 0),
+            new Skill("skill.pvz.melon_pult.gravitational_potential", PVZItems.TERRA_ESSENCE, 8, 8, 100, 0).avoidSkills(0)
+    );
+
+    public MelonPult(EntityType<? extends Mob> type, Level worldIn) {
+        super(type, worldIn);
+    }
+    @Override
+    public List<Skill> getStaticSkillList(){
+        return staticSkillList;
+    }
+
+    @Override
+    public void shootBullet() {
+        this.performShoot(SHOOT_OFFSET, 0, 0, true, 0);
+    }
+    @Override
+    public double getMaxShootAngleTangent() {
+        return Double.POSITIVE_INFINITY;
+    }
+
+    @Override
+    protected MelonBullet createBullet() {
+        MelonBullet bullet = new MelonBullet(this.level, this, MelonBullet.MelonType.Common);
+        if (this.hasSkill("skill.pvz.melon_pult.glistering_melon")) {
+            bullet.setMelonSkill(MelonBullet.MelonSkill.POTION);
+        } else if (this.hasSkill("skill.pvz.melon_pult.gravitational_potential")) {
+            bullet.setMelonSkill(MelonBullet.MelonSkill.GRAVITY);
+        }
+        return bullet;
+    }
+
+    @Override
+    public float getAttackDamage() {
+        return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+    }
+    @Override
+    public Set<Integer> shootTimes() {
+        return Set.of(15);
+    }
+    @Override
+    public int getShootCD() {
+        return 50;
+    }
+    @Override
+    public int shootAnimLength() {
+        return 20;
+    }
+    @Override
+    public float getBulletSpeed() {
+        Entity target = this.getTarget();
+        if (target != null) {
+            double distance = target.distanceTo(this);
+            return (float) (Math.max(0.5 * distance / 12, 0.05));
+        }
+        return 0.5F;
+    }
+
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return SimplePlant.createAttributes()
+                .add(Attributes.MAX_HEALTH, 8D)
+                .add(Attributes.FOLLOW_RANGE, 24D)
+                .add(Attributes.ATTACK_DAMAGE, 10D)
+                .add(Attributes.ATTACK_KNOCKBACK, 0D);
+    }
+
+}

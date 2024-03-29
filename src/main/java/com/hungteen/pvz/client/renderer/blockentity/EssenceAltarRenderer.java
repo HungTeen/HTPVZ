@@ -31,7 +31,7 @@ public class EssenceAltarRenderer implements BlockEntityRenderer<EssenceAltarBlo
         BlockPos pos =  blockEntity.getBlockPos();
         int fakeRandom = (pos.getX() % 53 * (pos.getX() + 1)) % 13 + (pos.getY() % 57 * (pos.getY() + 1)) % 17 + (pos.getZ() % 59 * (pos.getZ() + 1)) % 19;
         stack.scale(size, size, size);
-        stack.translate(- 0.5 / size, - 2.3D - 0.15 * Math.sin(time * 0.02 * Mth.PI + fakeRandom), 0.5 / size);
+        stack.translate(- 0.5 / size, - 2.3D - 0.15 * Math.sin(time * 0.4 * Mth.PI + fakeRandom), 0.5 / size);
         VertexConsumer builder = bufferSource.getBuffer(RenderType.entityTranslucentCull(RES));
         model.renderToBuffer(stack, builder, combinedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1 ,1);
         model.setupAnim(time + fakeRandom % 61 * (fakeRandom + 1));

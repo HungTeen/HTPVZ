@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 100,
+  "experience": 0.5,
+  "group": "iron_ingot",
+  "ingredient": {
+    "item": "pvz:corn_kernels"
+  },
+  "result": "pvz:popcorn"
+}

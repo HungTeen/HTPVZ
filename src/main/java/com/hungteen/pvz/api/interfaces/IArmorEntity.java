@@ -6,7 +6,7 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
 /**If this entity it rides is attacked, IArmorEntity passes the damage to itself.<br>
  * Used for armor entities like Pumpkin.<br>
- * About how this work, see {@link com.hungteen.pvz.common.world.PVZDamageSource#handleAttack(LivingAttackEvent)}.*/
+ * About how this work, see {@link PVZDamageSource#handleAttack(LivingAttackEvent)}.*/
 public interface IArmorEntity {
     default boolean canRecieveDamage(DamageSource source, double amount, Entity target) {
         return ! source.isBypassArmor();

@@ -25,6 +25,7 @@ public class PVZPacketHandler {
         CHANNEL.registerMessage(id ++, PlayerCoolDownPacket.class, PlayerCoolDownPacket::toBytes, PlayerCoolDownPacket::new, PlayerCoolDownPacket::handle);
         //CLIENT TO SERVER.
         CHANNEL.registerMessage(id ++, PVZAddSkillPacket.class, PVZAddSkillPacket::toBytes, PVZAddSkillPacket::new, PVZAddSkillPacket::handle);
+        CHANNEL.registerMessage(id ++, PVZEntityInteractPacket.class, PVZEntityInteractPacket::toBytes, PVZEntityInteractPacket::new, PVZEntityInteractPacket::handle);
         //BETWEEN SIDES
         CHANNEL.registerMessage(id ++, PVZFogPacket.class, PVZFogPacket::toBytes, PVZFogPacket::new, PVZFogPacket::handle);
     }

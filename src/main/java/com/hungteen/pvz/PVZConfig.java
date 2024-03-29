@@ -1,76 +1,19 @@
 package com.hungteen.pvz;
 
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.*;
+
 public class PVZConfig {
-//    private static Common COMMON_CONFIG;
+    private static Common COMMON_CONFIG;
     private static Client CLIENT_CONFIG;
 
-    public static void init(){
-//        {
-//            final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
-//            ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, specPair.getRight());
-//            PVZConfig.COMMON_CONFIG = specPair.getLeft();
-//        }
-        {
-            final Pair<PVZConfig.Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
-            ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, specPair.getRight());
-            PVZConfig.CLIENT_CONFIG = specPair.getLeft();
-        }
-    }
-//
-//    public static class Common {
-//        public Common(ForgeConfigSpec.Builder builder){
-//
-//        }
-//    }
-    public static class Client {
-
-        //overlay settings
-
-        public static ForgeConfigSpec.BooleanValue renderSunAsNumber;
-        public static ForgeConfigSpec.IntValue renderSunBarX;
-        public static ForgeConfigSpec.IntValue renderSunBarY;
-        public static ForgeConfigSpec.DoubleValue renderSunBarScale;
-        public static ForgeConfigSpec.BooleanValue renderBulletAsModel;
-        public static ForgeConfigSpec.BooleanValue zombiesDropParts;
-
-
-        public Client(ForgeConfigSpec.Builder builder){
-            builder.comment("Settings about GUI rendering").push("Overlay Settings");
-            //overlay settings
-            renderSunAsNumber = builder
-                    .translation("config.pvz.client.render_sun_as_number")
-                    .comment("turn on to display sun amount as number, or else display as icons.")
-                    .define("RenderSunAsNumber", false);
-            renderSunBarX = builder
-                    .translation("config.pvz.client.render_sun_bar_x")
-                    .comment("control x coordinate of displaying the sun amount bar. count from the right if set negative.")
-                    .defineInRange("renderSunBarX", 0, -10000, 10000);
-            renderSunBarY = builder
-                    .translation("config.pvz.client.render_sun_bar_y")
-                    .comment("control y coordinate of displaying the sun amount bar. count from the bottom if set negative.")
-                    .defineInRange("renderSunBarY", 0, -10000, 10000);
-            renderSunBarScale = builder
-                    .translation("config.pvz.client.render_sun_bar_scale")
-                    .comment("control scale of displaying the sun amount bar.")
-                    .defineInRange("renderSunBarScale", 1, 0.1, 10);
-
-            builder.comment("Settings about models").push("Model Settings");
-            //model settings
-            renderBulletAsModel = builder
-                    .translation("config.pvz.client.render_bullet_as_model")
-                    .comment("turn on to display bullet as 3D model, or else display as item model.")
-                    .define("RenderBulletAsModel", true);
-            zombiesDropParts = builder
-                    .translation("config.pvz.client.zombies_drop_parts")
-                    .comment("if on, zombies will drop arms and heads when taking damage.")
-                    .define("ZombiesDropParts", true);
-        }
-    }
     //overlay settings
     public static boolean renderSunAsNumber(){
         return Client.renderSunAsNumber.get();
@@ -83,5 +26,174 @@ public class PVZConfig {
     }
     public static double renderSunBarScale(){
         return Client.renderSunBarScale.get();
+    }
+    public static boolean renderSeparateArmorBar(){
+        return Client.renderSeparateArmorBar.get();
+    }
+
+    //model settings
+    public static boolean renderBulletAsModel(){
+        return Client.renderBulletAsModel.get();
+    }
+    public static boolean zombieDropParts(){
+        return Client.zombiesDropParts.get();
+    }
+    public static boolean renderButterOnHead(){
+        return Client.renderButterOnHead.get();
+    }
+
+    public static void init(){
+        {
+            final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+            ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, specPair.getRight());
+            PVZConfig.COMMON_CONFIG = specPair.getLeft();
+        }
+        {
+            final Pair<PVZConfig.Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
+            ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, specPair.getRight());
+            PVZConfig.CLIENT_CONFIG = specPair.getLeft();
+        }
+    }
+
+    public static class Common {
+        public static Map<String, ForgeConfigSpec.ConfigValue<Boolean>> pvzBooleanRules = new HashMap<>();
+        public static ForgeConfigSpec.ConfigValue<Boolean> shovelPermission;
+        public static ForgeConfigSpec.ConfigValue<Boolean> sunDisappear;
+        public static ForgeConfigSpec.ConfigValue<Boolean> teamBattle;
+        public static ForgeConfigSpec.ConfigValue<Boolean> killWisdomTree;
+        public static ForgeConfigSpec.ConfigValue<Boolean> canCanCanKelp;
+        public static ForgeConfigSpec.ConfigValue<Boolean> dynamicSunRule;
+        public static ForgeConfigSpec.ConfigValue<Boolean> naturallySpawnSun;
+        public Common(ForgeConfigSpec.Builder builder){
+            builder.comment("All these configs are the default values of pvz rules.")
+                    .comment("In the game you can also modify them separately for each world with /pvzrule command.")
+                    .comment("All these configs are only effective in server.")
+                    .push("PVZ Rules");
+            shovelPermission = add(builder
+                    .translation("config.pvz.common.shovel_permission")
+                    .comment("whether a player in the same team can shovel a plant if the player is NOT the owner of the plant."),
+                    "shovelPermission", true);
+            sunDisappear = add(builder
+                    .translation("config.pvz.common.sun_disappear")
+                    .comment("whether sun disappear after a while it is generated."),
+                    "sunDisappear", true);
+            teamBattle = add(builder
+                    .translation("config.pvz.common.team_battle")
+                    .comment("whether plants in different teams regard each other as enemy."),
+                    "teamBattle", false);
+            killWisdomTree = add(builder
+                    .translation("config.pvz.common.kill_wisdom_tree")
+                    .comment("if on, wisdom trees wilts itself and not grows."),
+                    "killWisdomTree", false);
+            canCanCanKelp = add(builder
+                    .translation("config.pvz.common.can_can_can_kelp")
+                    .comment("if on, players can interact with Tangle Kelps using buckets to bucket them."),
+                    "canCanCanKelp", false);
+            dynamicSunRule = add(builder
+                            .translation("config.pvz.common.dynamic_sun_rule")
+                            .comment("if on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),
+                    "dynamicSunRule", true);
+            naturallySpawnSun = add(builder
+                            .translation("config.pvz.common.naturally_spawn_sun")
+                            .comment("if on, sun will naturally spawn by players in the sky when skylight matches the condition."),
+                    "naturallySpawnSun", true);
+            builder.pop();
+        }
+
+        public ForgeConfigSpec.ConfigValue<Boolean> add(ForgeConfigSpec.Builder builder, String name, Boolean defaultValue) {
+            ForgeConfigSpec.ConfigValue<Boolean> value = builder.define(name, defaultValue);
+            pvzBooleanRules.put(name, value);
+            return value;
+        }
+    }
+    public static class Client {
+
+        //overlay settings
+
+        public static ForgeConfigSpec.BooleanValue renderSunAsNumber;
+        public static ForgeConfigSpec.IntValue renderSunBarX;
+        public static ForgeConfigSpec.IntValue renderSunBarY;
+        public static ForgeConfigSpec.DoubleValue renderSunBarScale;
+        public static ForgeConfigSpec.BooleanValue renderSeparateArmorBar;
+        public static ForgeConfigSpec.BooleanValue renderBulletAsModel;
+        public static ForgeConfigSpec.BooleanValue zombiesDropParts;
+        public static ForgeConfigSpec.BooleanValue renderButterOnHead;
+
+
+        public Client(ForgeConfigSpec.Builder builder){
+            builder.comment("Settings about GUI rendering").push("Overlay Settings");
+            //overlay settings
+            renderSunAsNumber = builder
+                    .translation("config.pvz.client.render_sun_as_number")
+                    .comment("turn on to display sun amount as number, or else display as icons.")
+                    .define("renderSunAsNumber", false);
+            renderSunBarX = builder
+                    .translation("config.pvz.client.render_sun_bar_x")
+                    .comment("control x coordinate of displaying the sun amount bar. count from the right if set negative.")
+                    .defineInRange("renderSunBarX", 0, -10000, 10000);
+            renderSunBarY = builder
+                    .translation("config.pvz.client.render_sun_bar_y")
+                    .comment("control y coordinate of displaying the sun amount bar. count from the bottom if set negative.")
+                    .defineInRange("renderSunBarY", 0, -10000, 10000);
+            renderSunBarScale = builder
+                    .translation("config.pvz.client.render_sun_bar_scale")
+                    .comment("control scale of displaying the sun amount bar.")
+                    .defineInRange("renderSunBarScale", 0.75, 0.1, 10);
+            renderSeparateArmorBar = builder
+                    .translation("config.pvz.client.render_separate_armor_bar")
+                    .comment("turn on to display armor amount on health bar, or else display as a single bar and hide valina armor display.")
+                    .define("renderSeparateArmorBar", true);
+            builder.pop();
+            builder.comment("Settings about models").push("Model Settings");
+            //model settings
+            renderBulletAsModel = builder
+                    .translation("config.pvz.client.render_bullet_as_model")
+                    .comment("turn on to display bullet as 3D model, or else display as item model.")
+                    .define("renderBulletAsModel", true);
+            zombiesDropParts = builder
+                    .translation("config.pvz.client.zombies_drop_parts")
+                    .comment("if on, zombies will drop arms and heads when taking damage.")
+                    .define("zombiesDropParts", true);
+            renderButterOnHead = builder
+                    .translation("config.pvz.client.render_butter_on_head")
+                    .comment("Render butter on heads of entities. This Option can lead to Some rendering bug, especially when the model of the target entity is scaled.")
+                    .define("renderButter", false);
+            builder.pop();
+        }
+    }
+
+    public static class PVZGameRules {
+        //rules.
+        public Map<String, GameRules.Key<GameRules.BooleanValue>> booleanMap;
+        public List<String> dirtyList;
+
+        private static PVZGameRules instance;
+
+
+        public PVZGameRules() {
+            booleanMap = initBooleanMap();
+            dirtyList = new ArrayList<>();
+        }
+
+        public static HashMap<String, GameRules.Key<GameRules.BooleanValue>> initBooleanMap() {
+            HashMap<String, GameRules.Key<GameRules.BooleanValue>> map = new HashMap<>();
+            for (String name : Common.pvzBooleanRules.keySet()) {
+                GameRules.Key<GameRules.BooleanValue> key = GameRules.register(PVZMod.MODID + ":" + name, GameRules.Category.MISC, GameRules.BooleanValue.create(Common.pvzBooleanRules.get(name).get()));
+                map.put(name, key);
+            }
+            return map;
+        }
+
+        public static void initRules() {
+            instance = new PVZGameRules();
+        }
+
+        public static void init(final FMLLoadCompleteEvent ev) {
+            PVZConfig.PVZGameRules.initRules();
+        }
+
+        public static boolean getBoolean(Level level, String name) {
+            return level.getGameRules().getBoolean(instance.booleanMap.get(name));
+        }
     }
 }
