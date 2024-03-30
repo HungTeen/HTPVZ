@@ -84,11 +84,18 @@ public class PVZFog {
         return strength;
     }
 
-    public static void fogsTick(double tickTime) {
+    public static void serverFogsTick() {
+        for (PVZFog pvzFog : pvzFogs) {
+            pvzFog.lifeLeft -= 0.025;
+            PVZMod.LOGGER.info("FOG TICK");
+        }
+    }
+
+    public static void clientFogsTick(double tickTime) {
         if (! Minecraft.getInstance().isPaused()) {
             for (int i = 0; i < pvzFogs.size(); i ++) {
                 PVZFog fog = pvzFogs.get(i);
-                fog.lifeLeft -= tickTime / 20;
+                fog.lifeLeft -= tickTime / 2;
                 Player player = ClientProxy.getPlayer();
                 if (player != null) {
                     boolean playerInFog = getFogStrengthAt(player.level, player.position()) >= 0.5;

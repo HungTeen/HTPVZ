@@ -13,14 +13,22 @@ import java.util.Collection;
 public class OwnCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("own").requires((ctx) -> ctx.hasPermission(2))
-                .then(Commands.argument("owned entities", EntityArgument.entities())
-                        .then(Commands.argument("owner", EntityArgument.entity())
+                .then(Commands.literal("new")
+                        .then(Commands.argument("owned entities", EntityArgument.entities())
+                                .then(Commands.argument("owner", EntityArgument.entity())
+                                        .executes((command) ->
+                                                own(command.getSource(), EntityArgument.getEntities(command, "owned entities"), EntityArgument.getEntity(command, "owner"))
+                                        ))
                                 .executes((command) ->
-                                        own(command.getSource(), EntityArgument.getEntities(command, "owned entities"), EntityArgument.getEntity(command, "owner"))
-                                ))
-                        .executes((command) ->
-                                        own(command.getSource(), EntityArgument.getEntities(command, "owned entities"), command.getSource().getEntityOrException())
+                                                own(command.getSource(), EntityArgument.getEntities(command, "owned entities"), command.getSource().getEntityOrException())
+                                        )
+                        ))
+                .then(Commands.literal("remove")
+                        .then(Commands.argument("owned entities", EntityArgument.entities())
+                                .executes((command) ->
+                                        deown(command.getSource(), EntityArgument.getEntities(command, "owned entities"))
                                 )
+                        )
                 ));
     }
 
@@ -41,6 +49,24 @@ public class OwnCommand {
             source.sendSuccess(Component.translatable("commands.pvz.own.own", tmpEntity.getName(), owner.getName()), true);
         } else {
             source.sendSuccess(Component.translatable("commands.pvz.own.owns", owner.getName(), count), true);
+        }
+        return count;
+    }
+    private static int deown(CommandSourceStack source, Collection<? extends Entity> owned) {
+        int count = 0;
+        Entity tmpEntity = null;
+        for (Entity entity: owned) {
+            PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
+            if (cap != null) {
+                cap.setOwner(null);
+                count ++;
+                tmpEntity = entity;
+            }
+        }
+        if (count == 1) {
+            source.sendSuccess(Component.translatable("commands.pvz.own.deown", tmpEntity.getName()), true);
+        } else {
+            source.sendSuccess(Component.translatable("commands.pvz.own.deowns", count), true);
         }
         return count;
     }

@@ -27,8 +27,8 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.flower_pot.refractory_ceramics", PVZItems.IGNIS_ESSENCE, 8, 6, 0, 0),
             new Skill("skill.pvz.flower_pot.free_seat", PVZItems.LUX_ESSENCE, 8, 4, -25, 140).avoidSkills(0, 3),
-            new Skill("skill.pvz.flower_pot.chinaware", PVZItems.ORIGIN_ESSENCE, 8, 16, 0, 0),
-            new Skill("skill.pvz.flower_pot.portable_pot", PVZItems.TERRA_ESSENCE, 4, 4, 75, 440)
+            new Skill("skill.pvz.flower_pot.portable_pot", PVZItems.TERRA_ESSENCE, 4, 4, 75, 440),
+            new Skill("skill.pvz.flower_pot.chinaware", PVZItems.ORIGIN_ESSENCE, 8, 16, 0, 0)
     );
 
     public FlowerPot(EntityType<? extends Mob> entityType, Level level) {
@@ -61,6 +61,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     }
     @Override
     public void tick() {
+        this.shouldAlign = false;
         super.tick();
         if (this.isVehicle() && this.idleAnimationState.isStarted()) {
             this.idleAnimationState.stop();

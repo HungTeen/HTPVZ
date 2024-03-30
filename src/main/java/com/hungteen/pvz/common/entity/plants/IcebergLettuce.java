@@ -75,7 +75,7 @@ public class IcebergLettuce extends ShooterPlant {
                 MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 120);
                 if (this.hasSkill("skill.pvz.iceberg_lettuce.ice_storm")) {
                     List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(2, 0.25, 2),
-                            (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(entity, this)));
+                            (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity)));
                     entities.forEach((entity) -> ((LivingEntity) entity).addEffect(instance));
                 } else {
                     target.addEffect(instance);
@@ -127,14 +127,14 @@ public class IcebergLettuce extends ShooterPlant {
         @Override
         public void tick() {
             List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(0.4, 0.2, 0.4),
-                    (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(entity, this.entity) && ! ((LivingEntity) entity).hasEffect(PVZMobEffects.FREEZE.get())));
+                    (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity) && ! ((LivingEntity) entity).hasEffect(PVZMobEffects.FREEZE.get())));
             if (entities.isEmpty() && this.entity.tickCount < 300) {
                 return;
             }
             MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 120);
             if (entity.hasSkill("skill.pvz.iceberg_lettuce.ice_storm")) {
                 entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 0.25, 2),
-                        (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(entity, this.entity)));
+                        (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity)));
                 entities.forEach((entity) -> ((LivingEntity) entity).addEffect(instance));
             } else {
                 if (! entities.isEmpty()) {

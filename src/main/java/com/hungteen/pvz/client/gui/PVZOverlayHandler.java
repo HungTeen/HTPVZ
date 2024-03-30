@@ -42,7 +42,7 @@ import static net.minecraft.util.Mth.ceil;
 @OnlyIn(Dist.CLIENT)
 public class PVZOverlayHandler{
 
-    private static int bufferSunAmount = 0;
+    private static double bufferSunAmount = 0;
     private static int bufferSunBarLength = 0;
     private static final Random random = new Random();
     public static float notEnoughHint = 0;
@@ -57,14 +57,11 @@ public class PVZOverlayHandler{
 
     public static void tick(float tickTime) {
         if (PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).isPresent()) {
-            double tmp = Math.pow(0.9, tickTime / 0.04);
+            double tmp = Math.pow(0.95, tickTime / 0.01);
             int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapNBT.SUN);
-            int barLength = 94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapNBT.SUN).getSecond();
-            bufferSunAmount = (int)(now * (1 - tmp) + tmp * bufferSunAmount);
+            int barLength = (int) (94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapNBT.SUN).getSecond());
+            bufferSunAmount = now * (1 - tmp) + tmp * bufferSunAmount;
             bufferSunBarLength = (int) Math.min(94, (barLength * (1 - tmp) + tmp * bufferSunBarLength));
-            if (bufferSunAmount != now && Math.abs(bufferSunAmount - now) <= 10) {
-                bufferSunAmount = now;
-            }
             if (bufferSunBarLength != barLength && Math.abs(bufferSunBarLength - barLength) <= 10) {
                 bufferSunBarLength = barLength;
             }
@@ -231,12 +228,8 @@ public class PVZOverlayHandler{
             Util.GuiBiltScaled(stack, drawX + 3, drawY, 159, 224, bufferSunBarLength, 16, 1);
             Util.GuiBiltScaled(stack, x >= 0 ? x : (int) (width/scale) - 33 + x, y >= 0 ? y : (int) (height/scale) - 33 + y, 222, 190, 34, 34, 1);
 
-            if ((notEnoughHint * 1.5) % 2 >= 1) {
-                Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 86 : (int) (width / scale) - 84 + x), (y >= 0 ? y + 5 : (int) (height / scale) - 11 + y), 0xEF1010, 1f);
-            } else {
-                Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 86 : (int) (width / scale) - 84 + x), (y >= 0 ? y + 5 : (int) (height / scale) - 11 + y), 0x663600, 1f);
-            }
-            Util.drawCenteredScaledString(stack, ClientProxy.MC.font, bufferSunAmount + "", (x >= 0 ? x + 85 : (int) (width/scale) - 85 + x), (y >= 0 ? y + 4 : (int) (height/scale) - 12 + y), 0xFFFFFF, 1f);
+            Util.drawCenteredScaledString(stack, ClientProxy.MC.font, (int) Math.round(bufferSunAmount) + "", (x >= 0 ? x + 86 : (int) (width / scale) - 84 + x), (y >= 0 ? y + 5 : (int) (height / scale) - 11 + y), (notEnoughHint * 3) % 2 >= 1 ? 0xEF1010 : 0x663600, 1f);
+            Util.drawCenteredScaledString(stack, ClientProxy.MC.font, (int) Math.round(bufferSunAmount) + "", (x >= 0 ? x + 85 : (int) (width / scale) - 85 + x), (y >= 0 ? y + 4 : (int) (height/scale) - 12 + y), 0xFFFFFF, 1f);
 
             RenderSystem.disableBlend();
             stack.popPose();
@@ -257,7 +250,7 @@ public class PVZOverlayHandler{
             int top = height - gui.rightHeight;
             gui.rightHeight += 10;
 
-            int levelShow = bufferSunAmount;
+            int levelShow = (int) bufferSunAmount;
             int levelMax = PVZPlayerCapability.getValueLimit(player, PVZPlayerCapNBT.SUN).getSecond();
             int levelActual = PVZPlayerCapability.getValue(player, PVZPlayerCapNBT.SUN);
 
@@ -307,7 +300,7 @@ public class PVZOverlayHandler{
                 if (levelActual != levelShow) {
                     blit(stack, x, y, 40, 20, 9, 9);
                 }
-                if ((notEnoughHint * 1.5) % 2 >= 1) {
+                if ((notEnoughHint * 3) % 2 >= 1) {
                     blit(stack, x, y, 50, 20, 9, 9);
                 }
 

@@ -57,13 +57,14 @@ public class PVZConfig {
 
     public static class Common {
         public static Map<String, ForgeConfigSpec.ConfigValue<Boolean>> pvzBooleanRules = new HashMap<>();
+        public static Map<String, ForgeConfigSpec.ConfigValue<Integer>> pvzIntRules = new HashMap<>();
         public static ForgeConfigSpec.ConfigValue<Boolean> shovelPermission;
         public static ForgeConfigSpec.ConfigValue<Boolean> sunDisappear;
         public static ForgeConfigSpec.ConfigValue<Boolean> teamBattle;
         public static ForgeConfigSpec.ConfigValue<Boolean> killWisdomTree;
         public static ForgeConfigSpec.ConfigValue<Boolean> canCanCanKelp;
         public static ForgeConfigSpec.ConfigValue<Boolean> dynamicSunRule;
-        public static ForgeConfigSpec.ConfigValue<Boolean> naturallySpawnSun;
+        public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public Common(ForgeConfigSpec.Builder builder){
             builder.comment("All these configs are the default values of pvz rules.")
                     .comment("In the game you can also modify them separately for each world with /pvzrule command.")
@@ -93,16 +94,22 @@ public class PVZConfig {
                             .translation("config.pvz.common.dynamic_sun_rule")
                             .comment("if on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),
                     "dynamicSunRule", true);
-            naturallySpawnSun = add(builder
-                            .translation("config.pvz.common.naturally_spawn_sun")
-                            .comment("if on, sun will naturally spawn by players in the sky when skylight matches the condition."),
-                    "naturallySpawnSun", true);
+            naturallySpawnSunInterval = add(builder
+                            .translation("config.pvz.common.naturally_spawn_sun_interval")
+                            .comment("sun naturally spawn by players in the sky when skylight matches condition at this interval."),
+                    "naturallySpawnSunInterval", 300, 0, 10000);
             builder.pop();
         }
 
         public ForgeConfigSpec.ConfigValue<Boolean> add(ForgeConfigSpec.Builder builder, String name, Boolean defaultValue) {
             ForgeConfigSpec.ConfigValue<Boolean> value = builder.define(name, defaultValue);
             pvzBooleanRules.put(name, value);
+            return value;
+        }
+
+        public ForgeConfigSpec.ConfigValue<Integer> add(ForgeConfigSpec.Builder builder, String name, int defaultValue, int min, int max) {
+            ForgeConfigSpec.ConfigValue<Integer> value = builder.defineInRange(name, defaultValue, min, max);
+            pvzIntRules.put(name, value);
             return value;
         }
     }
@@ -156,7 +163,7 @@ public class PVZConfig {
                     .define("zombiesDropParts", true);
             renderButterOnHead = builder
                     .translation("config.pvz.client.render_butter_on_head")
-                    .comment("Render butter on heads of entities. This Option can lead to Some rendering bug, especially when the model of the target entity is scaled.")
+                    .comment("Render butter on heads of entities. This Option can lead to some rendering bug, especially when the model of the target entity is scaled.")
                     .define("renderButter", false);
             builder.pop();
         }
@@ -165,6 +172,7 @@ public class PVZConfig {
     public static class PVZGameRules {
         //rules.
         public Map<String, GameRules.Key<GameRules.BooleanValue>> booleanMap;
+        public Map<String, GameRules.Key<GameRules.IntegerValue>> intMap;
         public List<String> dirtyList;
 
         private static PVZGameRules instance;
@@ -172,6 +180,7 @@ public class PVZConfig {
 
         public PVZGameRules() {
             booleanMap = initBooleanMap();
+            intMap = initIntMap();
             dirtyList = new ArrayList<>();
         }
 
@@ -179,6 +188,14 @@ public class PVZConfig {
             HashMap<String, GameRules.Key<GameRules.BooleanValue>> map = new HashMap<>();
             for (String name : Common.pvzBooleanRules.keySet()) {
                 GameRules.Key<GameRules.BooleanValue> key = GameRules.register(PVZMod.MODID + ":" + name, GameRules.Category.MISC, GameRules.BooleanValue.create(Common.pvzBooleanRules.get(name).get()));
+                map.put(name, key);
+            }
+            return map;
+        }
+        public static HashMap<String, GameRules.Key<GameRules.IntegerValue>> initIntMap() {
+            HashMap<String, GameRules.Key<GameRules.IntegerValue>> map = new HashMap<>();
+            for (String name : Common.pvzIntRules.keySet()) {
+                GameRules.Key<GameRules.IntegerValue> key = GameRules.register(PVZMod.MODID + ":" + name, GameRules.Category.MISC, GameRules.IntegerValue.create(Common.pvzIntRules.get(name).get()));
                 map.put(name, key);
             }
             return map;
@@ -194,6 +211,9 @@ public class PVZConfig {
 
         public static boolean getBoolean(Level level, String name) {
             return level.getGameRules().getBoolean(instance.booleanMap.get(name));
+        }
+        public static int getInt(Level level, String name) {
+            return level.getGameRules().getInt(instance.intMap.get(name));
         }
     }
 }

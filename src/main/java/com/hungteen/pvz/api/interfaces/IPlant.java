@@ -21,7 +21,7 @@ public interface IPlant{
 
     /**These two methods are direction and blockPos used for testing whether this situation is safe,
      * especially for wall-attaching plants like {@link com.hungteen.pvz.common.entity.plants.SpikeWeed SpikeWeed}.
-     * @see SimplePlant#baseTick() */
+     * @see com.hungteen.pvz.common.entity.SimplePlant#baseTick() SimplePlant#baseTick() */
     @Nullable
     default Direction getGrowDirection() {
         return Direction.UP;
@@ -33,9 +33,8 @@ public interface IPlant{
     /**Contorlling if this plant can occupy space so other plants can't plant on.*/
     boolean takesCoincideDmg();
 
-    /**Called in {@link com.hungteen.pvz.common.entity.SimplePlant#handleShovel(PlayerInteractEvent.EntityInteract)} .<br>
+    /**Called in {@link com.hungteen.pvz.common.entity.SimplePlant#handleShovel(PlayerInteractEvent.EntityInteract) SimplePlant#handleShovel(EntityInteract)} .<br>
      Is effective for all IPlant.<br>
-     For plants not extending SimplePlant, can use {@link SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity)}.*/
+     For plants not extending SimplePlant, can use {@link com.hungteen.pvz.common.entity.SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity) SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity)}.*/
     boolean onBeingShoveled(Player player, InteractionHand handIn);
-
 }

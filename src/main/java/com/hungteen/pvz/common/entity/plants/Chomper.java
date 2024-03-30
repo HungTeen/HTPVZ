@@ -127,7 +127,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 30D)
+                .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.MOVEMENT_SPEED, 0.4D)
                 .add(Attributes.FOLLOW_RANGE, 24D);
     }
@@ -216,7 +216,9 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getPose() != Pose.SWIMMING, 2));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
         this.goalSelector.addGoal(3, new ChomperAttackGoal(this));
-        this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this, (entity)-> this.getPose() != Pose.SWIMMING && EntityUtil.checkCanEntityBeAttack(this, entity), 8));
+        this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this,
+                (entity)-> this.getPose() != Pose.SWIMMING && EntityUtil.checkCanEntityBeAttack(this, entity) &&
+                        ! (entity.getVehicle() instanceof Chomper), 5));
     }
     @Override
     protected void defineSynchedData() {
@@ -431,15 +433,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
     }
 
     public boolean shouldHaveCoincideDmg(Level level, Vec3 position) {
-        if (! takesCoincideDmg()) {
-            return false;
-        } else {
-            Vec3 subPos = this.position();
-            AABB range = this.getBoundingBox().move(position.add(-subPos.x, -subPos.y, -subPos.z)).inflate(-1e-4);
-            List<Entity> list = level.getEntities(this, range,
-                    (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
-            return !list.isEmpty();
-        }
+        return SimplePlant.shouldHaveCoincideDmg(this, level, position);
     }
     //bb and pushing
     @Override
@@ -600,7 +594,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                         chomper.setPose(chomper.blockPosition().below().equals(chomper.getOriginalPos()) ?
                                 (chomper.getAttackTime() <= 0 ? Pose.STANDING : Pose.CROUCHING) : Pose.DIGGING);
                         if (chomper.getPose() == Pose.CROUCHING) {
-                            chomper.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400));
+                            chomper.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400, 1));
                         }
                         chomper.animTick = 0;
                     }
@@ -608,15 +602,17 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
                 case EMERGING -> {
                     chomper.setPose(chomper.getAttackTime() <= 0 ? Pose.STANDING : Pose.CROUCHING);
                     if (chomper.getPose() == Pose.CROUCHING) {
-                        chomper.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400));
+                        chomper.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 400, 1));
                     }
                     chomper.animTick = 0;
                 }
                 case CROAKING -> {
                     if (chomper.hasSkill("skill.pvz.chomper.energy_transduction")) {
                         Sun.spawnSunWithEffects(this.chomper.level, 50, this.chomper.getOnPos().above(), 0.4F);
-                        Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.4F);
-                        Sun.spawnSunWithEffects(this.chomper.level, 5, this.chomper.getOnPos().above(), 0.5F);
+                        Sun.spawnSunWithEffects(this.chomper.level, 25, this.chomper.getOnPos().above(), 0.4F);
+                        Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
+                        Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
+                        Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
                         Sun.spawnSunWithEffects(this.chomper.level, 5, this.chomper.getOnPos().above(), 0.5F);
                     }
                     chomper.setPose(Pose.STANDING);

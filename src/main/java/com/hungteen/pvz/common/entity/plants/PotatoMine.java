@@ -30,8 +30,8 @@ import java.util.Set;
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 
 public class PotatoMine extends SimplePlant {
-    public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> PREPARE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(PotatoMine.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> PREPARE_COUNT = SynchedEntityData.defineId(PotatoMine.class, EntityDataSerializers.INT);
 
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState sleepAnimationState = new AnimationState();

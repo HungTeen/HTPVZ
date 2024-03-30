@@ -30,7 +30,8 @@ public class EntityUtil {
         if (attacker == null || target == null) {//prevent crash
             return false;
         }
-        if ((target instanceof Player && ! isSurvivalPlayer(target)) || !isEntityValid(target)) {
+        if ((target instanceof Player && ! isSurvivalPlayer(target)) || ! isEntityValid(target)) {
+            //not text is attaker valid or not for considering situations attacking when attacker is dead, such as for bomb plants.
             return false;
         }
         if (PVZOwnedCapability.isTeammate(attacker, target)) {//enable team attack
@@ -55,5 +56,16 @@ public class EntityUtil {
     }
     public static boolean isEntityPeace(LivingEntity entity, int cd) {
         return entity.getLastHurtByMobTimestamp() < entity.tickCount - cd || entity.getLastHurtByMob() == null;
+    }
+
+    public static boolean hasRidingRelationship(Entity A, Entity B) {
+        return isFinallyVehicleOf(A, B) || isFinallyVehicleOf(B, A);
+    }
+
+    private static boolean isFinallyVehicleOf(Entity A, Entity B) {
+        if (B.getVehicle() == null) {
+            return false;
+        }
+        return B.getVehicle() == A || isFinallyVehicleOf(A, B.getVehicle());
     }
 }

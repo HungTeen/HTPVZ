@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -41,7 +42,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	protected void registerGoals() {
 		super.registerGoals();
 		this.shooterAttackGoal = new ShooterAttackGoal(this);
-	    this.goalSelector.addGoal(1, shooterAttackGoal);
+		this.goalSelector.addGoal(1, shooterAttackGoal);
 		this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
 		this.goalSelector.addGoal(2, new RandomLookAroundGoal(this));
 
@@ -74,7 +75,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			}
 			int time = Math.round(distanceTo(target) / speed);
 			deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
-			target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),//angle limit move to targeting goals.
+					target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),//angle limit move to targeting goals.
 					target.getZ() + targetSpeed.z * time - bullet.getZ());
 			for (int tmp = 0; tmp < 3; tmp ++) {
 				//recurse to increase accuracy.
@@ -108,6 +109,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public void setTargetCandidates(List<Entity> set) {
 		this.targetCandidates = set;
 	}
+
 	public List<Entity> getTargetCandidates() {
 		return targetCandidates;
 	}
@@ -126,12 +128,14 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			aimTime = 0;
 		}
 	}
+
 	//animate related.
 	@Override
 	protected void defineSynchedData() {
 		super.defineSynchedData();
 		this.entityData.define(POSE, false);
 	}
+
 	@Override
 	public void onSyncedDataUpdated(EntityDataAccessor<?> p_219422_) {
 		if (POSE.equals(p_219422_)) {
@@ -177,6 +181,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public double getMaxShootAngleTangent() {
 		return 0.1;
 	}
+
 	public Vec3 getShootAngle(Entity target) {
 		if (target != null) {
 			return EntityUtil.getNormalisedVector2d(this, target);
@@ -195,9 +200,11 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	protected boolean canAttackNow() {
 		return shootTimes().contains(getAttackTime());
 	}
+
 	public Set<Integer> shootTimes() {
 		return Set.of(10);
 	}
+
 	public int shootAnimLength() {
 		return 20;
 	}

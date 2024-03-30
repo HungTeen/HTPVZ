@@ -18,6 +18,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -67,78 +68,85 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
             }
             syncCount = 0;
         }
-        for (Player player : ev.getServer().getPlayerList().getPlayers()) {
+        for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
             getPlayerData(player).ifPresent((nbt) -> {
-                //sun related mob effects.
-                ++ nbt.sunCountDown;
-                if (player.hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
-                    if (player.hasEffect(MobEffects.DARKNESS)) {
-                        player.removeEffect(MobEffects.DARKNESS);
-                    }
-                    if (nbt.sunCountDown >= 15 / (player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
+                if (!player.isSpectator()) {
+                    //sun related mob effects.
+                    ++ nbt.sunCountDown;
+                    if (player.hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
+                        if (player.hasEffect(MobEffects.DARKNESS)) {
+                            player.removeEffect(MobEffects.DARKNESS);
+                        }
+                        if (nbt.sunCountDown >= 15 / (player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
+                            int limitSun = getDifficultyLimitSun(player);
+                            int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
+                            if (curSun < limitSun) {
+                                nbt.setValue(PVZPlayerCapNBT.SUN, Math.min(curSun + 5, limitSun));
+                            }
+                            nbt.sunCountDown = 0;
+                        }
+                    } else if (player.hasEffect(MobEffects.DARKNESS) && nbt.sunCountDown >= 5/(player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
                         int limitSun = getDifficultyLimitSun(player);
                         int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
-                        if (curSun < limitSun) {
-                            nbt.setValue(PVZPlayerCapNBT.SUN, Math.min(curSun + 5, limitSun));
+                        if (curSun > limitSun) {
+                            nbt.setValue(PVZPlayerCapNBT.SUN, Math.max(curSun - 5, limitSun));
                         }
                         nbt.sunCountDown = 0;
                     }
-                } else if (player.hasEffect(MobEffects.DARKNESS) && nbt.sunCountDown >= 5/(player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
-                    int limitSun = getDifficultyLimitSun(player);
-                    int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
-                    if (curSun > limitSun) {
-                        nbt.setValue(PVZPlayerCapNBT.SUN, Math.max(curSun - 5, limitSun));
-                    }
-                    nbt.sunCountDown = 0;
-                }
-                if (! player.hasEffect(MobEffects.DARKNESS) && EntityUtil.isSurvivalPlayer(player) && EntityUtil.isEntityPeace(player,100) && player.tickCount % 30 == 0) {
-                    int limitSun = nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond();
-                    int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
-                    if (curSun < limitSun) {
-                        nbt.addValue(PVZPlayerCapNBT.SUN, 5);
-                    }
-                }
-                //max sun calculation.
-                if (! PVZConfig.PVZGameRules.getBoolean(player.level, "dynamicSunRule")) {
-                    player.getAttribute(PVZAttributes.SUN.get()).removeModifiers();
-                    player.getAttribute(PVZAttributes.SUN.get()).addPermanentModifier(
-                            new AttributeModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9"), "extra_max_sun",
-                                    300, AttributeModifier.Operation.ADDITION));
-                } else {
-                    player.getAttribute(PVZAttributes.SUN.get()).getModifiers().forEach((modifier) -> {
-                        Entity entity = ((ServerLevel) player.level).getEntity(modifier.getId());
-                        if (! EntityUtil.isEntityValid(entity) || entity.distanceToSqr(player) > 144) {
-                            player.getAttribute(PVZAttributes.SUN.get()).removeModifier(modifier.getId());
+                    if (! player.hasEffect(MobEffects.DARKNESS) && EntityUtil.isSurvivalPlayer(player) && EntityUtil.isEntityPeace(player,100) && player.tickCount % 30 == 0) {
+                        int limitSun = nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond();
+                        int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
+                        if (curSun < limitSun) {
+                            nbt.addValue(PVZPlayerCapNBT.SUN, 5);
                         }
-                    });
-                    List<Entity> entities = player.level.getEntities(player, player.getBoundingBox().inflate(6, 6, 6).move(0, -3, 0),
-                            EntitySelector.NO_SPECTATORS.and((entity) -> entity instanceof IMaxSunExpander));
-                    entities.forEach((entity) -> {
-                        if (entity instanceof IMaxSunExpander sunExpander) {
-                            if (! player.getAttribute(PVZAttributes.SUN.get()).modifierById.containsKey(entity.getUUID())) {
-                                player.getAttribute(PVZAttributes.SUN.get()).addTransientModifier(
-                                        new AttributeModifier(entity.getUUID(), "extra_max_sun", sunExpander.extraMaxSun(player), AttributeModifier.Operation.ADDITION));
+                    }
+                    //max sun calculation.
+                    AttributeInstance maxSun = player.getAttribute(PVZAttributes.SUN.get());
+                    if (! PVZConfig.PVZGameRules.getBoolean(player.level, "dynamicSunRule")) {
+                        maxSun.removeModifiers();
+                        maxSun.addPermanentModifier(
+                                new AttributeModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9"), "extra_max_sun",
+                                        300, AttributeModifier.Operation.ADDITION));
+                    } else {
+                        if (maxSun.getModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9")) != null) {
+                            maxSun.removeModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9"));
+                        }
+                        maxSun.getModifiers().forEach((modifier) -> {
+                            Entity entity = ((ServerLevel) player.level).getEntity(modifier.getId());
+                            if (! EntityUtil.isEntityValid(entity) || entity.distanceToSqr(player) > 900) {
+                                maxSun.removeModifier(modifier.getId());
                             }
+                        });
+                        List<Entity> entities = player.level.getEntities(player, player.getBoundingBox().inflate(6, 6, 6).move(0, -3, 0),
+                                EntitySelector.NO_SPECTATORS.and((entity) -> entity instanceof IMaxSunExpander));
+                        entities.forEach((entity) -> {
+                            if (entity instanceof IMaxSunExpander sunExpander) {
+                                if (! maxSun.modifierById.containsKey(entity.getUUID())) {
+                                    maxSun.addTransientModifier(
+                                            new AttributeModifier(entity.getUUID(), "extra_max_sun", sunExpander.extraMaxSun(player), AttributeModifier.Operation.ADDITION));
+                                }
+                            }
+                        });
+                    }
+                    int toMax = (int) player.getAttributeValue(PVZAttributes.SUN.get());
+                    int overFlow = nbt.getValue(PVZPlayerCapNBT.SUN) - toMax;
+                    while (overFlow > 0) {
+                        Sun.spawnSunWithEffects(player.level, 25, player.blockPosition(), 0.3F);
+                        overFlow -= 25;
+                    }
+                    nbt.setValueLimit(PVZPlayerCapNBT.SUN, 0, toMax);
+                    //natural sun spawn
+                    int interval = PVZConfig.PVZGameRules.getInt(player.level, "naturallySpawnSunInterval");
+                    if (interval > 0 && player.tickCount % interval == 0) {
+                        int x = player.blockPosition().getX() + player.getRandom().nextInt(20) - 10;
+                        int z = player.blockPosition().getZ() + player.getRandom().nextInt(20) - 10;
+                        BlockPos pos = new BlockPos(x,
+                                Math.max(player.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z),
+                                        player.blockPosition().getY()) + 6, z);
+                        int light = player.level.getBrightness(LightLayer.SKY, pos) - player.level.getSkyDarken();
+                        if (light > 9) {
+                            Sun.spawnByAmount(player.level, light > 12 ? 50 : 25, pos, Vec3.ZERO);
                         }
-                    });
-                }
-                int toMax = (int) player.getAttributeValue(PVZAttributes.SUN.get());
-                int overFlow = nbt.getValue(PVZPlayerCapNBT.SUN) - toMax;
-                while (overFlow > 0) {
-                    Sun.spawnSunWithEffects(player.level, 25, player.blockPosition(), 0.3F);
-                    overFlow -= 25;
-                }
-                nbt.setValueLimit(PVZPlayerCapNBT.SUN, 0, toMax);
-                //natural sun spawn
-                if (player.tickCount % 300 == 0 && PVZConfig.PVZGameRules.getBoolean(player.level, "naturallySpawnSun")) {
-                    int x = player.blockPosition().getX() + player.getRandom().nextInt(20) - 10;
-                    int z = player.blockPosition().getZ() + player.getRandom().nextInt(20) - 10;
-                    BlockPos pos = new BlockPos(x,
-                            Math.max(player.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z),
-                                    player.blockPosition().getY()) + 6, z);
-                    int light = player.level.getBrightness(LightLayer.SKY, pos) - player.level.getSkyDarken();
-                    if (light > 9) {
-                        Sun sun = Sun.spawnByAmount(player.level, light > 12 ? 50 : 25, pos, Vec3.ZERO);
                     }
                 }
                 //cool down effects.
@@ -155,7 +163,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         player.getCooldowns().tick();
                     }
                     if (player instanceof ServerPlayer) {
-                        PlayerCoolDownPacket.clientCoolDown((ServerPlayer) player);
+                        PlayerCoolDownPacket.clientCoolDown(player);
                     }
                 }
                 //auto set sun cost and cd.

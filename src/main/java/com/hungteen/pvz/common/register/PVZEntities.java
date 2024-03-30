@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.model.plants.*;
+import com.hungteen.pvz.client.renderer.ModelPartRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.bullet.*;
@@ -81,6 +82,8 @@ public class PVZEntities {
     private static List<TagKey<EntityType<?>>> storedTags = null;
     @Deprecated // will be cleared after register.
     public static Map<RegistryObject, List<TagKey<EntityType<?>>>> tagMap = new HashMap<>();
+    //no summon
+    public static boolean storedCanSummon = true;
 
 
 
@@ -99,6 +102,8 @@ public class PVZEntities {
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
     public static final RegistryObject<EntityType<Anger>> ANGER = spawnEgg(0xff2f3b, 0xfff45b).attribute(Anger::createAttributes)
             .collision(0.4F, 0.4F).noLoot().entity("anger", Anger::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<ModelPartEntity>> MODEL_PART = collision(0.2F, 0.2F).noSummon()
+            .entity("model_part", ModelPartEntity::new, MobCategory.MISC);
 
     //plants
     public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
@@ -228,6 +233,7 @@ public class PVZEntities {
         r(e, ZOMBIE, PVZZombieRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);
+        r(e, MODEL_PART, ModelPartRenderer::new);
 
         //enter here
 
@@ -240,7 +246,10 @@ public class PVZEntities {
     private static <T extends Entity> RegistryObject<EntityType<T>> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
         float coh = storedCollision.getFirst();
         float cov = storedCollision.getSecond();
-        RegistryObject<EntityType<T>> entity = ENTITIES.register(name, () -> EntityType.Builder.of(factory, classification).sized(coh, cov).build(Util.prefix(name).toString()));
+        Supplier<EntityType<T>> supplier = storedCanSummon ? () -> EntityType.Builder.of(factory, classification).sized(coh, cov).build(Util.prefix(name).toString()) :
+                () -> EntityType.Builder.of(factory, classification).sized(coh, cov).noSummon().build(Util.prefix(name).toString());
+        storedCanSummon = true;
+        RegistryObject<EntityType<T>> entity = ENTITIES.register(name, supplier);
         storedCollision = Pair.of(0.6F, 1.8F);
         //spawn egg
         if (storedSpawnEgg != null) {
@@ -294,6 +303,11 @@ public class PVZEntities {
 
     private static PVZEntities summonRule(Type type, Types types, SpawnPredicate predicate) {
         storedSpawnPlacement = List.of(type, types, predicate);
+        return reflector;
+    }
+
+    private static PVZEntities noSummon() {
+        storedCanSummon = false;
         return reflector;
     }
 

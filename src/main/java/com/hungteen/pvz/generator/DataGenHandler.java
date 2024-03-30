@@ -19,6 +19,7 @@ public class DataGenHandler {
         g.addProvider(i, blockTag);
         g.addProvider(i, new ItemTagGen(g, blockTag, helper));
         g.addProvider(i, new EntityTagGen(g, PVZMod.MODID, helper));
+        g.addProvider(i, new BannerPatternTagGen(g, PVZMod.MODID, helper));
 
         g.addProvider(i, new RecipeGen(g));
         g.addProvider(i, new LootGen(g));

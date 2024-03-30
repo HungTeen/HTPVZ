@@ -62,6 +62,7 @@ public class PVZLayerHandler {
         L(e, "ice", FrozenModel::createBodyLayer);
         L(e, PVZItems.CONE_HELMET, () -> ConeHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
         L(e, PVZItems.BUCKET_HELMET, () -> BucketHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
+        L(e, PVZItems.DUCK_LIFEBUOY, () -> DuckLifebuoyModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
 
         //simple rendered entities
         for (EntityType<? extends Entity> entity: PVZEntities.simpleRenderedMap.keySet()){

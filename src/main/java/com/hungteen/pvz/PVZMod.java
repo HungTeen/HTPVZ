@@ -7,6 +7,7 @@ import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
 import com.hungteen.pvz.common.capability.CapabilityHandler;
+import com.hungteen.pvz.common.capability.fog.PVZFogCapability;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.OwnCommand;
@@ -18,7 +19,6 @@ import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.world.PVZFog;
-import com.hungteen.pvz.common.world.zen_garden.ZenGardenBiomeSource;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenEffects;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
@@ -30,7 +30,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.scores.PlayerTeam;
@@ -86,6 +85,7 @@ public class PVZMod
         PVZEnchantments.ENCHANTMENTS.register(modBus);
 
         PVZBlocks.BLOCKS.register(modBus);
+        PVZBannerPatterns.BANNERS.register(modBus);
         PVZBlockEntities.BLOCK_ENTITIES.register(modBus);
 
         PVZBiomes.BIOMES.register(modBus);
@@ -95,8 +95,9 @@ public class PVZMod
         PVZMenus.MENU_TYPES.register(modBus);
 
         OtherRegisters.modBusRegister(modBus);
-        modBus.addListener(EventPriority.NORMAL, OtherRegisters::essenceFurnaceRecipeBookRegister);
         modBus.addListener(PVZConfig.PVZGameRules::init);
+
+        modBus.addListener(EventPriority.NORMAL, OtherRegisters::essenceFurnaceRecipeBookRegister);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modBus.addListener(PVZOverlayHandler::registerOverlay);
@@ -210,6 +211,7 @@ public class PVZMod
             //caps tick
             PVZPlayerCapability.tick(ev);
             PVZOwnedCapability.tick(ev);
+            PVZFogCapability.tick(ev);
             //server stress releasing
             ServerStressReleaseGoals.averageTickTime = Math.round(ev.getServer().getAverageTickTime());
         }
@@ -231,7 +233,7 @@ public class PVZMod
                 EssenceAltarScreen.nameRollTime -= 10;
             }
             if (! Minecraft.getInstance().isPaused()) {
-                PVZFog.fogsTick(time);
+                PVZFog.clientFogsTick(time);
             }
         }
     }

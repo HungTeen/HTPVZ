@@ -14,6 +14,7 @@ import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.register.PVZDamageSource;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -52,7 +53,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
@@ -119,13 +119,18 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
     /** control if this plant has coincide dmg.
      */
     public boolean shouldHaveCoincideDmg(Level level, Vec3 position) {
-        if (! takesCoincideDmg()) {
+        return shouldHaveCoincideDmg(this, level, position);
+    }
+
+    //for easy maintenance.
+    public static boolean shouldHaveCoincideDmg(IPlant plant, Level level, Vec3 position) {
+        if (! plant.takesCoincideDmg()) {
             return false;
         } else {
-            Vec3 subPos = this.position();
-            AABB range = this.getBoundingBox().move(position.add(-subPos.x, -subPos.y, -subPos.z)).inflate(-1e-4);
-            List<Entity> list = level.getEntities(this, range,
-                    (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
+            Vec3 subPos = ((LivingEntity) plant).position();
+            AABB range = ((LivingEntity) plant).getBoundingBox().move(position.add(-subPos.x, -subPos.y, -subPos.z)).inflate(-1e-4);
+            List<Entity> list = level.getEntities(((LivingEntity) plant), range,
+                    (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && ! EntityUtil.hasRidingRelationship(((LivingEntity) plant), entity));
             return !list.isEmpty();
         }
     }
@@ -320,6 +325,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         return onBeingShoveled(player, handIn, this);
     }
 
+    //for easy maintenance.
     public static boolean onBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
         //check permission.
         final boolean[] permission = {false};
@@ -435,6 +441,8 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
     public ItemStack getPickResult() {
         return getPickResult(this);
     }
+
+    //for easy maintenance.
     public static ItemStack getPickResult(LivingEntity entity) {
         AtomicReference<Item> packetItem = new AtomicReference<>();
         SeedPacketItem.seedPacketItemList.forEach(item -> {
@@ -446,7 +454,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
         PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
-        return cap.getOwner() == null;
+        return cap == null || cap.getOwner() == null;
         //TODO handle situation when player is not available when loading.
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {

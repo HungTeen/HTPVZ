@@ -154,7 +154,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, player.getItemInHand(handIn));
             MinecraftForge.EVENT_BUS.post(event);
             if (event.cost > PVZPlayerCapability.getValue(player, event.resource)) {
-                PVZOverlayHandler.notEnoughHint = 3;
+                PVZOverlayHandler.notEnoughHint = 1.5F;
             }
             return InteractionResultHolder.fail(player.getItemInHand(handIn));
         }
@@ -240,21 +240,25 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     /**Situation of interacting with mobs.*/
-    @Override
-    public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {
-        Level level = player.getLevel();
-        MutableComponent plantResult = this.plantOnEntity(player, itemStack, level, target);
-        if (plantResult == null) {
-            this.used(itemStack, player);
-            return InteractionResult.CONSUME;
-        } else {
-            if (! player.getCooldowns().isOnCooldown(this)) {
-                player.getCooldowns().addCooldown(this, 1);//to prevent bug of also planting on floor behind entity while clicking it.
+
+    @SubscribeEvent
+    public static void interactEntity(PlayerInteractEvent.EntityInteract ev) {
+        Level level = ev.getLevel();
+        ItemStack itemStack = ev.getEntity().getItemInHand(ev.getHand());
+        if (ev.getEntity().getItemInHand(ev.getHand()).getItem() instanceof SeedPacketItem<?> item) {
+            MutableComponent plantResult = item.plantOnEntity(ev.getEntity(), itemStack, level, ev.getTarget());
+            if (plantResult == null) {
+                item.used(itemStack, ev.getEntity());
+                ev.setCancellationResult(InteractionResult.CONSUME);
+                ev.setCanceled(true);
+            } else {
+                if (! ev.getEntity().getCooldowns().isOnCooldown(item)) {
+                    ev.getEntity().getCooldowns().addCooldown(item, 1);//to prevent bug of also planting on floor behind entity while clicking it.
+                }
+                //display massage when not in a proper place.
+                ev.getEntity().displayClientMessage(plantResult, true);
             }
-            //display massage when not in a proper place.
-            player.displayClientMessage(plantResult, true);
         }
-        return super.interactLivingEntity(itemStack, player, target, hand);
     }
 
     public MutableComponent plantOnEntity(Player player, ItemStack itemStack, Level level, Entity target) {

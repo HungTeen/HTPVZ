@@ -12,6 +12,7 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
+import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
 import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -105,7 +106,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.goalSelector.addGoal(1, new TurnipShareTargetGoal(this));
+        this.goalSelector.addGoal(1, new GroupShareEnemyGoal(this));
         this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this));
     }
     @Override
@@ -369,31 +370,6 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         @Override
         protected double getAttackReachSqr(LivingEntity p_25556_) {
             return this.mob.getBbWidth() * this.mob.getBbWidth() * 8.0F + p_25556_.getBbWidth() * p_25556_.getBbWidth();
-        }
-    }
-    private static class TurnipShareTargetGoal extends Goal{
-        VelociRadish turnip;
-        int count = 5;
-        public TurnipShareTargetGoal(VelociRadish turnip) {
-            this.turnip = turnip;
-        }
-
-        @Override
-        public boolean canUse() {
-            return (EntityUtil.isEntityValid((Entity) turnip.getLeader()) && EntityUtil.checkCanEntityBeAttack(turnip, turnip.getTarget()));
-        }
-
-        @Override
-        public void tick(){
-            if (-- count == 0) {
-                count = 5;
-                for (VelociRadish entity : turnip.level.getEntitiesOfClass(VelociRadish.class, this.turnip.getBoundingBox().inflate(2),
-                        (target) -> PVZOwnedCapability.isTeammate(this.turnip, target))) {
-                    if ((turnip.getLeader() == entity.getLeader() || turnip.getLeader() == entity) && ! EntityUtil.checkCanEntityBeAttack(entity, entity.getTarget())) {
-                        entity.setTarget(turnip.getTarget());
-                    }
-                }
-            }
         }
     }
 }

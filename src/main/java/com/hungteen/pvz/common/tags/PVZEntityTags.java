@@ -9,8 +9,8 @@ import net.minecraft.world.entity.EntityType;
 public class PVZEntityTags {
 
     /**Basic tags.*/
-    public static TagKey<EntityType<?>> PLANT = pvzTag("plant");
-    public static TagKey<EntityType<?>> ZOMBIE = pvzTag("zombie");
+    public static TagKey<EntityType<?>> PLANT = pvzTag("pvz_plant");
+    public static TagKey<EntityType<?>> ZOMBIE = pvzTag("pvz_zombie");
 
     /** For non-pvz entities, with this tag will it be regarded as iron. <br>
      * {@link com.hungteen.pvz.api.interfaces.IIronEntity} has the same effect and is more controllable.*/

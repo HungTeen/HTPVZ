@@ -123,14 +123,14 @@ public class TorchWood extends SimplePlant {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 0.5, 2).move(0, 1, 0),
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(1, 0.5, 1).move(0, 1, 0),
                     (entity) -> (entity instanceof PeaBullet && PVZOwnedCapability.isTeammate(entity, this.entity)));
             entities.forEach((entity) -> {
                 if (entity instanceof PeaBullet pea && pea.changeCoolDown <= 0) {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {
                         return;
                     } else if (pea.getPeaType() == PeaBullet.PeaType.Common) {
-                        pea.setAttackDamage(pea.getAttackDamage() * (this.entity.isSoulFire() ? 2 : 1));
+                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 4 : 2));
                     }
                     pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :
                             this.entity.isSoulFire() ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);
