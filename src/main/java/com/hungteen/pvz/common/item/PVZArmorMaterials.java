@@ -1,9 +1,5 @@
 package com.hungteen.pvz.common.item;
 
-import com.hungteen.pvz.client.model.attached.BucketHelmetModel;
-import com.hungteen.pvz.client.model.attached.ConeHelmetModel;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -11,16 +7,15 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public enum PVZArmorMaterials implements ArmorMaterial {
 
-    CONE("pvz:cone", 30, new int[]{0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, 0F, 0F, () -> Ingredient.of(Items.LEATHER), true),
+    CONE("pvz:cone", 30, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, 0F, 0F, () -> Ingredient.of(Items.LEATHER), true),
+    BUCKET("pvz:bucket", 80, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, () -> Ingredient.of(Items.IRON_INGOT), true),
+    DUCK_LIFEBUOY("pvz:duck_lifebuoy", 100, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, 0F, 0F, () -> Ingredient.of(Items.LEATHER), true);
 
-    BUCKET("pvz:bucket", 80, new int[]{0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, () -> Ingredient.of(Items.IRON_INGOT), true);
-
-    private static final int[] HEALTH_PER_SLOT = new int[]{13, 15, 16, 11};
+    private static final int[] HEALTH_PER_SLOT = new int[] {13, 15, 16, 11};
     private final String name;
     private final int durabilityMultiplier;
     private final int[] slotProtections;
@@ -45,11 +40,6 @@ public enum PVZArmorMaterials implements ArmorMaterial {
         this.knockbackResistance = kbValue;
         this.repairIngredient = ingredientSupplier;
         this.sameDurability = sameDurability;
-    }
-
-    public Function<ModelPart, HumanoidModel<?>> getModel() {
-        return this == CONE ? ConeHelmetModel::new
-         : this == BUCKET ? BucketHelmetModel::new : null;
     }
 
     public int getDurabilityForSlot(EquipmentSlot slot) {
