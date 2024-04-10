@@ -57,6 +57,10 @@ public abstract class ProducerPlant extends SimplePlant {
         super.onSyncedDataUpdated(p_219422_);
     }
 
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
+
     //sun produce related.
     /**
      * sun produce plant gen sun

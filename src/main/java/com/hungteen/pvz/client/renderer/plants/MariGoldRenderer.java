@@ -1,5 +1,7 @@
 package com.hungteen.pvz.client.renderer.plants;
 
+import com.hungteen.pvz.client.layer.GardenRequirmentLayer;
+import com.hungteen.pvz.client.layer.MarigoldPetalsLayer;
 import com.hungteen.pvz.client.layer.fullskin.LightLayer;
 import com.hungteen.pvz.client.model.plants.MariGoldModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
@@ -16,17 +18,19 @@ public class MariGoldRenderer<T extends MariGold> extends MobRenderer<T, EntityM
 
     private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/marigold/marigold.png");
     public MariGoldRenderer(EntityRendererProvider.Context context) {
-        super(context, new MariGoldModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("marigold:main"))), 0.6F);
-        this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/marigold/marigold_light.png")));
+        super(context, new MariGoldModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("marigold:main"))), 0.45F);
+        this.addLayer(new MarigoldPetalsLayer(this));
+        this.addLayer(new GardenRequirmentLayer(this));
     }
 
-
-    public void render(T sunflower, float p_115456_, float p_115457_, PoseStack poseStack, MultiBufferSource buffer, int p_115460_) {
-        super.render(sunflower, p_115456_, p_115457_, poseStack, buffer, p_115460_);
+    public void render(T marigold, float p_115456_, float p_115457_, PoseStack poseStack, MultiBufferSource buffer, int p_115460_) {
+        int level = marigold.getGrowLevel();
+        this.shadowRadius = (float) (0.45 * (level >= 3 ? 1 : Math.min(1, (float) ((level + 1) * 0.3 + 0.2))));
+        super.render(marigold, p_115456_, p_115457_, poseStack, buffer, p_115460_);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T sunflower) {
+    public ResourceLocation getTextureLocation(T marigold) {
         return STATE0;
     }
 

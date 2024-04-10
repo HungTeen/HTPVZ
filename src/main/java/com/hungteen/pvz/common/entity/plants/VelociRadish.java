@@ -174,6 +174,9 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         super.onSyncedDataUpdated(p_219422_);
     }
 
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
     //overrides
     @Override
     public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
@@ -320,7 +323,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
         PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
-        return cap.getOwner() == null;
+        return cap == null || ! cap.hasOwner();
     }
 
     //ICanGroupUp

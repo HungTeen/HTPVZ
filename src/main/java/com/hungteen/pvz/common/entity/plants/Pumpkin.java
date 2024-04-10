@@ -44,6 +44,9 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
         storedHealth = 0;
     }
 
+    public void setupPresentationAnim() {
+    }
+
     //entity settings
     public void setSecondsOnFire(int seconds) {
         super.setSecondsOnFire(seconds * 3);//balance test.

@@ -34,7 +34,7 @@ public class ModelPartEntity extends Entity {
     public int life;
 
     public ModelPartEntity(EntityType<?> p_19870_, Level p_19871_) {
-        this(p_19871_, null, null, 50);
+        this(p_19871_, null, null, 80);
     }
     public ModelPartEntity(Level p_19871_, ModelPart model, ResourceLocation texture) {
         this(p_19871_, model, texture, 80);

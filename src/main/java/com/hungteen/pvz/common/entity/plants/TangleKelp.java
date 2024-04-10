@@ -68,6 +68,8 @@ public class TangleKelp extends SimplePlant implements Bucketable {
             new Skill("skill.pvz.tangle_kelp.oxygen_algae", PVZItems.VENTUS_ESSENCE, 8, 8, 175, 700).avoidSkills(0)
     );
 
+    public void setupPresentationAnim() {
+    }
     public TangleKelp(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
         this.entityData.set(root(), false);
@@ -119,7 +121,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
                 int i = 0;
                     while (i < 3) {
                         i ++;
-                        level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.KELP)),//TODO change that.
+                        level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.KELP)),
                             getX() + random.nextFloat() * 0.25 - 0.12, getY() + 0.5 + random.nextFloat() * 0.25 - 0.12, getZ() + random.nextFloat() * 0.25 - 0.12,
                             random.nextFloat() * 0.3 - 0.15,
                             random.nextFloat() * 0.3,
@@ -268,7 +270,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
 
     @Override
     public ItemStack getBucketItemStack() {
-        return new ItemStack(PVZItems.TANGLE_KELP_BUCKET.get());
+        return PVZItems.TANGLE_KELP_BUCKET.get().getDefaultInstance();
     }
 
     public void saveToBucketTag(ItemStack itemStack) {

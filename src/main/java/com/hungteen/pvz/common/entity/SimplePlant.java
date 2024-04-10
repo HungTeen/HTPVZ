@@ -325,6 +325,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         return onBeingShoveled(player, handIn, this);
     }
 
+    @Override
+    public void setupPresentationAnim() {
+
+    }
+
     //for easy maintenance.
     public static boolean onBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
         //check permission.
@@ -449,12 +454,12 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             if (item.getEntity().equals(entity.getType())) {
                 packetItem.set(item);
             }});
-        return new ItemStack(packetItem.get());
+        return (packetItem.get()).getDefaultInstance();
     }
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
         PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
-        return cap == null || cap.getOwner() == null;
+        return cap == null || ! cap.hasOwner();
         //TODO handle situation when player is not available when loading.
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {

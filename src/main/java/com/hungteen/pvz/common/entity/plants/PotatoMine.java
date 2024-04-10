@@ -54,7 +54,10 @@ public class PotatoMine extends SimplePlant {
             this.discard();//TODO modify damage calculator.
         }
     }
-
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+        this.entityData.set(DATA_POSE, Pose.STANDING);
+    }
     //overrides
     @Override
     protected void registerGoals() {

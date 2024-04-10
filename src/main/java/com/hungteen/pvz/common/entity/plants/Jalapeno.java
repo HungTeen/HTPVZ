@@ -32,6 +32,10 @@ public class Jalapeno extends SimplePlant {
             new Skill("skill.pvz.jalapeno.precise_strike", PVZItems.IGNIS_ESSENCE, 4, 4, 100, 0)
     );
 
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
+
     public Jalapeno(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
         this.idleAnimationState.start(this.tickCount);

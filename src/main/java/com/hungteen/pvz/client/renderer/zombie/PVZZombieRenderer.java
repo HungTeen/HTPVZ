@@ -13,6 +13,7 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.layers.ArrowLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
@@ -26,6 +27,9 @@ public class PVZZombieRenderer<T extends PVZZombie, M extends PVZZombieModel<T>>
         this.addLayer(new HumanoidArmorLayer<>(this,
                 new ZombieModel<>(context.bakeLayer(ModelLayers.ZOMBIE_INNER_ARMOR)),
                 new ZombieModel<>(context.bakeLayer(ModelLayers.ZOMBIE_OUTER_ARMOR))));
+        if (PVZConfig.renderZombieStuckArrows()) {
+            this.addLayer(new ArrowLayer<>(context, this));
+        }
     }
 
     @Override

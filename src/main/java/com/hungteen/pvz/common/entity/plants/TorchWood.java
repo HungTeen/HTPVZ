@@ -90,6 +90,9 @@ public class TorchWood extends SimplePlant {
                     level.getBlockState(getOnPos().above().above()).setValue(PlanternLightBlock.HAS_SOURCE, true), 2);
         }
     }
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
     @Override
     public boolean canBeCollidedWith() {
         return true;

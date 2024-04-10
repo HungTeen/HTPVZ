@@ -136,6 +136,8 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         this.shouldAlign = false;
         super.tick();
     }
+    public void setupPresentationAnim() {
+    }
 
     @Override
     public void travel(Vec3 vec3) {

@@ -20,7 +20,6 @@ public class PumpkinRenderer<T extends Pumpkin> extends MobRenderer<T, EntityMod
 
     public PumpkinRenderer(EntityRendererProvider.Context context) {
         super(context, new PumpkinModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("pumpkin:main"))), 0.6F);
-//        this.addLayer(new WallNutArmorLayer(this, context.getModelSet()));
     }
 
 

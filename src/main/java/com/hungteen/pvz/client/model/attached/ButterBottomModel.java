@@ -23,7 +23,7 @@ public class ButterBottomModel<T extends Entity> extends HierarchicalModel<T> {
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
 		PartDefinition bb_main = partdefinition.addOrReplaceChild("bb_main", CubeListBuilder.create().texOffs(-16, 16).addBox(-8.0F, -0.01F, -8.0F, 16.0F, 0.0F, 16.0F, new CubeDeformation(0.0F))
-				.texOffs(-16, 0).addBox(-8.0F, -0.11F, -8.0F, 16.0F, 0.0F, 16.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+				.texOffs(-16, 0).addBox(-8.0F, -0.21F, -8.0F, 16.0F, 0.0F, 16.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
 		PartDefinition cube_r1 = bb_main.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(0, 32).addBox(-4.0F, -3.75F, -4.0F, 8.0F, 4.0F, 8.0F, new CubeDeformation(0.01F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.0873F, 0.0F, 0.0F));
 

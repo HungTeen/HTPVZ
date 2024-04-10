@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.block;
 
+import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
@@ -25,15 +26,15 @@ public class GardenFlowerPotBlock extends SlabBlock {
         SlabType slabtype = p_56390_.getValue(TYPE);
         switch (slabtype) {
             case DOUBLE:
-                return Block.box(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
+                return Block.box(1.0D, 0.0D, 1.0D, 15.0D, 15.0D, 15.0D);
             case TOP:
-                return Block.box(1.0D, 8.0D, 1.0D, 15.0D, 16.0D, 15.0D);
+                return Block.box(1.0D, 8.0D, 1.0D, 15.0D, 15.0D, 15.0D);
             default:
-                return Block.box(1.0D, 0.0D, 1.0D, 15.0D, 8.0D, 15.0D);
+                return Block.box(1.0D, 0.0D, 1.0D, 15.0D, 7.0D, 15.0D);
         }
     }
     public void animateTick(BlockState blockState, Level level, BlockPos blockPos, RandomSource random) {
-        if ((long)level.random.nextInt(50) <= level.getGameTime() % 50L) {
+        if ((long)level.random.nextInt(30) <= level.getGameTime() % 30L && level.dimension().location().equals(Util.prefix("zen_garden"))) {
             level.addParticle(ParticleTypes.COMPOSTER.getType(), blockPos.getX() + random.nextFloat(), blockPos.getY() + random.nextFloat(), blockPos.getZ() + random.nextFloat(), 0, 0, 0);
         }
     }

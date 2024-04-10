@@ -37,4 +37,11 @@ public interface IPlant{
      Is effective for all IPlant.<br>
      For plants not extending SimplePlant, can use {@link com.hungteen.pvz.common.entity.SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity) SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity)}.*/
     boolean onBeingShoveled(Player player, InteractionHand handIn);
+
+    /**Whether garden flower pot should be water pot when a sprout transformed into this plant in Zen Garden.*/
+    default boolean needWaterPotInGarden() {
+        return false;
+    }
+    /**called when a sprout transform into this plant in Zen Garden. Only in client side.*/
+    void setupPresentationAnim();
 }

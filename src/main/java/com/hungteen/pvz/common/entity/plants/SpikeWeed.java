@@ -51,6 +51,9 @@ public class SpikeWeed extends SimplePlant {
                 .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.ATTACK_DAMAGE, 2D);
     }
+
+    public void setupPresentationAnim() {
+    }
     @Override
     protected void registerGoals() {
         super.registerGoals();

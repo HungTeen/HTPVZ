@@ -110,7 +110,7 @@ public class EssenceFurnaceRecipe implements Recipe<Container> {
                 String s1 = GsonHelper.getAsString(json, "result");
                 ResourceLocation resourcelocation = new ResourceLocation(s1);
                 if (ForgeRegistries.ITEMS.containsKey(resourcelocation)) {
-                    result = new ItemStack(ForgeRegistries.ITEMS.getValue(resourcelocation));
+                    result = ForgeRegistries.ITEMS.getValue(resourcelocation).getDefaultInstance();
                 } else {
                     throw new IllegalStateException("Item: " + s1 + " does not exist");
                 }

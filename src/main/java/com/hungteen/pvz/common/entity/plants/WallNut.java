@@ -94,6 +94,8 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
         return staticSkillList;
     }
 
+    public void setupPresentationAnim() {
+    }
     @Override
     protected void registerGoals() {
         super.registerGoals();

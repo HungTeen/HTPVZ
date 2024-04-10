@@ -26,7 +26,7 @@ public class KernelPult extends ShooterPlant {
 
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.kernel_pult.butter_pult", PVZItems.ORIGIN_ESSENCE, 8, 8, 200, 300),
-            new Skill("skill.pvz.kernel_pult.butter_trap", PVZItems.AQUA_ESSENCE, 8, 8, 50, 0).avoidSkills(0)
+            new Skill("skill.pvz.kernel_pult.butter_trap", PVZItems.AQUA_ESSENCE, 8, 8, 25, 0).avoidSkills(0)
     );
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {
@@ -67,10 +67,6 @@ public class KernelPult extends ShooterPlant {
     @Override
     public float getAttackDamage() {
         return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue() * (getCurrentBullet() == CornTypes.BUTTER ? 2 : 1);
-    }
-    @Override
-    public Set<Integer> shootTimes() {
-        return Set.of(10);
     }
     @Override
     public int getShootCD() {

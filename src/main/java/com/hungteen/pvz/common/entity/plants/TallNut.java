@@ -43,6 +43,8 @@ public class TallNut extends WallNut{
                 .add(Attributes.ARMOR_TOUGHNESS, 30D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
+    public void setupPresentationAnim() {
+    }
 
     public float getMaxIronArmor() {
         return 300;

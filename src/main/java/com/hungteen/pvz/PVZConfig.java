@@ -41,6 +41,9 @@ public class PVZConfig {
     public static boolean renderButterOnHead(){
         return Client.renderButterOnHead.get();
     }
+    public static boolean renderZombieStuckArrows(){
+        return Client.zombieRenderStuckArrows.get();
+    }
 
     public static void init(){
         {
@@ -64,6 +67,7 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> killWisdomTree;
         public static ForgeConfigSpec.ConfigValue<Boolean> canCanCanKelp;
         public static ForgeConfigSpec.ConfigValue<Boolean> dynamicSunRule;
+        public static ForgeConfigSpec.ConfigValue<Boolean> dyeMarigold;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public Common(ForgeConfigSpec.Builder builder){
             builder.comment("All these configs are the default values of pvz rules.")
@@ -94,6 +98,10 @@ public class PVZConfig {
                             .translation("config.pvz.common.dynamic_sun_rule")
                             .comment("if on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),
                     "dynamicSunRule", true);
+            dyeMarigold = add(builder
+                            .translation("config.pvz.common.dye_marigold")
+                            .comment("if on, player can dye marigold with dye."),
+                    "dyeMarigold", false);
             naturallySpawnSunInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_sun_interval")
                             .comment("sun naturally spawn by players in the sky when skylight matches condition at this interval."),
@@ -125,10 +133,11 @@ public class PVZConfig {
         public static ForgeConfigSpec.BooleanValue renderBulletAsModel;
         public static ForgeConfigSpec.BooleanValue zombiesDropParts;
         public static ForgeConfigSpec.BooleanValue renderButterOnHead;
+        public static ForgeConfigSpec.BooleanValue zombieRenderStuckArrows;
 
 
         public Client(ForgeConfigSpec.Builder builder){
-            builder.comment("Settings about GUI rendering").push("Overlay Settings");
+            builder.comment("Settings about GUI rendering. Some settings activates after restarting the game.").push("Overlay Settings");
             //overlay settings
             renderSunAsNumber = builder
                     .translation("config.pvz.client.render_sun_as_number")
@@ -164,7 +173,11 @@ public class PVZConfig {
             renderButterOnHead = builder
                     .translation("config.pvz.client.render_butter_on_head")
                     .comment("Render butter on heads of entities. This Option can lead to some rendering bug, especially when the model of the target entity is scaled.")
-                    .define("renderButter", false);
+                    .define("renderButterOnHead", false);
+            zombieRenderStuckArrows = builder
+                    .translation("config.pvz.client.zombie_render_stuck_arrows")
+                    .comment("Whether pvz zombies render stuck arrows on them when they got shoot by arrows.")
+                    .define("zombieRenderStuckArrows", false);
             builder.pop();
         }
     }

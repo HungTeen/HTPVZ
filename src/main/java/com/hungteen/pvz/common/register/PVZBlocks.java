@@ -2,10 +2,12 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.block.*;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.world.zen_garden.NutTreeGrower;
 import com.hungteen.pvz.generator.loot.BlockLootGen;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -13,6 +15,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SignItem;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.AbstractTreeGrower;
@@ -22,7 +25,10 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.model.generators.ModelProvider;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -90,13 +96,34 @@ public class PVZBlocks {
     public static final RegistryObject<Block> PATTRA_LEAVES = tag(BlockTags.LEAVES).renderType("cutout").loot(false).block("pattra_leaves", () -> new PattraLeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES).strength(5F).noLootTable()));
     public static final RegistryObject<Block> ESSENCE_ALTAR = tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).renderType("cutout").blockEntity("essence_altar").block("essence_altar", () -> new EssenceAltarBlock(BlockBehaviour.Properties.copy(Blocks.ENCHANTING_TABLE)));
     public static final RegistryObject<Block> ESSENCE_FURNACE = tag(BlockTags.NEEDS_STONE_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).blockEntity("essence_furnace").block("essence_furnace", () -> new EssenceFurnaceBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).lightLevel(litBlockEmission(13))));
-    public static final RegistryObject<Block> GARDEN_FLOWER_POT = tag(BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).itemModel(PVZItems.Model.Block).block("garden_flower_pot", () -> new GardenFlowerPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0.5F)));
+    public static final RegistryObject<Block> GARDEN_FLOWER_POT = tag(BlockTags.MINEABLE_WITH_PICKAXE, PVZBlockTags.GARDEN_FLOWER_POT).model(Model.Modeled).itemModel(PVZItems.Model.Block).block("garden_flower_pot", () -> new GardenFlowerPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0.5F)));
+    public static final RegistryObject<Block> WATERING_POT = model(Model.Modeled).noItem().block("watering_pot", () -> new WateringPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F)));
 
     //NO_TAB
     public static final RegistryObject<Block> PLANTERN_LIGHT = loot(false).model(Model.Modeled).blockEntity("plantern_light").noItem().block("plantern_light", () -> new PlanternLightBlock(BlockBehaviour.Properties.of(Material.AIR).strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> 15)));
-    public static final RegistryObject<Block> PEA = model(Model.Modeled).renderType("cutout").noItem().block("pea", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)) {@Override public ItemLike getBaseSeedId() {return PVZItems.PEA.get();}});
-    public static final RegistryObject<Block> CABBAGE_SEEDS = model(Model.Modeled).renderType("cutout").noItem().block("cabbage_seeds", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)) {@Override public ItemLike getBaseSeedId() {return PVZItems.CABBAGE_SEED.get();}});
-    public static final RegistryObject<Block> CORN_KERNELS = model(Model.Modeled).renderType("cutout").noItem().block("corn_kernels", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.MELON_STEM)) {@Override public ItemLike getBaseSeedId() {return PVZItems.CORN_KERNELS.get();}});
+
+    //CROPS
+    public static final RegistryObject<Block> PEA = tag(BlockTags.CROPS).model(Model.Modeled).renderType("cutout").noItem().block("pea", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)) {
+        private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{Block.box(2.0D, 0.0D, 2.0D, 14.0D, 2.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 4.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 6.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 8.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 10.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 12.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 14.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D)};
+        @Override public ItemLike getBaseSeedId() {return PVZItems.PEA.get();}
+        public VoxelShape getShape(BlockState p_52297_, BlockGetter p_52298_, BlockPos p_52299_, CollisionContext p_52300_) {
+            return SHAPE_BY_AGE[p_52297_.getValue(this.getAgeProperty())];
+        }
+    });
+    public static final RegistryObject<Block> CABBAGE_SEEDS = tag(BlockTags.CROPS).model(Model.Modeled).renderType("cutout").noItem().block("cabbage_seeds", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)) {
+        private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{Block.box(6.0D, 0.0D, 6.0D, 10.0D, 2.0D, 10.0D), Block.box(6.0D, 0.0D, 6.0D, 10.0D, 2.0D, 10.0D), Block.box(6.0D, 0.0D, 6.0D, 10.0D, 4.0D, 10.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 4.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 6.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 6.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 8.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 8.0D, 12.0D)};
+        @Override public ItemLike getBaseSeedId() {return PVZItems.CABBAGE_SEED.get();}
+        public VoxelShape getShape(BlockState p_52297_, BlockGetter p_52298_, BlockPos p_52299_, CollisionContext p_52300_) {
+            return SHAPE_BY_AGE[p_52297_.getValue(this.getAgeProperty())];
+        }
+    });
+    public static final RegistryObject<Block> CORN_KERNELS = tag(BlockTags.CROPS).model(Model.Modeled).renderType("cutout").noItem().block("corn_kernels", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.MELON_STEM)) {
+        private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{Block.box(4.0D, 0.0D, 4.0D, 12.0D, 2.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 4.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 6.0D, 12.0D), Block.box(4.0D, 0.0D, 2.0D, 12.0D, 8.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 10.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 12.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 14.0D, 12.0D), Block.box(4.0D, 0.0D, 4.0D, 12.0D, 16.0D, 12.0D)};
+        @Override public ItemLike getBaseSeedId() {return PVZItems.CORN_KERNELS.get();}
+        public VoxelShape getShape(BlockState p_52297_, BlockGetter p_52298_, BlockPos p_52299_, CollisionContext p_52300_) {
+            return SHAPE_BY_AGE[p_52297_.getValue(this.getAgeProperty())];
+        }
+    });
     /**Default loots self. Use {@link BlockLootGen#addTables()} to modify.*/
 
 

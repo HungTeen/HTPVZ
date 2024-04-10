@@ -247,7 +247,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
         if (!level.isClientSide) {
             this.setBald(true);
             this.growHairTick = 400 + this.random.nextInt(600);
-            return List.of(new ItemStack(Items.KELP));
+            return List.of(Items.KELP.getDefaultInstance());
         }
         return java.util.Collections.emptyList();
     }
@@ -264,7 +264,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     //bucket
     @Override
     public ItemStack getBucketItemStack() {
-        return new ItemStack(PVZItems.GRASSCARP_BUCKET.get());
+        return PVZItems.GRASSCARP_BUCKET.get().getDefaultInstance();
     }
 
     public void saveToBucketTag(ItemStack itemStack) {

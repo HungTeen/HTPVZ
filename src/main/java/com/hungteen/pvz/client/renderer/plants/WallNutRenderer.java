@@ -25,7 +25,7 @@ public class WallNutRenderer<T extends WallNut> extends MobRenderer<T, EntityMod
 
     public WallNutRenderer(EntityRendererProvider.Context context) {
         super(context, new WallNutModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("wall_nut:main"))), 0.6F);
-        this.addLayer(new WallNutColorLayer(this, context.getModelSet()));
+        this.addLayer(new WallNutColorLayer(this));
         this.addLayer(new WallNutArmorLayer(this, context.getModelSet()));
     }
 

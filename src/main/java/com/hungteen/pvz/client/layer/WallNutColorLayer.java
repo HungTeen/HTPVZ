@@ -21,9 +21,9 @@ public class WallNutColorLayer<T extends WallNut> extends RenderLayer<T, WallNut
     private static final ResourceLocation STATE2 = Util.prefix("textures/entity/plants/wall_nut/wall_nut_bleach_2.png");
     private final WallNutModel<T> model;
 
-    public WallNutColorLayer(RenderLayerParent<T, WallNutModel<T>> layerParent, EntityModelSet modelSet) {
+    public WallNutColorLayer(RenderLayerParent<T, WallNutModel<T>> layerParent) {
         super(layerParent);
-        this.model = new WallNutModel<>(modelSet.bakeLayer(PVZLayerHandler.LayerLocationMap.get("wall_nut:main")));
+        this.model = layerParent.getModel();
     }
 
     @Override

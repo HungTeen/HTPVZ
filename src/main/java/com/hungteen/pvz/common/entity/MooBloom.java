@@ -57,7 +57,7 @@ public class MooBloom extends Cow implements Shearable, net.minecraftforge.commo
         ItemStack itemstack = p_28941_.getItemInHand(p_28942_);
         if (itemstack.is(Items.BOWL) && !this.isBaby()) {
             ItemStack itemstack1;
-            itemstack1 = new ItemStack(Items.SUSPICIOUS_STEW);
+            itemstack1 = Items.SUSPICIOUS_STEW.getDefaultInstance();
             SuspiciousStewItem.saveMobEffect(itemstack1, PVZMobEffects.BRIGHTNESS.get(), 600);
             ItemStack itemstack2 = ItemUtils.createFilledResult(itemstack, p_28941_, itemstack1, false);
             p_28941_.setItemInHand(p_28942_, itemstack2);
@@ -117,7 +117,7 @@ public class MooBloom extends Cow implements Shearable, net.minecraftforge.commo
 
             java.util.List<ItemStack> items = new java.util.ArrayList<>();
             for (int i = 0; i < 3; ++i) {
-                items.add(new ItemStack(Blocks.SUNFLOWER));
+                items.add(Items.SUNFLOWER.getDefaultInstance());
             }
             return items;
         }

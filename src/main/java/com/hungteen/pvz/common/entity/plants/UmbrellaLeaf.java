@@ -34,7 +34,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     public AnimationState openAnimationState = new AnimationState();
     protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(UmbrellaLeaf.class, EntityDataSerializers.BOOLEAN);
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf", PVZItems.LUX_ESSENCE, 8, 8, -100, -50)
+            new Skill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf", PVZItems.LUX_ESSENCE, 8, 3, -100, -50)
     );
 
     public UmbrellaLeaf(EntityType<? extends Mob> entityType, Level level) {
@@ -116,6 +116,9 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
 
         super.onSyncedDataUpdated(p_219422_);
+    }
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
     }
 
     public static AttributeSupplier.Builder createAttributes() {

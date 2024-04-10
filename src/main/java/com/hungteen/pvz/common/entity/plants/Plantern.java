@@ -37,7 +37,9 @@ public class Plantern extends SimplePlant {
         this.setPersistenceRequired();
         this.idleAnimationState.start(this.tickCount);
     }
-
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)

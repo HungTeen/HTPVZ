@@ -42,7 +42,7 @@ public class ArrowWithATarget extends AbstractArrow {
 
     @Override
     protected ItemStack getPickupItem() {
-        return new ItemStack(PVZItems.ARROW_WITH_A_TARGET.get());
+        return PVZItems.ARROW_WITH_A_TARGET.get().getDefaultInstance();
     }
 
     @Override

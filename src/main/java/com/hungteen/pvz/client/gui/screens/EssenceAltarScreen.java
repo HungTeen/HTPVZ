@@ -155,7 +155,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                         //available.
                         int mouseRelativeX = mouseX - x;
                         int mouseRelativeY = mouseY - (y + 14 + 19 * i);
-                        if (mouseRelativeX >= 0 && mouseRelativeY >= 0 && mouseRelativeX < 92 && mouseRelativeY < 19) {
+                        if (mouseRelativeX >= 0 && mouseRelativeY >= 0 && mouseRelativeX < (notMoreThanThree ? 108 : 92) && mouseRelativeY < 19) {
                             this.blit(stack, x, y + 14 + 19 * i, notMoreThanThree ? 92 : 0, 204 + (notMoreThanThree ? 2 : 0), (notMoreThanThree ? 108 : 92), 19);
                             color = 0xffff80;
                         } else {
@@ -189,7 +189,8 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         super.render(stack, mouseX, mouseY, partialTicks);
         int top = this.topPos + 14;
         int bottom = top + 57;
-        if (mouseX > leftPos + 60 && mouseX < leftPos + 152 && mouseY > top && mouseY <= bottom) {
+        boolean notMoreThanThree = skills.size() <= 3;
+        if (mouseX > leftPos + 60 && mouseX < leftPos + (notMoreThanThree ? 166 : 152) && mouseY > top && mouseY <= bottom) {
             if (skills.size() > (mouseY - top) / 19 + shownFirstSkill) {
                 int cost = skills.get((mouseY - top) / 19 + shownFirstSkill).addCostResource;
                 int cd = skills.get((mouseY - top) / 19 + shownFirstSkill).addCoolDown;
@@ -249,9 +250,10 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         int bottom = top + 57;
         int allowedMax = skills.size() - 3;
         float current = shownFirstSkill / (float) allowedMax * (bottom - 15 - top);
+        boolean notMoreThanThree = skills.size() <= 3;
         if (skills.size() >= 4 && mouseX > (double)(leftPos + 156) && mouseX < (double)(leftPos + 168) && mouseY > (double) top + current && mouseY <= (double)(top + current + 15)) {
             this.isDragging = true;
-        } else if (mouseX > leftPos + 60 && mouseX < leftPos + 152 && mouseY > top && mouseY <= bottom) {
+        } else if (mouseX > leftPos + 60 && mouseX < leftPos + (notMoreThanThree ? 166 : 152) && mouseY > top && mouseY <= bottom) {
             if (skills.size() > (mouseY - top) / 19 + shownFirstSkill) {
                 PVZAddSkillPacket.addSkill((int) floor((mouseY - top) / 19) + shownFirstSkill);
             }

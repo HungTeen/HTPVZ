@@ -300,6 +300,10 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
         super.onSyncedDataUpdated(data);
     }
 
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
+
     @Override
     public EntityDataAccessor<Boolean> root() {
         return ROOT;
@@ -479,8 +483,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeed
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
         PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
-        return cap.getOwner() == null;
-        //TODO handle situation when player is not available when loading.
+        return cap == null || ! cap.hasOwner();
     }
 
     @Override

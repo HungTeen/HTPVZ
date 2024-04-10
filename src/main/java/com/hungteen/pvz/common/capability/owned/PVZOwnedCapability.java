@@ -85,10 +85,14 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
             }
         }
     }
-
+    /**don't use this method to adjust if the entity has owner! use {@link PVZOwnedCapability#hasOwner() hasOwner()} instead.*/
     public Entity getOwner() {
         this.owner = owner == null ? ((ServerLevel) (entity.level)).getEntity(ownerUuid) : owner;
         return owner;
+    }
+
+    public boolean hasOwner() {
+        return ownerUuid != null;
     }
 
     public static boolean isTeammate(Entity A, Entity B) {

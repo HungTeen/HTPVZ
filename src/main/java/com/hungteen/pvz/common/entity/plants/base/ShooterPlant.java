@@ -150,6 +150,9 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 		super.onSyncedDataUpdated(p_219422_);
 	}
+	public void setupPresentationAnim() {
+		this.idleAnimationState.start(this.tickCount);
+	}
 
 	protected abstract Projectile createBullet();
 

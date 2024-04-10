@@ -29,6 +29,8 @@ public class PVZSeedPackets {
 
     static {
         //pvz packets.
+
+        //overworld
         add(PVZEntities.PEA_SHOOTER).cost(100).coolDown(FAST).skillList(PeaShooter.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.SUN_FLOWER).cost(50).coolDown(SLOW).skillList(List.of())//No skills.
@@ -50,13 +52,14 @@ public class PVZSeedPackets {
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.ICEBERG_LETTUCE).cost(0).coolDown(MIDDLE).skillList(IcebergLettuce.staticSkillList)
-                .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.GELUM_ESSENCE);
+                .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.VELOCI_RADISH).cost(50).coolDown(FAST).skillList(VelociRadish.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.
                 .recipe(PVZItems.FLOWER_SEED_PACKET).noAutoRecipe().setCreativeOnly();
+        //the nether
         add(PVZEntities.REPEATER).cost(175).coolDown(FAST).skillList(Repeater.staticSkillList)
-                .recipe(PVZItems.PEA, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+                .recipe(PVZItems.NETHER_WART_SEED_PACKET);
         add(PVZEntities.JALAPENO).cost(125).coolDown(VERY_SLOW).skillList(Jalapeno.staticSkillList)
                 .recipe(PVZItems.PEPPER, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
         add(PVZEntities.TORCH_WOOD).cost(450).coolDown(SLOW).skillList(TorchWood.staticSkillList)
@@ -71,10 +74,12 @@ public class PVZSeedPackets {
                 .recipe(Items.PUMPKIN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
                 .recipe(Items.BIG_DRIPLEAF, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        //the end
         add(PVZEntities.MELON_PULT).cost(350).coolDown(MIDDLE).skillList(MelonPult.staticSkillList)
                 .recipe(Items.MELON, PVZItems.CHORUS_FRUIT_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
+        //abyss
         add(PVZEntities.CHOMPER).cost(150).coolDown(MIDDLE).skillList(Chomper.staticSkillList)
                 .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly(); //TODO change to chomper block.
         add(PVZEntities.KERNEL_PULT).cost(100).coolDown(SLOW).skillList(KernelPult.staticSkillList)

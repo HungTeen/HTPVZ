@@ -5,10 +5,6 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.tags.PVZBlockTags;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -16,20 +12,23 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 
 import java.util.List;
-import java.util.Set;
 
 public class GoldBloom extends SimplePlant {
+    public AnimationState explodeAnimationState = new AnimationState();
     public AnimationState idleAnimationState = new AnimationState();
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.gold_bloom.sun_transporter", PVZItems.LUX_ESSENCE, 4, 6, 300, -1140)
     );
 
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
+
     public GoldBloom(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
-        this.idleAnimationState.start(this.tickCount);
+        this.explodeAnimationState.start(this.tickCount);
         this.entityData.set(root(), false);
     }
 
@@ -50,9 +49,9 @@ public class GoldBloom extends SimplePlant {
     }
 
     public static class GoldBloomExplodeGoal extends Goal{
-        GoldBloom jalapeno;
-        public GoldBloomExplodeGoal(GoldBloom jalapeno) {
-            this.jalapeno = jalapeno;
+        GoldBloom goldBloom;
+        public GoldBloomExplodeGoal(GoldBloom goldBloom) {
+            this.goldBloom = goldBloom;
         }
         @Override
         public boolean canUse() {
@@ -61,28 +60,28 @@ public class GoldBloom extends SimplePlant {
 
         @Override
         public void tick() {
-            if (jalapeno.tickCount == 16 || jalapeno.tickCount == 17) {
-                Sun.spawnSunWithEffects(this.jalapeno.level, 50, this.jalapeno.getOnPos().above(), 0.3F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 25, this.jalapeno.getOnPos().above(), 0.3F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 5, this.jalapeno.getOnPos().above(), 0.4F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 5, this.jalapeno.getOnPos().above(), 0.4F);
+            if (goldBloom.tickCount == 16 || goldBloom.tickCount == 17) {
+                Sun.spawnSunWithEffects(this.goldBloom.level, 50, this.goldBloom.getOnPos().above(), 0.3F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 25, this.goldBloom.getOnPos().above(), 0.3F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 5, this.goldBloom.getOnPos().above(), 0.4F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 5, this.goldBloom.getOnPos().above(), 0.4F);
             }
-            if (jalapeno.tickCount == 29 || jalapeno.tickCount == 30) {
-                Sun.spawnSunWithEffects(this.jalapeno.level, 50, this.jalapeno.getOnPos().above(), 0.3F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 25, this.jalapeno.getOnPos().above(), 0.3F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 5, this.jalapeno.getOnPos().above(), 0.4F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 5, this.jalapeno.getOnPos().above(), 0.4F);
+            if (goldBloom.tickCount == 29 || goldBloom.tickCount == 30) {
+                Sun.spawnSunWithEffects(this.goldBloom.level, 50, this.goldBloom.getOnPos().above(), 0.3F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 25, this.goldBloom.getOnPos().above(), 0.3F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 5, this.goldBloom.getOnPos().above(), 0.4F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 5, this.goldBloom.getOnPos().above(), 0.4F);
             }
-            if (jalapeno.tickCount == 40 || jalapeno.tickCount == 41) {
-                Sun.spawnSunWithEffects(this.jalapeno.level, 50, this.jalapeno.getOnPos().above(), 0.3F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 25, this.jalapeno.getOnPos().above(), 0.3F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 25, this.jalapeno.getOnPos().above(), 0.4F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 15, this.jalapeno.getOnPos().above(), 0.4F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 15, this.jalapeno.getOnPos().above(), 0.4F);
-                Sun.spawnSunWithEffects(this.jalapeno.level, 10, this.jalapeno.getOnPos().above(), 0.4F);
+            if (goldBloom.tickCount == 40 || goldBloom.tickCount == 41) {
+                Sun.spawnSunWithEffects(this.goldBloom.level, 50, this.goldBloom.getOnPos().above(), 0.3F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 25, this.goldBloom.getOnPos().above(), 0.3F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 25, this.goldBloom.getOnPos().above(), 0.4F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 15, this.goldBloom.getOnPos().above(), 0.4F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 15, this.goldBloom.getOnPos().above(), 0.4F);
+                Sun.spawnSunWithEffects(this.goldBloom.level, 10, this.goldBloom.getOnPos().above(), 0.4F);
             }
-            if (jalapeno.tickCount > 80) {
-                jalapeno.discard();
+            if (goldBloom.tickCount > 80) {
+                goldBloom.discard();
             }
         }
     }

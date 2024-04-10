@@ -1,7 +1,9 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.client.model.MooBloomModel;
+import com.hungteen.pvz.client.model.SproutModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.renderer.ModelPartRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
@@ -9,6 +11,7 @@ import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.bullet.*;
 import com.hungteen.pvz.client.renderer.creatures.AngerRenderer;
 import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
+import com.hungteen.pvz.client.renderer.creatures.SproutRenderer;
 import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
 import com.hungteen.pvz.client.renderer.misc.SunRenderer;
 import com.hungteen.pvz.client.renderer.plants.*;
@@ -27,10 +30,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.SpawnPlacements.SpawnPredicate;
 import net.minecraft.world.entity.SpawnPlacements.Type;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -60,7 +60,7 @@ public class PVZEntities {
     public static final PVZEntities reflector = new PVZEntities();
     //client
     public static Map<EntityType<? extends Entity>, List</*0:model, 1:layerDefinition, 2:shadowSize*/?>> simpleRenderedMap = new HashMap<>();
-    public static Map<EntityType<? extends Entity>, ResourceLocation> simpleTextureLocationMap = new HashMap<>();
+    public static Map<EntityType<? extends Entity>, Function<Mob, ResourceLocation>> simpleTextureLocationMap = new HashMap<>();
     //collision
     private static Pair<Float, Float> storedCollision = Pair.of(0.6F, 1.8F);
     //spawn egg
@@ -102,6 +102,10 @@ public class PVZEntities {
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
     public static final RegistryObject<EntityType<Anger>> ANGER = spawnEgg(0xff2f3b, 0xfff45b).attribute(Anger::createAttributes)
             .collision(0.4F, 0.4F).noLoot().entity("anger", Anger::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F).noLoot()
+            .entity("sprout", Sprout::new, MobCategory.CREATURE);
+
+    //client
     public static final RegistryObject<EntityType<ModelPartEntity>> MODEL_PART = collision(0.2F, 0.2F).noSummon()
             .entity("model_part", ModelPartEntity::new, MobCategory.MISC);
 
@@ -113,7 +117,7 @@ public class PVZEntities {
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SunFlower::checkSpawnRules)
             .collision(0.75F, 1.1F).entity("sun_flower", SunFlower::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
-            .collision(0.75F, 1.3F).entity("marigold", MariGold::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.75F, 1.0F).entity("marigold", MariGold::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TallNut::checkSpawnRules)
             .collision(0.9F, 1.9F).entity("tall_nut", TallNut::new, OtherRegisters.PVZPlantMobCategory);
@@ -179,7 +183,7 @@ public class PVZEntities {
 
 
     //client
-    /** For simply rendered entities, auto render at {@link PVZEntities#simpleRenderHandler()}.
+    /** For simply rendered entities (accepts only Mob!), auto render at {@link PVZEntities#simpleRenderHandler()}.
      * <br>
      * <br> For other renderers, register renderer at {@link PVZEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}. And then handle ModelLayers and LayerDefinitions in {@link PVZLayerHandler#createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions)}.
      * <br>
@@ -231,6 +235,7 @@ public class PVZEntities {
         r(e, CHOMPER, ChomperRenderer::new);
         r(e, GOLD_BLOOM, GoldBloomRenderer::new);
         r(e, ZOMBIE, PVZZombieRenderer::new);
+        r(e, SPROUT, SproutRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);
         r(e, MODEL_PART, ModelPartRenderer::new);
@@ -331,13 +336,18 @@ public class PVZEntities {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static <T extends Entity> void rS(RegistryObject<EntityType<T>> entity, Function<ModelPart, EntityModel<T>> model, Supplier<LayerDefinition> layer, float shadowSize, String textureDirectory) {
+    public static <T extends Mob> void rS(RegistryObject<EntityType<T>> entity, Function<ModelPart, EntityModel<T>> model, Supplier<LayerDefinition> layer, float shadowSize, Function<T, ResourceLocation> textureDirectory) {
         simpleRenderedMap.put(entity.get(), List.of(model, layer, shadowSize));
-        simpleTextureLocationMap.put(entity.get(), prefix(textureDirectory));
+        simpleTextureLocationMap.put(entity.get(), (Function<Mob, ResourceLocation>) textureDirectory);
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static <T extends Entity> void rS(RegistryObject<EntityType<T>> entity, Function<ModelPart, EntityModel<T>> model, Supplier<LayerDefinition> layer, float shadowSize) {
+    public static <T extends Mob> void rS(RegistryObject<EntityType<T>> entity, Function<ModelPart, EntityModel<T>> model, Supplier<LayerDefinition> layer, float shadowSize, String textureDirectory) {
+        rS(entity, model, layer, shadowSize, (mob) -> prefix(textureDirectory));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static <T extends Mob> void rS(RegistryObject<EntityType<T>> entity, Function<ModelPart, EntityModel<T>> model, Supplier<LayerDefinition> layer, float shadowSize) {
         rS(entity, model, layer, shadowSize, "textures/entity/" + name(entity) + "/" + name(entity.get()) + ".png");
     }
 

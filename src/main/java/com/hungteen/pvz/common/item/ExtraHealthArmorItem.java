@@ -25,7 +25,6 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Calendar;
 import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
@@ -43,13 +42,15 @@ public class ExtraHealthArmorItem extends ArmorItem {
     public static void handleHurt(LivingHurtEvent event) {
         if (! event.getSource().isBypassArmor()) {
             for (EquipmentSlot slot : EquipmentSlot.values()) {
-                ItemStack stack = event.getEntity().getItemBySlot(slot);
-                if (stack.getItem() instanceof ExtraHealthArmorItem item) {
-                    int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
-                    stack.hurtAndBreak(blocked, event.getEntity(), (entity) ->
-                            DropDamagedArmorPacket.drop(item, entity.level,
-                                    entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0)));
-                    event.setAmount(event.getAmount() - blocked);
+                if (slot.getType() == EquipmentSlot.Type.ARMOR) {
+                    ItemStack stack = event.getEntity().getItemBySlot(slot);
+                    if (stack.getItem() instanceof ExtraHealthArmorItem item) {
+                        int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
+                        stack.hurtAndBreak(blocked, event.getEntity(), (entity) ->
+                                DropDamagedArmorPacket.drop(item, entity.level,
+                                        entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0)));
+                        event.setAmount(event.getAmount() - blocked);
+                    }
                 }
             }
         }
@@ -68,12 +69,7 @@ public class ExtraHealthArmorItem extends ArmorItem {
 
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        Calendar calendar = Calendar.getInstance();
-        if (calendar.get(Calendar.MONTH) + 1 == 4 && calendar.get(Calendar.DATE) <= 3) {
-            super.initializeClient(consumer);
-        } else {
-            consumer.accept(ExtraHealthArmorClients.INSTANCE);
-        }
+        consumer.accept(ExtraHealthArmorClients.INSTANCE);
     }
 
     private static class ExtraHealthArmorClients implements IClientItemExtensions {

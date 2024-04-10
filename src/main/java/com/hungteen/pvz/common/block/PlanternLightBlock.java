@@ -62,7 +62,7 @@ public class PlanternLightBlock extends BaseEntityBlock implements SimpleWaterlo
             if (item.getEntity().equals(PVZEntities.PLANTERN.get())) {
                 packetItem.set(item);
             }});
-        return new ItemStack(packetItem.get());
+        return packetItem.get().getDefaultInstance();
     }
 
     //from LightBlock

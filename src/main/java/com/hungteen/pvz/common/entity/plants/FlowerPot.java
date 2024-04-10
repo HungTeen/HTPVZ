@@ -78,6 +78,9 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
             }));
         }
     }
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
 
     public boolean fireImmune() {
         return super.fireImmune() || this.hasSkill(this, "skill.pvz.flower_pot.refractory_ceramics");
