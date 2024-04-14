@@ -61,6 +61,7 @@ public class PVZItems {
     public static final RegistryObject<Item> CORN_KERNELS = item("corn_kernels", () -> new BlockItem(PVZBlocks.CORN_KERNELS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> JEWEL = item("jewel");
     public static final RegistryObject<Item> ALAYA_RESIN = item("alaya_resin");
+    public static final RegistryObject<Item> SPATIOTEMPORAL_UNIT = item("spatiotemporal_unit");
     public static final RegistryObject<Item> ORIGIN_ESSENCE = tag(PVZItemTags.ESSENCE).item("origin_essence");
     public static final RegistryObject<Item> TERRA_ESSENCE = tag(PVZItemTags.ESSENCE).item("terra_essence");
     public static final RegistryObject<Item> AQUA_ESSENCE = tag(PVZItemTags.ESSENCE).item("aqua_essence");

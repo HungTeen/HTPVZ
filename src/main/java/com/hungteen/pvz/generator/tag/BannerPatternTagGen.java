@@ -1,4 +1,4 @@
-package com.hungteen.pvz.generator;
+package com.hungteen.pvz.generator.tag;
 
 import com.hungteen.pvz.common.register.PVZBannerPatterns;
 import com.hungteen.pvz.common.tags.PVZBannerPatternTags;

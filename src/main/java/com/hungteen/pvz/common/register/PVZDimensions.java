@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenBiomeSource;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator;
+import com.hungteen.pvz.common.world.zen_garden.ZenGardenStructures;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;

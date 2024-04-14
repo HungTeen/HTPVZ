@@ -5,7 +5,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.plants.GatlingPea;
-import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -392,13 +392,13 @@ public class PVZOverlayHandler{
     }
 
     public static void refreshMainHandItemStack(Player player) {
-        PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, player.getItemInHand(InteractionHand.MAIN_HAND));
+        PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, player.getItemInHand(InteractionHand.MAIN_HAND));
         MinecraftForge.EVENT_BUS.post(event);
         mainHandResourceIsSun = event.resource.equals(PVZPlayerCapNBT.SUN);
         mainHandStackCost = event.cost;
     }
     public static void refreshOffHandItemStack(Player player) {
-        PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, player.getItemInHand(InteractionHand.OFF_HAND));
+        PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, player.getItemInHand(InteractionHand.OFF_HAND));
         MinecraftForge.EVENT_BUS.post(event);
         offHandResourceIsSun = event.resource.equals(PVZPlayerCapNBT.SUN);
         offHandStackCost = event.cost;

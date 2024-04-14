@@ -7,13 +7,22 @@ import com.hungteen.pvz.common.entity.bullet.ButterBullet;
 import com.hungteen.pvz.common.entity.bullet.CornBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -31,6 +40,19 @@ public class KernelPult extends ShooterPlant {
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
+    }
+
+    public InteractionResult mobInteract(Player p_28298_, InteractionHand p_28299_) {
+        ItemStack itemstack = p_28298_.getItemInHand(p_28299_);
+        if (itemstack.is(Items.GLASS_BOTTLE) && this.getCurrentBullet() == CornTypes.BUTTER) {
+//            p_28298_.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F); TODO add sound.
+            ItemStack itemstack1 = PotionUtils.setPotion(Items.POTION.getDefaultInstance(), PVZMobEffects.potionMap.get("butter").get());
+            p_28298_.setItemInHand(p_28299_, itemstack1);
+            this.setCurrentBullet(CornTypes.KERNEL);
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        } else {
+            return super.mobInteract(p_28298_, p_28299_);
+        }
     }
     @Override
     public List<Skill> getStaticSkillList(){

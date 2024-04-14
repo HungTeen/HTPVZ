@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:obsidian"
+    },
+    "0": {
+      "item": "pvz:alaya_resin"
+    },
+    "1": {
+      "item": "pvz:origin_block"
+    }
+  },
+  "pattern": [
+    " 1 ",
+    "0#0",
+    "###"
+  ],
+  "result": {
+    "item": "pvz:essence_altar"
+  }
+}

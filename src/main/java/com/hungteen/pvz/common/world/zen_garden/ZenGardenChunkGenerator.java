@@ -45,10 +45,10 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     public static final ResourceLocation ZEN_GARDEN_DIMENSION_SET = Util.prefix("zen_garden_dimension_structure_set");
     private final Settings settings;
 
-    private final Random random;
-    private final Vec3i mainIslandPos;
-    private final List<Vec3i> floatIslands;
-    private final Vec3i riverCircle;
+    private Random random = null;
+    private Vec3i mainIslandPos= null;
+    private List<Vec3i> floatIslands= null;
+    private Vec3i riverCircle = null;
     private final Map<Pair<Integer, Integer>, Pair<Integer, Integer>> smallVectorTable = new HashMap<>();
     private final Map<Pair<Integer, Integer>, Pair<Integer, Integer>> bigVectorTable = new HashMap<>();
     private final BlockState stone = Blocks.STONE.defaultBlockState();
@@ -57,33 +57,12 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     private final BlockState grass = Blocks.GRASS_BLOCK.defaultBlockState();
     private final BlockState mycelium = Blocks.MYCELIUM.defaultBlockState();
 
-    //TODO still not finished: 1) add seed. 2) add structure features. 3) wisdom tree. 4) daylight cycle.
-    //TODO 5) random fog particle. 6) mobs (Garden Bee, Redstone Bug, Snail, Snailrillum). 7) BGM.
+    //TODO still not finished: 1) add structure features. 2) wisdom tree. 3) mobs (Garden Bee, Redstone Bug, Snail, Snailrillum). 4) BGM.
 
 
     public ZenGardenChunkGenerator(Registry<StructureSet> structureSetRegistry, Registry<Biome> registry, Settings settings) {
         super(structureSetRegistry, getSet(structureSetRegistry), new ZenGardenBiomeSource(registry));
         this.settings = settings;
-        random = new Random();
-
-        mainIslandPos = new Vec3i(0, 80, 0);
-        random.setSeed(299123567);//TODO replace this.
-        riverCircle = new Vec3i((random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1),
-                random.nextInt(30) + 100,
-                (random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1));
-        floatIslands = new ArrayList<>();
-        double angle = random.nextFloat() * 6.28;
-        floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
-                150, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
-        angle = random.nextFloat() * 2.5 + 3.14;
-        floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
-                175, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
-        angle = random.nextFloat() * 2.5;
-        floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
-                175, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
-        angle = random.nextFloat() * 6.28;
-        floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
-                200, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
     }
 
     @Override
@@ -109,7 +88,29 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public void buildSurface(WorldGenRegion region, StructureManager featureManager, RandomState p_223052_, ChunkAccess chunk) {
+    public void buildSurface(WorldGenRegion region, StructureManager featureManager, RandomState randomState, ChunkAccess chunk) {
+        if (random == null) {
+            random = new Random();
+
+            mainIslandPos = new Vec3i(0, 80, 0);
+            random.setSeed(randomState.legacyLevelSeed());
+            riverCircle = new Vec3i((random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1),
+                    random.nextInt(30) + 100,
+                    (random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1));
+            floatIslands = new ArrayList<>();
+            double angle = random.nextFloat() * 6.28;
+            floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
+                    150, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
+            angle = random.nextFloat() * 2.5 + 3.14;
+            floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
+                    175, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
+            angle = random.nextFloat() * 2.5;
+            floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
+                    175, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
+            angle = random.nextFloat() * 6.28;
+            floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
+                    200, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
+        }
         ChunkPos chunkPos = chunk.getPos();
         if (chunkPos.x * chunkPos.x + chunkPos.z * chunkPos.z > 200) {
             return;
@@ -118,12 +119,12 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 int riverDepth = riverDepth(chunkPos.x * 16 + x, chunkPos.z * 16 + z, 9, 7);
-                yRegion = getBlockHeight(chunkPos, x, z, mainIslandPos, 150, 60);
+                yRegion = getBlockHeight(chunkPos, x, z, mainIslandPos, randomState, 150, 60);
                 fillInIsland(chunk, yRegion, riverDepth, x, z, getSeaLevel(), grass);
                 riverDepth = riverDepth(chunkPos.x * 16 + x, chunkPos.z * 16 + z, 5, 2);
                 for (Vec3i island : floatIslands) {
                     if (Math.abs(x + chunkPos.x * 16 - island.getX()) < 50 && Math.abs(z + chunkPos.z * 16 - island.getZ()) < 50) {
-                        yRegion = getBlockHeight(chunkPos, x, z, island, 40, 23);
+                        yRegion = getBlockHeight(chunkPos, x, z, island, randomState, 40, 23);
                         fillInIsland(chunk, yRegion, riverDepth, x, z, island.getY() - 2, mycelium);
                     }
                 }
@@ -155,20 +156,20 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
         }
     }
 
-    private Pair<Integer, Integer> getBlockHeight(ChunkPos pos, int x, int z, Vec3i islandPosition, int width, int height) {
+    private Pair<Integer, Integer> getBlockHeight(ChunkPos pos, int x, int z, Vec3i islandPosition, RandomState randomState, int width, int height) {
         int chunkx = pos.x;
         int chunkz = pos.z;
         List<Pair<Integer, Integer>> smallVectorList = new ArrayList<>();
         List<Pair<Integer, Integer>> bigVectorList = new ArrayList<>();
         for (int cx = 0; cx < 4; cx ++) {
             for (int cz = 0; cz < 4; cz ++) {
-                smallVectorList.add(getChunkVector(chunkx - 1 + cx, chunkz - 1 + cz));
+                smallVectorList.add(getChunkVector(chunkx - 1 + cx, chunkz - 1 + cz, randomState));
             }
         }
         if (width > 100) {
             for (int cx = 0; cx < 4; cx ++) {
                 for (int cz = 0; cz < 4; cz ++) {
-                    bigVectorList.add(getBigChunkVector((chunkx / 4) - 1 + cx, (chunkz / 4) - 1 + cz));
+                    bigVectorList.add(getBigChunkVector((chunkx / 4) - 1 + cx, (chunkz / 4) - 1 + cz, randomState));
                 }
             }
         }
@@ -200,20 +201,20 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
         }
         return Pair.of((int) from, (int) to);
     }
-    private Pair<Integer, Integer> getChunkVector(int x, int z){
+    private Pair<Integer, Integer> getChunkVector(int x, int z, RandomState randomState){
         if (smallVectorTable.containsKey(Pair.of(x, z))) {
             return smallVectorTable.get(Pair.of(x, z));
         }
-        random.setSeed(7356L * x + 2991L * z);//TODO replace this.
+        random.setSeed((randomState.legacyLevelSeed() >> 48) * x + (randomState.legacyLevelSeed() >> 47) * z);
         Pair<Integer, Integer> vector = Pair.of(random.nextInt(32) - 16, random.nextInt(32) - 16);
         smallVectorTable.put(Pair.of(x, z), vector);
         return vector;
     }
-    private Pair<Integer, Integer> getBigChunkVector(int x, int z){
+    private Pair<Integer, Integer> getBigChunkVector(int x, int z, RandomState randomState){
         if (bigVectorTable.containsKey(Pair.of(x, z))) {
             return bigVectorTable.get(Pair.of(x, z));
         }
-        random.setSeed(2991L * x + 7356L * z);//TODO replace this.
+        random.setSeed((randomState.legacyLevelSeed() >> 47) * x + (randomState.legacyLevelSeed() >> 48) * z);
         Pair<Integer, Integer> vector = Pair.of(random.nextInt(128) - 64, random.nextInt(128) - 64);
         bigVectorTable.put(Pair.of(x, z), vector);
         return vector;

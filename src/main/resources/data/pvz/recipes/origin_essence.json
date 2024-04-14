@@ -1,12 +1,12 @@
 {
-  "type": "pvz:essence_furnace",
-  "cost_ingredient": true,
-  "need_time": 10000,
-  "ingredient": {
-    "tag": "minecraft:saplings"
-  },
-  "fuel": {
-    "tag": "minecraft:dirt"
-  },
-  "result": "pvz:origin_essence"
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "pvz:origin_block"
+    }
+  ],
+  "result": {
+    "item": "pvz:nut_button",
+    "count": 4
+  }
 }

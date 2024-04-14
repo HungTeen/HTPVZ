@@ -12,8 +12,12 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.FlyingAnimal;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraftforge.common.extensions.IForgePotion;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.registries.DeferredRegister;
@@ -40,7 +44,7 @@ public class PVZMobEffects {
 
     public static RegistryObject<net.minecraft.world.effect.MobEffect> BRIGHTNESS = effect("brightness", () ->
             new MobEffect(MobEffectCategory.BENEFICIAL, 0xffd857)
-    ).build();
+    ).registerPotion(300, true).registerPotion("long_brightness", 800, 0, true).build();
     public static RegistryObject<net.minecraft.world.effect.MobEffect> EXCITEMENT = effect("excitement", () ->
             new InstantenousMobEffect(MobEffectCategory.BENEFICIAL, 0xdddddd)
     ).build();
@@ -57,7 +61,11 @@ public class PVZMobEffects {
                     .addAttributeModifier(Attributes.MOVEMENT_SPEED, BUTTER_EFFECT_UUID.toString(), -0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL)
     ).registerPotion(150, false).registerPotion("long_butter", 300, 0, false).build();
 
-
+    public static void addMixs() {
+        PotionBrewing.addMix(Potions.AWKWARD, PVZBlocks.PLANTERN.get().asItem(), potionMap.get("brightness").get());
+        PotionBrewing.addMix(potionMap.get("brightness").get(), Items.REDSTONE, potionMap.get("long_brightness").get());
+        PotionBrewing.addMix(potionMap.get("butter").get(), Items.REDSTONE, potionMap.get("long_butter").get());
+    }
 
     //methods
     public RegistryObject<net.minecraft.world.effect.MobEffect> build() {
@@ -88,12 +96,9 @@ public class PVZMobEffects {
     }
 
     public static class MobEffect extends net.minecraft.world.effect.MobEffect {
-
         public MobEffect(MobEffectCategory p_19451_, int p_19452_) {
             super(p_19451_, p_19452_);
         }
-
-
     }
 
 

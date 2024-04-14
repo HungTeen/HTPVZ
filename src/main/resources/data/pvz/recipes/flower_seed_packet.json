@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "pvz:origin_essence"
+    },
+    "0": {
+      "tag": "minecraft:flowers"
+    },
+    "1": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "pattern": [
+    " 1 ",
+    "#0#",
+    " 1 "
+  ],
+  "result": {
+    "item": "pvz:origin_block"
+  }
+}

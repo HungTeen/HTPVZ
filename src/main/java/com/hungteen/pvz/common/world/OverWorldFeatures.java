@@ -27,49 +27,11 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 import java.util.List;
 
-public class OverWorldFeatures extends Feature<NoneFeatureConfiguration> {
+public class OverWorldFeatures {
     public static Holder<ConfiguredFeature<OreConfiguration, ?>> ORE_LUNAR_STONE_CF;
     public static Holder<PlacedFeature> ORE_LUNAR_STONE_PF;
     public static Holder<ConfiguredFeature<RandomPatchConfiguration, ?>> PLANTERN_CF;
     public static Holder<PlacedFeature> PLANTERN_PF;
-
-    public OverWorldFeatures(Codec<NoneFeatureConfiguration> codec) {
-        super(codec);
-    }
-
-    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-        BlockPos blockPos = context.origin();
-        RandomSource randomsource = context.random();
-
-        WorldGenLevel level = context.level();
-        while (level.isEmptyBlock(blockPos)) {
-            blockPos = blockPos.below();
-            if (blockPos.getY() < level.getMinBuildHeight() + 2 || !level.isEmptyBlock(blockPos.above())) {
-                return false;
-            }
-        }
-        Block oriBlock = level.getBlockState(blockPos).getBlock();
-        if (oriBlock != Blocks.GRASS_BLOCK && oriBlock != Blocks.DIRT && oriBlock != Blocks.MOSS_BLOCK) {
-            return false;
-        }
-
-        int height = 4 + randomsource.nextInt(2);
-        int width = 1 + (randomsource.nextBoolean() ? 0 : 1);
-        float offset = randomsource.nextFloat() * 2 - 1;
-
-        for (int y = -2; y < 6; y ++) {
-            for (int x = -2; x <= 2; x ++) {
-                for (int z = -2; z <= 2; z ++) {
-                    if ((x - offset) * (x - offset) + (z - offset) * (z - offset) - width * width + y * y / height/ height - 1 < 0) {
-                        this.setBlock(level, blockPos.offset(x, y, z), PVZBlocks.LUNAR_STONE.get().defaultBlockState());
-                    }
-                }
-            }
-        }
-
-
-        return true;
-    }
 
     public static void init() {
         ORE_LUNAR_STONE_CF = FeatureUtils.register("pvz:ore_lunar_stone", Feature.ORE,

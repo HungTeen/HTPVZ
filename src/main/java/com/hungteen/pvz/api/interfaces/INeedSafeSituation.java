@@ -1,6 +1,6 @@
-package com.hungteen.pvz.common.entity;
+package com.hungteen.pvz.api.interfaces;
 
-import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.MutableComponent;
@@ -21,7 +21,7 @@ public interface INeedSafeSituation {
     default MutableComponent isPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
         return null;
     }
-    default MutableComponent isVehicleSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Entity target,  boolean isPlanting) {
+    default MutableComponent isVehicleSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         return null;
     }
 }

@@ -3,6 +3,7 @@ package com.hungteen.pvz.api.interfaces;
 
 import net.minecraft.world.entity.Entity;
 
+/**IShooter contains pvz shooters and pults.*/
 public interface IShooter {
 
 	/**

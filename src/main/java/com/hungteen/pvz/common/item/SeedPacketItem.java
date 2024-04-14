@@ -1,20 +1,20 @@
 package com.hungteen.pvz.common.item;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZPlantConditionMatchingEvent;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
-import com.hungteen.pvz.common.entity.INeedSafeSituation;
+import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEnchantments;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,14 +27,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -42,11 +39,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
@@ -151,7 +146,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
         //sun check
         if (level.isClientSide() && getResource(player.getItemInHand(handIn)).equals(PVZPlayerCapNBT.SUN)) {
-            PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, player.getItemInHand(handIn));
+            PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, player.getItemInHand(handIn));
             MinecraftForge.EVENT_BUS.post(event);
             if (event.cost > PVZPlayerCapability.getValue(player, event.resource)) {
                 PVZOverlayHandler.notEnoughHint = 1.5F;
@@ -208,10 +203,23 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 ((IHaveSkills) entity).setSkillVal(entity, getSkillVal(itemStack));
             }
             //check sun and position.
-            PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, itemStack, entity);
+            PVZResourceEvent.CheckPlantConditionEvent event = Util.checkPlantConditionEvent(player, itemStack, entity);
             MinecraftForge.EVENT_BUS.post(event);
-            MutableComponent posCheck = entity instanceof INeedSafeSituation ?
-                    ((INeedSafeSituation) entity).isPositionSafe(event, entity.level, pos, direction, true) : null;
+
+            PVZPlantConditionMatchingEvent.OnBlock preCondition = new PVZPlantConditionMatchingEvent.OnBlock(
+                    entity, event, null, level, pos, direction, true, PVZPlantConditionMatchingEvent.Phase.PRE);
+            MinecraftForge.EVENT_BUS.post(preCondition);
+
+            MutableComponent posCheck = preCondition.isCanceled() ? (entity instanceof INeedSafeSituation ?
+                    ((INeedSafeSituation) entity).isPositionSafe(event, entity.level, pos, direction, true) : null) : preCondition.result;
+
+            if (posCheck != null) {
+                PVZPlantConditionMatchingEvent.OnBlock postCondition = new PVZPlantConditionMatchingEvent.OnBlock(
+                        entity, event, posCheck, level, pos, direction, true, PVZPlantConditionMatchingEvent.Phase.POST);
+                MinecraftForge.EVENT_BUS.post(postCondition);
+                posCheck = postCondition.result;
+            }
+
             if (posCheck == null) {
                 //plant.
                 PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, - event.cost));
@@ -284,9 +292,23 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 ((IHaveSkills) entity).setSkillVal(entity, item.getSkillVal(itemStack));
             }
             //check sun and position.
-            PVZResourceEvent.CheckPlantConditionEvent event = new PVZResourceEvent.CheckPlantConditionEvent(player, itemStack, entity);
+            PVZResourceEvent.CheckPlantConditionEvent event = Util.checkPlantConditionEvent(player, itemStack, entity);
             MinecraftForge.EVENT_BUS.post(event);
-            MutableComponent targetCheck = entity instanceof INeedSafeSituation ? ((INeedSafeSituation) entity).isVehicleSafe(event, target, true) : null;
+
+            PVZPlantConditionMatchingEvent.OnEntity preCondition = new PVZPlantConditionMatchingEvent.OnEntity(
+                    entity, event, null, target, true, PVZPlantConditionMatchingEvent.Phase.PRE);
+            MinecraftForge.EVENT_BUS.post(preCondition);
+
+            MutableComponent targetCheck = preCondition.isCanceled() ? (entity instanceof INeedSafeSituation ?
+                    ((INeedSafeSituation) entity).isVehicleSafe(event, target, true) : null) : preCondition.result;
+
+            if (targetCheck != null) {
+                PVZPlantConditionMatchingEvent.OnEntity postCondition = new PVZPlantConditionMatchingEvent.OnEntity(
+                        entity, event, targetCheck, target, true, PVZPlantConditionMatchingEvent.Phase.POST);
+                MinecraftForge.EVENT_BUS.post(preCondition);
+                targetCheck = postCondition.result;
+            }
+
             if (targetCheck == null) {
                 //plant.
                 PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, -event.cost));
@@ -368,7 +390,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     public Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
         Player player = !(ClientProxy.MC.getCameraEntity() instanceof Player) ? null : ClientProxy.getPlayer();
         if (! player.isCreative() && ! player.isSpectator()) {
-            PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, itemStack);
+            PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, itemStack);
             MinecraftForge.EVENT_BUS.post(event);
             return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, getResource(itemStack).equals(PVZPlayerCapNBT.SUN), false, true));
         }

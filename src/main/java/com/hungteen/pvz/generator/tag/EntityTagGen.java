@@ -1,4 +1,4 @@
-package com.hungteen.pvz.generator;
+package com.hungteen.pvz.generator.tag;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZEntities;

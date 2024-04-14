@@ -1,6 +1,10 @@
 package com.hungteen.pvz.util;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,7 +13,9 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -46,6 +52,29 @@ public class Util {
         return obj.getId().getPath();
     }
 
+    //planting tools
+    /**in order to put event into api, the rapid way to create the events are defined here.*/
+    public static PVZResourceEvent.CheckResourceEvent checkPlantResourceEvent(Player player, ItemStack plantCard) {
+        SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
+        String resource = item.getResource(plantCard);
+        int cost = (resource.equals(PVZPlayerCapNBT.SUN)
+                && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
+                0 : item.getBaseCost(plantCard);
+        int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
+                1 : item.getBaseCoolDown(plantCard);
+        return new PVZResourceEvent.CheckResourceEvent(player, plantCard, resource, cost, coolDown);
+    }
+
+    public static PVZResourceEvent.CheckPlantConditionEvent checkPlantConditionEvent(Player player, ItemStack plantCard, Entity spawningEntity) {
+        SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
+        String resource = item.getResource(plantCard);
+        int cost = (resource.equals(PVZPlayerCapNBT.SUN)
+                && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
+                0 : item.getBaseCost(plantCard);
+        int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
+                1 : item.getBaseCoolDown(plantCard);
+        return new PVZResourceEvent.CheckPlantConditionEvent(player, plantCard, spawningEntity, resource, cost, coolDown);
+    }
 
     //rendering tools
     @OnlyIn(Dist.CLIENT)
@@ -55,8 +84,7 @@ public class Util {
         RenderSystem.setShaderTexture(0, texture);
     }
 
-    public static void drawCenteredScaledString(PoseStack stack, Font font, String string, int x, int y, int color,
-                                                float scale) {
+    public static void drawCenteredScaledString(PoseStack stack, Font font, String string, int x, int y, int color, float scale) {
         int width = font.width(string);
         stack.pushPose();
         stack.scale(scale, scale, scale);
@@ -65,6 +93,7 @@ public class Util {
     }
 
     public static void GuiBiltScaled(PoseStack stack, int drawX, int drawY, int uvx, int uvy, int uvw, int uvh, float scale){
-        ClientProxy.MC.gui.blit(stack, (int) (drawX*scale), (int) (drawY*scale), (int) (uvx*scale), (int) (uvy*scale), (int) (uvw*scale), (int) (uvh*scale));
+        ClientProxy.MC.gui.blit(stack, (int) (drawX*scale), (int) (drawY*scale),
+                (int) (uvx*scale), (int) (uvy*scale), (int) (uvw*scale), (int) (uvh*scale));
     }
 }

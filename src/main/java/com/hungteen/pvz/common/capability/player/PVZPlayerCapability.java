@@ -103,20 +103,36 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     //max sun calculation.
                     AttributeInstance maxSun = player.getAttribute(PVZAttributes.SUN.get());
                     if (! PVZConfig.PVZGameRules.getBoolean(player.level, "dynamicSunRule")) {
+                        //not dynamic sun rule.
                         maxSun.removeModifiers();
                         maxSun.addPermanentModifier(
                                 new AttributeModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9"), "extra_max_sun",
                                         300, AttributeModifier.Operation.ADDITION));
-                    } else {
+                    } else if (player.tickCount % 3 == 0) {
+                        //delete non-dynamic modifier.
                         if (maxSun.getModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9")) != null) {
                             maxSun.removeModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9"));
                         }
+                        //delete modifiers out of region.
                         maxSun.getModifiers().forEach((modifier) -> {
                             Entity entity = ((ServerLevel) player.level).getEntity(modifier.getId());
-                            if (! EntityUtil.isEntityValid(entity) || entity.distanceToSqr(player) > 900) {
+                            if (! EntityUtil.isEntityValid(entity)) {
+                                if (! modifier.getId().toString().startsWith("a975c974-")) {
+                                    maxSun.removeModifier(modifier.getId());
+                                } else {
+                                    String string = modifier.getId().toString();
+                                    int x = Integer.parseInt(string.substring(9, 13) + string.substring(14, 18), 16);
+                                    int y = Integer.parseInt(string.substring(19, 23) + string.substring(24, 28), 16);
+                                    int z = Integer.parseInt(string.substring(28), 16);
+                                    if (new BlockPos(x, y, z).distSqr(player.getOnPos()) > 900) {
+                                        maxSun.removeModifier(modifier.getId());
+                                    }
+                                }
+                            } else if (entity.distanceToSqr(player) > 900) {
                                 maxSun.removeModifier(modifier.getId());
                             }
                         });
+                        //add entity modifier.
                         List<Entity> entities = player.level.getEntities(player, player.getBoundingBox().inflate(6, 6, 6).move(0, -3, 0),
                                 EntitySelector.NO_SPECTATORS.and((entity) -> entity instanceof IMaxSunExpander));
                         entities.forEach((entity) -> {
@@ -127,6 +143,23 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                                 }
                             }
                         });
+                        //add block modifier.
+                        for (int x = -6; x < 6; x ++) {
+                            for (int y = -6; y < 6; y ++) {
+                                for (int z = -6; z < 6; z ++) {
+                                    BlockPos pos = player.getOnPos().offset(x, y, z);
+                                    if (player.level.getBlockState(pos).getBlock() instanceof IMaxSunExpander sunExpander) {
+                                        new AttributeModifier(
+                                                //get uuid from position.
+                                                UUID.fromString("a975c974-" +
+                                                Integer.toHexString(pos.getX()).substring(0, 4) + "-" + Integer.toHexString(pos.getX()).substring(4, 8) +
+                                                "-" + Integer.toHexString(pos.getY()).substring(0, 4) + "-" + Integer.toHexString(pos.getY()).substring(4, 8) +
+                                                Integer.toHexString(pos.getZ()))
+                                                , "extra_max_sun", sunExpander.extraMaxSun(player), AttributeModifier.Operation.ADDITION);
+                                    }
+                                }
+                            }
+                        }
                     }
                     int toMax = (int) player.getAttributeValue(PVZAttributes.SUN.get());
                     int overFlow = nbt.getValue(PVZPlayerCapNBT.SUN) - toMax;

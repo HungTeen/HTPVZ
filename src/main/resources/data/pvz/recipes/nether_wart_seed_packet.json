@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "pvz:origin_essence"
+    },
+    "0": {
+      "item": "minecraft:nether_wart"
+    },
+    "1": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "pattern": [
+    " 1 ",
+    "#0#",
+    " 1 "
+  ],
+  "result": {
+    "item": "pvz:origin_block"
+  }
+}

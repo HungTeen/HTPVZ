@@ -5,6 +5,7 @@ import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZBlocks.WoodSet;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.generator.tag.ItemTagGen;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;

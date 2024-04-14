@@ -125,6 +125,7 @@ public class PVZMod
         LOGGER.info("----------COMMON SETUP----------");
 
         PVZDimensions.register();
+        PVZStructures.init();
         PVZEnchantments.handleEnchantmentTypes();
 
         event.enqueueWork(() ->{
@@ -137,6 +138,7 @@ public class PVZMod
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Wood).get(), map.get(PVZBlocks.WoodSet.StWood).get());
             });
             PVZBlocks.queueRelease();
+            PVZMobEffects.addMixs();
         });
 
         //clear variables
