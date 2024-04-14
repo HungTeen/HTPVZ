@@ -79,7 +79,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
         return 0.05;
     }
     @Override
-    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));

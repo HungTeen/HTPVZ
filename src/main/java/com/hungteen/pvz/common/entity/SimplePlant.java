@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.entity;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZPlantConditionMatchingEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
@@ -51,6 +52,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -144,7 +146,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
      * @see INeedSafeSituation
      */
     @Override
-    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+    public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
@@ -197,9 +199,8 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
         }
     }
 
-
     @Override
-    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));

@@ -125,14 +125,14 @@ public class SpikeWeed extends SimplePlant {
         setNoGravity(! level.getBlockState(this.getRootBlockPos()).isAir() && ! (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock));
     }
     @Override
-    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+    public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting && hasSkill("skill.pvz.spike_weed.viscous_pseudoroots")) {
             setAttachFace(direction);
         }
         return super.isPositionSafe(event, level, pos, direction, isPlanting);
     }
     @Override
-    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }

@@ -177,7 +177,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
     //overrides
     @Override
-    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+    public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
@@ -216,7 +216,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
 
     @Override
-    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));

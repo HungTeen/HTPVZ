@@ -1,12 +1,17 @@
 package com.hungteen.pvz.api.interfaces;
 
+import com.hungteen.pvz.api.events.PVZPlantConditionMatchingEvent;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
  * If need skills, implements {@link IHaveSkills} .<br>
  * Also, override {@link net.minecraft.world.entity.Mob#removeWhenFarAway(double)} .
  */
-public interface IPlant {
+public interface IPlant extends INeedSafeSituation{
 
     /**EntityData controlling if the plant need proper block to plant on.*/
     EntityDataAccessor<Boolean> root();
@@ -44,4 +49,50 @@ public interface IPlant {
     }
     /**called when a sprout transform into this plant in Zen Garden. Only in client side.*/
     void setupPresentationAnim();
+
+    default MutableComponent isPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
+        PVZPlantConditionMatchingEvent.OnBlock preCondition = new PVZPlantConditionMatchingEvent.OnBlock(
+                (Entity) this, event, null, level, pos, direction, true, PVZPlantConditionMatchingEvent.Phase.PRE);
+        MinecraftForge.EVENT_BUS.post(preCondition);
+        if (preCondition.isCanceled()) {
+            return preCondition.result;
+        }
+
+        MutableComponent result = this.plantPositionSafe(event, level, pos, direction, isPlanting);
+        if (result == null) {
+            return null;
+        }
+
+        PVZPlantConditionMatchingEvent.OnBlock postCondition = new PVZPlantConditionMatchingEvent.OnBlock(
+                (Entity) this, event, result, level, pos, direction, true, PVZPlantConditionMatchingEvent.Phase.POST);
+        MinecraftForge.EVENT_BUS.post(postCondition);
+        return postCondition.result;
+    }
+
+
+    default MutableComponent isVehicleSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        PVZPlantConditionMatchingEvent.OnEntity preCondition = new PVZPlantConditionMatchingEvent.OnEntity(
+                (Entity) this, event, null, target, true, PVZPlantConditionMatchingEvent.Phase.PRE);
+        MinecraftForge.EVENT_BUS.post(preCondition);
+        if (preCondition.isCanceled()) {
+            return preCondition.result;
+        }
+
+        MutableComponent result = this.plantVehicleSafe(event, target, isPlanting);
+        if (result == null) {
+            return null;
+        }
+
+        PVZPlantConditionMatchingEvent.OnEntity postCondition = new PVZPlantConditionMatchingEvent.OnEntity(
+                (Entity) this, event, result, target, true, PVZPlantConditionMatchingEvent.Phase.POST);
+        MinecraftForge.EVENT_BUS.post(preCondition);
+        return postCondition.result;
+    }
+
+    default MutableComponent plantPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
+        return null;
+    }
+    default MutableComponent plantVehicleSafe(@javax.annotation.Nullable PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        return null;
+    }
 }

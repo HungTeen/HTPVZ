@@ -206,19 +206,8 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             PVZResourceEvent.CheckPlantConditionEvent event = Util.checkPlantConditionEvent(player, itemStack, entity);
             MinecraftForge.EVENT_BUS.post(event);
 
-            PVZPlantConditionMatchingEvent.OnBlock preCondition = new PVZPlantConditionMatchingEvent.OnBlock(
-                    entity, event, null, level, pos, direction, true, PVZPlantConditionMatchingEvent.Phase.PRE);
-            MinecraftForge.EVENT_BUS.post(preCondition);
-
-            MutableComponent posCheck = preCondition.isCanceled() ? (entity instanceof INeedSafeSituation ?
-                    ((INeedSafeSituation) entity).isPositionSafe(event, entity.level, pos, direction, true) : null) : preCondition.result;
-
-            if (posCheck != null) {
-                PVZPlantConditionMatchingEvent.OnBlock postCondition = new PVZPlantConditionMatchingEvent.OnBlock(
-                        entity, event, posCheck, level, pos, direction, true, PVZPlantConditionMatchingEvent.Phase.POST);
-                MinecraftForge.EVENT_BUS.post(postCondition);
-                posCheck = postCondition.result;
-            }
+            MutableComponent posCheck = entity instanceof INeedSafeSituation ?
+                    ((INeedSafeSituation) entity).isPositionSafe(event, entity.level, pos, direction, true) : null;
 
             if (posCheck == null) {
                 //plant.
@@ -295,19 +284,8 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             PVZResourceEvent.CheckPlantConditionEvent event = Util.checkPlantConditionEvent(player, itemStack, entity);
             MinecraftForge.EVENT_BUS.post(event);
 
-            PVZPlantConditionMatchingEvent.OnEntity preCondition = new PVZPlantConditionMatchingEvent.OnEntity(
-                    entity, event, null, target, true, PVZPlantConditionMatchingEvent.Phase.PRE);
-            MinecraftForge.EVENT_BUS.post(preCondition);
-
-            MutableComponent targetCheck = preCondition.isCanceled() ? (entity instanceof INeedSafeSituation ?
-                    ((INeedSafeSituation) entity).isVehicleSafe(event, target, true) : null) : preCondition.result;
-
-            if (targetCheck != null) {
-                PVZPlantConditionMatchingEvent.OnEntity postCondition = new PVZPlantConditionMatchingEvent.OnEntity(
-                        entity, event, targetCheck, target, true, PVZPlantConditionMatchingEvent.Phase.POST);
-                MinecraftForge.EVENT_BUS.post(preCondition);
-                targetCheck = postCondition.result;
-            }
+            MutableComponent targetCheck = entity instanceof INeedSafeSituation ?
+                    ((INeedSafeSituation) entity).isVehicleSafe(event, target, true) : null;
 
             if (targetCheck == null) {
                 //plant.

@@ -102,7 +102,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
         return (getVehicle() instanceof Minecart ? 0.27 : getVehicle() instanceof Boat ? 0.2 : 0) + super.getMyRidingOffset();
     }
     @Override
-    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         } else if (hasSkill("skill.pvz.flower_pot.portable_pot") && (target instanceof Minecart || target instanceof Boat)) {
