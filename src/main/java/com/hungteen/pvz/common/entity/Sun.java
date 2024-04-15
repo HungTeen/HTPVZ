@@ -97,11 +97,11 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
     @Override
     public boolean canAttractThis(ISunAbsorber absorber) {
         if (attractedBy != null && attractingPlayer != null) {
-            if (distanceToSqr(attractedBy.position()) > 16) {
+            if (distanceToSqr(attractedBy.position()) > 16 && distanceToSqr(attractingPlayer) > 36) {
                 return absorber.canAbsorb(this);
             }
         }
-        return false;
+        return absorber.canAbsorb(this);
     }
 
     @Override
@@ -221,7 +221,7 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
             if (attractingPlayer == null) {
                 level.getEntities(this, this.getBoundingBox().inflate(6)).forEach((targetEntity) -> {
                     if ((this.attractedBy == null || distanceToSqr(targetEntity) < distanceToSqr(attractedBy.position()))) {
-                        if ((targetEntity instanceof ISunAbsorber absorber && canAttractThis(absorber))) {
+                        if ((targetEntity != this && targetEntity instanceof ISunAbsorber absorber && canAttractThis(absorber))) {
                             this.attractedBy = absorber;
                         }
                     }

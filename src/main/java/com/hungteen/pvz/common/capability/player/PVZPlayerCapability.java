@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -192,12 +193,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                 }
                 if (player.hasEffect(PVZMobEffects.EXCITEMENT.get())) {
-                    for (int i = 0; i < 10; i ++) {
-                        player.getCooldowns().tick();
-                    }
-                    if (player instanceof ServerPlayer) {
-                        PlayerCoolDownPacket.clientCoolDown(player);
-                    }
+                    Util.coolDownItems(player, 10);
                 }
                 //auto set sun cost and cd.
                 if (nbt.getValue("auto_set_cost_and_cd") == 1) {

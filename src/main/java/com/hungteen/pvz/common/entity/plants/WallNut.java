@@ -136,7 +136,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
             }
             return Component.translatable("hint.pvz.plant.need_own_team");
         }
-        return super.isVehicleSafe(event, target, isPlanting);
+        return super.plantVehicleSafe(event, target, isPlanting);
     }
 
     //overrides

@@ -33,7 +33,7 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
     @Override
     public int getGenCD() {
         int light = level.getBrightness(LightLayer.SKY, this.blockPosition()) - level.getSkyDarken();
-        return (light > 12 || this.hasEffect(PVZMobEffects.BRIGHTNESS.get())) ? 240 : (light > 9 ? 320: 3 * 480);
+        return (light > 12 || this.hasEffect(PVZMobEffects.BRIGHTNESS.get())) ? 240 : (light > 9 ? 320 : 480);
     }
     public int getSunAmount(){
         return 50;

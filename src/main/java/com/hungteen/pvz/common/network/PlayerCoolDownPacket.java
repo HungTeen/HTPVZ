@@ -18,11 +18,11 @@ public class PlayerCoolDownPacket {
         this.coolDown = coolDown;
     }
     public PlayerCoolDownPacket(FriendlyByteBuf buf) {
-        buf.writeInt(coolDown);
+        coolDown = buf.readInt();
     }
 
     public void toBytes(FriendlyByteBuf buf) {
-        coolDown = buf.readInt();
+        buf.writeInt(coolDown);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -36,7 +36,7 @@ public class PlayerCoolDownPacket {
 
 
     //method
-    public static void clientCoolDown(ServerPlayer player){
+    public static void clientCoolDown(ServerPlayer player) {
             PVZPacketHandler.sendToClient(player, new PlayerCoolDownPacket());
     }
 }

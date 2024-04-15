@@ -6,11 +6,13 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -95,5 +97,13 @@ public class Util {
     public static void GuiBiltScaled(PoseStack stack, int drawX, int drawY, int uvx, int uvy, int uvw, int uvh, float scale){
         ClientProxy.MC.gui.blit(stack, (int) (drawX*scale), (int) (drawY*scale),
                 (int) (uvx*scale), (int) (uvy*scale), (int) (uvw*scale), (int) (uvh*scale));
+    }
+
+    //other tools
+    public static void coolDownItems(ServerPlayer player, int tick) {
+        for (int i = 0; i < tick; i ++) {
+            player.getCooldowns().tick();
+        }
+        PlayerCoolDownPacket.clientCoolDown(player);
     }
 }

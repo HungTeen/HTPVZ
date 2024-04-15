@@ -71,7 +71,10 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
 
     @Override
     public boolean canHold(LivingEntity plant, boolean isPlanting) {
-        return ! (plant instanceof IArmorEntity) && (!isPlanting || getPassengers().isEmpty()) && PVZOwnedCapability.isTeammate(this, plant) && plant.getBbWidth() < 1;
+        return ! (plant instanceof ICanBePlantedOn) &&
+                (! isPlanting || getPassengers().isEmpty()) &&
+                (! isPassenger() || ! (this.getVehicle() instanceof ICanBePlantedOn vehicle) || (vehicle.canHold(plant, isPlanting))) &&
+                PVZOwnedCapability.isTeammate(this, plant) && plant.getBbWidth() < 1;
     }
 
     @Override
@@ -128,8 +131,8 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
             if (PVZOwnedCapability.isTeammate(this, target)) {
                 if (! canMountEntity(this, target, this.getVehicle() == target)) {
                     return isPlanting && target.getFirstPassenger() != null ?
-                            isVehicleSafe(event, target.getFirstPassenger(), true) :
-                            Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
+                            plantVehicleSafe(event, target.getFirstPassenger(), true) :
+                            Component.translatable("hint.pvz.plant.no_enough_place");
                 }
                 if (isPlanting) {
                     this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
@@ -154,16 +157,15 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                     return Component.translatable("hint.pvz.plant.need_own_team");
                 }
             } else if (target.getVehicle() == null) {
-                target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                target.startRiding(this);
-                if (isPositionSafe(event, target.level, target.blockPosition().below(), Direction.UP, true) == null) {
+                if (plantPositionSafe(event, target.level, target.blockPosition().below(), Direction.UP, true) == null) {
+                    target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                    target.startRiding(this);
                     return null;
                 } else {
-                    target.stopRiding();
-                    return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
+                    return Component.translatable("hint.pvz.plant.no_enough_place");
                 }
             } else {
-                return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
+                return Component.translatable("hint.pvz.plant.no_enough_place");
             }
         } else {
             return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), target.getName());

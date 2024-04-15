@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.plants.base;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.util.EntityUtil;
@@ -119,6 +120,7 @@ public abstract class ProducerPlant extends SimplePlant {
             if (!this.producer.isEffectiveAi()) {
                 return;
             }
+            this.producer.setAttackTime(Math.min(this.producer.getGenCD(), this.producer.getAttackTime()));
             final int time = this.producer.getAttackTime();
             if (time <= 1) {
                 this.producer.genSomething();

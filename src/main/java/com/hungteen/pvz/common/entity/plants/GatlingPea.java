@@ -211,11 +211,11 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
 
         if (isPlanting) {
             if (hasSkill("skill.pvz.plant.rapid_deployment")) {
-                return super.isPositionSafe(event, level, pos, direction, true);
+                return super.plantPositionSafe(event, level, pos, direction, true);
             }
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());
         }
-        return super.isPositionSafe(event, level, pos, direction, false);
+        return super.plantPositionSafe(event, level, pos, direction, false);
     }
     @Override
     public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
@@ -226,7 +226,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         }
         if (isPlanting) {
             if (hasSkill("skill.pvz.plant.rapid_deployment")) {
-                return super.isVehicleSafe(event, target, true);
+                return super.plantVehicleSafe(event, target, true);
             }
             if (target.getType() == PVZEntities.REPEATER.get()) {
                 GatlingPea gatlingPea = ((Mob) target).convertTo(PVZEntities.GATLING_PEA.get(), true);
@@ -244,7 +244,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
             }
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());
         }
-        return super.isVehicleSafe(event, target, false);
+        return super.plantVehicleSafe(event, target, false);
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

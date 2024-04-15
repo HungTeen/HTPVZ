@@ -129,7 +129,7 @@ public class SpikeWeed extends SimplePlant {
         if (isPlanting && hasSkill("skill.pvz.spike_weed.viscous_pseudoroots")) {
             setAttachFace(direction);
         }
-        return super.isPositionSafe(event, level, pos, direction, isPlanting);
+        return super.plantPositionSafe(event, level, pos, direction, isPlanting);
     }
     @Override
     public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {

@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pvz:origin_essence"
+        "recipe": "pvz:origin_essence_by_essence_furnace"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "pvz:origin_essence"
+      "pvz:origin_essence_by_essence_furnace"
     ]
   }
 }

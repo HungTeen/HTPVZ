@@ -57,7 +57,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     }
 
     public boolean canBounce(Entity entity, boolean isClient) {
-        if (entity.getDeltaMovement().length() < 0.5) {
+        if (entity.getDeltaMovement().length() < 0.5 || ! this.isAlive()) {
             return false;
         }
         Vec3 subPosition = entity.position().subtract(this.position()).multiply(1, 0, 1);
@@ -88,7 +88,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1D);
         }
         if (level.isClientSide) {
-            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(2, 1, 2).move(0, 0.5, 0),
+            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(2, 1.5, 2).move(0, 0.5, 0),
                     (entity) -> canBounce(entity, true));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
@@ -165,7 +165,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 1, 2).move(0, 0.5, 0),
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 1.5, 2).move(0, 0.5, 0),
                     (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
