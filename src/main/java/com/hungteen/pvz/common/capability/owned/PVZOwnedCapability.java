@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.capability.owned;
 
-import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
@@ -9,10 +8,8 @@ import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -23,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> {
     private final Entity entity;
@@ -53,9 +49,6 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
                         }
                     }
                     String name = cap.entity.getScoreboardName();
-                    if (cap.entity instanceof ServerPlayer && cap.scoreboard.getPlayersTeam(name) == null) {
-                        cap.scoreboard.addPlayerToTeam(name, cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
-                    }
                     if (cap.owner != null) {
                         if (!cap.owner.isAlive()) {
                             cap.setOwner(null);
@@ -93,35 +86,6 @@ public class PVZOwnedCapability implements ICapabilitySerializable<CompoundTag> 
 
     public boolean hasOwner() {
         return ownerUuid != null;
-    }
-
-    public static boolean isTeammate(Entity A, Entity B) {
-        if (A == null || B == null) return false;
-        Team teamA = A.getTeam();
-        Team teamB = B.getTeam();
-
-        AtomicReference<Team> playerTeam = new AtomicReference<>();
-        AtomicReference<Team> enemyTeam = new AtomicReference<>();
-
-        A.getCapability(CAP).ifPresent((cap) -> {
-            playerTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.PLAYER_TEAM));
-            enemyTeam.set(cap.scoreboard.getPlayerTeam(PVZMod.ENEMY_TEAM));
-        });
-        boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, "teamBattle");
-
-        if (teamA == teamB) {
-            return teamA != null || (A instanceof Enemy == B instanceof Enemy);
-        }
-        if (teamA == null) {
-            return (A instanceof Enemy) == (teamB == enemyTeam.get());
-        }
-        if (teamB == null) {
-            return (B instanceof Enemy) == (teamA == enemyTeam.get());
-        }
-        if (teamA == enemyTeam.get() || teamB == enemyTeam.get()) {
-            return false;
-        }
-        return ! teamBattle;
     }
 
     @Override

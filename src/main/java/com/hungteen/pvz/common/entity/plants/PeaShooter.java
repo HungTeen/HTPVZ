@@ -79,9 +79,4 @@ public class PeaShooter extends ShooterPlant {
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 
-    @Override
-    public EntityDimensions getDimensions(Pose poseIn) {
-        return EntityDimensions.scalable(0.7F, 1.3F);
-    }
-
 }

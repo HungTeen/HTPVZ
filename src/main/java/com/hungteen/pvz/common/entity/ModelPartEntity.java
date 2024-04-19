@@ -178,8 +178,8 @@ public class ModelPartEntity extends Entity {
             entities.forEach(entity -> {
                 if (entity != null) {
                     if (ClientProxy.getPlayer().level == entity.level) {
-                        Minecraft.getInstance().levelRenderer.renderEntity(entity, x, y, z, ev.getPartialTick(),
-                                ev.getPoseStack(), Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource());
+                        ClientProxy.MC.levelRenderer.renderEntity(entity, x, y, z, ev.getPartialTick(),
+                                ev.getPoseStack(), ClientProxy.MC.levelRenderer.renderBuffers.bufferSource());
                     }
                 }
             });

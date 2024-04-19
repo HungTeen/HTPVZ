@@ -3,7 +3,6 @@ package com.hungteen.pvz.common.entity;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.events.PVZPlantConditionMatchingEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
@@ -52,7 +51,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -71,7 +69,7 @@ import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
  */
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
-public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSituation, ICanAttack {
+public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack {
 
 
     /**
@@ -213,7 +211,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
                         (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
                 if (this.getVehicle() == null) {
                     list.forEach((entity) -> {
-                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false) && PVZOwnedCapability.isTeammate(this, entity)) {
+                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false) && EntityUtil.isTeammate(this, entity)) {
                             this.startRiding(entity);
                         }
                     });
@@ -225,10 +223,10 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
         if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this, isPlanting)) {
-            if (PVZOwnedCapability.isTeammate(this, target)) {
+            if (EntityUtil.isTeammate(this, target)) {
                 if (! canMountEntity(this, target, this.getVehicle() == target)) {
                     return isPlanting && target.getFirstPassenger() != null ?
-                            isVehicleSafe(event, target.getFirstPassenger(), true) :
+                            plantVehicleSafe(event, target.getFirstPassenger(), true) :
                             Component.translatable("hint.pvz.plant.no_enough_place");
                 }
                 if (isPlanting) {
@@ -341,9 +339,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, INeedSafeSi
             Entity owner = cap.getOwner();
             if (owner != null) {
                 permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, "shovelPermission") ?
-                        (PVZOwnedCapability.isTeammate(owner, player) || ! PVZConfig.PVZGameRules.getBoolean(player.level, "teamBattle")) : owner.is(player);
+                        (EntityUtil.isTeammate(owner, player) || ! PVZConfig.PVZGameRules.getBoolean(player.level, "teamBattle")) : owner.is(player);
             } else {
-                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, "shovelPermission") && PVZOwnedCapability.isTeammate(target, player);
+                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, "shovelPermission") && EntityUtil.isTeammate(target, player);
             }
         });
         //shovel plant.

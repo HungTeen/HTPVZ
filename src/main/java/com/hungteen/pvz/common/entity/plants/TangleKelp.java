@@ -250,7 +250,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
 
     private static <T extends TangleKelp & Bucketable> Optional<InteractionResult> bucketMobPickup(Player player, InteractionHand hand, T tangleKelp) {
         ItemStack itemstack = player.getItemInHand(hand);
-        if (PVZConfig.PVZGameRules.getBoolean(tangleKelp.level, "canCanCanKelp") && itemstack.getItem() == Items.WATER_BUCKET && tangleKelp.isAlive() && PVZOwnedCapability.isTeammate(player, tangleKelp)) {
+        if (PVZConfig.PVZGameRules.getBoolean(tangleKelp.level, "canCanCanKelp") && itemstack.getItem() == Items.WATER_BUCKET && tangleKelp.isAlive() && EntityUtil.isTeammate(player, tangleKelp)) {
             tangleKelp.playSound(tangleKelp.getPickupSound(), 1.0F, 1.0F);
             ItemStack itemstack1 = tangleKelp.getBucketItemStack();
             tangleKelp.saveToBucketTag(itemstack1);
@@ -313,7 +313,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
                 List<Player> list = tangleKelp.level.getEntities(EntityTypeTest.forClass(Player.class),
                         new AABB(tangleKelp.getX() - 6, tangleKelp.getY() - 6, tangleKelp.getZ() - 6,
                                 tangleKelp.getX() + 6, tangleKelp.getY(), tangleKelp.getZ() + 6),
-                        (player) -> PVZOwnedCapability.isTeammate(player, tangleKelp));
+                        (player) -> EntityUtil.isTeammate(player, tangleKelp));
                 list.forEach((player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 100), this.tangleKelp)));
             }
             if (tangleKelp.hasSkill("skill.pvz.tangle_kelp.torpedo_kelp") && EntityUtil.isEntityValid(tangleKelp.getTarget())) {

@@ -307,7 +307,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     @Override
     public void handlePVZPacket(ServerPlayer player, int val) {
         if (! hasSkill("skill.pvz.gatling_pea.low_budget_configuration")) {
-            if (PVZOwnedCapability.isTeammate(this, player)) {
+            if (EntityUtil.isTeammate(this, player)) {
                 player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
                 player.startRiding(this);
                 this.setTarget(null);

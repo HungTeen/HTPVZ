@@ -64,9 +64,10 @@ public class SeedArrow <T extends Entity> extends Arrow {
     protected void onHitBlock(BlockHitResult result) {
         if (owner instanceof Player player && seedPacket != null && seedPacket.getItem() instanceof SeedPacketItem<?> item) {
             MutableComponent result1 = item.plantOnBlock(player, seedPacket, this.level, result.getBlockPos(), result.getDirection());
-            this.discard();
             if (result1 != null) {
                 player.displayClientMessage(result1, true);
+            } else {
+                this.discard();
             }
         }
         super.onHitBlock(result);

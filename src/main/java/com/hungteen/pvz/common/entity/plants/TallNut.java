@@ -45,6 +45,7 @@ public class TallNut extends WallNut{
     }
     public void setupPresentationAnim() {
     }
+    public boolean canBowling() {return false;}
 
     public float getMaxIronArmor() {
         return 300;

@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.api.interfaces.ICanGroupUp;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -24,7 +23,7 @@ public class GroupShareEnemyGoal extends Goal {
         if (-- count == 0) {
             count = 5;
             for (Mob entity : self.level.getEntitiesOfClass(self.getClass(), this.self.getBoundingBox().inflate(2),
-                    (target) -> PVZOwnedCapability.isTeammate(this.self, target))) {
+                    (target) -> EntityUtil.isTeammate(this.self, target))) {
                 if ((((ICanGroupUp) self).getLeader() == ((ICanGroupUp) entity).getLeader() || ((ICanGroupUp) self).getLeader() == entity) && ! EntityUtil.checkCanEntityBeAttack(entity, entity.getTarget())) {
                     entity.setTarget(self.getTarget());
                 }

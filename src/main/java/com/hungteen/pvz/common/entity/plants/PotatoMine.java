@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -27,6 +26,7 @@ import net.minecraft.world.phys.AABB;
 import java.util.List;
 import java.util.Set;
 
+import static com.hungteen.pvz.common.register.PVZDamageSource.ignoreInvTime;
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 
 public class PotatoMine extends SimplePlant {
@@ -49,7 +49,7 @@ public class PotatoMine extends SimplePlant {
     private void explode() {
         if (!this.level.isClientSide) {
             this.dead = true;
-            level.explode(this, teamFilter(DamageSource.explosion(this).bypassArmor()), null, this.getX(), this.getY(), this.getZ(),
+            level.explode(this, ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), null, this.getX(), this.getY(), this.getZ(),
                     this.hasSkill("skill.pvz.potato_mine.lethal_dose") ? 3F : 2F, false, Explosion.BlockInteraction.NONE);
             this.discard();//TODO modify damage calculator.
         }
@@ -99,13 +99,13 @@ public class PotatoMine extends SimplePlant {
         return new AABB(this.position().add(-width, 0, -width), this.position().add(width, 0.4F, width));
     }
     @Override
-    public EntityDimensions getDimensions(Pose p_19975_) {
-        return this.entityData.get(DATA_POSE) == Pose.DIGGING ? this.getType().getDimensions() : EntityDimensions.scalable(0.7F, 0.4F);
+    public EntityDimensions getDimensions(Pose pose) {
+        return pose == Pose.DIGGING ? this.getType().getDimensions() : EntityDimensions.scalable(0.7F, 0.4F);
     }
 
     @Override
     public void die(DamageSource damageSource) {
-        if (this.entityData.get(PREPARE_COUNT) <= 0 && ! damageSource.isMagic() && PVZOwnedCapability.isTeammate(this, damageSource.getEntity())) {
+        if (this.entityData.get(PREPARE_COUNT) <= 0 && ! damageSource.isMagic() && EntityUtil.isTeammate(this, damageSource.getEntity())) {
             this.explode();
         }
         super.die(damageSource);

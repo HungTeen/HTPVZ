@@ -2,7 +2,6 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.block.PlanternLightBlock;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
@@ -10,6 +9,7 @@ import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -127,7 +127,7 @@ public class TorchWood extends SimplePlant {
         @Override
         public void tick() {
             List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(1, 0.5, 1).move(0, 1, 0),
-                    (entity) -> (entity instanceof PeaBullet && PVZOwnedCapability.isTeammate(entity, this.entity)));
+                    (entity) -> (entity instanceof PeaBullet && EntityUtil.isTeammate(entity, this.entity)));
             entities.forEach((entity) -> {
                 if (entity instanceof PeaBullet pea && pea.changeCoolDown <= 0) {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {

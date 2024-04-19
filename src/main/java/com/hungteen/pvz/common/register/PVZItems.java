@@ -55,6 +55,8 @@ public class PVZItems {
 
     //registry
     public static final RegistryObject<Item> PEA = item("pea", () -> new BlockItem(PVZBlocks.PEA.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
+    public static final RegistryObject<Item> SNOW_PEA = item("snow_pea");
+    public static final RegistryObject<Item> FLAME_PEA = item("flame_pea");
     public static final RegistryObject<Item> NUT = item("nut");
     public static final RegistryObject<Item> PEPPER = item("pepper");
     public static final RegistryObject<Item> CABBAGE_SEED = item("cabbage_seeds", () -> new BlockItem(PVZBlocks.CABBAGE_SEEDS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
@@ -105,6 +107,8 @@ public class PVZItems {
 
     //tools
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> PEA_GUN = model(Model.Modeled).item("pea_gun", () -> new PeaGunItem( new Item.Properties().stacksTo(1).durability(400).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> CHILI_CHAN = model(Model.Handheld).item("chili_chan", () -> new ChiliChanItem( new Item.Properties().stacksTo(1).durability(233).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> WATERING_POT = model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
@@ -214,6 +218,6 @@ public class PVZItems {
     }
 
     public enum Model {
-        Simple, Block, SpawnEgg, SeedPacket, Modeled
+        Simple, Handheld, Block, SpawnEgg, SeedPacket, Modeled
     }
 }

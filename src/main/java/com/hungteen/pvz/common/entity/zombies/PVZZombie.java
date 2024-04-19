@@ -156,7 +156,7 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
         tag.put("Patterns", listTag);
         BlockItem.setBlockEntityData(itemstack, BlockEntityType.BANNER, tag);
         itemstack.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
-        itemstack.setHoverName((Component.translatable("block.pvz.brain_banner")).withStyle(ChatFormatting.WHITE));
+        itemstack.setHoverName((Component.translatable("block.pvz.brain_banner")));
         return itemstack;
     }
     public static ItemStack getNetherBanner() {
@@ -172,7 +172,7 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
         tag.put("Patterns", listTag);
         BlockItem.setBlockEntityData(itemstack, BlockEntityType.BANNER, tag);
         itemstack.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
-        itemstack.setHoverName((Component.translatable("block.pvz.brain_banner")).withStyle(ChatFormatting.WHITE));
+        itemstack.setHoverName((Component.translatable("block.pvz.brain_banner")));
         return itemstack;
     }
     public static ItemStack getEndBanner() {
@@ -186,7 +186,7 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
         tag.put("Patterns", listTag);
         BlockItem.setBlockEntityData(itemstack, BlockEntityType.BANNER, tag);
         itemstack.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
-        itemstack.setHoverName((Component.translatable("block.pvz.brain_banner")).withStyle(ChatFormatting.WHITE));
+        itemstack.setHoverName((Component.translatable("block.pvz.brain_banner")));
         return itemstack;
     }
 

@@ -1,10 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.interfaces.IArmorEntity;
-import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
-import com.hungteen.pvz.api.interfaces.IDefenderPlant;
-import com.hungteen.pvz.api.interfaces.IPlant;
+import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
@@ -12,6 +9,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -74,7 +72,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
         return ! (plant instanceof ICanBePlantedOn) &&
                 (! isPlanting || getPassengers().isEmpty()) &&
                 (! isPassenger() || ! (this.getVehicle() instanceof ICanBePlantedOn vehicle) || (vehicle.canHold(plant, isPlanting))) &&
-                PVZOwnedCapability.isTeammate(this, plant) && plant.getBbWidth() < 1;
+                EntityUtil.isTeammate(this, plant) && plant.getBbWidth() < 1;
     }
 
     @Override
@@ -95,7 +93,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                         (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
                 if (this.getVehicle() == null) {
                     list.forEach((entity) -> {
-                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false) && PVZOwnedCapability.isTeammate(this, entity)) {
+                        if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false) && EntityUtil.isTeammate(this, entity)) {
                             this.startRiding(entity);
                         }
                     });
@@ -107,7 +105,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
         if (hasSkill(this, "skill.pvz.pumpkin.wall_nut_first_aid") && target.getClass() == this.getClass()) {
-            if (PVZOwnedCapability.isTeammate(this, target)) {
+            if (EntityUtil.isTeammate(this, target)) {
                 if (((Pumpkin) target).getHealth() > ((Pumpkin) target).getMaxHealth() * 0.67) {
                     return Component.translatable("hint.pvz.plant.pumpkin.not_broken");
                 }
@@ -128,7 +126,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
             return Component.translatable("hint.pvz.plant.need_own_team");
         }
         if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this, isPlanting)) {
-            if (PVZOwnedCapability.isTeammate(this, target)) {
+            if (EntityUtil.isTeammate(this, target)) {
                 if (! canMountEntity(this, target, this.getVehicle() == target)) {
                     return isPlanting && target.getFirstPassenger() != null ?
                             plantVehicleSafe(event, target.getFirstPassenger(), true) :
@@ -142,11 +140,11 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
             }
             return Component.translatable("hint.pvz.plant.need_own_team");
         } else if (isPlanting && target instanceof LivingEntity livingEntity && this.canHold(livingEntity, true)) {
-            if (! PVZOwnedCapability.isTeammate(this, target)) {
+            if (! EntityUtil.isTeammate(this, target)) {
                 return Component.translatable("hint.pvz.plant.need_own_team");
             }
             if (target.getVehicle() instanceof ICanBePlantedOn entityRiding && ((ICanBePlantedOn) target.getVehicle()).canHold(this, false)) {
-                if (PVZOwnedCapability.isTeammate(this, target.getVehicle())) {
+                if (EntityUtil.isTeammate(this, target.getVehicle())) {
                     target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
                     target.startRiding(this);
                     this.moveTo(((Entity) entityRiding).getX(), ((Entity) entityRiding).getY(), ((Entity) entityRiding).getZ(),
@@ -157,9 +155,10 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                     return Component.translatable("hint.pvz.plant.need_own_team");
                 }
             } else if (target.getVehicle() == null) {
-                if (plantPositionSafe(event, target.level, target.blockPosition().below(), Direction.UP, true) == null) {
-                    target.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                    target.startRiding(this);
+                target.startRiding(this);
+                if (plantPositionSafe(event, target.level, target.getOnPos(), Direction.UP, true) == null &&
+                        (((target instanceof IPlant) && ((IPlant) target).plantVehicleSafe(event, this, true) == null) ||
+                                (! (target instanceof INeedSafeSituation) || ((INeedSafeSituation) target).isVehicleSafe(event, this, true) == null))) {
                     return null;
                 } else {
                     return Component.translatable("hint.pvz.plant.no_enough_place");

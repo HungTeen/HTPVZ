@@ -9,7 +9,9 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -26,14 +28,17 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.hungteen.pvz.common.register.PVZDamageSource.ignoreInvTime;
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 
 public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity {
@@ -41,6 +46,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     float storedArmor;
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Float> IRON_ARMOR = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Boolean> IS_BOWLING = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.BOOLEAN);
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
             new Skill("skill.pvz.wall_nut.explode", PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
@@ -58,6 +64,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
         super.defineSynchedData();
         this.entityData.define(EXPLODE_COUNT, -1);
         this.entityData.define(IRON_ARMOR, 0F);
+        this.entityData.define(IS_BOWLING, false);
     }
 
     //about iron armor
@@ -76,6 +83,13 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     public float getMaxIronArmor() {
         return 200;
     }
+    public boolean isBowling() {
+        return this.entityData.get(IS_BOWLING);
+    }
+    public boolean canBowling() {return true;}
+    public void setBowling(boolean is_bowling) {
+        this.entityData.set(IS_BOWLING, is_bowling);
+    }
 
     //entity settings
     public void setSecondsOnFire(int seconds) {
@@ -87,6 +101,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
                 .add(Attributes.MAX_HEALTH, 30D)
                 .add(Attributes.ARMOR, 25D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20D)
+                .add(Attributes.ATTACK_DAMAGE, 50D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
@@ -100,6 +115,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
+        this.goalSelector.addGoal(1, new WallNutCollideGoal(this));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 
@@ -116,7 +132,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
             }
         }
         if (hasSkill(this, "skill.pvz.wall_nut.wall_nut_first_aid") && target != null && target.getClass() == this.getClass()) {
-            if (PVZOwnedCapability.isTeammate(this, target)) {
+            if (EntityUtil.isTeammate(this, target)) {
                 if (((WallNut) target).getHealth() > ((WallNut) target).getMaxHealth() * 0.67) {
                     return Component.translatable("hint.pvz.plant.wall_nut.not_broken");
                 }
@@ -168,11 +184,15 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
             setIronArmor(getMaxIronArmor());
         }
     }
+    public void alignBlocks() {
+        super.alignBlocks();
+        this.setBowling(false);
+    }
 
     private void explode() {
         if (!this.level.isClientSide) {
             this.dead = true;
-            level.explode(this, teamFilter(DamageSource.explosion(this)), null, this.getX(), this.getY(), this.getZ(), 3F, false, Explosion.BlockInteraction.NONE);
+            level.explode(this, ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), null, this.getX(), this.getY(), this.getZ(), 3F, false, Explosion.BlockInteraction.NONE);
             this.discard();
         }
     }
@@ -222,6 +242,57 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
         super.readAdditionalSaveData(tag);
         if (tag.contains("IronArmor")) {
             setIronArmor((float) tag.getDouble("IronArmor"));
+        }
+    }
+
+    public static class WallNutCollideGoal extends Goal {
+        WallNut wallNut;
+        Vec3 storedDeltaMovement;
+        int wiltTick;
+        public WallNutCollideGoal(WallNut wallNut) {
+            this.wallNut = wallNut;
+            this.storedDeltaMovement = wallNut.getDeltaMovement();
+            this.wiltTick = 0;
+        }
+
+        @Override
+        public boolean canUse() {
+            if (wallNut.canBowling() && wallNut.getDeltaMovement().distanceToSqr(Vec3.ZERO) > 0.25) {
+                wallNut.setBowling(true);
+            }
+            wallNut.entityData.set(TAKES_COINCIDE_DMG, ! wallNut.isBowling());
+            wallNut.setDiscardFriction(wallNut.isBowling());
+            if (! wallNut.isBowling()) {
+                wiltTick = 0;
+            }
+            return wallNut.isBowling();
+        }
+
+        @Override
+        public void tick() {
+            List<Entity> entities = wallNut.level.getEntities(wallNut, wallNut.getBoundingBox().inflate(0.5, 0.5, 0.5),
+                    (target) -> EntityUtil.checkCanEntityBeAttack(wallNut, target));
+            if (! entities.isEmpty()) {
+                if (wallNut.hasSkill("skill.pvz.wall_nut.explode")) {
+                    wallNut.explode();
+                }
+                Vec3 deltaMovement = wallNut.getDeltaMovement();
+                double angle = wallNut.random.nextFloat() * Math.PI;
+                wallNut.setDeltaMovement(deltaMovement.x * Math.sin(angle) + deltaMovement.z * Math.cos(angle),
+                        deltaMovement.y,
+                        deltaMovement.z * Math.sin(angle) + deltaMovement.x * Math.cos(angle));
+            } else if (wallNut.horizontalCollision) {
+                wallNut.setDeltaMovement(wallNut.getDeltaMovement().add(wallNut.getDeltaMovement().subtract(storedDeltaMovement).scale(0.8F)));
+                wallNut.hurt(PVZDamageSource.NUT_COLLIDE, 10);
+            }
+            entities.forEach((entity -> {
+                entity.hurt(PVZDamageSource.NUT_COLLIDE, (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                wallNut.hurt(PVZDamageSource.NUT_COLLIDE, 15);
+            }));
+            storedDeltaMovement = wallNut.getDeltaMovement();
+            if (++ wiltTick % 20 == 0) {
+                wallNut.hurt(PVZDamageSource.PLANT_WILT, 5);
+            }
         }
     }
 }

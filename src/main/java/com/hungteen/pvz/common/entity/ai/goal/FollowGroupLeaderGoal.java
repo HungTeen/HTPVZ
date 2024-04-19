@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.api.interfaces.ICanGroupUp;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.datafixers.DataFixUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -40,7 +40,7 @@ public class FollowGroupLeaderGoal extends Goal {
                 this.nextStartTick = this.nextStartTick(this.mob);
                 double range = ((ICanGroupUp) mob).getGroupRangeSqr();
                 Predicate<Entity> Leaderpredicate = (target) ->
-                        PVZOwnedCapability.isTeammate(mob, target) && target instanceof ICanGroupUp &&
+                        EntityUtil.isTeammate(mob, target) && target instanceof ICanGroupUp &&
                                 ICanGroupUp.canBeFollowed(target) || ! ((ICanGroupUp) target).isFollower();
                 List<? extends LivingEntity> list = mob.level.getEntitiesOfClass(mob.getClass(),
                         mob.getBoundingBox().inflate(range, range, range), Leaderpredicate);

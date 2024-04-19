@@ -2,7 +2,6 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
@@ -10,6 +9,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -56,7 +56,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
 
     @Override
     public boolean canHold(LivingEntity plant, boolean isPlanting) {
-        return ! (plant.getType().is(PVZEntityTags.MUST_PLANT_IN_DIRT)) && (!isPlanting || getPassengers().isEmpty()) && PVZOwnedCapability.isTeammate(this, plant);
+        return ! (plant.getType().is(PVZEntityTags.MUST_PLANT_IN_DIRT)) && (!isPlanting || getPassengers().isEmpty()) && EntityUtil.isTeammate(this, plant);
     }
 
     @Override
@@ -176,7 +176,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (hasSkill(this, "skill.pvz.lily_pad.lily_boat")) {
-            if (PVZOwnedCapability.isTeammate(this, player) && getPassengers().isEmpty()
+            if (EntityUtil.isTeammate(this, player) && getPassengers().isEmpty()
                     && player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()
                     && ! (player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShovelItem)) {
                 player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);

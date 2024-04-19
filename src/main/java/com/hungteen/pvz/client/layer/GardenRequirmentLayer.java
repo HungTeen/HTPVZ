@@ -23,7 +23,7 @@ public class GardenRequirmentLayer<T extends LivingEntity> extends RenderLayer<T
 
     @Override
     public void render(PoseStack stack, MultiBufferSource bufferSource, int p_117351_, T entity, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
-        if (entity instanceof IGardenPlant plant) {
+        if (entity instanceof IGardenPlant plant && entity.isAlive()) {
             ItemStack itemStack = null;
             if (plant.isRequiringWater()) {
                 itemStack = new ItemStack(PVZItems.WATERING_POT.get());
@@ -34,7 +34,7 @@ public class GardenRequirmentLayer<T extends LivingEntity> extends RenderLayer<T
                 stack.pushPose();
                 stack.mulPose(Vector3f.XP.rotationDegrees(180.0F));
                 stack.translate(0, -1 + entity.getBbHeight(), 0);
-                Minecraft.getInstance().getItemRenderer().renderStatic(
+                ClientProxy.MC.getItemRenderer().renderStatic(
                         entity, itemStack, ItemTransforms.TransformType.GROUND, false,
                         stack, bufferSource, entity.level, p_117351_, OverlayTexture.NO_OVERLAY,
                         entity.getId() + ItemTransforms.TransformType.GROUND.ordinal());

@@ -15,13 +15,13 @@ public class PVZItemTabs {
     public static final CreativeModeTab PVZ_MISC = new CreativeModeTab("pvz_misc") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(PVZItems.VENTUS_ESSENCE.get());
+            return new ItemStack(PVZItems.ORIGIN_ESSENCE.get());
         }
     };
     public static final CreativeModeTab PVZ_FUNCTIONAL = new CreativeModeTab("pvz_functional") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(PVZItems.PEA.get());
+            return new ItemStack(PVZItems.SPROUT.get());
         }
     };
     public static final CreativeModeTab PVZ_PLANT_CARDS = new CreativeModeTab("seed_packets") {

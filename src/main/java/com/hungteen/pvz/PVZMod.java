@@ -61,7 +61,6 @@ public class PVZMod
     public static final String MODID = "pvz";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static String PLAYER_TEAM = "pvzmod.playerTeam";
     public static String ENEMY_TEAM = "pvzmod.enemyTeam";
     public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
     public PVZMod()
@@ -90,6 +89,10 @@ public class PVZMod
 
         PVZBiomes.BIOMES.register(modBus);
         PVZFeatures.FEATURES.register(modBus);
+        PVZStructures.STRUCTURES.register(modBus);
+        PVZStructures.STRUCTURE_SETS.register(modBus);
+        PVZStructurePieces.PIECE_TYPES.register(modBus);
+
         PVZParticles.PARTICLES.register(modBus);
 
         PVZMenus.MENU_TYPES.register(modBus);
@@ -125,10 +128,9 @@ public class PVZMod
         LOGGER.info("----------COMMON SETUP----------");
 
         PVZDimensions.register();
-        PVZStructures.init();
         PVZEnchantments.handleEnchantmentTypes();
 
-        event.enqueueWork(() ->{
+        event.enqueueWork(() -> {
             PVZBlocks.flammableMap.forEach((blockObj, pair) ->
                     ((FireBlock) Blocks.FIRE).setFlammable(blockObj.get(), pair.getFirst(), pair.getSecond())
             );
@@ -202,10 +204,6 @@ public class PVZMod
         if (ev.phase == TickEvent.Phase.START) {
             //global playerTeam
             Scoreboard scoreboard = ev.getServer().getScoreboard();
-            if (scoreboard.getPlayerTeam(PLAYER_TEAM) == null) {
-                PlayerTeam playerteam = scoreboard.addPlayerTeam(PLAYER_TEAM);
-                playerteam.setDisplayName(Component.literal(PLAYER_TEAM));
-            }
             if (scoreboard.getPlayerTeam(ENEMY_TEAM) == null) {
                 PlayerTeam playerteam = scoreboard.addPlayerTeam(ENEMY_TEAM);
                 playerteam.setDisplayName(Component.literal(ENEMY_TEAM));

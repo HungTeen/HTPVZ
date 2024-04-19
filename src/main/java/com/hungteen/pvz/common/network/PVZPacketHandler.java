@@ -20,10 +20,11 @@ public class PVZPacketHandler {
                 .serverAcceptedVersions(s -> true)
                 .simpleChannel();
         //SERVER TO CLIENT.
-        CHANNEL.registerMessage(id ++, SpawnParticlePacket.class, SpawnParticlePacket::toBytes, SpawnParticlePacket::new, SpawnParticlePacket::handle);
         CHANNEL.registerMessage(id ++, PlayerCapPacket.class, PlayerCapPacket::toBytes, PlayerCapPacket::new, PlayerCapPacket::handle);
+        CHANNEL.registerMessage(id ++, SpawnParticlePacket.class, SpawnParticlePacket::toBytes, SpawnParticlePacket::new, SpawnParticlePacket::handle);
         CHANNEL.registerMessage(id ++, PlayerCoolDownPacket.class, PlayerCoolDownPacket::toBytes, PlayerCoolDownPacket::new, PlayerCoolDownPacket::handle);
         CHANNEL.registerMessage(id ++, DropDamagedArmorPacket.class, DropDamagedArmorPacket::toBytes, DropDamagedArmorPacket::new, DropDamagedArmorPacket::handle);
+        CHANNEL.registerMessage(id ++, PlanternRefreshGlowPacket.class, PlanternRefreshGlowPacket::toBytes, PlanternRefreshGlowPacket::new, PlanternRefreshGlowPacket::handle);
         //CLIENT TO SERVER.
         CHANNEL.registerMessage(id ++, PVZAddSkillPacket.class, PVZAddSkillPacket::toBytes, PVZAddSkillPacket::new, PVZAddSkillPacket::handle);
         CHANNEL.registerMessage(id ++, PVZEntityInteractPacket.class, PVZEntityInteractPacket::toBytes, PVZEntityInteractPacket::new, PVZEntityInteractPacket::handle);

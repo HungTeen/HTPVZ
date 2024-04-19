@@ -15,8 +15,8 @@ public class PeaBulletRenderer extends CommonBulletRenderer<PeaBullet>{
     private static final ResourceLocation POISON = Util.prefix("textures/entity/bullet/poisonous_pea.png");
     private static final ResourceLocation COMMON_ITEM = Util.prefix("textures/item/pea.png");
     private static final ResourceLocation SOUL_FIRE_ITEM = Util.prefix("textures/entity/bullet/blue_flame_pea_item.png");
-    private static final ResourceLocation FIRE_ITEM = Util.prefix("textures/entity/bullet/flame_pea_item.png");
-    private static final ResourceLocation ICE_ITEM = Util.prefix("textures/entity/bullet/snow_pea_item.png");
+    private static final ResourceLocation FIRE_ITEM = Util.prefix("textures/entity/bullet/flame_pea.png");
+    private static final ResourceLocation ICE_ITEM = Util.prefix("textures/entity/bullet/snow_pea.png");
     private static final ResourceLocation POISON_ITEM = Util.prefix("textures/entity/bullet/poisonous_pea_item.png");
 
 

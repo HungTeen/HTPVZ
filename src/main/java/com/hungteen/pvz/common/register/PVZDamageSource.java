@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-import static com.hungteen.pvz.common.capability.owned.PVZOwnedCapability.isTeammate;
+import static com.hungteen.pvz.util.EntityUtil.isTeammate;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class PVZDamageSource {
@@ -25,6 +25,7 @@ public class PVZDamageSource {
 
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
     public static final DamageSource SPIKE_WEED = new DamageSource("spike_weed");
+    public static final DamageSource NUT_COLLIDE = knockBack(new DamageSource("nut_collide"), 2F);
     public static final DamageSource TANGLE_KELP = setSharp(new DamageSource("tangle_kelp").bypassArmor());
 
     //TODO need a decorator for AOE damages?
@@ -40,6 +41,11 @@ public class PVZDamageSource {
     }
     public static DamageSource ignoreInvTime(DamageSource source) {
         ignoreInvTimeSource = source;
+        return source;
+    }
+    public static DamageSource multiply(DamageSource source, float multiplier) {
+        multiplierSource = source;
+        PVZDamageSource.multiplier = multiplier;
         return source;
     }
     public static DamageSource setSharp(DamageSource source) {
@@ -60,9 +66,9 @@ public class PVZDamageSource {
 
     //variables and methods used
     private static DamageSource teamFilterSource = null;
-
+    private static DamageSource multiplierSource = null;
+    private static float multiplier = 1;
     private static DamageSource knockBackSource = null;
-
     private static DamageSource sharpSource = null;
     private static Entity knockBackEntity = null;
     private static float knockBackStrength = 1;
@@ -103,6 +109,9 @@ public class PVZDamageSource {
     public static void handleHurt(LivingHurtEvent ev){
         if (ev.getSource() == ignoreInvTimeSource) {
             ev.getEntity().invulnerableTime = invTime;
+        }
+        if (ev.getSource() == multiplierSource) {
+            ev.setAmount(ev.getAmount() * multiplier);
         }
     }
     @SubscribeEvent

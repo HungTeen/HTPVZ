@@ -17,6 +17,7 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZDamageSource;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -226,7 +227,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
         if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this, isPlanting)) {
-            if (PVZOwnedCapability.isTeammate(this, target)) {
+            if (EntityUtil.isTeammate(this, target)) {
                 if (!canMountEntity(this, target, this.getVehicle() == target)) {
                     return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
                 }

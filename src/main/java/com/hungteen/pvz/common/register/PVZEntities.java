@@ -163,7 +163,7 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<VelociRadish>> VELOCI_RADISH = attribute(VelociRadish::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, VelociRadish::checkSpawnRules)
             .collision(0.5F, 0.5825F).entity("veloci_radish", VelociRadish::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<KernelPult>> KERNEL_PULT = attribute(KernelPult::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<KernelPult>> KERNEL_PULT = attribute(KernelPult::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.BUTTER_INVULNERABLE)
             .collision(0.6F, 1F).entity("kernel_pult", KernelPult::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Chomper>> CHOMPER = attribute(Chomper::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(1.2F, 1.8F).entity("chomper", Chomper::new, OtherRegisters.PVZPlantMobCategory);

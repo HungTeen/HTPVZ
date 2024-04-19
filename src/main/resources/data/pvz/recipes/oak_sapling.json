@@ -6,10 +6,19 @@
     },
     {
       "item": "minecraft:dead_bush"
+    },
+    {
+      "item": "minecraft:dead_bush"
+    },
+    {
+      "item": "minecraft:dead_bush"
+    },
+    {
+      "item": "minecraft:dead_bush"
     }
   ],
   "result": {
-    "item": "pvz:oak_sapling",
+    "item": "minecraft:oak_sapling",
     "count": 4
   }
 }

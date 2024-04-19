@@ -67,7 +67,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, INeedSafeSituation, ICanAttack, VibrationListener.VibrationListenerConfig {
+public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanAttack, VibrationListener.VibrationListenerConfig {
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState digAnimationState = new AnimationState();
     public AnimationState attackAnimationState = new AnimationState();

@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -68,7 +67,7 @@ public class IcebergLettuce extends ShooterPlant {
     }
     @Override
     public void die(DamageSource damageSource) {
-        if (! damageSource.isMagic() && ! PVZOwnedCapability.isTeammate(this, damageSource.getEntity())) {
+        if (! damageSource.isMagic() && ! EntityUtil.isTeammate(this, damageSource.getEntity())) {
             if (damageSource.getEntity() instanceof LivingEntity target && damageSource.getDirectEntity() == damageSource.getEntity()) {
                 MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 120);
                 if (this.hasSkill("skill.pvz.iceberg_lettuce.ice_storm")) {

@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -40,9 +41,18 @@ public class BaseBullet extends Projectile {
 		this.setDeltaMovement(target.position().add(0, target.getEyeHeight(), 0).subtract(this.position()).normalize().scale(speed));
 	}
 
+	protected void splashParticle() {
+	}
+
+	@Override
+	public void onClientRemoval() {
+		super.onClientRemoval();
+		this.splashParticle();
+	}
+
 	@Override
 	protected boolean canHitEntity(Entity entity) {
-		return super.canHitEntity(entity) && ! PVZOwnedCapability.isTeammate(this, entity);
+		return super.canHitEntity(entity) && (! this.level.isClientSide && EntityUtil.checkCanEntityBeAttack(this, entity));
 	}
 	@Override
 	public void setOwner(@Nullable Entity entity) {

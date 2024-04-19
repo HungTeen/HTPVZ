@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.world.effect.*;
 import net.minecraft.world.entity.FlyingMob;
@@ -128,6 +129,9 @@ public class PVZMobEffects {
         }
 
         public void applyEffectTick(LivingEntity entity, int level) {
+            if (entity.getType().is(PVZEntityTags.BUTTER_INVULNERABLE)) {
+                entity.removeEffect(BUTTER.get());
+            }
             if (entity instanceof Mob mob) {
                 mob.setTarget(null);
                 mob.getNavigation().stop();
@@ -148,11 +152,12 @@ public class PVZMobEffects {
         }
 
         public void applyEffectTick(LivingEntity entity, int level) {
-            if (entity.isOnFire()) {
-                entity.removeEffect(PVZMobEffects.FREEZE.get());
+            if (! entity.canFreeze()) {
+                entity.removeEffect(FREEZE.get());
             }
-            if (entity.canFreeze()) {
-                entity.setTicksFrozen(350);
+            entity.setTicksFrozen(350);
+            if (entity.isOnFire()) {
+                entity.removeEffect(FREEZE.get());
             }
         }
     }

@@ -34,7 +34,7 @@ public class PVZZombieRenderer<T extends PVZZombie, M extends PVZZombieModel<T>>
 
     @Override
     public void render(T zombie, float p_115456_, float p_115457_, PoseStack p_115458_, MultiBufferSource p_115459_, int p_115460_) {
-        if (PVZConfig.zombieDropParts() && ! Minecraft.getInstance().isPaused()) {
+        if (PVZConfig.zombieDropParts() && ! ClientProxy.MC.isPaused()) {
             if (zombie.renderHand && zombie.shouldDropHand()) {
                 zombie.renderHand = false;
                 Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
