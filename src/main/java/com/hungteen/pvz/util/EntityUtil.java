@@ -10,6 +10,7 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
+import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -35,8 +36,8 @@ public class EntityUtil {
 
         Team teamA = A.getTeam();
         Team teamB = B.getTeam();
-        boolean AIsEnemy = A instanceof Enemy || A.getType().is(PVZEntityTags.ENEMY);
-        boolean BIsEnemy = B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY);
+        boolean AIsEnemy = (! A.getType().is(PVZEntityTags.FRIENDLY)) && (A instanceof Enemy || A.getType().is(PVZEntityTags.ENEMY) || A.getType().is(Tags.EntityTypes.BOSSES));
+        boolean BIsEnemy = (! B.getType().is(PVZEntityTags.FRIENDLY)) && (B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY) || B.getType().is(Tags.EntityTypes.BOSSES));
         Team enemyTeam = A.getServer().getScoreboard().getPlayerTeam(PVZMod.ENEMY_TEAM);
 
         boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, "teamBattle");

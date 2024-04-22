@@ -25,6 +25,7 @@ public class DataGenHandler {
 
         g.addProvider(i, new RecipeGen(g));
         g.addProvider(i, new LootGen(g));
+        g.addProvider(i, new LootModifierGen(g));
     }
 
 }

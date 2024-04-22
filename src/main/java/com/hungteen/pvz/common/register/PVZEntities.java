@@ -169,8 +169,8 @@ public class PVZEntities {
             .collision(1.2F, 1.8F).entity("chomper", Chomper::new, OtherRegisters.PVZPlantMobCategory);
 
     //zombies
-    public static final RegistryObject<EntityType<PVZZombie>> ZOMBIE = attribute(Zombie::createAttributes).noLoot()
-            .tag(PVZEntityTags.ZOMBIE).spawnEgg(0xb97141, 0x799587)
+    public static final RegistryObject<EntityType<PVZZombie>> ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0xb97141, 0x799587)
             .entity("zombie", PVZZombie::new, MobCategory.MONSTER);
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F).entity("pea", PeaBullet::new, MobCategory.MISC);

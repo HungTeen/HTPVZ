@@ -10,7 +10,7 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.item.SeedItem;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.register.PVZDamageSource;
@@ -36,7 +36,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -450,12 +449,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
 
     //for easy maintenance.
     public static ItemStack getPickResult(LivingEntity entity) {
-        AtomicReference<Item> packetItem = new AtomicReference<>();
-        SeedPacketItem.seedPacketItemList.forEach(item -> {
-            if (item.getEntity().equals(entity.getType())) {
-                packetItem.set(item);
-            }});
-        return (packetItem.get()).getDefaultInstance();
+        return (SeedItem.getSeed(entity.getType())).getDefaultInstance();
     }
     @Override
     public boolean removeWhenFarAway(double p_27598_) {

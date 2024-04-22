@@ -2,10 +2,13 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IArmorEntity;
+import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -39,6 +42,24 @@ public class PVZDamageSource {
         knockBackStrength = strength;
         return source;
     }
+    public static DamageSource canHitDragon(DamageSource source, Entity target, float multiplier) {
+        if (target instanceof EnderDragon || target instanceof EnderDragonPart) {
+            hurtDragonSource = new DamageSource(source.getMsgId()).setExplosion();
+            if (source.getEntity() != null) {
+                PVZOwnedCapability cap = source.getEntity().getCapability(PVZOwnedCapability.CAP).orElse(null);
+                if (cap != null && EntityUtil.isEntityValid(cap.getOwner())) {
+                    hurtDragonSource = new IndirectEntityDamageSource(source.getMsgId(), source.getEntity(), cap.getOwner());
+                }
+            }
+            if (source.isProjectile()) {
+                hurtDragonSource.setProjectile();
+            }
+            dragonMultiplier = multiplier;
+            return hurtDragonSource;
+        }
+        return source;
+    }
+
     public static DamageSource ignoreInvTime(DamageSource source) {
         ignoreInvTimeSource = source;
         return source;
@@ -66,31 +87,26 @@ public class PVZDamageSource {
 
     //variables and methods used
     private static DamageSource teamFilterSource = null;
+
     private static DamageSource multiplierSource = null;
     private static float multiplier = 1;
+
+    private static DamageSource hurtDragonSource = null;
+    private static float dragonMultiplier = 1;
+
     private static DamageSource knockBackSource = null;
-    private static DamageSource sharpSource = null;
     private static Entity knockBackEntity = null;
     private static float knockBackStrength = 1;
+
     private static DamageSource ignoreInvTimeSource = null;
-    private static Set<DamageSource> storedSharpSources = Set.of(DamageSource.CACTUS);
     private static int invTime = 0;
 
+    private static DamageSource sharpSource = null;
+    private static Set<DamageSource> storedSharpSources = Set.of(DamageSource.CACTUS);
 
     @SubscribeEvent
     public static void handleAttack(LivingAttackEvent ev) {
-        //handle IArmorEntity
-        if (ev.getEntity().getVehicle() instanceof IArmorEntity vehicle && vehicle.canRecieveDamage(ev.getSource(), ev.getAmount(), ev.getEntity())) {
-            ev.setCanceled(true);
-            ((Entity) vehicle).hurt(ev.getSource(), ev.getAmount());
-            return;
-        }
         //handle damageSource decorators.
-        if (ev.getEntity() instanceof EnderDragon) {
-            if (! (ev.getSource().getEntity() instanceof Player) || ! ev.getSource().isExplosion()) {
-                ev.getEntity().hurt(new DamageSource(ev.getSource().msgId).setExplosion(), ev.getAmount() * 0.01F);
-            }
-        }
         if (ev.getSource() == teamFilterSource) {
             if (ev.getSource().getEntity() != null && isTeammate(ev.getSource().getEntity(), ev.getEntity())) {
                 ev.setCanceled(true);
@@ -106,7 +122,18 @@ public class PVZDamageSource {
     }
 
     @SubscribeEvent
-    public static void handleHurt(LivingHurtEvent ev){
+    public static void handleHurt(LivingHurtEvent ev) {
+        //handle IArmorEntity
+        if (ev.getEntity().getVehicle() instanceof IArmorEntity vehicle && vehicle.canRecieveDamage(ev.getSource(), ev.getAmount(), ev.getEntity())) {
+            ev.setAmount(0);
+            ((Entity) vehicle).hurt(ev.getSource(), ev.getAmount());
+            return;
+        }
+        if (ev.getEntity() instanceof EnderDragon) {
+            if (ev.getSource() == hurtDragonSource) {
+                ev.setAmount(ev.getAmount() * dragonMultiplier);
+            }
+        }
         if (ev.getSource() == ignoreInvTimeSource) {
             ev.getEntity().invulnerableTime = invTime;
         }

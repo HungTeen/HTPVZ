@@ -49,7 +49,7 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
     public boolean renderHead = true; // controlled by renderer.
     public static Consumer<Entity> CONEHEAD_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance());
     public static Consumer<Entity> BUCKET_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance());
-    public static Consumer<Entity> DUCK_LIFEBUOY_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.CHEST, PVZItems.DUCK_LIFEBUOY.get().getDefaultInstance());
+    public static Consumer<Entity> DUCK_LIFEBUOY_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.LEGS, PVZItems.DUCK_LIFEBUOY.get().getDefaultInstance());
     public static Consumer<Entity> OVERWORLD_FLAG_ZOMBIE_CONSUMER = (entity) -> {
         entity.setItemSlot(EquipmentSlot.HEAD, getOverworldBanner());
         entity.getEntityData().set(SKIN, "minecraft_overworld");

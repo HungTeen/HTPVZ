@@ -14,16 +14,33 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
+
+    public static List<SeedPacketItem<?>> seedItem = new ArrayList<>();
     public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown, boolean creativeOnly) {
         super(p_41383_, entitySupplier, List.of(), resource, cost, coolDown, creativeOnly);
+        if (this.getClass() == SeedItem.class) seedItem.add(this);
     }
 
+    //methods
+    public static SeedPacketItem getSeed(EntityType<?> entityType) {
+        AtomicReference<SeedPacketItem> packetItem = new AtomicReference<>();
+        SeedPacketItem.seedPacketItemList.forEach(item -> {
+            if (item.getEntity().equals(entityType)) {
+                packetItem.set(item);
+            }});
+        return packetItem.get();
+    }
+
+
+    //definitions
     @Override
     public Component getName(ItemStack itemStack) {
         return Component.translatable("item.pvz.seed", Component.translatable(entitySupplier.get().getDescriptionId()));

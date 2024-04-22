@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -88,6 +89,12 @@ public class PeaGunItem extends ProjectileWeaponItem {
     @Override
     public int getDefaultProjectileRange() {
         return 32;
+    }
+
+    /**only decoration.*/
+    public boolean canEquip(ItemStack stack, EquipmentSlot armorType, Entity entity)
+    {
+        return EquipmentSlot.HEAD == armorType;
     }
 
     private static PeaBullet summonPeaBullet(Level level, Player shooter, EquipmentSlot slot, Item bulletItem) {

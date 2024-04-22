@@ -49,15 +49,23 @@ public class PlanternModel<T extends Plantern> extends HierarchicalModel<T> {
 				.texOffs(0, 0).addBox(0.0F, -3.0F, -5.0F, 0.0F, 3.0F, 10.0F, new CubeDeformation(0.0F))
 				.texOffs(89, 12).addBox(-2.0F, -6.0F, -2.0F, 4.0F, 6.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition stick1 = total.addOrReplaceChild("stick1", CubeListBuilder.create().texOffs(105, 13).addBox(-2.0F, -6.0F, -2.0F, 4.0F, 9.0F, 4.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition stick1 = total.addOrReplaceChild("stick1", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+		PartDefinition cube_r1 = stick1.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(105, 13).addBox(-2.0F, -6.0F, -2.0F, 4.0F, 9.0F, 4.0F, new CubeDeformation(-0.01F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
 		PartDefinition stick2 = stick1.addOrReplaceChild("stick2", CubeListBuilder.create().texOffs(105, 13).addBox(-2.0F, -6.0F, -2.0F, 4.0F, 9.0F, 4.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition stick3 = stick2.addOrReplaceChild("stick3", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition stick3 = stick2.addOrReplaceChild("stick3", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition stick4 = stick3.addOrReplaceChild("stick4", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition cube_r2 = stick3.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 3.1416F, 0.0F));
 
-		PartDefinition stick5 = stick4.addOrReplaceChild("stick5", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition stick4 = stick3.addOrReplaceChild("stick4", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+		PartDefinition cube_r3 = stick4.addOrReplaceChild("cube_r3", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
+
+		PartDefinition stick5 = stick4.addOrReplaceChild("stick5", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+		PartDefinition cube_r4 = stick5.addOrReplaceChild("cube_r4", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
 		PartDefinition stick6 = stick5.addOrReplaceChild("stick6", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 

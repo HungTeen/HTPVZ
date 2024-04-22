@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_origin": {
+    "has_essence": {
       "conditions": {
         "items": [
           {
             "items": [
-              "pvz:origin_block"
+              "pvz:gelum_essence"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pvz:origin_essence"
+        "recipe": "pvz:snow_pea"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_origin",
+      "has_essence",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pvz:origin_essence"
+      "pvz:snow_pea"
     ]
   }
 }

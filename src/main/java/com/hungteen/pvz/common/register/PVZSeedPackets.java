@@ -38,7 +38,7 @@ public class PVZSeedPackets {
         add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillList)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.SNOW_PEA).cost(175).coolDown(MIDDLE).skillList(SnowPea.staticSkillList)
-                .recipe(PVZItems.PEA, getRecipePacket(PVZEntities.PEA_SHOOTER), PVZItems.GELUM_ESSENCE);
+                .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.POTATO_MINE).cost(25).coolDown(SLOW).skillList(PotatoMine.staticSkillList)
                 .recipe(Items.POTATO, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.LILY_PAD).cost(25).coolDown(FAST).skillList(LilyPad.staticSkillList)
@@ -52,7 +52,7 @@ public class PVZSeedPackets {
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.ICEBERG_LETTUCE).cost(0).coolDown(MIDDLE).skillList(IcebergLettuce.staticSkillList)
-                .recipe(PVZItems.FLOWER_SEED_PACKET);
+                .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.GELUM_ESSENCE);
         add(PVZEntities.VELOCI_RADISH).cost(50).coolDown(FAST).skillList(VelociRadish.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.

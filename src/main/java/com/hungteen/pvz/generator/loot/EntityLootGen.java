@@ -2,6 +2,7 @@ package com.hungteen.pvz.generator.loot;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.data.loot.EntityLoot;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
@@ -13,6 +14,8 @@ import net.minecraft.world.level.storage.loot.functions.LootingEnchantFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.SmeltItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithLootingCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraftforge.registries.RegistryObject;
@@ -44,6 +47,10 @@ public class EntityLootGen extends EntityLoot {
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
                                 .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
         );
+        this.add(PVZEntities.ZOMBIE.get(), LootTable.lootTable()
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()))
+                        .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.2F, 0.05F))));
         //enter here
     }
 

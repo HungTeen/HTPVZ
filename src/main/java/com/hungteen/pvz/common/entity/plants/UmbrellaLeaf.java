@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.Tags;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -54,7 +55,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     }
 
     public boolean canBounce(Entity entity, boolean isClient) {
-        if (entity.getDeltaMovement().length() < 0.5 || ! this.isAlive()) {
+        if (entity.getType().is(Tags.EntityTypes.BOSSES) || entity.getDeltaMovement().length() < 0.5 || ! this.isAlive()) {
             return false;
         }
         Vec3 subPosition = entity.position().subtract(this.position()).multiply(1, 0, 1);
@@ -75,7 +76,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         return ! isClient ? (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this)
                 || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this))) :
-                entity instanceof Player player && ClientProxy.getPlayer() == player && (! EntityUtil.isTeammate(this, player) || ! player.isShiftKeyDown());
+                entity instanceof Player player && ClientProxy.getPlayer() == player;
     }
 
     @Override

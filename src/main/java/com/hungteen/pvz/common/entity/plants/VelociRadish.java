@@ -98,7 +98,8 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new AvoidTargetGoal(this,
-                (entity -> entity instanceof Mob mob && mob.getTarget() == this && getTarget() == mob),
+                (entity -> entity instanceof Mob mob && mob.getTarget() == this && getTarget() == mob &&
+                        (this.getAttribute(Attributes.ATTACK_DAMAGE).getModifier(ATTACK_MODIFIER_UUID) != null)),
                 4.0F, 1.0D, 1.0D));
         this.goalSelector.addGoal(2, new TurnipAttackGoal(this, 1, true));
         this.goalSelector.addGoal(3, new FollowGroupLeaderGoal(this));
@@ -253,7 +254,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         if (hasSkill(this, "skill.pvz.veloci_radish.veloci_nip")) {
             if (!level.isClientSide) {
                 setGlowingTag(tickCount < 200 && (tickCount <= 100 || tickCount % 10 < 5));
-                if (!skillBoosted) {
+                if (! skillBoosted) {
                     skillBoosted = true;
                     this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTACK_MODIFIER_UUID, "skill bonus", 26, AttributeModifier.Operation.ADDITION));
                     this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 8, AttributeModifier.Operation.ADDITION));

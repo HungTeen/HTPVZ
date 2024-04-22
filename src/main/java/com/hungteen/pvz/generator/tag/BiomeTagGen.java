@@ -15,7 +15,7 @@ public class BiomeTagGen extends BiomeTagsProvider {
 
 
     @Override
-    public void addTags(){
+    public void addTags() {
         this.tag(PVZBiomeTags.HAS_GREEN_HOUSE).add(PVZBiomes.GARDEN_PLAINS.get());
         this.tag(PVZBiomeTags.HAS_GARDEN_SHELVES).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_MUSHROOM.get());
         this.tag(BiomeTags.HAS_CLOSER_WATER_FOG).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get());

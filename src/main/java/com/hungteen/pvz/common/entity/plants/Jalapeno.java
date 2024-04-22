@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 
+/**For damaging related logic, see {@link Anger}.*/
 public class Jalapeno extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
     public static List<Skill> staticSkillList = List.of(

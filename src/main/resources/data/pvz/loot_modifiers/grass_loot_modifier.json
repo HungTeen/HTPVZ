@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:block",
+  "conditions": [
+    {
+      "chance": 0.125,
+      "condition": "minecraft:random_chance"
+    }
+  ]
+}

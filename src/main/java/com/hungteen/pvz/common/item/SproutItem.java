@@ -92,6 +92,12 @@ public class SproutItem extends Item {
         }
         return tag;
     }
+    public static ItemStack getTaggedItem(SproutItem item, String name, Map<String, Integer> transformChance) {
+        ItemStack itemStack = item.getDefaultInstance();
+        itemStack.getOrCreateTag().putString("sprout_type", name);
+        itemStack.getOrCreateTag().put("transform_chances", fromChanceMapToTag(transformChance));
+        return itemStack;
+    }
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn){
@@ -114,10 +120,7 @@ public class SproutItem extends Item {
                             transformChance.put(i, 0);
                         }
                     }
-                    ItemStack itemStack = getDefaultInstance();
-                    itemStack.getOrCreateTag().putString("sprout_type", name);
-                    itemStack.getOrCreateTag().put("transform_chances", fromChanceMapToTag(transformChance));
-                    list.add(itemStack);
+                    list.add(getTaggedItem(this, name, transformChance));
                 }
             }
         } else {

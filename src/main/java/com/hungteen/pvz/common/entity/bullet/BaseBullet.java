@@ -52,7 +52,7 @@ public class BaseBullet extends Projectile {
 
 	@Override
 	protected boolean canHitEntity(Entity entity) {
-		return super.canHitEntity(entity) && (! this.level.isClientSide && EntityUtil.checkCanEntityBeAttack(this, entity));
+		return super.canHitEntity(entity) && ! this.level.isClientSide && EntityUtil.checkCanEntityBeAttack(this, entity);
 	}
 	@Override
 	public void setOwner(@Nullable Entity entity) {
@@ -115,7 +115,7 @@ public class BaseBullet extends Projectile {
 	}
 	@Override
 	protected void onHitEntity(EntityHitResult result) {
-		if (!this.level.isClientSide() && result.getEntity() instanceof LivingEntity) {
+		if (!this.level.isClientSide()) {
 			this.dealDamageTo(result.getEntity());
 		}
 	}
@@ -127,9 +127,9 @@ public class BaseBullet extends Projectile {
 	protected void dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
 		//default normal damage.
-		target.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
+		target.hurt(PVZDamageSource.canHitDragon(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
 				PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
-						, getKnockBackStrength()), damage);
+						, getKnockBackStrength()), target, 0.2F), damage);
 		this.discard();
 	}
 

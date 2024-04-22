@@ -12,6 +12,7 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -40,7 +41,7 @@ public class ExtraHealthArmorItem extends ArmorItem {
 
     @SubscribeEvent
     public static void handleHurt(LivingHurtEvent event) {
-        if (! event.getSource().isBypassArmor()) {
+        if (! event.getSource().isBypassArmor() || event.getSource() == DamageSource.FREEZE) {
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 if (slot.getType() == EquipmentSlot.Type.ARMOR) {
                     ItemStack stack = event.getEntity().getItemBySlot(slot);

@@ -11,8 +11,10 @@ public class PVZEntityTags {
     /**Basic tags.*/
     public static TagKey<EntityType<?>> PLANT = pvzTag("pvz_plant");
     public static TagKey<EntityType<?>> ZOMBIE = pvzTag("pvz_zombie");
-    /**By adding this tag, mobs will be considered as {@link net.minecraft.world.entity.monster.Enemy} by pvz mobs.*/
+    /**By adding this tag, mobs will be considered as {@link net.minecraft.world.entity.monster.Enemy} by pvz mobs. Attention that plants <b>WON'T</b> target non-livings.*/
     public static TagKey<EntityType<?>> ENEMY = pvzTag("pvz_enemy");
+    /**By adding this tag, mobs <b>WON'T</b> be considered as {@link net.minecraft.world.entity.monster.Enemy} by pvz mobs.*/
+    public static TagKey<EntityType<?>> FRIENDLY = pvzTag("pvz_friendly");
 
     /** For non-pvz entities, with this tag will it be regarded as iron. <br>
      * {@link com.hungteen.pvz.api.interfaces.IIronEntity} has the same effect and is more controllable.*/

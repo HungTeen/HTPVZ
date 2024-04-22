@@ -46,13 +46,14 @@ import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkills{
+    public static List<SeedPacketItem<?>> seedPacketItemList = new ArrayList<>();
 
     //entitySupplier is unchangeable. the rest three can be adjusted with command.
-    public static List<SeedPacketItem<?>> seedPacketItemList = new ArrayList<>();
     protected final Supplier<EntityType<T>> entitySupplier;
     private final String resource;
     private final int cost;
@@ -68,9 +69,11 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         this.cost = cost;
         this.coolDown = coolDown;
         this.creativeOnly = creativeOnly;
-        seedPacketItemList.add(this);
+        if (this.getClass() == SeedPacketItem.class) seedPacketItemList.add(this);
     }
 
+
+    //methods
     public EntityType<T> getEntity(){
         return entitySupplier.get();
     }
@@ -101,6 +104,32 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         return resource;
     }
 
+    public static SeedPacketItem getSeedPacket(EntityType<?> entityType) {
+        AtomicReference<SeedPacketItem> packetItem = new AtomicReference<>();
+        SeedPacketItem.seedPacketItemList.forEach(item -> {
+            if (item.getEntity().equals(entityType)) {
+                packetItem.set(item);
+            }});
+        return packetItem.get();
+    }
+
+
+    //definitions
+    @Override
+    public List<Skill> getStaticSkillList(){
+        return skillList;
+    }
+
+
+    public boolean canBoost(){
+        return true;
+    }
+
+    @Override
+    public Component getName(ItemStack itemStack) {
+        return Component.translatable("item.pvz.seed_packet", Component.translatable(entitySupplier.get().getDescriptionId()));
+    }
+
     public int getSkillVal(Object obj) {
         if (obj instanceof ItemStack itemStack && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null){
             CompoundTag tag = itemStack.getTag();
@@ -117,21 +146,6 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             itemStack.getTag().putInt("Skill", value);
         }
     }
-
-    @Override
-    public List<Skill> getStaticSkillList(){
-        return skillList;
-    }
-
-    @Override
-    public Component getName(ItemStack itemStack) {
-        return Component.translatable("item.pvz.seed_packet", Component.translatable(entitySupplier.get().getDescriptionId()));
-    }
-
-    public boolean canBoost(){
-        return true;
-    }
-
 
     //TODO do not use if main hand interacting result consumes action.
     protected void used(ItemStack itemstack, Player player) {

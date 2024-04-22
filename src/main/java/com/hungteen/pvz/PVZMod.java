@@ -97,6 +97,8 @@ public class PVZMod
 
         PVZMenus.MENU_TYPES.register(modBus);
 
+        PVZLootModifiers.LOOT_MODIFIERS.register(modBus);
+
         OtherRegisters.modBusRegister(modBus);
         modBus.addListener(PVZConfig.PVZGameRules::init);
 

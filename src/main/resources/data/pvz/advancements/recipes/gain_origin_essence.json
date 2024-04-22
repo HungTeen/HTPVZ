@@ -6,29 +6,29 @@
         "items": [
           {
             "items": [
-              "pvz:origin_block"
+              "pvz:origin_essence"
             ]
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
-    },
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "pvz:origin_essence"
-      },
-      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_origin",
-      "has_the_recipe"
+      "has_origin"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pvz:origin_essence"
+      "pvz:origin_essence_by_essence_furnace",
+      "pvz:essence_furnace",
+      "pvz:flower_seed_packet",
+      "pvz:nether_wart_seed_packet",
+      "pvz:chorus_fruit_seed_packet",
+      "pvz:nut_sapling",
+      "pvz:oak_sapling",
+      "pvz:origin_block"
     ]
   }
 }

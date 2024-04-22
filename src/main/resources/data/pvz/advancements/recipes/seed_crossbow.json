@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_origin": {
+    "has_ingredient": {
       "conditions": {
         "items": [
           {
             "items": [
-              "pvz:origin_block"
+              "minecraft:crossbow"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pvz:origin_essence"
+        "recipe": "pvz:seed_crossbow"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_origin",
+      "has_ingredient",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "pvz:origin_essence"
+      "pvz:seed_crossbow"
     ]
   }
 }

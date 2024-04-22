@@ -11,6 +11,7 @@ import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -123,6 +124,17 @@ public class SpikeWeed extends SimplePlant {
     public void baseTick() {
         super.baseTick();
         setNoGravity(! level.getBlockState(this.getRootBlockPos()).isAir() && ! (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock));
+    }
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putString("attach_direction", this.entityData.get(ATTACH_FACE).getName());
+    }
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag){
+        super.readAdditionalSaveData(tag);
+        Direction direction = Direction.byName(tag.getString("attach_direction"));
+        this.entityData.set(ATTACH_FACE, direction == null ? Direction.UP : direction);
     }
     @Override
     public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
