@@ -46,6 +46,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -178,15 +179,16 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             }
         }
         if (! this.getEntityData().get(root()) || (plantableOn && ! level.getBlockState(pos).isAir())) {
-            if (level.getBlockState(pos).getFluidState().isEmpty()) {
+            BlockState state = level.getBlockState(pos);
+            if (state.getFluidState().isEmpty() || (! state.getCollisionShape(level, pos).isEmpty() && state.getFluidState().getHeight(level, pos) < state.getCollisionShape(level, pos).bounds().maxY)) {
                 if (isPlanting) {
                     this.moveTo(
                             pos.getX() + 0.5 + offset.getX(),
-                            pos.getY() + (direction == Direction.UP ? (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
+                            pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
                                     (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
-                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
+                                    state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
                             pos.getZ() + 0.5 + offset.getZ());
-                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
+                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.25F);
                 }
                 return null;
             }
@@ -314,8 +316,8 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         ItemStack itemstack = player.getItemInHand(handIn);
         if (itemstack.getItem() instanceof ShovelItem && entity instanceof IPlant plant) {
             if (plant.onBeingShoveled(player, handIn)) {
-                ev.setCanceled(true);
                 ev.setCancellationResult(InteractionResult.CONSUME);
+                ev.setCanceled(true);
             }
         }
     }

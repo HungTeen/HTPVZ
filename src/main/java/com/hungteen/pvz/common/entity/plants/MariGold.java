@@ -93,7 +93,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     public void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(GROW_LEVEL, 0);
-        this.entityData.define(GROW_TIME, 200);
+        this.entityData.define(GROW_TIME, MARIGOLD_GROW_TIME);
         this.entityData.define(IS_PRODUCING, false);
         this.entityData.define(REQUIRES_WATER, true);
         this.entityData.define(COLOR, DyeColor.values()[this.random.nextInt(16)].getTextColor());

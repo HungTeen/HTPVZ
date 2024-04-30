@@ -8,15 +8,12 @@ import net.minecraft.world.level.biome.Biome;
 
 public class PVZBiomeTags {
 
-    public static TagKey<Biome> HAS_GREEN_HOUSE = mcTag("has_structure/green_house");
-    public static TagKey<Biome> HAS_GARDEN_SHELVES = mcTag("has_structure/garden_shelf");
+    public static TagKey<Biome> HAS_GREEN_HOUSE = pvzTag("has_structure/green_house");
+    public static TagKey<Biome> HAS_GARDEN_SHELVES = pvzTag("has_structure/garden_shelves");
 
     //definition
 
     public static TagKey<Biome> pvzTag(String name) {
         return TagKey.create(Registry.BIOME_REGISTRY, Util.prefix(name));
-    }
-    public static TagKey<Biome> mcTag(String name) {
-        return TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(name));
     }
 }

@@ -3,7 +3,7 @@
   "is_essence": true,
   "cost_ingredient": true,
   "ingredient": {
-    "tag": "pvz:to_terra_essence"
+    "item": "minecraft:clay_ball"
   },
   "fuel": {
     "item": "pvz:origin_essence"

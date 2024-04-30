@@ -1,6 +1,5 @@
 package com.hungteen.pvz.generator;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.generator.tag.*;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
@@ -19,9 +18,9 @@ public class DataGenHandler {
         BlockTagsProvider blockTag = new BlockTagGen(g, helper);
         g.addProvider(i, blockTag);
         g.addProvider(i, new ItemTagGen(g, blockTag, helper));
-        g.addProvider(i, new EntityTagGen(g, PVZMod.MODID, helper));
-        g.addProvider(i, new BannerPatternTagGen(g, PVZMod.MODID, helper));
-        g.addProvider(i, new BiomeTagGen(g, PVZMod.MODID, helper));
+        g.addProvider(i, new EntityTagGen(g, helper));
+        g.addProvider(i, new BannerPatternTagGen(g, helper));
+        g.addProvider(i, new BiomeTagGen(g, helper));
 
         g.addProvider(i, new RecipeGen(g));
         g.addProvider(i, new LootGen(g));

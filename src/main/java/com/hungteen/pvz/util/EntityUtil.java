@@ -64,7 +64,7 @@ public class EntityUtil {
             return false;
         }
         if ((target instanceof Player && ! isSurvivalPlayer(target)) || ! isEntityValid(target)) {
-            //not text is attaker valid or not for considering situations attacking when attacker is dead, such as for bomb plants.
+            //the reason not testing whether attacker is valid: there may be some situations attacking when attacker is dead, such as for bomb plants.
             return false;
         }
         if (isTeammate(attacker, target)) {//enable team attack

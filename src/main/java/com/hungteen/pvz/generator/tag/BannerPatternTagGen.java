@@ -1,5 +1,6 @@
 package com.hungteen.pvz.generator.tag;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZBannerPatterns;
 import com.hungteen.pvz.common.tags.PVZBannerPatternTags;
 import net.minecraft.data.DataGenerator;
@@ -8,8 +9,8 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 public class BannerPatternTagGen extends BannerPatternTagsProvider {
-    public BannerPatternTagGen(DataGenerator p_236411_, String modId, @Nullable ExistingFileHelper existingFileHelper) {
-        super(p_236411_, modId, existingFileHelper);
+    public BannerPatternTagGen(DataGenerator p_236411_, @Nullable ExistingFileHelper existingFileHelper) {
+        super(p_236411_, PVZMod.MODID, existingFileHelper);
     }
 
     protected void addTags() {

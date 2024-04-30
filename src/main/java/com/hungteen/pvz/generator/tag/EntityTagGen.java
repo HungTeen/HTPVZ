@@ -13,8 +13,8 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 public class EntityTagGen extends EntityTypeTagsProvider {
-    public EntityTagGen(DataGenerator p_126517_, String modId, @Nullable ExistingFileHelper existingFileHelper) {
-        super(p_126517_, modId, existingFileHelper);
+    public EntityTagGen(DataGenerator p_126517_, @Nullable ExistingFileHelper existingFileHelper) {
+        super(p_126517_, PVZMod.MODID, existingFileHelper);
     }
 
 
@@ -24,7 +24,6 @@ public class EntityTagGen extends EntityTypeTagsProvider {
         //atEntityRegister
         PVZEntities.tagMap.forEach((entity, tagList)-> tagList.forEach((tag) -> this.tag(tag).add((EntityType<?>) entity.get())));
         this.tag(PVZEntityTags.ENEMY).add(EntityType.END_CRYSTAL);
-        this.tag(PVZEntityTags.FRIENDLY).add(EntityType.ZOMBIFIED_PIGLIN);
     }
 
     private static TagKey<EntityType<?>> tag(String path) {

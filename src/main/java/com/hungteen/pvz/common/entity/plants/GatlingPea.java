@@ -107,7 +107,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
 
     public float getAttackDamage() {
-        return (float) (this.getFirstPassenger() instanceof Player ? 0.4 : 1) * super.getAttackDamage();
+        return (float) (this.getFirstPassenger() instanceof Player ? 0.6 : 1) * super.getAttackDamage();
     }
 
     @Override
@@ -233,7 +233,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                 if (gatlingPea != null) {
                     gatlingPea.setSkillVal(this.getSkillVal());
                     if (event != null) {
-                        target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                        gatlingPea.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
                     }
                     if (this.hasCustomName()) {
                         gatlingPea.setCustomName(this.getCustomName());

@@ -126,7 +126,7 @@ public class PeaBullet extends BaseBullet {
         super.onHitEntity(result);
         if (getPeaType() == PeaType.Fire) {
             if (! result.getEntity().fireImmune()) {
-                result.getEntity().setSecondsOnFire(5);
+                result.getEntity().setSecondsOnFire(3);
             }
         } else if (getPeaType() == PeaType.Ice) {
             result.getEntity().clearFire();

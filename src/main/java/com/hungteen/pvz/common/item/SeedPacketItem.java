@@ -190,6 +190,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 //display massage when not in a proper place.
                 player.displayClientMessage(plantResult, true);
             }
+            return InteractionResultHolder.consume(player.getItemInHand(handIn));
         }
         return super.use(level, player, handIn);
     }
@@ -266,6 +267,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 if (! ev.getEntity().getCooldowns().isOnCooldown(item)) {
                     ev.getEntity().getCooldowns().addCooldown(item, 1);//to prevent bug of also planting on floor behind entity while clicking it.
                 }
+                ev.setCancellationResult(InteractionResult.SUCCESS);
                 //display massage when not in a proper place.
                 ev.getEntity().displayClientMessage(plantResult, true);
             }

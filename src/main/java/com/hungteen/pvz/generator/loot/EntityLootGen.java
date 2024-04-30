@@ -50,7 +50,7 @@ public class EntityLootGen extends EntityLoot {
         this.add(PVZEntities.ZOMBIE.get(), LootTable.lootTable()
                 .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()))
-                        .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.2F, 0.05F))));
+                        .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.05F, 0.05F))));
         //enter here
     }
 

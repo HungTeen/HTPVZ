@@ -32,7 +32,7 @@ public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
     //methods
     public static SeedPacketItem getSeed(EntityType<?> entityType) {
         AtomicReference<SeedPacketItem> packetItem = new AtomicReference<>();
-        SeedPacketItem.seedPacketItemList.forEach(item -> {
+        seedItem.forEach(item -> {
             if (item.getEntity().equals(entityType)) {
                 packetItem.set(item);
             }});

@@ -89,9 +89,7 @@ public class PVZMod
 
         PVZBiomes.BIOMES.register(modBus);
         PVZFeatures.FEATURES.register(modBus);
-        PVZStructures.STRUCTURES.register(modBus);
-        PVZStructures.STRUCTURE_SETS.register(modBus);
-        PVZStructurePieces.PIECE_TYPES.register(modBus);
+        PVZStructures.register(modBus);
 
         PVZParticles.PARTICLES.register(modBus);
 

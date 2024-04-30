@@ -73,8 +73,10 @@ public class WateringPotItem extends BlockItem {
     }
     @Override
     public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {
-        if (target instanceof IGardenPlant plant && (itemStack.getMaxDamage() - itemStack.getDamageValue() >= 1)) {
-            InteractionResult result = plant.onWatered(player, itemStack);
+        if (itemStack.getMaxDamage() - itemStack.getDamageValue() >= 1) {
+            if (target instanceof IGardenPlant plant) {
+                plant.onWatered(player, itemStack);
+            }
             if (! player.level.isClientSide) {
                 itemStack.hurt(1, player.getRandom(), (ServerPlayer) player);
             } else {
@@ -82,19 +84,19 @@ public class WateringPotItem extends BlockItem {
                 for (int i = 0; i < 3; i ++) {
                     player.level.addParticle(ParticleTypes.DRIPPING_WATER,
                             target.getX() + random.nextFloat() * 0.8 - 0.4,
-                            target.getY() + random.nextFloat() * 0.5 + 0.5,
+                            target.getY() + target.getBbHeight() + random.nextFloat() * 0.5 - 0.5,
                             target.getZ() + random.nextFloat() * 0.8 - 0.4,
                             0, 0, 0);
                 }
                 for (int i = 0; i < 20; i ++) {
                     player.level.addParticle(ParticleTypes.SPLASH,
                             target.getX() + random.nextFloat() * 1 - 0.5,
-                            target.getY() + random.nextFloat() * 1,
+                            target.getY() + target.getBbHeight() + random.nextFloat() * 1 - 0.5,
                             target.getZ() + random.nextFloat() * 1 - 0.5,
                             0, 0, 0);
                 }
             }
-            return result;
+            return InteractionResult.CONSUME;
         } else {
             return InteractionResult.PASS;
         }

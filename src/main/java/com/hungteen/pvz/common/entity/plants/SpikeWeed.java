@@ -50,7 +50,7 @@ public class SpikeWeed extends SimplePlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
-                .add(Attributes.ATTACK_DAMAGE, 2D);
+                .add(Attributes.ATTACK_DAMAGE, 3D);
     }
 
     public void setupPresentationAnim() {

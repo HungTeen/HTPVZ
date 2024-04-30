@@ -32,7 +32,8 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
             instance.group(
                     Codec.INT.fieldOf("base").forGetter(Settings::baseHeight),
                     Codec.FLOAT.fieldOf("verticalvariance").forGetter(Settings::verticalVariance),
-                    Codec.FLOAT.fieldOf("horizontalvariance").forGetter(Settings::horizontalVariance)
+                    Codec.FLOAT.fieldOf("horizontalvariance").forGetter(Settings::horizontalVariance),
+                    RegistryCodecs.homogeneousList(Registry.STRUCTURE_SET_REGISTRY).optionalFieldOf("structure_overrides").forGetter(Settings::structureOverrides)
             ).apply(instance, Settings::new));
 
     public static final Codec<ZenGardenChunkGenerator> CODEC = RecordCodecBuilder.create(instance ->
@@ -42,7 +43,6 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
                     SETTINGS_CODEC.fieldOf("settings").forGetter(ZenGardenChunkGenerator::getSettings)
             ).apply(instance, ZenGardenChunkGenerator::new));
 
-    public static final ResourceLocation ZEN_GARDEN_DIMENSION_SET = Util.prefix("zen_garden_dimension_structure_set");
     private final Settings settings;
 
     private Random random = null;
@@ -61,18 +61,13 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
 
 
     public ZenGardenChunkGenerator(Registry<StructureSet> structureSetRegistry, Registry<Biome> registry, Settings settings) {
-        super(structureSetRegistry, getSet(structureSetRegistry), new ZenGardenBiomeSource(registry));
+        super(structureSetRegistry, settings.structureOverrides(), new ZenGardenBiomeSource(registry));
         this.settings = settings;
     }
 
     @Override
     protected Codec<? extends ChunkGenerator> codec() {
         return CODEC;
-    }
-
-    private static Optional<HolderSet<StructureSet>> getSet(Registry<StructureSet> structureSetRegistry) {
-        HolderSet.Named<StructureSet> structureSet = structureSetRegistry.getOrCreateTag(TagKey.create(Registry.STRUCTURE_SET_REGISTRY, ZEN_GARDEN_DIMENSION_SET));
-        return Optional.of(structureSet);
     }
 
     public Settings getSettings() {
@@ -89,6 +84,29 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
 
     @Override
     public void buildSurface(WorldGenRegion region, StructureManager featureManager, RandomState randomState, ChunkAccess chunk) {
+        init(randomState);
+        ChunkPos chunkPos = chunk.getPos();
+        if (chunkPos.x * chunkPos.x + chunkPos.z * chunkPos.z > 200) {
+            return;
+        }
+        Pair<Integer, Integer> yRegion;
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                int riverDepth = riverDepth(chunkPos.x * 16 + x, chunkPos.z * 16 + z, 9, 7);
+                yRegion = getBlockHeight(chunkPos, x, z, mainIslandPos, randomState, 150, 60);
+                fillInIsland(chunk, yRegion, riverDepth, x, z, getSeaLevel(), grass);
+                riverDepth = riverDepth(chunkPos.x * 16 + x, chunkPos.z * 16 + z, 5, 2);
+                for (Vec3i island : floatIslands) {
+                    if (Math.abs(x + chunkPos.x * 16 - island.getX()) < 50 && Math.abs(z + chunkPos.z * 16 - island.getZ()) < 50) {
+                        yRegion = getBlockHeight(chunkPos, x, z, island, randomState, 40, 23);
+                        fillInIsland(chunk, yRegion, riverDepth, x, z, island.getY() - 2, mycelium);
+                    }
+                }
+            }
+        }
+    }
+
+    public void init(RandomState randomState) {
         if (random == null) {
             random = new Random();
 
@@ -110,25 +128,6 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
             angle = random.nextFloat() * 6.28;
             floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
                     200, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
-        }
-        ChunkPos chunkPos = chunk.getPos();
-        if (chunkPos.x * chunkPos.x + chunkPos.z * chunkPos.z > 200) {
-            return;
-        }
-        Pair<Integer, Integer> yRegion;
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                int riverDepth = riverDepth(chunkPos.x * 16 + x, chunkPos.z * 16 + z, 9, 7);
-                yRegion = getBlockHeight(chunkPos, x, z, mainIslandPos, randomState, 150, 60);
-                fillInIsland(chunk, yRegion, riverDepth, x, z, getSeaLevel(), grass);
-                riverDepth = riverDepth(chunkPos.x * 16 + x, chunkPos.z * 16 + z, 5, 2);
-                for (Vec3i island : floatIslands) {
-                    if (Math.abs(x + chunkPos.x * 16 - island.getX()) < 50 && Math.abs(z + chunkPos.z * 16 - island.getZ()) < 50) {
-                        yRegion = getBlockHeight(chunkPos, x, z, island, randomState, 40, 23);
-                        fillInIsland(chunk, yRegion, riverDepth, x, z, island.getY() - 2, mycelium);
-                    }
-                }
-            }
         }
     }
     private int riverDepth(int x, int z, int width, int maxDepth) {
@@ -242,11 +241,10 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
 
     // Make sure this is correctly implemented so that structures and features can use this.
     @Override
-    public int getBaseHeight(int x, int z, Heightmap.Types types, LevelHeightAccessor levelHeightAccessor, RandomState randomState) {
-        int baseHeight = settings.baseHeight();
-        float verticalVariance = settings.verticalVariance();
-        float horizontalVariance = settings.horizontalVariance();
-        return getHeightAt(baseHeight, verticalVariance, horizontalVariance, x, z);
+    public int getBaseHeight(int x, int z, Heightmap.Types types, LevelHeightAccessor accessor, RandomState randomState) {
+        init(randomState);
+        Pair<Integer, Integer> pair = getBlockHeight(new ChunkPos(x / 16, z / 16), x % 16, z % 16, mainIslandPos, randomState, 150, 60);
+        return pair.getSecond() > pair.getFirst() ? pair.getSecond() : 257;
     }
 
     // Make sure this is correctly implemented so that structures and features can use this.
@@ -282,11 +280,6 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
         // Carvers only work correctly in combination with NoiseBasedChunkGenerator so we keep this empty here.
     }
 
-
-    private int getHeightAt(int baseHeight, float verticalVariance, float horizontalVariance, int x, int z) {
-        return (int) (baseHeight + Math.sin(x / horizontalVariance) * verticalVariance + Math.cos(z / horizontalVariance) * verticalVariance);
-    }
-
-    private record Settings(int baseHeight, float verticalVariance, float horizontalVariance) {
+    private record Settings(int baseHeight, float verticalVariance, float horizontalVariance, Optional<HolderSet<StructureSet>> structureOverrides) {
     }
 }

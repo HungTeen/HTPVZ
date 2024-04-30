@@ -54,7 +54,8 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
             Set<Entity> removeList = new HashSet<>();
             for (Entity entity : targetCandidates) {
                 if (entity instanceof LivingEntity entity1 && predicate.test(entity1) &&
-                        entity1.position().distanceTo(this.mob.position()) <= this.getFollowDistance() && EntityUtil.checkCanEntityBeAttack(mob, entity1)) {
+                        //teammate test defaults to be in predicate👆.
+                        entity1.position().distanceTo(this.mob.position()) <= this.getFollowDistance()) {
                     this.target = entity1;
                     return;
                 } else {

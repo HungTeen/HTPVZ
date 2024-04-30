@@ -91,7 +91,7 @@ public class MelonBullet extends BaseBullet {
             if (this.getMelonSkill() == MelonSkill.POTION) {
                 applySplash(getMobEffects(), null);
             } else {
-                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(1, 1, 1),
+                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(2, 2, 2),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity));
                 entities.forEach((entity -> {
                     entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(

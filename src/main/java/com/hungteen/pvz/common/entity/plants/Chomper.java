@@ -406,13 +406,14 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
             }
         }
         if (! this.getEntityData().get(root()) || (plantableOn && ! level.getBlockState(pos).isAir())) {
-            if (level.getBlockState(pos).getFluidState().isEmpty()) {
+            BlockState state = level.getBlockState(pos);
+            if (state.getFluidState().isEmpty() || (! state.getCollisionShape(level, pos).isEmpty() && state.getFluidState().getHeight(level, pos) < state.getCollisionShape(level, pos).bounds().maxY)) {
                 if (isPlanting) {
                     this.moveTo(
                             pos.getX() + 0.5 + offset.getX(),
-                            pos.getY() + (direction == Direction.UP ? (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
+                            pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
                                     (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
-                                    level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
+                                    state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
                             pos.getZ() + 0.5 + offset.getZ());
                     ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 }
@@ -576,7 +577,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     LivingEntity target = chomper.getTarget();
                     if (chomper.animTick >= 11 && chomper.animTick < 14) {
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) && chomper.position().distanceTo(target.position()) <= 1.5) {
-                            if (target.getBbWidth() > 2 || ! target.startRiding(chomper) || target.getHealth() < 10 || target instanceof Slime /*to prevent vanilla bug*/) {
+                            if (target.getBbWidth() > 2 || ! target.startRiding(chomper) || target.getHealth() < 5 || target instanceof Slime /*to prevent vanilla bug*/) {
                                 target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper), 2F), 10);
                             }
                         }
@@ -652,7 +653,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                             chomper.setTarget(null);
                         }
                     }
-                    if (chomper.getAttackTime() == 0 && EntityUtil.isEntityValid(target) && chomper.position().distanceTo(target.position()) <= 1) {
+                    if (chomper.getAttackTime() == 0 && EntityUtil.isEntityValid(target) && chomper.position().distanceToSqr(target.position()) <= 2) {
                         chomper.setPose(Pose.USING_TONGUE);
                         navigation.stop();
                         chomper.setDeltaMovement(Vec3.ZERO);
