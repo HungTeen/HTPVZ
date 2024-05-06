@@ -12,11 +12,11 @@
     }
   },
   "pattern": [
-    " 1 ",
-    "#0#",
+    " 0 ",
+    "1#1",
     " 1 "
   ],
   "result": {
-    "item": "pvz:origin_block"
+    "item": "pvz:nether_wart_seed_packet"
   }
 }

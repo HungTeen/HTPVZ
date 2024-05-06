@@ -3,10 +3,13 @@
   "key": {
     "#": {
       "item": "minecraft:iron_ingot"
+    },
+    "0": {
+      "item": "pvz:origin_essence"
     }
   },
   "pattern": [
-    "# #",
+    "#0#",
     " # "
   ],
   "result": {

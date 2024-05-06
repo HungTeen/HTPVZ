@@ -20,7 +20,7 @@ public class ChiliChanItem extends ShovelItem {
 
             @Override
             public float getSpeed() {
-                return 0F;
+                return 4F;
             }
 
             @Override

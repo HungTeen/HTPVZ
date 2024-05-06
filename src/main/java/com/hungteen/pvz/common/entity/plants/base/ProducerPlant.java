@@ -1,8 +1,8 @@
 package com.hungteen.pvz.common.entity.plants.base;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
+import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -125,7 +125,7 @@ public abstract class ProducerPlant extends SimplePlant {
             if (time <= 1) {
                 this.producer.genSomething();
                 this.producer.setAttackTime(this.producer.getGenCD());
-            } else {
+            } else if (! producer.level.getBiome(producer.blockPosition()).is(PVZBiomeTags.UNABLE_SUN_PRODUCTION)){
                 this.producer.setAttackTime(Math.max(0, time - 1));
             }
             producer.entityData.set(POSE, this.producer.getGenCD() - time < 10 || time < 10);

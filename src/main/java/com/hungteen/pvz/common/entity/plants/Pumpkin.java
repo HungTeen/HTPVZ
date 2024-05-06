@@ -157,8 +157,8 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
             } else if (target.getVehicle() == null) {
                 target.startRiding(this);
                 if (plantPositionSafe(event, target.level, target.getOnPos(), Direction.UP, true) == null &&
-                        (((target instanceof IPlant) && ((IPlant) target).plantVehicleSafe(event, this, true) == null) ||
-                                (! (target instanceof INeedSafeSituation) || ((INeedSafeSituation) target).isVehicleSafe(event, this, true) == null))) {
+                        (((target instanceof IPlant) && ((IPlant) target).plantVehicleSafe(event, this, false) == null) ||
+                                ! (target instanceof INeedSafeSituation) || ((INeedSafeSituation) target).isVehicleSafe(event, this, true) == null)) {
                     return null;
                 } else {
                     return Component.translatable("hint.pvz.plant.no_enough_place");

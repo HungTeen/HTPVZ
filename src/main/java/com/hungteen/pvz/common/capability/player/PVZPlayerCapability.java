@@ -1,12 +1,14 @@
 package com.hungteen.pvz.common.capability.player;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.SeedPacketItem;
-import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.tags.PVZBiomeTags;
+import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
@@ -64,7 +67,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     public static void tick(TickEvent.ServerTickEvent ev) {
         //timed sync
         if (++ syncCount > 20) {
-            for (Player player : ev.getServer().getPlayerList().getPlayers()){
+            for (Player player : ev.getServer().getPlayerList().getPlayers()) {
                 getPlayerData(player).ifPresent(PVZPlayerCapNBT::syncAll);
             }
             syncCount = 0;
@@ -104,23 +107,23 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     //max sun calculation.
                     AttributeInstance maxSun = player.getAttribute(PVZAttributes.SUN.get());
                     if (! PVZConfig.PVZGameRules.getBoolean(player.level, "dynamicSunRule")) {
-                        //not dynamic sun rule.
-                        maxSun.removeModifiers();
-                        maxSun.addPermanentModifier(
-                                new AttributeModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9"), "extra_max_sun",
-                                        300, AttributeModifier.Operation.ADDITION));
-                    } else if (player.tickCount % 3 == 0) {
-                        //delete non-dynamic modifier.
-                        if (maxSun.getModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9")) != null) {
-                            maxSun.removeModifier(UUID.fromString("adad434b-e556-1353-bda0-1774973606c9"));
-                        }
-                        //delete modifiers out of region.
+                        //delete entities & blocks caused modifiers.
                         maxSun.getModifiers().forEach((modifier) -> {
                             Entity entity = ((ServerLevel) player.level).getEntity(modifier.getId());
                             if (! EntityUtil.isEntityValid(entity)) {
-                                if (! modifier.getId().toString().startsWith("a975c974-")) {
+                                if (modifier.getId().toString().startsWith("a975c974-")) {
                                     maxSun.removeModifier(modifier.getId());
-                                } else {
+                                }
+                            } else if (entity.distanceToSqr(player) > 900) {
+                                maxSun.removeModifier(modifier.getId());
+                            }
+                        });
+                    } else if (player.tickCount % 3 == 0) {
+                        //delete modifiers caused by entities & blocks out of region.
+                        maxSun.getModifiers().forEach((modifier) -> {
+                            Entity entity = ((ServerLevel) player.level).getEntity(modifier.getId());
+                            if (! EntityUtil.isEntityValid(entity)) {
+                                if (modifier.getId().toString().startsWith("a975c974-")) {
                                     String string = modifier.getId().toString();
                                     int x = Integer.parseInt(string.substring(9, 13) + string.substring(14, 18), 16);
                                     int y = Integer.parseInt(string.substring(19, 23) + string.substring(24, 28), 16);
@@ -171,7 +174,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     nbt.setValueLimit(PVZPlayerCapNBT.SUN, 0, toMax);
                     //natural sun spawn
                     int interval = PVZConfig.PVZGameRules.getInt(player.level, "naturallySpawnSunInterval");
-                    if (interval > 0 && player.tickCount % interval == 0) {
+                    if (interval > 0 && player.tickCount % interval == 0 && ! player.level.getBiome(player.getOnPos()).is(PVZBiomeTags.UNABLE_SUN_PRODUCTION)) {
                         int x = player.blockPosition().getX() + player.getRandom().nextInt(20) - 10;
                         int z = player.blockPosition().getZ() + player.getRandom().nextInt(20) - 10;
                         BlockPos pos = new BlockPos(x,
@@ -202,6 +205,20 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 }
             });
         }
+    }
+
+    public static Vec3 getTeleportPos(Player player, Level destWorld) {
+        AtomicReference<Vec3> vec3 = new AtomicReference<>();
+        PVZPlayerCapability.getPlayerData(player).ifPresent((data) -> {
+            vec3.set(data.getTransportPos(destWorld));
+        });
+        return vec3.get();
+    }
+
+    public static void setTeleportPos(Player player, Vec3 pos, Level destWorld) {
+        PVZPlayerCapability.getPlayerData(player).ifPresent((data) -> {
+            data.setTransportPos(destWorld, pos);
+        });
     }
 
     public static int getDifficultyLimitSun(Player player) {

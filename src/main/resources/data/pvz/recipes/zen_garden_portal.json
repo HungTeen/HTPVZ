@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "pvz:watering_pot"
+    },
+    "$": {
+      "item": "minecraft:gold_nugget"
+    },
+    "%": {
+      "item": "pvz:origin_block"
+    }
+  },
+  "pattern": [
+    " % ",
+    "$#$",
+    "$$$"
+  ],
+  "result": {
+    "item": "pvz:zen_garden_portal"
+  }
+}

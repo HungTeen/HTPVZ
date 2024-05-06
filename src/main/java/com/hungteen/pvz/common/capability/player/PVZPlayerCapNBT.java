@@ -1,10 +1,13 @@
 package com.hungteen.pvz.common.capability.player;
 
 import com.hungteen.pvz.common.network.PlayerCapPacket;
+import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +18,8 @@ public class PVZPlayerCapNBT {
     public Player player;
     private Map<String, Integer> dataMap = new HashMap<>();
     private Map<String, Pair<Integer, Integer>> dataLimitMap = new HashMap<>();
+
+    private Pair<Vec3, Vec3> gardenPos = new Pair<>(null, null);
     public static final String SUN = "pvz.sun";
 
     //sun effect count
@@ -35,9 +40,16 @@ public class PVZPlayerCapNBT {
         setValue("plant_have_cost", 1, 0, 1);//naturally creative:0, survival:1.
         setValue("plant_have_cd", 1, 0, 1);//naturally creative:0, survival:1.
         //resource
-        setValue(SUN, 50, 0, 500);// TODO remove sun to another PVZPlanterCap cap.
+        setValue(SUN, 50, 0, 200);// TODO remove sun to another PVZPlanterCap cap.
     }
 
+    public void setTransportPos(Level destWorld, Vec3 pos) {
+        this.gardenPos = destWorld.dimension().equals(ZenGardenTeleporter.GARDEN) ? new Pair<>(pos, gardenPos.getSecond()) : new Pair<>(gardenPos.getFirst(), pos);
+    }
+
+    public Vec3 getTransportPos(Level destWorld) {
+        return destWorld.dimension().equals(ZenGardenTeleporter.GARDEN) ? gardenPos.getSecond() : gardenPos.getFirst();
+    }
 
     //values
     public void setValue(String key, Integer value) {
@@ -123,6 +135,20 @@ public class PVZPlayerCapNBT {
             }
             baseTag.put("limits", limitsTag);
         }
+        {
+            CompoundTag posTag = new CompoundTag();
+            if (this.gardenPos.getFirst() != null) {
+                posTag.putDouble("overworld_x", this.gardenPos.getFirst().x);
+                posTag.putDouble("overworld_y", this.gardenPos.getFirst().y);
+                posTag.putDouble("overworld_z", this.gardenPos.getFirst().z);
+            }
+            if (this.gardenPos.getSecond() != null) {
+                posTag.putDouble("garden_x", this.gardenPos.getSecond().x);
+                posTag.putDouble("garden_y", this.gardenPos.getSecond().y);
+                posTag.putDouble("garden_z", this.gardenPos.getSecond().z);
+            }
+            baseTag.put("garen_pos", posTag);
+        }
         return baseTag;
     }
 
@@ -149,6 +175,18 @@ public class PVZPlayerCapNBT {
                 }
                 count ++;
             }
+        }
+        if (baseTag.contains("garden_pos")) {
+            CompoundTag tag = baseTag.getCompound("garden_pos");
+            this.gardenPos = new Pair<>(tag.contains("overworld_x") ? new Vec3(
+                    tag.getDouble("overworld_x"),
+                    tag.getDouble("overworld_y"),
+                    tag.getDouble("overworld_z")
+            ) : null, tag.contains("garden_x") ? new Vec3(
+                    tag.getDouble("garden_x"),
+                    tag.getDouble("garden_y"),
+                    tag.getDouble("garden_z")
+            ) : null);
         }
     }
 

@@ -8,9 +8,11 @@ import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -84,7 +86,7 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     public BlockPos getRootBlockPos() {
-        return getOnPos().above().relative(getGrowDirection().getOpposite());
+        return blockPosition().relative(getGrowDirection().getOpposite());
     }
     public Direction getAttachFace() {
         return this.entityData.get(ATTACH_FACE);
@@ -101,6 +103,9 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     protected AABB makeBoundingBox() {
+        if (this.getGrowDirection() == Direction.UP) {
+            return super.makeBoundingBox();
+        }
         Direction direction = this.getAttachFace();
         AABB aabb = new AABB(blockPosition());
         Vec3 offset = this.getPosition(0).subtract(blockPosition().getX(), blockPosition().getY(), blockPosition().getZ()).subtract(0.5, 0, 0.5);
@@ -121,9 +126,15 @@ public class SpikeWeed extends SimplePlant {
         return aabb;
     }
     @Override
-    public void baseTick() {
-        super.baseTick();
+    public void tick() {
         setNoGravity(! level.getBlockState(this.getRootBlockPos()).isAir() && ! (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock));
+        if (! this.isNoGravity()) {
+            this.entityData.set(ATTACH_FACE, Direction.UP);
+        }
+        super.tick();
+        if (level.isClientSide) {
+            level.addParticle(ParticleTypes.FLAME, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+        }
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

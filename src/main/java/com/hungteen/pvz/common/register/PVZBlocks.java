@@ -28,7 +28,6 @@ import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.model.generators.ModelProvider;
-import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -89,7 +88,7 @@ public class PVZBlocks {
     public static final Map<WoodSet, RegistryObject<Block>> NUT = wood("nut", new NutTreeGrower());
     public static final RegistryObject<Block> CARP_GRASS = tag(BlockTags.REPLACEABLE_PLANTS /*PVZBlockTags.PLANTABLE_BLOCKS added in generator*/).model(Model.Modeled).renderType("cutout").flammable(5, 5).loot(false).block("carp_grass", () -> new CarpMossBlock(BlockBehaviour.Properties.copy(Blocks.GLOW_LICHEN).randomTicks().noLootTable()));
     public static final RegistryObject<Block> ORIGIN_BLOCK = tag(BlockTags.NEEDS_STONE_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).block("origin_block", () -> new Block(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GREEN).strength(15, 50).lightLevel(i -> 15).sound(SoundType.ANCIENT_DEBRIS).requiresCorrectToolForDrops()));
-    public static final RegistryObject<Block> ORIGIN_ORE = tag(BlockTags.MINEABLE_WITH_SHOVEL).block("origin_ore", () -> new Block(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GREEN).strength(1F).sound(SoundType.GRASS).lightLevel(i -> 10)));
+    public static final RegistryObject<Block> ORIGIN_ORE = tag(BlockTags.MINEABLE_WITH_SHOVEL).block("origin_ore", () -> new Block(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GREEN).strength(1F).sound(SoundType.GRASS).lightLevel(i -> 9)));
     public static final RegistryObject<Block> LUNAR_STONE = tag(BlockTags.MINEABLE_WITH_PICKAXE).block("lunar_stone", () -> new Block(Block.Properties.of(Material.STONE, MaterialColor.COLOR_YELLOW).strength(2F).sound(SoundType.STONE).lightLevel(i -> 8)));
     public static final RegistryObject<Block> WISDOM_TREE_CORE = tag(BlockTags.MINEABLE_WITH_AXE).loot(false).model(Model.Modeled).block("wisdom_tree_core", () -> new WisdomTreeCoreBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(-1.0F, 3600000.0F).noLootTable().randomTicks().lightLevel(i-> 12)));
     public static final RegistryObject<Block> WISDOM_TREE_LOG = tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS).loot(false).model(Model.Column, res("wisdom_tree_log"), res("nut_log_top")).block("wisdom_tree_log", () -> new WisdomTreeLogBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(10F).noLootTable().randomTicks().lightLevel(i-> 3)));
@@ -98,6 +97,7 @@ public class PVZBlocks {
     public static final RegistryObject<Block> ESSENCE_FURNACE = tag(BlockTags.NEEDS_STONE_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).blockEntity("essence_furnace").block("essence_furnace", () -> new EssenceFurnaceBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).lightLevel(litBlockEmission(13))));
     public static final RegistryObject<Block> GARDEN_FLOWER_POT = tag(BlockTags.MINEABLE_WITH_PICKAXE, PVZBlockTags.GARDEN_FLOWER_POT).model(Model.Modeled).itemModel(PVZItems.Model.Block).block("garden_flower_pot", () -> new GardenFlowerPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0.5F)));
     public static final RegistryObject<Block> WATERING_POT = model(Model.Modeled).noItem().block("watering_pot", () -> new WateringPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F)));
+    public static final RegistryObject<Block> ZEN_GARDEN_PORTAL = model(Model.Modeled).noItem().block("zen_garden_portal", () -> new ZenGardenPortalBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F).lightLevel(i-> 12)));
 
     //NO_TAB
     public static final RegistryObject<Block> PLANTERN_LIGHT = loot(false).model(Model.Modeled).blockEntity("plantern_light").noItem().block("plantern_light", () -> new PlanternLightBlock(BlockBehaviour.Properties.of(Material.AIR).strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> 15)));

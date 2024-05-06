@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.world.zen_garden;
 
+import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -57,7 +58,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     private final BlockState grass = Blocks.GRASS_BLOCK.defaultBlockState();
     private final BlockState mycelium = Blocks.MYCELIUM.defaultBlockState();
 
-    //TODO still not finished: 1) add structure features. 2) wisdom tree. 3) mobs (Garden Bee, Redstone Bug, Snail, Snailrillum). 4) BGM.
+    //TODO still not finished: 1) wisdom tree. 2) mobs (Garden Bee, Redstone Bug, Snail, Snailrillum). 3) BGM. 4) multi main islands.
 
 
     public ZenGardenChunkGenerator(Registry<StructureSet> structureSetRegistry, Registry<Biome> registry, Settings settings) {
@@ -244,7 +245,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     public int getBaseHeight(int x, int z, Heightmap.Types types, LevelHeightAccessor accessor, RandomState randomState) {
         init(randomState);
         Pair<Integer, Integer> pair = getBlockHeight(new ChunkPos(x / 16, z / 16), x % 16, z % 16, mainIslandPos, randomState, 150, 60);
-        return pair.getSecond() > pair.getFirst() ? pair.getSecond() : 257;
+        return pair.getSecond() > pair.getFirst() ? pair.getSecond() + 1 : 257;
     }
 
     // Make sure this is correctly implemented so that structures and features can use this.
