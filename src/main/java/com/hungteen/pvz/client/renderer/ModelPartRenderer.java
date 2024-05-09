@@ -18,7 +18,7 @@ public class ModelPartRenderer extends EntityRenderer<ModelPartEntity> {
     @Override
     public void render(ModelPartEntity entity, float p_114486_, float p_114487_, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
-        poseStack.scale(-1, -1, 1);
+        poseStack.scale((float) (-1 * entity.originalScale.x), (float) (-1 * entity.originalScale.y), (float) (1 * entity.originalScale.z));
         poseStack.translate(0.0, 0.0, 0.0);
 
         VertexConsumer vertexConsumer = buffer.getBuffer(

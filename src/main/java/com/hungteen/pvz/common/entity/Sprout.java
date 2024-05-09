@@ -187,7 +187,9 @@ public class Sprout extends Mob implements IGardenPlant {
     public InteractionResult onFertilized(Player player, ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringFertilizer()) {
-            this.transformPlant();
+            if (this.getGrowLevel() == 0) {
+                this.transformPlant();
+            }
             setGrowLevel(this.getGrowLevel() + 1);
             this.entityData.set(GROW_TIME, SPROUT_GROW_TIME);
             this.setRequiringWater(true);
@@ -198,6 +200,7 @@ public class Sprout extends Mob implements IGardenPlant {
     }
 
     public void produce() {
+        PVZMod.LOGGER.info(entityData.get(PLANT_NAME));
         EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityData.get(PLANT_NAME)));
         if (type != null) {
             Entity entity = type.create(level);

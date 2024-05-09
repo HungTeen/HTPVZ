@@ -124,7 +124,7 @@ public class PeaBullet extends BaseBullet {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
-        if (getPeaType() == PeaType.Fire) {
+        if (getPeaType() == PeaType.Fire || getPeaType() == PeaType.SoulFire) {
             if (! result.getEntity().fireImmune()) {
                 result.getEntity().setSecondsOnFire(3);
             }

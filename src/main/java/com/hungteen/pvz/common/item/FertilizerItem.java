@@ -1,6 +1,8 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,8 +19,19 @@ public class FertilizerItem extends Item {
     public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {
         if (target instanceof IGardenPlant plant) {
             InteractionResult result = plant.onFertilized(player, itemStack);
-            if (result.consumesAction() && ! player.level.isClientSide) {
-                itemStack.shrink(1);
+            if (result.consumesAction()) {
+                if (player.level.isClientSide) {
+                    RandomSource random = target.getRandom();
+                    for (int i = 0; i < 10; i ++) {
+                        player.level.addParticle(ParticleTypes.COMPOSTER,
+                                target.getX() + random.nextFloat() * 1 - 0.5,
+                                target.getY() + target.getBbHeight() + random.nextFloat() * 1 - 0.5,
+                                target.getZ() + random.nextFloat() * 1 - 0.5,
+                                0, 0, 0);
+                    }
+                } else {
+                    itemStack.shrink(1);
+                }
             }
             return result;
         } else {

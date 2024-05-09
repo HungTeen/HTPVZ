@@ -20,7 +20,7 @@ import java.util.UUID;
 public class PeaShooter extends ShooterPlant {
     protected static final UUID KNOCKBACK_MODIFIER_UUID = UUID.fromString("fa192025-b0e7-65ef-9bc3-546a895a193d");
     protected boolean skillBoosted = false;
-    protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
+    protected static final double SHOOT_OFFSET = 0.3D;//pea position offset
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 4, 150, 0),
             new Skill("skill.pvz.pea_shooter.sniper", PVZItems.VENTUS_ESSENCE, 4, 12, 500, 800).avoidSkills(0), //for pvp.

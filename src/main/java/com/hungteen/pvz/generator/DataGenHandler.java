@@ -1,5 +1,6 @@
 package com.hungteen.pvz.generator;
 
+import com.hungteen.pvz.generator.loot.LootModifierGen;
 import com.hungteen.pvz.generator.tag.*;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;

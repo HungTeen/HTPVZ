@@ -29,8 +29,10 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
@@ -134,7 +136,10 @@ public class PVZMod
             PVZBlocks.flammableMap.forEach((blockObj, pair) ->
                     ((FireBlock) Blocks.FIRE).setFlammable(blockObj.get(), pair.getFirst(), pair.getSecond())
             );
-            PVZBlocks.woodList.forEach((map) -> {
+            PVZItems.composterMap.forEach((itemObj, chance) ->
+                    ComposterBlock.add(chance, (ItemLike) itemObj.get())
+            );
+                    PVZBlocks.woodList.forEach((map) -> {
                 AxeItem.STRIPPABLES = new HashMap<>(AxeItem.STRIPPABLES);
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Log).get(), map.get(PVZBlocks.WoodSet.StLog).get());
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Wood).get(), map.get(PVZBlocks.WoodSet.StWood).get());

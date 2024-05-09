@@ -1,4 +1,4 @@
-package com.hungteen.pvz.generator;
+package com.hungteen.pvz.generator.loot;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.RegisterSproutsEvent;
@@ -35,6 +35,11 @@ public class LootModifierGen extends GlobalLootModifierProvider {
                 LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.GRASS).build(),
                 LootItemRandomChanceCondition.randomChance(0.125F).build()
         }, List.of(PVZItems.PEA.get().getDefaultInstance())));
+
+        this.add("corn_kernels_from_grass", new AddItemModifier(new LootItemCondition[] {
+                LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.GRASS).build(),
+                LootItemRandomChanceCondition.randomChance(0.025F).build()
+        }, List.of(PVZItems.CORN_KERNELS.get().getDefaultInstance())));
 
         //spawn bonus chest
         this.add("seed_packets_from_spawn_bonus_chest", new AddItemModifier(new LootItemCondition[] {

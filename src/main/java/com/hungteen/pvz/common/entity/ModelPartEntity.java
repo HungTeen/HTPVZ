@@ -86,6 +86,15 @@ public class ModelPartEntity extends Entity {
         return this;
     }
 
+    public ModelPartEntity scale(Vec3 vec3) {
+        this.originalScale = vec3;
+        return this;
+    }
+    public ModelPartEntity scale(float scale) {
+        this.originalScale = new Vec3(scale, scale, scale);
+        return this;
+    }
+
 
 
     //

@@ -141,6 +141,21 @@ public class MelonBullet extends BaseBullet {
                     - movement.y * 0.25 + random.nextFloat() * 0.25,
                     - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.12);
         }
+        if (level.isClientSide && this.getMelonSkill() == MelonSkill.POTION) {
+            for (int i = 0; i < 25; i ++) {
+                Vec3 pos = this.position();
+                Particle particle = ClientProxy.MC.levelRenderer.addParticleInternal(ParticleTypes.ENTITY_EFFECT.getType(), false,
+                        pos.x + random.nextFloat() * 4 - 2, pos.y + random.nextFloat() * 2.0 - 1.4, pos.z + random.nextFloat() * 4 - 2, 0, 0, 0);
+
+                if (particle != null) {
+                    int color = PotionUtils.getColor(getMobEffects());
+                    float r = (float)(color >> 16 & 255) / 255.0F;
+                    float g = (float)(color >> 8 & 255) / 255.0F;
+                    float b = (float)(color & 255) / 255.0F;
+                    particle.setColor(r, g, b);
+                }
+            }
+        }
     }
 
     public void applySplash(List<MobEffectInstance> p_37548_, @Nullable Entity p_37549_) {

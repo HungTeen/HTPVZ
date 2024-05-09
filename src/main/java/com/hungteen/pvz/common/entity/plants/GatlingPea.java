@@ -208,7 +208,6 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
     @Override
     public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
-
         if (isPlanting) {
             if (hasSkill("skill.pvz.plant.rapid_deployment")) {
                 return super.plantPositionSafe(event, level, pos, direction, true);
@@ -244,6 +243,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
             }
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());
         }
+        //when not is planting.
         return super.plantVehicleSafe(event, target, false);
     }
     @Override

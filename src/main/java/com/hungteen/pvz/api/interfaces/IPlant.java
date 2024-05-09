@@ -59,9 +59,6 @@ public interface IPlant extends INeedSafeSituation{
         }
 
         MutableComponent result = this.plantPositionSafe(event, level, pos, direction, isPlanting);
-        if (result == null) {
-            return null;
-        }
 
         PVZPlantConditionMatchingEvent.OnBlock postCondition = new PVZPlantConditionMatchingEvent.OnBlock(
                 (Entity) this, event, result, level, pos, direction, true, PVZPlantConditionMatchingEvent.Phase.POST);
@@ -79,13 +76,10 @@ public interface IPlant extends INeedSafeSituation{
         }
 
         MutableComponent result = this.plantVehicleSafe(event, target, isPlanting);
-        if (result == null) {
-            return null;
-        }
 
         PVZPlantConditionMatchingEvent.OnEntity postCondition = new PVZPlantConditionMatchingEvent.OnEntity(
                 (Entity) this, event, result, target, true, PVZPlantConditionMatchingEvent.Phase.POST);
-        MinecraftForge.EVENT_BUS.post(preCondition);
+        MinecraftForge.EVENT_BUS.post(postCondition);
         return postCondition.result;
     }
 

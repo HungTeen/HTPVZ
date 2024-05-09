@@ -11,11 +11,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.model.generators.ModelProvider;
@@ -52,15 +55,19 @@ public class PVZItems {
     @Deprecated // will be cleared after register.
     public static Map<RegisterSeedPacketsEvent.SeedPacketData<?>, RegistryObject<Item>> seedMap = new HashMap<>();
 
+    @Deprecated
+    public static Map<RegistryObject<?>, Float> composterMap = new HashMap<>();
+    private static float storedComposterChance = 0;
+
 
     //registry
-    public static final RegistryObject<Item> PEA = item("pea", () -> new BlockItem(PVZBlocks.PEA.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
+    public static final RegistryObject<Item> PEA = composter(0.3F).item("pea", () -> new BlockItem(PVZBlocks.PEA.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> SNOW_PEA = item("snow_pea");
     public static final RegistryObject<Item> FLAME_PEA = item("flame_pea");
-    public static final RegistryObject<Item> NUT = item("nut");
-    public static final RegistryObject<Item> PEPPER = item("pepper");
-    public static final RegistryObject<Item> CABBAGE_SEED = item("cabbage_seeds", () -> new BlockItem(PVZBlocks.CABBAGE_SEEDS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
-    public static final RegistryObject<Item> CORN_KERNELS = item("corn_kernels", () -> new BlockItem(PVZBlocks.CORN_KERNELS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
+    public static final RegistryObject<Item> NUT = composter(0.3F).item("nut");
+    public static final RegistryObject<Item> PEPPER = composter(0.3F).item("pepper");
+    public static final RegistryObject<Item> CABBAGE_SEED = composter(0.3F).item("cabbage_seeds", () -> new BlockItem(PVZBlocks.CABBAGE_SEEDS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
+    public static final RegistryObject<Item> CORN_KERNELS = composter(0.3F).item("corn_kernels", () -> new BlockItem(PVZBlocks.CORN_KERNELS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> JEWEL = item("jewel");
     public static final RegistryObject<Item> ALAYA_RESIN = item("alaya_resin");
     public static final RegistryObject<Item> SPATIOTEMPORAL_UNIT = item("spatiotemporal_unit");
@@ -81,9 +88,11 @@ public class PVZItems {
 
     //food
     public static final RegistryObject<Item> POP_SMARTS = item("pop_smarts", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.5F).build())));
-    public static final RegistryObject<Item> CABBAGE = tag(PVZItemTags.CABBAGE).item("cabbage", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(3).saturationMod(1F).build())));
-    public static final RegistryObject<Item> CORN = tag(PVZItemTags.CORN).item("corn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.2F).build())));
+    public static final RegistryObject<Item> CABBAGE = tag(PVZItemTags.CABBAGE).composter(0.85F).item("cabbage", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(3).saturationMod(1F).build())));
+    public static final RegistryObject<Item> CORN = tag(PVZItemTags.CORN).composter(0.75F).item("corn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.2F).build())));
     public static final RegistryObject<Item> POPCORN = item("popcorn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(1).saturationMod(0.5F).build())));
+    public static final RegistryObject<Item> CHOCOLATE = item("chocolate", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(1F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 10), 1).build())));
+    public static final RegistryObject<Item> TACO = item("taco", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).rarity(Rarity.RARE).food((new FoodProperties.Builder()).nutrition(1).saturationMod(0.5F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 200), 1).effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 100), 1).effect(() -> new MobEffectInstance(MobEffects.SATURATION, 30), 1).alwaysEat().build())));
 
 
     //spawners
@@ -152,6 +161,10 @@ public class PVZItems {
         storedTag.addAll(list);
         return reflector;
     }
+    private static PVZItems composter(float chance){
+        storedComposterChance = chance;
+        return reflector;
+    }
 
     public static RegistryObject<Item> item(String name){
         return item(name, storedSup);
@@ -166,6 +179,9 @@ public class PVZItems {
             storedTag.clear();
         }
         storedModel = Pair.of(Model.Simple, new ArrayList<>());
+        if (storedComposterChance > 0) {
+            composterMap.put(itemObj, storedComposterChance);
+        }
         return itemObj;
     }
 
@@ -214,7 +230,7 @@ public class PVZItems {
     }
 
     public static void release(){
-        List.of(tagMap, seedMap, seedPacketMap).forEach(Map::clear);
+        List.of(tagMap, seedMap, seedPacketMap, composterMap).forEach(Map::clear);
         modelList.clear();
     }
 

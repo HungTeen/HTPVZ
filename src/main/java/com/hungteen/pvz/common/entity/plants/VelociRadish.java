@@ -20,6 +20,7 @@ import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -180,14 +181,23 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     //overrides
     @Override
     public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+        //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
+        //position adjustment.
+            //1. for replaceable plants and multi-face block like vine and glow lichen.
         if ((level.getBlockState(pos).getBlock() instanceof BushBlock || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
+            //2. when clicked on sides of blocks, plant on relative plants.
+        Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        direction = getGrowDirection();
+        offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        //collision check.
         AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
         if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
             BlockState blockstate = this.level.getBlockState(p_201942_);
@@ -195,17 +205,21 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
+        //root block available check.
         if (! this.getEntityData().get(root()) || ! level.getBlockState(pos).isAir()) {
+            BlockState state = level.getBlockState(pos);
             if (isPlanting) {
-                if (! level.getBlockState(pos).getFluidState().isEmpty()) {
-                    return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
+                //check
+                if (state.getCollisionShape(level, pos).isEmpty()) {
+                    return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(pos).getBlock().getName());
                 }
+                //final plant.
                 this.moveTo(
-                        pos.getX() + 0.5,
-                        pos.getY() + (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
+                        pos.getX() + 0.5 + offset.getX(),
+                        pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
                                 (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
-                                level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY),
-                        pos.getZ() + 0.5);
+                                state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
+                        pos.getZ() + 0.5 + offset.getZ());
                 ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
             }
             return null;
@@ -219,22 +233,28 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
 
     @Override
     public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
+        //target unavailable.
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
+        //target is ICanBePlantedOn.
         if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this, isPlanting)) {
             if (EntityUtil.isTeammate(this, target)) {
-                if (!canMountEntity(this, target, this.getVehicle() == target)) {
-                    return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
-                }
                 if (isPlanting) {
-                    this.moveTo(target.getX(), target.getY() + target.getPassengersRidingOffset(), target.getZ(), target.getYRot(), 0.0F);
-                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
+                    if (canMountEntity(this, target, true)) {
+                        this.moveTo(target.getX(), target.getY() + target.getPassengersRidingOffset(), target.getZ(), target.getYRot(), 0.0F);
+                        return null;
+                    } else {
+                        return target.getFirstPassenger() != null ?
+                                plantVehicleSafe(event, target.getFirstPassenger(), true) :
+                                Component.translatable("hint.pvz.plant.no_enough_place");
+                    }
                 }
                 return null;
             }

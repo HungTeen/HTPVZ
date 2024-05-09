@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "0": {
+      "item": "minecraft:sugar"
+    },
+    "1": {
+      "item": "minecraft:cocoa_beans"
+    },
+    "#": {
+      "item": "minecraft:milk_bucket"
+    }
+  },
+  "pattern": [
+    "010",
+    "101",
+    " # "
+  ],
+  "result": {
+    "item": "pvz:chocolate",
+    "count": 2
+  }
+}

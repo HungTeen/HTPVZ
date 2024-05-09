@@ -42,16 +42,17 @@ public class KernelPult extends ShooterPlant {
         super(type, worldIn);
     }
 
-    public InteractionResult mobInteract(Player p_28298_, InteractionHand p_28299_) {
-        ItemStack itemstack = p_28298_.getItemInHand(p_28299_);
+    public InteractionResult mobInteract(Player player, InteractionHand p_28299_) {
+        ItemStack itemstack = player.getItemInHand(p_28299_);
         if (itemstack.is(Items.GLASS_BOTTLE) && this.getCurrentBullet() == CornTypes.BUTTER) {
-//            p_28298_.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F); TODO add sound.
+//            player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F); TODO add sound.
+            itemstack.shrink(1);
             ItemStack itemstack1 = PotionUtils.setPotion(Items.POTION.getDefaultInstance(), PVZMobEffects.potionMap.get("butter").get());
-            p_28298_.setItemInHand(p_28299_, itemstack1);
+            player.drop(itemstack1, false);
             this.setCurrentBullet(CornTypes.KERNEL);
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
-            return super.mobInteract(p_28298_, p_28299_);
+            return super.mobInteract(player, p_28299_);
         }
     }
     @Override

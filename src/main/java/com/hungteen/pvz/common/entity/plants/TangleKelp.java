@@ -172,19 +172,23 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     }
     @Override
     public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+        //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
+        //position adjustment.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
         pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         direction = getGrowDirection();
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        //collision check.
         AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + offset.getX(),
                         pos.getY() + offset.getY() + getBbHeight() / 2,
                         pos.getZ() + 0.5 + offset.getZ()),
                 getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
+            //1. blocks.
         if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
             BlockState blockstate = this.level.getBlockState(p_201942_);
             return !blockstate.isAir() && blockstate.isSuffocating(this.level, p_201942_) &&
@@ -192,11 +196,14 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
+            //2. entities.
         if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(offset)))) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
+        //root block available check.
         if (! this.getEntityData().get(root()) || (! level.getBlockState(pos).isAir())) {
             if (level.getBlockState(pos).getFluidState().is(FluidTags.WATER)) {
+                //final plant.
                 if (isPlanting) {
                     this.moveTo(
                             pos.getX() + 0.5 + offset.getX(),
@@ -310,7 +317,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         @Override
         public void tick() {
             if (tangleKelp.tickCount % 50 < 2 && tangleKelp.hasSkill("skill.pvz.tangle_kelp.oxygen_algae")) {
-                List<Player> list = tangleKelp.level.getEntities(EntityTypeTest.forClass(Player.class),
+                List<LivingEntity> list = tangleKelp.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
                         new AABB(tangleKelp.getX() - 6, tangleKelp.getY() - 6, tangleKelp.getZ() - 6,
                                 tangleKelp.getX() + 6, tangleKelp.getY(), tangleKelp.getZ() + 6),
                         (player) -> EntityUtil.isTeammate(player, tangleKelp));

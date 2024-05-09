@@ -32,6 +32,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -372,22 +373,29 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
 
     @Override
     public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+        //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if ((level.getBlockState(pos).getBlock() instanceof BushBlock || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
+        //position adjustment.
+            //1. for replaceable plants and multi-face block like vine and glow lichen.
+        if ((level.getBlockState(pos).is(BlockTags.REPLACEABLE_PLANTS) || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
+            //2. when clicked on sides of blocks, plant on relative plants.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
         pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         direction = getGrowDirection();
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        //now pos is the rooted block position.
+        //collision check.
         AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + offset.getX(),
                         pos.getY() + offset.getY() + getBbHeight() / 2,
                         pos.getZ() + 0.5 + offset.getZ()),
                 getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
+            //1. blocks.
         if (BlockPos.betweenClosedStream(aabb).anyMatch((pos1) -> {
             BlockState blockstate = this.level.getBlockState(pos1);
             return !blockstate.isAir() && blockstate.isSuffocating(this.level, pos1) &&
@@ -395,31 +403,25 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
+            //2. entities.
         if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(offset)))) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        boolean plantableOn = false;
-        for (TagKey<Block> tag: getAcceptableTags()) {
-            if (level.getBlockState(pos).is(tag)) {
-                plantableOn = true;
-                break;
-            }
-        }
-        if (! this.getEntityData().get(root()) || (plantableOn && ! level.getBlockState(pos).isAir())) {
+        //root block available check.
+        BlockPos finalPos = pos;
+        if ((! entityData.get(this.root())) || getAcceptableTags().stream().anyMatch((tag) -> level.getBlockState(finalPos).is(tag))) {
+            //final plant.
             BlockState state = level.getBlockState(pos);
-            if (state.getFluidState().isEmpty() || (! state.getCollisionShape(level, pos).isEmpty() && state.getFluidState().getHeight(level, pos) < state.getCollisionShape(level, pos).bounds().maxY)) {
-                if (isPlanting) {
-                    this.moveTo(
-                            pos.getX() + 0.5 + offset.getX(),
-                            pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
-                                    (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
-                                    state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
-                            pos.getZ() + 0.5 + offset.getZ());
-                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
-                }
-                return null;
+            if (isPlanting) {
+                this.moveTo(
+                        pos.getX() + 0.5 + offset.getX(),
+                        pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
+                                (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
+                                state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
+                        pos.getZ() + 0.5 + offset.getZ());
+                ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.25F);
             }
-            return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
+            return null;
         } else {
             return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(pos).getBlock().getName());
         }
@@ -545,9 +547,6 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                         return false;
                     }
                 }
-                case CROAKING -> {
-                    return chomper.animTick > 10 && chomper.animTick % 60 <= 2;
-                }
                 case DIGGING -> {
                     return chomper.animTick > 10 && chomper.animTick % 20 <= 2;
                 }
@@ -575,13 +574,13 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                 case USING_TONGUE -> {
                     chomper.targetSelector.disableControlFlag(Flag.MOVE);
                     LivingEntity target = chomper.getTarget();
-                    if (chomper.animTick >= 11 && chomper.animTick < 14) {
+                    if (chomper.animTick >= 11 && chomper.animTick < 13) {
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) && chomper.position().distanceTo(target.position()) <= 1.5) {
                             if (target.getBbWidth() > 2 || ! target.startRiding(chomper) || target.getHealth() < 5 || target instanceof Slime /*to prevent vanilla bug*/) {
                                 target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper), 2F), 10);
                             }
                         }
-                    } else if (chomper.animTick >= 53 && chomper.animTick < 56) {
+                    } else if (chomper.animTick >= 53 && chomper.animTick < 55) {
                         Entity rider = chomper.getFirstPassenger();
                         if (rider != null) {
                             chomper.setAttackTime(chomper.getAttackCD());
@@ -611,15 +610,29 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                 }
                 case CROAKING -> {
                     if (chomper.hasSkill("skill.pvz.chomper.energy_transduction")) {
-                        Sun.spawnSunWithEffects(this.chomper.level, 50, this.chomper.getOnPos().above(), 0.4F);
-                        Sun.spawnSunWithEffects(this.chomper.level, 25, this.chomper.getOnPos().above(), 0.4F);
-                        Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
-                        Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
-                        Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
-                        Sun.spawnSunWithEffects(this.chomper.level, 5, this.chomper.getOnPos().above(), 0.5F);
+                        if (chomper.animTick >= 30 && chomper.animTick < 32) {
+                            Sun.spawnSunWithEffects(this.chomper.level, 50, this.chomper.getOnPos().above(), 0.4F);
+                        }
+                        else if (chomper.animTick >= 35 && chomper.animTick < 37) {
+                            Sun.spawnSunWithEffects(this.chomper.level, 25, this.chomper.getOnPos().above(), 0.4F);
+                        }
+                        else if (chomper.animTick >= 38 && chomper.animTick < 40) {
+                            Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
+                        }
+                        else if (chomper.animTick >= 50 && chomper.animTick < 52) {
+                            Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
+                        }
+                        else if (chomper.animTick >= 53 && chomper.animTick < 55) {
+                            Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
+                        }
+                        else if (chomper.animTick > 10 && chomper.animTick % 60 <= 2) {
+                            Sun.spawnSunWithEffects(this.chomper.level, 5, this.chomper.getOnPos().above(), 0.5F);
+                        }
                     }
-                    chomper.setPose(Pose.STANDING);
-                    chomper.animTick = 0;
+                    if (chomper.animTick > 10 && chomper.animTick % 60 <= 2) {
+                        chomper.setPose(Pose.STANDING);
+                        chomper.animTick = 0;
+                    }
                 }
                 case CROUCHING -> {
                     chomper.setPose(Pose.CROAKING);

@@ -41,9 +41,9 @@ public class PVZZombieRenderer<T extends PVZZombie, M extends PVZZombieModel<T>>
                         zombie.getRandom().nextFloat() * 0.15,
                         zombie.getRandom().nextFloat() * 0.25 - 0.125);
                 new ModelPartEntity(zombie.level, model.leftArm, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).join(zombie.level);
+                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
                 new ModelPartEntity(zombie.level, model.leftSleeve, getTextureLocation(zombie)).pos(zombie.position().add(0,  zombie.getBbHeight() * 0.75, 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).join(zombie.level);
+                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
             }
             if (zombie.renderHead && zombie.shouldDropHead()) {
                 zombie.renderHead = false;
@@ -51,9 +51,9 @@ public class PVZZombieRenderer<T extends PVZZombie, M extends PVZZombieModel<T>>
                         zombie.getRandom().nextFloat() * 0.15,
                         zombie.getRandom().nextFloat() * 0.25 - 0.125);
                 new ModelPartEntity(zombie.level, model.head, getTextureLocation(zombie)).pos(zombie.position().add(0, 1, 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).join(zombie.level);
+                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
                 new ModelPartEntity(zombie.level, model.hat, getTextureLocation(zombie)).pos(zombie.position().add(0, 1, 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).join(zombie.level);
+                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
             }
         }
         super.render(zombie, p_115456_, p_115457_, p_115458_, p_115459_, p_115460_);

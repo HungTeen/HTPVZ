@@ -13,8 +13,8 @@ import net.minecraftforge.eventbus.api.Cancelable;
 import javax.annotation.Nullable;
 
 /**When SeedPacketItem checking if a plant can be planted or SimplePlant checking is position is safe, this event is fired both before and after vanilla pvz methods.
- * <br>If {@link Phase Phase} is PRE, the event is cancellable.
- * <br>When cancelled, vanilla PVZ methods on testing plant condition won't launch, but POST event still launches.
+ * <br>If {@link Phase phase} is PRE, the event is cancellable. When cancelled, vanilla PVZ methods and POST methods on testing plant condition won't launch.
+ * <br>POST launches both when the plant is planted or not planted after PRE and vanilla pvz logic. If result is null, the plant is successfully planted.
  * <p><b>If the plant is planted within this event, cancel it.</b></p>
  * <p><b>result</b> : the fail reason of planting. Null for success.</p>*/
 @Cancelable

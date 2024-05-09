@@ -1,18 +1,16 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -127,14 +125,14 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     public void tick() {
-        setNoGravity(! level.getBlockState(this.getRootBlockPos()).isAir() && ! (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock));
+        setNoGravity(
+                ! (this.entityData.get(ATTACH_FACE) == Direction.UP) &&
+                ! level.getBlockState(this.getRootBlockPos()).isAir() &&
+                ! (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock));
         if (! this.isNoGravity()) {
             this.entityData.set(ATTACH_FACE, Direction.UP);
         }
         super.tick();
-        if (level.isClientSide) {
-            level.addParticle(ParticleTypes.FLAME, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
-        }
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

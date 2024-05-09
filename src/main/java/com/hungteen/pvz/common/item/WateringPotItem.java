@@ -64,11 +64,15 @@ public class WateringPotItem extends BlockItem {
                     }
                     return InteractionResult.SUCCESS;
                 }
-            } else {
+            } else if (context.getPlayer().isShiftKeyDown()){
                 return super.useOn(context);
+            } else {
+                return context.getLevel().isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
             }
-        } else {
+        } else if (context.getPlayer().isShiftKeyDown()){
             return super.useOn(context);
+        } else {
+            return context.getLevel().isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         }
     }
     @Override
@@ -96,7 +100,7 @@ public class WateringPotItem extends BlockItem {
                             0, 0, 0);
                 }
             }
-            return InteractionResult.CONSUME;
+            return player.getLevel().isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         } else {
             return InteractionResult.PASS;
         }

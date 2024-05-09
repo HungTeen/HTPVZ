@@ -27,6 +27,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -43,6 +44,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -145,22 +147,29 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
      */
     @Override
     public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+        //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if ((level.getBlockState(pos).getBlock() instanceof BushBlock || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
+        //position adjustment.
+            //1. for replaceable plants and multi-face block like vine and glow lichen.
+        if ((level.getBlockState(pos).is(BlockTags.REPLACEABLE_PLANTS) || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
+            //2. when clicked on sides of blocks, plant on relative plants.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
         pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         direction = getGrowDirection();
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        //now pos is the rooted block position.
+        //collision check.
         AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5 + offset.getX(),
                 pos.getY() + offset.getY() + getBbHeight() / 2,
                 pos.getZ() + 0.5 + offset.getZ()),
                 getBbWidth() - 0.0001, getBbHeight() - 0.0001, getBbWidth() - 0.0001);
+            //1. blocks.
         if (BlockPos.betweenClosedStream(aabb).anyMatch((pos1) -> {
             BlockState blockstate = this.level.getBlockState(pos1);
             return !blockstate.isAir() && blockstate.isSuffocating(this.level, pos1) &&
@@ -168,31 +177,25 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
+            //2. entities.
         if (shouldHaveCoincideDmg(level, Vec3.atBottomCenterOf(pos.offset(offset)))) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
-        boolean plantableOn = false;
-        for (TagKey<Block> tag: getAcceptableTags()) {
-            if (level.getBlockState(pos).is(tag)) {
-                plantableOn = true;
-                break;
-            }
-        }
-        if (! this.getEntityData().get(root()) || (plantableOn && ! level.getBlockState(pos).isAir())) {
+        //root block available check.
+        BlockPos finalPos = pos;
+        if ((! entityData.get(this.root())) || getAcceptableTags().stream().anyMatch((tag) -> level.getBlockState(finalPos).is(tag))) {
+            //final plant.
             BlockState state = level.getBlockState(pos);
-            if (state.getFluidState().isEmpty() || (! state.getCollisionShape(level, pos).isEmpty() && state.getFluidState().getHeight(level, pos) < state.getCollisionShape(level, pos).bounds().maxY)) {
-                if (isPlanting) {
-                    this.moveTo(
-                            pos.getX() + 0.5 + offset.getX(),
-                            pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
-                                    (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
-                                    state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
-                            pos.getZ() + 0.5 + offset.getZ());
-                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.25F);
-                }
-                return null;
+            if (isPlanting) {
+                this.moveTo(
+                        pos.getX() + 0.5 + offset.getX(),
+                        pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
+                                (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
+                                state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
+                        pos.getZ() + 0.5 + offset.getZ());
+                ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.25F);
             }
-            return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
+            return null;
         } else {
             return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(pos).getBlock().getName());
         }
@@ -200,40 +203,45 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
 
     @Override
     public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
+        //target unavailable.
         if (target == null) {
             if (! isPlanting) {
-                this.boardingCooldown = 0;
-                List<Entity> list = level.getEntities(this, this.getBoundingBox().inflate(0, 1, 0),
-                        (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
+                //find rideable entity.
                 if (this.getVehicle() == null) {
+                    this.boardingCooldown = 0;//renew riding cool down.
+                    List<Entity> list = level.getEntities(this, this.getBoundingBox().inflate(0, 1, 0),
+                            (entity) -> entity instanceof IPlant && ((IPlant)entity).takesCoincideDmg() && this.getVehicle() != entity && entity.getVehicle() != this);
                     list.forEach((entity) -> {
                         if (this.getVehicle() == null && entity instanceof ICanBePlantedOn vehicle && vehicle.canHold(this, false) && EntityUtil.isTeammate(this, entity)) {
                             this.startRiding(entity);
                         }
                     });
                     if (this.getVehicle() != null) {
-                        return null;
+                        return null;//skip other logic.
                     }
                 }
             }
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
+        //target is ICanBePlantedOn.
         if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this, isPlanting)) {
             if (EntityUtil.isTeammate(this, target)) {
-                if (! canMountEntity(this, target, this.getVehicle() == target)) {
-                    return isPlanting && target.getFirstPassenger() != null ?
-                            plantVehicleSafe(event, target.getFirstPassenger(), true) :
-                            Component.translatable("hint.pvz.plant.no_enough_place");
-                }
                 if (isPlanting) {
-                    this.moveTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), 0.0F);
-                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
-                    this.startRiding(target);
+                    if (canMountEntity(this, target, true)) {
+                        this.moveTo(target.getX(), target.getY() + target.getPassengersRidingOffset(), target.getZ(), target.getYRot(), 0.0F);
+                        this.startRiding(target);
+                        return null;
+                    } else {
+                        return target.getFirstPassenger() != null ?
+                                plantVehicleSafe(event, target.getFirstPassenger(), true) :
+                                Component.translatable("hint.pvz.plant.no_enough_place");
+                    }
                 }
                 return null;
             }
@@ -296,8 +304,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         return false;
     }
 
+    @Override
     public int getMaxAirSupply() {
-        return 50;
+        return 20;
     }
 
     public boolean canBeLeashed(Player p_21418_) {

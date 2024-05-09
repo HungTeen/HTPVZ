@@ -10,6 +10,7 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
@@ -21,6 +22,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Wearable;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
@@ -28,9 +32,10 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
-
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class DuckLifebuoyItem extends ArmorItem implements Wearable {
@@ -54,18 +59,23 @@ public class DuckLifebuoyItem extends ArmorItem implements Wearable {
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent ev) {
         LivingEntity livingEntity = ev.getEntity();
+        if (livingEntity.level.isClientSide() && ! (ev.getEntity() instanceof Player)) {
+            return;
+        }
         boolean isInWater = false;
-        Vec3 lifeBuoyPos = livingEntity.position().add(0, livingEntity.getBbHeight() * 0.5, 0);
+        Vec3 lifeBuoyPos = livingEntity.position().add(0, livingEntity.getBbHeight() * 0.55, 0);
         if (! livingEntity.level.getFluidState(new BlockPos(lifeBuoyPos.x, lifeBuoyPos.y, lifeBuoyPos.z)).isEmpty()) {
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 if (livingEntity.getItemBySlot(slot).getItem() instanceof DuckLifebuoyItem item && item.getSlot() == slot) {
                     livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().add(0, 0.04, 0));
                     isInWater = true;
                     if (livingEntity instanceof PathfinderMob mob && ! mob.getNavigation().isDone()) {
-                        Node node = mob.getNavigation().getPath().getNextNode();
-                        if (node.x == mob.blockPosition().getX() && node.z == mob.blockPosition().getZ()) {
-                            mob.getNavigation().getPath().advance();
-                            /*oh the navigation*/
+                        if (! mob.getNavigation().canFloat() && mob.isInWater() && mob.tickCount % 3 == 0) {
+                            //TODO find a way to decrease calculation.
+                            mob.getNavigation().setCanFloat(true);
+                            mob.getNavigation().path = null;
+                            mob.getNavigation().path = mob.getNavigation().createPath(mob.getNavigation().getTargetPos(), 0);
+                            mob.getNavigation().setCanFloat(false);
                         }
                     }
                 }
