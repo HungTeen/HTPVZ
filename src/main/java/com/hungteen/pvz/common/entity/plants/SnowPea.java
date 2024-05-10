@@ -88,6 +88,10 @@ public class SnowPea extends PeaShooter{
         return source == DamageSource.FREEZE || super.isInvulnerableTo(source);
     }
     @Override
+    public boolean canFreeze() {
+        return false;
+    }
+    @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("TimeOverheat", timeOverheat);

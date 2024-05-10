@@ -96,10 +96,6 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         return true;
     }
     @Override
-    public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_DIRT, BlockTags.SNOW);
-    }
-    @Override
     public void tick() {
         if (! this.noPhysics) {
             //TODO sync from Lily Pad.

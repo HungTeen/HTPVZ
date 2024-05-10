@@ -29,6 +29,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.SpawnPlacements.SpawnPredicate;
@@ -150,7 +151,7 @@ public class PVZEntities {
             .collision(0.8F, 1F).entity("umbrella_leaf", UmbrellaLeaf::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<PotatoMine>> POTATO_MINE = attribute(PotatoMine::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
             .collision(0.4F, 0.4F).entity("potato_mine", PotatoMine::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<IcebergLettuce>> ICEBERG_LETTUCE = attribute(IcebergLettuce::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<IcebergLettuce>> ICEBERG_LETTUCE = attribute(IcebergLettuce::createAttributes).noLoot().tag(PVZEntityTags.PLANT, EntityTypeTags.POWDER_SNOW_WALKABLE_MOBS)
             .collision(0.4F, 0.4F).entity("iceberg_lettuce", IcebergLettuce::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Jalapeno>> JALAPENO = attribute(Jalapeno::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.6F, 1.6F).entity("jalapeno", Jalapeno::new, OtherRegisters.PVZPlantMobCategory);

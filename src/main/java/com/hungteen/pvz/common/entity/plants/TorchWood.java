@@ -46,7 +46,7 @@ public class TorchWood extends SimplePlant {
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
+                .add(Attributes.MAX_HEALTH, 15D)
                 .add(Attributes.ARMOR, 0D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
@@ -73,9 +73,8 @@ public class TorchWood extends SimplePlant {
                     0, 0, 0);
         }
         if (hasSkill(this, "skill.pvz.torch_wood.tough_bark")) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20D);
-            this.heal(20);
-            this.getAttribute(Attributes.ARMOR).setBaseValue(20D);
+            this.getAttribute(Attributes.ARMOR).setBaseValue(30D);
+            this.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(20D);
         }
         if (level.isClientSide() || ! this.canBurn()) {
             return ;

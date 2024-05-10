@@ -147,7 +147,7 @@ public class PVZPlayerCapNBT {
                 posTag.putDouble("garden_y", this.gardenPos.getSecond().y);
                 posTag.putDouble("garden_z", this.gardenPos.getSecond().z);
             }
-            baseTag.put("garen_pos", posTag);
+            baseTag.put("garden_pos", posTag);
         }
         return baseTag;
     }

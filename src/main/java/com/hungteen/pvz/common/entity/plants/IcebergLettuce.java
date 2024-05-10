@@ -48,14 +48,21 @@ public class IcebergLettuce extends ShooterPlant {
 
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_DIRT, BlockTags.SNOW);
+        return Set.of(PVZBlockTags.PLANTABLE_DIRT, BlockTags.SNOW, BlockTags.ICE);
     }
     @Override
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new IcebergLettuceFreezeGoal(this));
     }
-
+    @Override
+    public boolean isInvulnerableTo(DamageSource source) {
+        return source == DamageSource.FREEZE || super.isInvulnerableTo(source);
+    }
+    @Override
+    public boolean canFreeze() {
+        return false;
+    }
     @Override
     protected Projectile createBullet() {
         return new Snowball(this.level, this);
