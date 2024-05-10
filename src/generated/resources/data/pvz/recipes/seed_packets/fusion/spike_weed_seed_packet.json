@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": {
+      "item": "pvz:spike_weed_seed"
+    },
+    "C": {
+      "item": "pvz:nether_wart_seed_packet"
+    }
+  },
+  "pattern": [
+    "BBB",
+    "BCB",
+    "BBB"
+  ],
+  "result": {
+    "item": "pvz:spike_weed_seed_packet"
+  }
+}

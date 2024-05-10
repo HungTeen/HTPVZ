@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": {
+      "item": "pvz:tangle_kelp_seed"
+    },
+    "C": {
+      "item": "pvz:flower_seed_packet"
+    }
+  },
+  "pattern": [
+    "BBB",
+    "BCB",
+    "BBB"
+  ],
+  "result": {
+    "item": "pvz:tangle_kelp_seed_packet"
+  }
+}

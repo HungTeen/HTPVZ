@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": {
+      "item": "minecraft:glow_berries"
+    },
+    "B": {
+      "item": "pvz:fluorescent_daisy_seed_packet"
+    },
+    "C": {
+      "item": "pvz:lux_essence"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "CBC",
+    "CAC"
+  ],
+  "result": {
+    "item": "pvz:gold_bloom_seed_packet"
+  }
+}

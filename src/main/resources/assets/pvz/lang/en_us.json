@@ -301,6 +301,9 @@
   "skill.pvz.potato_mine.lethal_dose.desc": "Greater damage and bigger explosion range.",
   "skill.pvz.potato_mine.quick_load": "Quick Load",
   "skill.pvz.potato_mine.quick_load.desc": "Potato Mines instantly get ready.",
+  "skill.pvz.potato_mine.poison_enrichment": "Poison Enrichment",
+  "skill.pvz.potato_mine.poison_enrichment.desc": "Potato Mines It's going to be Poisonous.",
+
   "skill.pvz.pumpkin.wall_nut_first_aid": "Wall Nut First Aid",
   "skill.pvz.pumpkin.wall_nut_first_aid.desc": "...Also effective to Pumpkins.",
   "skill.pvz.repeater.triple_tap": "Triple Tap",

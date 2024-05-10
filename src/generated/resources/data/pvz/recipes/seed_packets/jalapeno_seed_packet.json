@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": {
+      "item": "pvz:pepper"
+    },
+    "B": {
+      "item": "pvz:nether_wart_seed_packet"
+    },
+    "C": {
+      "item": "pvz:ignis_essence"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "CBC",
+    "CAC"
+  ],
+  "result": {
+    "item": "pvz:jalapeno_seed_packet"
+  }
+}

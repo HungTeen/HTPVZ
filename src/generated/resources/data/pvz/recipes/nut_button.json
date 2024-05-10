@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "pvz:nut_planks"
+    }
+  ],
+  "result": {
+    "item": "pvz:nut_button"
+  }
+}

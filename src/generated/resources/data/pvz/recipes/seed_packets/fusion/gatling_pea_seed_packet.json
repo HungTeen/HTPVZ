@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": {
+      "item": "pvz:gatling_pea_seed"
+    },
+    "C": {
+      "item": "pvz:chorus_fruit_seed_packet"
+    }
+  },
+  "pattern": [
+    "BBB",
+    "BCB",
+    "BBB"
+  ],
+  "result": {
+    "item": "pvz:gatling_pea_seed_packet"
+  }
+}

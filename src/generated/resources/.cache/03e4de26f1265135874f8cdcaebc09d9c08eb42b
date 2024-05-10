@@ -1,0 +1,20 @@
+// 1.19.2	2024-03-30T14:24:59.4475039	Tags for minecraft:item
+9bbb9af389bc3d6cad7150e1f60932d4c31b52ac data/forge/tags/items/crops/cabbage.json
+4f6500c3a92f3333bb288d83b5ca797b6013afd8 data/forge/tags/items/crops/kernel.json
+34a1759e6f4daf38eb2e0c65b959dd83fbfead1e data/minecraft/tags/items/arrows.json
+367a80a058189bcabf4bfc977d7629fc2ba7170c data/minecraft/tags/items/boats.json
+cf70ff4458a1691b2647c253b938924a1af621d6 data/minecraft/tags/items/leaves.json
+3aee9311ad195b1f3b068a4ef1af60943712006c data/minecraft/tags/items/logs.json
+5eb1063627f03a9962e50550ab088d55e91eda7f data/minecraft/tags/items/logs_that_burn.json
+0ba0cdffc6e67e888fae3817b3d287c04c247827 data/minecraft/tags/items/planks.json
+747aa7c0dce63e7023264fd5f546ba85fb9171b6 data/minecraft/tags/items/saplings.json
+2ed7b26737561ed23687c29117efc6ebd8992935 data/minecraft/tags/items/signs.json
+2b1aa0642a102e3b91510463627b84e2349126e1 data/minecraft/tags/items/wooden_buttons.json
+0eafe6f49d45fe655aa94ec3427f21118b5568f4 data/minecraft/tags/items/wooden_doors.json
+cf25000aa15a0cba0237f03f703e0c82002a04ee data/minecraft/tags/items/wooden_fences.json
+91aa4dc97c3262618d5a82fd4c3c0ae97045f467 data/minecraft/tags/items/wooden_stairs.json
+5caddcdbd93794e9510c01e9df4ac990aa3e58e3 data/minecraft/tags/items/wooden_trapdoors.json
+a5f62bfff900f4bc04f264a337517e5be3d01d68 data/pvz/tags/items/essence.json
+b4e8060734fdcb4c1d574cfa1b83744bfabfca44 data/pvz/tags/items/iron.json
+dffe0f177f4368137ed34a4d028061f8cc05da16 data/pvz/tags/items/nut_logs.json
+0b4e9eb2e57b7d0790ad2a0344733be5de39a297 data/pvz/tags/items/to_terra_essence.json

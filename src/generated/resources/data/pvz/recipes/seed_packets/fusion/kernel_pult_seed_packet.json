@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "B": {
+      "item": "pvz:kernel_pult_seed"
+    },
+    "C": {
+      "item": "pvz:fluorescent_daisy_seed_packet"
+    }
+  },
+  "pattern": [
+    "BBB",
+    "BCB",
+    "BBB"
+  ],
+  "result": {
+    "item": "pvz:kernel_pult_seed_packet"
+  }
+}

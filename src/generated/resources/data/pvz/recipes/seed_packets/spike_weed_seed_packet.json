@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": {
+      "item": "minecraft:glow_lichen"
+    },
+    "B": {
+      "item": "pvz:nether_wart_seed_packet"
+    },
+    "C": {
+      "item": "pvz:terra_essence"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "CBC",
+    "CAC"
+  ],
+  "result": {
+    "item": "pvz:spike_weed_seed_packet"
+  }
+}

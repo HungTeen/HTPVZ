@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": {
+      "item": "minecraft:melon"
+    },
+    "B": {
+      "item": "pvz:chorus_fruit_seed_packet"
+    },
+    "C": {
+      "item": "pvz:ventus_essence"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "CBC",
+    "CAC"
+  ],
+  "result": {
+    "item": "pvz:melon_pult_seed_packet"
+  }
+}
