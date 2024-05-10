@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 public class PVZBoat extends Boat {
     private WoodType woodType = PVZBlocks.woodTypeList.get(0);
 
+
     public PVZBoat(EntityType<? extends Boat> p_38290_, Level p_38291_) {
         super(p_38290_, p_38291_);
     }

@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_column",
-  "render_type": "minecraft:solid",
-  "textures": {
-    "end": "pvz:block/nut_log",
-    "side": "pvz:block/nut_log"
-  }
-}
