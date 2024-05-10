@@ -73,7 +73,8 @@ public class TorchWood extends SimplePlant {
                     0, 0, 0);
         }
         if (hasSkill(this, "skill.pvz.torch_wood.tough_bark")) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(15D);
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20D);
+            this.heal(20);
             this.getAttribute(Attributes.ARMOR).setBaseValue(20D);
         }
         if (level.isClientSide() || ! this.canBurn()) {
@@ -133,7 +134,7 @@ public class TorchWood extends SimplePlant {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {
                         return;
                     } else if (pea.getPeaType() == PeaBullet.PeaType.Common) {
-                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 4 : 2F));
+                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 4 : 0F));
                     }
                     pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :
                             this.entity.isSoulFire() ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);

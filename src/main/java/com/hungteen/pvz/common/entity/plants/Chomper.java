@@ -77,8 +77,6 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     public AnimationState swallowAnimationState = new AnimationState();
     public AnimationState swimAnimationState = new AnimationState();
     private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
-
-    private int situationHurtCount = 0;
     public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(Chomper.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> WILT_COUNTDOWN = SynchedEntityData.defineId(Chomper.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(Chomper.class, EntityDataSerializers.INT);
@@ -161,16 +159,9 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         }
         animTick ++;
         //check plant situation damage.
-        if (! level.isClientSide) {
-            if (isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
-                    this.getAttribute(Attributes.MAX_HEALTH) != null) {
-                if (++ situationHurtCount > 10) {
-                    this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
-                    situationHurtCount = 0;
-                }
-            } else {
-                situationHurtCount = 0;
-            }
+        if (this.tickCount % 10 == 0 && isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
+                this.getAttribute(Attributes.MAX_HEALTH) != null) {
+            this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
         }
         //TODO relative codes. add particle when plant is dying.
     }

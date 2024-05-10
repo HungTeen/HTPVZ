@@ -22,11 +22,6 @@ public class PumpkinRenderer<T extends Pumpkin> extends MobRenderer<T, EntityMod
         super(context, new PumpkinModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("pumpkin:main"))), 0.6F);
     }
 
-
-    public void render(T pumpkin, float p_115456_, float p_115457_, PoseStack poseStack, MultiBufferSource buffer, int p_115460_) {
-        super.render(pumpkin, p_115456_, p_115457_, poseStack, buffer, p_115460_);
-    }
-
     @Override
     public ResourceLocation getTextureLocation(T pumpkin) {
         float healthPercent = pumpkin.getHealth()/pumpkin.getMaxHealth();

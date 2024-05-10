@@ -11,8 +11,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class DirtLayer<T extends LivingEntity> extends RenderLayer<T, DirtModel<T>> {
     private final DirtModel<T> model;
@@ -23,12 +25,16 @@ public class DirtLayer<T extends LivingEntity> extends RenderLayer<T, DirtModel<
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int p_117351_, T entity, float entityYaw, float partialTicks, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
+        BlockState state = entity.level.getBlockState(entity.getOnPos());
+        if (entity.getY() - state.getCollisionShape(entity.level, entity.getOnPos()).max(Direction.Axis.Y) + entity.getOnPos().getY() > 0.05 /*isOnGround() in not reliable.*/) {
+            return;
+        }
+
         final ResourceLocation blockRes = ClientProxy.MC.getBlockRenderer().getBlockModelShaper().getTexture(entity.level.getBlockState(entity.blockPosition().below()), entity.level, entity.blockPosition().below()).getName();
         final ResourceLocation textureRes = new ResourceLocation(blockRes.getNamespace(), "textures/" + blockRes.getPath() + ".png");
         VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(textureRes));
         this.model.setupAnim(entity, 0, 0, entity.tickCount + partialTicks, 0, 0);
         this.model.renderToBuffer(poseStack, vertexconsumer, p_117351_, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1.0F);
-
     }
 
 

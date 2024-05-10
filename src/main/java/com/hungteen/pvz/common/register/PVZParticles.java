@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.particle.FogParticle;
+import com.hungteen.pvz.client.particle.MashedPotatoParticle;
 import com.hungteen.pvz.client.particle.SunParticle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleType;
@@ -28,6 +29,7 @@ public class PVZParticles {
 
     public static final RegistryObject<SimpleParticleType> SUN = particle("sun");
     public static final RegistryObject<SimpleParticleType> FOG = particle("fog");
+    public static final RegistryObject<SimpleParticleType> MASHED_POTATO = particle("mashed_potato");
 
 
 
@@ -41,6 +43,7 @@ public class PVZParticles {
         Map<RegistryObject<SimpleParticleType>, ParticleEngine.SpriteParticleRegistration<SimpleParticleType>> particleMap = new HashMap<>();
         particleMap.put(SUN, SunParticle.Provider::new);
         particleMap.put(FOG, FogParticle.Provider::new);
+        particleMap.put(MASHED_POTATO, MashedPotatoParticle.Provider::new);
         for (RegistryObject<SimpleParticleType> key : particleMap.keySet()){
             event.register(key.get(), particleMap.get(key));
         }

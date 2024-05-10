@@ -87,7 +87,6 @@ public class MelonBullet extends BaseBullet {
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
         if (!this.level.isClientSide()) {
-            ((ServerLevel) this.level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.MELON_SLICE.getDefaultInstance()), this.getX(), this.getY(), this.getZ(), 30, 0.0D, 0.0D, 0.0D, 0.2F);
             if (this.getMelonSkill() == MelonSkill.POTION) {
                 applySplash(getMobEffects(), null);
             } else {
@@ -134,14 +133,16 @@ public class MelonBullet extends BaseBullet {
     }
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
-        for (int i = 0; i < 5; i ++) {
+        for (int i = 0; i < 30; i ++) {
             level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.MELON_SLICE)),
-                    getX(), getY(), getZ(),
-                    - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.12,
+                    getX() + random.nextFloat() * 0.5 - 0.25,
+                    getY() + random.nextFloat() * 0.5 - 0.5,
+                    getZ() + random.nextFloat() * 0.5 - 0.25,
+                    - movement.x * 0.25 + random.nextFloat() * 0.5 - 0.25,
                     - movement.y * 0.25 + random.nextFloat() * 0.25,
-                    - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.12);
+                    - movement.z * 0.25 + random.nextFloat() * 0.5 - 0.25);
         }
-        if (level.isClientSide && this.getMelonSkill() == MelonSkill.POTION) {
+        if (this.getMelonSkill() == MelonSkill.POTION) {
             for (int i = 0; i < 25; i ++) {
                 Vec3 pos = this.position();
                 Particle particle = ClientProxy.MC.levelRenderer.addParticleInternal(ParticleTypes.ENTITY_EFFECT.getType(), false,

@@ -5,19 +5,30 @@ import com.hungteen.pvz.client.layer.fullskin.LightLayer;
 import com.hungteen.pvz.client.model.plants.PotatoMineModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.PotatoMine;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.state.BlockState;
 
 import static com.hungteen.pvz.common.entity.plants.PotatoMine.EXPLODE_COUNT;
 
 public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, EntityModel<T>> {
 
-    private static final ResourceLocation TEXTURE = Util.prefix("textures/entity/plants/potato_mine/potato_mine.png");
+    private static final ResourceLocation COMMON = Util.prefix("textures/entity/plants/potato_mine/potato_mine.png");
+    private static final ResourceLocation POISON = Util.prefix("textures/entity/plants/potato_mine/poisonous_potato_mine.png");
     public PotatoMineRenderer(EntityRendererProvider.Context context) {
         super(context, new PotatoMineModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("potato_mine:main"))), 0.2F);
         this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/potato_mine/potato_mine_light.png")));
@@ -37,7 +48,25 @@ public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, Ent
     }
     @Override
     public ResourceLocation getTextureLocation(T potatoMine) {
-        return TEXTURE;
+        return potatoMine.isPoisonous() ? POISON : COMMON;
+    }
+
+    @Override
+    public void render(T potatoMine, float p_115456_, float p_115457_, PoseStack poseStack, MultiBufferSource buffer, int p_115460_) {
+        BlockState state = potatoMine.level.getBlockState(potatoMine.getOnPos());
+        if (potatoMine.getY() - state.getCollisionShape(potatoMine.level, potatoMine.getOnPos()).max(Direction.Axis.Y) + potatoMine.getOnPos().getY() > 0.05 /*isOnGround() in not reliable.*/) {
+            if (potatoMine.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(potatoMine) < 12.25D)) {
+                poseStack.pushPose();
+                ItemStack itemStack = (potatoMine.isPoisonous() ? Items.POISONOUS_POTATO : Items.POTATO).getDefaultInstance();
+                ClientProxy.MC.getItemRenderer().renderStatic(
+                        potatoMine, itemStack, ItemTransforms.TransformType.GROUND, false,
+                        poseStack, buffer, potatoMine.level, p_115460_, OverlayTexture.NO_OVERLAY,
+                        potatoMine.getId() + ItemTransforms.TransformType.GROUND.ordinal());
+                poseStack.popPose();
+            }
+            return;
+        }
+        super.render(potatoMine, p_115456_, p_115457_, poseStack, buffer, p_115460_);
     }
 
 }

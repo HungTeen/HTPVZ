@@ -69,7 +69,6 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public final AnimationState moveAnimationState = new AnimationState();
     public final AnimationState attackAnimationState = new AnimationState();
     public boolean skillBoosted = false;
-    private int situationHurtCount = 0;
     protected static final EntityDataAccessor<Integer> POSE = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
@@ -303,16 +302,9 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
             }
         }
         //check plant situation damage.
-        if (! level.isClientSide) {
-            if (isPositionSafe(null, this.level, this.getOnPos(), Direction.UP,false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
-                    this.getAttribute(Attributes.MAX_HEALTH) != null) {
-                if (++ situationHurtCount > 100) {
-                    this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.4 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
-                    situationHurtCount = 0;
-                }
-            } else {
-                situationHurtCount = 0;
-            }
+        if (this.tickCount % 10 == 0 && isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
+                this.getAttribute(Attributes.MAX_HEALTH) != null) {
+            this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
         }
         //animation
         animationTick ++;

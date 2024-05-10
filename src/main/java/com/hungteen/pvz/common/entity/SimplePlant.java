@@ -89,8 +89,6 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     /**skill id. see {@link Skill}.*/
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(SimplePlant.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ATTACK_TIME = SynchedEntityData.defineId(SimplePlant.class, EntityDataSerializers.INT);
-
-    private int situationHurtCount = 0;
     protected boolean shouldAlign = true;
 
     protected SimplePlant(EntityType<? extends Mob> entityType, Level level) {
@@ -271,14 +269,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         super.baseTick();
         //check plant situation damage.
         if (! level.isClientSide) {
-            if (isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
+            if (this.tickCount % 10 == 0 && isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
                     this.getAttribute(Attributes.MAX_HEALTH) != null) {
-                if (++ situationHurtCount > 10) {
-                    this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
-                    situationHurtCount = 0;
-                }
-            } else {
-                situationHurtCount = 0;
+                this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
             }
         }
         //about aligning blocks.

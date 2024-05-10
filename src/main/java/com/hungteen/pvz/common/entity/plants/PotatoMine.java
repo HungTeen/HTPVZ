@@ -5,15 +5,18 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -23,6 +26,8 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -47,7 +52,7 @@ public class PotatoMine extends SimplePlant {
             new Skill("skill.pvz.potato_mine.potato_miner", PVZItems.TERRA_ESSENCE, 4, 6, 0, 0),
             new Skill("skill.pvz.potato_mine.lethal_dose", PVZItems.IGNIS_ESSENCE, 8, 8, 75, 0).avoidSkills(1),
             new Skill("skill.pvz.potato_mine.quick_load", PVZItems.LUX_ESSENCE, 12, 8, 25, 0).avoidSkills(1, 2),
-            new Skill("skill.pvz.potato_mine.poison_enrichment", PVZItems.ORIGIN_ESSENCE, 6, 8, 25, 0)
+            new Skill("skill.pvz.potato_mine.poison_enrichment", PVZItems.ORIGIN_ESSENCE, 6, 8, 0, 0)
     );
     public PotatoMine(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -67,6 +72,11 @@ public class PotatoMine extends SimplePlant {
                 this.spawnPoisonCloud();
             }
             this.discard();//TODO modify damage calculator.
+            ((ServerLevel) this.level).sendParticles(PVZParticles.MASHED_POTATO.get(),
+                    getX() + random.nextFloat() * 0.5 - 0.25,
+                    getY() + random.nextFloat() * 0.5 + 0.25,
+                    getZ() + random.nextFloat() * 0.5 - 0.25,
+                    20, 0.5, 0.5, 0.5, 0.1);
         }
     }
 
@@ -83,7 +93,7 @@ public class PotatoMine extends SimplePlant {
     }
     private void spawnPoisonCloud() {
         AreaEffectCloud areaeffectcloud = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
-        areaeffectcloud.setRadius(1.0F);
+        areaeffectcloud.setRadius(0.5F);
         areaeffectcloud.setDuration(400);
         areaeffectcloud.setFixedColor(MobEffects.POISON.getColor());
         areaeffectcloud.setWaitTime(10);
@@ -117,7 +127,7 @@ public class PotatoMine extends SimplePlant {
         if (hasSkill("skill.pvz.potato_mine.quick_load") && this.getEntityData().get(PREPARE_COUNT) > 10) {
             this.getEntityData().set(PREPARE_COUNT, 10);
         }
-        if (hasSkill("skill.pvz.potato_mine.poison_enrichment") && !this.getEntityData().get(IS_POISONOUS)) {
+        if (hasSkill("skill.pvz.potato_mine.poison_enrichment") && ! this.getEntityData().get(IS_POISONOUS)) {
             this.getEntityData().set(IS_POISONOUS, true);
         }
         if (this.getEntityData().get(EXPLODE_COUNT) > -1) {
@@ -132,13 +142,13 @@ public class PotatoMine extends SimplePlant {
                     this.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX() + (this.random.nextDouble() - 0.5D), this.getY() + 0.1D, this.getZ() + (this.random.nextDouble() - 0.5D), (this.random.nextDouble() - 0.5) * 6.0D, 2D, (this.random.nextDouble() - 0.5) * 4.0D);
                 }
             }
-            if(this.isPoisonous()){
+            if (this.isPoisonous()) {
                 int color = MobEffects.POISON.getColor();
                 float r = (float)(color >> 16 & 255) / 255.0F;
                 float g = (float)(color >> 8 & 255) / 255.0F;
                 float b = (float)(color & 255) / 255.0F;
 
-                for (int i = 0; i < this.random.nextInt(3); i ++){
+                if (random.nextBoolean()) {
                     float xOffset = random.nextFloat() * 0.6F - 0.3F;
                     float yOffset = random.nextFloat() - 0.3F;
                     float zOffset = random.nextFloat() * 0.6F - 0.3F;

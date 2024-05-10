@@ -27,19 +27,21 @@ public class PotatoMineModel<T extends PotatoMine> extends HierarchicalModel<T> 
 
 		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create(), PartPose.offset(0.0F, 25.0F, 0.0F));
 
-		PartDefinition body = total.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -7.0F, -6.0F, 12.0F, 8.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition body = total.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -7.0F, -6.0F, 12.0F, 8.0F, 12.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 40).addBox(-6.5F, -5.0F, -6.5F, 13.0F, 4.0F, 13.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition eye_closed = body.addOrReplaceChild("eye_closed", CubeListBuilder.create().texOffs(0, 30).addBox(-6.0F, -7.0F, -6.0F, 12.0F, 8.0F, 12.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition eye_closed = body.addOrReplaceChild("eye_closed", CubeListBuilder.create().texOffs(0, 20).addBox(-6.0F, -7.0F, -6.0F, 12.0F, 8.0F, 12.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition antenna = total.addOrReplaceChild("antenna", CubeListBuilder.create().texOffs(40, 25).addBox(-3.0F, -7.5F, -3.0F, 6.0F, 1.0F, 6.0F, new CubeDeformation(0.0F))
-		.texOffs(0, 23).addBox(0.0F, -12.0F, -1.0F, 0.0F, 5.0F, 2.0F, new CubeDeformation(0.0F))
-		.texOffs(14, 25).addBox(-1.0F, -12.0F, 0.0F, 2.0F, 5.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition antenna = total.addOrReplaceChild("antenna", CubeListBuilder.create().texOffs(36, 25).addBox(-3.0F, -7.5F, -3.0F, 6.0F, 1.0F, 6.0F, new CubeDeformation(0.0F))
+				.texOffs(0, -2).addBox(0.0F, -12.0F, -1.0F, 0.0F, 5.0F, 2.0F, new CubeDeformation(0.0F))
+				.texOffs(4, 0).addBox(-1.0F, -12.0F, 0.0F, 2.0F, 5.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition top = antenna.addOrReplaceChild("top", CubeListBuilder.create().texOffs(48, 0).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition light = top.addOrReplaceChild("light", CubeListBuilder.create().texOffs(48, 8).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.001F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition light = top.addOrReplaceChild("light", CubeListBuilder.create().texOffs(48, 0).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.001F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 64, 64);
+
 	}
 
 	@Override
