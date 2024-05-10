@@ -301,6 +301,8 @@
   "skill.pvz.potato_mine.lethal_dose.desc": "获得更高的伤害和更大的爆炸范围。",
   "skill.pvz.potato_mine.quick_load": "快速装填",
   "skill.pvz.potato_mine.quick_load.desc": "在种下后立即准备好。",
+  "skill.pvz.potato_mine.poison_enrichment": "毒素富集",
+  "skill.pvz.potato_mine.poison_enrichment.desc": "必定为毒土豆地雷。",
   "skill.pvz.pumpkin.wall_nut_first_aid": "坚果包扎术",
   "skill.pvz.pumpkin.wall_nut_first_aid.desc": "…对南瓜也同样适用。",
   "skill.pvz.repeater.triple_tap": "三连击",
