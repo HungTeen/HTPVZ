@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- This event is for the mods that doesn't rely on this mod. If relies on HTPVZ, you can also use {@link com.hungteen.pvz.common.item.SeedPacketItem}.
+ This event is for the mods that doesn't rely on this mod. If relies on HTPVZ, you can also use {@link com.hungteen.pvz.common.item.SeedPacketItem SeedPacketItem}.
  Can't automatically create recipes or models.
  */
 public class RegisterSeedPacketsEvent extends Event {

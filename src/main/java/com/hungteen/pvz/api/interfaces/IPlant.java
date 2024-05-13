@@ -48,7 +48,7 @@ public interface IPlant extends INeedSafeSituation{
         return false;
     }
     /**called when a sprout transform into this plant in Zen Garden. Only in client side.*/
-    void setupPresentationAnim();
+    default void setupPresentationAnim() {}
 
     default MutableComponent isPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
         PVZPlantConditionMatchingEvent.OnBlock preCondition = new PVZPlantConditionMatchingEvent.OnBlock(

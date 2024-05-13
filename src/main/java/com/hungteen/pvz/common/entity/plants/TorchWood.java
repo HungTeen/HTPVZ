@@ -126,7 +126,7 @@ public class TorchWood extends SimplePlant {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(1, 0.5, 1).move(0, 1, 0),
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(1, 1, 1).move(0, 1.5, 0),
                     (entity) -> (entity instanceof PeaBullet && EntityUtil.isTeammate(entity, this.entity)));
             entities.forEach((entity) -> {
                 if (entity instanceof PeaBullet pea && pea.changeCoolDown <= 0) {

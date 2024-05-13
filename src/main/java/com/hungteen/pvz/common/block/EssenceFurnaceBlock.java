@@ -53,18 +53,18 @@ public class EssenceFurnaceBlock extends BaseEntityBlock {
         return createTickerHelper(p_153275_, PVZBlockEntities.ESSENCE_FURNACE.get(), EssenceFurnaceBlockEntity::tick);
     }
 
-    @Override
-    public MenuProvider getMenuProvider(BlockState blockState, Level level, BlockPos blockPos) {
-        BlockEntity blockentity = level.getBlockEntity(blockPos);
-        if (blockentity instanceof EssenceFurnaceBlockEntity be) {
-            Component component = be.getDisplayName();
-            return new SimpleMenuProvider(
-                    (id, inventory, player) -> new EssenceFurnaceMenu(inventory, id, be.dataAccess, ContainerLevelAccess.create(level, blockPos)),
-                    component);
-        } else {
-            return null;
-        }
-    }
+//    @Override
+//    public MenuProvider getMenuProvider(BlockState blockState, Level level, BlockPos blockPos) {
+//        BlockEntity blockentity = level.getBlockEntity(blockPos);
+//        if (blockentity instanceof EssenceFurnaceBlockEntity be) {
+//            Component component = be.getDisplayName();
+//            return new SimpleMenuProvider(
+//                    (id, inventory, player) -> new EssenceFurnaceMenu(inventory, id, be.dataAccess, ContainerLevelAccess.create(player.level, blockPos)),
+//                    component);
+//        } else {
+//            return null;
+//        }
+//    }
 
     public void onRemove(BlockState p_48713_, Level level, BlockPos pos, BlockState p_48716_, boolean p_48717_) {
         if (!p_48713_.is(p_48716_.getBlock())) {

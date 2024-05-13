@@ -130,7 +130,9 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         this.shouldAlign = false;
         super.tick();
     }
-    public void setupPresentationAnim() {
+    @Override
+    public boolean needWaterPotInGarden() {
+        return true;
     }
 
     @Override
@@ -144,8 +146,8 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
 
                 xCurrentSpeed *= inWater ? 0.95 : 0.5;
                 zCurrentSpeed *= inWater ? 0.95 : 0.5;
-                double lr = xCurrentSpeed * 0.9 + (inWater ? 0.3 : 0.1) * player.xxa * 0.1;
-                double fb = zCurrentSpeed * 0.9 + (inWater ? 0.5 : 0.15) * player.zza * 0.1;
+                double lr = xCurrentSpeed * 0.85 + (inWater ? 0.3 : 0.1) * player.xxa * 0.15;
+                double fb = zCurrentSpeed * 0.85 + (inWater ? 0.5 : 0.15) * player.zza * 0.15;
                 if (fb <= 0.0F) {
                     fb *= 0.25F;
                 }

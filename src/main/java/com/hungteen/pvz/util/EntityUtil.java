@@ -2,6 +2,7 @@ package com.hungteen.pvz.util;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.events.TeammateTestingEvent;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
@@ -10,6 +11,7 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
@@ -29,6 +31,7 @@ public class EntityUtil {
     /**Check if entities are teammates. <b>CAN ONLY</b> call on server.
      * <br>I you want to check if an entity is attackable, use {@link EntityUtil#checkCanEntityBeAttack(Entity, Entity)}.*/
     public static boolean isTeammate(Entity A, Entity B) {
+        boolean result = false;
         if (A == null || B == null) {
             PVZMod.LOGGER.error(A == null ? "A" : "B"+ " is null!");
             return false;
@@ -43,18 +46,19 @@ public class EntityUtil {
         boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, "teamBattle");
 
         if (teamA == teamB) {
-            return teamA != null || (AIsEnemy == BIsEnemy);
+            result = teamA != null || (AIsEnemy == BIsEnemy);
+        } else if (teamA == null) {
+            result = (AIsEnemy) == (teamB == enemyTeam);
+        } else if (teamB == null) {
+            result = (BIsEnemy) == (teamA == enemyTeam);
+        } else if (teamA == enemyTeam || teamB == enemyTeam) {
+            result = false;
+        } else {
+            result = ! teamBattle;
         }
-        if (teamA == null) {
-            return (AIsEnemy) == (teamB == enemyTeam);
-        }
-        if (teamB == null) {
-            return (BIsEnemy) == (teamA == enemyTeam);
-        }
-        if (teamA == enemyTeam || teamB == enemyTeam) {
-            return false;
-        }
-        return ! teamBattle;
+        TeammateTestingEvent event = new TeammateTestingEvent(A, B, result);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.currentResult;
     }
     /**
      * check can AttackGoal continue to attack target. <b>CAN ONLY</b> call on server.

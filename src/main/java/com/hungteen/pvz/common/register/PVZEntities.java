@@ -1,9 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.client.model.MooBloomModel;
-import com.hungteen.pvz.client.model.SproutModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.renderer.ModelPartRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;

@@ -175,6 +175,7 @@
   "hint.pvz.plant.no_enough_resource": "%s is not enough",
   "hint.pvz.plant.pumpkin.not_broken": "Can only plant on broken Pumpkins",
   "hint.pvz.plant.wall_nut.not_broken": "Can only plant on broken Wall Nuts",
+  "hint.pvz.sprout.must_in_zen_garden": "Can only plant in Garden Flower Pots in Zen Garden",
   "item.minecraft.potion.effect.brightness": "Brightness Potion",
   "item.minecraft.potion.effect.butter": "Butter Bottle",
   "item.minecraft.potion.effect.freeze": "Frozen Potion",

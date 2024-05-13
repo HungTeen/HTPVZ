@@ -175,6 +175,7 @@
   "hint.pvz.plant.no_enough_resource": "%s不足!",
   "hint.pvz.plant.pumpkin.not_broken": "只能种植在损坏的南瓜头上",
   "hint.pvz.plant.wall_nut.not_broken": "只能种植在损坏的坚果墙上",
+  "hint.pvz.sprout.must_in_zen_garden": "只能在禅境花园的禅境花盆里种植",
   "item.minecraft.potion.effect.brightness": "光明药水",
   "item.minecraft.potion.effect.butter": "黄油瓶",
   "item.minecraft.potion.effect.freeze": "急冻药水",

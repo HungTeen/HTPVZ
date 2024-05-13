@@ -3,9 +3,14 @@ package com.hungteen.pvz.api.interfaces;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 /**Can only be LivingEntity.*/
 public interface IGardenPlant {
+
+    /**This determines GardenFlowerPotBlock or other possible garden flower pots is water pot.*/
+    BooleanProperty WATER = BooleanProperty.create("water");
+
     InteractionResult onWatered(Player player, ItemStack stack);
     InteractionResult onFertilized(Player player, ItemStack stack);
 

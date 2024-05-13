@@ -98,7 +98,7 @@ public class SnowPea extends PeaShooter{
 
     }
     @Override
-    public void readAdditionalSaveData(CompoundTag tag){
+    public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("TimeOverheat")) {
             timeOverheat = tag.getInt("TimeOverheat");

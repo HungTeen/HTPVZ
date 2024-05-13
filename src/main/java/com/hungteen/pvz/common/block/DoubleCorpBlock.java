@@ -79,10 +79,10 @@ public class DoubleCorpBlock extends CropBlock {
                 if (age < (upperOccupied ? this.getUpperStartAge() - 1 : this.getMaxAge())) {
                     float f = getGrowthSpeed(this, level, pos);
                     if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(level, pos, blockState, random.nextInt((int)(25.0F / f) + 1) == 0)) {
-                        level.setBlock(pos, this.getStateForAge(age + 1), 2);
                         if (age + 1 >= getUpperStartAge()) {
                             level.setBlock(pos.above(), this.getStateForAge(age + 1).setValue(HALF, DoubleBlockHalf.UPPER), 2);
                         }
+                        level.setBlock(pos, this.getStateForAge(age + 1), 2);
                         net.minecraftforge.common.ForgeHooks.onCropsGrowPost(level, pos, blockState);
                     }
                 }
@@ -104,10 +104,10 @@ public class DoubleCorpBlock extends CropBlock {
             i = j;
         }
 
-        level.setBlock(pos, this.getStateForAge(i), 2);
         if (i >= getUpperStartAge()) {
             level.setBlock(pos.above(), this.getStateForAge(i).setValue(HALF, DoubleBlockHalf.UPPER), 2);
         }
+        level.setBlock(pos, this.getStateForAge(i), 2);
     }
 
     //updating.

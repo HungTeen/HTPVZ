@@ -1,7 +1,9 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
+import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sprout;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -9,6 +11,8 @@ import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -176,6 +180,13 @@ public class MariGold extends SimplePlant implements IGardenPlant {
 
     //definitions
 
+    @Override
+    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        if (target == null) {
+            return net.minecraft.network.chat.Component.translatable("hint.pvz.plant.entity_not_present");
+        }
+        return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), target.getName());
+    }
     public Set<TagKey<Block>> getAcceptableTags() {
         return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.GARDEN_FLOWER_POT);
     }
@@ -188,7 +199,10 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     public ItemStack getPickResult() {
         return PVZItems.MARIGOLD_SPROUT.get().getDefaultInstance();
     }
-
+    @Override
+    public boolean removeWhenFarAway(double p_27598_) {
+        return false;
+    }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 10D)

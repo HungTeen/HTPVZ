@@ -1,12 +1,12 @@
 package com.hungteen.pvz.common.entity;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.api.interfaces.IPlant;
+import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.entity.plants.MariGold;
 import com.hungteen.pvz.common.event.SproutTransformEvent;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -25,13 +25,18 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Sprout extends Mob implements IGardenPlant {
+    @OnlyIn(Dist.CLIENT)
     public LivingEntity plant;
     public Map<String, Integer> transformChance = new HashMap<>();
     private static final int SPROUT_GROW_TIME = 2000;
@@ -134,8 +139,7 @@ public class Sprout extends Mob implements IGardenPlant {
             if (this.tickCount % 10 == 0 && ! level.getBlockState(this.getOnPos()).is(PVZBlockTags.GARDEN_FLOWER_POT)) {
                 this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
             }
-        }
-        if (level.isClientSide) {
+        } else {
             if (! entityData.get(PLANT_NAME).equals("") && this.plant == null) {
                 EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityData.get(PLANT_NAME)));
                 if (type != null && type.canSummon()) {
@@ -152,12 +156,12 @@ public class Sprout extends Mob implements IGardenPlant {
                         getX() + random.nextFloat() * 0.8 - 0.4, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.4,
                         0, random.nextFloat(), 0);
             }
-        }
-        if (level.isClientSide && plant != null) {
-            plant.tick();
-            plant.tickCount ++;
-            plant.hurtTime = this.hurtTime;
-            plant.deathTime = this.deathTime;
+            if (plant != null) {
+                plant.tick();
+                plant.tickCount ++;
+                plant.hurtTime = this.hurtTime;
+                plant.deathTime = this.deathTime;
+            }
         }
     }
 
@@ -169,6 +173,24 @@ public class Sprout extends Mob implements IGardenPlant {
             return InteractionResult.CONSUME;
         }
         return super.mobInteract(player, hand);
+    }
+
+    public void renewWaterPot() {
+        boolean water = false;
+        EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityData.get(PLANT_NAME)));
+        if (type != null) {
+            Entity entity = type.create(this.level);
+            if (entity instanceof IPlant iplant) {
+                entity.discard();
+                water = iplant.needWaterPotInGarden();
+            } else {
+                entity.discard();
+            }
+        }
+        BlockState blockState = level.getBlockState(this.getOnPos());
+        if (blockState.hasProperty(IGardenPlant.WATER)) {
+            level.setBlock(this.getOnPos(), blockState.setValue(IGardenPlant.WATER, water), 3);
+        }
     }
 
     /**Check {@link IGardenPlant} for the two methods below.*/
@@ -200,7 +222,6 @@ public class Sprout extends Mob implements IGardenPlant {
     }
 
     public void produce() {
-        PVZMod.LOGGER.info(entityData.get(PLANT_NAME));
         EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityData.get(PLANT_NAME)));
         if (type != null) {
             Entity entity = type.create(level);
@@ -243,8 +264,14 @@ public class Sprout extends Mob implements IGardenPlant {
         result = event.name;
         this.entityData.set(PLANT_NAME, result);
         if (this.entityData.get(PLANT_NAME).equals("pvz:marigold")) {
-            this.convertTo(PVZEntities.MARIGOLD.get(), true);
+            MariGold marigold = this.convertTo(PVZEntities.MARIGOLD.get(), true);
+            if (marigold != null) {
+                final UUID[] owner = new UUID[1];
+                this.getCapability(PVZOwnedCapability.CAP).ifPresent(cap -> owner[0] = cap.ownerUuid);
+                marigold.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.ownerUuid = owner[0]);
+            }
         }
+        renewWaterPot();
     }
 
     //settings

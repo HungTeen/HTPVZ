@@ -3,9 +3,7 @@ package com.hungteen.pvz.common.entity;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEntities;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -14,6 +12,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -26,7 +26,9 @@ import java.util.*;
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class ModelPartEntity extends Entity {
     public static Set<ModelPartEntity> entities = new HashSet<>();
-    public final ModelPart model;
+
+    @OnlyIn(Dist.CLIENT)
+    public ModelPart model;
     public final ResourceLocation texture;
     public Vec3 rotation;
     public Level level;
@@ -34,23 +36,28 @@ public class ModelPartEntity extends Entity {
     public int life;
 
     public ModelPartEntity(EntityType<?> p_19870_, Level p_19871_) {
-        this(p_19871_, null, null, 80);
+        this(p_19871_, null, 80);
     }
+    @OnlyIn(Dist.CLIENT)
     public ModelPartEntity(Level p_19871_, ModelPart model, ResourceLocation texture) {
         this(p_19871_, model, texture, 80);
     }
-
-    public ModelPartEntity(Level level, ModelPart model, ResourceLocation texture, int life) {
-        super(PVZEntities.MODEL_PART.get(), level);
+    @OnlyIn(Dist.CLIENT)
+    public ModelPartEntity(Level p_19871_, ModelPart model, ResourceLocation texture, int life) {
+        this(p_19871_, texture, life);
         this.model = copyModelPart(model);
         this.originalScale = new Vec3(model.xScale, model.yScale, model.zScale);
+    }
+
+    public ModelPartEntity(Level level, ResourceLocation texture, int life) {
+        super(PVZEntities.MODEL_PART.get(), level);
         this.texture = texture;
         this.life = life;
         this.rotation = Vec3.ZERO;
         this.setDeltaMovement(
                 new Vec3(this.random.nextFloat() * 0.5 - 0.25, this.random.nextFloat() * 0.25, this.random.nextFloat()* 0.5 - 0.25));
         if (! level.isClientSide) {
-            PVZMod.LOGGER.error("try to summon ModelPartEntity [" + this.getUUID() + "] in server! ");
+            PVZMod.LOGGER.error("tryING to summon ModelPartEntity [" + this.getUUID() + "] in server! ");
         }
     }
 
@@ -97,7 +104,7 @@ public class ModelPartEntity extends Entity {
 
 
 
-    //
+    @OnlyIn(Dist.CLIENT)
     public static ModelPart copyModelPart(ModelPart original) {
         Map<String, ModelPart> children = new HashMap<>();
         for (String part : original.children.keySet()) {
@@ -164,6 +171,7 @@ public class ModelPartEntity extends Entity {
     }
 
     @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
     public static void ClientTickModelPart(TickEvent.ClientTickEvent ev) {
         if (ev.phase == TickEvent.Phase.START) {
             Set.copyOf(entities).forEach(entity -> {
@@ -177,6 +185,7 @@ public class ModelPartEntity extends Entity {
     }
 
     @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
     public static void temporaryModelPartEntityRenderingMethod(RenderLevelStageEvent ev) {
         //to circumvent a crushing bug. TODO find reason and add this into vanilla method.
         if (ev.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY) {

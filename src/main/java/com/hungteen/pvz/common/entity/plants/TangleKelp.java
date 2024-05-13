@@ -67,8 +67,6 @@ public class TangleKelp extends SimplePlant implements Bucketable {
             new Skill("skill.pvz.tangle_kelp.oxygen_algae", PVZItems.VENTUS_ESSENCE, 8, 8, 175, 700).avoidSkills(0)
     );
 
-    public void setupPresentationAnim() {
-    }
     public TangleKelp(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
         this.entityData.set(root(), false);
@@ -233,6 +231,10 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     }
 
     public boolean rideableUnderWater() {
+        return true;
+    }
+
+    public boolean needWaterPotInGarden() {
         return true;
     }
 

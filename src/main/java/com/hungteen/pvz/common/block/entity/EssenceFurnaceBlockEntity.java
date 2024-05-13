@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.block.entity;
 
 import com.hungteen.pvz.common.block.EssenceFurnaceBlock;
+import com.hungteen.pvz.common.menu.EssenceFurnaceMenu;
 import com.hungteen.pvz.common.menu.EssenceFurnaceRecipe;
 import com.hungteen.pvz.common.register.PVZBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -12,11 +13,15 @@ import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
@@ -24,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.hungteen.pvz.common.register.OtherRegisters.essenceFurnaceRecipeType;
 
-public class EssenceFurnaceBlockEntity extends BlockEntity implements Nameable, WorldlyContainer {
+public class EssenceFurnaceBlockEntity extends BaseContainerBlockEntity implements Nameable, WorldlyContainer {
     private Component name;
     private short progress = 0;
     public final ItemStackHandler handler = new ItemStackHandler(3);
@@ -127,12 +132,18 @@ public class EssenceFurnaceBlockEntity extends BlockEntity implements Nameable, 
 
     //Nameable
     @Override
-    public Component getName() {
-        return this.hasCustomName() ? this.getCustomName() : Component.translatable("block.pvz.essence_furnace");
-    }
-    @Override
     public Component getCustomName() {
         return name;
+    }
+
+    @Override
+    protected Component getDefaultName() {
+        return Component.translatable("block.pvz.essence_furnace");
+    }
+
+    @Override
+    protected AbstractContainerMenu createMenu(int id, Inventory inventory) {
+        return new EssenceFurnaceMenu(inventory, id, this.dataAccess, ContainerLevelAccess.create(inventory.player.level, this.worldPosition));
     }
 
     public void setCustomName(@javax.annotation.Nullable Component component) {

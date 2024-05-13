@@ -47,8 +47,8 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     private final Settings settings;
 
     private Random random = null;
-    private Vec3i mainIslandPos= null;
-    private List<Vec3i> floatIslands= null;
+    private Vec3i mainIslandPos = null;
+    private List<Vec3i> floatIslands = null;
     private Vec3i riverCircle = null;
     private final Map<Pair<Integer, Integer>, Pair<Integer, Integer>> smallVectorTable = new HashMap<>();
     private final Map<Pair<Integer, Integer>, Pair<Integer, Integer>> bigVectorTable = new HashMap<>();

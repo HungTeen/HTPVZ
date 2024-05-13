@@ -329,11 +329,6 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         return onBeingShoveled(player, handIn, this);
     }
 
-    @Override
-    public void setupPresentationAnim() {
-
-    }
-
     //for easy maintenance.
     public static boolean onBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
         //check permission.

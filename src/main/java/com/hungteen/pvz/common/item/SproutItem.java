@@ -47,9 +47,18 @@ public class SproutItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
-        if (! (level instanceof ServerLevel)) return InteractionResult.SUCCESS;
-        if (! level.dimension().location().equals(Util.prefix("zen_garden"))) return super.useOn(context);
-
+        if (level.isClientSide) {
+            if (! level.dimension().location().equals(Util.prefix("zen_garden"))) {
+                if (context.getPlayer() != null) {
+                    context.getPlayer().displayClientMessage(Component.translatable("hint.pvz.sprout.must_in_zen_garden"), true);
+                }
+                return super.useOn(context);
+            }
+            return InteractionResult.SUCCESS;
+        }
+        if (! level.dimension().location().equals(Util.prefix("zen_garden"))) {
+            return super.useOn(context);
+        }
         if (context.getPlayer() != null) {
             BlockPos pos = context.getClickedPos();
             BlockState blockState = level.getBlockState(pos);
@@ -63,6 +72,7 @@ public class SproutItem extends Item {
                         sprout.transformChance = getTransformChance(context.getItemInHand());
                         sprout.setMarigold(this.isMarigold);
                         sprout.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(context.getPlayer()));
+                        sprout.renewWaterPot();
                         itemstack.shrink(1);
                         level.gameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, pos);
                     }

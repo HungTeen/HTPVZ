@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.*;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.apache.commons.lang3.function.TriFunction;
 
@@ -57,11 +59,23 @@ public class PeaGunItem extends ProjectileWeaponItem {
         }
         if (itemMap.containsKey(bulletStack.getItem())) {
             if (level.isClientSide) {
-                player.setDeltaMovement(player.getDeltaMovement().add(
-                        Math.sin(player.getYRot() / 57.3) * 0.5 * Math.cos(player.getXRot() / 57.3),
-                        Math.sin((player.getXRot() % 360) / 57.3) * 0.3,
-                        - Math.cos(player.getYRot() / 57.3) * 0.5 * Math.cos(player.getXRot() / 57.3)));
+                if (! player.isPassenger()) {
+                    double resistance = 1 - player.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
+                    player.setDeltaMovement(player.getDeltaMovement().add(new Vec3(
+                            Math.sin(player.getYRot() / 57.3) * 0.5 * Math.cos(player.getXRot() / 57.3),
+                            Math.sin((player.getXRot() % 360) / 57.3) * 0.3,
+                            - Math.cos(player.getYRot() / 57.3) * 0.5 * Math.cos(player.getXRot() / 57.3))
+                            .multiply(resistance, resistance, resistance)));
+                }
             } else {
+                if (player.isPassenger() && ! player.getVehicle().isPassenger()) {
+                    double resistance = player.getVehicle() instanceof LivingEntity living ? 1 - living.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) : 1;
+                    player.getVehicle().setDeltaMovement(player.getVehicle().getDeltaMovement().add(new Vec3(
+                            Math.sin(player.getYRot() / 57.3) * 0.25 * Math.cos(player.getXRot() / 57.3),
+                            Math.sin((player.getXRot() % 360) / 57.3) * 0.15,
+                            - Math.cos(player.getYRot() / 57.3) * 0.25 * Math.cos(player.getXRot() / 57.3))
+                            .multiply(resistance, resistance, resistance)));
+                }
                 ItemStack bullet =
                         player.getAbilities().instabuild || EnchantmentHelper.getTagEnchantmentLevel(Enchantments.INFINITY_ARROWS, player.getItemInHand(hand)) > 0 ?
                         bulletStack.copy().split(1): bulletStack.split(1);

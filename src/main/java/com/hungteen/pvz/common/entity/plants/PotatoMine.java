@@ -83,12 +83,12 @@ public class PotatoMine extends SimplePlant {
     public void addEffect(Entity entity) {
         if (entity instanceof LivingEntity livingEntity && entity.isAlive()) {
             MobEffect mobEffect = MobEffects.POISON;
-            int strength = 1;
+            int time = 100;
             if(livingEntity instanceof Mob mob && mob.getMobType() == MobType.UNDEAD){
                 mobEffect = MobEffects.WITHER;
-                strength += 1;
+                time += 200;
             }
-            livingEntity.addEffect(new MobEffectInstance(mobEffect, 100,strength));
+            livingEntity.addEffect(new MobEffectInstance(mobEffect, time, 1));
         }
     }
     private void spawnPoisonCloud() {
@@ -120,6 +120,10 @@ public class PotatoMine extends SimplePlant {
     }
     @Override
     public void baseTick() {
+        if (this.hasEffect(MobEffects.POISON)) {
+            this.setPoisonous(true);
+            this.removeEffect(MobEffects.POISON);
+        }
         super.baseTick();
         if (getEntityData().get(PREPARE_COUNT) - 1 <= 7) {
             getEntityData().set(DATA_POSE, Pose.STANDING);
@@ -171,7 +175,7 @@ public class PotatoMine extends SimplePlant {
 
     @Override
     public void die(DamageSource damageSource) {
-        if (this.entityData.get(PREPARE_COUNT) <= 0 && ! damageSource.isMagic() && EntityUtil.isTeammate(this, damageSource.getEntity())) {
+        if (this.entityData.get(PREPARE_COUNT) <= 0 && ! damageSource.isMagic() && ! EntityUtil.isTeammate(this, damageSource.getEntity())) {
             this.explode();
         }
         super.die(damageSource);
