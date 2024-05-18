@@ -181,7 +181,7 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
                     item1.getEntity().equals(seedPacket.getEntity()))) {
                 return false;
             }
-            if (slots.get(1).getItem().getCount() < skill.costSeed) {
+            if (slots.get(2).getItem().getCount() < skill.costSeed) {
                 return false;
             }
             return true;

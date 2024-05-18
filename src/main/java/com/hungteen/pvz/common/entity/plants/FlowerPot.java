@@ -20,6 +20,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fluids.FluidType;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -102,6 +103,10 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     @Override
     public double getMyRidingOffset() {
         return (getVehicle() instanceof Minecart ? 0.27 : getVehicle() instanceof Boat ? 0.2 : 0) + super.getMyRidingOffset();
+    }
+    @Override
+    public boolean rideableUnderWater() {
+        return true;
     }
 
     @Override

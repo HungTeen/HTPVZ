@@ -7,7 +7,6 @@ import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;

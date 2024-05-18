@@ -31,7 +31,7 @@ public class EntityUtil {
     /**Check if entities are teammates. <b>CAN ONLY</b> call on server.
      * <br>I you want to check if an entity is attackable, use {@link EntityUtil#checkCanEntityBeAttack(Entity, Entity)}.*/
     public static boolean isTeammate(Entity A, Entity B) {
-        boolean result = false;
+        boolean result;
         if (A == null || B == null) {
             PVZMod.LOGGER.error(A == null ? "A" : "B"+ " is null!");
             return false;

@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
@@ -9,6 +10,7 @@ import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -59,6 +61,14 @@ public class PotatoMine extends SimplePlant {
         this.setPoisonous(Math.random() <= 0.02);
     }
 
+
+    /**{@link PotatoMine#isOnGround()} sometimes cannot reflect actual situation. So added this.*/
+    public boolean leavingGround() {
+        return this.getY()
+                - this.level.getBlockState(this.getOnPos()).getCollisionShape(this.level, this.getOnPos()).max(Direction.Axis.Y)
+                - this.getOnPos().getY() > 0.05;
+    }
+
     private void explode() {
         if (!this.level.isClientSide) {
             this.dead = true;
@@ -93,7 +103,7 @@ public class PotatoMine extends SimplePlant {
     }
     private void spawnPoisonCloud() {
         AreaEffectCloud areaeffectcloud = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
-        areaeffectcloud.setRadius(0.5F);
+        areaeffectcloud.setRadius(0.8F);
         areaeffectcloud.setDuration(400);
         areaeffectcloud.setFixedColor(MobEffects.POISON.getColor());
         areaeffectcloud.setWaitTime(10);
@@ -128,7 +138,7 @@ public class PotatoMine extends SimplePlant {
         if (getEntityData().get(PREPARE_COUNT) - 1 <= 7) {
             getEntityData().set(DATA_POSE, Pose.STANDING);
         }
-        if (hasSkill("skill.pvz.potato_mine.quick_load") && this.getEntityData().get(PREPARE_COUNT) > 10) {
+        if (this.leavingGround() || (hasSkill("skill.pvz.potato_mine.quick_load") && this.getEntityData().get(PREPARE_COUNT) > 10)) {
             this.getEntityData().set(PREPARE_COUNT, 10);
         }
         if (hasSkill("skill.pvz.potato_mine.poison_enrichment") && ! this.getEntityData().get(IS_POISONOUS)) {

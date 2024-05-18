@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -21,6 +22,7 @@ public class FollowGroupLeaderGoal extends Goal {
     public FollowGroupLeaderGoal(ICanGroupUp mob) {
         this.mob = mob;
         this.nextStartTick = this.nextStartTick(mob);
+        this.setFlags(EnumSet.of(Flag.MOVE));
     }
 
     protected int nextStartTick(ICanGroupUp mob) {

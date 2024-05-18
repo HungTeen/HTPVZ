@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -25,8 +26,7 @@ public class DirtLayer<T extends LivingEntity> extends RenderLayer<T, DirtModel<
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int p_117351_, T entity, float entityYaw, float partialTicks, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
-        BlockState state = entity.level.getBlockState(entity.getOnPos());
-        if (entity.getY() - state.getCollisionShape(entity.level, entity.getOnPos()).max(Direction.Axis.Y) + entity.getOnPos().getY() > 0.05 /*isOnGround() in not reliable.*/) {
+        if (leavingGround(entity)) {
             return;
         }
 
@@ -36,6 +36,10 @@ public class DirtLayer<T extends LivingEntity> extends RenderLayer<T, DirtModel<
         this.model.setupAnim(entity, 0, 0, entity.tickCount + partialTicks, 0, 0);
         this.model.renderToBuffer(poseStack, vertexconsumer, p_117351_, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1.0F);
     }
-
+    public boolean leavingGround(T entity) {
+        return entity.getY()
+                - entity.level.getBlockState(entity.getOnPos()).getCollisionShape(entity.level, entity.getOnPos()).max(Direction.Axis.Y)
+                - entity.getOnPos().getY() > 0.05;
+    }
 
 }

@@ -283,6 +283,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         PVZOwnedCapability cap = getCapability(PVZOwnedCapability.CAP).orElse(null);
         if (cap != null && cap.ownerUuid != null) {
             compoundtag.putUUID("Owner", cap.ownerUuid);
+            compoundtag.putInt("Skill", this.getSkillVal());
         }
     }
 
@@ -293,6 +294,9 @@ public class TangleKelp extends SimplePlant implements Bucketable {
             if (cap != null) {
                 cap.ownerUuid = tag.getUUID("Owner");
             }
+        }
+        if (tag.contains("Skill")) {
+            this.setSkillVal(tag.getInt("Skill"));
         }
     }
 

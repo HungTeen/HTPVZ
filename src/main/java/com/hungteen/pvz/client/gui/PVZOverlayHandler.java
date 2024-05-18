@@ -250,7 +250,7 @@ public class PVZOverlayHandler{
             int top = height - gui.rightHeight;
             gui.rightHeight += 10;
 
-            int levelShow = (int) bufferSunAmount;
+            int levelShow = (int) Math.round(bufferSunAmount);
             int levelMax = PVZPlayerCapability.getValueLimit(player, PVZPlayerCapNBT.SUN).getSecond();
             int levelActual = PVZPlayerCapability.getValue(player, PVZPlayerCapNBT.SUN);
 
@@ -297,7 +297,7 @@ public class PVZOverlayHandler{
                         blit(stack, x, y, 10 * tmp, 20, 9, 9);
                     }
                 }
-                if (levelActual != levelShow) {
+                if (Math.abs(levelActual - levelShow) > 5) { //avoid natural sun regaining keeping stat bar showing white.
                     blit(stack, x, y, 40, 20, 9, 9);
                 }
                 if ((notEnoughHint * 3) % 2 >= 1) {
@@ -348,6 +348,7 @@ public class PVZOverlayHandler{
                     ClientProxy.MC.font.draw(stack, mainHandStackCost + "", x - (float) w / 2, y + 1, 0xFFFFFF);
                 }
             }
+            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
             if (storedOffHandItemStack.getItem() instanceof SeedPacketItem<?>) {
                 x = width / 2 - 110;
                 if (offHandResourceIsSun) {

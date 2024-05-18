@@ -62,13 +62,14 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     private int animationTick = 0;
     private boolean animationChangeable = false;
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.veloci_radish.veloci_nip", PVZItems.ORIGIN_ESSENCE, 8, 4, 75, 440).avoidSkills(1),
-            new Skill("skill.pvz.veloci_radish.clever_girls", PVZItems.LUX_ESSENCE, 8, 4, 150, 440).avoidSkills(0)
+            new Skill("skill.pvz.veloci_radish.veloci_nip", PVZItems.ORIGIN_ESSENCE, 8, 4, 25, 440).avoidSkills(1),
+            new Skill("skill.pvz.veloci_radish.clever_girls", PVZItems.LUX_ESSENCE, 8, 4, 100, 440).avoidSkills(0)
     );
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
     public final AnimationState attackAnimationState = new AnimationState();
     public boolean skillBoosted = false;
+    protected boolean firstUnsafeSituationMercy = true;
     protected static final EntityDataAccessor<Integer> POSE = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
@@ -98,7 +99,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new AvoidTargetGoal(this,
-                (entity -> entity instanceof Mob mob && mob.getTarget() == this && getTarget() == mob &&
+                (entity -> entity instanceof Mob mob && mob.getTarget() == this &&
                         (this.getAttribute(Attributes.ATTACK_DAMAGE).getModifier(ATTACK_MODIFIER_UUID) != null)),
                 4.0F, 1.0D, 1.0D));
         this.goalSelector.addGoal(2, new TurnipAttackGoal(this, 1, true));
@@ -302,9 +303,20 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
             }
         }
         //check plant situation damage.
-        if (this.tickCount % 10 == 0 && isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
-                this.getAttribute(Attributes.MAX_HEALTH) != null) {
-            this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+        if (! level.isClientSide) {
+            if (this.tickCount % 10 == 0) {
+                if (isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null &&
+                        isVehicleSafe(null, getVehicle(), false) != null &&
+                        this.getAttribute(Attributes.MAX_HEALTH) != null) {
+                    if (! firstUnsafeSituationMercy) {
+                        this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+                    } else {
+                        firstUnsafeSituationMercy = false;
+                    }
+                } else {
+                    firstUnsafeSituationMercy = true;
+                }
+            }
         }
         //animation
         animationTick ++;

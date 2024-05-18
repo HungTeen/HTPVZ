@@ -87,6 +87,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     );
     Vec3 storedPosition;
     private BlockPos originalPos;
+    protected boolean firstUnsafeSituationMercy = true;
 
     public int animTick = 0;
     public Chomper(EntityType<? extends PathfinderMob> entityType, Level level) {
@@ -159,9 +160,20 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         }
         animTick ++;
         //check plant situation damage.
-        if (this.tickCount % 10 == 0 && isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
-                this.getAttribute(Attributes.MAX_HEALTH) != null) {
-            this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+        if (! level.isClientSide) {
+            if (this.tickCount % 10 == 0) {
+                if (isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null &&
+                        isVehicleSafe(null, getVehicle(), false) != null &&
+                        this.getAttribute(Attributes.MAX_HEALTH) != null) {
+                    if (! firstUnsafeSituationMercy) {
+                        this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+                    } else {
+                        firstUnsafeSituationMercy = false;
+                    }
+                } else {
+                    firstUnsafeSituationMercy = true;
+                }
+            }
         }
         //TODO relative codes. add particle when plant is dying.
     }

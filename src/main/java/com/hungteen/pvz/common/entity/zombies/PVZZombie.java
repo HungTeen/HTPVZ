@@ -1,11 +1,11 @@
 package com.hungteen.pvz.common.entity.zombies;
 
 import com.hungteen.pvz.api.interfaces.ICanGroupUp;
+import com.hungteen.pvz.common.entity.ai.goal.BlockWithShieldGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
 import com.hungteen.pvz.common.register.PVZBannerPatterns;
 import com.hungteen.pvz.common.register.PVZItems;
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -50,6 +50,7 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
     public static Consumer<Entity> CONEHEAD_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance());
     public static Consumer<Entity> BUCKET_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance());
     public static Consumer<Entity> DUCK_LIFEBUOY_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.LEGS, PVZItems.DUCK_LIFEBUOY.get().getDefaultInstance());
+    public static Consumer<Entity> SCREEN_DOOR_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.MAINHAND, PVZItems.SCREEN_DOOR_SHIELD.get().getDefaultInstance());
     public static Consumer<Entity> OVERWORLD_FLAG_ZOMBIE_CONSUMER = (entity) -> {
         entity.setItemSlot(EquipmentSlot.HEAD, getOverworldBanner());
         entity.getEntityData().set(SKIN, "minecraft_overworld");
@@ -86,8 +87,9 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
 
     @Override
     protected void addBehaviourGoals() {
+        this.goalSelector.addGoal(1, new BlockWithShieldGoal(this));
         this.goalSelector.addGoal(2, new ZombieAttackGoal(this, 1.0D, false));
-        this.goalSelector.addGoal(4, new FollowGroupLeaderGoal(this));
+        this.goalSelector.addGoal(3, new FollowGroupLeaderGoal(this));
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0D, true, 4, this::canBreakDoors));
         this.goalSelector.addGoal(7, new RandomStrollGoal(this, 1.0D));
         this.targetSelector.addGoal(1, new GroupShareEnemyGoal(this));
@@ -223,4 +225,6 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
     public int getGroupRangeSqr() {
         return 8;
     }
+
+
 }

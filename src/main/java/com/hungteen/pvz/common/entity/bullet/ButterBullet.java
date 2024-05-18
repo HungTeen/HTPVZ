@@ -13,6 +13,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -51,18 +52,12 @@ public class ButterBullet extends BaseBullet {
         this.entityData.define(SKILL, ButterSkill.NULL);
     }
     @Override
-    protected void onHit(HitResult result) {
-        if (level.isClientSide && result.getType() != HitResult.Type.MISS) {
-            splashParticle();
+    protected boolean dealDamageTo(Entity target) {
+        boolean hurt = super.dealDamageTo(target);
+        if (!this.level.isClientSide() && hurt) {
+            if (target instanceof LivingEntity living) living.addEffect(new MobEffectInstance(PVZMobEffects.BUTTER.get(),100,1));
         }
-        super.onHit(result);
-    }
-    @Override
-    protected void onHitEntity(EntityHitResult result) {
-        super.onHitEntity(result);
-        if (!this.level.isClientSide()) {
-            if (result.getEntity() instanceof LivingEntity living) living.addEffect(new MobEffectInstance(PVZMobEffects.BUTTER.get(),100,1));
-        }
+        return hurt;
     }
     @Override
     protected void onHitBlock(BlockHitResult result) {

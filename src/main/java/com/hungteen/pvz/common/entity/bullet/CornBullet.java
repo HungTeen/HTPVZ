@@ -34,13 +34,6 @@ public class CornBullet extends BaseBullet {
         this.setDeltaMovement(this.getDeltaMovement().add(0.0D, 0.05D * time, 0.0D));
     }
 
-    @Override
-    protected void onHit(HitResult result) {
-        if (level.isClientSide && result.getType() != HitResult.Type.MISS) {
-            splashParticle();
-        }
-        super.onHit(result);
-    }
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
         for (int i = 0; i < 5; i ++) {

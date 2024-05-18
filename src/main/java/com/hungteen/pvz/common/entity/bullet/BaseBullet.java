@@ -44,6 +44,9 @@ public class BaseBullet extends Projectile {
 	protected void splashParticle() {
 	}
 
+	protected float getWaterSlowDown() {
+		return 0.92F;
+	}
 	@Override
 	public void onClientRemoval() {
 		super.onClientRemoval();
@@ -74,9 +77,12 @@ public class BaseBullet extends Projectile {
 		double dz = vec3.z;
 		this.updateRotation();
 		if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
- 			dx -= 0.08 * dx;
-			dy -= 0.08 * dy;
-			dz -= 0.08 * dz;
+ 			dx -= (1 - this.getWaterSlowDown()) * dx;
+			dy -= (1 - this.getWaterSlowDown()) * dy;
+			dz -= (1 - this.getWaterSlowDown()) * dz;
+			if (! this.isNoGravity()) {
+				dy += 0.035;
+			}
 		}
 		this.setDeltaMovement(dx, dy, dz);
 		this.setPos(this.getX() + dx, this.getY() + dy, this.getZ() + dz);
@@ -124,13 +130,14 @@ public class BaseBullet extends Projectile {
 		super.onHitBlock(result);
 		this.discard();
 	}
-	protected void dealDamageTo(Entity target) {
+	protected boolean dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
 		//default normal damage.
-		target.hurt(PVZDamageSource.canHitDragon(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
+		boolean hurt = target.hurt(PVZDamageSource.canHitDragon(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
 				PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
 						, getKnockBackStrength()), target, 0.2F), damage);
 		this.discard();
+		return hurt;
 	}
 
 	protected int getMaxLiveTick() {
@@ -164,13 +171,6 @@ public class BaseBullet extends Projectile {
 	public void setSize(float size) {
 		this.size = size;
 	}
-
-//	/**
-//	 * Gets the amount of gravity to apply to the thrown entity with each tick.
-//	 */
-//	protected float getGravity() {
-//		return 0.03F;
-//	}
 
 	/**
 	 * Checks if the entity is in range to render.

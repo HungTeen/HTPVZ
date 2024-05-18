@@ -7,6 +7,7 @@ import com.hungteen.pvz.common.item.*;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -18,7 +19,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.model.generators.ModelProvider;
@@ -106,13 +106,14 @@ public class PVZItems {
     public static final RegistryObject<Item> CONEHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("conehead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.CONEHEAD_ZOMBIE_CONSUMER,0xff9c03, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> BUCKETHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("buckethead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.BUCKET_ZOMBIE_CONSUMER,0xe1d6d6, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> DUCK_LIFEBUOY_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("duck_lifebuoy_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.DUCK_LIFEBUOY_ZOMBIE_CONSUMER,0xffe000, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> SCREEN_DOOR_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("screen_door_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.SCREEN_DOOR_CONSUMER,0xc8bbbd, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
 
 
     //equipments
     public static final RegistryObject<Item> CONE_HELMET = item("cone_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.CONE, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(30), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(100), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> DUCK_LIFEBUOY = item("duck_lifebuoy", () -> new DuckLifebuoyItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-
+    public static final RegistryObject<Item> SCREEN_DOOR_SHIELD = tag(PVZItemTags.IRON, PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).model(Model.Modeled).item("screen_door_shield", () -> new ShieldItem((new Item.Properties()).durability(150).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 
     //tools
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
@@ -121,7 +122,7 @@ public class PVZItems {
     public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> WATERING_POT = model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_BLOCKS)));
-    public static final RegistryObject<Item> ZEN_GARDEN_PORTAL = model(Model.Block).item("zen_garden_portal", () -> new BlockItem(PVZBlocks.ZEN_GARDEN_PORTAL.get(), new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_BLOCKS)));
+    public static final RegistryObject<Item> ZEN_GARDEN_PORTAL = model(Model.Modeled).item("zen_garden_portal", () -> new BlockItem(PVZBlocks.ZEN_GARDEN_PORTAL.get(), new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_BLOCKS)));
 
     static {
         createBannerPatterns();
@@ -133,6 +134,11 @@ public class PVZItems {
     public static void registerProperties() {
         SeedCrossbowItem.registerProperties();
         WateringPotItem.registerProperties();
+        //non-pvz items.
+        ItemProperties.register(SCREEN_DOOR_SHIELD.get(), new ResourceLocation("durability"),
+                (itemStack, level, entity, seed) -> (150 - itemStack.getDamageValue()) / 51);
+        ItemProperties.register(SCREEN_DOOR_SHIELD.get(), new ResourceLocation("blocking"),
+                (itemStack, level, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == itemStack ? 1.0F : 0.0F);
     }
 
     //definitions

@@ -1,11 +1,12 @@
 {
   "parent": "pvz:block/watering_pot_no_water",
+  "gui_light": "front",
   "overrides": [
     {
       "predicate": {
         "water": 1
       },
-      "model": "pvz:block/watering_pot"
+      "model": "pvz:item/watering_pot_with_water"
     }
   ]
 }

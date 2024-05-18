@@ -53,8 +53,7 @@ public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, Ent
 
     @Override
     public void render(T potatoMine, float p_115456_, float p_115457_, PoseStack poseStack, MultiBufferSource buffer, int p_115460_) {
-        BlockState state = potatoMine.level.getBlockState(potatoMine.getOnPos());
-        if (potatoMine.getY() - state.getCollisionShape(potatoMine.level, potatoMine.getOnPos()).max(Direction.Axis.Y) + potatoMine.getOnPos().getY() > 0.05 /*isOnGround() in not reliable.*/) {
+        if (potatoMine.leavingGround()) {
             if (potatoMine.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(potatoMine) < 12.25D)) {
                 poseStack.pushPose();
                 ItemStack itemStack = (potatoMine.isPoisonous() ? Items.POISONOUS_POTATO : Items.POTATO).getDefaultInstance();

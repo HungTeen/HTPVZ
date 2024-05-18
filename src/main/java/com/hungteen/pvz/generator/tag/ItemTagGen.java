@@ -54,6 +54,7 @@ public class ItemTagGen extends ItemTagsProvider {
                 Blocks.IRON_TRAPDOOR.asItem(), Blocks.RAW_IRON_BLOCK.asItem(), Blocks.ANVIL.asItem(),
                 Items.IRON_AXE, Items.IRON_HOE, Items.IRON_PICKAXE, Items.IRON_SHOVEL, Items.IRON_SWORD, Items.IRON_INGOT, Items.IRON_NUGGET,
                 Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
+        this.tag(PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).add(Items.SHIELD);
     }
 
     public static final List<TagKey<Item>> LOGS = new ArrayList<>();

@@ -56,13 +56,6 @@ public class MelonBullet extends BaseBullet {
     }
 
     @Override
-    protected void onHit(HitResult result) {
-        if (level.isClientSide && result.getType() != HitResult.Type.MISS) {
-            splashParticle();
-        }
-        super.onHit(result);
-    }
-    @Override
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
         if (!this.level.isClientSide()) {

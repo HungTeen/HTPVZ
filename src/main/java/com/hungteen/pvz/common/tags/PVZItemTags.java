@@ -13,6 +13,8 @@ public class PVZItemTags {
     public static final TagKey<Item> CABBAGE = forgeTag("crops/cabbage");
     public static final TagKey<Item> CORN = forgeTag("crops/kernel");
 
+    public static final TagKey<Item> ENTITY_DAMAGEABLE_SHIELDS = pvzTag("entity_damageable_shields");
+
     //definition
 
     public static TagKey<Item> pvzTag(String name){

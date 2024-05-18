@@ -35,7 +35,7 @@ public class ModelPartEntity extends Entity {
     public Vec3 originalScale;
     public int life;
 
-    public ModelPartEntity(EntityType<?> p_19870_, Level p_19871_) {
+    public ModelPartEntity(EntityType<?> entityType, Level p_19871_) {
         this(p_19871_, null, 80);
     }
     @OnlyIn(Dist.CLIENT)

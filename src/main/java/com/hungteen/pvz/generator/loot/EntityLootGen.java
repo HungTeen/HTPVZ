@@ -47,7 +47,19 @@ public class EntityLootGen extends EntityLoot {
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
                                 .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
         );
-        this.add(PVZEntities.ZOMBIE.get(), LootTable.lootTable()
+        this.add(PVZEntities.ZOMBIE.get(), basicZombieLootTable());
+        this.add(PVZEntities.POLE_VAULTING_ZOMBIE.get(), basicZombieLootTable());
+        this.add(PVZEntities.IMP.get(), basicZombieLootTable());
+        //enter here
+    }
+
+    protected void add(EntityType<?> entityType, LootTable.Builder builder) {
+        outPut(entityType);
+        this.add(entityType.getDefaultLootTable(), builder);
+    }
+
+    private LootTable.Builder basicZombieLootTable() {
+        return LootTable.lootTable()
                 .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()))
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.03F, 0.03F)))
@@ -56,13 +68,7 @@ public class EntityLootGen extends EntityLoot {
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.02F, 0.02F)))
                 .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.POTATO))
-                        .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.01F, 0.01F))));
-        //enter here
-    }
-
-    protected void add(EntityType<?> entityType, LootTable.Builder builder) {
-        outPut(entityType);
-        this.add(entityType.getDefaultLootTable(), builder);
+                        .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.01F, 0.01F)));
     }
 
     protected Iterable<EntityType<?>> getKnownEntities() {

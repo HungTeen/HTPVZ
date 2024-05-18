@@ -7,6 +7,7 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.EnumSet;
 import java.util.function.Predicate;
 
 public class AvoidTargetGoal extends AvoidEntityGoal<LivingEntity> {
@@ -17,6 +18,7 @@ public class AvoidTargetGoal extends AvoidEntityGoal<LivingEntity> {
         super(p_25027_, LivingEntity.class, p_25029_, p_25030_, p_25031_);
         this.predicate = predicate;
         this.avoidEntityTargeting = TargetingConditions.forCombat().range(p_25029_).selector(predicate);
+        this.setFlags(EnumSet.of(Flag.MOVE));
     }
     public boolean canUse() {
         //from AvoidEntityGoal

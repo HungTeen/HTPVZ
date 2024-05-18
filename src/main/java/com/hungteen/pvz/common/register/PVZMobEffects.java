@@ -44,7 +44,7 @@ public class PVZMobEffects {
 
 
     public static RegistryObject<net.minecraft.world.effect.MobEffect> BRIGHTNESS = effect("brightness", () ->
-            new MobEffect(MobEffectCategory.BENEFICIAL, 0xffd857)
+            new MobEffect(MobEffectCategory.BENEFICIAL, 0xffffc1)
     ).registerPotion(300, true).registerPotion("long_brightness", 800, 0, true).build();
     public static RegistryObject<net.minecraft.world.effect.MobEffect> EXCITEMENT = effect("excitement", () ->
             new InstantenousMobEffect(MobEffectCategory.BENEFICIAL, 0xdddddd)

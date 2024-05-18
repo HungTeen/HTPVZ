@@ -8,6 +8,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -38,9 +39,6 @@ public class PeaBullet extends BaseBullet {
     @Override
     public void tick() {
         super.tick();
-//        if (getPeaType() == PeaType.Fire || level.getBlockState(this.blockPosition()).is(Blocks.FIRE) || level.getBlockState(this.blockPosition()).is(Blocks.SOUL_FIRE)) {
-//            setSecondsOnFire(1);
-//        }
         //change type
         if (changeCoolDown <= 0) {
             if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
@@ -83,29 +81,44 @@ public class PeaBullet extends BaseBullet {
 
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
-        if (getPeaType() == PeaType.Common) {
-            for (int i = 0; i < 5; i ++) {
-                level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.PEA.get())),
-                        getX(), getY(), getZ(),
-                        - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
-                        - movement.y * 0.25 + random.nextFloat() * 0.25,
-                        - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
+        switch (getPeaType()) {
+            case Common -> {
+                for (int i = 0; i < 5; i ++) {
+                    level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.PEA.get())),
+                            getX(), getY(), getZ(),
+                            - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
+                            - movement.y * 0.25 + random.nextFloat() * 0.25,
+                            - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
+                }
             }
-        } else if (getPeaType() == PeaType.Ice) {
-            for (int i = 0; i < 5; i ++) {
-                level.addParticle(ParticleTypes.ITEM_SNOWBALL,
-                        getX(), getY(), getZ(),
-                        - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
-                        - movement.y * 0.25 + random.nextFloat() * 0.25,
-                        - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
+            case Ice -> {
+                for (int i = 0; i < 5; i ++) {
+                    level.addParticle(ParticleTypes.ITEM_SNOWBALL,
+                            getX(), getY(), getZ(),
+                            - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
+                            - movement.y * 0.25 + random.nextFloat() * 0.25,
+                            - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
+                }
             }
-        } else if (getPeaType() == PeaType.Fire) {
-            for (int i = 0; i < 3; i ++) {
-                level.addParticle(ParticleTypes.LAVA,
-                        getX(), getY(), getZ(),
-                        - movement.x * 0.25 + random.nextFloat() * 0.15 - 0.075,
-                        - movement.y * 0.25 + random.nextFloat() * 0.15,
-                        - movement.z * 0.25 + random.nextFloat() * 0.15 - 0.075);
+            case Fire -> {
+                for (int i = 0; i < 3; i ++) {
+                    level.addParticle(ParticleTypes.LAVA,
+                            getX(), getY(), getZ(),
+                            - movement.x * 0.25 + random.nextFloat() * 0.15 - 0.075,
+                            - movement.y * 0.25 + random.nextFloat() * 0.15,
+                            - movement.z * 0.25 + random.nextFloat() * 0.15 - 0.075);
+                }
+            }
+            case SoulFire -> {
+                for (int i = 0; i < 3; i ++) {
+                    level.addParticle(ParticleTypes.SCULK_SOUL,
+                            getX() + random.nextFloat() * 0.5 - 0.25,
+                            getY() + random.nextFloat() * 0.5 - 0.25,
+                            getZ() + random.nextFloat() * 0.5 - 0.25,
+                            - movement.x * 0.05 + random.nextFloat() * 0.1 - 0.05,
+                            - movement.y * 0.15 + random.nextFloat() * 0.25,
+                            - movement.z * 0.05 + random.nextFloat() * 0.1 - 0.05);
+                }
             }
         }
     }
@@ -122,25 +135,22 @@ public class PeaBullet extends BaseBullet {
         }
     }
     @Override
-    protected void onHitEntity(EntityHitResult result) {
-        super.onHitEntity(result);
+    protected boolean dealDamageTo(Entity target) {
+        boolean hurt = super.dealDamageTo(target);
+        if (! hurt) {
+            return false;
+        }
         if (getPeaType() == PeaType.Fire || getPeaType() == PeaType.SoulFire) {
-            if (! result.getEntity().fireImmune()) {
-                result.getEntity().setSecondsOnFire(2);
+            if (! target.fireImmune()) {
+                target.setSecondsOnFire(2);
             }
         } else if (getPeaType() == PeaType.Ice) {
-            result.getEntity().clearFire();
-            if (result.getEntity().canFreeze()) {
-                result.getEntity().setTicksFrozen(400);
+            target.clearFire();
+            if (target.canFreeze()) {
+                target.setTicksFrozen(400);
             }
         }
-    }
-    @Override
-    protected void onHit(HitResult result) {
-        if (level.isClientSide && result.getType() != HitResult.Type.MISS) {
-            splashParticle();
-        }
-        super.onHit(result);
+        return true;
     }
 
     @Override

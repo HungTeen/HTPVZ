@@ -41,7 +41,7 @@ public class TallNut extends WallNut{
                 .add(Attributes.MAX_HEALTH, 50D)
                 .add(Attributes.ARMOR, 60D)
                 .add(Attributes.ARMOR_TOUGHNESS, 30D)
-                .add(Attributes.FOLLOW_RANGE, 2D);
+                .add(Attributes.FOLLOW_RANGE, 3D);
     }
     public void setupPresentationAnim() {
     }

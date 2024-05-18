@@ -97,7 +97,9 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         }
                         nbt.sunCountDown = 0;
                     }
-                    if (! player.hasEffect(MobEffects.DARKNESS) && EntityUtil.isSurvivalPlayer(player) && EntityUtil.isEntityPeace(player,100) && player.tickCount % 30 == 0) {
+                    int interval = PVZConfig.PVZGameRules.getInt(player.level, "naturallyRegainSunInterval");
+                    if (interval > 0 && player.tickCount % interval == 0
+                            && ! player.hasEffect(MobEffects.DARKNESS) && EntityUtil.isSurvivalPlayer(player) && EntityUtil.isEntityPeace(player,100)) {
                         int limitSun = nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond();
                         int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
                         if (curSun < limitSun) {
@@ -131,6 +133,8 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                                     if (new BlockPos(x, y, z).distSqr(player.getOnPos()) > 900) {
                                         maxSun.removeModifier(modifier.getId());
                                     }
+                                } else {
+                                    maxSun.removeModifier(modifier.getId());
                                 }
                             } else if (entity.distanceToSqr(player) > 900) {
                                 maxSun.removeModifier(modifier.getId());
@@ -173,7 +177,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                     nbt.setValueLimit(PVZPlayerCapNBT.SUN, 0, toMax);
                     //natural sun spawn
-                    int interval = PVZConfig.PVZGameRules.getInt(player.level, "naturallySpawnSunInterval");
+                    interval = PVZConfig.PVZGameRules.getInt(player.level, "naturallySpawnSunInterval");
                     if (interval > 0 && player.tickCount % interval == 0 && ! player.level.getBiome(player.getOnPos()).is(PVZBiomeTags.UNABLE_SUN_PRODUCTION)) {
                         int x = player.blockPosition().getX() + player.getRandom().nextInt(20) - 10;
                         int z = player.blockPosition().getZ() + player.getRandom().nextInt(20) - 10;
