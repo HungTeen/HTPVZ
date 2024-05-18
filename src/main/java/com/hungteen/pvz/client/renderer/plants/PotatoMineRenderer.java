@@ -57,11 +57,15 @@ public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, Ent
             if (potatoMine.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(potatoMine) < 12.25D)) {
                 poseStack.pushPose();
                 ItemStack itemStack = (potatoMine.isPoisonous() ? Items.POISONOUS_POTATO : Items.POTATO).getDefaultInstance();
-                ClientProxy.MC.getItemRenderer().renderStatic(
-                        potatoMine, itemStack, ItemTransforms.TransformType.GROUND, false,
-                        poseStack, buffer, potatoMine.level, p_115460_, OverlayTexture.NO_OVERLAY,
-                        potatoMine.getId() + ItemTransforms.TransformType.GROUND.ordinal());
+                poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+                poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+                ClientProxy.MC.getItemRenderer().renderStatic(itemStack, ItemTransforms.TransformType.GROUND, p_115460_, OverlayTexture.NO_OVERLAY, poseStack, buffer, potatoMine.getId());
                 poseStack.popPose();
+                var renderNameTagEvent = new net.minecraftforge.client.event.RenderNameTagEvent(potatoMine, potatoMine.getDisplayName(), this, poseStack, buffer, p_115460_, p_115457_);
+                net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(renderNameTagEvent);
+                if (renderNameTagEvent.getResult() != net.minecraftforge.eventbus.api.Event.Result.DENY && (renderNameTagEvent.getResult() == net.minecraftforge.eventbus.api.Event.Result.ALLOW || this.shouldShowName(potatoMine))) {
+                    this.renderNameTag(potatoMine, renderNameTagEvent.getContent(), poseStack, buffer, p_115460_);
+                }
             }
             return;
         }
