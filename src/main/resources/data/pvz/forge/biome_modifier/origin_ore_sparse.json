@@ -1,8 +1,6 @@
 {
   "type": "forge:add_features",
-  "biomes": {
-    "type": "forge:any"
-  },
+  "biomes": "#forge:is_sparse_overworld",
   "features": "pvz:ore_origin",
   "step": "vegetal_decoration"
 }

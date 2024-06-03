@@ -12,7 +12,7 @@ public class BlockWithShieldGoal extends Goal {
     }
     @Override
     public boolean canUse() {
-        return mob.isAggressive() && mob.getMainHandItem().getItem() instanceof ShieldItem;
+        return (mob.isUsingItem() || mob.tickCount % 100 < 2) && mob.getMainHandItem().getItem() instanceof ShieldItem;
     }
 
     public void start() {

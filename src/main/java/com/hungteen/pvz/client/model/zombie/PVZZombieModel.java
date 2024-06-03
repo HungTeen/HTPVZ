@@ -9,7 +9,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.UseAnim;
 
 public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
     public PVZZombieModel(ModelPart p_170821_) {
@@ -57,6 +59,18 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
             this.leftArm.xRot = this.leftArm.xRot * 0.5F + 0.2F;
             this.leftArm.yRot = ((float)Math.PI / 4F);
         }
+        if (this.rightArmPose == ArmPose.BOW_AND_ARROW) {
+            this.rightArm.yRot = -0.1F + this.head.yRot * 0.5F;
+            this.leftArm.yRot = 0.1F + this.head.yRot * 0.5F + 0.4F;
+            this.rightArm.xRot = (-(float)Math.PI / 2F) + this.head.xRot + 0.2F;
+            this.leftArm.xRot = (-(float)Math.PI / 2F) + this.head.xRot + 0.5F - (this.head.yRot > 0 ? 0 : this.head.yRot / 2);
+        }
+        if (this.leftArmPose == ArmPose.BOW_AND_ARROW) {
+            this.rightArm.yRot = -0.1F + this.head.yRot * 0.5F - 0.4F;
+            this.leftArm.yRot = 0.1F + this.head.yRot * 0.5F;
+            this.rightArm.xRot = (-(float)Math.PI / 2F) + this.head.xRot + 0.5F - (this.head.yRot > 0 ? 0 : this.head.yRot / 2);
+            this.leftArm.xRot = (-(float)Math.PI / 2F) + this.head.xRot + 0.2F;
+        }
 
         //sleeves and pants
         this.leftPants.copyFrom(this.leftLeg);
@@ -71,13 +85,25 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
     }
 
     public void setArmPose(T zombie) {
-        boolean blocking = zombie.getMainHandItem().getItem() instanceof ShieldItem && zombie.isAggressive();
-        if (zombie.getMainArm() == HumanoidArm.RIGHT) {
-            this.rightArmPose = blocking ? ArmPose.BLOCK : ArmPose.EMPTY;
-            this.leftArmPose = ArmPose.EMPTY;
+        ItemStack item = zombie.getMainHandItem();
+        boolean mainArmRight = zombie.getMainArm() == HumanoidArm.RIGHT;
+        boolean blocking = item.getItem() instanceof ShieldItem && zombie.isUsingItem();
+//        if (zombie.getMainArm() == HumanoidArm.RIGHT) {
+//            this.rightArmPose = blocking ? ArmPose.BLOCK : ArmPose.EMPTY;
+//            this.leftArmPose = ArmPose.EMPTY;
+//        } else {
+//            this.rightArmPose = ArmPose.EMPTY;
+//            this.leftArmPose = blocking ? ArmPose.BLOCK : ArmPose.EMPTY;
+//        }
+        if (blocking) {
+            this.rightArmPose = mainArmRight ? ArmPose.BLOCK : ArmPose.EMPTY;
+            this.leftArmPose = ! mainArmRight ? ArmPose.BLOCK : ArmPose.EMPTY;
+        } else if (item.getUseAnimation() == UseAnim.BOW) {
+            this.rightArmPose = mainArmRight ? ArmPose.BOW_AND_ARROW : ArmPose.EMPTY;
+            this.leftArmPose = ! mainArmRight ? ArmPose.BOW_AND_ARROW : ArmPose.EMPTY;
         } else {
             this.rightArmPose = ArmPose.EMPTY;
-            this.leftArmPose = blocking ? ArmPose.BLOCK : ArmPose.EMPTY;
+            this.leftArmPose = ArmPose.EMPTY;
         }
     }
 }

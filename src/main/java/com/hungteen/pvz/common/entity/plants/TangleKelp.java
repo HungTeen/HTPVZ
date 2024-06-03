@@ -255,7 +255,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
 
     private static <T extends TangleKelp & Bucketable> Optional<InteractionResult> bucketMobPickup(Player player, InteractionHand hand, T tangleKelp) {
         ItemStack itemstack = player.getItemInHand(hand);
-        if (PVZConfig.PVZGameRules.getBoolean(tangleKelp.level, "canCanCanKelp") && itemstack.getItem() == Items.WATER_BUCKET && tangleKelp.isAlive() && EntityUtil.isTeammate(player, tangleKelp)) {
+        if (PVZConfig.PVZGameRules.getBoolean(tangleKelp.level, PVZConfig.Common.canCanCanKelp) && itemstack.getItem() == Items.WATER_BUCKET && tangleKelp.isAlive() && EntityUtil.isTeammate(player, tangleKelp)) {
             tangleKelp.playSound(tangleKelp.getPickupSound(), 1.0F, 1.0F);
             ItemStack itemstack1 = tangleKelp.getBucketItemStack();
             tangleKelp.saveToBucketTag(itemstack1);

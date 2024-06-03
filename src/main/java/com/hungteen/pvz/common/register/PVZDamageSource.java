@@ -23,9 +23,13 @@ import java.util.*;
 import static com.hungteen.pvz.util.EntityUtil.isTeammate;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
+
 public class PVZDamageSource {
 
 
+    /**For compatibility pvz damages are not changing any vanilla damage types but added decorations to them to meet PvZ's need.
+     * <br>However, thus the damage sources decorated by PvZ damageSource decorators are unable to safely reuse due because they may be still stored in PVZDamageSource and may be affected by PvZ damage-related events. Before reuse them, call {@link PVZDamageSource#clear()}.
+     * <br><br>For damage that are sharp, use {@link PVZDamageSource#storedSharpSources}.*/
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
     public static final DamageSource SPIKE_WEED = new DamageSource("spike_weed");
     public static final DamageSource NUT_COLLIDE = knockBack(new DamageSource("nut_collide"), 2F);
@@ -42,20 +46,20 @@ public class PVZDamageSource {
         knockBackStrength = strength;
         return source;
     }
-    public static DamageSource canHitDragon(DamageSource source, Entity target, float multiplier) {
+    public static DamageSource hitBossWithMultiplier(DamageSource source, Entity target, float multiplier) {
         if (target instanceof EnderDragon || target instanceof EnderDragonPart) {
-            hurtDragonSource = new DamageSource(source.getMsgId()).setExplosion();
+            hurtBossSource = new DamageSource(source.getMsgId()).setExplosion();
             if (source.getEntity() != null) {
                 PVZOwnedCapability cap = source.getEntity().getCapability(PVZOwnedCapability.CAP).orElse(null);
                 if (cap != null && EntityUtil.isEntityValid(cap.getOwner())) {
-                    hurtDragonSource = new IndirectEntityDamageSource(source.getMsgId(), source.getEntity(), cap.getOwner());
+                    hurtBossSource = new IndirectEntityDamageSource(source.getMsgId(), source.getEntity(), cap.getOwner());
                 }
             }
             if (source.isProjectile()) {
-                hurtDragonSource.setProjectile();
+                hurtBossSource.setProjectile();
             }
-            dragonMultiplier = multiplier;
-            return hurtDragonSource;
+            bossMultiplier = multiplier;
+            return hurtBossSource;
         }
         return source;
     }
@@ -82,7 +86,7 @@ public class PVZDamageSource {
         return new IndirectEntityDamageSource(name, projectile, owner instanceof LivingEntity ? owner : projectile).setProjectile();
     }
     public static DamageSource chomperHurt(LivingEntity source) {
-        return teamFilter(PVZDamageSource.setSharp(DamageSource.mobAttack(source)).bypassArmor());
+        return teamFilter(PVZDamageSource.setSharp(DamageSource.mobAttack(source)));
     }
 
     //variables and methods used
@@ -91,8 +95,8 @@ public class PVZDamageSource {
     private static DamageSource multiplierSource = null;
     private static float multiplier = 1;
 
-    private static DamageSource hurtDragonSource = null;
-    private static float dragonMultiplier = 1;
+    private static DamageSource hurtBossSource = null;
+    private static float bossMultiplier = 1;
 
     private static DamageSource knockBackSource = null;
     private static Entity knockBackEntity = null;
@@ -102,8 +106,16 @@ public class PVZDamageSource {
     private static int invTime = 0;
 
     private static DamageSource sharpSource = null;
-    private static Set<DamageSource> storedSharpSources = Set.of(DamageSource.CACTUS);
+    public static Set<DamageSource> storedSharpSources = Set.of(DamageSource.CACTUS);
 
+    public static void clear() {
+        sharpSource = null;
+        hurtBossSource = null;
+        multiplierSource = null;
+        ignoreInvTimeSource = null;
+        knockBackSource = null;
+        teamFilterSource = null;
+    }
     @SubscribeEvent
     public static void handleAttack(LivingAttackEvent ev) {
         //handle damageSource decorators.
@@ -130,8 +142,8 @@ public class PVZDamageSource {
             return;
         }
         if (ev.getEntity() instanceof EnderDragon) {
-            if (ev.getSource() == hurtDragonSource) {
-                ev.setAmount(ev.getAmount() * dragonMultiplier);
+            if (ev.getSource() == hurtBossSource) {
+                ev.setAmount(ev.getAmount() * bossMultiplier);
             }
         }
         if (ev.getSource() == ignoreInvTimeSource) {

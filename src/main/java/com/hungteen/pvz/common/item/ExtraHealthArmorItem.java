@@ -29,7 +29,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
-public class ExtraHealthArmorItem extends ArmorItem {
+public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken{
     public ExtraHealthArmorItem(ArmorMaterial material, Properties properties, EquipmentSlot armorType) {
         super(material, armorType, properties);
     }
@@ -47,9 +47,11 @@ public class ExtraHealthArmorItem extends ArmorItem {
                     ItemStack stack = event.getEntity().getItemBySlot(slot);
                     if (stack.getItem() instanceof ExtraHealthArmorItem item) {
                         int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
-                        stack.hurtAndBreak(blocked, event.getEntity(), (entity) ->
-                                DropDamagedArmorPacket.drop(item, entity.level,
-                                        entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0)));
+                        stack.hurtAndBreak(blocked, event.getEntity(), (entity) -> {
+                            DropDamagedArmorPacket.drop(item, entity.level,
+                                    entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0));
+                            entity.broadcastBreakEvent(slot);
+                        });
                         event.setAmount(event.getAmount() - blocked);
                     }
                 }

@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     public AnimationState idleAnimationState = new AnimationState();
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.flower_pot.refractory_ceramics", PVZItems.IGNIS_ESSENCE, 8, 6, 0, 0),
+            new Skill("skill.pvz.flower_pot.refractory_ceramics", PVZItems.IGNIS_ESSENCE, 8, 6, 50, 0),
             new Skill("skill.pvz.flower_pot.free_seat", PVZItems.LUX_ESSENCE, 8, 4, -25, 140).avoidSkills(0, 3),
             new Skill("skill.pvz.flower_pot.portable_pot", PVZItems.TERRA_ESSENCE, 4, 4, 75, 440),
             new Skill("skill.pvz.flower_pot.chinaware", PVZItems.ORIGIN_ESSENCE, 8, 16, 0, 0)

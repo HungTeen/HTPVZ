@@ -1,7 +1,11 @@
 package com.hungteen.pvz.common.world;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.item.IDropWhenBroken;
+import com.hungteen.pvz.common.item.PVZShieldItem;
+import com.hungteen.pvz.common.network.DropDamagedArmorPacket;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -10,9 +14,12 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -27,10 +34,20 @@ public class PVZWorldEvents {
             ev.getLevel().setBlock(ev.getPos().below(), PVZBlocks.ORIGIN_ORE.get().defaultBlockState(), 2);
         }
     }
-
+    @SubscribeEvent
+    public static void PlayerDestroyShield(PlayerDestroyItemEvent ev) {
+        if (ev.getHand() != null && ev.getEntity().getItemInHand(ev.getHand()).getItem() instanceof PVZShieldItem item) {
+            item.clientBroken(ev.getEntity().position(), ev.getEntity().level);
+        }
+    }
     @SubscribeEvent
     public static void PVZShieldBlock(ShieldBlockEvent ev) {
         LivingEntity entity = ev.getEntity();
+
+        if (ev.getDamageSource().getEntity() instanceof LivingEntity source && source.isUsingItem() &&
+                source.getUseItem().getItem() instanceof ShieldItem && entity.isUsingItem()) {
+            ev.getEntity().stopUsingItem();
+        }
         if (! (entity instanceof Player)) {
             ItemStack item = entity.getUseItem();
 
@@ -48,7 +65,19 @@ public class PVZWorldEvents {
             if (item.is(PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS) && item.isDamageableItem()) {
                 int dmg = 1 + Mth.floor(ev.getBlockedDamage());
                 InteractionHand interactionhand = entity.getUsedItemHand();
-                item.hurtAndBreak(dmg, entity, (entity1) -> entity1.broadcastBreakEvent(interactionhand));
+                if (ev.shieldTakesDamage()) {
+                    item.hurtAndBreak(dmg, entity, (entity1) -> {
+                        if (item.getItem() instanceof IDropWhenBroken item1) {
+                            DropDamagedArmorPacket.drop(item1, entity.level,
+                                    entity.position().add(0, 1, 0));
+                        }
+                        entity.broadcastBreakEvent(interactionhand);
+                    });
+                }
+                if (ev.getDamageSource().getEntity() instanceof LivingEntity sourceEntity &&
+                        sourceEntity.getMainHandItem().canDisableShield(entity.getUseItem(), entity, sourceEntity)) {
+                    entity.stopUsingItem();
+                }
                 if (item.isEmpty()) {
                     if (interactionhand == InteractionHand.MAIN_HAND) {
                         entity.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);

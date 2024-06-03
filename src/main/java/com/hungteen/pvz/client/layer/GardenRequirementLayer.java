@@ -5,7 +5,6 @@ import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -15,9 +14,9 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-public class GardenRequirmentLayer<T extends LivingEntity> extends RenderLayer<T, EntityModel<T>> {
+public class GardenRequirementLayer<T extends LivingEntity> extends RenderLayer<T, EntityModel<T>> {
 
-    public GardenRequirmentLayer(RenderLayerParent<T, EntityModel<T>> p_117346_) {
+    public GardenRequirementLayer(RenderLayerParent<T, EntityModel<T>> p_117346_) {
         super(p_117346_);
     }
 

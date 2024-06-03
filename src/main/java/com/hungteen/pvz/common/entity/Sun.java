@@ -187,7 +187,7 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
 
         //about sun disappear.
         if(! level.isClientSide) {
-            if (PVZConfig.PVZGameRules.getBoolean(level, "sunDisappear")) {
+            if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.sunDisappear)) {
                 this.setLiveTick(this.getLiveTick() + 1);
                 if (this.getLiveTick() >= this.getMaxLiveTick()) {
                     this.remove(Entity.RemovalReason.DISCARDED);

@@ -42,6 +42,9 @@ public class SnowPea extends PeaShooter{
     protected PeaBullet createBullet() {
         PeaBullet bullet = new PeaBullet(this.level, this, PeaBullet.PeaType.Common);
         bullet.setPeaType(PeaBullet.PeaType.Ice);
+        if (this.hasSkill("skill.pvz.snow_pea.never_melt_ice")) {
+            bullet.neverMelt = true;
+        }
         return bullet;
     }
     @Override

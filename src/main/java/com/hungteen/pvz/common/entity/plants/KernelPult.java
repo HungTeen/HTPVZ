@@ -18,6 +18,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
@@ -49,7 +50,11 @@ public class KernelPult extends ShooterPlant {
             if (! this.level.isClientSide) {
                 itemstack.shrink(1);
                 ItemStack itemstack1 = PotionUtils.setPotion(Items.POTION.getDefaultInstance(), PVZMobEffects.potionMap.get("butter").get());
-                player.drop(itemstack1, false);
+                ItemEntity entity = player.drop(itemstack1, false);
+                if (entity != null) {
+                    entity.setPickUpDelay(0);
+                    entity.playerTouch(player);
+                }
                 this.setCurrentBullet(CornTypes.KERNEL);
             }
             return InteractionResult.sidedSuccess(this.level.isClientSide);
@@ -95,7 +100,7 @@ public class KernelPult extends ShooterPlant {
     }
     @Override
     public int getShootCD() {
-        return 40;
+        return this.hasSkill("skill.pvz.kernel_pult.butter_pult") ? 60 : 40;
     }
     @Override
     public int shootAnimLength() {

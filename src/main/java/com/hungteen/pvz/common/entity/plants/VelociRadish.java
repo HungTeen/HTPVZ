@@ -100,8 +100,8 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         super.registerGoals();
         this.goalSelector.addGoal(1, new AvoidTargetGoal(this,
                 (entity -> entity instanceof Mob mob && mob.getTarget() == this &&
-                        (this.getAttribute(Attributes.ATTACK_DAMAGE).getModifier(ATTACK_MODIFIER_UUID) != null)),
-                4.0F, 1.0D, 1.0D));
+                        (this.getAttribute(Attributes.ATTACK_DAMAGE).getModifier(ATTACK_MODIFIER_UUID) == null)),
+                6.0F, 1.0D, 1.0D));
         this.goalSelector.addGoal(2, new TurnipAttackGoal(this, 1, true));
         this.goalSelector.addGoal(3, new FollowGroupLeaderGoal(this));
         this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 6.0F));
@@ -277,7 +277,8 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 if (! skillBoosted) {
                     skillBoosted = true;
                     this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTACK_MODIFIER_UUID, "skill bonus", 26, AttributeModifier.Operation.ADDITION));
-                    this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 8, AttributeModifier.Operation.ADDITION));
+                    this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 14, AttributeModifier.Operation.ADDITION));
+                    this.heal(20);
                 } else if (tickCount > 200) {
                     this.removeSkill(this, getSkillFromName("skill.pvz.veloci_radish.veloci_nip"));
                     this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(ATTACK_MODIFIER_UUID);

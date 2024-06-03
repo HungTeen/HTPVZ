@@ -1,8 +1,7 @@
 package com.hungteen.pvz.client.renderer.plants;
 
-import com.hungteen.pvz.client.layer.GardenRequirmentLayer;
+import com.hungteen.pvz.client.layer.GardenRequirementLayer;
 import com.hungteen.pvz.client.layer.MarigoldPetalsLayer;
-import com.hungteen.pvz.client.layer.fullskin.LightLayer;
 import com.hungteen.pvz.client.model.plants.MariGoldModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.MariGold;
@@ -20,7 +19,7 @@ public class MariGoldRenderer<T extends MariGold> extends MobRenderer<T, EntityM
     public MariGoldRenderer(EntityRendererProvider.Context context) {
         super(context, new MariGoldModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("marigold:main"))), 0.45F);
         this.addLayer(new MarigoldPetalsLayer(this));
-        this.addLayer(new GardenRequirmentLayer(this));
+        this.addLayer(new GardenRequirementLayer(this));
     }
 
     public void render(T marigold, float p_115456_, float p_115457_, PoseStack poseStack, MultiBufferSource buffer, int p_115460_) {

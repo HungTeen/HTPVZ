@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 public class PVZSeedPackets {
     public static final int VERY_FAST = 10; //will a plant really use this?
     public static final int FAST = 60;
-    public static final int MIDDLE = 200;
+    public static final int MEDIUM = 200;
     public static final int SLOW = 500;
     public static final int VERY_SLOW = 1200;
     @Deprecated //clear after registry.
@@ -37,7 +37,7 @@ public class PVZSeedPackets {
                 .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
         add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillList)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
-        add(PVZEntities.SNOW_PEA).cost(175).coolDown(MIDDLE).skillList(SnowPea.staticSkillList)
+        add(PVZEntities.SNOW_PEA).cost(175).coolDown(MEDIUM).skillList(SnowPea.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.POTATO_MINE).cost(25).coolDown(SLOW).skillList(PotatoMine.staticSkillList)
                 .recipe(Items.POTATO, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
@@ -51,7 +51,7 @@ public class PVZSeedPackets {
                 .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
-        add(PVZEntities.ICEBERG_LETTUCE).cost(0).coolDown(MIDDLE).skillList(IcebergLettuce.staticSkillList)
+        add(PVZEntities.ICEBERG_LETTUCE).cost(0).coolDown(MEDIUM).skillList(IcebergLettuce.staticSkillList)
                 .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.GELUM_ESSENCE);
         add(PVZEntities.VELOCI_RADISH).cost(25).coolDown(FAST).skillList(VelociRadish.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
@@ -64,7 +64,7 @@ public class PVZSeedPackets {
                 .recipe(PVZItems.PEPPER, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
         add(PVZEntities.TORCH_WOOD).cost(450).coolDown(SLOW).skillList(TorchWood.staticSkillList)
                 .recipeBlock(PVZBlocks.woodList.get(0).get(PVZBlocks.WoodSet.Log), PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
-        add(PVZEntities.SPIKE_WEED).cost(100).coolDown(FAST).skillList(SpikeWeed.staticSkillList)
+        add(PVZEntities.SPIKE_WEED).cost(100).coolDown(MEDIUM).skillList(SpikeWeed.staticSkillList)
                 .recipe(Items.GLOW_LICHEN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.NETHER_WART_SEED_PACKET);
@@ -75,12 +75,12 @@ public class PVZSeedPackets {
         add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
                 .recipe(Items.BIG_DRIPLEAF, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         //the end
-        add(PVZEntities.MELON_PULT).cost(350).coolDown(MIDDLE).skillList(MelonPult.staticSkillList)
+        add(PVZEntities.MELON_PULT).cost(350).coolDown(MEDIUM).skillList(MelonPult.staticSkillList)
                 .recipe(Items.MELON, PVZItems.CHORUS_FRUIT_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
         //abyss
-        add(PVZEntities.CHOMPER).cost(150).coolDown(MIDDLE).skillList(Chomper.staticSkillList)
+        add(PVZEntities.CHOMPER).cost(150).coolDown(MEDIUM).skillList(Chomper.staticSkillList)
                 .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly(); //TODO change to chomper block.
         add(PVZEntities.KERNEL_PULT).cost(100).coolDown(SLOW).skillList(KernelPult.staticSkillList)
                 .recipe(PVZItems.CORN, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly();

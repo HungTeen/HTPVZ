@@ -50,7 +50,8 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
             new Skill("skill.pvz.wall_nut.explode", PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
-            new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(1)
+            new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(1),
+            new Skill("skill.pvz.wall_nut.elastic_collision", PVZItems.TERRA_ESSENCE, 4, 4, 25, 0).avoidSkills(2)
     );
 
     public WallNut(EntityType<? extends Mob> entityType, Level level) {
@@ -115,7 +116,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
-        this.goalSelector.addGoal(1, new WallNutCollideGoal(this));
+        this.goalSelector.addGoal(1, new WallNutBowlingGoal(this));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
 
@@ -245,14 +246,18 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
         }
     }
 
-    public static class WallNutCollideGoal extends Goal {
+    public static class WallNutBowlingGoal extends Goal {
         WallNut wallNut;
         Vec3 storedDeltaMovement;
         int wiltTick;
-        public WallNutCollideGoal(WallNut wallNut) {
+        public WallNutBowlingGoal(WallNut wallNut) {
             this.wallNut = wallNut;
             this.storedDeltaMovement = wallNut.getDeltaMovement();
             this.wiltTick = 0;
+        }
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
         }
 
         @Override
@@ -282,7 +287,8 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
                         deltaMovement.y,
                         deltaMovement.z * Math.sin(angle) + deltaMovement.x * Math.cos(angle));
             } else if (wallNut.horizontalCollision) {
-                wallNut.setDeltaMovement(wallNut.getDeltaMovement().add(wallNut.getDeltaMovement().subtract(storedDeltaMovement).scale(0.8F)));
+                wallNut.setDeltaMovement(wallNut.getDeltaMovement().add(
+                        wallNut.getDeltaMovement().subtract(storedDeltaMovement).scale(wallNut.hasSkill("skill.pvz.wall_nut.elastic_collision") ? 1 : 0.5F)));
                 wallNut.hurt(PVZDamageSource.NUT_COLLIDE, 10);
             }
             entities.forEach((entity -> {

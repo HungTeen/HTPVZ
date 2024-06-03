@@ -43,7 +43,7 @@ public class EntityUtil {
         boolean BIsEnemy = (! B.getType().is(PVZEntityTags.FRIENDLY)) && (B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY) || B.getType().is(Tags.EntityTypes.BOSSES));
         Team enemyTeam = A.getServer().getScoreboard().getPlayerTeam(PVZMod.ENEMY_TEAM);
 
-        boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, "teamBattle");
+        boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, PVZConfig.Common.teamBattle);
 
         if (teamA == teamB) {
             result = teamA != null || (AIsEnemy == BIsEnemy);

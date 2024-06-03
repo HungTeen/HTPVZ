@@ -51,7 +51,7 @@ public class ItemTagGen extends ItemTagsProvider {
         }
         //others
         this.tag(PVZItemTags.IRON).add(Blocks.IRON_BARS.asItem(), Blocks.IRON_BLOCK.asItem(), Blocks.IRON_DOOR.asItem(),
-                Blocks.IRON_TRAPDOOR.asItem(), Blocks.RAW_IRON_BLOCK.asItem(), Blocks.ANVIL.asItem(),
+                Blocks.IRON_TRAPDOOR.asItem(), Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE.asItem(), Blocks.RAW_IRON_BLOCK.asItem(), Blocks.ANVIL.asItem(),
                 Items.IRON_AXE, Items.IRON_HOE, Items.IRON_PICKAXE, Items.IRON_SHOVEL, Items.IRON_SWORD, Items.IRON_INGOT, Items.IRON_NUGGET,
                 Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
         this.tag(PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).add(Items.SHIELD);

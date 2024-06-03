@@ -209,7 +209,7 @@ public class SeedCrossbowItem extends CrossbowItem {
         ItemProperties.register(PVZItems.SEED_CROSSBOW.get(), new ResourceLocation("firework"), (itemStack, level, entity, seed) -> {
             return entity != null && CrossbowItem.isCharged(itemStack) && CrossbowItem.containsChargedProjectile(itemStack, Items.FIREWORK_ROCKET) ? 1.0F : 0.0F;
         });
-        ItemProperties.register(PVZItems.SEED_CROSSBOW.get(), Util.prefix("seed"), (itemStack, level, entity, p_174608_) -> {
+        ItemProperties.register(PVZItems.SEED_CROSSBOW.get(), Util.prefix("seed"), (itemStack, level, entity, seed) -> {
             return entity != null && CrossbowItem.isCharged(itemStack) && containsSeed(itemStack) ? 1.0F : 0.0F;
         });
     }

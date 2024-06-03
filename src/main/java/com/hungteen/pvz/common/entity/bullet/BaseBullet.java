@@ -133,7 +133,7 @@ public class BaseBullet extends Projectile {
 	protected boolean dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
 		//default normal damage.
-		boolean hurt = target.hurt(PVZDamageSource.canHitDragon(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
+		boolean hurt = target.hurt(PVZDamageSource.hitBossWithMultiplier(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
 				PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
 						, getKnockBackStrength()), target, 0.2F), damage);
 		this.discard();

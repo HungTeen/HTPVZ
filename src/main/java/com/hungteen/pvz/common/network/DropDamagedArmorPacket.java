@@ -1,8 +1,6 @@
 package com.hungteen.pvz.common.network;
 
-import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
-import com.hungteen.pvz.util.Util;
-import net.minecraft.core.Registry;
+import com.hungteen.pvz.common.item.IDropWhenBroken;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -34,15 +32,17 @@ public class DropDamagedArmorPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            ExtraHealthArmorItem item =((ExtraHealthArmorItem) ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemId)));
-            item.clientBroken(pos, ClientProxy.getPlayer().level);
+            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemId));
+            if (item instanceof IDropWhenBroken droppingItem) {
+                droppingItem.clientBroken(pos, ClientProxy.getPlayer().level);
+            }
         });
         ctx.get().setPacketHandled(true);
     }
 
 
     //method
-    public static void drop(ExtraHealthArmorItem item, Level level, Vec3 pos) {
-        PVZPacketHandler.sendToNearByClient(level, pos, 50, new DropDamagedArmorPacket(item, pos));
+    public static void drop(IDropWhenBroken item, Level level, Vec3 pos) {
+        PVZPacketHandler.sendToNearByClient(level, pos, 50, new DropDamagedArmorPacket((Item) item, pos));
     }
 }

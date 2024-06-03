@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,22 +22,32 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/**CLIENT entity! Do not try to summon in server. */
+/**<b>CLIENT entity! Do not try to summon in server! </b><br>
+ * ModelPartEntities renders fallen parts of models in the client game just like particles and won't be stored. They can both render entity ModelParts and item models.*/
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class ModelPartEntity extends Entity {
     public static Set<ModelPartEntity> entities = new HashSet<>();
 
+    /**When rendering a model, a texture should be defined.*/
     @OnlyIn(Dist.CLIENT)
     public ModelPart model;
-    public final ResourceLocation texture;
+    public ResourceLocation texture;
+
+    public ItemStack itemStack;
+    //ItemStacks contains no rotation information, so added two.
+    public Vec3 currentRotation = null;
+
+
     public Vec3 rotation;
     public Level level;
     public Vec3 originalScale;
     public int life;
 
+
+    //if ModelPart
     public ModelPartEntity(EntityType<?> entityType, Level p_19871_) {
-        this(p_19871_, null, 80);
+        this(p_19871_, 80);
     }
     @OnlyIn(Dist.CLIENT)
     public ModelPartEntity(Level p_19871_, ModelPart model, ResourceLocation texture) {
@@ -44,14 +55,27 @@ public class ModelPartEntity extends Entity {
     }
     @OnlyIn(Dist.CLIENT)
     public ModelPartEntity(Level p_19871_, ModelPart model, ResourceLocation texture, int life) {
-        this(p_19871_, texture, life);
+        this(p_19871_, life);
         this.model = copyModelPart(model);
+        this.texture = texture;
         this.originalScale = new Vec3(model.xScale, model.yScale, model.zScale);
     }
+    //if ItemStack
+    @OnlyIn(Dist.CLIENT)
+    public ModelPartEntity(Level p_19871_, ItemStack itemStack, int life) {
+        this(p_19871_, life);
+        this.itemStack = itemStack;
+        this.currentRotation = Vec3.ZERO;
+        this.originalScale = new Vec3(1, 1, 1);
+    }
+    @OnlyIn(Dist.CLIENT)
+    public ModelPartEntity(Level p_19871_, ItemStack itemStack) {
+        this(p_19871_, itemStack, 80);
+    }
 
-    public ModelPartEntity(Level level, ResourceLocation texture, int life) {
+    //root
+    public ModelPartEntity(Level level, int life) {
         super(PVZEntities.MODEL_PART.get(), level);
-        this.texture = texture;
         this.life = life;
         this.rotation = Vec3.ZERO;
         this.setDeltaMovement(
@@ -118,14 +142,19 @@ public class ModelPartEntity extends Entity {
     }
 
     //settings
+    /**Resize the rotation and scale every render tick if necessary because ModelPartEntity resets the size itself before the start of render tick. */
     public void baseTick() {
         this.level.getProfiler().push("entityBaseTick");
 
         if (this.level.isClientSide) {
             this.clearFire();
-            this.model.xRot += rotation.x;
-            this.model.yRot += rotation.y;
-            this.model.zRot += rotation.z;
+            if (model != null) {
+                this.model.xRot += rotation.x;
+                this.model.yRot += rotation.y;
+                this.model.zRot += rotation.z;
+            } else {
+                this.currentRotation = this.currentRotation.add(rotation);
+            }
         } else {
             PVZMod.LOGGER.error("find ModelPartEntity [" + this.getUUID() + "] in server! ");
         }
@@ -149,10 +178,15 @@ public class ModelPartEntity extends Entity {
             this.setDeltaMovement(this.getDeltaMovement().add(0, -0.05, 0));
         }
         if (this.level.isClientSide) {
-            if (this.life - this.tickCount < 5) {
-                this.model.xScale = (float) originalScale.x * (this.life - this.tickCount) / 5;
-                this.model.yScale = (float) originalScale.y * (this.life - this.tickCount) / 5;
-                this.model.zScale = (float) originalScale.z * (this.life - this.tickCount) / 5;
+            float size = (float) (this.life - this.tickCount) / 5;
+            if (size < 1) {
+                if (this.model != null) {
+                    this.model.xScale = (float) originalScale.x * size;
+                    this.model.yScale = (float) originalScale.y * size;
+                    this.model.zScale = (float) originalScale.z * size;
+                } else {
+                    this.originalScale = new Vec3(size, size, size);
+                }
             }
         }
 

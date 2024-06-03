@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class PeaBullet extends BaseBullet {
     public int changeCoolDown = 0;
+    public boolean neverMelt = false;
     protected static final EntityDataAccessor<PeaType> TYPE = SynchedEntityData.defineId(PeaBullet.class, OtherRegisters.peaTypeDataSerializer);
 
     public PeaBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
@@ -35,6 +36,11 @@ public class PeaBullet extends BaseBullet {
         setPeaType(type);
         this.knockBackStrengh = (float) peaShooter.getAttribute(Attributes.ATTACK_KNOCKBACK).getValue();
         this.damageName = "pea";
+    }
+
+    @Override
+    public boolean fireImmune() {
+        return this.neverMelt || super.fireImmune();
     }
     @Override
     public void tick() {
@@ -126,12 +132,16 @@ public class PeaBullet extends BaseBullet {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("pea_type", getPeaType().ordinal());
+        tag.putBoolean("never_melt", this.neverMelt);
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
         if (tag.contains("pea_type")) {
             setPeaType(PeaType.values()[tag.getInt("pea_type")]);
+        }
+        if (tag.contains("never_melt")) {
+            this.neverMelt = tag.getBoolean("never_melt");
         }
     }
     @Override

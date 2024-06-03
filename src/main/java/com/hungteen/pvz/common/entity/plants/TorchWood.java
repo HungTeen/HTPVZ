@@ -135,9 +135,11 @@ public class TorchWood extends SimplePlant {
                     } else if (pea.getPeaType() == PeaBullet.PeaType.Common) {
                         pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 6 : 2F));
                     }
-                    pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :
-                            this.entity.isSoulFire() ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);
-                    pea.changeCoolDown = 5;
+                    if (! pea.fireImmune()) {
+                        pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :
+                                this.entity.isSoulFire() ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);
+                        pea.changeCoolDown = 5;
+                    }
                 }
             });
         }

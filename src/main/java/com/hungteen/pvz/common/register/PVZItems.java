@@ -62,8 +62,8 @@ public class PVZItems {
 
     //registry
     public static final RegistryObject<Item> PEA = composter(0.3F).item("pea", () -> new BlockItem(PVZBlocks.PEA.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
-    public static final RegistryObject<Item> SNOW_PEA = item("snow_pea");
-    public static final RegistryObject<Item> FLAME_PEA = item("flame_pea");
+    public static final RegistryObject<Item> SNOW_PEA = composter(0.3F).item("snow_pea");
+    public static final RegistryObject<Item> FLAME_PEA = composter(0.3F).item("flame_pea");
     public static final RegistryObject<Item> NUT = composter(0.3F).item("nut");
     public static final RegistryObject<Item> PEPPER = composter(0.3F).item("pepper");
     public static final RegistryObject<Item> CABBAGE_SEED = composter(0.3F).item("cabbage_seeds", () -> new BlockItem(PVZBlocks.CABBAGE_SEEDS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
@@ -79,8 +79,8 @@ public class PVZItems {
     public static final RegistryObject<Item> GELUM_ESSENCE = tag(PVZItemTags.ESSENCE).item("gelum_essence");
     public static final RegistryObject<Item> LUX_ESSENCE = tag(PVZItemTags.ESSENCE).item("lux_essence");
 
-    public static final RegistryObject<Item> FERTILIZER = item("fertilizer", () -> new FertilizerItem(new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
-    public static final RegistryObject<Item> TREE_FERTILIZER = item("tree_fertilizer", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
+    public static final RegistryObject<Item> FERTILIZER = composter(1F).item("fertilizer", () -> new FertilizerItem(new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
+    public static final RegistryObject<Item> TREE_FERTILIZER = composter(1F).item("tree_fertilizer", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> FLOWER_SEED_PACKET = item("flower_seed_packet", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
     public static final RegistryObject<Item> NETHER_WART_SEED_PACKET = item("nether_wart_seed_packet", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
     public static final RegistryObject<Item> CHORUS_FRUIT_SEED_PACKET = item("chorus_fruit_seed_packet", ()-> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
@@ -113,7 +113,8 @@ public class PVZItems {
     public static final RegistryObject<Item> CONE_HELMET = item("cone_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.CONE, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(30), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(100), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> DUCK_LIFEBUOY = item("duck_lifebuoy", () -> new DuckLifebuoyItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> SCREEN_DOOR_SHIELD = tag(PVZItemTags.IRON, PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).model(Model.Modeled).item("screen_door_shield", () -> new ShieldItem((new Item.Properties()).durability(150).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> SCREEN_DOOR_SHIELD = tag(PVZItemTags.IRON, PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).model(Model.Modeled).item("screen_door_shield", () -> new PVZShieldItem((new Item.Properties()).durability(150).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> JACK_IN_THE_BOX = tag(PVZItemTags.IRON).model(Model.Modeled).item("jack_in_the_box", () -> new JackInTheBoxItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1)));
 
     //tools
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
@@ -134,11 +135,8 @@ public class PVZItems {
     public static void registerProperties() {
         SeedCrossbowItem.registerProperties();
         WateringPotItem.registerProperties();
-        //non-pvz items.
-        ItemProperties.register(SCREEN_DOOR_SHIELD.get(), new ResourceLocation("durability"),
-                (itemStack, level, entity, seed) -> (150 - itemStack.getDamageValue()) / 51);
-        ItemProperties.register(SCREEN_DOOR_SHIELD.get(), new ResourceLocation("blocking"),
-                (itemStack, level, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == itemStack ? 1.0F : 0.0F);
+        PVZShieldItem.registerProperties();
+        JackInTheBoxItem.registerProperties();
     }
 
     //definitions

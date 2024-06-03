@@ -202,6 +202,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
 
     @Override
     public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        if (this.isPassenger() && ! EntityUtil.isEntityValid(this.getVehicle())) {
+            this.stopRiding();
+        }
         //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
@@ -346,10 +349,10 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> {
             Entity owner = cap.getOwner();
             if (owner != null) {
-                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, "shovelPermission") ?
-                        (EntityUtil.isTeammate(owner, player) || ! PVZConfig.PVZGameRules.getBoolean(player.level, "teamBattle")) : owner.is(player);
+                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.shovelPermission) ?
+                        (EntityUtil.isTeammate(owner, player) || ! PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.teamBattle)) : owner.is(player);
             } else {
-                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, "shovelPermission") && EntityUtil.isTeammate(target, player);
+                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.shovelPermission) && EntityUtil.isTeammate(target, player);
             }
         });
         //shovel plant.

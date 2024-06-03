@@ -104,7 +104,7 @@ public class ClientSunImageToolTipComponent implements ClientTooltipComponent {
         String key;
         if (cd <= PVZSeedPackets.FAST) {
             key = "tooltip.pvz.fast";
-        } else if (cd <= PVZSeedPackets.MIDDLE) {
+        } else if (cd <= PVZSeedPackets.MEDIUM) {
             key = "tooltip.pvz.middle";
         } else if (cd <= PVZSeedPackets.SLOW) {
             key = "tooltip.pvz.slow";

@@ -66,11 +66,12 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> teamBattle;
         public static ForgeConfigSpec.ConfigValue<Boolean> killWisdomTree;
         public static ForgeConfigSpec.ConfigValue<Boolean> canCanCanKelp;
+        public static ForgeConfigSpec.ConfigValue<Boolean> jackInTheBoxGriefing;
         public static ForgeConfigSpec.ConfigValue<Boolean> dynamicSunRule;
         public static ForgeConfigSpec.ConfigValue<Boolean> dyeMarigold;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallyRegainSunInterval;
-        public Common(ForgeConfigSpec.Builder builder){
+        public Common(ForgeConfigSpec.Builder builder) {
             builder.comment("All these configs are the default values of pvz rules.")
                     .comment("In the game you can also modify them separately for each world with /pvzrule command.")
                     .comment("All these configs are only effective in server.")
@@ -94,7 +95,11 @@ public class PVZConfig {
             canCanCanKelp = add(builder
                     .translation("config.pvz.common.can_can_can_kelp")
                     .comment("if on, players can interact with Tangle Kelps using buckets to bucket them."),
-                    "canCanCanKelp", false);
+                    "canCanCanKelp", true);
+            jackInTheBoxGriefing = add(builder
+                            .translation("config.pvz.common.jack_in_the_box_griefing")
+                            .comment("if on, Jack-in-the-box breaks blocks when explode."),
+                    "jackInTheBoxGriefing", false);
             dynamicSunRule = add(builder
                             .translation("config.pvz.common.dynamic_sun_rule")
                             .comment("if on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),
@@ -230,8 +235,14 @@ public class PVZConfig {
         public static boolean getBoolean(Level level, String name) {
             return level.getGameRules().getBoolean(instance.booleanMap.get(name));
         }
+        public static boolean getBoolean(Level level, ForgeConfigSpec.ConfigValue<Boolean> value) {
+            return getBoolean(level, value.getPath().get(value.getPath().size() - 1));
+        }
         public static int getInt(Level level, String name) {
             return level.getGameRules().getInt(instance.intMap.get(name));
+        }
+        public static int getInt(Level level, ForgeConfigSpec.ConfigValue<Integer> value) {
+            return getInt(level, value.getPath().get(value.getPath().size() - 1));
         }
     }
 }

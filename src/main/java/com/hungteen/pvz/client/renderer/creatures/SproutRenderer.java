@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.renderer.creatures;
 
-import com.hungteen.pvz.client.layer.GardenRequirmentLayer;
+import com.hungteen.pvz.client.layer.GardenRequirementLayer;
 import com.hungteen.pvz.client.model.SproutModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.Sprout;
@@ -20,7 +20,7 @@ public class SproutRenderer extends MobRenderer<Sprout, SproutModel<Sprout>> {
     private static final ResourceLocation COMMON_LOCATION = Util.prefix("textures/entity/sprout/sprout.png");
     public SproutRenderer(EntityRendererProvider.Context p_234551_) {
         super(p_234551_, new SproutModel<>(p_234551_.bakeLayer(PVZLayerHandler.LayerLocationMap.get("sprout:main"))), 0.2F);
-        this.addLayer(new GardenRequirmentLayer(this));
+        this.addLayer(new GardenRequirementLayer(this));
     }
 
     @Override

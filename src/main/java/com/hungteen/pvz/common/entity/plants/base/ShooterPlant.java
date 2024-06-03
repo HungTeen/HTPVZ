@@ -200,10 +200,6 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	@Override
 	public abstract int getShootCD();
 
-	protected boolean canAttackNow() {
-		return shootTimes().contains(getAttackTime());
-	}
-
 	public Set<Integer> shootTimes() {
 		return Set.of(10);
 	}
