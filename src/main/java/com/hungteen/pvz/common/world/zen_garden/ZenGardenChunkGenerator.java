@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.world.zen_garden;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
@@ -105,6 +106,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
                 }
             }
         }
+        PVZMod.LOGGER.info("generated: (" + chunkPos.x + ", " + chunkPos.z + ")");
     }
 
     public void init(RandomState randomState) {

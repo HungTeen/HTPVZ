@@ -88,13 +88,6 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
         ItemStack item = zombie.getMainHandItem();
         boolean mainArmRight = zombie.getMainArm() == HumanoidArm.RIGHT;
         boolean blocking = item.getItem() instanceof ShieldItem && zombie.isUsingItem();
-//        if (zombie.getMainArm() == HumanoidArm.RIGHT) {
-//            this.rightArmPose = blocking ? ArmPose.BLOCK : ArmPose.EMPTY;
-//            this.leftArmPose = ArmPose.EMPTY;
-//        } else {
-//            this.rightArmPose = ArmPose.EMPTY;
-//            this.leftArmPose = blocking ? ArmPose.BLOCK : ArmPose.EMPTY;
-//        }
         if (blocking) {
             this.rightArmPose = mainArmRight ? ArmPose.BLOCK : ArmPose.EMPTY;
             this.leftArmPose = ! mainArmRight ? ArmPose.BLOCK : ArmPose.EMPTY;

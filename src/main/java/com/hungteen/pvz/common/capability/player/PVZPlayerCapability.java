@@ -5,6 +5,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
@@ -66,13 +67,14 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
 
     public static void tick(TickEvent.ServerTickEvent ev) {
         //timed sync
-        if (++ syncCount > 20) {
-            for (Player player : ev.getServer().getPlayerList().getPlayers()) {
-                getPlayerData(player).ifPresent(PVZPlayerCapNBT::syncAll);
-            }
-            syncCount = 0;
-        }
         for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
+
+            if (player.level.dimension().location().equals(Util.prefix("zen_garden"))) PVZMod.LOGGER.info("player: " + player.position());
+
+            if (++ syncCount > 20) {
+                getPlayerData(player).ifPresent(PVZPlayerCapNBT::syncAll);
+                syncCount = 0;
+            }
             getPlayerData(player).ifPresent((nbt) -> {
                 if (!player.isSpectator()) {
                     //sun related mob effects.

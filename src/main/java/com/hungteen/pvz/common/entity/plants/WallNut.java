@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IDefenderPlant;
 import com.hungteen.pvz.api.interfaces.IIronEntity;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
@@ -8,7 +9,6 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
@@ -51,7 +51,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
             new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
             new Skill("skill.pvz.wall_nut.explode", PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
             new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(1),
-            new Skill("skill.pvz.wall_nut.elastic_collision", PVZItems.TERRA_ESSENCE, 4, 4, 25, 0).avoidSkills(2)
+            new Skill("skill.pvz.wall_nut.elastic_collision", PVZItems.TERRA_ESSENCE, 4, 4, 50, 0).avoidSkills(2)
     );
 
     public WallNut(EntityType<? extends Mob> entityType, Level level) {

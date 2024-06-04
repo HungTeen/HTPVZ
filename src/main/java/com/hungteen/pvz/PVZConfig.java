@@ -99,7 +99,7 @@ public class PVZConfig {
             jackInTheBoxGriefing = add(builder
                             .translation("config.pvz.common.jack_in_the_box_griefing")
                             .comment("if on, Jack-in-the-box breaks blocks when explode."),
-                    "jackInTheBoxGriefing", false);
+                    "jackInTheBoxGriefing", true);
             dynamicSunRule = add(builder
                             .translation("config.pvz.common.dynamic_sun_rule")
                             .comment("if on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),

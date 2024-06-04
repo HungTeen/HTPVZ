@@ -2,11 +2,11 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "pvz:corn"
+      "item": "pvz:jack_in_the_box"
     }
   ],
   "result": {
     "count": 4,
-    "item": "pvz:corn_kernels"
+    "item": "minecraft:gunpowder"
   }
 }

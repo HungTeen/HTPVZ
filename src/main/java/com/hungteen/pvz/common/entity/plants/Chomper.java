@@ -41,6 +41,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
@@ -58,12 +59,14 @@ import net.minecraft.world.level.gameevent.EntityPositionSource;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 
 import javax.annotation.Nullable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -94,6 +97,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     public Chomper(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
         originalPos = this.getOnPos();
+        this.moveControl = new ChomperMoveControl(this);
         this.dynamicGameEventListener = new DynamicGameEventListener<>(new VibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 16, this, (VibrationListener.ReceivingEvent)null, 0.0F, 0));
     }
 
@@ -222,8 +226,8 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getPose() != Pose.SWIMMING, 2));
+        this.goalSelector.addGoal(1, new ChomperAttackGoal(this));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
-        this.goalSelector.addGoal(3, new ChomperAttackGoal(this));
         this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this,
                 (entity)-> this.getPose() != Pose.SWIMMING && EntityUtil.checkCanEntityBeAttack(this, entity) &&
                         ! (entity.getVehicle() instanceof Chomper), 5));
@@ -523,48 +527,61 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         return true;
     }
 
+    //moveControl
+    static class ChomperMoveControl extends MoveControl {
+        Chomper chomper;
+        public ChomperMoveControl(Chomper chomper) {
+            super(chomper);
+            this.chomper = chomper;
+        }
+
+        @Override
+        public void tick() {
+            if (! chomper.isVehicle()) {
+                super.tick();
+            } else {
+                this.operation = MoveControl.Operation.WAIT;
+            }
+        }
+    }
     //goals
     public static class ChomperAttackGoal extends Goal {
         Chomper chomper;
         public ChomperAttackGoal(Chomper chomper) {
             this.chomper = chomper;
+            this.setFlags(EnumSet.of(Flag.LOOK, Flag.TARGET));
         }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
         @Override
         public boolean canUse() {
             switch (chomper.getPose()) {
                 case STANDING -> {
-                    chomper.alignBlocks();
-                    chomper.navigation.stop();
-                    chomper.setDeltaMovement(Vec3.ZERO);
-                    if (EntityUtil.checkCanEntityBeAttack(chomper, this.chomper.getTarget())) {
-                        return chomper.animTick > 10 && chomper.animTick % 60 <= 2;
+                    if (chomper.animTick > 59 && chomper.animTick % 60 <= 1 && EntityUtil.checkCanEntityBeAttack(chomper, this.chomper.getTarget())) {
+                        Path path = chomper.getNavigation().createPath(this.chomper.getTarget(), 0);
+                        return path != null && path.getEndNode() != null && path.getEndNode().asBlockPos().distSqr(this.chomper.getTarget().getOnPos()) < 2;
                     }
                     return false;
                 }
                 case EMERGING -> {
                     chomper.alignBlocks();
                     chomper.getNavigation().stop();
-                    chomper.setDeltaMovement(Vec3.ZERO);
-                    return chomper.animTick > 10 && chomper.animTick % 30 <= 2;
+                    return chomper.animTick > 29 && chomper.animTick % 30 <= 1;
                 }
                 case CROUCHING -> {
-                    chomper.alignBlocks();
-                    chomper.getNavigation().stop();
-                    chomper.setDeltaMovement(Vec3.ZERO);
                     chomper.setAttackTime(Math.max(0, chomper.getAttackTime() - 1));
                     if (chomper.getAttackTime() <= 0) {
-                        return chomper.animTick > 10 && chomper.animTick % 60 <= 2;
+                        return chomper.animTick > 59 && chomper.animTick % 60 <= 1;
                     } else {
                         return false;
                     }
                 }
                 case DIGGING -> {
-                    return chomper.animTick > 10 && chomper.animTick % 20 <= 2;
-                }
-                case USING_TONGUE -> {
-                    chomper.getNavigation().stop();
-                    chomper.setDeltaMovement(Vec3.ZERO);
-                    return true;
+                    return chomper.animTick > 19 && chomper.animTick % 20 <= 1;
                 }
                 default -> {
                     return true;
@@ -573,6 +590,9 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         }
         @Override
         public void tick() {
+            if (! this.canContinueToUse()) {
+                return;
+            }
             switch (chomper.getPose()) {
                 case STANDING -> {
                     chomper.setPose(Pose.DIGGING);
@@ -583,8 +603,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     chomper.animTick = 0;
                 }
                 case USING_TONGUE -> {
-                    chomper.targetSelector.disableControlFlag(Flag.MOVE);
-                    if (chomper.animTick >= 11 && chomper.animTick < 13) {
+                    if (chomper.animTick == 11) {
                         LivingEntity target = chomper.getTarget();
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) && chomper.position().distanceTo(target.position()) <= 1.5) {
                             target.startRiding(chomper);
@@ -593,7 +612,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                                 target.stopRiding();
                             }
                         }
-                    } else if (chomper.animTick >= 53 && chomper.animTick < 55) {
+                    } else if (chomper.animTick == 53) {
                         Entity rider = chomper.getFirstPassenger();
                         if (rider != null) {
                             chomper.setAttackTime(chomper.getAttackCD());
@@ -605,7 +624,6 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                             }
                         }
                     } else if (chomper.animTick > 79) {
-                        chomper.targetSelector.enableControlFlag(Flag.MOVE);
                         chomper.setPose(chomper.blockPosition().below().equals(chomper.getOriginalPos()) ?
                                 (chomper.getAttackTime() <= 0 ? Pose.STANDING : Pose.CROUCHING) : Pose.DIGGING);
                         if (chomper.getPose() == Pose.CROUCHING) {
@@ -623,26 +641,26 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                 }
                 case CROAKING -> {
                     if (chomper.hasSkill("skill.pvz.chomper.energy_transduction")) {
-                        if (chomper.animTick >= 30 && chomper.animTick < 32) {
+                        if (chomper.animTick == 30) {
                             Sun.spawnSunWithEffects(this.chomper.level, 50, this.chomper.getOnPos().above(), 0.4F);
                         }
-                        else if (chomper.animTick >= 35 && chomper.animTick < 37) {
+                        else if (chomper.animTick == 35) {
                             Sun.spawnSunWithEffects(this.chomper.level, 25, this.chomper.getOnPos().above(), 0.4F);
                         }
-                        else if (chomper.animTick >= 38 && chomper.animTick < 40) {
+                        else if (chomper.animTick == 38) {
                             Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
                         }
-                        else if (chomper.animTick >= 50 && chomper.animTick < 52) {
+                        else if (chomper.animTick == 50) {
                             Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
                         }
-                        else if (chomper.animTick >= 53 && chomper.animTick < 55) {
+                        else if (chomper.animTick == 53) {
                             Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
                         }
-                        else if (chomper.animTick > 10 && chomper.animTick % 60 <= 2) {
+                        else if (chomper.animTick > 60 && chomper.animTick % 60 == 0) {
                             Sun.spawnSunWithEffects(this.chomper.level, 5, this.chomper.getOnPos().above(), 0.5F);
                         }
                     }
-                    if (chomper.animTick > 10 && chomper.animTick % 60 <= 2) {
+                    if (chomper.animTick > 10 && chomper.animTick % 60 == 0) {
                         chomper.setPose(Pose.STANDING);
                         chomper.animTick = 0;
                     }
@@ -654,7 +672,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                 case SWIMMING -> {
                     LivingEntity target = chomper.getTarget();
                     PathNavigation navigation = chomper.getNavigation();
-                    if (! EntityUtil.isEntityValid(target) || chomper.getAttackTime() != 0) {
+                    if (! EntityUtil.isEntityValid(target) || target.getVehicle() instanceof Chomper || chomper.getAttackTime() != 0) {
                         BlockPos pos = chomper.getOriginalPos().above();
                         boolean homeSafe = chomper.isPositionSafe(null, chomper.level, pos.below(), Direction.UP, false) == null;
                         if (chomper.blockPosition().distSqr(pos) < 3 || ! homeSafe) {
