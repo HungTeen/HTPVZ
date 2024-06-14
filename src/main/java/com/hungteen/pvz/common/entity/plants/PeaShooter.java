@@ -5,10 +5,8 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -18,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class PeaShooter extends ShooterPlant {
-    protected static final UUID KNOCKBACK_MODIFIER_UUID = UUID.fromString("fa192025-b0e7-65ef-9bc3-546a895a193d");
+    protected static final UUID ATTRIBUTE_MODIFIER_UUID = UUID.fromString("fa192025-b0e7-65ef-9bc3-546a895a193d");
     protected boolean skillBoosted = false;
     protected static final double SHOOT_OFFSET = 0.3D;//pea position offset
     public static List<Skill> staticSkillList = List.of(
@@ -44,20 +42,27 @@ public class PeaShooter extends ShooterPlant {
     protected PeaBullet createBullet() {
         PeaBullet bullet = new PeaBullet(this.level, this,
                 hasSkill("skill.pvz.pea_shooter.fire_shooter") ? PeaBullet.PeaType.Fire : PeaBullet.PeaType.Common);
+        if (hasSkill("skill.pvz.pea_shooter.sniper")) {
+            bullet.ignoreArmor = true;
+        }
         return bullet;
     }
     @Override
     public void baseTick() {
-        if (!skillBoosted && this.hasSkill("skill.pvz.pea_shooter.punch")) {
+        if (! skillBoosted) {
             skillBoosted = true;
-            this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(KNOCKBACK_MODIFIER_UUID, "skill bonus", 1, AttributeModifier.Operation.ADDITION));
+            if (this.hasSkill("skill.pvz.pea_shooter.punch")) {
+                this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 1, AttributeModifier.Operation.ADDITION));
+            } else if (this.hasSkill("skill.pvz.pea_shooter.sniper")) {
+                this.getAttribute(Attributes.FOLLOW_RANGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 24, AttributeModifier.Operation.ADDITION));
+            }
         }
         super.baseTick();
     }
 
     public float getAttackDamage() {
         return (float) (getAttribute(Attributes.ATTACK_DAMAGE).getValue() *
-                        (this.hasSkill(this, "skill.pvz.pea_shooter.sniper") ? 6 :
+                        (this.hasSkill(this, "skill.pvz.pea_shooter.sniper") ? 3.75 :
                                 this.hasSkill(this, "skill.pvz.pea_shooter.fire_shooter") ? 1.5 : 1));
     }
 

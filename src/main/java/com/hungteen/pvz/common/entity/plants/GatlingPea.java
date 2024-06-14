@@ -47,10 +47,10 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     protected static final EntityDataAccessor<Boolean> FUSING = SynchedEntityData.defineId(GatlingPea.class, EntityDataSerializers.BOOLEAN);
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 4, 150, 0),
-            new Skill("skill.pvz.gatling_pea.low_budget_configuration", PVZItems.LUX_ESSENCE, 8, 4, -250, -1000),
-            new Skill("skill.pvz.pea_shooter.fire_shooter", PVZItems.IGNIS_ESSENCE, 4, 4, 150, 0).avoidSkills(0),
-            new Skill("skill.pvz.plant.rapid_deployment", PVZItems.ORIGIN_ESSENCE, 16, 8, 175, 0)
+            new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 6, 150, 0),
+            new Skill("skill.pvz.gatling_pea.low_budget_configuration", PVZItems.LUX_ESSENCE, 4, 4, -250, -1000),
+            new Skill("skill.pvz.pea_shooter.fire_shooter", PVZItems.IGNIS_ESSENCE, 4, 3, 150, 0).avoidSkills(0),
+            new Skill("skill.pvz.plant.rapid_deployment", PVZItems.ORIGIN_ESSENCE, 16, 4, 175, 0)
     );
     public GatlingPea(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
@@ -114,7 +114,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     public void baseTick() {
         if (!skillBoosted && this.hasSkill("skill.pvz.pea_shooter.punch")) {
             skillBoosted = true;
-            this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(KNOCKBACK_MODIFIER_UUID, "skill bonus", 0.25, AttributeModifier.Operation.ADDITION));
+            this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.25, AttributeModifier.Operation.ADDITION));
         }
         super.baseTick();
         if (level.isClientSide && random.nextInt(3) == 0 && this.getOverheat() > MAX_OVERHEAT * 0.67 || this.entityData.get(FUSING)) {
@@ -139,7 +139,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                 } else {
                     this.getFirstPassenger().xRot += random.nextFloat() - 0.5;
                 }
-                this.getFirstPassenger().yRot -= (random.nextFloat() * 1 - 0.4) * (usingSpyGlass ? 0.2 : 1);
+                this.getFirstPassenger().yRot -= (random.nextFloat() * 1 - 0.5) * (usingSpyGlass ? 0.2 : 1);
             }
         }
     }

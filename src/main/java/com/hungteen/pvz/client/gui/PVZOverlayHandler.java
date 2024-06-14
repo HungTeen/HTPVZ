@@ -122,6 +122,8 @@ public class PVZOverlayHandler{
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
             RenderSystem.enableBlend();
 
+            armorHealth /= 5; // 5 durability equals to 1 health.
+
             int armorRows = (int) Math.ceil((float) armorHealth / 5.0F / 10.0F);
             int rowHeight = Math.max(6 - armorRows, 3);
             int left = width / 2 - 100;
@@ -162,6 +164,8 @@ public class PVZOverlayHandler{
             int health = (int) (player.getMaxHealth() + Mth.ceil(player.getAbsorptionAmount()));
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
             RenderSystem.enableBlend();
+
+            armorHealth /= 5; // 5 durability equals to 1 health.
 
             int healthRows = Mth.ceil((health) / 2.0F / 10.0F);
             int rowHeight = Math.max(12 - healthRows, 3);

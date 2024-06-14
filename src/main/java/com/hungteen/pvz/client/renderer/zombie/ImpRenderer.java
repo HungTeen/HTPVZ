@@ -18,12 +18,12 @@ public class ImpRenderer<T extends PVZZombie, M extends PVZZombieModel<T>> exten
     public ResourceLocation getTextureLocation(T zombie) {
 //        try {
 //            ResourceLocation res = zombie.getStyle().equals("") ? OVERWORLD_LOCATION :
-//                    Util.prefix("textures/entity/zombie/" + zombie.getStyle() + "_zombie.png");
+//                    Util.prefix("textures/entity/zombie/imp/" + zombie.getStyle() + "_imp.png");
 //            ClientProxy.MC.getResourceManager().getResourceOrThrow(res);
 //            return res;
 //        } catch (FileNotFoundException e) {
 //            return OVERWORLD_LOCATION;
-//        }
+//        }TODO add multi-dimension textures.
         return TEXTURE;
     }
 }

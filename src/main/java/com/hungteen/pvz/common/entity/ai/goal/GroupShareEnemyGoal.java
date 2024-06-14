@@ -19,8 +19,9 @@ public class GroupShareEnemyGoal extends Goal {
     }
 
     @Override
-    public void tick(){
-        if (-- count == 0) {
+    public void tick() {
+        count --;
+        if (count == 0) {
             count = 5;
             for (Mob entity : self.level.getEntitiesOfClass(self.getClass(), this.self.getBoundingBox().inflate(2),
                     (target) -> EntityUtil.isTeammate(this.self, target))) {

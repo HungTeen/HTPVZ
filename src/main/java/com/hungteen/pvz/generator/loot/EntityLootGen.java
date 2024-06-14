@@ -51,6 +51,7 @@ public class EntityLootGen extends EntityLoot {
         this.add(PVZEntities.POLE_VAULTING_ZOMBIE.get(), basicZombieLootTable());
         this.add(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get(), basicZombieLootTable());
         this.add(PVZEntities.IMP.get(), basicZombieLootTable());
+        this.add(PVZEntities.GARGANTUAR.get(), basicZombieLootTable());
         //enter here
     }
 

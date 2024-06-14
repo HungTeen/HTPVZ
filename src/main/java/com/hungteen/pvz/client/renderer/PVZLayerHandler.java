@@ -7,6 +7,7 @@ import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
 import com.hungteen.pvz.client.model.bullet.MelonBulletModel;
 import com.hungteen.pvz.client.model.plants.*;
+import com.hungteen.pvz.client.model.zombie.GargantuarModel;
 import com.hungteen.pvz.client.model.zombie.JackInABoxZombieModel;
 import com.hungteen.pvz.client.model.zombie.PoleVaultingZombieModel;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -66,6 +67,7 @@ public class PVZLayerHandler {
         L(e, "ice", FrozenModel::createBodyLayer);
         L(e, PVZEntities.POLE_VAULTING_ZOMBIE, PoleVaultingZombieModel::createBodyLayer);
         L(e, PVZEntities.JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieModel::createBodyLayer);
+        L(e, PVZEntities.GARGANTUAR, GargantuarModel::createBodyLayer);
         L(e, PVZItems.CONE_HELMET, () -> ConeHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
         L(e, PVZItems.BUCKET_HELMET, () -> BucketHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
         L(e, PVZItems.DUCK_LIFEBUOY, () -> DuckLifebuoyModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));

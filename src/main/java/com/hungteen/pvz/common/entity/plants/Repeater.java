@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 import java.util.Set;
 
-public class Repeater extends PeaShooter{
+public class Repeater extends PeaShooter {
     public static List<Skill> staticSkillList = List.of(
         new Skill("skill.pvz.repeater.triple_tap", PVZItems.VENTUS_ESSENCE, 8, 4, 75, 0)
 );

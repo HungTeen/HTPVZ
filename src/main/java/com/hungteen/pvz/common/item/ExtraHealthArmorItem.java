@@ -47,7 +47,7 @@ public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken{
                     ItemStack stack = event.getEntity().getItemBySlot(slot);
                     if (stack.getItem() instanceof ExtraHealthArmorItem item) {
                         int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
-                        stack.hurtAndBreak(blocked, event.getEntity(), (entity) -> {
+                        stack.hurtAndBreak(blocked * 5 /* 5 durability equals to 1 health. */, event.getEntity(), (entity) -> {
                             DropDamagedArmorPacket.drop(item, entity.level,
                                     entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0));
                             entity.broadcastBreakEvent(slot);

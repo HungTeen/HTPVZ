@@ -26,6 +26,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class PeaGunItem extends ProjectileWeaponItem {
+
+    //add reflections here.
     public static Map<Item, TriFunction<Level, Player, EquipmentSlot, Projectile>> itemMap = Map.of(
             PVZItems.PEA.get(), (level, shooter, slot) -> summonPeaBullet(level, shooter, slot, PVZItems.PEA.get()),
             PVZItems.SNOW_PEA.get(), (level, shooter, slot) -> summonPeaBullet(level, shooter, slot, PVZItems.SNOW_PEA.get()),
@@ -38,7 +40,7 @@ public class PeaGunItem extends ProjectileWeaponItem {
         return 8;
     }
     public UseAnim getUseAnimation(ItemStack p_40678_) {
-        return UseAnim.BOW;
+        return super.getUseAnimation(p_40678_);//UseAnim.BOW;
     }
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment)
     {

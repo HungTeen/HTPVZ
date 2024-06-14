@@ -45,7 +45,7 @@ public class PVZSeedPackets {
                 .recipe(Items.LILY_PAD, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE);
         add(PVZEntities.TANGLE_KELP).cost(25).coolDown(SLOW).skillList(TangleKelp.staticSkillList)
                 .recipe(Items.KELP, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE);
-        add(PVZEntities.SPLIT_PEA).cost(125).coolDown(FAST).skillList(SplitPea.staticSkillList)
+        add(PVZEntities.SPLIT_PEA).cost(175).coolDown(MEDIUM).skillList(SplitPea.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
                 .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);

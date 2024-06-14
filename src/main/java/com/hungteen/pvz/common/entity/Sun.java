@@ -96,6 +96,9 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
     //ISun
     @Override
     public boolean canAttractThis(ISunAbsorber absorber) {
+        if (this.tickCount < 20) {
+            return false;
+        }
         if (attractedBy != null && attractingPlayer != null) {
             if (distanceToSqr(attractedBy.position()) > 16 && distanceToSqr(attractingPlayer) > 36) {
                 return absorber.canAbsorb(this);

@@ -43,7 +43,7 @@ public class ChiliChanItem extends ShovelItem {
             public Ingredient getRepairIngredient() {
                 return Ingredient.of(PVZItems.VENTUS_ESSENCE.get());
             }
-        }, 1.5F, -3F, p_43117_);
+        }, 1.5F, -3.2F, p_43117_);
     }
     public boolean hurtEnemy(ItemStack itemStack, LivingEntity target, LivingEntity user) {
         if (! (user instanceof Player player) || player.getAttackStrengthScale(0.5F) == 1) {

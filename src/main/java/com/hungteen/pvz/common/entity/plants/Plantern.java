@@ -11,7 +11,9 @@ import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -22,6 +24,7 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
@@ -96,8 +99,8 @@ public class Plantern extends SimplePlant {
             EntityDimensions dimensions = super.getDimensions(pose);
             float height = 2;
             while (height < 5 && height < this.getBbHeight() + 0.5) {
-                if (! level.getBlockState(this.blockPosition().offset(new Vec3i(0, (int) height, 0)))
-                        .isSuffocating(level, this.blockPosition().offset(new Vec3i(0, (int) height, 0)))) {
+                BlockPos pos = this.blockPosition().offset(new Vec3i(0, (int) height, 0));
+                if (level.getBlockState(pos).isAir() || level.getBlockState(pos).is(BlockTags.REPLACEABLE_PLANTS) || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) {
                     height += 0.25;
                 } else {
                     break;

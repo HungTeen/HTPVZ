@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.register.OtherRegisters;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -22,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 public class PeaBullet extends BaseBullet {
     public int changeCoolDown = 0;
     public boolean neverMelt = false;
+    public boolean ignoreArmor = false;
     protected static final EntityDataAccessor<PeaType> TYPE = SynchedEntityData.defineId(PeaBullet.class, OtherRegisters.peaTypeDataSerializer);
 
     public PeaBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
@@ -133,6 +135,7 @@ public class PeaBullet extends BaseBullet {
         super.addAdditionalSaveData(tag);
         tag.putInt("pea_type", getPeaType().ordinal());
         tag.putBoolean("never_melt", this.neverMelt);
+        tag.putBoolean("ignore_armor", this.neverMelt);
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
@@ -143,10 +146,23 @@ public class PeaBullet extends BaseBullet {
         if (tag.contains("never_melt")) {
             this.neverMelt = tag.getBoolean("never_melt");
         }
+        if (tag.contains("ignore_armor")) {
+            this.ignoreArmor = tag.getBoolean("ignore_armor");
+        }
     }
     @Override
     protected boolean dealDamageTo(Entity target) {
-        boolean hurt = super.dealDamageTo(target);
+        boolean hurt;
+        if (! ignoreArmor) {
+            hurt = super.dealDamageTo(target);
+        } else {
+            final float damage = this.getAttackDamage();
+            //default normal damage.
+            hurt = target.hurt(PVZDamageSource.hitBossWithMultiplier(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
+                            PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()).bypassArmor())
+                    , getKnockBackStrength()), target, 0.2F), damage);
+            this.discard();
+        }
         if (! hurt) {
             return false;
         }

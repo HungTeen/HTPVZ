@@ -2,21 +2,20 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanAttack;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
-import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
@@ -51,7 +50,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
@@ -230,7 +228,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
         this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this,
                 (entity)-> this.getPose() != Pose.SWIMMING && EntityUtil.checkCanEntityBeAttack(this, entity) &&
-                        ! (entity.getVehicle() instanceof Chomper), 5));
+                        ! entity.isPassenger(), 5));
     }
     @Override
     protected void defineSynchedData() {
@@ -563,7 +561,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                 case STANDING -> {
                     if (chomper.animTick > 59 && chomper.animTick % 60 <= 1 && EntityUtil.checkCanEntityBeAttack(chomper, this.chomper.getTarget())) {
                         Path path = chomper.getNavigation().createPath(this.chomper.getTarget(), 0);
-                        return path != null && path.getEndNode() != null && path.getEndNode().asBlockPos().distSqr(this.chomper.getTarget().getOnPos()) < 2;
+                        return path != null && path.getEndNode() != null;
                     }
                     return false;
                 }
@@ -608,7 +606,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) && chomper.position().distanceTo(target.position()) <= 1.5) {
                             target.startRiding(chomper);
                             target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper), 2F), 14);
-                            if (target.getBbWidth() > 2 || target instanceof Slime /*to prevent vanilla bug*/) {
+                            if (target.getBbWidth() > 1 || target instanceof Slime /*to prevent vanilla bug*/) {
                                 target.stopRiding();
                             }
                         }

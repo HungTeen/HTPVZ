@@ -109,7 +109,7 @@ public class Anger extends FlyingMob {
             if (anger.tickCount > anger.maxLife || level.getBlockState(this.anger.blockPosition()).isSuffocating(level, anger.blockPosition())) {
                 anger.discard();
             }
-            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, anger.getBoundingBox().inflate(1.3, 1.3, 1.3));
+            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, anger.getBoundingBox().inflate(1.3, 0.8, 1.3).move(0, -0.4, 0));
             entities.forEach((entity) -> {
                 if (! EntityUtil.isTeammate(anger, entity)) {
                     entity.hurt(DamageSource.ON_FIRE, (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue());

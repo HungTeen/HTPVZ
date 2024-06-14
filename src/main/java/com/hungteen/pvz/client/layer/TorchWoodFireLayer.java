@@ -12,9 +12,9 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.level.block.Blocks;
 
-public class FireLayer<T extends TorchWood, M extends TorchWoodModel<T>> extends RenderLayer<T, M> {
+public class TorchWoodFireLayer<T extends TorchWood, M extends TorchWoodModel<T>> extends RenderLayer<T, M> {
     private BlockRenderDispatcher blockRenderer = ClientProxy.MC.getBlockRenderer();
-    public FireLayer(RenderLayerParent<T, M> p_117346_) {
+    public TorchWoodFireLayer(RenderLayerParent<T, M> p_117346_) {
         super(p_117346_);
     }
 

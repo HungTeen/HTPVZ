@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.util.Util;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.*;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
@@ -62,10 +63,19 @@ public class PVZMobEffects {
                     .addAttributeModifier(Attributes.MOVEMENT_SPEED, BUTTER_EFFECT_UUID.toString(), -0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL)
     ).registerPotion(150, false).registerPotion("long_butter", 300, 0, false).build();
 
+    public static final RegistryObject<net.minecraft.world.effect.MobEffect> PHYTOTOXIN = effect("phytotoxin", () ->
+            new PhytoToxinEffect(MobEffectCategory.HARMFUL, 5149489))
+            .registerPotion(300)
+            .registerPotion("long_phytotoxin", 750, 0, true)
+            .registerPotion("strong_phytotoxin", 300, 1, true).build();
+
     public static void addMixs() {
         PotionBrewing.addMix(Potions.AWKWARD, PVZBlocks.PLANTERN.get().asItem(), potionMap.get("brightness").get());
+        PotionBrewing.addMix(Potions.AWKWARD, Items.POISONOUS_POTATO, potionMap.get("phytotoxin").get());
         PotionBrewing.addMix(potionMap.get("brightness").get(), Items.REDSTONE, potionMap.get("long_brightness").get());
         PotionBrewing.addMix(potionMap.get("butter").get(), Items.REDSTONE, potionMap.get("long_butter").get());
+        PotionBrewing.addMix(potionMap.get("phytotoxin").get(), Items.REDSTONE, potionMap.get("long_phytotoxin").get());
+        PotionBrewing.addMix(potionMap.get("phytotoxin").get(), Items.GLOWSTONE_DUST, potionMap.get("long_phytotoxin").get());
     }
 
     //methods
@@ -117,7 +127,7 @@ public class PVZMobEffects {
         }
 
         public void addAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int level) {
-            if (entity instanceof Mob mob) {
+            if (entity instanceof Mob mob && ! entity.getType().is(PVZEntityTags.BUTTER_INVULNERABLE)) {
                 mob.targetSelector.disableControlFlag(Goal.Flag.TARGET);
                 mob.setTarget(null);
                 mob.getNavigation().stop();
@@ -158,6 +168,31 @@ public class PVZMobEffects {
             entity.setTicksFrozen(350);
             if (entity.isOnFire()) {
                 entity.removeEffect(FREEZE.get());
+            }
+        }
+    }
+
+    public static class PhytoToxinEffect extends MobEffect {
+        protected PhytoToxinEffect(MobEffectCategory p_19451_, int p_19452_) {
+            super(p_19451_, p_19452_);
+        }
+
+        public void applyEffectTick(LivingEntity entity, int level) {
+            if (entity.getType().is(PVZEntityTags.PLANT)) {
+                entity.removeEffect(PHYTOTOXIN.get());
+                return;
+            }
+            if (entity.getHealth() > 1.0F) {
+                entity.hurt(DamageSource.MAGIC, 1.0F);
+            }
+        }
+
+        public boolean isDurationEffectTick(int p_19455_, int p_19456_) {
+            int j = 25 >> p_19456_;
+            if (j > 0) {
+                return p_19455_ % j == 0;
+            } else {
+                return true;
             }
         }
     }

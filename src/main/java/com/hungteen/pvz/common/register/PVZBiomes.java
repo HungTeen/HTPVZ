@@ -50,9 +50,10 @@ public class PVZBiomes {
     }
 
     public static void checkFeatures(){
-        if (!features){
+        if (! features){
             NutTreeGrower.init();
             OverWorldFeatures.init();
+            features = true;
         }
     }
 }

@@ -43,6 +43,7 @@ public class AttractEnemyGoal extends Goal {
     }
 
     public void attractEnemies(Mob entity) {
+        //TODO separate the judging part to a method that returns int.
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
             //attracting limits about tergetEntity.
             boolean outOfHeightRegion = (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() <= entity.getBbHeight() + entity.getY()) &&

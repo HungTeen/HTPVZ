@@ -13,17 +13,11 @@ import com.hungteen.pvz.client.renderer.creatures.SproutRenderer;
 import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
 import com.hungteen.pvz.client.renderer.misc.SunRenderer;
 import com.hungteen.pvz.client.renderer.plants.*;
-import com.hungteen.pvz.client.renderer.zombie.ImpRenderer;
-import com.hungteen.pvz.client.renderer.zombie.JackInABoxZombieRenderer;
-import com.hungteen.pvz.client.renderer.zombie.PVZZombieRenderer;
-import com.hungteen.pvz.client.renderer.zombie.PoleVaultingZombieRenderer;
+import com.hungteen.pvz.client.renderer.zombie.*;
 import com.hungteen.pvz.common.entity.*;
 import com.hungteen.pvz.common.entity.bullet.*;
 import com.hungteen.pvz.common.entity.plants.*;
-import com.hungteen.pvz.common.entity.zombies.Imp;
-import com.hungteen.pvz.common.entity.zombies.JackInABoxZombie;
-import com.hungteen.pvz.common.entity.zombies.PVZZombie;
-import com.hungteen.pvz.common.entity.zombies.PoleVaultingZombie;
+import com.hungteen.pvz.common.entity.zombies.*;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.generator.loot.EntityLootGen;
 import com.hungteen.pvz.util.Util;
@@ -186,6 +180,9 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<Imp>> IMP = attribute(Imp::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0xaa3a39, 0x454ab0)
             .entity("imp", Imp::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<Gargantuar>> GARGANTUAR = attribute(Gargantuar::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0xaa3a39, 0x454ab0)
+            .collision(1.5F, 2.7F).entity("gargantuar", Gargantuar::new, MobCategory.MONSTER);
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F).entity("pea", PeaBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<CabbageBullet>> CABBAGE = collision(0.4F, 0.4F).entity("cabbage", CabbageBullet::new, MobCategory.MISC);
@@ -252,6 +249,7 @@ public class PVZEntities {
         r(e, POLE_VAULTING_ZOMBIE, PoleVaultingZombieRenderer::new);
         r(e, JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieRenderer::new);
         r(e, IMP, ImpRenderer::new);
+        r(e, GARGANTUAR, GargantuarRenderer::new);
         r(e, SPROUT, SproutRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);

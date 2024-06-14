@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
 import com.hungteen.pvz.common.register.PVZBannerPatterns;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -136,6 +137,9 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
     @Override
     public void tick(){
         super.tick();
+        if (! EntityUtil.isEntityValid(this.getVehicle())) {
+            this.stopRiding();
+        }
         AttributeInstance instance = this.getAttribute(Attributes.FOLLOW_RANGE);
         if (this.schoolSize > 1) {
             if (instance.getModifier(GROUP_UP_MODIFIER) == null) {

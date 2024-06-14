@@ -1,6 +1,7 @@
 package com.hungteen.pvz.client.model.bullet;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
@@ -11,7 +12,7 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
-public class CommonBulletModel<T extends Entity> extends EntityModel<T> {
+public class CommonBulletModel<T extends BaseBullet> extends EntityModel<T> {
     private final ModelPart total;
 
     public CommonBulletModel(ModelPart root) {
@@ -28,13 +29,11 @@ public class CommonBulletModel<T extends Entity> extends EntityModel<T> {
         return LayerDefinition.create(meshdefinition, 16, 16);
     }
     @Override
-    public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-//        if(entity instanceof PultProjectile){
-        this.total.xRot = entity.getXRot();
-        this.total.yRot = entity.getYRot();
-//        } else{
-//            this.total.xRot = 0;
-//       }
+    public void setupAnim(T bullet, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        this.total.xRot = bullet.getXRot();
+        this.total.yRot = bullet.getYRot();
+        this.total.y = 24 - (float) (Math.sin(bullet.getXRot() / 57.3) * 0.5 * bullet.getSize());
+        this.total.x = - (float) (Math.sin(bullet.getYRot() / 57.3) * 0.5 * bullet.getSize());
     }
 
     @Override

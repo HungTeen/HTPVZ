@@ -4,6 +4,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -16,6 +17,7 @@ public class CabbagePult extends ShooterPlant {
 
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
     public static List<Skill> staticSkillList = List.of(
+            new Skill("skill.pvz.cabbage_pult.deft_hand", PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 0)
     );
 
     public CabbagePult(EntityType<? extends Mob> type, Level worldIn) {
@@ -50,7 +52,7 @@ public class CabbagePult extends ShooterPlant {
     }
     @Override
     public int getShootCD() {
-        return 40;
+        return this.hasSkill("skill.pvz.cabbage_pult.deft_hand") ? 20 : 40;
     }
     @Override
     public float getBulletSpeed() {
@@ -67,7 +69,7 @@ public class CabbagePult extends ShooterPlant {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 7D)
+                .add(Attributes.ATTACK_DAMAGE, 5D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

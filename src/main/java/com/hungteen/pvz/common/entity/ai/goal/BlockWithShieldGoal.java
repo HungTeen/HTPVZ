@@ -12,12 +12,17 @@ public class BlockWithShieldGoal extends Goal {
     }
     @Override
     public boolean canUse() {
-        return (mob.isUsingItem() || mob.tickCount % 100 < 2) && mob.getMainHandItem().getItem() instanceof ShieldItem;
+        return (mob.isUsingItem() || mob.tickCount % 100 < 2) &&
+                (mob.getMainHandItem().getItem() instanceof ShieldItem || mob.getOffhandItem().getItem() instanceof ShieldItem);
     }
 
     public void start() {
         super.start();
-        this.mob.startUsingItem(InteractionHand.MAIN_HAND);
+        if (mob.getMainHandItem().getItem() instanceof ShieldItem) {
+            this.mob.startUsingItem(InteractionHand.MAIN_HAND);
+        } else {
+            this.mob.startUsingItem(InteractionHand.OFF_HAND);
+        }
     }
 
     public void stop() {

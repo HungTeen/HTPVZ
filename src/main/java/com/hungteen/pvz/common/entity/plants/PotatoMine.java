@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
@@ -38,8 +39,7 @@ import net.minecraft.world.phys.AABB;
 import java.util.List;
 import java.util.Set;
 
-import static com.hungteen.pvz.common.register.PVZDamageSource.ignoreInvTime;
-import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
+import static com.hungteen.pvz.common.register.PVZDamageSource.*;
 
 public class PotatoMine extends SimplePlant {
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(PotatoMine.class, EntityDataSerializers.INT);
@@ -52,9 +52,9 @@ public class PotatoMine extends SimplePlant {
 
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.potato_mine.potato_miner", PVZItems.TERRA_ESSENCE, 4, 6, 0, 0),
-            new Skill("skill.pvz.potato_mine.lethal_dose", PVZItems.IGNIS_ESSENCE, 8, 8, 75, 0).avoidSkills(1),
-            new Skill("skill.pvz.potato_mine.quick_load", PVZItems.LUX_ESSENCE, 12, 8, 25, 0).avoidSkills(1, 2),
-            new Skill("skill.pvz.potato_mine.poison_enrichment", PVZItems.ORIGIN_ESSENCE, 6, 8, 0, 0)
+            new Skill("skill.pvz.potato_mine.lethal_dose", PVZItems.IGNIS_ESSENCE, 8, 8, 50, 0).avoidSkills(1),
+            new Skill("skill.pvz.potato_mine.quick_load", PVZItems.LUX_ESSENCE, 12, 8, 50, 0).avoidSkills(1, 2),
+            new Skill("skill.pvz.potato_mine.poison_enrichment", PVZItems.ORIGIN_ESSENCE, 6, 8, 25, 0)
     );
     public PotatoMine(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -64,7 +64,7 @@ public class PotatoMine extends SimplePlant {
 
     /**{@link PotatoMine#isOnGround()} sometimes cannot reflect actual situation. So added this.*/
     public boolean leavingGround() {
-        return this.getY()
+        return (! this.isPassenger()) && this.getY()
                 - this.level.getBlockState(this.getOnPos()).getCollisionShape(this.level, this.getOnPos()).max(Direction.Axis.Y)
                 - this.getOnPos().getY() > 0.05;
     }
@@ -73,12 +73,9 @@ public class PotatoMine extends SimplePlant {
         if (!this.level.isClientSide) {
             this.dead = true;
             float radius = this.hasSkill("skill.pvz.potato_mine.lethal_dose") ? 3F : 2F;
-            level.explode(this, ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), null, this.getX(), this.getY(), this.getZ(),
+            level.explode(this, knockBack(ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), 0.1F), null, this.getX(), this.getY(), this.getZ(),
                     radius, false, Explosion.BlockInteraction.NONE);
             if (this.isPoisonous()) {
-                List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(2, 0.25, 2),
-                        (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity)));
-                entities.forEach(this::addEffect);
                 this.spawnPoisonCloud();
             }
             this.discard();//TODO modify damage calculator.
@@ -103,12 +100,11 @@ public class PotatoMine extends SimplePlant {
     }
     private void spawnPoisonCloud() {
         AreaEffectCloud areaeffectcloud = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
-        areaeffectcloud.setRadius(0.8F);
+        areaeffectcloud.setRadius(2F);
         areaeffectcloud.setDuration(400);
-        areaeffectcloud.setFixedColor(MobEffects.POISON.getColor());
-        areaeffectcloud.setWaitTime(10);
+        areaeffectcloud.setWaitTime(0);
         areaeffectcloud.setOwner(this);
-        areaeffectcloud.addEffect(new MobEffectInstance(MobEffects.POISON, 100));
+        areaeffectcloud.addEffect(new MobEffectInstance(PVZMobEffects.PHYTOTOXIN.get(), 100));
 
         if(!this.level.isClientSide)this.level.addFreshEntity(areaeffectcloud);
     }
@@ -226,6 +222,7 @@ public class PotatoMine extends SimplePlant {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
+                .add(Attributes.MAX_HEALTH, 12D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
 

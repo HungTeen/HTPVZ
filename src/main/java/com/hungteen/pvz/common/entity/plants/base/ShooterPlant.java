@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.plants.base;
 
 import com.hungteen.pvz.api.interfaces.IShooter;
 import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.util.EntityUtil;
@@ -43,6 +44,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 		super.registerGoals();
 		this.shooterAttackGoal = new ShooterAttackGoal(this);
 		this.goalSelector.addGoal(1, shooterAttackGoal);
+		this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getFirstPassenger() == null, 2));
 		this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
 		this.goalSelector.addGoal(2, new RandomLookAroundGoal(this));
 
@@ -150,6 +152,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 		super.onSyncedDataUpdated(p_219422_);
 	}
+
 	public void setupPresentationAnim() {
 		this.idleAnimationState.start(this.tickCount);
 	}
@@ -188,6 +191,8 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public Vec3 getShootAngle(Entity target) {
 		if (target != null) {
 			return EntityUtil.getNormalisedVector2d(this, target);
+		} else if (storedEnemyPos != null) {
+			return this.position().add(0, this.getEyeHeight(), 0).subtract(storedEnemyPos).normalize();
 		} else {
 			return this.getLookAngle().normalize();
 		}
