@@ -7,8 +7,9 @@ import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
 import com.hungteen.pvz.common.capability.CapabilityHandler;
-import com.hungteen.pvz.common.capability.fog.PVZFogCapability;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.level.PVZFogCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.OwnCommand;
 import com.hungteen.pvz.common.command.PVZFogCommand;
@@ -99,6 +100,7 @@ public class PVZMod
 
         PVZLootModifiers.LOOT_MODIFIERS.register(modBus);
 
+        PVZZombieEvents.ZOMBIE_EVENTS.register(modBus);
         OtherRegisters.modBusRegister(modBus);
         modBus.addListener(PVZConfig.PVZGameRules::init);
 
@@ -113,8 +115,8 @@ public class PVZMod
 
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
-        forgeBus.addGenericListener(Entity.class, CapabilityHandler::attachCapabilities);
-        forgeBus.addGenericListener(Level.class, CapabilityHandler::initPVZRules);
+        forgeBus.addGenericListener(Entity.class, CapabilityHandler::attachEntityCaps);
+        forgeBus.addGenericListener(Level.class, CapabilityHandler::attachLevelCaps);
         forgeBus.addListener(PVZMod::registerCommands);
         forgeBus.addListener(PVZMod::onServerTick);
         forgeBus.addListener(PVZMod::onRenderTick);
@@ -127,7 +129,6 @@ public class PVZMod
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
-        LOGGER.info("----------COMMON SETUP----------");
 
         PVZDimensions.register();
         PVZEnchantments.handleEnchantmentTypes();
@@ -152,6 +153,7 @@ public class PVZMod
         PVZBlocks.release();
         PVZItems.release();
         PVZEntities.release();
+        PVZSeedPackets.seedPackets.clear();
 
         //network
         PVZPacketHandler.init();
@@ -161,7 +163,6 @@ public class PVZMod
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-        LOGGER.info("----------server starting----------");
 
         PVZBiomes.checkFeatures();
     }
@@ -172,9 +173,6 @@ public class PVZMod
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            LOGGER.info("----------CLIENT SETUP----------");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-
             event.enqueueWork(() -> {
                 //register sign materials
                 PVZBlocks.woodTypeList.forEach(Sheets::addWoodType);
@@ -215,8 +213,9 @@ public class PVZMod
             }
             //caps tick
             PVZPlayerCapability.tick(ev);
-            PVZOwnedCapability.tick(ev);
+            PVZEntityCapability.tick(ev);
             PVZFogCapability.tick(ev);
+            PVZZombieEventCapability.tick(ev);
             //server stress releasing
             ServerStressReleaseGoals.averageTickTime = Math.round(ev.getServer().getAverageTickTime());
         }

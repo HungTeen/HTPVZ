@@ -1,8 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -70,8 +69,8 @@ public class SnowPea extends PeaShooter{
                 if (this.hasCustomName()) {
                     peaShooter.setCustomName(this.getCustomName());
                 }
-                this.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) ->
-                        peaShooter.getCapability(PVZOwnedCapability.CAP).ifPresent(cap1 -> cap1.setOwner(cap.getOwner())));
+                this.getCapability(PVZEntityCapability.CAP).ifPresent((cap) ->
+                        peaShooter.getCapability(PVZEntityCapability.CAP).ifPresent(cap1 -> cap1.setOwner(cap.getOwner())));
                 peaShooter.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0));
                 net.minecraftforge.event.ForgeEventFactory.onLivingConvert(this, peaShooter);
             }

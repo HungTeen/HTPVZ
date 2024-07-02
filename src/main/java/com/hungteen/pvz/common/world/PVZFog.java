@@ -14,13 +14,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class PVZFog {
@@ -137,7 +135,8 @@ public class PVZFog {
         return result;
     }
 
-    public static CompoundTag serialize() {
+    public static CompoundTag serializeNBT() {
+        //TODO change these to tag.gatAllTags() and implement INBTSerializable.
         CompoundTag tag = new CompoundTag();
         tag.putInt("size", pvzFogs.size());
         int count = 0;
@@ -155,7 +154,7 @@ public class PVZFog {
         }
         return tag;
     }
-    public static void deserialize(CompoundTag nbt) {
+    public static void deserializeNBT(CompoundTag nbt) {
         int size = nbt.getInt("size");
         for (int i = 0; i < size; i ++) {
             CompoundTag fogTag = (CompoundTag) nbt.get("fog_" + i);

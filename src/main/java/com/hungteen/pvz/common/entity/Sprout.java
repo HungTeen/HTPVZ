@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.api.interfaces.IPlant;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.plants.MariGold;
 import com.hungteen.pvz.common.event.SproutTransformEvent;
 import com.hungteen.pvz.common.register.PVZDamageSource;
@@ -267,8 +267,8 @@ public class Sprout extends Mob implements IGardenPlant {
             MariGold marigold = this.convertTo(PVZEntities.MARIGOLD.get(), true);
             if (marigold != null) {
                 final UUID[] owner = new UUID[1];
-                this.getCapability(PVZOwnedCapability.CAP).ifPresent(cap -> owner[0] = cap.ownerUuid);
-                marigold.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.ownerUuid = owner[0]);
+                this.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> owner[0] = cap.ownerUuid);
+                marigold.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.ownerUuid = owner[0]);
             }
         }
         renewWaterPot();

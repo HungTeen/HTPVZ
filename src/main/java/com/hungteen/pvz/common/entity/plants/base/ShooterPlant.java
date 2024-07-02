@@ -44,7 +44,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 		super.registerGoals();
 		this.shooterAttackGoal = new ShooterAttackGoal(this);
 		this.goalSelector.addGoal(1, shooterAttackGoal);
-		this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getFirstPassenger() == null, 2));
+		this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getFirstPassenger() == null, 1));
 		this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
 		this.goalSelector.addGoal(2, new RandomLookAroundGoal(this));
 
@@ -185,7 +185,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	 * {@link #isHeightAvailable(Entity)}
 	 */
 	public double getMaxShootAngleTangent() {
-		return 0.1;
+		return 0.15;
 	}
 
 	public Vec3 getShootAngle(Entity target) {

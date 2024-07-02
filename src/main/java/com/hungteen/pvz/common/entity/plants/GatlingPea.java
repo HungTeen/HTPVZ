@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
@@ -232,7 +232,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                 if (gatlingPea != null) {
                     gatlingPea.setSkillVal(this.getSkillVal());
                     if (event != null) {
-                        gatlingPea.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                        gatlingPea.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
                     }
                     if (this.hasCustomName()) {
                         gatlingPea.setCustomName(this.getCustomName());

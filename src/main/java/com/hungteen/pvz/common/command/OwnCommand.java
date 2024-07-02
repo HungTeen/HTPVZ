@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.command;
 
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -37,7 +37,7 @@ public class OwnCommand {
         Entity tmpEntity = null;
         for (Entity entity: owned) {
             if (entity != owner) {
-                PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
+                PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
                 if (cap != null && cap.getOwner() != owner) {
                     cap.setOwner(owner);
                     count ++;
@@ -56,7 +56,7 @@ public class OwnCommand {
         int count = 0;
         Entity tmpEntity = null;
         for (Entity entity: owned) {
-            PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
+            PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
             if (cap != null) {
                 cap.setOwner(null);
                 count ++;

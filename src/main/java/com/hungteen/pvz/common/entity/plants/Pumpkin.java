@@ -2,35 +2,48 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.*;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
 public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity, ICanBePlantedOn {
     float storedHealth;
+
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.pumpkin.wall_nut_first_aid", PVZItems.LUX_ESSENCE, 4, 4, 0, 0)
     );
@@ -73,6 +86,14 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                 (! isPlanting || getPassengers().isEmpty()) &&
                 (! isPassenger() || ! (this.getVehicle() instanceof ICanBePlantedOn vehicle) || (vehicle.canHold(plant, isPlanting))) &&
                 plant.getBbWidth() < 1;
+    }
+
+    @Override
+    public boolean canRecieveDamage(DamageSource source, double amount, Entity target) {
+        Entity entity = source.getDirectEntity();
+        if (source.isBypassArmor() || entity == null) return false;
+        Vec3 pos = entity.position().subtract(target.position());
+        return (pos.y * pos.y / (pos.x * pos.x + pos.z * pos.z) < 3);
     }
 
     @Override
@@ -120,7 +141,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
                     if (target != null) {
                         ((Pumpkin) target).setSkillVal(this.getSkillVal());
                         if (event != null) {
-                            target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                            target.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
                         }
                     }
                     this.discard();
@@ -189,7 +210,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
         if (getHealth() < storedHealth && level.isClientSide()) {
             for (int i = 0; i < 3; i ++) {
             level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.PUMPKIN.defaultBlockState()).setPos(this.getOnPos()),
-                    getX()+random.nextFloat() - 0.5, getY() + 1.1, getZ()+random.nextFloat() - 0.5, 0, 0, 0);
+                    getX()+random.nextFloat() - 0.5, getY() + 1.1, getZ() + random.nextFloat() - 0.5, 0, 0, 0);
             }
         }
         storedHealth = getHealth();

@@ -1,17 +1,17 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
+import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.*;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.item.Item;
@@ -65,9 +65,14 @@ public class PVZMobEffects {
 
     public static final RegistryObject<net.minecraft.world.effect.MobEffect> PHYTOTOXIN = effect("phytotoxin", () ->
             new PhytoToxinEffect(MobEffectCategory.HARMFUL, 5149489))
-            .registerPotion(300)
-            .registerPotion("long_phytotoxin", 750, 0, true)
-            .registerPotion("strong_phytotoxin", 300, 1, true).build();
+            .registerPotion(400)
+            .registerPotion("long_phytotoxin", 1000, 0, true)
+            .registerPotion("strong_phytotoxin", 400, 1, true).build();
+
+    public static final RegistryObject<net.minecraft.world.effect.MobEffect> INVASION_OMEN = effect("invasion_omen", () ->
+            new InvasionOmenEffect(MobEffectCategory.HARMFUL, 0x2d4a3e)).build();
+
+
 
     public static void addMixs() {
         PotionBrewing.addMix(Potions.AWKWARD, PVZBlocks.PLANTERN.get().asItem(), potionMap.get("brightness").get());
@@ -193,6 +198,22 @@ public class PVZMobEffects {
                 return p_19455_ % j == 0;
             } else {
                 return true;
+            }
+        }
+    }
+
+    public static class InvasionOmenEffect extends MobEffect {
+
+        public InvasionOmenEffect(MobEffectCategory p_19451_, int p_19452_) {
+            super(p_19451_, p_19452_);
+        }
+
+        public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int amplifier) {
+            super.removeAttributeModifiers(entity, attributeMap, amplifier);
+            if (! entity.level.isClientSide) {
+                entity.level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
+                    cap.addEvent(new Invasion(entity.level, entity, entity.blockPosition(), amplifier));
+                });
             }
         }
     }

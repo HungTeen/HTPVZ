@@ -40,23 +40,28 @@ public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken{
     }
 
     @SubscribeEvent
-    public static void handleHurt(LivingHurtEvent event) {
+    public static void onLivingHurt(LivingHurtEvent event) {
         if (! event.getSource().isBypassArmor() || event.getSource() == DamageSource.FREEZE) {
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 if (slot.getType() == EquipmentSlot.Type.ARMOR) {
                     ItemStack stack = event.getEntity().getItemBySlot(slot);
                     if (stack.getItem() instanceof ExtraHealthArmorItem item) {
-                        int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
-                        stack.hurtAndBreak(blocked * 5 /* 5 durability equals to 1 health. */, event.getEntity(), (entity) -> {
-                            DropDamagedArmorPacket.drop(item, entity.level,
-                                    entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0));
-                            entity.broadcastBreakEvent(slot);
-                        });
-                        event.setAmount(event.getAmount() - blocked);
+                        item.handleHurt(event);
                     }
                 }
             }
         }
+    }
+
+    public void handleHurt(LivingHurtEvent event) {
+        ItemStack stack = event.getEntity().getItemBySlot(slot);
+        int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
+        stack.hurtAndBreak(blocked * 5 /* 5 durability equals to 1 health. */, event.getEntity(), (entity) -> {
+            DropDamagedArmorPacket.drop((IDropWhenBroken) stack.getItem(), entity.level,
+                    entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0));
+            entity.broadcastBreakEvent(slot);
+        });
+        event.setAmount(event.getAmount() - blocked);
     }
 
     public void clientBroken(Vec3 pos, Level level) {

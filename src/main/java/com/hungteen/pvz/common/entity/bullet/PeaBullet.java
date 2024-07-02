@@ -16,14 +16,12 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class PeaBullet extends BaseBullet {
     public int changeCoolDown = 0;
     public boolean neverMelt = false;
-    public boolean ignoreArmor = false;
+    public boolean ignoreShield = false;
     protected static final EntityDataAccessor<PeaType> TYPE = SynchedEntityData.defineId(PeaBullet.class, OtherRegisters.peaTypeDataSerializer);
 
     public PeaBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
@@ -49,7 +47,7 @@ public class PeaBullet extends BaseBullet {
         super.tick();
         //change type
         if (changeCoolDown <= 0) {
-            if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
+            if (this.isInWater() || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
                 if (getPeaType() == PeaType.Fire) {
                     setPeaType(PeaType.Common);
                     this.changeCoolDown = 5;
@@ -59,7 +57,7 @@ public class PeaBullet extends BaseBullet {
                     setPeaType(PeaType.Common);
                     this.changeCoolDown = 5;
                 }
-            } else if (level.getBlockState(this.blockPosition()).is(Blocks.LAVA)) {
+            } else if (this.isInLava()) {
                 setPeaType(this.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common : PeaBullet.PeaType.Fire);
                 this.changeCoolDown = 5;
             }
@@ -135,7 +133,7 @@ public class PeaBullet extends BaseBullet {
         super.addAdditionalSaveData(tag);
         tag.putInt("pea_type", getPeaType().ordinal());
         tag.putBoolean("never_melt", this.neverMelt);
-        tag.putBoolean("ignore_armor", this.neverMelt);
+        tag.putBoolean("ignore_armor", this.ignoreShield);
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
@@ -147,19 +145,19 @@ public class PeaBullet extends BaseBullet {
             this.neverMelt = tag.getBoolean("never_melt");
         }
         if (tag.contains("ignore_armor")) {
-            this.ignoreArmor = tag.getBoolean("ignore_armor");
+            this.ignoreShield = tag.getBoolean("ignore_armor");
         }
     }
     @Override
     protected boolean dealDamageTo(Entity target) {
         boolean hurt;
-        if (! ignoreArmor) {
+        if (!ignoreShield) {
             hurt = super.dealDamageTo(target);
         } else {
             final float damage = this.getAttackDamage();
             //default normal damage.
-            hurt = target.hurt(PVZDamageSource.hitBossWithMultiplier(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
-                            PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()).bypassArmor())
+            hurt = target.hurt(PVZDamageSource.hitBossWithMultiplier(PVZDamageSource.knockBack(PVZDamageSource.bypassShield(
+                    PVZDamageSource.ignoreInvTime(PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())))
                     , getKnockBackStrength()), target, 0.2F), damage);
             this.discard();
         }

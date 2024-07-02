@@ -38,7 +38,7 @@ public class PotatoMineModel<T extends PotatoMine> extends HierarchicalModel<T> 
 
 		PartDefinition top = antenna.addOrReplaceChild("top", CubeListBuilder.create().texOffs(48, 0).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition light = top.addOrReplaceChild("light", CubeListBuilder.create().texOffs(48, 0).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.001F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition light = top.addOrReplaceChild("light", CubeListBuilder.create().texOffs(48, 8).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.001F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 64, 64);
 

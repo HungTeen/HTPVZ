@@ -3,12 +3,9 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
-import com.hungteen.pvz.common.entity.Sprout;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.common.tags.PVZItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -33,7 +30,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-import java.awt.*;
 import java.util.Set;
 
 public class MariGold extends SimplePlant implements IGardenPlant {

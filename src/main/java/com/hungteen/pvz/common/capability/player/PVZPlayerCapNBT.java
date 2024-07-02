@@ -155,6 +155,7 @@ public class PVZPlayerCapNBT {
     public void deserializeNBT(CompoundTag baseTag) {
         String name = "";
         int count = 0;
+        //TODO change these to tag.gatAllTags().
         if (baseTag.contains("values")) {
             CompoundTag valueTag = baseTag.getCompound("values");
             while (valueTag.contains("name" + count)) {

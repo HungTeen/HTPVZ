@@ -3,7 +3,7 @@ package com.hungteen.pvz.common.item;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.RegisterSproutsEvent;
 import com.hungteen.pvz.common.block.GardenFlowerPotBlock;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.Sprout;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.Util;
@@ -71,7 +71,7 @@ public class SproutItem extends Item {
                     if (sprout != null) {
                         sprout.transformChance = getTransformChance(context.getItemInHand());
                         sprout.setMarigold(this.isMarigold);
-                        sprout.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(context.getPlayer()));
+                        sprout.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(context.getPlayer()));
                         sprout.renewWaterPot();
                         itemstack.shrink(1);
                         level.gameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, pos);

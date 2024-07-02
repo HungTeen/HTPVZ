@@ -19,9 +19,9 @@ public class CornBullet extends BaseBullet {
         this.size = 0.5F;
     }
 
-    public CornBullet(Level worldIn, LivingEntity cabbagePult) {
-        super(PVZEntities.CORN.get(), worldIn, cabbagePult);
-        setOwner(cabbagePult);
+    public CornBullet(Level worldIn, LivingEntity kernelPult) {
+        super(PVZEntities.CORN.get(), worldIn, kernelPult);
+        setOwner(kernelPult);
         this.setNoGravity(false);
         this.damageName = "corn";
         this.size = 0.5F;

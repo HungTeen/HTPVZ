@@ -65,18 +65,16 @@ public class DuckLifebuoyItem extends ArmorItem implements Wearable {
         boolean isInWater = false;
         Vec3 lifeBuoyPos = livingEntity.position().add(0, livingEntity.getBbHeight() * 0.55, 0);
         if (! livingEntity.level.getFluidState(new BlockPos(lifeBuoyPos.x, lifeBuoyPos.y, lifeBuoyPos.z)).isEmpty()) {
-            for (EquipmentSlot slot : EquipmentSlot.values()) {
-                if (livingEntity.getItemBySlot(slot).getItem() instanceof DuckLifebuoyItem item && item.getSlot() == slot) {
-                    livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().add(0, 0.04, 0));
-                    isInWater = true;
-                    if (livingEntity instanceof PathfinderMob mob && ! mob.getNavigation().isDone()) {
-                        if (! mob.getNavigation().canFloat() && mob.isInWater() && mob.tickCount % 3 == 0) {
-                            //TODO find a way to decrease calculation.
-                            mob.getNavigation().setCanFloat(true);
-                            mob.getNavigation().path = null;
-                            mob.getNavigation().path = mob.getNavigation().createPath(mob.getNavigation().getTargetPos(), 0);
-                            mob.getNavigation().setCanFloat(false);
-                        }
+            if (livingEntity.getItemBySlot(EquipmentSlot.FEET).getItem() instanceof DuckLifebuoyItem item && item.getSlot() == EquipmentSlot.FEET) {
+                livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().add(0, 0.04, 0));
+                isInWater = true;
+                if (livingEntity instanceof PathfinderMob mob && ! mob.getNavigation().isDone()) {
+                    if (! mob.getNavigation().canFloat() && mob.isInWater() && mob.tickCount % 3 == 0) {
+                        //TODO find a way to decrease calculation.
+                        mob.getNavigation().setCanFloat(true);
+                        mob.getNavigation().path = null;
+                        mob.getNavigation().path = mob.getNavigation().createPath(mob.getNavigation().getTargetPos(), 0);
+                        mob.getNavigation().setCanFloat(false);
                     }
                 }
             }

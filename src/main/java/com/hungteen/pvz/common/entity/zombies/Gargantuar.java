@@ -1,5 +1,7 @@
 package com.hungteen.pvz.common.entity.zombies;
 
+import com.hungteen.pvz.api.interfaces.IPlant;
+import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.BlockWithShieldGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -67,6 +69,7 @@ public class Gargantuar extends PVZZombie {
         this.targetSelector.addGoal(1, new GroupShareEnemyGoal(this));
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers(ZombifiedPiglin.class));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class, true, (entity) -> entity instanceof IPlant && EntityUtil.checkCanEntityBeAttack(this, entity)));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
@@ -207,8 +210,8 @@ public class Gargantuar extends PVZZombie {
                                     .multiply(horizontalMovement, 0, horizontalMovement).add(0, 0.4, 0);
                                 entity.setDeltaMovement(entity.getDeltaMovement().add(vec3));
                             });
+                            ((ServerLevel) mob.level).sendParticles(ParticleTypes.EXPLOSION, target.getX(), target.getY(0.5D), target.getZ(), 5, 1, 0.0D, 1, 0.0D);
                         }
-                        ((ServerLevel) mob.level).sendParticles(ParticleTypes.EXPLOSION, target.getX(), target.getY(0.5D), target.getZ(), 5, 1, 0.0D, 1, 0.0D);
                         this.mob.doHurtTarget(target);
                     }
                 }
@@ -216,7 +219,7 @@ public class Gargantuar extends PVZZombie {
         }
         @Override
         protected double getAttackReachSqr(LivingEntity entity) {
-            return mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER) ? 9 : 4;
+            return entity.getBbWidth() * entity.getBbWidth() * (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER) ? 6 : 3) + entity.getBbWidth() * entity.getBbWidth();
         }
         @Override
         protected void checkAndPerformAttack(LivingEntity target, double distance) {

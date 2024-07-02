@@ -1,16 +1,14 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.Anger;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -18,10 +16,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 
 import java.util.List;
-import java.util.Set;
 
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 
@@ -56,7 +52,7 @@ public class Jalapeno extends SimplePlant {
                     anger.preciseStrike = true;
                 }
                 anger.setPos(this.position().add(0, 1, 0));
-                anger.getCapability(PVZOwnedCapability.CAP).orElse(null).setOwner(this);
+                anger.getCapability(PVZEntityCapability.CAP).orElse(null).setOwner(this);
                 anger.yRot = direction.toYRot();
                 level.addFreshEntity(anger);
                 if (this.hasSkill("skill.pvz.jalapeno.tracking_fire")) {
@@ -84,6 +80,13 @@ public class Jalapeno extends SimplePlant {
         super.baseTick();
         level.addParticle(ParticleTypes.LAVA, getX(), getY(), getZ(),
                 random.nextFloat() * 0.15 - 0.075, random.nextFloat() * 0.15, random.nextFloat() * 0.15 - 0.075);
+    }
+    @Override
+    public void die(DamageSource damageSource) {
+        if (! damageSource.isMagic() && ! EntityUtil.isTeammate(this, damageSource.getEntity())) {
+            this.explode();
+        }
+        super.die(damageSource);
     }
     @Override
     public List<Skill> getStaticSkillList(){

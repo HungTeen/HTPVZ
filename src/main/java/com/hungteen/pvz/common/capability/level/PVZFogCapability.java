@@ -1,4 +1,4 @@
-package com.hungteen.pvz.common.capability.fog;
+package com.hungteen.pvz.common.capability.level;
 
 import com.hungteen.pvz.common.world.PVZFog;
 import net.minecraft.core.Direction;
@@ -27,11 +27,11 @@ public class PVZFogCapability implements ICapabilitySerializable<CompoundTag> {
 
     @Override
     public CompoundTag serializeNBT() {
-        return PVZFog.serialize();
+        return PVZFog.serializeNBT();
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-        PVZFog.deserialize(nbt);
+        PVZFog.deserializeNBT(nbt);
     }
 }

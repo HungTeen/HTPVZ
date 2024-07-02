@@ -2,14 +2,13 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -28,9 +27,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -49,7 +46,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
@@ -59,7 +55,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+
 public class TangleKelp extends SimplePlant implements Bucketable {
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(TangleKelp.class, EntityDataSerializers.BOOLEAN);
     public static List<Skill> staticSkillList = List.of(
@@ -280,7 +276,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     public void saveToBucketTag(ItemStack itemStack) {
         Bucketable.saveDefaultDataToBucketTag(this, itemStack);
         CompoundTag compoundtag = itemStack.getOrCreateTag();
-        PVZOwnedCapability cap = getCapability(PVZOwnedCapability.CAP).orElse(null);
+        PVZEntityCapability cap = getCapability(PVZEntityCapability.CAP).orElse(null);
         if (cap != null && cap.ownerUuid != null) {
             compoundtag.putUUID("Owner", cap.ownerUuid);
             compoundtag.putInt("Skill", this.getSkillVal());
@@ -290,7 +286,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     public void loadFromBucketTag(CompoundTag tag) {
         Bucketable.loadDefaultDataFromBucketTag(this, tag);
         if (tag.contains("Owner")) {
-            PVZOwnedCapability cap = getCapability(PVZOwnedCapability.CAP).orElse(null);
+            PVZEntityCapability cap = getCapability(PVZEntityCapability.CAP).orElse(null);
             if (cap != null) {
                 cap.ownerUuid = tag.getUUID("Owner");
             }

@@ -4,7 +4,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IDefenderPlant;
 import com.hungteen.pvz.api.interfaces.IIronEntity;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
@@ -144,7 +144,7 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
                     if (target != null) {
                         ((WallNut) target).setSkillVal(this.getSkillVal());
                         if (event != null) {
-                            target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                            target.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
                         }
                     }
                     this.discard();
@@ -250,10 +250,12 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
         WallNut wallNut;
         Vec3 storedDeltaMovement;
         int wiltTick;
+        int damageCooldown;
         public WallNutBowlingGoal(WallNut wallNut) {
             this.wallNut = wallNut;
             this.storedDeltaMovement = wallNut.getDeltaMovement();
             this.wiltTick = 0;
+            this.damageCooldown = 0;
         }
         @Override
         public boolean requiresUpdateEveryTick() {
@@ -262,6 +264,9 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
 
         @Override
         public boolean canUse() {
+            if (damageCooldown > 0) {
+                damageCooldown -= 1;
+            }
             if (wallNut.canBowling() && wallNut.getDeltaMovement().distanceToSqr(Vec3.ZERO) > 0.25) {
                 wallNut.setBowling(true);
             }
@@ -277,9 +282,15 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
         public void tick() {
             List<Entity> entities = wallNut.level.getEntities(wallNut, wallNut.getBoundingBox().inflate(0.5, 0.5, 0.5),
                     (target) -> EntityUtil.checkCanEntityBeAttack(wallNut, target));
-            if (! entities.isEmpty()) {
+            if (! entities.isEmpty() && damageCooldown <= 0) {
                 if (wallNut.hasSkill("skill.pvz.wall_nut.explode")) {
                     wallNut.explode();
+                } else {
+                    entities.forEach((entity -> {
+                        entity.hurt(PVZDamageSource.wallNutCollide(this.wallNut), (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                        damageCooldown = 5;
+                        wallNut.hurt(PVZDamageSource.wallNutCollide(this.wallNut), 15);
+                    }));
                 }
                 Vec3 deltaMovement = wallNut.getDeltaMovement();
                 double angle = wallNut.random.nextFloat() * Math.PI;
@@ -289,12 +300,8 @@ public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity 
             } else if (wallNut.horizontalCollision) {
                 wallNut.setDeltaMovement(wallNut.getDeltaMovement().add(
                         wallNut.getDeltaMovement().subtract(storedDeltaMovement).scale(wallNut.hasSkill("skill.pvz.wall_nut.elastic_collision") ? 1 : 0.5F)));
-                wallNut.hurt(PVZDamageSource.NUT_COLLIDE, 10);
+                wallNut.hurt(PVZDamageSource.wallNutCollide(this.wallNut), 10);
             }
-            entities.forEach((entity -> {
-                entity.hurt(PVZDamageSource.NUT_COLLIDE, (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE));
-                wallNut.hurt(PVZDamageSource.NUT_COLLIDE, 15);
-            }));
             storedDeltaMovement = wallNut.getDeltaMovement();
             if (++ wiltTick % 20 == 0) {
                 wallNut.hurt(PVZDamageSource.PLANT_WILT, 5);

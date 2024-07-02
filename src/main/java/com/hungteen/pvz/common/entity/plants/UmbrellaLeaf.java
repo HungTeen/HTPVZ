@@ -12,6 +12,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -32,7 +34,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     public AnimationState openAnimationState = new AnimationState();
     protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(UmbrellaLeaf.class, EntityDataSerializers.BOOLEAN);
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf", PVZItems.LUX_ESSENCE, 8, 3, -100, -50)
+            new Skill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf", PVZItems.LUX_ESSENCE, 8, 3, -75, -50)
     );
 
     public UmbrellaLeaf(EntityType<? extends Mob> entityType, Level level) {
@@ -136,7 +138,10 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     @Override
     public void handlePVZPacket(ServerPlayer player, int val) {
-        setAttackTime(30);
+        if (this.getAttackTime() <= 20) {
+            setAttackTime(30);
+        }
+        player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 5, 0, false, false));
     }
 
     private static class UmbrellaLeafBounceGoal extends Goal {
@@ -173,7 +178,9 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                             Math.min(Math.abs(vec.y), 1),
                             Math.min(0.5 * (entity1.getZ() - entity.getZ()), 1));
                     entity1.fallDistance = 0;
-                    if (entity1 instanceof Projectile) {
+                    if (entity1 instanceof LivingEntity) {
+                        ((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 5, 0, false, false));
+                    } else if (entity1 instanceof Projectile) {
                         ((Projectile) entity1).setOwner(entity);
                     }
                 }));

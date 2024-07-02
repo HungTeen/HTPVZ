@@ -5,7 +5,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.*;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
@@ -342,7 +342,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public static boolean onBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
         //check permission.
         final boolean[] permission = {false};
-        target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> {
+        target.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> {
             Entity owner = cap.getOwner();
             if (owner != null) {
                 permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.shovelPermission) ?
@@ -359,7 +359,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                 ItemStack itemstack = player.getItemInHand(handIn);
                 itemstack.hurtAndBreak(2, player, (entity) -> entity.broadcastBreakEvent(handIn));
                 int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
-                PVZOwnedCapability cap = target.getCapability(PVZOwnedCapability.CAP).orElse(null);
+                PVZEntityCapability cap = target.getCapability(PVZEntityCapability.CAP).orElse(null);
                 if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
                     Sun.spawnSunsWithEffectsByAmount(target.level, target.getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
                 }
@@ -461,7 +461,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
-        PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
+        PVZEntityCapability cap = this.getCapability(PVZEntityCapability.CAP).orElse(null);
         return cap == null || ! cap.hasOwner();
         //TODO handle situation when player is not available when loading.
     }

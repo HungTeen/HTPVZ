@@ -75,6 +75,8 @@ public class PVZSeedPackets {
         add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
                 .recipe(Items.BIG_DRIPLEAF, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         //the end
+        add(PVZEntities.STARFRUIT).cost(225).coolDown(FAST).skillList(Starfruit.staticSkillList)
+                .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
         add(PVZEntities.MELON_PULT).cost(350).coolDown(MEDIUM).skillList(MelonPult.staticSkillList)
                 .recipe(Items.MELON, PVZItems.CHORUS_FRUIT_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)

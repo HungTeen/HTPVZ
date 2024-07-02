@@ -65,7 +65,9 @@ public class PVZItems {
     public static final RegistryObject<Item> SNOW_PEA = composter(0.3F).item("snow_pea");
     public static final RegistryObject<Item> FLAME_PEA = composter(0.3F).item("flame_pea");
     public static final RegistryObject<Item> NUT = composter(0.3F).item("nut");
+    public static final RegistryObject<Item> STARFRUIT = item("starfruit");
     public static final RegistryObject<Item> PEPPER = composter(0.3F).item("pepper");
+    public static final RegistryObject<Item> FALLEN_STAR = item("fallen_star");
     public static final RegistryObject<Item> CABBAGE_SEED = composter(0.3F).item("cabbage_seeds", () -> new BlockItem(PVZBlocks.CABBAGE_SEEDS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> CORN_KERNELS = composter(0.3F).item("corn_kernels", () -> new BlockItem(PVZBlocks.CORN_KERNELS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> JEWEL = item("jewel");
@@ -114,13 +116,13 @@ public class PVZItems {
     public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(500), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> DUCK_LIFEBUOY = item("duck_lifebuoy", () -> new DuckLifebuoyItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> SCREEN_DOOR_SHIELD = tag(PVZItemTags.IRON, PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).model(Model.Modeled).item("screen_door_shield", () -> new PVZShieldItem((new Item.Properties()).durability(150).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> JACK_IN_THE_BOX = tag(PVZItemTags.IRON).model(Model.Modeled).item("jack_in_the_box", () -> new JackInTheBoxItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1)));
 
     //tools
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> PEA_GUN = model(Model.Modeled).item("pea_gun", () -> new PeaGunItem( new Item.Properties().stacksTo(1).durability(400).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> CHILI_CHAN = model(Model.Handheld).item("chili_chan", () -> new ChiliChanItem( new Item.Properties().stacksTo(1).durability(233).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ANVIL_HAMMER = tag(PVZItemTags.IRON, PVZItemTags.GIANT_HAMMER).model(Model.Modeled).item("anvil_hammer", () -> new AnvilHammerItem( new Item.Properties().stacksTo(1).durability(233).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> JACK_IN_THE_BOX = tag(PVZItemTags.IRON).model(Model.Modeled).item("jack_in_the_box", () -> new JackInTheBoxItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1)));
     public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> WATERING_POT = model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_BLOCKS)));

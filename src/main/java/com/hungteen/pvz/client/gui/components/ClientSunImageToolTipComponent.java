@@ -33,7 +33,7 @@ public class ClientSunImageToolTipComponent implements ClientTooltipComponent {
         renderAsNumber = PVZConfig.renderSunAsNumber() || ! component.isCostSun;
         sunText = (component.isAddition && cost == 0) ? "" : (Language.getInstance().getOrDefault("tooltip.pvz.cost") +
                 (component.isAddition ? (cost >= 0 ? ": +" : ": ") : " ") +
-                (renderAsNumber ? "" + (component.isAddition ? Math.abs(cost) : cost) : (cost >= 0 ? "" : "-")));
+                (renderAsNumber ? "" + cost : (cost >= 0 ? "" : "-")));
         cd = component.cd;
         if (component.hasCd && ! (component.isAddition && cd == 0)) {
             cdText = Language.getInstance().getOrDefault("tooltip.pvz.cool_down") +

@@ -24,11 +24,14 @@ public class PVZConfig {
     public static int renderSunBarY(){
         return Client.renderSunBarY.get();
     }
-    public static double renderSunBarScale(){
-        return Client.renderSunBarScale.get();
+    public static double renderOverlayScale(){
+        return Client.renderOverlayScale.get();
     }
     public static boolean renderSeparateArmorBar(){
         return Client.renderSeparateArmorBar.get();
+    }
+    public static boolean renderPVZTypeInvasionBar(){
+        return Client.renderPVZTypeInvasionBar.get();
     }
 
     //model settings
@@ -135,10 +138,11 @@ public class PVZConfig {
 
         //overlay settings
 
+        public static ForgeConfigSpec.BooleanValue renderPVZTypeInvasionBar;
         public static ForgeConfigSpec.BooleanValue renderSunAsNumber;
         public static ForgeConfigSpec.IntValue renderSunBarX;
         public static ForgeConfigSpec.IntValue renderSunBarY;
-        public static ForgeConfigSpec.DoubleValue renderSunBarScale;
+        public static ForgeConfigSpec.DoubleValue renderOverlayScale;
         public static ForgeConfigSpec.BooleanValue renderSeparateArmorBar;
         public static ForgeConfigSpec.BooleanValue renderBulletAsModel;
         public static ForgeConfigSpec.BooleanValue zombiesDropParts;
@@ -149,6 +153,10 @@ public class PVZConfig {
         public Client(ForgeConfigSpec.Builder builder){
             builder.comment("Settings about GUI rendering. Some settings activates after restarting the game.").push("Overlay Settings");
             //overlay settings
+            renderOverlayScale = builder
+                    .translation("config.pvz.client.render_overlay_scale")
+                    .comment("control scale of displaying UI that keeps on the screen like the sun amount bar and invasion bar.")
+                    .defineInRange("renderOverlayScale", 0.75, 0.1, 10);
             renderSunAsNumber = builder
                     .translation("config.pvz.client.render_sun_as_number")
                     .comment("turn on to display sun amount as number, or else display as icons.")
@@ -161,14 +169,14 @@ public class PVZConfig {
                     .translation("config.pvz.client.render_sun_bar_y")
                     .comment("control y coordinate of displaying the sun amount bar. count from the bottom if set negative.")
                     .defineInRange("renderSunBarY", 0, -10000, 10000);
-            renderSunBarScale = builder
-                    .translation("config.pvz.client.render_sun_bar_scale")
-                    .comment("control scale of displaying the sun amount bar.")
-                    .defineInRange("renderSunBarScale", 0.75, 0.1, 10);
             renderSeparateArmorBar = builder
                     .translation("config.pvz.client.render_separate_armor_bar")
                     .comment("turn on to display armor amount on health bar, or else display as a single bar and hide valina armor display.")
                     .define("renderSeparateArmorBar", true);
+            renderPVZTypeInvasionBar = builder
+                    .translation("config.pvz.client.render_pvz_type_invasion_bar")
+                    .comment("turn on to display invasion progress in the lower right corner of the screen with a zombie head.")
+                    .define("renderPVZTypeInvasionBar", false);
             builder.pop();
             builder.comment("Settings about models").push("Model Settings");
             //model settings

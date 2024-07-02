@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.model.plants.*;
+import com.hungteen.pvz.client.renderer.EntityLifterRenderer;
 import com.hungteen.pvz.client.renderer.ModelPartRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
@@ -25,6 +26,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
@@ -103,6 +105,7 @@ public class PVZEntities {
             .collision(0.4F, 0.4F).noLoot().entity("anger", Anger::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F).noLoot()
             .entity("sprout", Sprout::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
 
     //client
     public static final RegistryObject<EntityType<ModelPartEntity>> MODEL_PART = collision(0.2F, 0.2F).noSummon()
@@ -137,6 +140,8 @@ public class PVZEntities {
             .collision(1F, 0.5F).entity("pumpkin", Pumpkin::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<FlowerPot>> FLOWER_POT = attribute(FlowerPot::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.75F, 0.475F).entity("flower_pot", FlowerPot::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<Starfruit>> STARFRUIT = attribute(Starfruit::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.8F, 0.55F).entity("starfruit", Starfruit::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<LilyPad>> LILY_PAD = attribute(LilyPad::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(0.875F, 0.2F).entity("lily_pad", LilyPad::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Plantern>> PLANTERN = attribute(Plantern::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
@@ -181,10 +186,12 @@ public class PVZEntities {
             .spawnEgg(0xaa3a39, 0x454ab0)
             .entity("imp", Imp::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<Gargantuar>> GARGANTUAR = attribute(Gargantuar::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0xaa3a39, 0x454ab0)
+            .spawnEgg(0x8a5949, 0x43446d)
             .collision(1.5F, 2.7F).entity("gargantuar", Gargantuar::new, MobCategory.MONSTER);
+
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F).entity("pea", PeaBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<StarfruitBullet>> STARFRUIT_BULLET = collision(0.6F, 0.2F).entity("starfruit_bullet", StarfruitBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<CabbageBullet>> CABBAGE = collision(0.4F, 0.4F).entity("cabbage", CabbageBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<CornBullet>> CORN = collision(0.25F, 0.25F).entity("corn", CornBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<ButterBullet>> BUTTER = collision(0.5F, 0.5F).entity("butter", ButterBullet::new, MobCategory.MISC);
@@ -205,6 +212,7 @@ public class PVZEntities {
     public static void simpleRenderHandler() {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
         rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.5F, "textures/entity/plants/pea_shooter/pea_shooter.png");
+        rS(STARFRUIT, StarfruitModel::new, StarfruitModel::createBodyLayer, 0.5F, "textures/entity/plants/starfruit/starfruit.png");
         rS(SPLIT_PEA, SplitPeaModel::new, SplitPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/split_pea/split_pea.png");
         rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.5F, "textures/entity/plants/repeater/repeater.png");
         rS(GATLING_PEA, GatlingPeaModel::new, GatlingPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/gatling_pea/gatling_pea.png");
@@ -238,6 +246,7 @@ public class PVZEntities {
         r(e, PLANTERN, PlanternRenderer::new);
         r(e, FLOWER_POT, FlowerPotRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
+        r(e, STARFRUIT_BULLET, StarfruitBulletRenderer::new);
         r(e, CABBAGE, CabbageBulletRenderer::new);
         r(e, CORN, CornBulletRenderer::new);
         r(e, BUTTER, ButterBulletRenderer::new);
@@ -254,6 +263,7 @@ public class PVZEntities {
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);
         r(e, MODEL_PART, ModelPartRenderer::new);
+        r(e, ENTITY_LIFTER, EntityLifterRenderer::new);
 
         //enter here
 

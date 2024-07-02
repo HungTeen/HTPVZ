@@ -5,7 +5,6 @@ import com.hungteen.pvz.common.item.IDropWhenBroken;
 import com.hungteen.pvz.common.item.PVZShieldItem;
 import com.hungteen.pvz.common.network.DropDamagedArmorPacket;
 import com.hungteen.pvz.common.register.PVZBlocks;
-import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -14,17 +13,13 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
-import java.util.logging.Level;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class PVZWorldEvents {

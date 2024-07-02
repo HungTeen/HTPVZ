@@ -5,7 +5,7 @@ import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.api.interfaces.ICanGroupUp;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.common.entity.SimplePlant;
@@ -294,8 +294,8 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                     if (hasCustomName()) {
                         turnip.setCustomName(this.getCustomName());
                     }
-                    PVZOwnedCapability cap = turnip.getCapability(PVZOwnedCapability.CAP).orElse(null);
-                    PVZOwnedCapability thisCap = getCapability(PVZOwnedCapability.CAP).orElse(null);
+                    PVZEntityCapability cap = turnip.getCapability(PVZEntityCapability.CAP).orElse(null);
+                    PVZEntityCapability thisCap = getCapability(PVZEntityCapability.CAP).orElse(null);
                     cap.setOwner(thisCap.getOwner());
                     turnip.startFollowing(this);
                 }
@@ -347,7 +347,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
-        PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
+        PVZEntityCapability cap = this.getCapability(PVZEntityCapability.CAP).orElse(null);
         return cap == null || ! cap.hasOwner();
     }
 

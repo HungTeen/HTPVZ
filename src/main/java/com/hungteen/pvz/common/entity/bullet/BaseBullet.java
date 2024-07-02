@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.entity.bullet;
 
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -60,7 +60,7 @@ public class BaseBullet extends Projectile {
 	@Override
 	public void setOwner(@Nullable Entity entity) {
 		if (! level.isClientSide()) {
-			this.getCapability(PVZOwnedCapability.CAP).orElse(null).setOwner(entity);
+			this.getCapability(PVZEntityCapability.CAP).orElse(null).setOwner(entity);
 		}
 		super.setOwner(entity);
 	}
@@ -76,7 +76,7 @@ public class BaseBullet extends Projectile {
 		double dy = vec3.y;
 		double dz = vec3.z;
 		this.updateRotation();
-		if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
+		if (this.isInWater() || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
  			dx -= (1 - this.getWaterSlowDown()) * dx;
 			dy -= (1 - this.getWaterSlowDown()) * dy;
 			dz -= (1 - this.getWaterSlowDown()) * dz;
@@ -102,6 +102,11 @@ public class BaseBullet extends Projectile {
 		this.xRotO = this.getXRot();
 		this.yRotO = this.getYRot();
 		this.handleNetherPortal();
+
+		this.wasInPowderSnow = this.isInPowderSnow;
+		this.isInPowderSnow = false;
+		this.updateInWaterStateAndDoFluidPushing();
+
 		if (this.isInLava()) {
 			this.lavaHurt();
 			this.fallDistance *= this.getFluidFallDistanceModifier(net.minecraftforge.common.ForgeMod.LAVA_TYPE.get());

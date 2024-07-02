@@ -39,7 +39,7 @@ public class IcebergLettuce extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return ShooterPlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 2D)
-                .add(Attributes.FOLLOW_RANGE, 6D);
+                .add(Attributes.FOLLOW_RANGE, 8D);
     }
     @Override
     public List<Skill> getStaticSkillList(){

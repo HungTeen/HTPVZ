@@ -2,6 +2,7 @@ package com.hungteen.pvz.client.gui;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.plants.GatlingPea;
@@ -10,13 +11,18 @@ import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.BossEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,6 +31,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
@@ -33,7 +40,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Random;
+import java.util.*;
 
 import static net.minecraft.util.Mth.ceil;
 
@@ -46,14 +53,15 @@ public class PVZOverlayHandler{
     private static int bufferSunBarLength = 0;
     private static final Random random = new Random();
     public static float notEnoughHint = 0;
-    public static ItemStack storedMainHandItemStack = null;
-    public static boolean mainHandResourceIsSun = true;
-    public static int mainHandStackCost = 0;
-    public static ItemStack storedOffHandItemStack = null;
-    public static boolean offHandResourceIsSun = true;
-    public static int offHandStackCost = 0;
-    public static boolean storedHaveCost = false;
-    public static boolean renderArmorInSingleBar = false;
+    private static ItemStack storedMainHandItemStack = null;
+    private static boolean mainHandResourceIsSun = true;
+    private static int mainHandStackCost = 0;
+    private static ItemStack storedOffHandItemStack = null;
+    private static boolean offHandResourceIsSun = true;
+    private static int offHandStackCost = 0;
+    private static boolean storedHaveCost = false;
+    private static boolean renderArmorInSingleBar = false;
+    private static Set<ZombieEventBarInformation> invasionBars = new HashSet<>();
 
     public static void tick(float tickTime) {
         if (PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).isPresent()) {
@@ -221,8 +229,7 @@ public class PVZOverlayHandler{
             RenderSystem.enableBlend();
             int x = PVZConfig.renderSunBarX();
             int y = PVZConfig.renderSunBarY();
-            double scale = PVZConfig.renderSunBarScale();
-
+            double scale = PVZConfig.renderOverlayScale();
             stack.scale((float) (scale), (float) (scale), (float) (scale));
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
 
@@ -388,6 +395,73 @@ public class PVZOverlayHandler{
         }
     }
 
+    @SubscribeEvent
+    public static void getInvasionBars(CustomizeGuiOverlayEvent.BossEventProgress event) {
+        ComponentContents contents = event.getBossEvent().getName().getContents();
+        if (contents instanceof TranslatableContents tc && tc.getKey().contains("event.pvz.invasion")) {
+            event.setIncrement(PVZConfig.renderPVZTypeInvasionBar() ? 0 : event.getIncrement() + 5);
+            event.setCanceled(true);
+            List<Object> list = Arrays.stream(tc.getArgs()).toList();
+            invasionBars.add(new ZombieEventBarInformation((UUID) list.get(list.size() - 1), event.getX(), event.getY(), event.getBossEvent()));
+        }
+    }
+
+    private static void renderInvasionBars(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+        PVZZombieEventCapability cap = ClientProxy.getLevel().getCapability(PVZZombieEventCapability.CAP).orElse(null);
+        if (cap == null) {
+            return;
+        }
+        RenderSystem.enableBlend();
+        int renderHeight = 24;
+        for (ZombieEventBarInformation information : invasionBars) {
+            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
+            Invasion invasion = (Invasion) cap.getEvent(information.uuid);
+            if (invasion == null) {
+                continue;
+            }
+            if (PVZConfig.renderPVZTypeInvasionBar()) {
+                //when drawing at right bottom.
+                stack.pushPose();
+                double scale = PVZConfig.renderOverlayScale();
+                stack.scale((float) scale, (float) scale, (float) scale);
+                width = (int) (width / scale);
+                height = (int) (height / scale);
+                blit(stack, width - 160, height - renderHeight, 0, 54, 158, 21);
+                blit(stack, (int) (width - 9 - 144 * (information.event.getProgress())), height - renderHeight, 7 + (int) (144 * (1 - information.event.getProgress())), 75, (int) (144 * (information.event.getProgress())), 21);
+                for (int i = 0; i < invasion.waves.size(); i ++) {
+                    Invasion.Wave wave = invasion.waves.get(i);
+                    if (wave.isBigWave) {
+                        blit(stack, (int) (width - 23 - 130 * ((float) i / (invasion.waves.size() - 1))),
+                                height - renderHeight + (invasion.currentWave >= i ? - 2 : + 3), 242, 11, 14, (invasion.currentWave >= i ? 15 : 10));
+                    }
+                }
+                blit(stack, (int) (width - 9 - 144 * (information.event.getProgress())), height - renderHeight + 3, 241, 41, 15, 12);
+                renderHeight += 25;
+                stack.popPose();
+            } else {
+                //when drawing at top, not affected by overlay scale.
+                blit(stack, information.x() - 2, information.y() + 2, 0, 40, 186, 9);
+                blit(stack, information.x(), information.y() + 4, 0, 49, (int) (182 * information.event.getProgress()), 5);
+                for (int i = 0; i < invasion.waves.size(); i ++) {
+                    Invasion.Wave wave = invasion.waves.get(i);
+                    if (wave.isBigWave) {
+                        blit(stack, (int) (information.x() + 170 * ((float) (i + 1) / invasion.waves.size())),
+                                information.y() + (invasion.currentWave >= i ? - 2 : + 1), 234, 0, 11, (invasion.currentWave >= i ? 11 : 8));
+                    }
+                    blit(stack, (int) (information.x() + 170 * ((float) (i + 1) / invasion.waves.size())),
+                            information.y() + 11 + (invasion.currentWave >= i ? - 2 : + 1), 234, 0, 11, (invasion.currentWave >= i ? 11 : 8));
+                }
+                Component component = information.event.getName();
+                int l = ClientProxy.MC.font.width(component);
+                int i1 = width / 2 - l / 2;
+                int j1 = information.y() - 9;
+                ClientProxy.MC.font.drawShadow(stack, component, (float)i1, (float)j1, 16777215);
+            }
+        }
+        RenderSystem.disableBlend();
+        invasionBars.clear();
+    }
+
     public static void blit(PoseStack stack,int x, int y, float u, float v, int width, int height) {
         GuiComponent.blit(stack,x,y,0,u,v,width,height,256,256);
     }
@@ -418,6 +492,8 @@ public class PVZOverlayHandler{
         ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "pvz_armor_on_health", PVZOverlayHandler::renderArmorOnHealthBar);
         ev.registerAbove(VanillaGuiOverlay.ARMOR_LEVEL.id(), "pvz_armor_bar", PVZOverlayHandler::renderArmorAsSingleBar);
         ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "butter", PVZOverlayHandler::renderButter);
+        ev.registerAbove(VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), "invasion", PVZOverlayHandler::renderInvasionBars);
     }
 
+    public record ZombieEventBarInformation(UUID uuid, int x, int y, BossEvent event) {};
 }

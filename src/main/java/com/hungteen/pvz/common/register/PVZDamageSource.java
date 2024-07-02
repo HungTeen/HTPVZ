@@ -2,9 +2,10 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IArmorEntity;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,7 +33,6 @@ public class PVZDamageSource {
      * <br><br>For damage that are sharp, use {@link PVZDamageSource#storedSharpSources}.*/
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
     public static final DamageSource SPIKE_WEED = new DamageSource("spike_weed");
-    public static final DamageSource NUT_COLLIDE = knockBack(new DamageSource("nut_collide"), 2F);
     public static final DamageSource TANGLE_KELP = setSharp(new DamageSource("tangle_kelp").bypassArmor());
 
     //TODO need a decorator for AOE damages?
@@ -50,7 +50,7 @@ public class PVZDamageSource {
         if (target instanceof EnderDragon || target instanceof EnderDragonPart) {
             hurtBossSource = new DamageSource(source.getMsgId()).setExplosion();
             if (source.getEntity() != null) {
-                PVZOwnedCapability cap = source.getEntity().getCapability(PVZOwnedCapability.CAP).orElse(null);
+                PVZEntityCapability cap = source.getEntity().getCapability(PVZEntityCapability.CAP).orElse(null);
                 if (cap != null && EntityUtil.isEntityValid(cap.getOwner())) {
                     hurtBossSource = new IndirectEntityDamageSource(source.getMsgId(), source.getEntity(), cap.getOwner());
                 }
@@ -63,7 +63,10 @@ public class PVZDamageSource {
         }
         return source;
     }
-
+    public static DamageSource bypassShield(DamageSource source) {
+        byPassShieldSource = source;
+        return source;
+    }
     public static DamageSource ignoreInvTime(DamageSource source) {
         ignoreInvTimeSource = source;
         return source;
@@ -89,8 +92,13 @@ public class PVZDamageSource {
         return teamFilter(PVZDamageSource.setSharp(DamageSource.mobAttack(source)));
     }
 
+    public static DamageSource wallNutCollide(LivingEntity source) {
+        return knockBack(new EntityDamageSource("nut_collide", source), 2F);
+    }
+
     //variables and methods used
     private static DamageSource teamFilterSource = null;
+    private static DamageSource byPassShieldSource = null;
 
     private static DamageSource multiplierSource = null;
     private static float multiplier = 1;
@@ -124,6 +132,9 @@ public class PVZDamageSource {
                 ev.setCanceled(true);
             }
         }
+        if (ev.getSource() == byPassShieldSource) {
+            ev.getSource().bypassArmor();
+        }
         if (ev.getSource() == knockBackSource) {
             knockBackEntity = ev.getEntity();
         }
@@ -145,6 +156,9 @@ public class PVZDamageSource {
             if (ev.getSource() == hurtBossSource) {
                 ev.setAmount(ev.getAmount() * bossMultiplier);
             }
+        }
+        if (ev.getSource() == byPassShieldSource) {
+            ev.getSource().bypassArmor = false;
         }
         if (ev.getSource() == ignoreInvTimeSource) {
             ev.getEntity().invulnerableTime = invTime;

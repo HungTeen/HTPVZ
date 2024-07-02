@@ -5,9 +5,11 @@ import com.hungteen.pvz.common.entity.bullet.ButterBullet;
 import com.hungteen.pvz.common.entity.bullet.MelonBullet;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.menu.EssenceFurnaceRecipe;
+import com.hungteen.pvz.common.world.invasion.LootWithinInvasionCondition;
 import com.hungteen.pvz.common.world.zen_garden.GlowBerryDecorator;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.RecipeBookCategories;
+import net.minecraft.core.Registry;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.world.entity.MobCategory;
@@ -17,6 +19,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraftforge.client.event.RegisterRecipeBookCategoriesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -73,9 +76,16 @@ public class OtherRegisters {
     //Mob Category.
     public static MobCategory PVZPlantMobCategory = MobCategory.create("pvz_plant", "pvz:pvz_plant", 64, true, false, 64);
 
+    //Loot Table Condition.
+    public static final DeferredRegister<LootItemConditionType> LOOT_CONDITIONS = DeferredRegister.create(Registry.LOOT_ITEM_REGISTRY, PVZMod.MODID);
+    public static final RegistryObject<LootItemConditionType> WITHIN_INVASION = LOOT_CONDITIONS.register("within_invasion", () -> new LootItemConditionType(new LootWithinInvasionCondition.Serializer()));
+
     public static void modBusRegister(IEventBus bus){
         TREE_DECORATORS.register(bus);
         RECIPE_SERIALIZER.register(bus);
         RECIPE_TYPE.register(bus);
+        LOOT_CONDITIONS.register(bus);
     }
+
+
 }

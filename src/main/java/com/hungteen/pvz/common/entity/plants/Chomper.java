@@ -6,7 +6,7 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanAttack;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
@@ -497,7 +497,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     }
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
-        PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
+        PVZEntityCapability cap = this.getCapability(PVZEntityCapability.CAP).orElse(null);
         return cap == null || ! cap.hasOwner();
     }
 

@@ -2,13 +2,12 @@ package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.events.PVZPlantConditionMatchingEvent;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
@@ -204,7 +203,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             if (entity != null && itemStack.hasCustomHoverName()) {
                 entity.setCustomName(itemStack.getHoverName());
             }
-            PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
+            PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
             if (cap != null) {
                 cap.setOwner(player);
             }
@@ -283,7 +282,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             if (entity != null && itemStack.hasCustomHoverName()) {
                 entity.setCustomName(itemStack.getHoverName());
             }
-            PVZOwnedCapability cap = entity.getCapability(PVZOwnedCapability.CAP).orElse(null);
+            PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
             if (cap != null) {
                 cap.setOwner(player);
             }
