@@ -30,6 +30,8 @@ public class JackInABoxZombie extends PVZZombie {
         this.setItemInHand(InteractionHand.MAIN_HAND, PVZItems.JACK_IN_THE_BOX.get().getDefaultInstance());
         return spawnGroupData;
     }
+
+    /**Not only jack-in-a-box is acceptable, but the item should be in main hand.*/
     public static class JackInABoxZombieUseItemGoal extends Goal {
         private Mob mob;
         public JackInABoxZombieUseItemGoal(Mob mob) {

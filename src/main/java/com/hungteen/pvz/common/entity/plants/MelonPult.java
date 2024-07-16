@@ -20,7 +20,7 @@ public class MelonPult extends ShooterPlant {
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.melon_pult.glistering_melon", PVZItems.AQUA_ESSENCE, 8, 4, 100, 0),
-            new Skill("skill.pvz.melon_pult.gravitational_potential", PVZItems.TERRA_ESSENCE, 8, 8, 100, 0).avoidSkills(0)
+            new Skill("skill.pvz.melon_pult.gravitational_potential", PVZItems.TERRA_ESSENCE, 8, 8, 50, 0).avoidSkills(0)
     );
 
     public MelonPult(EntityType<? extends Mob> type, Level worldIn) {
@@ -61,7 +61,7 @@ public class MelonPult extends ShooterPlant {
     }
     @Override
     public int getShootCD() {
-        return 50;
+        return this.hasSkill("skill.pvz.melon_pult.glistering_melon") ? 80 : 50;
     }
     @Override
     public int shootAnimLength() {
@@ -72,7 +72,7 @@ public class MelonPult extends ShooterPlant {
         Entity target = this.getTarget();
         if (target != null) {
             double distance = target.distanceTo(this);
-            return (float) (Math.max(0.5 * distance / 12, 0.05));
+            return (float) (Math.max(0.5 * distance / 12, 0.1));
         }
         return 0.5F;
     }

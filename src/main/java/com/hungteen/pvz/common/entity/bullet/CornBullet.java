@@ -30,7 +30,7 @@ public class CornBullet extends BaseBullet {
     public void shoot(double deltaX, double deltaY, double deltaZ, float speed, float randomAngle) {
         double distance = new Vec3(deltaX, deltaY, deltaZ).distanceTo(Vec3.ZERO);
         super.shoot(deltaX, deltaY, deltaZ, speed, randomAngle);
-        double time = distance / speed;
+        double time = Math.min(distance / speed, 100);
         this.setDeltaMovement(this.getDeltaMovement().add(0.0D, 0.05D * time, 0.0D));
     }
 

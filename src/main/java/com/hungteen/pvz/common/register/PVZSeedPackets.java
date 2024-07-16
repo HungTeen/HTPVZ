@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 public class PVZSeedPackets {
     public static final int VERY_FAST = 10; //will a plant really use this?
     public static final int FAST = 60;
-    public static final int MEDIUM = 200;
+    public static final int MEDIUM = 300;
     public static final int SLOW = 500;
     public static final int VERY_SLOW = 1200;
     @Deprecated //clear after registry.
@@ -75,9 +75,9 @@ public class PVZSeedPackets {
         add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
                 .recipe(Items.BIG_DRIPLEAF, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         //the end
-        add(PVZEntities.STARFRUIT).cost(225).coolDown(FAST).skillList(Starfruit.staticSkillList)
-                .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
-        add(PVZEntities.MELON_PULT).cost(350).coolDown(MEDIUM).skillList(MelonPult.staticSkillList)
+        add(PVZEntities.STARFRUIT).cost(150).coolDown(MEDIUM).skillList(Starfruit.staticSkillList)
+                .recipe(PVZItems.STARFRUIT, PVZItems.CHORUS_FRUIT_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.MELON_PULT).cost(300).coolDown(MEDIUM).skillList(MelonPult.staticSkillList)
                 .recipe(Items.MELON, PVZItems.CHORUS_FRUIT_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.GATLING_PEA).cost(450).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);

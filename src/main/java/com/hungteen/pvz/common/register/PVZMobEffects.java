@@ -13,15 +13,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.animal.FlyingAnimal;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraftforge.common.extensions.IForgePotion;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -202,7 +202,9 @@ public class PVZMobEffects {
         }
     }
 
+    @Mod.EventBusSubscriber(modid = PVZMod.MODID)
     public static class InvasionOmenEffect extends MobEffect {
+        static LivingEntity removed = null;
 
         public InvasionOmenEffect(MobEffectCategory p_19451_, int p_19452_) {
             super(p_19451_, p_19452_);
@@ -210,11 +212,17 @@ public class PVZMobEffects {
 
         public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int amplifier) {
             super.removeAttributeModifiers(entity, attributeMap, amplifier);
-            if (! entity.level.isClientSide) {
+            if (! entity.level.isClientSide && entity != removed) {
                 entity.level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
                     cap.addEvent(new Invasion(entity.level, entity, entity.blockPosition(), amplifier));
                 });
             }
+            removed = null;
+        }
+
+        @SubscribeEvent
+        public static void onRemoveThisEffect(MobEffectEvent.Remove ev) {
+            removed = ev.getEntity();
         }
     }
 }

@@ -1,8 +1,9 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.PVZConfig;
-import com.hungteen.pvz.api.interfaces.IDefenderPlant;
+import com.hungteen.pvz.api.interfaces.IAttractsEnemy;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -42,6 +43,10 @@ public class AttractEnemyGoal extends Goal {
         attractEnemies(entity);
     }
 
+    public float getAttractingStrength(Entity attacker, Entity target) {
+        return target instanceof IAttractsEnemy entity ? entity.getAttractStrength(attacker) : 10;
+    }
+
     public void attractEnemies(Mob entity) {
         //TODO separate the judging part to a method that returns int.
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
@@ -49,11 +54,13 @@ public class AttractEnemyGoal extends Goal {
             boolean outOfHeightRegion = (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() <= entity.getBbHeight() + entity.getY()) &&
                     (targetEntity.getY() + targetEntity.getBbHeight() <= entity.getY()) == (targetEntity.getY() + targetEntity.getBbHeight() <= entity.getBbHeight() + entity.getY()) &&
                     (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() + targetEntity.getBbHeight() <= entity.getY());
-            if (targetEntity instanceof Mob && ! EntityUtil.isTeammate(entity, targetEntity) && ! outOfHeightRegion) {
+            if (outOfHeightRegion) return;
+            if (targetEntity instanceof Mob && ! EntityUtil.isTeammate(entity, targetEntity)) {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
-                if (! EntityUtil.isEntityValid(targetOfTarget) || ! (targetOfTarget instanceof IDefenderPlant) && ((! PVZConfig.PVZGameRules.getBoolean(entity.level, PVZConfig.Common.teamBattle)) ||
-                        (EntityUtil.isTeammate(entity, targetOfTarget)))) {
+                if (! EntityUtil.isEntityValid(targetOfTarget) ||
+                        (getAttractingStrength(targetEntity, targetOfTarget) < getAttractingStrength(targetEntity, entity)) &&
+                                ((! PVZConfig.PVZGameRules.getBoolean(entity.level, PVZConfig.Common.teamBattle)) || (EntityUtil.isTeammate(entity, targetOfTarget)))) {
                     if (((Mob) targetEntity).targetSelector.getAvailableGoals().stream().anyMatch((goal) -> goal.getGoal() instanceof TargetGoal)) {
                         ((Mob) targetEntity).setTarget(entity);
                     }

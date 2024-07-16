@@ -12,6 +12,7 @@ public class PVZBiomeTags {
     public static TagKey<Biome> HAS_GARDEN_PORTAL = pvzTag("has_structure/garden_portal");
     public static TagKey<Biome> UNABLE_SUN_PRODUCTION = pvzTag("unable_sun_production");
     public static TagKey<Biome> UNABLE_SUN_FALLING = pvzTag("unable_sun_falling");
+    public static TagKey<Biome> UNABLE_STAR_FALLING = pvzTag("unable_star_falling");
 
 
     //definition

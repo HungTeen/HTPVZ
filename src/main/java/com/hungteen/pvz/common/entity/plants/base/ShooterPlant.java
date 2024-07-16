@@ -239,7 +239,6 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			final int time = this.shooter.getAttackTime();
 			if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && EntityUtil.isEntityValid(target))) {
 				this.shooter.setAttackTime(time > 0 ? time - 1 : this.shooter.getShootCD());
-
 			}
 			shooter.entityData.set(POSE, (this.shooter.getAttackTime() < this.shooter.shootAnimLength()));
 			//can shoot.
@@ -253,7 +252,8 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 		@Override
 		public void tick() {
-			if (this.shooter.shootTimes().contains(this.shooter.getAttackTime())) {
+			int time = this.shooter.getAttackTime();
+			if (this.shooter.shootTimes().contains(time)) {
 				this.shooter.shootBullet();
 				if (EntityUtil.isEntityValid(this.shooter.getTarget())) {
 					shooter.aimTime = 0;

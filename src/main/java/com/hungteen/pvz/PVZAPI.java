@@ -1,10 +1,12 @@
 package com.hungteen.pvz;
 
-import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.register.PVZAttributes;
+import com.hungteen.pvz.common.register.PVZZombieEvents;
+import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
@@ -55,5 +57,10 @@ public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
     @Override
     public boolean canAttack(Entity attacker, Entity target) {
         return EntityUtil.checkCanEntityBeAttack(attacker, target);
+    }
+
+    @Override
+    public ResourceLocation getZombieEventType(ZombieEvent event) {
+        return PVZZombieEvents.getType(event);
     }
 }

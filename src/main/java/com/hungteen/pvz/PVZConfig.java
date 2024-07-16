@@ -71,8 +71,10 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> canCanCanKelp;
         public static ForgeConfigSpec.ConfigValue<Boolean> jackInTheBoxGriefing;
         public static ForgeConfigSpec.ConfigValue<Boolean> dynamicSunRule;
+        public static ForgeConfigSpec.ConfigValue<Boolean> showInvasionDetails;
         public static ForgeConfigSpec.ConfigValue<Boolean> dyeMarigold;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
+        public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnFallenStarInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallyRegainSunInterval;
         public Common(ForgeConfigSpec.Builder builder) {
             builder.comment("All these configs are the default values of pvz rules.")
@@ -111,10 +113,18 @@ public class PVZConfig {
                             .translation("config.pvz.common.dye_marigold")
                             .comment("if on, player can dye marigold with dye."),
                     "dyeMarigold", false);
+            showInvasionDetails = add(builder
+                            .translation("config.pvz.common.show_invasion_details")
+                            .comment("if on, there will be particles and outputs showing how invasion searches positions mob can spawn."),
+                    "showInvasionDetails", false);
             naturallySpawnSunInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_sun_interval")
                             .comment("sun naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural sun spawn."),
                     "naturallySpawnSunInterval", 300, 0, 10000);
+            naturallySpawnFallenStarInterval = add(builder
+                            .translation("config.pvz.common.naturally_spawn_fallen_star_interval")
+                            .comment("fallen stars naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural fallen star spawn."),
+                    "naturallySpawnFallenStarInterval", 1000, 0, 10000);
             naturallyRegainSunInterval = add(builder
                             .translation("config.pvz.common.naturally_regain_sun_interval")
                             .comment("players regain sun naturally at this interval. set to 0 to turn off natural sun regain."),

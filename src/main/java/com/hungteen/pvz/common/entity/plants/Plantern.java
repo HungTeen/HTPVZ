@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.block.PlanternLightBlock;
+import com.hungteen.pvz.common.block.EntityLightBlock;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
@@ -72,19 +72,19 @@ public class Plantern extends SimplePlant {
     @Override
     public void tick() {
         super.tick();
+        BlockPos pos = getOnPos().offset(0, Math.round(this.getBbHeight()), 0);
         if (level.isClientSide()) {
             this.skillGlowTime = Math.max(0, -- skillGlowTime);
             return ;
-        } else if (level.getBlockState(getOnPos().above().above()).isAir()) {
-            level.setBlock(getOnPos().above().above(),
-                    PVZBlocks.PLANTERN_LIGHT.get().defaultBlockState(), 2);
-        } else if (level.getBlockState(getOnPos().above().above()).is(Blocks.WATER)) {
-            level.setBlock(getOnPos().above().above(),
-                    PVZBlocks.PLANTERN_LIGHT.get().defaultBlockState().setValue(PlanternLightBlock.WATERLOGGED, true), 2);
+        } else if (level.getBlockState(pos).isAir()) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.LEVEL, 15), 2);
+        } else if (level.getBlockState(pos).is(Blocks.WATER)) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, 15), 2);
         }
-        if (level.getBlockState(getOnPos().above().above()).is(PVZBlocks.PLANTERN_LIGHT.get())) {
-            level.setBlock(getOnPos().above().above(),
-                    level.getBlockState(getOnPos().above().above()).setValue(PlanternLightBlock.HAS_SOURCE, true), 2);
+        if (level.getBlockState(pos).is(PVZBlocks.ENTITY_LIGHT.get())) {
+            level.setBlock(pos, level.getBlockState(pos).setValue(EntityLightBlock.HAS_SOURCE, true).setValue(EntityLightBlock.LEVEL, 15), 2);
         }
         if (hasSkill(this, "skill.pvz.plantern.light_house")) {
             this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(0D); //can't attract enemy with lightHouse skill.

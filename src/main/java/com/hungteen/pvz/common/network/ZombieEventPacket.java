@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.network;
 
-import com.hungteen.pvz.common.world.ZombieEvent;
+import com.hungteen.pvz.common.register.PVZZombieEvents;
+import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -34,7 +35,7 @@ public class ZombieEventPacket {
         ctx.get().enqueueWork(() -> ClientProxy.getLevel().getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
             ZombieEvent event = cap.getEvent(uuid);
             if (event == null) {
-                cap.addEvent(ZombieEvent.fromTag(ClientProxy.getLevel(), uuid, eventTag));
+                cap.addEvent(PVZZombieEvents.fromTag(ClientProxy.getLevel(), uuid, eventTag));
             } else {
                 event.deserializeNBT(eventTag);
             }

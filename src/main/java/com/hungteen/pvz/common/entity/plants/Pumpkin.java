@@ -8,40 +8,27 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Predicate;
 
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
-public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity, ICanBePlantedOn {
+public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity, ICanBePlantedOn {
     float storedHealth;
 
     public static List<Skill> staticSkillList = List.of(
@@ -84,7 +71,7 @@ public class Pumpkin extends SimplePlant implements IDefenderPlant, IArmorEntity
     public boolean canHold(LivingEntity plant, boolean isPlanting) {
         return ! (plant instanceof ICanBePlantedOn) &&
                 (! isPlanting || getPassengers().isEmpty()) &&
-                (! isPassenger() || ! (this.getVehicle() instanceof ICanBePlantedOn vehicle) || (vehicle.canHold(plant, isPlanting))) &&
+                (! isPassenger() || ! (this.getVehicle() instanceof ICanBePlantedOn vehicle) || (vehicle.canHold(plant, isPlanting, true))) &&
                 plant.getBbWidth() < 1;
     }
 

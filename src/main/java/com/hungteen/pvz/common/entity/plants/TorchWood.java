@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.block.PlanternLightBlock;
+import com.hungteen.pvz.common.block.EntityLightBlock;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
@@ -10,6 +10,7 @@ import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -40,7 +41,7 @@ public class TorchWood extends SimplePlant {
         return hasSkill("skill.pvz.torch_wood.soul_torch") && level.getBlockState(getOnPos()).is(BlockTags.SOUL_SPEED_BLOCKS);
     }
     public boolean canBurn() {
-        return true;
+        return ! this.isInWater() && ! this.isInPowderSnow;
     }
 
     //entity settings
@@ -65,7 +66,7 @@ public class TorchWood extends SimplePlant {
         if (level.isClientSide && ! this.idleAnimationState.isStarted()) {
             this.idleAnimationState.start(this.tickCount);
         }
-        if (level.isClientSide() && random.nextBoolean()) {
+        if (level.isClientSide() && random.nextBoolean() && this.canBurn()) {
             level.addParticle(ParticleTypes.LARGE_SMOKE,
                     getX() - 0.5 + this.random.nextFloat(),
                     getY() + 0.8 + this.random.nextFloat() / 5,
@@ -76,18 +77,19 @@ public class TorchWood extends SimplePlant {
             this.getAttribute(Attributes.ARMOR).setBaseValue(30D);
             this.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(20D);
         }
+        BlockPos pos = getOnPos().above().above();
         if (level.isClientSide() || ! this.canBurn()) {
             return ;
-        } else if (level.getBlockState(getOnPos().above().above()).isAir()) {
-            level.setBlock(getOnPos().above().above(),
-                    PVZBlocks.PLANTERN_LIGHT.get().defaultBlockState(), 2);
-        } else if (level.getBlockState(getOnPos().above().above()).is(Blocks.WATER)) {
-            level.setBlock(getOnPos().above().above(),
-                    PVZBlocks.PLANTERN_LIGHT.get().defaultBlockState().setValue(PlanternLightBlock.WATERLOGGED, true), 2);
+        } else if (level.getBlockState(pos).isAir()) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 12 : 15), 2);
+        } else if (level.getBlockState(pos).is(Blocks.WATER)) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, 15), 2);
         }
-        if (level.getBlockState(getOnPos().above().above()).is(PVZBlocks.PLANTERN_LIGHT.get())) {
-            level.setBlock(getOnPos().above().above(),
-                    level.getBlockState(getOnPos().above().above()).setValue(PlanternLightBlock.HAS_SOURCE, true), 2);
+        if (level.getBlockState(pos).is(PVZBlocks.ENTITY_LIGHT.get())) {
+            level.setBlock(pos, level.getBlockState(pos)
+                    .setValue(EntityLightBlock.HAS_SOURCE, true), 2);
         }
     }
     public void setupPresentationAnim() {

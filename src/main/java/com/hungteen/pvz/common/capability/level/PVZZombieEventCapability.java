@@ -1,10 +1,11 @@
 package com.hungteen.pvz.common.capability.level;
 
 import com.hungteen.pvz.common.network.ZombieEventPacket;
-import com.hungteen.pvz.common.world.ZombieEvent;
-import com.hungteen.pvz.common.world.invasion.Invasion;
+import com.hungteen.pvz.common.register.PVZZombieEvents;
+import com.hungteen.pvz.api.ZombieEvent;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -23,7 +24,7 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
     public static final Capability<PVZZombieEventCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
     private final Level level;
     private final Set<ZombieEvent> events = new HashSet<>();
-    private static short tickCount = 0;
+    private static short tickCount = 1;
     private static Set<ZombieEvent> removeEvent = new HashSet<>();
 
     public PVZZombieEventCapability(Level level) {
@@ -40,12 +41,15 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
 
     public void addEvent(ZombieEvent event) {
         this.events.add(event);
+        if (this.level instanceof ServerLevel) {
+            ZombieEventPacket.toClient(event);
+        }
     }
 
     @Nullable
     public ZombieEvent getEvent(UUID uuid) {
         for (ZombieEvent i : this.events) {
-            if (i.uuid.equals(uuid)) {
+            if (i != null && i.uuid.equals(uuid)) {//TODO why there can be null?
                 return i;
             }
         }
@@ -86,7 +90,7 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
     @Override
     public void deserializeNBT(CompoundTag tag) {
         for (String i /*UUID string*/ : tag.getAllKeys()) {
-            ZombieEvent event = ZombieEvent.fromTag(level, UUID.fromString(i), tag.getCompound(i));
+            ZombieEvent event = PVZZombieEvents.fromTag(level, UUID.fromString(i), tag.getCompound(i));
             if (event != null) {
                 this.addEvent(event);
             }

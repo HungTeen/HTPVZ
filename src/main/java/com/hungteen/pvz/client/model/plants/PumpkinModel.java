@@ -23,8 +23,8 @@ public class PumpkinModel<T extends Pumpkin> extends EntityModel<T> {
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
 		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create().texOffs(0, 0).addBox(-8.5F, -10.0F, -8.5F, 17.0F, 10.0F, 17.0F, new CubeDeformation(0.0F))
-		.texOffs(2, 27).addBox(8.0F, -6.0F, -8.5F, 1.0F, 6.0F, 17.0F, new CubeDeformation(0.0F))
-		.texOffs(0, 50).addBox(-8.0F, -9.5F, -8.0F, 16.0F, 9.0F, 16.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 24.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
+		.texOffs(2, 27).addBox(8.0F, -6.0F, -8.5F, 1.0F, 6.0F, 17.0F, new CubeDeformation(0.005F))
+		.texOffs(0, 50).addBox(-8.0F, -9.5F, -8.0F, 16.0F, 9.0F, 16.0F, new CubeDeformation(0.005F)), PartPose.offsetAndRotation(0.0F, 24.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 128, 128);
 	}

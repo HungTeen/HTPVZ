@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.capability.player;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
+import com.hungteen.pvz.common.entity.FallenStar;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -91,7 +92,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                             }
                             nbt.sunCountDown = 0;
                         }
-                    } else if (player.hasEffect(MobEffects.DARKNESS) && nbt.sunCountDown >= 5/(player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
+                    } else if (player.hasEffect(MobEffects.DARKNESS) && nbt.sunCountDown >= 5 / (player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
                         int limitSun = getDifficultyLimitSun(player);
                         int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
                         if (curSun > limitSun) {
@@ -189,6 +190,18 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         int light = player.level.getBrightness(LightLayer.SKY, pos) - player.level.getSkyDarken();
                         if (light > 9) {
                             Sun.spawnByAmount(player.level, light > 12 ? 50 : 25, pos, Vec3.ZERO);
+                        }
+                    }
+                    //natural fallen stars spawn
+                    interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnFallenStarInterval);
+                    if (interval > 0 && player.tickCount % interval == 0 && ! player.level.getBiome(player.getOnPos()).is(PVZBiomeTags.UNABLE_STAR_FALLING)) {
+                        int x = player.blockPosition().getX() + player.getRandom().nextInt(50) - 25;
+                        int z = player.blockPosition().getZ() + player.getRandom().nextInt(50) - 25;
+                        BlockPos pos = new BlockPos(x,
+                                Math.max(player.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z),
+                                        player.blockPosition().getY()) + 30, z);
+                        if (player.level.isNight() && ! player.level.isRaining()) {
+                            FallenStar.spawnAt(player.level, pos);
                         }
                     }
                 }

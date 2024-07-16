@@ -23,6 +23,7 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.monster.Zombie;
@@ -52,12 +53,12 @@ public class Gargantuar extends PVZZombie {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return PVZZombie.createAttributes()
-                .add(Attributes.ARMOR, 80D)
-                .add(Attributes.ARMOR_TOUGHNESS, 60D)
+                .add(Attributes.ARMOR, 100D)
+                .add(Attributes.ARMOR_TOUGHNESS, 80D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.75D)
                 .add(Attributes.ATTACK_SPEED, 1D)
                 .add(Attributes.ATTACK_DAMAGE, 4D)
-                .add(Attributes.MAX_HEALTH, 40D);
+                .add(Attributes.MAX_HEALTH, 60D);
     }
     @Override
     protected void addBehaviourGoals() {
@@ -119,6 +120,13 @@ public class Gargantuar extends PVZZombie {
         }
         @Override
         public boolean canUse() {
+            if (this.gargantuar.getTarget() != null) {
+                this.gargantuar.getPassengers().forEach(passenger -> {
+                    if (passenger instanceof Mob) {
+                        ((Mob) passenger).setTarget(gargantuar.getTarget());
+                    }
+                });
+            }
             return ((gargantuar.isVehicle() && EntityUtil.isEntityValid(gargantuar.getTarget()) && gargantuar.getPose() == Pose.STANDING) || gargantuar.getPose() == Pose.USING_TONGUE) && gargantuar.getHealth() < gargantuar.getMaxHealth() / 2;
         }
 
@@ -132,9 +140,6 @@ public class Gargantuar extends PVZZombie {
             } else if (animCount == 32) {
                 Entity entity = gargantuar.getFirstPassenger();
                 if (EntityUtil.isEntityValid(entity)) {
-                    if (entity instanceof Mob mob) {
-                        mob.setTarget(gargantuar.getTarget());
-                    }
                     entity.stopRiding();
                     entity.setDeltaMovement(gargantuar.getLookAngle().normalize().scale(2).add(0, 0.15, 0));
                 }
@@ -219,7 +224,7 @@ public class Gargantuar extends PVZZombie {
         }
         @Override
         protected double getAttackReachSqr(LivingEntity entity) {
-            return entity.getBbWidth() * entity.getBbWidth() * (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER) ? 6 : 3) + entity.getBbWidth() * entity.getBbWidth();
+            return mob.getBbWidth() * mob.getBbWidth() * (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER) ? 6 : 3) + entity.getBbWidth() * entity.getBbWidth();
         }
         @Override
         protected void checkAndPerformAttack(LivingEntity target, double distance) {

@@ -65,7 +65,7 @@ public class DuckLifebuoyItem extends ArmorItem implements Wearable {
         boolean isInWater = false;
         Vec3 lifeBuoyPos = livingEntity.position().add(0, livingEntity.getBbHeight() * 0.55, 0);
         if (! livingEntity.level.getFluidState(new BlockPos(lifeBuoyPos.x, lifeBuoyPos.y, lifeBuoyPos.z)).isEmpty()) {
-            if (livingEntity.getItemBySlot(EquipmentSlot.FEET).getItem() instanceof DuckLifebuoyItem item && item.getSlot() == EquipmentSlot.FEET) {
+            if (livingEntity.getItemBySlot(EquipmentSlot.LEGS).getItem() instanceof DuckLifebuoyItem item && item.getSlot() == EquipmentSlot.LEGS) {
                 livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().add(0, 0.04, 0));
                 isInWater = true;
                 if (livingEntity instanceof PathfinderMob mob && ! mob.getNavigation().isDone()) {

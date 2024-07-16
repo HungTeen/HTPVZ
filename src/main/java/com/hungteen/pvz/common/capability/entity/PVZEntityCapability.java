@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.capability.entity;
 
-import com.hungteen.pvz.common.world.ZombieEvent;
+import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
@@ -48,7 +48,11 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             entity1.getCapability(CAP).ifPresent((cap) -> {
                 if (++cap.tickCount > 10) {
                     cap.tickCount = 0;
-
+                    //target--------------------------------------------------------------------------------------------
+                    //TODO find out why entities still target on entities that has been killed.
+                    if (entity1 instanceof Mob mob && ! EntityUtil.isEntityValid(mob.getTarget())) {
+                        mob.setTarget(null);
+                    }
                     //owner---------------------------------------------------------------------------------------------
                     if (!EntityUtil.isEntityValid(cap.owner)) {//TODO will this lag?
                         Entity entity = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
@@ -65,13 +69,11 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                             if (team != null && team != cap.scoreboard.getPlayersTeam(name)) {
                                 cap.scoreboard.addPlayerToTeam(name, team);
                             }
-                            //invasion syncing to owned entities.
-                            cap.owner.getCapability(CAP).ifPresent((ownerCap) -> cap.zombieEventUUIDs = Set.copyOf(ownerCap.zombieEventUUIDs));
                         }
                     }
                 }
 
-                //invasion------------------------------------------------------------------------------------------
+                //zombie events-----------------------------------------------------------------------------------------
                 if (cap.zombieEventUUIDs != null) {
                     level.getCapability(PVZZombieEventCapability.CAP, null).ifPresent((capability) -> {
                         Set<UUID> removingUUIDs = new HashSet<>();

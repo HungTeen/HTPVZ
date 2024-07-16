@@ -20,6 +20,9 @@ public class TorchWoodFireLayer<T extends TorchWood, M extends TorchWoodModel<T>
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int p_117351_, T torchWood, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
+        if (! torchWood.canBurn()) {
+            return;
+        }
         poseStack.pushPose();
         poseStack.mulPose(Vector3f.XP.rotationDegrees(180.0F));
         poseStack.translate(-0.5, -0.8, -0.5);

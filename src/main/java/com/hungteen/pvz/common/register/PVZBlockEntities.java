@@ -5,7 +5,7 @@ import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
 import com.hungteen.pvz.common.block.entity.EssenceAltarBlockEntity;
 import com.hungteen.pvz.common.block.entity.EssenceFurnaceBlockEntity;
 import com.hungteen.pvz.common.block.entity.PVZSignBlockEntity;
-import com.hungteen.pvz.common.block.entity.PlanternLightBlockEntity;
+import com.hungteen.pvz.common.block.entity.EntityLightBlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.world.level.block.Block;
@@ -30,7 +30,7 @@ public class PVZBlockEntities {
     public static final RegistryObject<BlockEntityType<PVZSignBlockEntity>> SIGN = bEntity("pvz_sign", PVZSignBlockEntity::new);
     public static final RegistryObject<BlockEntityType<EssenceAltarBlockEntity>> ESSENCE_ALTAR = bEntity("essence_altar", EssenceAltarBlockEntity::new);
     public static final RegistryObject<BlockEntityType<EssenceFurnaceBlockEntity>> ESSENCE_FURNACE = bEntity("essence_furnace", EssenceFurnaceBlockEntity::new);
-    public static final RegistryObject<BlockEntityType<PlanternLightBlockEntity>> PLANTERN_LIGHT = bEntity("plantern_light", PlanternLightBlockEntity::new);
+    public static final RegistryObject<BlockEntityType<EntityLightBlockEntity>> ENTITY_LIGHT = bEntity("entity_light", EntityLightBlockEntity::new);
     /**binding renderer at {@link PVZBlockEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}
      <br>use {@link PVZBlocks#blockEntity(String)} to attach blockEntity to block.*/
 

@@ -2,8 +2,10 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.common.block.EntityLightBlock;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
@@ -29,6 +31,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.IFluidBlock;
@@ -133,6 +136,20 @@ public class SpikeWeed extends SimplePlant {
             this.entityData.set(ATTACH_FACE, Direction.UP);
         }
         super.tick();
+        BlockPos pos = blockPosition();
+        if (level.isClientSide()) {
+            return ;
+        } else if (level.getBlockState(pos).isAir()) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 12 : 15), 2);
+        } else if (level.getBlockState(pos).is(Blocks.WATER)) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, 6), 2);
+        }
+        if (level.getBlockState(pos).is(PVZBlocks.ENTITY_LIGHT.get())) {
+            level.setBlock(pos, level.getBlockState(pos)
+                    .setValue(EntityLightBlock.HAS_SOURCE, true), 2);
+        }
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

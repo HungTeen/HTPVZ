@@ -233,8 +233,8 @@ public class PVZMod
                 EssenceAltarRenderer.time -= 200;
             }
             EssenceAltarScreen.nameRollTime += time;
-            if (EssenceAltarScreen.nameRollTime > 10) {
-                EssenceAltarScreen.nameRollTime -= 10;
+            if (EssenceAltarScreen.nameRollTime > 20) {
+                EssenceAltarScreen.nameRollTime -= 20;
             }
             if (! Minecraft.getInstance().isPaused()) {
                 PVZFog.clientFogsTick(time);

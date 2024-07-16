@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.api.interfaces.IDefenderPlant;
+import com.hungteen.pvz.api.interfaces.IAttractsEnemy;
 import com.hungteen.pvz.api.interfaces.IIronEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
@@ -41,7 +41,7 @@ import java.util.function.Predicate;
 import static com.hungteen.pvz.common.register.PVZDamageSource.ignoreInvTime;
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 
-public class WallNut extends SimplePlant implements IDefenderPlant, IIronEntity {
+public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity {
     float storedHealth;
     float storedArmor;
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);

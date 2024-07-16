@@ -57,7 +57,7 @@ public class Starfruit extends ShooterPlant {
     }
     @Override
     public float getBulletSpeed() {
-        return 0.5F;
+        return 0.501F;
     }
     @Override
     public void performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {

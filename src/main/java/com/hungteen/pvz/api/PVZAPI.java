@@ -3,6 +3,7 @@ package com.hungteen.pvz.api;
 import com.google.common.base.Suppliers;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.ISunAbsorber;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
@@ -58,6 +59,8 @@ public class PVZAPI {
          * check can AttackGoal continue to attack target. <b>CAN ONLY</b> call on server.
          */
         boolean canAttack(Entity attacker, Entity target);
+        /**This returns the type of a {@link ZombieEvent} and is used by ZombieEvent is self.*/
+        ResourceLocation getZombieEventType(ZombieEvent event);
     }
 
     public static class DummyAPI implements IPVZAPI {
@@ -107,6 +110,11 @@ public class PVZAPI {
         @Override
         public boolean canAttack(Entity attacker, Entity target) {
             return false;
+        }
+
+        @Override
+        public ResourceLocation getZombieEventType(ZombieEvent event) {
+            return new ResourceLocation("pvz", "null");
         }
     }
 }

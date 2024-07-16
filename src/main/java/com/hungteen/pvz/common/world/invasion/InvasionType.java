@@ -24,6 +24,7 @@ public class InvasionType {
     public CompoundTag flagZombie;
     public boolean isAddition = false;
     public int weight;
+    public int radius;
 
     @Nullable
     public static InvasionType getInvasionType(ResourceLocation location) {

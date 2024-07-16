@@ -18,13 +18,13 @@ import javax.annotation.Nonnull;
 import java.util.Random;
 
 public class EntityUtil {
-    public static final Random RAND = new Random();
+    public static final Random random = new Random();
     /**
      * use to play sound in world.
      */
     public static void playSound(Entity entity, SoundEvent ev) {
         if(ev != null) {
-            entity.playSound(ev, 1.0F, RAND.nextFloat() * 0.2F + 0.9F);
+            entity.playSound(ev, 1.0F, random.nextFloat() * 0.2F + 0.9F);
         }
     }
 

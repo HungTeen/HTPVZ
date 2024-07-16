@@ -432,7 +432,7 @@ public class PVZOverlayHandler{
                     Invasion.Wave wave = invasion.waves.get(i);
                     if (wave.isBigWave) {
                         blit(stack, (int) (width - 23 - 130 * ((float) i / (invasion.waves.size() - 1))),
-                                height - renderHeight + (invasion.currentWave >= i ? - 2 : + 3), 242, 11, 14, (invasion.currentWave >= i ? 15 : 10));
+                                height - renderHeight + (invasion.currentWave >= i ? - 2 : + 3), 242, wave.isGivenUp ? 26 : 11, 14, (invasion.currentWave >= i ? 15 : 10));
                     }
                 }
                 blit(stack, (int) (width - 9 - 144 * (information.event.getProgress())), height - renderHeight + 3, 241, 41, 15, 12);
@@ -446,16 +446,14 @@ public class PVZOverlayHandler{
                     Invasion.Wave wave = invasion.waves.get(i);
                     if (wave.isBigWave) {
                         blit(stack, (int) (information.x() + 170 * ((float) (i + 1) / invasion.waves.size())),
-                                information.y() + (invasion.currentWave >= i ? - 2 : + 1), 234, 0, 11, (invasion.currentWave >= i ? 11 : 8));
+                                information.y() + (invasion.currentWave >= i ? - 2 : + 1), wave.isGivenUp ? 245 : 234, 0, 11, (invasion.currentWave >= i ? 11 : 8));
                     }
-                    blit(stack, (int) (information.x() + 170 * ((float) (i + 1) / invasion.waves.size())),
-                            information.y() + 11 + (invasion.currentWave >= i ? - 2 : + 1), 234, 0, 11, (invasion.currentWave >= i ? 11 : 8));
                 }
                 Component component = information.event.getName();
                 int l = ClientProxy.MC.font.width(component);
                 int i1 = width / 2 - l / 2;
                 int j1 = information.y() - 9;
-                ClientProxy.MC.font.drawShadow(stack, component, (float)i1, (float)j1, 16777215);
+                ClientProxy.MC.font.drawShadow(stack, component, (float)i1, (float)j1, 0xffffff);
             }
         }
         RenderSystem.disableBlend();

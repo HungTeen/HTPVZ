@@ -6,6 +6,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -29,6 +30,8 @@ public class ShooterTargetGoal extends DisperseEnemyTargetGoal {
         super.findTarget();
         if (EntityUtil.isEntityValid(target)) {
             if (! ((ShooterPlant) this.mob).isHeightAvailable(target)) {
+                this.targetCandidates.clear();
+                ((ShooterPlant) mob).getTargetCandidates().clear();
                 target = null;
                 this.mob.setTarget(null);
             }

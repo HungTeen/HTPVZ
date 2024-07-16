@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.block;
 
-import com.hungteen.pvz.common.block.entity.PlanternLightBlockEntity;
+import com.hungteen.pvz.common.block.entity.EntityLightBlockEntity;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZBlockEntities;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -32,27 +33,28 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class PlanternLightBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+public class EntityLightBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
     public static final BooleanProperty HAS_SOURCE = BooleanProperty.create("has_source");
 
-    public PlanternLightBlock(Properties properties) {
+    public EntityLightBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(HAS_SOURCE, true).setValue(WATERLOGGED, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(HAS_SOURCE, true).setValue(WATERLOGGED, false).setValue(LEVEL, 0));
     }
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_153687_) {
-        p_153687_.add(HAS_SOURCE, WATERLOGGED);
+        p_153687_.add(HAS_SOURCE, WATERLOGGED, LEVEL);
     }
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState p_153274_, BlockEntityType<T> p_153275_) {
-        return createTickerHelper(p_153275_, PVZBlockEntities.PLANTERN_LIGHT.get(), PlanternLightBlockEntity::tick);
+        return createTickerHelper(p_153275_, PVZBlockEntities.ENTITY_LIGHT.get(), EntityLightBlockEntity::tick);
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState blockState) {
-        return new PlanternLightBlockEntity(pos, blockState);
+        return new EntityLightBlockEntity(pos, blockState);
     }
 
     @Override

@@ -102,7 +102,8 @@ public class PVZBlocks {
     public static final RegistryObject<Block> ZEN_GARDEN_PORTAL = model(Model.Modeled).noItem(/*registered apart for making it stacks to 1.*/).block("zen_garden_portal", () -> new ZenGardenPortalBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F).lightLevel(i-> 12)));
 
     //NO_TAB
-    public static final RegistryObject<Block> PLANTERN_LIGHT = loot(false).model(Model.Modeled).blockEntity("plantern_light").noItem().block("plantern_light", () -> new PlanternLightBlock(BlockBehaviour.Properties.of(Material.AIR).strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> 15)));
+    public static final RegistryObject<Block> ENTITY_LIGHT = loot(false).model(Model.Modeled).blockEntity("entity_light").noItem().block("entity_light", () -> new EntityLightBlock(BlockBehaviour.Properties.of(Material.AIR)
+            .strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> i.getValue(EntityLightBlock.LEVEL))));
 
     //CROPS
     public static final RegistryObject<Block> PEA = tag(BlockTags.CROPS).model(Model.Modeled).renderType("cutout").noItem().block("pea", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)) {
@@ -120,6 +121,8 @@ public class PVZBlocks {
         }
     });
     public static final RegistryObject<Block> CORN_KERNELS = tag(BlockTags.CROPS).model(Model.Modeled).renderType("cutout").noItem().block("corn_kernels", () -> new DoubleCorpBlock(BlockBehaviour.Properties.copy(Blocks.MELON_STEM)));
+
+
     /**Default loots self. Use {@link BlockLootGen#addTables()} to modify.*/
 
 

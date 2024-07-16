@@ -111,7 +111,7 @@ public class KernelPult extends ShooterPlant {
         Entity target = this.getTarget();
         if (target != null) {
             double distance = target.distanceTo(this);
-            return (float) (Math.max(0.5 * distance / 12, 0.05));
+            return (float) (Math.max(0.5 * distance / 12, 0.1));
         }
         return 0.5F;
     }

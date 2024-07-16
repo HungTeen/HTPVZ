@@ -233,7 +233,9 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                         }
                     });
                 }
-                ((ServerLevel) level).addFreshEntityWithPassengers(entity);
+                if (! entity.isRemoved()) {
+                    ((ServerLevel) level).addFreshEntityWithPassengers(entity);
+                }
                 if (cap != null) {
                     cap.cost = event.cost;
                     cap.resource = event.resource;
@@ -312,7 +314,9 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                         }
                     });
                 }
-                ((ServerLevel) level).addFreshEntityWithPassengers(entity);
+                if (! entity.isRemoved()) {
+                    ((ServerLevel) level).addFreshEntityWithPassengers(entity);
+                }
                 if (cap != null) {
                     cap.setOwner(player);
                     cap.cost = event.cost;

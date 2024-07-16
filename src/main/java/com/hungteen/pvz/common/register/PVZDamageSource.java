@@ -33,6 +33,7 @@ public class PVZDamageSource {
      * <br><br>For damage that are sharp, use {@link PVZDamageSource#storedSharpSources}.*/
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
     public static final DamageSource SPIKE_WEED = new DamageSource("spike_weed");
+    public static final DamageSource FALLEN_STAR = new DamageSource("fallen_star");
     public static final DamageSource TANGLE_KELP = setSharp(new DamageSource("tangle_kelp").bypassArmor());
 
     //TODO need a decorator for AOE damages?

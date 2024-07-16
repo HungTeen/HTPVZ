@@ -7,6 +7,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -21,7 +22,10 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
 
@@ -34,7 +38,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     public AnimationState openAnimationState = new AnimationState();
     protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(UmbrellaLeaf.class, EntityDataSerializers.BOOLEAN);
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf", PVZItems.LUX_ESSENCE, 8, 3, -75, -50)
+            new Skill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf", PVZItems.LUX_ESSENCE, 8, 3, -75, -50),
+            new Skill("skill.pvz.umbrella_leaf.bounce_bounds_bonus", PVZItems.VENTUS_ESSENCE, 8, 6, 50, 0)
     );
 
     public UmbrellaLeaf(EntityType<? extends Mob> entityType, Level level) {
@@ -60,21 +65,9 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         if (entity.getType().is(Tags.EntityTypes.BOSSES) || entity.getDeltaMovement().length() < 0.5 || ! this.isAlive()) {
             return false;
         }
-        Vec3 subPosition = entity.position().subtract(this.position()).multiply(1, 0, 1);
-        if (subPosition.distanceToSqr(Vec3.ZERO) > 1) {
-            Vec3i detectDirection = new Vec3i(
-                    Math.abs(subPosition.x) < 0.5 ? 0 : subPosition.x > 0 ? 1 : -1, 0, Math.abs(subPosition.z) < 0.5 ? 0 : subPosition.z > 0 ? 1 : -1);
-            if (level.getBlockState(this.blockPosition().offset(detectDirection)).isSuffocating(level, this.blockPosition().offset(detectDirection))) {
-                return false;
-            }
-            if (subPosition.distanceToSqr(Vec3.ZERO) > 4 && detectDirection.getX() != 0 && detectDirection.getZ() != 0) {
-                if (level.getBlockState(this.blockPosition().offset(detectDirection).offset(detectDirection.getX(), 0, 0))
-                        .isSuffocating(level, this.blockPosition().offset(detectDirection)) &&
-                        level.getBlockState(this.blockPosition().offset(detectDirection).offset(0, 0, detectDirection.getZ()))
-                                .isSuffocating(level, this.blockPosition().offset(detectDirection))) {
-                    return false;
-                }
-            }
+        BlockHitResult blockedCheck = level.clip(new ClipContext(position(), entity.position(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+        if (blockedCheck.getType() != HitResult.Type.MISS) {
+            return false;
         }
         return ! isClient ? (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this)
                 || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this))) :
@@ -88,7 +81,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1D);
         }
         if (level.isClientSide) {
-            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(2, 1.5, 2).move(0, 0.5, 0),
+            int width = hasSkill("skill.pvz.umbrella_leaf.bounce_bounds_bonus") ? 4 : 2;
+            List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(width, 1.5, width).move(0, 0.5, 0),
                     (entity) -> canBounce(entity, true));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
@@ -168,7 +162,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 1.5, 2).move(0, 0.5, 0),
+            int width = entity.hasSkill("skill.pvz.umbrella_leaf.bounce_bounds_bonus") ? 4 : 2;
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(width, 1.5, width).move(0, 0.5, 0),
                     (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {

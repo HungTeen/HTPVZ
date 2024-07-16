@@ -1,16 +1,17 @@
-package com.hungteen.pvz.common.world;
+package com.hungteen.pvz.api;
 
-import com.hungteen.pvz.common.register.PVZZombieEvents;
-import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.api.events.ZombieEventEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.event.TickEvent;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -19,44 +20,56 @@ import java.util.UUID;
  * The parent class of zombie events such as invasions and challenges.
  * Stored in {@link com.hungteen.pvz.common.capability.level.PVZZombieEventCapability PVZZombieEventCapability}.
  * Register Zombie events by putting class in {@link com.hungteen.pvz.common.register.PVZZombieEvents#REGISTRY REGISTRY}.
+ * <br> To get the registry name of a ZombieEvent, call {@link com.hungteen.pvz.common.register.PVZZombieEvents#getType(ZombieEvent) PVZZombieEvents#getType()}.
+ * <br> To get a ZombieEvent from a CompoundTag, call {@link com.hungteen.pvz.common.register.PVZZombieEvents#fromTag(Level, UUID, CompoundTag) PVZZombieEvents#fromTag()}.
  */
 public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
 
     public final Level level;
     public BlockPos position;
+    @Nullable
     public LivingEntity target;
+    public UUID targetUUID;
     public int range;
     public final UUID uuid;
     public boolean removed;
     public Set<Entity> members = new HashSet<>();
-    protected static int tickCount = 1;// not 0 to avoid ticking before the entities finished loading.
+    protected int tickCount = 1;// not 0 to avoid ticking before the entities finished loading.
 
     public ZombieEvent(Level level, UUID uuid) {
         this.level = level;
         this.uuid = uuid;
         this.removed = false;
         this.range = 50;
+        MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.New));
     }
+
+    /**Used by {@link com.hungteen.pvz.common.register.PVZZombieEvents#fromTag(Level, UUID, CompoundTag) PVZZombieEvents#fromTag()} when syncing or reloading.
+     * <br><b>⚠ATTENTION⚠</b> Any children of ZombieEvent should contain a constructor of this type.*/
     public ZombieEvent(Level level, UUID uuid, CompoundTag tag) {
         this(level, uuid);
         this.deserializeNBT(tag);
+        MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Load));
     }
 
     public static void init() {}
-    public ResourceLocation getType() {
-        for (ResourceLocation type : PVZZombieEvents.REGISTRY.get().getKeys()) {
-            if (PVZZombieEvents.REGISTRY.get().getValue(type) == this.getClass()) {
-                return type;
-            }
-        }
-        return null;
-    }
 
     public void remove() {
+        MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Remove));
         this.removed = true;
     }
 
     public void tick(TickEvent.ServerTickEvent ev) {
+        //target.
+        if (this.target != null) {
+            this.targetUUID = target.getUUID();
+        } else if (this.targetUUID != null) {
+            Entity entity = ((ServerLevel) level).getEntity(this.targetUUID);
+            if (entity instanceof LivingEntity living) {
+                this.target = living;
+            }
+        }
+        //ticking.
         tickCount ++;
         if (tickCount >= 10000000) {
             tickCount = 0;
@@ -64,20 +77,23 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
         if (tickCount % 5 == 0) {
             Set<Entity> removingEntities = new HashSet<>();
             this.members.forEach(entity -> {
-                if (! EntityUtil.isEntityValid(entity)) {
+                if (entity == null || ! entity.isAlive()) {
                     removingEntities.add(entity);
                 }
             });
             removingEntities.forEach(entity -> members.remove(entity));
         }
+        MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Tick));
     }
 
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("event_type", getType().toString());
+        tag.putString("event_type", PVZAPI.get().getZombieEventType(this).toString());
         if (target != null) {
-            tag.putUUID("target", target.getUUID());
+            tag.putUUID("target", this.target.getUUID());
+        } else if (targetUUID != null) {
+            tag.putUUID("target", this.targetUUID);
         }
         if (position != null) {
             tag.putInt("x", position.getX());
@@ -89,20 +105,10 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
         return tag;
     }
 
-    public static ZombieEvent fromTag(Level level, UUID uuid, CompoundTag tag) {
-        try {
-            Class<? extends ZombieEvent> evClass = PVZZombieEvents.REGISTRY.get().getValue(new ResourceLocation(tag.getString("event_type")));
-            return evClass.getConstructor(Level.class, UUID.class, CompoundTag.class)
-                    .newInstance(level, uuid, tag);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
     @Override
     public void deserializeNBT(CompoundTag tag) {
         if (tag.contains("target")) {
-            this.target = level.getPlayerByUUID(tag.getUUID("target"));
+            this.targetUUID = tag.getUUID("target");
         }
         if (tag.contains("x")) {
             this.position = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));

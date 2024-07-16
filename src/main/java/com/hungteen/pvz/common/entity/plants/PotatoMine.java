@@ -241,6 +241,7 @@ public class PotatoMine extends SimplePlant {
         if(tag.contains("isPoisonous")){
             this.getEntityData().set(IS_POISONOUS, tag.getBoolean("isPoisonous"));
         }
+        this.tickCount += random.nextInt(50);
     }
     public boolean isPoisonous() {
         return this.getEntityData().get(IS_POISONOUS);
