@@ -18,8 +18,10 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 
 public class JackInTheBoxItem extends Item {
-    public JackInTheBoxItem(Properties p_41383_) {
+    public final boolean destructive;
+    public JackInTheBoxItem(Properties p_41383_, boolean destructive) {
         super(p_41383_);
+        this.destructive = destructive;
     }
     public void releaseUsing(ItemStack itemStack, Level level, LivingEntity livingEntity, int duration) {
         if (this.getUseDuration(itemStack) - duration > 50) {
@@ -28,7 +30,7 @@ public class JackInTheBoxItem extends Item {
     }
     public void explode(Level level, Entity user, ItemStack itemStack) {
         if (EntityUtil.isEntityValid(user) && ! level.isClientSide) {
-            Explosion.BlockInteraction explosion$blockinteraction =
+            Explosion.BlockInteraction explosion$blockinteraction = destructive &&
                     net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(level, user) && PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.jackInTheBoxGriefing) ?
                             Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
             level.explode(null, user.getX(), user.getY(), user.getZ(), 3, explosion$blockinteraction);

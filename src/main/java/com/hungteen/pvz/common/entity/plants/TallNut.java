@@ -37,7 +37,7 @@ public class TallNut extends WallNut{
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 50D)
+                .add(Attributes.MAX_HEALTH, 75D)
                 .add(Attributes.ARMOR, 60D)
                 .add(Attributes.ARMOR_TOUGHNESS, 30D)
                 .add(Attributes.FOLLOW_RANGE, 3D);

@@ -45,10 +45,6 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     }
 
     //entity settings
-    public static AttributeSupplier.Builder createAttributes() {
-        return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D);
-    }
     @Override
     public List<Skill> getStaticSkillList(){
         return staticSkillList;

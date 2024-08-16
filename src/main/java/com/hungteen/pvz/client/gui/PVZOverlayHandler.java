@@ -15,8 +15,10 @@ import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -28,6 +30,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -326,6 +329,7 @@ public class PVZOverlayHandler{
         if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements() && player != null && PVZPlayerCapability.getValue(player, "plant_have_cost") != 0) {
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
             RenderSystem.enableBlend();
+            int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapNBT.SUN);
             int x;
             int y = height - 32;
             int w;
@@ -335,18 +339,21 @@ public class PVZOverlayHandler{
                     if (PVZConfig.renderSunAsNumber()) {
                         w = ClientProxy.MC.font.width(mainHandStackCost + "") + 10;
                         blit(stack, x - w / 2, y, 40, 0, 9, 9);
-                        ClientProxy.MC.font.draw(stack, mainHandStackCost + "", x - (float) w / 2 + 11, y + 2, 0x663600);
+                        ClientProxy.MC.font.draw(stack, mainHandStackCost + "", x - (float) w / 2 + 11, y + 2, mainHandStackCost > now ? 0xEF1010 : 0x663600);
                         ClientProxy.MC.font.draw(stack, mainHandStackCost + "", x - (float) w / 2 + 10, y + 1, 0xFFFFFF);
                     } else {
                         int tmp = mainHandStackCost;
                         int h = -2 * ceil((float)tmp / 500);
                         while (tmp > 0){
                             w = tmp > 500 ? 40 : ceil((float)tmp/100) * 8;
-                            for (int i = 0; i < w / 8; i ++){
+                            for (int i = 0; i < w / 8; i ++) {
                                 if (tmp > 100) {
                                     blit(stack, x - w / 2 + 8 * i, y + h + 4, 40, 0, 9, 9);
                                 } else {
                                     blit(stack, x - w / 2 + 8 * i, y + h + 4, ceil((float)tmp / 25) * 10, 0, 9, 9);
+                                }
+                                if (mainHandStackCost > now) {
+                                    blit(stack, x - w / 2 + 8 * i, y + h + 4, 50, 20, 9, 9);
                                 }
                                 tmp -= 100;
                             }
@@ -366,7 +373,7 @@ public class PVZOverlayHandler{
                     if (PVZConfig.renderSunAsNumber()) {
                         w = ClientProxy.MC.font.width(offHandStackCost + "") + 10;
                         blit(stack, x - w / 2, y, 40, 0, 9, 9);
-                        ClientProxy.MC.font.draw(stack, offHandStackCost + "", x - (float) w / 2 + 11, y + 2, 0x663600);
+                        ClientProxy.MC.font.draw(stack, offHandStackCost + "", x - (float) w / 2 + 11, y + 2, mainHandStackCost > now ? 0xEF1010 : 0x663600);
                         ClientProxy.MC.font.draw(stack, offHandStackCost + "", x - (float) w / 2 + 10, y + 1, 0xFFFFFF);
                     } else {
                         int tmp = offHandStackCost;
@@ -378,6 +385,9 @@ public class PVZOverlayHandler{
                                     blit(stack, x - w / 2 + 8 * i, y + h + 4, 40, 0, 9, 9);
                                 } else {
                                     blit(stack, x - w / 2 + 8 * i, y + h + 4, ceil((float)tmp / 25) * 10, 0, 9, 9);
+                                }
+                                if (mainHandStackCost > now) {
+                                    blit(stack, x - w / 2 + 8 * i, y + h + 4, 50, 20, 9, 9);
                                 }
                                 tmp -= 100;
                             }
@@ -395,6 +405,32 @@ public class PVZOverlayHandler{
         }
     }
 
+    public static void renderCoolDownValue(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+        if (! PVZConfig.renderCoolDownValue()) return;
+        Player player = getCameraPlayer();
+        if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements() && player != null) {
+            int x;
+            int y = height - 10;
+            int w;
+            for (int i = 0; i < 10; ++ i) {
+                x = i < 9 ? i * 20 + width / 2 - 80 : width / 2 - 110;
+                Item item = i < 9 ? player.getInventory().getItem(i).getItem() : player.getOffhandItem().getItem();
+                if (player.getCooldowns().isOnCooldown(item)) {
+                    String count = ((int) ((float) player.getCooldowns().cooldowns.get(item).endTime - player.getCooldowns().tickCount) / 2) + "";
+                    count = (count.length() == 1 ? "0" : count.substring(0, count.length() - 1) + "") + (count.length() > 2 ? "" : "." + count.charAt(count.length() - 1));
+                    w = ClientProxy.MC.font.width(count);
+                    stack.pushPose();
+                    stack.translate(0.0D, 0.0D, 201.0F);
+                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2 + 1, y, 0x444444);
+                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2 - 1, y, 0x444444);
+                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2, y + 1, 0x444444);
+                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2, y - 1, 0x444444);
+                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2, y, 0xFFFFFF);
+                    stack.popPose();
+                }
+            }
+        }
+    }
     @SubscribeEvent
     public static void getInvasionBars(CustomizeGuiOverlayEvent.BossEventProgress event) {
         ComponentContents contents = event.getBossEvent().getName().getContents();
@@ -487,6 +523,7 @@ public class PVZOverlayHandler{
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_bar", PVZOverlayHandler::renderSunAsBar);
         ev.registerBelow(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "gatling_overheat", PVZOverlayHandler::renderGatlingOverheat);
         ev.registerAbove(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "card_cost", PVZOverlayHandler::renderCostOfSeeds);
+        ev.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "item_cooldown", PVZOverlayHandler::renderCoolDownValue);
         ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "pvz_armor_on_health", PVZOverlayHandler::renderArmorOnHealthBar);
         ev.registerAbove(VanillaGuiOverlay.ARMOR_LEVEL.id(), "pvz_armor_bar", PVZOverlayHandler::renderArmorAsSingleBar);
         ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "butter", PVZOverlayHandler::renderButter);

@@ -18,6 +18,9 @@ public class PVZConfig {
     public static boolean renderSunAsNumber(){
         return Client.renderSunAsNumber.get();
     }
+    public static boolean renderCoolDownValue(){
+        return Client.renderCoolDownValue.get();
+    }
     public static int renderSunBarX(){
         return Client.renderSunBarX.get();
     }
@@ -77,9 +80,8 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnFallenStarInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallyRegainSunInterval;
         public Common(ForgeConfigSpec.Builder builder) {
-            builder.comment("All these configs are the default values of pvz rules.")
-                    .comment("In the game you can also modify them separately for each world with /pvzrule command.")
-                    .comment("All these configs are only effective in server.")
+            builder.comment("All these configs are the default values of pvz game rules and are only effective in server.")
+                    .comment("In the game you can also modify them separately for each world with /gamerule command and the rules are started with \"pvz:\".")
                     .push("PVZ Rules");
             shovelPermission = add(builder
                     .translation("config.pvz.common.shovel_permission")
@@ -151,7 +153,8 @@ public class PVZConfig {
         public static ForgeConfigSpec.BooleanValue renderPVZTypeInvasionBar;
         public static ForgeConfigSpec.BooleanValue renderSunAsNumber;
         public static ForgeConfigSpec.IntValue renderSunBarX;
-        public static ForgeConfigSpec.IntValue renderSunBarY;
+        public static ForgeConfigSpec.IntValue renderSunBarY;;
+        public static ForgeConfigSpec.BooleanValue renderCoolDownValue;
         public static ForgeConfigSpec.DoubleValue renderOverlayScale;
         public static ForgeConfigSpec.BooleanValue renderSeparateArmorBar;
         public static ForgeConfigSpec.BooleanValue renderBulletAsModel;
@@ -179,6 +182,10 @@ public class PVZConfig {
                     .translation("config.pvz.client.render_sun_bar_y")
                     .comment("control y coordinate of displaying the sun amount bar. count from the bottom if set negative.")
                     .defineInRange("renderSunBarY", 0, -10000, 10000);
+            renderCoolDownValue = builder
+                    .translation("config.pvz.client.render_cool_down_value")
+                    .comment("turn on to display the exact time value of cool down of your items in the hot bar.")
+                    .define("renderCoolDownValue", false);
             renderSeparateArmorBar = builder
                     .translation("config.pvz.client.render_separate_armor_bar")
                     .comment("turn on to display armor amount on health bar, or else display as a single bar and hide valina armor display.")
@@ -200,8 +207,8 @@ public class PVZConfig {
                     .define("zombiesDropParts", true);
             renderButterOnHead = builder
                     .translation("config.pvz.client.render_butter_on_head")
-                    .comment("Render butter on heads of entities. This Option can lead to some rendering bug, especially when the model of the target entity is scaled.")
-                    .define("renderButterOnHead", false);
+                    .comment("Render butter on heads of entities. This Option can lead to some rendering bug, especially when the model of the target entity is rescaled.")
+                    .define("renderButterOnHead", true);
             zombieRenderStuckArrows = builder
                     .translation("config.pvz.client.zombie_render_stuck_arrows")
                     .comment("Whether pvz zombies render stuck arrows on them when they got shoot by arrows.")

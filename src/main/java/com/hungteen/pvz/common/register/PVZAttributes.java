@@ -16,7 +16,7 @@ public class PVZAttributes {
 
     public static final DeferredRegister<Attribute> ATTRIBUTE = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, PVZMod.MODID);
 
-    public static final RegistryObject<Attribute> SUN = ATTRIBUTE.register("max_sun", () -> (new RangedAttribute("pvz.generic.max_sun", 200.0D, 0.0D, 1500.0D)).setSyncable(true));
+    public static final RegistryObject<Attribute> SUN = ATTRIBUTE.register("max_sun", () -> (new RangedAttribute("pvz.generic.max_sun", 200D, 0D, 3000D)).setSyncable(true));
 
     public static void addAttributes(EntityAttributeModificationEvent ev) {
         ev.add(EntityType.PLAYER, SUN.get());

@@ -33,10 +33,6 @@ public class GoldBloom extends SimplePlant {
     }
 
     //entity settings
-    public static AttributeSupplier.Builder createAttributes() {
-        return ShooterPlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D);
-    }
     @Override
     public List<Skill> getStaticSkillList(){
         return staticSkillList;

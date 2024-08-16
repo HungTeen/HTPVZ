@@ -47,10 +47,9 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     protected static final EntityDataAccessor<Boolean> FUSING = SynchedEntityData.defineId(GatlingPea.class, EntityDataSerializers.BOOLEAN);
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 6, 150, 0),
             new Skill("skill.pvz.gatling_pea.low_budget_configuration", PVZItems.LUX_ESSENCE, 4, 4, -250, -1000),
-            new Skill("skill.pvz.pea_shooter.fire_shooter", PVZItems.IGNIS_ESSENCE, 4, 3, 150, 0).avoidSkills(0),
-            new Skill("skill.pvz.plant.rapid_deployment", PVZItems.ORIGIN_ESSENCE, 16, 4, 175, 0)
+            new Skill("skill.pvz.pea_shooter.fire_shooter", PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(0),
+            new Skill("skill.pvz.plant.rapid_deployment", PVZItems.ORIGIN_ESSENCE, 16, 4, 150, 0)
     );
     public GatlingPea(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
@@ -60,10 +59,6 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         return staticSkillList;
     }
 
-    public static AttributeSupplier.Builder createAttributes() {
-        return Repeater.createAttributes()
-                .add(Attributes.ATTACK_DAMAGE, 5D);
-    }
     @Override
     protected void registerGoals() {
         super.registerGoals();
@@ -107,7 +102,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
 
     public float getAttackDamage() {
-        return (float) (this.getFirstPassenger() instanceof Player ? 0.6 : 1) * super.getAttackDamage();
+        return (float) (this.getFirstPassenger() instanceof Player ? 0.75 : 1) * super.getAttackDamage();
     }
 
     @Override

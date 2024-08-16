@@ -52,9 +52,9 @@ public class PotatoMine extends SimplePlant {
 
     public static List<Skill> staticSkillList = List.of(
             new Skill("skill.pvz.potato_mine.potato_miner", PVZItems.TERRA_ESSENCE, 4, 6, 0, 0),
-            new Skill("skill.pvz.potato_mine.lethal_dose", PVZItems.IGNIS_ESSENCE, 8, 8, 50, 0).avoidSkills(1),
-            new Skill("skill.pvz.potato_mine.quick_load", PVZItems.LUX_ESSENCE, 12, 8, 50, 0).avoidSkills(1, 2),
-            new Skill("skill.pvz.potato_mine.poison_enrichment", PVZItems.ORIGIN_ESSENCE, 6, 8, 25, 0)
+            new Skill("skill.pvz.potato_mine.lethal_dose", PVZItems.IGNIS_ESSENCE, 8, 8, 25, 300),
+            new Skill("skill.pvz.potato_mine.quick_load", PVZItems.LUX_ESSENCE, 12, 8, 50, 300).avoidSkills(1),
+            new Skill("skill.pvz.potato_mine.poison_enrichment", PVZItems.ORIGIN_ESSENCE, 6, 8, 75, 300).avoidSkills(1, 2)
     );
     public PotatoMine(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -210,7 +210,7 @@ public class PotatoMine extends SimplePlant {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(EXPLODE_COUNT, -1);
-        this.entityData.define(PREPARE_COUNT, 100);
+        this.entityData.define(PREPARE_COUNT, 80);
         this.entityData.define(IS_POISONOUS, false);
         this.entityData.set(DATA_POSE, Pose.DIGGING);
     }

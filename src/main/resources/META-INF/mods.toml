@@ -4,7 +4,7 @@ loaderVersion="[43,)"
 license="All rights reserved"
 [[mods]]
 modId="pvz"
-version="0.1 alpha 2 fix2"
+version="0.1 alpha 3"
 displayName="HungTeen's Plants vs. Zombies 2"
 logoFile="logo.png"
 credits="Thanks for this example mod goes to Java"

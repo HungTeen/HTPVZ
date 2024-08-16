@@ -20,7 +20,7 @@ public class PeaShooter extends ShooterPlant {
     protected boolean skillBoosted = false;
     protected static final double SHOOT_OFFSET = 0.2D;//pea spawning position in front of the original pos of pea shooters.
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 4, 150, 0),
+            new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 4, 100, 0),
             new Skill("skill.pvz.pea_shooter.sniper", PVZItems.VENTUS_ESSENCE, 4, 12, 500, 800).avoidSkills(0), //for pvp.
             new Skill("skill.pvz.pea_shooter.fire_shooter", PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0).avoidSkills(0, 1)
     );
@@ -78,7 +78,6 @@ public class PeaShooter extends ShooterPlant {
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
                 .add(Attributes.ATTACK_DAMAGE, 5D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);

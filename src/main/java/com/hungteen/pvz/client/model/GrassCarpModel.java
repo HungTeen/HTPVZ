@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model;// Made with Blockbench 4.1.5
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.common.entity.GrassCarp;
+import com.hungteen.pvz.common.entity.creatures.GrassCarp;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;

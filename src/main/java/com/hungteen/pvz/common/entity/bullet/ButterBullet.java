@@ -5,6 +5,7 @@ import com.hungteen.pvz.common.register.OtherRegisters;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -12,10 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.AreaEffectCloud;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -27,7 +25,7 @@ public class ButterBullet extends BaseBullet {
     protected static final EntityDataAccessor<ButterSkill> SKILL = SynchedEntityData.defineId(ButterBullet.class, OtherRegisters.butterSkillDataSerializer);
     public ButterBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);
-        this.noPhysics = true;
+        this.setNoGravity(false);
         this.damageName = "butter";
         this.size = 1.5F;
     }
@@ -87,9 +85,6 @@ public class ButterBullet extends BaseBullet {
     @Override
     public void tick() {
         super.tick();
-        if (!this.isNoGravity()) {
-            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, - 0.1D, 0.0D));
-        }
         if (level.isClientSide && this.getButterSkill() == ButterSkill.POTION) {
             Vec3 pos = this.position();
             Particle particle = ClientProxy.MC.levelRenderer.addParticleInternal(ParticleTypes.ENTITY_EFFECT.getType(), false,

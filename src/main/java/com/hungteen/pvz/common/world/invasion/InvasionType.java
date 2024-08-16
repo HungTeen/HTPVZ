@@ -1,45 +1,117 @@
 package com.hungteen.pvz.common.world.invasion;
 
+import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.event.RegisterInvasionEntityModifiersEvent;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.common.util.TriPredicate;
+import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.BiPredicate;
-import java.util.function.Consumer;
-import java.util.logging.Level;
+import java.util.*;
 
-/**Server only. These are invasions read from data pack.**/
-public class InvasionType {
-    public static Set<InvasionType> invasionTypes;
+/**Server only. These are invasion types read from data pack, stored in {@link InvasionType#invasionTypes}.
+ * @param loot The loot table of this invasion type. When an invasion contains multiple invasion types, only use the loot table of the main type.
+ * @param weight The chance whether the invasion can take place. If larger than 1, As long as it doesn't conflict with other types, it will sure happen.
+ * @param length The length the invasion lasts. The smaller the number is, the shorter time the invasion lasts.
+ * @param isAddition Whether this type is additional invasion type. Additional invasion types can't be selected single, while only one non-additional types con be selected.
+ * @param conditions See {@link InvasionCondition}.**/
+public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLocation, List<String>>> conditions, List<ResourceLocation> entityModifiers,
+                           Optional<CompoundTag> flagEnemy, List<EnemyType> enemies, boolean isAddition, float length, float weight) {
+    public static Codec<InvasionType> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            ResourceLocation.CODEC.optionalFieldOf("loot").forGetter(InvasionType::loot),
+            Codec.compoundList(ResourceLocation.CODEC, Codec.STRING.listOf()).optionalFieldOf("conditions", List.of()).forGetter(InvasionType::conditions),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("entity_modifiers", List.of()).forGetter(InvasionType::entityModifiers),
+            CompoundTag.CODEC.optionalFieldOf("flag_enemy").forGetter(InvasionType::flagEnemy),
+            EnemyType.CODEC.listOf().optionalFieldOf("enemies", List.of()).forGetter(InvasionType::enemies),
+            Codec.BOOL.optionalFieldOf("is_addition", false).forGetter(InvasionType::isAddition),
+            Codec.FLOAT.optionalFieldOf("length", 1F).forGetter(InvasionType::length),
+            Codec.FLOAT.optionalFieldOf("weight", 1F).forGetter(InvasionType::weight)
+        ).apply(builder, InvasionType::new)
+    );
+    public static Map<ResourceLocation, InvasionType> invasionTypes;
+    private static final Random random = new Random();
 
-    public ResourceLocation location;
-    public LootTable awards;
-    public Set<BiPredicate<Level, Player>> conditions;
-    public Set<Consumer<Entity>> entityModifiers;
-    public CompoundTag flagZombie;
-    public boolean isAddition = false;
-    public int weight;
-    public int radius;
+    public static final Map<ResourceLocation, TriConsumer<Invasion, Entity, Integer>> invasionEntityModifiers = RegisterInvasionEntityModifiersEvent.get();
+    public static final Map<ResourceLocation, TriPredicate<Invasion, Entity, Integer>> invasionSummonConditions = new HashMap<>();
+
+
+    //Methods
+
+    public static List<InvasionType> generateTypes(LivingEntity target) {
+        List<InvasionType> types = new ArrayList<>();
+        for (InvasionType invasionType : invasionTypes.values()) {
+            if (! invasionType.isAddition && invasionType.isAvailable(target, types) && random.nextFloat() < invasionType.weight) {
+                types.add(invasionType);
+                break;
+            }
+        }
+        if (types.isEmpty()) {
+            return types;
+        }
+        for (InvasionType invasionType : invasionTypes.values()) {
+            if (invasionType.isAddition && invasionType.isAvailable(target, types) && random.nextFloat() < invasionType.weight) {
+                types.add(invasionType);
+                break;
+            }
+        }
+        return types;
+    }
 
     @Nullable
     public static InvasionType getInvasionType(ResourceLocation location) {
-        for (InvasionType type : invasionTypes) {
-            if (type.location.equals(location)) {
-                return type;
+        if (invasionTypes.containsKey(location)) {
+            return invasionTypes.get(location);
+        }
+        return null;
+    }
+
+    public boolean isAvailable(LivingEntity target, List<InvasionType> selectedTypes) {
+        if (this.conditions != null) {
+            for (Pair<ResourceLocation, List<String>> pair : this.conditions) {
+                InvasionCondition condition = InvasionCondition.invasionConditions.get(pair.getFirst());
+                if (condition == null) {
+                    PVZMod.LOGGER.error("Found unavailable condition " + pair.getFirst() + " in invasion type " + this.getName() + "!");
+                    return false;
+                } else {
+                    int argumentLength = condition.getArgLength(target, pair.getSecond(), this, selectedTypes);
+                    if (! condition.test(target, pair.getSecond().subList(0, argumentLength), this, selectedTypes)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public ResourceLocation getName() {
+        for (ResourceLocation location : invasionTypes.keySet()) {
+            if (invasionTypes.get(location) == this) {
+                return location;
             }
         }
         return null;
     }
 
-    public record EnemyType(CompoundTag entityData, Set<BiPredicate<Level, Player>> conditions, int threat, int weight, boolean isElite, float startFrom) {
+    public List<TriConsumer<Invasion, Entity, Integer>> getModifiers() {
+        return this.entityModifiers.stream().map(invasionEntityModifiers::get).toList();
+    }
 
-        public EnemyType(CompoundTag entityData, int threat) {
-            this(entityData, new HashSet<>(), threat, 10, false, 0);
-        }
+    //enemy type
+    public record EnemyType(CompoundTag entityData, @Nullable List<ResourceLocation> conditions, int threat, int weight, boolean isElite, float startFrom) {
+        public static final Codec<EnemyType> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+                CompoundTag.CODEC.fieldOf("entity").forGetter(EnemyType::entityData),
+                ResourceLocation.CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(EnemyType::conditions),
+                Codec.INT.fieldOf("threat").forGetter(EnemyType::threat),
+                Codec.INT.optionalFieldOf("weight", 10).forGetter(EnemyType::weight),
+                Codec.BOOL.optionalFieldOf("is_elite", false).forGetter(EnemyType::isElite),
+                Codec.FLOAT.optionalFieldOf("start_from", 0F).forGetter(EnemyType::startFrom)
+            ).apply(builder, EnemyType::new)
+        );
     }
 }

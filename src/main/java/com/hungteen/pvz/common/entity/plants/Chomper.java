@@ -31,7 +31,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -50,7 +49,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.EntityPositionSource;
@@ -391,7 +389,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         }
         //position adjustment.
             //1. for replaceable plants and multi-face block like vine and glow lichen.
-        if ((level.getBlockState(pos).is(BlockTags.REPLACEABLE_PLANTS) || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
+        if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
             //2. when clicked on sides of blocks, plant on relative plants.

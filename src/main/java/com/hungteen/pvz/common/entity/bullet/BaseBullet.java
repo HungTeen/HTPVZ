@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.bullet;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
@@ -7,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
@@ -47,6 +49,7 @@ public class BaseBullet extends Projectile {
 	protected float getWaterSlowDown() {
 		return 0.92F;
 	}
+
 	@Override
 	public void onClientRemoval() {
 		super.onClientRemoval();
@@ -57,6 +60,7 @@ public class BaseBullet extends Projectile {
 	protected boolean canHitEntity(Entity entity) {
 		return super.canHitEntity(entity) && ! this.level.isClientSide && EntityUtil.checkCanEntityBeAttack(this, entity);
 	}
+
 	@Override
 	public void setOwner(@Nullable Entity entity) {
 		if (! level.isClientSide()) {
@@ -64,6 +68,7 @@ public class BaseBullet extends Projectile {
 		}
 		super.setOwner(entity);
 	}
+
 	@Override
 	public void tick() {
 		super.tick();
@@ -77,7 +82,7 @@ public class BaseBullet extends Projectile {
 		double dz = vec3.z;
 		this.updateRotation();
 		if (this.isInWater() || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
- 			dx -= (1 - this.getWaterSlowDown()) * dx;
+			dx -= (1 - this.getWaterSlowDown()) * dx;
 			dy -= (1 - this.getWaterSlowDown()) * dy;
 			dz -= (1 - this.getWaterSlowDown()) * dz;
 			if (! this.isNoGravity()) {
@@ -89,6 +94,20 @@ public class BaseBullet extends Projectile {
 
 		if (this.tickCount > getMaxLiveTick()) {
 			this.discard();
+		}
+		if (! this.isNoGravity()) { //when is pult ammo.
+			this.setDeltaMovement(this.getDeltaMovement().add(0.0D, - 0.1D, 0.0D));
+			if (this.getOwner() instanceof Mob owner && EntityUtil.isEntityValid(owner) && EntityUtil.isEntityValid(owner.getTarget()) && this.getDeltaMovement().y < 0) {
+				Entity target = owner.getTarget();
+				double timeLand = 5;
+				double heightRelate = target.getY() - this.getY();
+				for (int i = 0; i < 5; i ++) {
+					timeLand = (timeLand + 2 * heightRelate / (2 * this.getDeltaMovement().y - 0.1 * timeLand)) / 2;
+				}
+				vec3 = target.position().subtract(this.position()).subtract(this.getDeltaMovement().x * timeLand, 0, this.getDeltaMovement(). z * timeLand);
+				this.setDeltaMovement(this.getDeltaMovement()
+						.add(Math.min(0.045, Math.max(-0.045, vec3.x / timeLand)), 0, Math.min(0.045, Math.max(-0.045, vec3.z / timeLand))));
+			}
 		}
 	}
 	@Override
@@ -139,8 +158,8 @@ public class BaseBullet extends Projectile {
 		final float damage = this.getAttackDamage();
 		//default normal damage.
 		boolean hurt = target.hurt(PVZDamageSource.hitBossWithMultiplier(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
-				PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
-						, getKnockBackStrength()), target, 0.2F), damage);
+						PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
+				, getKnockBackStrength()), target, 0.2F), damage);
 		this.discard();
 		return hurt;
 	}

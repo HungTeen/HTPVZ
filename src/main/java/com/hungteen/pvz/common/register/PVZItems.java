@@ -112,21 +112,22 @@ public class PVZItems {
 
 
     //equipments
-    public static final RegistryObject<Item> CONE_HELMET = item("cone_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.CONE, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(150), EquipmentSlot.HEAD));
-    public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(500), EquipmentSlot.HEAD));
+    public static final RegistryObject<Item> CONE_HELMET = item("cone_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.CONE, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(250), EquipmentSlot.HEAD));
+    public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(750), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> DUCK_LIFEBUOY = item("duck_lifebuoy", () -> new DuckLifebuoyItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> SCREEN_DOOR_SHIELD = tag(PVZItemTags.IRON, PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).model(Model.Modeled).item("screen_door_shield", () -> new PVZShieldItem((new Item.Properties()).durability(150).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> SCREEN_DOOR_SHIELD = tag(PVZItemTags.IRON, PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).model(Model.Modeled).item("screen_door_shield", () -> new PVZShieldItem((new Item.Properties()).durability(250).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 
     //tools
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> PEA_GUN = model(Model.Modeled).item("pea_gun", () -> new PeaGunItem( new Item.Properties().stacksTo(1).durability(400).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> CHILI_CHAN = model(Model.Handheld).item("chili_chan", () -> new ChiliChanItem( new Item.Properties().stacksTo(1).durability(233).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ANVIL_HAMMER = tag(PVZItemTags.IRON, PVZItemTags.GIANT_HAMMER).model(Model.Modeled).item("anvil_hammer", () -> new AnvilHammerItem( new Item.Properties().stacksTo(1).durability(233).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> JACK_IN_THE_BOX = tag(PVZItemTags.IRON).model(Model.Modeled).item("jack_in_the_box", () -> new JackInTheBoxItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1)));
+    public static final RegistryObject<Item> JACK_IN_THE_BOX = tag(PVZItemTags.IRON).model(Model.Modeled).item("jack_in_the_box", () -> new JackInTheBoxItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1), false));
     public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> WATERING_POT = model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_BLOCKS)));
     public static final RegistryObject<Item> ZEN_GARDEN_PORTAL = model(Model.Modeled).item("zen_garden_portal", () -> new BlockItem(PVZBlocks.ZEN_GARDEN_PORTAL.get(), new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_BLOCKS)));
+    public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_MISC)));
 
     static {
         createBannerPatterns();

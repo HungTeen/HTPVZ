@@ -64,6 +64,7 @@ public class EntityUtil {
      * check can AttackGoal continue to attack target. <b>CAN ONLY</b> call on server.
      */
     public static boolean checkCanEntityBeAttack(Entity attacker, Entity target) {
+        //TODO enable Player#canHarmPlayer().
         if (attacker == null || target == null) {//prevent crash
             return false;
         }

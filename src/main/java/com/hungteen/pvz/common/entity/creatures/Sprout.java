@@ -1,4 +1,4 @@
-package com.hungteen.pvz.common.entity;
+package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.api.interfaces.IPlant;

@@ -25,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.MultifaceBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
@@ -52,7 +53,6 @@ public class Plantern extends SimplePlant {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
@@ -100,7 +100,7 @@ public class Plantern extends SimplePlant {
             float height = 2;
             while (height < 5 && height < this.getBbHeight() + 0.5) {
                 BlockPos pos = this.blockPosition().offset(new Vec3i(0, (int) height, 0));
-                if (level.getBlockState(pos).isAir() || level.getBlockState(pos).is(BlockTags.REPLACEABLE_PLANTS) || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) {
+                if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()) {
                     height += 0.25;
                 } else {
                     break;

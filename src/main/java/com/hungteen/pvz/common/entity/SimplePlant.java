@@ -93,6 +93,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
+                .add(Attributes.MAX_HEALTH, 16D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1)
                 .add(Attributes.MOVEMENT_SPEED, 0);
     }
@@ -150,7 +151,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
         //position adjustment.
             //1. for replaceable plants and multi-face block like vine and glow lichen.
-        if ((level.getBlockState(pos).is(BlockTags.REPLACEABLE_PLANTS) || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
+        if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
             //2. when clicked on sides of blocks, plant on relative plants.

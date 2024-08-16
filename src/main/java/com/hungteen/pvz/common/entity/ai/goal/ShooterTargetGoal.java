@@ -19,19 +19,9 @@ public class ShooterTargetGoal extends DisperseEnemyTargetGoal {
 
     @Override
     protected void findTarget() {
-        if (targetCandidates.isEmpty() && mob.getRandom().nextInt(5) == 0) {
-            List<Entity> list = this.mob.level.getEntities(mob, mob.getBoundingBox().inflate(4),
-                    (entity) -> entity instanceof LivingEntity && EntityUtil.isTeammate(mob, entity) && entity instanceof ShooterPlant);
-            if (! list.isEmpty()) {
-                targetCandidates = ((ShooterPlant) list.get(mob.getRandom().nextInt(list.size()))).getTargetCandidates();
-            }
-        }
-        ((ShooterPlant) mob).setTargetCandidates(targetCandidates);
         super.findTarget();
         if (EntityUtil.isEntityValid(target)) {
             if (! ((ShooterPlant) this.mob).isHeightAvailable(target)) {
-                this.targetCandidates.clear();
-                ((ShooterPlant) mob).getTargetCandidates().clear();
                 target = null;
                 this.mob.setTarget(null);
             }

@@ -27,7 +27,7 @@ public class SplitPea extends PeaShooter{
     public AnimationState backwardAnimationState = new AnimationState();
     LivingEntity backwardTarget = null;
     public static List<Skill> staticSkillList = List.of(
-);
+    );
     public SplitPea(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
     }

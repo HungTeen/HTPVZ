@@ -33,7 +33,7 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
     public int range;
     public final UUID uuid;
     public boolean removed;
-    public Set<Entity> members = new HashSet<>();
+    protected Set<Entity> members = new HashSet<>();
     protected int tickCount = 1;// not 0 to avoid ticking before the entities finished loading.
 
     public ZombieEvent(Level level, UUID uuid) {
@@ -51,8 +51,6 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
         this.deserializeNBT(tag);
         MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Load));
     }
-
-    public static void init() {}
 
     public void remove() {
         MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Remove));
@@ -81,10 +79,23 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
                     removingEntities.add(entity);
                 }
             });
-            removingEntities.forEach(entity -> members.remove(entity));
+            removingEntities.forEach(this::removeMember);
         }
         MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Tick));
     }
+
+    public Set<Entity> getMembers() {
+        return Set.copyOf(this.members);
+    }
+
+    public void addMember(Entity member) {
+        this.members.add(member);
+    }
+
+    public void removeMember(Entity member) {
+        this.members.remove(member);
+    }
+
 
     @Override
     public CompoundTag serializeNBT() {

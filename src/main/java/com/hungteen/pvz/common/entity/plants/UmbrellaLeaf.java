@@ -117,7 +117,6 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 1D);// only for enemy attraction.
     }
     @Override

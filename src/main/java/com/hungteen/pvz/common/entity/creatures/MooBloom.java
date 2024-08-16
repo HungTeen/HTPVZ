@@ -1,4 +1,4 @@
-package com.hungteen.pvz.common.entity;
+package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -25,7 +25,6 @@ import net.minecraft.world.item.SuspiciousStewItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 import static net.minecraft.world.level.biome.Biomes.*;

@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.entity.Anger;
+import com.hungteen.pvz.common.entity.creatures.Anger;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -71,7 +71,6 @@ public class Jalapeno extends SimplePlant {
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return ShooterPlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 6D)
                 .add(Attributes.ATTACK_DAMAGE, 25.0D);
     }

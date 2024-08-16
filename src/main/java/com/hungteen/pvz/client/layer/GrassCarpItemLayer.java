@@ -1,10 +1,9 @@
 package com.hungteen.pvz.client.layer;
 
 import com.hungteen.pvz.client.model.GrassCarpModel;
-import com.hungteen.pvz.common.entity.GrassCarp;
+import com.hungteen.pvz.common.entity.creatures.GrassCarp;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;

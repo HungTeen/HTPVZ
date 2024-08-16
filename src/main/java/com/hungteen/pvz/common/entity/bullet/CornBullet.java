@@ -2,10 +2,12 @@ package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
@@ -14,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 public class CornBullet extends BaseBullet {
     public CornBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);
-        this.noPhysics = true;
+        this.setNoGravity(false);
         this.damageName = "corn";
         this.size = 0.5F;
     }
@@ -42,13 +44,6 @@ public class CornBullet extends BaseBullet {
                     - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.12,
                     - movement.y * 0.25 + random.nextFloat() * 0.25,
                     - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.12);
-        }
-    }
-    @Override
-    public void tick() {
-        super.tick();
-        if (!this.isNoGravity()) {
-            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, - 0.1D, 0.0D));
         }
     }
 

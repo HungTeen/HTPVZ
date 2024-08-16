@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.zombies;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.BlockWithShieldGoal;
@@ -12,9 +13,11 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -101,7 +104,6 @@ public class Gargantuar extends PVZZombie {
         imp.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
         imp.finalizeSpawn(level, difficulty, spawnType, null, null);
         imp.startRiding(this);
-        this.setBaby(false);
         return spawnGroupData;
     }
 
@@ -135,6 +137,7 @@ public class Gargantuar extends PVZZombie {
             return true;
         }
         public void tick() {
+            gargantuar.getNavigation().stop();
             if (animCount == 0) {
                 gargantuar.setPose(Pose.USING_TONGUE);
             } else if (animCount == 32) {
@@ -189,11 +192,23 @@ public class Gargantuar extends PVZZombie {
             }
             return flag;
         }
+        public boolean canContinueToUse() {
+            if (animCount < -1) {
+                animCount += 1;
+            }
+            boolean flag = super.canContinueToUse() && (mob.getPose() == Pose.STANDING || mob.getPose() == Pose.SPIN_ATTACK);
+            if (animCount >= 49) {
+                mob.setPose(Pose.STANDING);
+                animCount = -5;
+            }
+            return flag;
+        }
         @Override
         public void tick() {
             super.tick();
             if (animCount >= 0) {
                 animCount ++;
+                mob.getNavigation().stop();
             }
             if (animCount == 1) {
                 mob.setPose(Pose.SPIN_ATTACK);
@@ -206,14 +221,23 @@ public class Gargantuar extends PVZZombie {
                         if (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER)) {
                             List<Entity> list = mob.level.getEntities((Entity) null,
                                     new AABB(target.position().add(-0.8, 0, -0.8), target.position().add(0.8, 1, 0.8)),
-                                    (entity -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(mob, entity)));
+                                    (entity -> entity instanceof LivingEntity));
                             list.forEach((entity) -> {
                                 double distSqr = mob.distanceToSqr(entity);
                                 double horizontalMovement = 2.5 / distSqr > 0.3 ? 2.5 / distSqr : 0;
                                 horizontalMovement = horizontalMovement > 1 ? 1 : horizontalMovement;
+                                AttributeInstance attribute = target.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+                                double knockBackModifier = 0;
+                                if (attribute != null) {
+                                    knockBackModifier = attribute.getValue();
+                                }
                                 Vec3 vec3 = entity.position().subtract(mob.position()).multiply(1, 0, 1).normalize()
-                                    .multiply(horizontalMovement, 0, horizontalMovement).add(0, 0.4, 0);
+                                        .multiply(horizontalMovement, 0, horizontalMovement).add(0, 0.5, 0)
+                                        .multiply(1 - knockBackModifier, 1 - knockBackModifier * 0.5, 1 - knockBackModifier);
                                 entity.setDeltaMovement(entity.getDeltaMovement().add(vec3));
+                                if (entity instanceof ServerPlayer player) {
+
+                                }
                             });
                             ((ServerLevel) mob.level).sendParticles(ParticleTypes.EXPLOSION, target.getX(), target.getY(0.5D), target.getZ(), 5, 1, 0.0D, 1, 0.0D);
                         }
@@ -224,7 +248,7 @@ public class Gargantuar extends PVZZombie {
         }
         @Override
         protected double getAttackReachSqr(LivingEntity entity) {
-            return mob.getBbWidth() * mob.getBbWidth() * (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER) ? 6 : 3) + entity.getBbWidth() * entity.getBbWidth();
+            return mob.getBbWidth() * mob.getBbWidth() * (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER) ? 4 : 2) + entity.getBbWidth() * entity.getBbWidth();
         }
         @Override
         protected void checkAndPerformAttack(LivingEntity target, double distance) {

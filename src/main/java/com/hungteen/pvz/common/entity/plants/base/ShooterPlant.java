@@ -29,7 +29,6 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public int aimTime = 0;
 	public AnimationState idleAnimationState = new AnimationState();
 	public AnimationState shootAnimationState = new AnimationState();
-	protected List<Entity> targetCandidates = new ArrayList<>();
 	protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(ShooterPlant.class, EntityDataSerializers.BOOLEAN);
 	protected ShooterAttackGoal shooterAttackGoal;
 	protected TargetGoal targetGoal;
@@ -106,14 +105,6 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			bullet1.setAttackDamage(this.getAttackDamage());
 		}
 		this.level.addFreshEntity(bullet);
-	}
-
-	public void setTargetCandidates(List<Entity> set) {
-		this.targetCandidates = set;
-	}
-
-	public List<Entity> getTargetCandidates() {
-		return targetCandidates;
 	}
 
 	@Override

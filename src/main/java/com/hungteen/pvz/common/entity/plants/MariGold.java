@@ -51,7 +51,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (this.isAlive()) {
-            if (PVZConfig.Common.dyeMarigold.get() && player.getItemInHand(hand).getItem() instanceof DyeItem dye) {
+            if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.dyeMarigold) && player.getItemInHand(hand).getItem() instanceof DyeItem dye) {
                 if (this.isAlive() && this.getColor() != dye.getDyeColor().getTextColor()) {
                     this.level.playSound(player, this, SoundEvents.DYE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                     if (! this.level.isClientSide) {

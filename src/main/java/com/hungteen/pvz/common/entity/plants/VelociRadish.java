@@ -189,7 +189,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         }
         //position adjustment.
             //1. for replaceable plants and multi-face block like vine and glow lichen.
-        if ((level.getBlockState(pos).getBlock() instanceof BushBlock || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
+        if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
             //2. when clicked on sides of blocks, plant on relative plants.

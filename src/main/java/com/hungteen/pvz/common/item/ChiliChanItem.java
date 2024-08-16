@@ -4,6 +4,8 @@ import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShovelItem;
@@ -48,7 +50,12 @@ public class ChiliChanItem extends ShovelItem {
     public boolean hurtEnemy(ItemStack itemStack, LivingEntity target, LivingEntity user) {
         if (! (user instanceof Player player) || player.getAttackStrengthScale(0.5F) == 1) {
             Vec3 vec3 = target.position().subtract(user.position());
-            target.setDeltaMovement(target.getDeltaMovement().add(vec3.normalize().scale(Math.min(2 / vec3.distanceTo(Vec3.ZERO), 1))));
+            AttributeInstance attribute = target.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+            double knockBackModifier = 1;
+            if (attribute != null) {
+                knockBackModifier = 1 - attribute.getValue() * 0.5;
+            }
+            target.setDeltaMovement(target.getDeltaMovement().add(vec3.normalize().scale(Math.min(2 / vec3.distanceTo(Vec3.ZERO) * knockBackModifier, 1))));
             ((ServerLevel) user.level).sendParticles(ParticleTypes.EXPLOSION,
                     target.getX(), target.getY(), target.getZ(), 5, 0.5, 0.5D, 0.5D, 0.0D);
         }

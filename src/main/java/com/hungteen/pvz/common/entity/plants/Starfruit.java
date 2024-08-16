@@ -122,7 +122,6 @@ public class Starfruit extends ShooterPlant {
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 16D)
                 .add(Attributes.ATTACK_DAMAGE, 5D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);

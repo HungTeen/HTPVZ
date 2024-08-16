@@ -35,8 +35,8 @@ public class PVZZombieEvents {
             try {
                 return evClass.getConstructor(Level.class, UUID.class, CompoundTag.class)
                         .newInstance(level, uuid, tag);
-            } catch (Exception ignored) {
-                PVZMod.LOGGER.error("Lacking constructor for " + name + "!");
+            } catch (Exception exception) {
+                PVZMod.LOGGER.error("Error constructing zombie event with type " + name + " with exception " + exception + "!");
                 return null;
             }
         }

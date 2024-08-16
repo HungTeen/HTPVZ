@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.model;
 
-import com.hungteen.pvz.common.entity.Anger;
+import com.hungteen.pvz.common.entity.creatures.Anger;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;

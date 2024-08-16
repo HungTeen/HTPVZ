@@ -1,4 +1,4 @@
-package com.hungteen.pvz.common.entity;
+package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -115,7 +115,7 @@ public class Anger extends FlyingMob {
                     entity.hurt(DamageSource.ON_FIRE, (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
                     entity.setSecondsOnFire(15);
                 } else if (! preciseStrike) {
-                    entity.setSecondsOnFire(3);
+                    entity.setSecondsOnFire(6);
                 }
             });
             if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(anger.level, anger)) {

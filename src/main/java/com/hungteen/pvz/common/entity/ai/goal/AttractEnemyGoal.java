@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Supplier;
 
@@ -43,12 +44,15 @@ public class AttractEnemyGoal extends Goal {
         attractEnemies(entity);
     }
 
+    public float getBasicAttractingStrength(Entity attacker, Entity target) {
+        return target instanceof IAttractsEnemy entity ? entity.getAttractStrength(attacker) : (target instanceof Player ? 5 : 10);
+    }
+
     public float getAttractingStrength(Entity attacker, Entity target) {
-        return target instanceof IAttractsEnemy entity ? entity.getAttractStrength(attacker) : 10;
+        return getBasicAttractingStrength(attacker, target) / target.distanceTo(attacker);
     }
 
     public void attractEnemies(Mob entity) {
-        //TODO separate the judging part to a method that returns int.
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
             //attracting limits about tergetEntity.
             boolean outOfHeightRegion = (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() <= entity.getBbHeight() + entity.getY()) &&
@@ -59,7 +63,7 @@ public class AttractEnemyGoal extends Goal {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
                 if (! EntityUtil.isEntityValid(targetOfTarget) ||
-                        (getAttractingStrength(targetEntity, targetOfTarget) < getAttractingStrength(targetEntity, entity)) &&
+                        (getBasicAttractingStrength(targetEntity, targetOfTarget) < getBasicAttractingStrength(targetEntity, entity)) &&
                                 ((! PVZConfig.PVZGameRules.getBoolean(entity.level, PVZConfig.Common.teamBattle)) || (EntityUtil.isTeammate(entity, targetOfTarget)))) {
                     if (((Mob) targetEntity).targetSelector.getAvailableGoals().stream().anyMatch((goal) -> goal.getGoal() instanceof TargetGoal)) {
                         ((Mob) targetEntity).setTarget(entity);

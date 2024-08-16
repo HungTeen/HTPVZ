@@ -5,7 +5,10 @@ import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.common.world.invasion.Invasion;
+import com.hungteen.pvz.common.world.invasion.InvasionType;
 import com.hungteen.pvz.util.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.*;
 import net.minecraft.world.entity.FlyingMob;
@@ -13,6 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
@@ -27,6 +31,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -212,17 +217,24 @@ public class PVZMobEffects {
 
         public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int amplifier) {
             super.removeAttributeModifiers(entity, attributeMap, amplifier);
-            if (! entity.level.isClientSide && entity != removed) {
-                entity.level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
-                    cap.addEvent(new Invasion(entity.level, entity, entity.blockPosition(), amplifier));
-                });
+            if (! entity.level.isClientSide && entity != removed && entity instanceof Player) {
+                List<InvasionType> types = InvasionType.generateTypes(entity);
+                if (types.isEmpty() && entity instanceof ServerPlayer player) {
+                    player.displayClientMessage(Component.translatable("hint.pvz.invasion.no_available_invasion"), true);
+                } else {
+                    entity.level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
+                        cap.addEvent(new Invasion(entity.level, types, entity, entity.blockPosition(), amplifier));
+                    });
+                }
             }
             removed = null;
         }
 
         @SubscribeEvent
         public static void onRemoveThisEffect(MobEffectEvent.Remove ev) {
-            removed = ev.getEntity();
+            if (ev.getEffect() instanceof InvasionOmenEffect) {
+                removed = ev.getEntity();
+            }
         }
     }
 }

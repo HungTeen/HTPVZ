@@ -47,7 +47,7 @@ public class TorchWood extends SimplePlant {
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 15D)
+                .add(Attributes.MAX_HEALTH, 30D)
                 .add(Attributes.ARMOR, 0D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }

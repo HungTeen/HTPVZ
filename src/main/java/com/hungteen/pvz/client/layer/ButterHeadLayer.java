@@ -45,8 +45,13 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
                 main = butterHeadModel.root();
                 vertexConsumer = bufferSource.getBuffer(model.renderType(Util.prefix("textures/models/butter/butter_head.png")));
                 //omg why cant they all be the Hierarchical ones?
-                if (model instanceof HierarchicalModel<?> && hasHead(((HierarchicalModel<?>) model).root())) {
-                    renderHead(((HierarchicalModel<?>) model).root(), main, poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
+                if (model instanceof HierarchicalModel<?> model1) {
+                    if (hasHead((model1.root()))) {
+                        renderHead(model1.root(), main, poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
+                    } else {
+                        poseStack.translate(0, -getBoneHeight(model1.root()) / 16 + 1, 0);//TODO why should +1 ?
+                        main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
+                    }
                 } else if (model instanceof HeadedModel model1) {
                     ModelPart head = model1.getHead();
                     head.translateAndRotate(poseStack);
@@ -109,7 +114,7 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
     private float getBoneHeight(ModelPart part) {
         float result = 0;
         for (ModelPart.Cube cube : part.cubes) {
-            result = Math.max(Math.max(cube.maxY, cube.maxY - cube.minY), result);
+            result = Math.max(cube.maxY - cube.minY, result);
         }
         return result;
     }

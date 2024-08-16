@@ -1,4 +1,4 @@
-package com.hungteen.pvz.common.entity;
+package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;

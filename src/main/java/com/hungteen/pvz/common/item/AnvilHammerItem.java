@@ -12,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -72,8 +73,14 @@ public class AnvilHammerItem extends SwordItem {
                 double distSqr = user.distanceToSqr(entity);
                 double horizontalMovement = 2.5 / distSqr > 0.3 ? 2.5 / distSqr : 0;
                 horizontalMovement = horizontalMovement > 1 ? 1 : horizontalMovement;
+                AttributeInstance attribute = target.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+                double knockBackModifier = 0;
+                if (attribute != null) {
+                    knockBackModifier = attribute.getValue();
+                }
                 Vec3 vec3 = entity.position().subtract(user.position()).multiply(1, 0, 1).normalize()
-                        .multiply(horizontalMovement, 0, horizontalMovement).add(0, 0.4, 0);
+                        .multiply(horizontalMovement, 0, horizontalMovement).add(0, 0.4, 0)
+                        .multiply(1 - knockBackModifier, 1 - knockBackModifier * 0.5, 1 - knockBackModifier);
                 entity.setDeltaMovement(entity.getDeltaMovement().add(vec3));
             });
         }

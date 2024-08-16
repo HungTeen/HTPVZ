@@ -56,6 +56,10 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
         return null;
     }
 
+    public Set<ZombieEvent> getEvents() {
+        return this.events;
+    }
+
     public static void tick(TickEvent.ServerTickEvent ev) {
         if (tickCount >= 20) {
             tickCount = 0;

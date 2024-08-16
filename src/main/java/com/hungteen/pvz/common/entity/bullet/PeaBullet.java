@@ -26,7 +26,6 @@ public class PeaBullet extends BaseBullet {
 
     public PeaBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);
-        this.noPhysics = true;
         this.damageName = "pea";
     }
 

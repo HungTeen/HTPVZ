@@ -52,7 +52,6 @@ public class SpikeWeed extends SimplePlant {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.ATTACK_DAMAGE, 2D);
     }
 
@@ -141,7 +140,7 @@ public class SpikeWeed extends SimplePlant {
             return ;
         } else if (level.getBlockState(pos).isAir()) {
             level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
-                    .setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 12 : 15), 2);
+                    .setValue(EntityLightBlock.LEVEL, 6), 2);
         } else if (level.getBlockState(pos).is(Blocks.WATER)) {
             level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
                     .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, 6), 2);
@@ -178,7 +177,7 @@ public class SpikeWeed extends SimplePlant {
     }
     public static class SpikeWeedAttackGoal extends Goal {
         SimplePlant entity;
-        int attackCoolDown = 3;
+        int attackCoolDown = 5;
         public SpikeWeedAttackGoal(SimplePlant entity) {
             this.entity = entity;
         }
@@ -190,7 +189,7 @@ public class SpikeWeed extends SimplePlant {
 
         @Override
         public void tick() {
-            attackCoolDown = 3;
+            attackCoolDown = 5;
             Vec3i direction = entity.getGrowDirection().getNormal();
             List<Entity> list = entity.level.getEntities(entity,
                     entity.getBoundingBox().inflate(0.1 * Math.abs(direction.getX()), 0.1 * Math.abs(direction.getY()), 0.1 * Math.abs(direction.getZ())),

@@ -99,7 +99,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 30D)
+                .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.ARMOR, 25D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20D)
                 .add(Attributes.ATTACK_DAMAGE, 50D)

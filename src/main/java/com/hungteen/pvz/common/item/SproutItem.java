@@ -4,7 +4,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.RegisterSproutsEvent;
 import com.hungteen.pvz.common.block.GardenFlowerPotBlock;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.entity.Sprout;
+import com.hungteen.pvz.common.entity.creatures.Sprout;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.ChatFormatting;

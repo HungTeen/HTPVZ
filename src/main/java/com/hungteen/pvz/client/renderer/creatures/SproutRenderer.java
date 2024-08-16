@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.renderer.creatures;
 import com.hungteen.pvz.client.layer.GardenRequirementLayer;
 import com.hungteen.pvz.client.model.SproutModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.common.entity.Sprout;
+import com.hungteen.pvz.common.entity.creatures.Sprout;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;

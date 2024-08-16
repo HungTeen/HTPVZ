@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.event;
 
-import com.hungteen.pvz.common.entity.Sprout;
+import com.hungteen.pvz.common.entity.creatures.Sprout;
 import net.minecraftforge.eventbus.api.Event;
 
 public class SproutTransformEvent extends Event {

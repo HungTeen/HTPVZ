@@ -146,7 +146,6 @@ public class KernelPult extends ShooterPlant {
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
                 .add(Attributes.ATTACK_DAMAGE, 3D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);

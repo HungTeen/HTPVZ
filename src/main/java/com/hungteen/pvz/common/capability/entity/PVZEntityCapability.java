@@ -81,10 +81,10 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                             ZombieEvent event = capability.getEvent(uuid);
                             if (event != null) {
                                 if (EntityUtil.isEntityValid(cap.entity)) {
-                                    if (cap.entity instanceof Mob mob && !EntityUtil.isEntityValid(mob.getTarget())) {
+                                    if (cap.entity instanceof Mob mob && ! EntityUtil.isEntityValid(mob.getTarget())) {
                                         mob.setTarget(event.target);
                                     }
-                                    event.members.add(cap.entity);
+                                    event.addMember(cap.entity);
                                 }
                             } else {
                                 removingUUIDs.add(uuid);

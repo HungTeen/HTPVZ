@@ -19,6 +19,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -34,7 +37,7 @@ public class MelonBullet extends BaseBullet {
 
     public MelonBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);
-        this.noPhysics = true;
+        this.setNoGravity(false);
         this.damageName = "melon";
         this.size = 2F;
     }
@@ -58,8 +61,7 @@ public class MelonBullet extends BaseBullet {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
-        if (!this.level.isClientSide()) {
-            ((ServerLevel) this.level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.MELON_SLICE.getDefaultInstance()), this.getX(), this.getY(), this.getZ(), 30, 0.0D, 0.0D, 0.0D, 0.2F);
+        if (! this.level.isClientSide()) {
             if (this.getMelonSkill() == MelonSkill.POTION) {
                 applySplash(getMobEffects(), result.getEntity());
             } else {
@@ -72,6 +74,13 @@ public class MelonBullet extends BaseBullet {
                     if (this.getMelonType() == MelonType.Ice && entity.canFreeze()) {
                         entity.setTicksFrozen(400);
                     }
+                    AttributeInstance attribute = ((LivingEntity) entity).getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+                    double knockBackModifier = 0;
+                    if (attribute != null) {
+                        knockBackModifier = attribute.getValue();
+                    }
+                    entity.setDeltaMovement(entity.getDeltaMovement()
+                            .add(new Vec3(0, entity.isOnGround() ? 0.4 : 0, 0).multiply(0, 1 - knockBackModifier * 0.5, 0)));
                 }));
             }
         }
@@ -126,8 +135,9 @@ public class MelonBullet extends BaseBullet {
     }
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
-        for (int i = 0; i < 30; i ++) {
-            level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.MELON_SLICE)),
+        for (int i = 0; i < 50; i ++) {
+            level.addParticle(new ItemParticleOption(ParticleTypes.ITEM,
+                            new ItemStack(this.getMelonSkill() == MelonSkill.POTION ? Items.GLISTERING_MELON_SLICE : Items.MELON_SLICE)),
                     getX() + random.nextFloat() * 0.5 - 0.25,
                     getY() + random.nextFloat() * 0.5 - 0.5,
                     getZ() + random.nextFloat() * 0.5 - 0.25,
@@ -188,9 +198,6 @@ public class MelonBullet extends BaseBullet {
     @Override
     public void tick() {
         super.tick();
-        if (!this.isNoGravity()) {
-            this.setDeltaMovement(this.getDeltaMovement().add(0.0D, - 0.1D, 0.0D));
-        }
         if (level.isClientSide && this.getMelonSkill() == MelonSkill.POTION) {
             Vec3 pos = this.position();
             Particle particle = ClientProxy.MC.levelRenderer.addParticleInternal(ParticleTypes.ENTITY_EFFECT.getType(), false,
