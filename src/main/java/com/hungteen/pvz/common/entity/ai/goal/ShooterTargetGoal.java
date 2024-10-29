@@ -30,7 +30,7 @@ public class ShooterTargetGoal extends DisperseEnemyTargetGoal {
 
     @Override
     public boolean canContinueToUse() {
-        if (! super.canContinueToUse()) {
+        if (! super.canContinueToUse() || this.mob.tickCount % 60 < 2 /*retarget enemy to prevent situations shooters ignoring enemies that are close.*/) {
             target = null;
             this.mob.setTarget(null);
             return false;

@@ -46,9 +46,7 @@ import java.util.function.Consumer;
 
 public class PVZZombie extends Zombie implements ICanGroupUp {
     public static final EntityDataAccessor<String> SKIN = SynchedEntityData.defineId(PVZZombie.class, EntityDataSerializers.STRING);
-    @OnlyIn(Dist.CLIENT)
     public boolean renderHand = true; // controlled by renderer.
-    @OnlyIn(Dist.CLIENT)
     public boolean renderHead = true; // controlled by renderer.
     public static Consumer<Entity> CONEHEAD_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance());
     public static Consumer<Entity> BUCKET_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance());

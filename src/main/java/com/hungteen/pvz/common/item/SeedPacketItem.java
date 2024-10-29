@@ -31,6 +31,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -79,7 +80,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
 
     /** This method returns the original cost of the itemStack, not including the effects of enchantments and buffs. To get the accurate number, use {@link PVZResourceEvent.CheckResourceEvent}.
      */
-    public int getBaseCost(@Nullable ItemStack itemStack){
+    public int getBaseCost(@Nullable ItemStack itemStack) {
         if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
             return itemStack.getTag().contains("Cost") ? itemStack.getTag().getInt("Cost") : cost;
         }
@@ -88,7 +89,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
 
     /** This method returns the original cool down of the itemStack, not including the effects of enchantments and buffs. To get the accurate number, use {@link PVZResourceEvent.CheckResourceEvent}.
      */
-    public int getBaseCoolDown(@Nullable ItemStack itemStack){
+    public int getBaseCoolDown(@Nullable ItemStack itemStack) {
         if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
             return itemStack.getTag().contains("CoolDown") ? itemStack.getTag().getInt("CoolDown") : coolDown;
         }
@@ -96,11 +97,18 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     /**SeedPacket may not cost sun but other resource instead. */
-    public String getResource(@Nullable ItemStack itemStack){
+    public String getResource(@Nullable ItemStack itemStack) {
         if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
             return itemStack.getTag().contains("Resource") ? itemStack.getTag().getString("Resource") : resource;
         }
         return resource;
+    }
+
+    public boolean shouldDefineOwner(ItemStack itemStack) {
+        if (itemStack != null && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
+            return ! itemStack.getTag().contains("ShouldOwn") || itemStack.getTag().getBoolean("ShouldOwn");
+        }
+        return true;
     }
 
     public static SeedPacketItem getSeedPacket(EntityType<?> entityType) {
@@ -204,7 +212,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 entity.setCustomName(itemStack.getHoverName());
             }
             PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
-            if (cap != null) {
+            if (cap != null && shouldDefineOwner(itemStack)) {
                 cap.setOwner(player);
             }
             //enchantment.
@@ -285,7 +293,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 entity.setCustomName(itemStack.getHoverName());
             }
             PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
-            if (cap != null) {
+            if (cap != null && shouldDefineOwner(itemStack)) {
                 cap.setOwner(player);
             }
             //enchantment.
@@ -317,7 +325,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 if (! entity.isRemoved()) {
                     ((ServerLevel) level).addFreshEntityWithPassengers(entity);
                 }
-                if (cap != null) {
+                if (cap != null && shouldDefineOwner(itemStack)) {
                     cap.setOwner(player);
                     cap.cost = event.cost;
                     cap.resource = event.resource;

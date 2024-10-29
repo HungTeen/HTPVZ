@@ -39,6 +39,7 @@ public class MelonBullet extends BaseBullet {
         super(entityIn,level);
         this.setNoGravity(false);
         this.damageName = "melon";
+        this.knockBackStrengh = 0.5F;
         this.size = 2F;
     }
 
@@ -48,6 +49,7 @@ public class MelonBullet extends BaseBullet {
         this.setMelonType(type);
         this.setNoGravity(false);
         this.damageName = "melon";
+        this.knockBackStrengh = 0.5F;
         this.size = 2F;
     }
 
@@ -74,13 +76,6 @@ public class MelonBullet extends BaseBullet {
                     if (this.getMelonType() == MelonType.Ice && entity.canFreeze()) {
                         entity.setTicksFrozen(400);
                     }
-                    AttributeInstance attribute = ((LivingEntity) entity).getAttribute(Attributes.KNOCKBACK_RESISTANCE);
-                    double knockBackModifier = 0;
-                    if (attribute != null) {
-                        knockBackModifier = attribute.getValue();
-                    }
-                    entity.setDeltaMovement(entity.getDeltaMovement()
-                            .add(new Vec3(0, entity.isOnGround() ? 0.4 : 0, 0).multiply(0, 1 - knockBackModifier * 0.5, 0)));
                 }));
             }
         }

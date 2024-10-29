@@ -7,12 +7,9 @@ import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -51,7 +48,7 @@ public class FallenStar extends ItemEntity {
     public void baseTick() {
         super.baseTick();
         //disappear when day
-        if (! level.isClientSide && level.isDay() && random.nextInt(30) == 0) {
+        if (! level.isClientSide && level.isDay() && random.nextInt(400) == 0) {
             this.discard();
         }
         //moving && bouncing.
@@ -68,7 +65,8 @@ public class FallenStar extends ItemEntity {
         this.storedSpeed = this.getDeltaMovement();
         //particle
         if (level.isClientSide && random.nextBoolean()) {
-            if (level.getDayTime() % 24000 > 12000) {
+            long light = level.getDayTime();
+            if ((light - 1000) % 24000 > 12000) {
                 if (random.nextBoolean()) {
                     level.addParticle(ParticleTypes.FIREWORK, this.position().x + random.nextFloat() - 0.5, this.position().y + random.nextFloat(), this.position().z + random.nextFloat() - 0.5, 0, 0, 0);
                 }

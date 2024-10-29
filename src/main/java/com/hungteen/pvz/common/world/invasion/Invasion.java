@@ -34,7 +34,12 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -48,9 +53,12 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-/**This class is the instance of an invasion. For the types of invasion, check {@link InvasionType}.*/
+/**This class is the instance of an invasion. For the types of invasion, check {@link InvasionType}.
+ * <br> A director system is used in invasion, recording the atk, extent of being damaged, flee will and the activation of player and dynamically adjusting the difficulty.
+ * <br> An invasion is devided into waves, which need player to beat most of their members to continue. When all waves get cleared, the invasion ends.*/
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTag> {
+    private static final Random random = new Random();
     public List<InvasionType> types;
     public int invasionLevel;
     public List<Wave> waves = new ArrayList<>();
@@ -64,17 +72,22 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     public int lastRemoveTime = 0;
     public int totalTime;
     public int expectedTotalTime;
+    public int endTime = -1;
     /**
      * At start of a wave invasion generates enemies and put them in this map. When a wave ends the map refreshes.
      */
     private Map<CompoundTag/*enemy*/, Integer/*threat*/> waveEnemies = new HashMap<>();
     /**The entities summoned are put in this set preventing the enemy from summoning again.*/
     private final Set<CompoundTag/*enemy*/> summonedEntities = new HashSet<>();
-    private final Random random = new Random();
     private ServerBossEvent invasionEvent;
     private float seekPositionHardness = 0;
     private PathSeeker pathSeeker;
+
+    //director system
     private final Set<Integer> killCount = new HashSet<>();
+    private Vec3 storedTargetPos = null;
+    private int maxTargetTeammateCount = 1;
+    private int targetTeammateCount = 0;
 
     public Invasion(Level level, List<InvasionType> types, LivingEntity target, BlockPos pos, int invasionLevel) {
         this(level, UUID.randomUUID(), types, target, pos, invasionLevel);
@@ -83,9 +96,10 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     /**Used by {@link com.hungteen.pvz.common.register.PVZZombieEvents#fromTag(Level, UUID, CompoundTag) PVZZombieEvents#fromTag()} when syncing or reloading.*/
     public Invasion(Level level, UUID uuid, CompoundTag tag) {
         super(level, uuid, tag);
+        this.deserializeNBT(tag);
         if (level instanceof ServerLevel serverLevel) {
             invasionEvent = new ServerBossEvent(Component.translatable("event.pvz.invasion",
-                    uuid /*to let client identify which invasion it is, provide one extra argument than needed which is the uuid of the event.*/),
+                    uuid.toString() /*to let client identify which invasion it is, provide one extra argument than needed which is the uuid of the event.*/),
                     BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
             this.pathSeeker = new PathSeeker(serverLevel);
             this.lastRemoveTime = totalTime;
@@ -110,28 +124,36 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         this.currentWaveTime = 0;
         this.currentWaveThreat = 0;
         this.totalTime = 0;
-        this.invasionLevel = 1;
+        this.invasionLevel = 5;
         if (level instanceof ServerLevel serverLevel) {
             invasionEvent = new ServerBossEvent(Component.translatable("event.pvz.invasion",
-                    uuid /*to let client identify which invasion it is, provide one extra argument than needed which is the uuid of the event.*/),
+                    uuid.toString()),
                     BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
             this.pathSeeker = new PathSeeker(serverLevel);
         }
     }
 
+    /**Determines whether an invasion can happen.*/
+    public static boolean canHappenInvasion(LivingEntity target) {
+        List<Entity> entities = target.level.getEntities(target, target.getBoundingBox().inflate(10));
+        int obs = 0;
+        for (Entity entity : entities){
+            if (EntityUtil.isTeammate(entity, target)) {
+                obs += 1;
+            }
+        }
+        return obs < 15;
+    }
+
     /**Generate waves. Attention that the waves generated here may not be the ones actually starts in the game. With the invasion going these values are dynamically adjusted.*/
     public int generateWaves() {
-        final int totalLength = (int) (7500 * this.types.get(0).length() * (this.invasionLevel * 0.5 + 1) + 100);
-        final int bigWaveNum = Math.round((float) totalLength / 4000) + random.nextInt(this.invasionLevel / 2 + 1);
+        final int totalLength = (int) (10000 * this.types.get(0).length() * ((this.invasionLevel) * 0.1 + 0.5) + 100);
+        final int bigWaveNum = Math.max(1, random.nextInt((int) ((float) totalLength / 6000 + Math.max(0, (this.invasionLevel) / 3) + 1)));
         int length = 0;
         while (length < totalLength) {
-            int threat = (int) ((100 + length / 2) * (0.8 + random.nextFloat() * 0.4));
-            int waveLength = 500 * threat / (100 + length / 4);
-            if (this.target instanceof Player player) {
-                AtomicInteger playerDifficulty = new AtomicInteger();
-                player.getCapability(PVZPlayerCapability.NBT).ifPresent(cap -> playerDifficulty.set(cap.getValue("invasion_difficulty")));
-                threat *= ((float) playerDifficulty.get() / 50);
-            }
+            int threat = (int) (Math.pow((100 + length * 0.4), 1.05) * (0.8 + random.nextFloat() * 0.4));
+            int waveLength = 200 * threat / (100 + length / 7);
+            threat *= ((float) (this.invasionLevel) * 0.1 + 0.5);
             Difficulty difficulty = ((ServerLevel) level).getServer().getWorldData().getDifficulty();
             switch (difficulty) {
                 case PEACEFUL -> threat = 0;
@@ -143,15 +165,16 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             if (bigWave) {
                 if (this.waves.size() > 0) {
                     Wave lastWave = this.waves.get(this.waves.size() - 1);
-                    lastWave.threat /= 1.5;
-                    lastWave.minimumWaitTime += 400;
+                    lastWave.threat *= 0.8;
+                    lastWave.minimumWaitTime += 150;
                     if (lastWave.maximumWaitTime < lastWave.minimumWaitTime) lastWave.maximumWaitTime = lastWave.minimumWaitTime;
                 }
                 threat *= 1.2;
                 waveLength *= 1.5;
             }
             length += waveLength;
-            this.addWave(bigWave, threat, Math.max(300, waveLength / 2), Math.max(1000, waveLength * 2));
+            threat = Math.max(100, threat);
+            this.addWave(bigWave, threat, (int) Math.max(400, waveLength * 0.8), (int) Math.max(1000, waveLength * 1.5));
         }
         return totalLength;
     }
@@ -168,7 +191,36 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 this.currentWave >= this.waves.size() - 1 ? 1 :
                         (this.currentWave + 1 + (float) this.currentWaveThreat / this.getCurrentWave().threat) / this.waves.size(),
                 0.0F, 1.0F));
+        if (this.endTime > 0) {
+            this.endTime --;
+            if (this.endTime <= 0) {
+                this.remove();
+            }
+            super.tick(ev);
+            return;
+        }
         if (tickCount % 20 == 0) {
+            if (this.waves.isEmpty()) {
+                PVZMod.LOGGER.warn("Find an invasion with no waves! Removing it.");
+                this.remove();
+                return;
+            }
+            if (! this.isEnded()) {
+                if (target != null && target.isDeadOrDying()) {
+                    this.end(Vec3.atCenterOf(this.position), "event.pvz.invasion.end.fail", false);
+                    return;
+                }
+                if (this.level.getDifficulty() == Difficulty.PEACEFUL) {
+                    this.end(Vec3.atCenterOf(this.position), "event.pvz.invasion.end.peace", false);
+                    return;
+                }
+                if (target != null &&
+                        target.blockPosition().distSqr(this.position) > this.range * this.range * 10 &&
+                        getPlayerFleeWill() - getPlayerActivation() > 1000) {
+                    this.end(Vec3.atCenterOf(this.position), "event.pvz.invasion.end.escape", false);
+                    return;
+                }
+            }
             //player.
             List<ServerPlayer> players = ((ServerLevel) level).getPlayers(player -> player.distanceToSqr(Vec3.atCenterOf(this.position)) < (this.range + 15) * (this.range + 15));
             Collection<ServerPlayer> players1 = this.invasionEvent.getPlayers();
@@ -201,14 +253,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 this.getCurrentWave().isGivenUp = true;
                 this.switchWave();
             }
-            //killCount for director system.
-            Set<Integer> killCount = Set.copyOf(this.killCount);
-            for (int i : killCount) {
-                if (this.totalTime - i > 500) {
-                    this.killCount.remove(i);
-                }
-            }
-            //tracking player
+            //tracking target
             if (this.target != null && this.target.blockPosition().distSqr(this.position) > 64 && tickCount % 40 == 0) {
                 this.position = this.position.offset(new Vec3i(
                         Math.min(Math.max(-1, target.getX() - this.position.getX()), 1),
@@ -216,8 +261,8 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                         Math.min(Math.max(-1, target.getZ() - this.position.getZ()), 1)
                         ));
             }
-            //summoning.
-            if (!this.level.isClientSide && target != null) {
+            if (! this.level.isClientSide && target != null) {
+                //summoning.
                 Optional<CompoundTag/*enemy*/> optional = this.waveEnemies.keySet().stream().filter(entity -> ! this.summonedEntities.contains(entity)).findFirst();
                 if (optional.isPresent()) {
                     CompoundTag entityData = optional.get();
@@ -226,10 +271,39 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                         this.summonedEntities.add(entityData);
                     }
                 }
+                //director system.
+                List<Entity> teammates = level.getEntities(target,
+                        AABB.ofSize(Vec3.atCenterOf(this.position), this.range * 2, this.range, this.range * 2),
+                        entity -> ! (entity instanceof Projectile) && EntityUtil.isTeammate(target, entity));
+                targetTeammateCount = teammates.size();
+                maxTargetTeammateCount = Math.max(targetTeammateCount, maxTargetTeammateCount);
                 if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
-                    PVZMod.LOGGER.info("TIME " + this.currentWaveTime + "/" + this.totalTime + " : WAVE " + (this.currentWave + 1) + "/" + this.waves.size() + " : THREAT " + this.currentWaveThreat + "/" + this.getCurrentWave().threat +
-                            "\nENEMIES " + this.summonedEntities.size() + "/" + this.waveEnemies.size() + " : POS_SEKR " + pathSeeker.availablePositions.size() +
-                            "\nDIR_SYS (ATK " + getPlayerAttack() + " : HRT " + getPlayerHurt() + " : FLE " + getPlayerFleeWill() + " : JON " + getPlayerJoinWill() + " )");
+                    PVZMod.LOGGER.info(
+                            " TIME " + this.currentWaveTime + "/" + this.totalTime + "/" + (int) (10000 * this.types.get(0).length() * ((this.invasionLevel) * 0.1 + 0.5) + 100) + " " +
+                            this.getCurrentWave().minimumWaitTime + "/" + this.getCurrentWave().maximumWaitTime +
+                            "\n WAVE " + (this.currentWave + 1) + "/" + this.waves.size() + "  THREAT " + this.currentWaveThreat + "/" + this.getCurrentWave().threat +
+                            "\n ENEMIES " + this.summonedEntities.size() + "/" + this.members.size() + "/" + this.waveEnemies.size() + "  POS_SEKR " + pathSeeker.availablePositions.size() +
+                            "\n DIR_SYS: " +
+                            "\n  ATK " + getPlayerAttack() + " : " + (int) Math.max(-100, ((float) (this.waveEnemies.size() - this.members.size()) / this.waveEnemies.size()) * this.getCurrentWave().threat) + " " +
+                            (Math.max(0, Math.min(this.getCurrentWave().maximumWaitTime / 2, this.getCurrentWave().minimumWaitTime * 2) - this.currentWaveTime) + 1) +
+                            "\n  HRT " + getPlayerHurt() + " : " + this.members.size() * 2 + " " +
+                            this.killCount.size() * 15 + " " +
+                            (200 * (1 - this.targetTeammateCount / this.maxTargetTeammateCount)) +
+                            "\n  FLE " + getPlayerFleeWill() + " : " + Math.max(1, 500 / (getPlayerAttack() + 1)) + " " +
+                            Math.max(1, 100 / (getPlayerHurt() + 1)) + " " +
+                            (target == null ? 0 : target.blockPosition().distSqr(this.position)) + " " +
+                            ((int) this.seekPositionHardness * 4) + " " +
+                            Math.max(0, this.totalTime - (int) (10000 * this.types.get(0).length() * ((this.invasionLevel) * 0.1 + 0.5) + 100)) +
+                            "\n  ACT " + getPlayerActivation() + " : " + (getPlayerActivation() - (this.storedTargetPos == null ? 0 : (int) target.position().distanceToSqr(this.storedTargetPos) * 2)) + " " +
+                            (this.storedTargetPos == null ? 0 : (int) target.position().distanceToSqr(this.storedTargetPos) * 2)
+                    );
+                }
+                this.storedTargetPos = this.target.position();
+                Set<Integer> killCount = Set.copyOf(this.killCount);
+                for (int i : killCount) {
+                    if (this.totalTime - i > 400) {
+                        this.killCount.remove(i);
+                    }
                 }
             }
         }
@@ -251,25 +325,28 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     /**Returns a relative value of the ability player and plants damage zombies.*/
     public int getPlayerAttack() {
         Wave wave = this.getCurrentWave();
-        return (int) Math.max(0, ((float) (this.waveEnemies.size() - this.members.size()) / this.members.size()) * wave.threat / (Math.max(0, Math.min(wave.maximumWaitTime / 2, wave.minimumWaitTime * 2) - this.currentWaveTime) + 1));
+        return (int) Math.max(-100, ((float) (this.waveEnemies.size() - this.members.size()) / this.waveEnemies.size()) * wave.threat)
+                + (Math.max(0, Math.min(wave.maximumWaitTime / 2, wave.minimumWaitTime * 2) - this.currentWaveTime) + 1);
     }
     /**Returns a relative value of the ability plants prevent deaths on zombies.*/
     public int getPlayerHurt() {
-        return (this.members.size() * 2) + this.killCount.size() * 5;
+        return (this.members.size() * 2) + this.killCount.size() * 15 + 200 * (1 - this.targetTeammateCount / this.maxTargetTeammateCount);
     }
     /**Return a relative value of the will player flee from the invasion.*/
     public int getPlayerFleeWill() {
-        return (int) (Math.max(1, 1000 / (getPlayerAttack() + 1)) + Math.max(1, 100 / (getPlayerHurt() + 1))
-                + (target == null ? 0 : target.blockPosition().distSqr(this.position))) * 2 + (int) this.seekPositionHardness * 2
-                + (int) Math.max(0, totalTime - (7500 * this.types.get(0).length() * (this.invasionLevel * 0.5 + 1)));
+        return (int) (Math.max(1, 500 / Math.max(1, getPlayerAttack() + 1)) + Math.max(1, 100 / Math.max(1, getPlayerHurt() + 1))
+                + (target == null ? 0 : target.blockPosition().distSqr(this.position))) + (int) this.seekPositionHardness * 4 +
+                Math.max(0, this.totalTime - (int) (10000 * this.types.get(0).length() * ((this.invasionLevel) * 0.1 + 0.5) + 100));
     }
     /**Return a relative value of the will player join the invasion.*/
-    public int getPlayerJoinWill() {
+    public int getPlayerActivation() {
+        if (target == null) return 0;
         AtomicInteger cdCount = new AtomicInteger();
         if (target instanceof Player player) {
-            player.getCooldowns().cooldowns.values().forEach(value -> cdCount.addAndGet((value.endTime - player.getCooldowns().tickCount)));
+            player.getCooldowns().cooldowns.values().forEach(value ->
+                    cdCount.addAndGet(50 * (value.endTime - player.getCooldowns().tickCount) / (value.endTime - value.startTime)));
         }
-        return cdCount.get() + (int) target.getDeltaMovement().lengthSqr();
+        return cdCount.get() + (this.storedTargetPos == null ? 0 : (int) target.position().distanceToSqr(this.storedTargetPos) * 2);
     }
 
     public Wave getCurrentWave() {
@@ -281,17 +358,33 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         super.removeMember(member);
         this.lastRemoveTime = totalTime;
         if (this.members.isEmpty() && this.currentWave >= this.waves.size() - 1 && this.summonedEntities.size() >= this.waveEnemies.size()) {
-            InvasionType invasionType = this.types.get(0);
-            if (invasionType != null && invasionType.loot().isPresent()) {
-                LootBag.drop(level, new BlockPos(member.position()), invasionType.loot().get(), this.invasionLevel * 4 + 5);
-            }
-//            if (target instanceof Player player) {
-//                player.getCapability(PVZPlayerCapability.NBT)
-//                        .ifPresent(cap -> cap.setValue("invasion_difficulty",
-//                                ((int)(50 * (float) this.totalTime / this.expectedTotalTime) + cap.getValue("invasion_difficulty") * 4) / 5));
-//            }
-            this.remove();
+            end(member.position().add(0, member.getEyeHeight(), 0), "event.pvz.invasion.end.win", true);
         }
+    }
+
+    public boolean isEnded() {
+        return this.endTime >= 0;
+    }
+
+    public void end(Vec3 position, String endType, boolean success) {
+        InvasionType invasionType = this.types.get(0);
+        if (invasionType != null && invasionType.loot().isPresent()) {
+            LootBag.drop(level, new BlockPos(position), invasionType.loot().get(), this.invasionLevel / 2 + 4);
+        }
+        if (target instanceof Player player) {
+            player.getCapability(PVZPlayerCapability.NBT)
+                    .ifPresent(cap -> {
+                        cap.setValue("invasion_difficulty",
+                            (success ? (((int)(20 * (float) this.totalTime / this.expectedTotalTime) + cap.getValue("invasion_difficulty") * 4) / 5) :
+                                    (int) (cap.getValue("invasion_difficulty") * 0.8F)));
+                        cap.setValue("last_invasion", 0);
+                    });
+        }
+        if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
+            PVZMod.LOGGER.info("invasion ended with end component " + this.invasionEvent.getName() + ".");
+        }
+        this.invasionEvent.setName(Component.translatable(endType, uuid.toString()));
+        this.endTime = 200;
     }
 
     public void switchWave() {
@@ -300,11 +393,16 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             this.currentWaveTime = 0;
             this.currentWaveThreat = 0;
             if (getPlayerHurt() > 60) {
-                this.getCurrentWave().threat *= 0.6;
+                this.getCurrentWave().threat *= (60F / getPlayerHurt());
+            }
+            if (getPlayerAttack() > 1200) {
+                this.getCurrentWave().threat *= Math.min(2, (float) getPlayerAttack() / 1200);
             }
             for (Entity entity : this.members) {
                 this.getCurrentWave().threat -= 20;
-                if (target == null || entity.distanceToSqr(target) > 256) {
+                if (target == null || (entity.distanceToSqr(target) >
+                        ((level.clip(new ClipContext(Vec3.atCenterOf(position), target.position(), ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null)).getType()
+                                == HitResult.Type.MISS) ? 576 : 64))) {
                     entity.discard();
                     this.getCurrentWave().threat += 100;
                 }
@@ -312,7 +410,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             this.getCurrentWave().threat = Math.max(0, this.getCurrentWave().threat);
             this.waveEnemies = generateEnemies(this.getCurrentWave().threat);
             this.summonedEntities.clear();
-        } else if (this.members.isEmpty()){
+        } else if (this.members.isEmpty()) {
             PVZMod.LOGGER.warn("Invasion " + this.uuid + " has done all waves but is still trying to continue.");
             this.remove();
         } else {
@@ -349,11 +447,16 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     protected @Nullable Pair<CompoundTag/*enemy*/, Integer/*threat*/> selectEntity(int threatLeft) {
         List<InvasionType.EnemyType> enemyTypes = new ArrayList<>();
         AtomicInteger allWeight = new AtomicInteger();
+        float threatFactor = 1;
         for (InvasionType type : this.types) {
+            threatFactor *= type.threatFactor();
+        }
+        for (InvasionType type : this.types) {
+            float finalThreatFactor = threatFactor;
             type.enemies().forEach(enemyType -> {
                 if ((! enemyType.isElite() || this.getCurrentWave().isBigWave)
-                        && threatLeft >= enemyType.threat()
-                        && (float) this.currentWave / this.waves.size() > enemyType.startFrom()) {
+                        && threatLeft >= (enemyType.threat() * finalThreatFactor)
+                        && (float) this.currentWave / this.waves.size() >= enemyType.startFrom()) {
                     enemyTypes.add(enemyType);
                     allWeight.addAndGet(enemyType.weight());
                 }
@@ -368,7 +471,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             if (selected.get() <= 0) {
                 CompoundTag tag = enemyType.entityData().copy();
                 tag.putInt("pvz_invasion_enemy_summoned_while_threat_left", threatLeft);//to avoid same hash.
-                return Pair.of(tag, enemyType.threat());
+                return Pair.of(tag, (int) (enemyType.threat() * threatFactor));
             }
         }
         return null;
@@ -377,19 +480,33 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     private boolean summonEntity(CompoundTag entityData) {
         Entity entity = EntityType.loadEntityRecursive(entityData.copy(), level, Function.identity());
         Vec3 pos = getSpawningPosition(entity);
+        if (entity == null) {
+            return false;
+        }
         if (pos == null) {
             entity.discard();
             return false;
+        } else {
+            BlockPos pos1 = new BlockPos(pos);
+            if (! NaturalSpawner.isValidEmptySpawnBlock(level, pos1, level.getBlockState(pos1), level.getFluidState(pos1), entity.getType())) {
+                return false;
+            }
         }
         EntityLifter lifter = PVZEntities.ENTITY_LIFTER.get().create(this.level);
         lifter.setPos(pos);
         entity.setPos(pos.add(0, - entity.getBbHeight(), 0));
         entity.getRootVehicle().startRiding(lifter);
         if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails) && (entity instanceof LivingEntity living)) {
-            living.addEffect(new MobEffectInstance(MobEffects.GLOWING, 1000));
+            living.addEffect(new MobEffectInstance(MobEffects.GLOWING, 10000));
+            living.getIndirectPassengers().forEach(e -> {
+                if (e instanceof LivingEntity living1) {
+                    living1.addEffect(new MobEffectInstance(MobEffects.GLOWING, 10000));
+                }
+            });
         }
-        level.addFreshEntity(lifter);
-        ((ServerLevel) level).addFreshEntityWithPassengers(entity);
+        this.types.forEach(type -> type.getModifiers().forEach(
+                modifier -> modifier.accept(this, entity, this.waveEnemies.getOrDefault(entityData, 0))));
+        ((ServerLevel) level).addFreshEntityWithPassengers(lifter);
         entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.zombieEventUUIDs.add(this.uuid));
         this.members.add(entity);
         PlayerTeam enemyTeam = entity.getServer().getScoreboard().getPlayerTeam(PVZMod.ENEMY_TEAM);
@@ -397,8 +514,6 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         if (enemyTeam != null) {
             entity.getServer().getScoreboard().addPlayerToTeam(name, enemyTeam);
         }
-        this.types.forEach(type -> type.getModifiers().forEach(
-                modifier -> modifier.accept(this, entity, this.waveEnemies.getOrDefault(entityData, 0))));
         lastSpawnTime = this.totalTime;
         return true;
     }
@@ -411,12 +526,12 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             vec3 = generateSpawningPositionAround(entity, member.get().position());
         }
         if (vec3 == null) {
-            vec3 = generateSpawningPosition(entity);
+            vec3 = generateRandomSpawningPosition(entity);
         }
         return vec3;
     }
 
-    protected @Nullable Vec3 generateSpawningPosition(Entity entity) {
+    protected @Nullable Vec3 generateRandomSpawningPosition(Entity entity) {
         Vec3 result = null;
         if (seekPositionHardness > 50 - 5 * pathSeeker.availablePositions.size()) {
             if (this.pathSeeker.availablePositions.isEmpty()) {
@@ -427,8 +542,13 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 seekPositionHardness += 5;
                 double dist = pos.distSqr(target.blockPosition());
                 if (dist > 100 && dist < 574) {
-                    result = Vec3.atBottomCenterOf(pos);
+                    double horizontalDistSqr = (pos.getX() - target.getX()) * (pos.getX() - target.getX()) + (pos.getZ() - target.getZ()) * (pos.getZ() - target.getZ());
+                    double verticalDist = pos.getY() - target.getY();
+                    if (verticalDist > 0 || verticalDist * verticalDist < 1.5 * horizontalDistSqr) {
+                        result = Vec3.atBottomCenterOf(pos);
+                    }
                 }
+                seekPositionHardness += result == null ? 10 : 5;
             }
         } else if (target != null) {
             if (entity instanceof PathfinderMob mob) {
@@ -497,7 +617,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 if (type.getName() != null) {
                     ResourceLocation location = type.getName();
                     if (location == null) {
-                        PVZMod.LOGGER.warn("Trying to save an invasion type which not registered.");
+                        PVZMod.LOGGER.warn("Trying to save an invasion type which is not registered.");
                     } else {
                         types.add(StringTag.valueOf(location.toString()));
                     }
@@ -506,6 +626,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             tag.put("invasion_types", types);
         }
         tag.putInt("total_time", totalTime);
+        tag.putInt("end_time", endTime);
         tag.putInt("expected_total_time", expectedTotalTime);
         tag.putInt("current_wave_threat", currentWaveThreat);
         tag.putInt("current_wave_time", currentWaveTime);
@@ -522,22 +643,24 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     @Override
     public void deserializeNBT(CompoundTag tag) {
         super.deserializeNBT(tag);
-        if (tag.contains("invasion_types")) {
-            this.types = new ArrayList<>();
-            ListTag types = ((ListTag) tag.get("invasion_types"));
-            for (int i = 0; i < (types != null ? types.size() : 0); i ++) {
-                InvasionType type = InvasionType.getInvasionType(new ResourceLocation(types.getString(i)));
-                if (type == null) {
-                    PVZMod.LOGGER.warn("Trying to load an invasion type with name" + new ResourceLocation(types.getString(i)) + " which is unavailable.");
-                } else {
-                    this.types.add(type);
+        if (! this.level.isClientSide) {
+            if (tag.contains("invasion_types")) {
+                this.types = new ArrayList<>();
+                ListTag types = ((ListTag) tag.get("invasion_types"));
+                for (int i = 0; i < (types != null ? types.size() : 0); i ++) {
+                    InvasionType type = InvasionType.getInvasionType(new ResourceLocation(types.getString(i)));
+                    if (type == null) {
+                        PVZMod.LOGGER.warn("Trying to load an invasion type with name" + new ResourceLocation(types.getString(i)) + " which is unavailable.");
+                    } else {
+                        this.types.add(type);
+                    }
                 }
             }
-        }
-        if (this.types.isEmpty() || this.types.get(0).isAddition()) {
-            PVZMod.LOGGER.warn("Trying to load an invasion which contains no main invasion type.");
-            remove();
-            return;
+            if (this.types.isEmpty() || this.types.get(0).isAddition()) {
+                PVZMod.LOGGER.warn("Trying to load an invasion which contains no main invasion type.");
+                remove();
+                return;
+            }
         }
         if (tag.contains("waves")) {
             this.waves = new ArrayList<>();
@@ -550,6 +673,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         this.currentWaveThreat = tag.getInt("current_wave_threat");
         this.currentWaveTime = tag.getInt("current_wave_time");
         this.totalTime = tag.getInt("total_time");
+        this.endTime = tag.getInt("end_time");
         this.expectedTotalTime = tag.getInt("expected_total_time");
         if (this.level instanceof ServerLevel) {
             this.waveEnemies = generateEnemies(this.getCurrentWave().threat - this.currentWaveThreat);

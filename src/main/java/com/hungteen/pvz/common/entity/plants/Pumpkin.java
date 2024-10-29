@@ -31,8 +31,9 @@ import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity, ICanBePlantedOn {
     float storedHealth;
 
+    public static final String FIRST_AID_SKILL_NAME = "skill.pvz.pumpkin.wall_nut_first_aid";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.pumpkin.wall_nut_first_aid", PVZItems.LUX_ESSENCE, 4, 4, 0, 0)
+            new Skill(FIRST_AID_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, 0, 0)
     );
 
     public Pumpkin(EntityType<? extends Mob> entityType, Level level) {
@@ -116,7 +117,7 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
         //first aid.
-        if (hasSkill(this, "skill.pvz.pumpkin.wall_nut_first_aid") && target.getClass() == this.getClass()) {
+        if (hasSkill(this, FIRST_AID_SKILL_NAME) && target.getClass() == this.getClass()) {
             if (EntityUtil.isTeammate(this, target)) {
                 if (((Pumpkin) target).getHealth() > ((Pumpkin) target).getMaxHealth() * 0.67) {
                     return Component.translatable("hint.pvz.plant.pumpkin.not_broken");

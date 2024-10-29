@@ -2,9 +2,15 @@ package com.hungteen.pvz.util;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.events.CheckReteamableToOwnerEvent;
+import com.hungteen.pvz.api.events.SculkJudgmentEvent;
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
+import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
+import jdk.jfr.Event;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
@@ -42,17 +48,20 @@ public class EntityUtil {
         boolean AIsEnemy = (! A.getType().is(PVZEntityTags.FRIENDLY)) && (A instanceof Enemy || A.getType().is(PVZEntityTags.ENEMY) || A.getType().is(Tags.EntityTypes.BOSSES));
         boolean BIsEnemy = (! B.getType().is(PVZEntityTags.FRIENDLY)) && (B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY) || B.getType().is(Tags.EntityTypes.BOSSES));
         Team enemyTeam = A.getServer().getScoreboard().getPlayerTeam(PVZMod.ENEMY_TEAM);
+        Team friendlyTeam = A.getServer().getScoreboard().getPlayerTeam(PVZMod.FRIENDLY_TEAM);
 
         boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, PVZConfig.Common.teamBattle);
 
         if (teamA == teamB) {
             result = teamA != null || (AIsEnemy == BIsEnemy);
         } else if (teamA == null) {
-            result = (AIsEnemy) == (teamB == enemyTeam);
+            result = ((teamB == enemyTeam) == AIsEnemy);
         } else if (teamB == null) {
-            result = (BIsEnemy) == (teamA == enemyTeam);
+            result = ((teamA == enemyTeam) == BIsEnemy);
         } else if (teamA == enemyTeam || teamB == enemyTeam) {
             result = false;
+        } else if (teamA == friendlyTeam || teamB == friendlyTeam) {
+            result = true;
         } else {
             result = ! teamBattle;
         }
@@ -105,5 +114,21 @@ public class EntityUtil {
             return false;
         }
         return B.getVehicle() == A || isFinallyVehicleOf(A, B.getVehicle());
+    }
+
+    public static boolean isSculk(LivingEntity entity) {
+        SculkJudgmentEvent event = new SculkJudgmentEvent(entity,
+                entity.level.getBlockState(entity.getOnPos()).is(PVZBlockTags.SCULK) || entity.hasEffect(MobEffects.DARKNESS)
+                        && ! entity.hasEffect(PVZMobEffects.BRIGHTNESS.get())
+        );
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.result;
+    }
+
+    public static boolean canReteamToOwner(Entity entity, Entity owner) {
+        CheckReteamableToOwnerEvent event = new CheckReteamableToOwnerEvent(entity, owner,
+                (! (entity instanceof LivingEntity living)) || ! living.hasEffect(PVZMobEffects.HYPNOTISED.get()));
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.result;
     }
 }

@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.entity.bullet;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
@@ -100,13 +99,13 @@ public class BaseBullet extends Projectile {
 			if (this.getOwner() instanceof Mob owner && EntityUtil.isEntityValid(owner) && EntityUtil.isEntityValid(owner.getTarget()) && this.getDeltaMovement().y < 0) {
 				Entity target = owner.getTarget();
 				double timeLand = 5;
-				double heightRelate = target.getY() - this.getY();
+				double heightRelate = target.getY() + target.getBbHeight() / 2 - this.getY();
 				for (int i = 0; i < 5; i ++) {
 					timeLand = (timeLand + 2 * heightRelate / (2 * this.getDeltaMovement().y - 0.1 * timeLand)) / 2;
 				}
 				vec3 = target.position().subtract(this.position()).subtract(this.getDeltaMovement().x * timeLand, 0, this.getDeltaMovement(). z * timeLand);
 				this.setDeltaMovement(this.getDeltaMovement()
-						.add(Math.min(0.045, Math.max(-0.045, vec3.x / timeLand)), 0, Math.min(0.045, Math.max(-0.045, vec3.z / timeLand))));
+						.add(Math.min(0.02, Math.max(-0.02, vec3.x / timeLand)), 0, Math.min(0.02, Math.max(-0.02, vec3.z / timeLand))));
 			}
 		}
 	}
@@ -157,8 +156,8 @@ public class BaseBullet extends Projectile {
 	protected boolean dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
 		//default normal damage.
-		boolean hurt = target.hurt(PVZDamageSource.hitBossWithMultiplier(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
-						PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
+		boolean hurt = target.hurt(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(
+						PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
 				, getKnockBackStrength()), target, 0.2F), damage);
 		this.discard();
 		return hurt;

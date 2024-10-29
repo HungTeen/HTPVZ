@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.capability.level;
 import com.hungteen.pvz.common.network.ZombieEventPacket;
 import com.hungteen.pvz.common.register.PVZZombieEvents;
 import com.hungteen.pvz.api.ZombieEvent;
+import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -80,6 +81,7 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
             removeEvent.forEach(cap.events::remove);
             removeEvent.clear();
         }));
+        InvasionTeam.serverTick();
     }
 
     @Override

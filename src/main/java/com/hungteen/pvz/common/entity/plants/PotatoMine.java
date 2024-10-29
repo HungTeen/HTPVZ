@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.entity.plants;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
@@ -13,7 +12,6 @@ import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -29,8 +27,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -49,12 +45,19 @@ public class PotatoMine extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState sleepAnimationState = new AnimationState();
     public AnimationState outAnimationState = new AnimationState();
+    private boolean isPresentation = false;
 
+    public static String MINER_SKILL_NAME = "skill.pvz.potato_mine.potato_miner";
+    public static String STRONG_SKILL_NAME = "skill.pvz.potato_mine.lethal_dose";
+    public static String QUICK_LOAD_SKILL_NAME = "skill.pvz.potato_mine.quick_load";
+    public static String POISONOUS_SKILL_NAME = "skill.pvz.potato_mine.poison_enrichment";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.potato_mine.potato_miner", PVZItems.TERRA_ESSENCE, 4, 6, 0, 0),
-            new Skill("skill.pvz.potato_mine.lethal_dose", PVZItems.IGNIS_ESSENCE, 8, 8, 25, 300),
-            new Skill("skill.pvz.potato_mine.quick_load", PVZItems.LUX_ESSENCE, 12, 8, 50, 300).avoidSkills(1),
-            new Skill("skill.pvz.potato_mine.poison_enrichment", PVZItems.ORIGIN_ESSENCE, 6, 8, 75, 300).avoidSkills(1, 2)
+            new Skill(MINER_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 6, 0, 0),
+            new Skill(STRONG_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 8, 25, 300),
+            new Skill(QUICK_LOAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 50, 300)
+                    .avoidSkills(STRONG_SKILL_NAME),
+            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 8, 75, 300)
+                    .avoidSkills(STRONG_SKILL_NAME, QUICK_LOAD_SKILL_NAME)
     );
     public PotatoMine(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -72,7 +75,7 @@ public class PotatoMine extends SimplePlant {
     private void explode() {
         if (!this.level.isClientSide) {
             this.dead = true;
-            float radius = this.hasSkill("skill.pvz.potato_mine.lethal_dose") ? 3F : 2F;
+            float radius = this.hasSkill(STRONG_SKILL_NAME) ? 3F : 2F;
             level.explode(this, knockBack(ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), 0.1F), null, this.getX(), this.getY(), this.getZ(),
                     radius, false, Explosion.BlockInteraction.NONE);
             if (this.isPoisonous()) {
@@ -111,6 +114,7 @@ public class PotatoMine extends SimplePlant {
     public void setupPresentationAnim() {
         this.idleAnimationState.start(this.tickCount);
         this.entityData.set(DATA_POSE, Pose.STANDING);
+        this.isPresentation = true;
     }
     //overrides
     @Override
@@ -134,10 +138,10 @@ public class PotatoMine extends SimplePlant {
         if (getEntityData().get(PREPARE_COUNT) - 1 <= 7) {
             getEntityData().set(DATA_POSE, Pose.STANDING);
         }
-        if (this.leavingGround() || (hasSkill("skill.pvz.potato_mine.quick_load") && this.getEntityData().get(PREPARE_COUNT) > 10)) {
+        if (this.leavingGround() || (hasSkill(QUICK_LOAD_SKILL_NAME) && this.getEntityData().get(PREPARE_COUNT) > 10)) {
             this.getEntityData().set(PREPARE_COUNT, 10);
         }
-        if (hasSkill("skill.pvz.potato_mine.poison_enrichment") && ! this.getEntityData().get(IS_POISONOUS)) {
+        if (hasSkill(POISONOUS_SKILL_NAME) && ! this.getEntityData().get(IS_POISONOUS)) {
             this.getEntityData().set(IS_POISONOUS, true);
         }
         if (this.getEntityData().get(EXPLODE_COUNT) > -1) {
@@ -147,6 +151,9 @@ public class PotatoMine extends SimplePlant {
             }
         }
         if (level.isClientSide()) {
+            if (this.isPresentation) {
+                this.entityData.set(PREPARE_COUNT, 0);
+            }
             if (this.getEntityData().get(PREPARE_COUNT) < 15 && this.getEntityData().get(PREPARE_COUNT) > 5) {
                 for (int i = 0; i < 5; i ++) {
                     this.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX() + (this.random.nextDouble() - 0.5D), this.getY() + 0.1D, this.getZ() + (this.random.nextDouble() - 0.5D), (this.random.nextDouble() - 0.5) * 6.0D, 2D, (this.random.nextDouble() - 0.5) * 4.0D);
@@ -216,13 +223,12 @@ public class PotatoMine extends SimplePlant {
     }
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
-        return this.hasSkill("skill.pvz.potato_mine.potato_miner") ?
+        return this.hasSkill(MINER_SKILL_NAME) ?
                 Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.UNPLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE):
                 Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.UNPLANTABLE_DIRT);
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 12D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
 

@@ -23,6 +23,8 @@ public class PVZEntityTags {
     public static TagKey<EntityType<?>> MUST_PLANT_IN_DIRT = pvzTag("must_plant_in_dirt");
     /**With this tag entity will not be affected by butter effect.*/
     public static TagKey<EntityType<?>> BUTTER_INVULNERABLE = pvzTag("butter_invulnerable");
+    /**With this tag entity will not be affected by hypnotised effect.*/
+    public static TagKey<EntityType<?>> HYPNOTISED_INVULNERABLE = pvzTag("hypnotised_invulnerable");
 
     //definition
 

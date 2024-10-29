@@ -1,10 +1,11 @@
 package com.hungteen.pvz.common.entity.zombies;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IPlant;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.ai.goal.BlockWithShieldGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
+import com.hungteen.pvz.common.network.PlayerKnockBackPacket;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZItemTags;
@@ -14,8 +15,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -26,14 +29,16 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.Path;
@@ -103,8 +108,51 @@ public class Gargantuar extends PVZZombie {
         Imp imp = PVZEntities.IMP.get().create(this.level);
         imp.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
         imp.finalizeSpawn(level, difficulty, spawnType, null, null);
+        imp.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
         imp.startRiding(this);
         return spawnGroupData;
+    }
+
+    public boolean doHurtTarget(Entity p_21372_) {
+        float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
+        if (p_21372_ instanceof LivingEntity) {
+            f += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)p_21372_).getMobType());
+            f1 += (float)EnchantmentHelper.getKnockbackBonus(this);
+        }
+
+        int i = EnchantmentHelper.getFireAspect(this);
+        if (i > 0) {
+            p_21372_.setSecondsOnFire(i * 4);
+        }
+
+        boolean flag = p_21372_.hurt(PVZDamageSource.gargantuarCrash(this), f);
+        if (flag) {
+            if (f1 > 0.0F && p_21372_ instanceof LivingEntity) {
+                ((LivingEntity)p_21372_).knockback((double)(f1 * 0.5F), (double) Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
+                this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
+            }
+
+            if (p_21372_ instanceof Player) {
+                Player player = (Player)p_21372_;
+                this.maybeDisableShield(player, this.getMainHandItem(), player.isUsingItem() ? player.getUseItem() : ItemStack.EMPTY);
+            }
+
+            this.doEnchantDamageEffects(this, p_21372_);
+            this.setLastHurtMob(p_21372_);
+        }
+
+        return flag;
+    }
+    private void maybeDisableShield(Player p_21425_, ItemStack p_21426_, ItemStack p_21427_) {
+        if (!p_21426_.isEmpty() && !p_21427_.isEmpty() && (p_21426_.getItem() instanceof AxeItem || p_21426_.is(PVZItemTags.GIANT_HAMMER)) && p_21427_.is(Items.SHIELD)) {
+            float f = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(this) * 0.05F;
+            if (this.random.nextFloat() < f) {
+                p_21425_.getCooldowns().addCooldown(Items.SHIELD, 100);
+                this.level.broadcastEntityEvent(p_21425_, (byte)30);
+            }
+        }
+
     }
 
     @Override
@@ -219,6 +267,7 @@ public class Gargantuar extends PVZZombie {
                     double dis = this.getAttackReachSqr(target);
                     if (distance <= dis) {
                         if (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER)) {
+                            target.hurt(PVZDamageSource.ignoreInvTime(DamageSource.mobAttack(mob).bypassArmor()), (float) mob.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2F);
                             List<Entity> list = mob.level.getEntities((Entity) null,
                                     new AABB(target.position().add(-0.8, 0, -0.8), target.position().add(0.8, 1, 0.8)),
                                     (entity -> entity instanceof LivingEntity));
@@ -234,9 +283,10 @@ public class Gargantuar extends PVZZombie {
                                 Vec3 vec3 = entity.position().subtract(mob.position()).multiply(1, 0, 1).normalize()
                                         .multiply(horizontalMovement, 0, horizontalMovement).add(0, 0.5, 0)
                                         .multiply(1 - knockBackModifier, 1 - knockBackModifier * 0.5, 1 - knockBackModifier);
-                                entity.setDeltaMovement(entity.getDeltaMovement().add(vec3));
                                 if (entity instanceof ServerPlayer player) {
-
+                                    PlayerKnockBackPacket.knockBack(player, vec3, true);
+                                } else {
+                                    entity.setDeltaMovement(entity.getDeltaMovement().add(vec3));
                                 }
                             });
                             ((ServerLevel) mob.level).sendParticles(ParticleTypes.EXPLOSION, target.getX(), target.getY(0.5D), target.getZ(), 5, 1, 0.0D, 1, 0.0D);
@@ -253,7 +303,7 @@ public class Gargantuar extends PVZZombie {
         @Override
         protected void checkAndPerformAttack(LivingEntity target, double distance) {
             double d0 = this.getAttackReachSqr(target);
-            if (distance <= d0 && animCount == -1) {
+            if (distance <= d0 * 0.75 && animCount == -1) {
                 this.mob.swing(InteractionHand.MAIN_HAND);
                 animCount = 0;
             }

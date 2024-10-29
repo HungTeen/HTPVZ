@@ -2,6 +2,7 @@ package com.hungteen.pvz.api.interfaces;
 
 import com.hungteen.pvz.api.Skill;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,6 +61,19 @@ public interface IHaveSkills {
         }
         return result;
     }
+
+    default List<String> getSkillNames() {
+        List<Skill> skillList = this.getStaticSkillList();
+        if (skillList != null) {
+            List<String> list = new ArrayList<>();
+            for (int skill : this.getSkills(this)) {
+                list.add(skillList.get(skill).name);
+            }
+            return list;
+        }
+        return List.of();
+    }
+
     default short getSkillId(Skill skill) {
         short index = 0;
         for (Skill i : getStaticSkillList()) {
@@ -69,6 +83,17 @@ public interface IHaveSkills {
             index ++;
         }
         return -1;
+    }
+
+    default int getSkillValFromNames(List<String> names) {
+        int result = 0;
+        for (String name : names) {
+            short id = getSkillId(getSkillFromName(name));
+            if (id >= 0) {
+                result = result | 1 << id;
+            }
+        }
+        return result;
     }
     default Skill getSkillFromName(String name) {
         for (Skill i : getStaticSkillList()) {
@@ -107,12 +132,22 @@ public interface IHaveSkills {
             setSkillVal(obj, ~(~ getSkillVal(obj) | 1 << id));
         }
     }
-default Skill getNotCompatibleWith(Object obj, Skill skill) {
+    default Skill getNotCompatibleWith(Object obj, Skill skill) {
         for (Skill i : getStaticSkillList()) {
             if (hasSkill(obj, getSkillId(i))) {
-                if (i.avoidSkills.contains(getSkillId(skill)) || skill.avoidSkills.contains(getSkillId(i))) {
+                if (i.avoidSkills.contains(skill.name) || skill.avoidSkills.contains(i.name)) {
                     return i;
                 }
+            }
+        }
+        return null;
+    }
+
+    default Skill getStillRequire(Object obj, Skill skill) {
+        for (String name : skill.requireSkills) {
+            Skill skill1 = getSkillFromName(name);
+            if (! hasSkill(obj, getSkillId(skill1))) {
+                return skill1;
             }
         }
         return null;

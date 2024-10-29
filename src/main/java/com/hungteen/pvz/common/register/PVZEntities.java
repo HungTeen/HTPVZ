@@ -178,6 +178,8 @@ public class PVZEntities {
             .collision(0.6F, 1F).entity("kernel_pult", KernelPult::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Chomper>> CHOMPER = attribute(Chomper::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .collision(1.2F, 1.8F).entity("chomper", Chomper::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<HypnoShroom>> HYPNO_SHROOM = attribute(HypnoShroom::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+            .collision(0.8F, 1F).entity("hypno_shroom", HypnoShroom::new, OtherRegisters.PVZPlantMobCategory);
 
     //zombies
     public static final RegistryObject<EntityType<PVZZombie>> ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
@@ -261,6 +263,7 @@ public class PVZEntities {
         r(e, POTATO_MINE, PotatoMineRenderer::new);
         r(e, CHOMPER, ChomperRenderer::new);
         r(e, GOLD_BLOOM, GoldBloomRenderer::new);
+        r(e, HYPNO_SHROOM, HypnoShroomRenderer::new);
         r(e, ZOMBIE, PVZZombieRenderer::new);
         r(e, POLE_VAULTING_ZOMBIE, PoleVaultingZombieRenderer::new);
         r(e, JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieRenderer::new);

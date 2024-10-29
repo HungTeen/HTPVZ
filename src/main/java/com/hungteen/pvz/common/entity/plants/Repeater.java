@@ -10,9 +10,10 @@ import java.util.List;
 import java.util.Set;
 
 public class Repeater extends PeaShooter {
+    public static final String TRIPLE_SKILL_NAME = "skill.pvz.repeater.triple_tap";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 4, 100, 0),
-            new Skill("skill.pvz.repeater.triple_tap", PVZItems.VENTUS_ESSENCE, 8, 4, 50, 0)
+            new Skill(PeaShooter.PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 100, 0),
+            new Skill(TRIPLE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 50, 0)
 );
     public Repeater(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
@@ -23,7 +24,7 @@ public class Repeater extends PeaShooter {
     }
 
     public Set<Integer> shootTimes() {
-        return hasSkill(this, "skill.pvz.repeater.triple_tap") ? Set.of(10, 11, 12) : Set.of(10, 11);
+        return hasSkill(this, TRIPLE_SKILL_NAME) ? Set.of(10, 11, 12) : Set.of(10, 11);
     }
 
 }

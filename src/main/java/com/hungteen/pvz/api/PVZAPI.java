@@ -4,7 +4,9 @@ import com.google.common.base.Suppliers;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -59,8 +61,12 @@ public class PVZAPI {
          * check can AttackGoal continue to attack target. <b>CAN ONLY</b> call on server.
          */
         boolean canAttack(Entity attacker, Entity target);
+        /**Check if an entity is in sculk situation. The result can be modified with {@link com.hungteen.pvz.api.events.SculkJudgmentEvent SculkJudgementEvent}.*/
+        boolean isSculk(LivingEntity entity);
         /**This returns the type of a {@link ZombieEvent} and is used by ZombieEvent is self.*/
         ResourceLocation getZombieEventType(ZombieEvent event);
+        /**To prevent unwanted hypnotise from hurting hypno-shroom.*/
+        void setNotEating(DamageSource damageSource);
     }
 
     public static class DummyAPI implements IPVZAPI {
@@ -113,8 +119,16 @@ public class PVZAPI {
         }
 
         @Override
+        public boolean isSculk(LivingEntity entity) {
+            return false;
+        }
+
+        @Override
         public ResourceLocation getZombieEventType(ZombieEvent event) {
             return new ResourceLocation("pvz", "null");
         }
+
+        @Override
+        public void setNotEating(DamageSource damageSource) {}
     }
 }

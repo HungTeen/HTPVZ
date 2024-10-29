@@ -37,10 +37,7 @@ public class StarfruitBulletModel<T extends StarfruitBullet> extends EntityModel
 
 	@Override
 	public void setupAnim(StarfruitBullet bullet, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		this.bb_main.xRot = bullet.getXRot();
 		this.bb_main.yRot = bullet.getYRot();
-		this.bb_main.y = 24 - (float) (Math.sin(bullet.getXRot() / 57.3) * 0.5 * bullet.getSize());
-		this.bb_main.x = - (float) (Math.sin(bullet.getYRot() / 57.3) * 0.5 * bullet.getSize());
 	}
 
 	@Override

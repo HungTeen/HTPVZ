@@ -14,6 +14,7 @@ public class RegisterInvasionConditionsEvent extends Event {
                 .put(Util.prefix("or"), new InvasionCondition.Or())
                 .put(Util.prefix("not"), new InvasionCondition.Not())
                 .put(Util.prefix("conflict_with"), new InvasionCondition.ConflictWithCondition())
+                .put(Util.prefix("is_underground"), new InvasionCondition.IsUndergroundCondition())
                 .put(Util.prefix("obtained_advancement"), new InvasionCondition.ObtainedAdvancementCondition())
                 .put(Util.prefix("has_item"), new InvasionCondition.HasItemCondition())
                 .put(Util.prefix("in_dimension"), new InvasionCondition.InDimensionCondition())

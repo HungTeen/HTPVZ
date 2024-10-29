@@ -9,7 +9,7 @@ public class SunShovelEnchantment extends Enchantment {
         super(Rarity.UNCOMMON, PVZEnchantments.SHOVEL, new EquipmentSlot[] {EquipmentSlot.MAINHAND});
     }
     public static float returnSunPercent(int level) {
-        return level == 0 ? 0 : (level == 1 ? 0.5F : (level > 2 ? 0.25F : 0.15F));
+        return level == 0 ? 0 : Math.min(1F, ((float) level) / 10 - 0.05F);
     }
 
     public int getMinCost(int p_44598_) {

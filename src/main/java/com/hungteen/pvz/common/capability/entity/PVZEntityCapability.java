@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.capability.entity;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.util.EntityUtil;
@@ -36,6 +37,8 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     public Set<UUID> zombieEventUUIDs = new HashSet<>();
     private final ServerScoreboard scoreboard;
     public short tickCount = 0;
+    public String hypnosisTempTeam;
+    public boolean containsInvasion = false;
 
     public static final Capability<PVZEntityCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
     public PVZEntityCapability(Entity entity) {
@@ -54,21 +57,19 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                         mob.setTarget(null);
                     }
                     //owner---------------------------------------------------------------------------------------------
-                    if (!EntityUtil.isEntityValid(cap.owner)) {//TODO will this lag?
+                    if (! EntityUtil.isEntityValid(cap.owner)) {
                         Entity entity = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
                         if (entity != null) {
                             cap.setOwner(entity);
                         }
                     }
                     String name = cap.entity.getScoreboardName();
-                    if (cap.owner != null) {
-                        if (!cap.owner.isAlive()) {
-                            cap.setOwner(null);
-                        } else {
-                            PlayerTeam team = cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName());
-                            if (team != null && team != cap.scoreboard.getPlayersTeam(name)) {
-                                cap.scoreboard.addPlayerToTeam(name, team);
-                            }
+                    if (! EntityUtil.isEntityValid(cap.owner)) {
+                        cap.owner = null;
+                    } else if (EntityUtil.canReteamToOwner(cap.entity, cap.owner)) {
+                        PlayerTeam team = cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName());
+                        if (team != null && team != cap.scoreboard.getPlayersTeam(name)) {
+                            cap.scoreboard.addPlayerToTeam(name, team);
                         }
                     }
                 }
@@ -81,10 +82,16 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                             ZombieEvent event = capability.getEvent(uuid);
                             if (event != null) {
                                 if (EntityUtil.isEntityValid(cap.entity)) {
-                                    if (cap.entity instanceof Mob mob && ! EntityUtil.isEntityValid(mob.getTarget())) {
-                                        mob.setTarget(event.target);
+                                    if (cap.entity.getTeam() == cap.entity.getServer().getScoreboard().getPlayerTeam(PVZMod.ENEMY_TEAM)) {
+                                        if (cap.entity instanceof Mob mob && ! EntityUtil.isEntityValid(mob.getTarget())) {
+                                            mob.setTarget(event.target);
+                                        }
+                                        if (! event.getMembers().contains(cap.entity)) {
+                                            event.addMember(cap.entity);
+                                        }
+                                    } else if (event.getMembers().contains(cap.entity)) {
+                                        event.removeMember(cap.entity);
                                     }
-                                    event.addMember(cap.entity);
                                 }
                             } else {
                                 removingUUIDs.add(uuid);
@@ -136,6 +143,9 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     public CompoundTag serializeNBT() {
         CompoundTag basicTag = new CompoundTag();
         basicTag.putString("resource", resource);
+        if (hypnosisTempTeam != null) {
+            basicTag.putString("team_before_hypnosis", hypnosisTempTeam); //when this variable is saved it can only be the team before hypnosis.
+        }
         basicTag.putInt("cost", cost);
         if (owner != null) {
             basicTag.putUUID("owner", owner.getUUID());
@@ -149,6 +159,7 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             }
             basicTag.put("zombie_events", zombieEventTag);
         }
+        basicTag.putBoolean("contains_invasion", containsInvasion);
         return basicTag;
     }
 
@@ -159,6 +170,9 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
         }
         if (nbt.contains("cost")) {
             this.cost = nbt.getInt("cost");
+        }
+        if (nbt.contains("team_before_hypnosis")) {
+            this.hypnosisTempTeam = nbt.getString("team_before_hypnosis");
         }
         if (nbt.contains("owner")) {
             this.ownerUuid = nbt.getUUID("owner");
@@ -172,6 +186,9 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                 zombieEventUUIDs.add(zombieEventTag.getUUID(String.valueOf(i)));
                 i ++;
             }
+        }
+        if (nbt.contains("contains_invasion")) {
+            this.containsInvasion = nbt.getBoolean("contains_invasion");
         }
     }
 }

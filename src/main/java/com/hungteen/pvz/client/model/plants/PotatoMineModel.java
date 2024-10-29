@@ -14,11 +14,9 @@ import net.minecraft.client.model.geom.builders.*;
 
 public class PotatoMineModel<T extends PotatoMine> extends HierarchicalModel<T> {
 	private final ModelPart total;
-	private final ModelPart light;
 
 	public PotatoMineModel(ModelPart root) {
 		this.total = root.getChild("total");
-		this.light = total.getChild("antenna").getChild("top").getChild("light");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -36,11 +34,11 @@ public class PotatoMineModel<T extends PotatoMine> extends HierarchicalModel<T> 
 				.texOffs(0, -2).addBox(0.0F, -12.0F, -1.0F, 0.0F, 5.0F, 2.0F, new CubeDeformation(0.0F))
 				.texOffs(4, 0).addBox(-1.0F, -12.0F, 0.0F, 2.0F, 5.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition top = antenna.addOrReplaceChild("top", CubeListBuilder.create().texOffs(48, 0).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
-
-		PartDefinition light = top.addOrReplaceChild("light", CubeListBuilder.create().texOffs(48, 8).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.001F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition top = antenna.addOrReplaceChild("top", CubeListBuilder.create().texOffs(48, 0).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(48, 0).addBox(-2.0F, -14.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.001F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 64, 64);
+
 
 	}
 
@@ -50,7 +48,6 @@ public class PotatoMineModel<T extends PotatoMine> extends HierarchicalModel<T> 
 		this.animate(potatoMine.idleAnimationState, PotatoMineAnimation.idle, ageInTicks);
 		this.animate(potatoMine.outAnimationState, PotatoMineAnimation.out, ageInTicks);
 		this.animate(potatoMine.sleepAnimationState, PotatoMineAnimation.sleep, 0);
-		this.light.visible = potatoMine.getEntityData().get(PotatoMine.PREPARE_COUNT) <= 0 && ageInTicks % 50 < 4;
 	}
 
 	@Override

@@ -155,21 +155,26 @@ public class PeaBullet extends BaseBullet {
         } else {
             final float damage = this.getAttackDamage();
             //default normal damage.
-            hurt = target.hurt(PVZDamageSource.hitBossWithMultiplier(PVZDamageSource.knockBack(PVZDamageSource.bypassShield(
-                    PVZDamageSource.ignoreInvTime(PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())))
+            hurt = target.hurt(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(PVZDamageSource.bypassShield(
+                    PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
                     , getKnockBackStrength()), target, 0.2F), damage);
             this.discard();
         }
         if (! hurt) {
             return false;
         }
-        if (getPeaType() == PeaType.Fire || getPeaType() == PeaType.SoulFire) {
-            if (! target.fireImmune()) {
+        if (getPeaType() == PeaType.Fire) {
+            if (! target.fireImmune() && target.getRemainingFireTicks() < 40) {
                 target.setSecondsOnFire(2);
+            }
+        } else
+        if (getPeaType() == PeaType.SoulFire) {
+            if (! target.fireImmune() && target.getRemainingFireTicks() < 40) {
+                target.setSecondsOnFire(4);
             }
         } else if (getPeaType() == PeaType.Ice) {
             target.clearFire();
-            if (target.canFreeze()) {
+            if (target.canFreeze() && target.getTicksFrozen() < 400) {
                 target.setTicksFrozen(400);
             }
         }

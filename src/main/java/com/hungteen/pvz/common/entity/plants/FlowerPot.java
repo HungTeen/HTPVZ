@@ -27,11 +27,16 @@ import java.util.function.Predicate;
 
 public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     public AnimationState idleAnimationState = new AnimationState();
+    public static final String  FIRE_RESISTANCE_SKILL_NAME = "skill.pvz.flower_pot.refractory_ceramics";
+    public static final String  FREE_SKILL_NAME = "skill.pvz.flower_pot.free_seat";
+    public static final String  PORTABLE_SKILL_NAME = "skill.pvz.flower_pot.portable_pot";
+    public static final String  CHINAWARE_SKILL_NAME = "skill.pvz.flower_pot.chinaware";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.flower_pot.refractory_ceramics", PVZItems.IGNIS_ESSENCE, 8, 6, 50, 0),
-            new Skill("skill.pvz.flower_pot.free_seat", PVZItems.LUX_ESSENCE, 8, 4, -25, 140).avoidSkills(0, 3),
-            new Skill("skill.pvz.flower_pot.portable_pot", PVZItems.TERRA_ESSENCE, 4, 4, 75, 440),
-            new Skill("skill.pvz.flower_pot.chinaware", PVZItems.ORIGIN_ESSENCE, 8, 16, 0, 0)
+            new Skill(FIRE_RESISTANCE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 6, 50, 0),
+            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 4, -25, 140)
+                    .avoidSkills(FIRE_RESISTANCE_SKILL_NAME, CHINAWARE_SKILL_NAME),
+            new Skill(PORTABLE_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 4, 75, 440),
+            new Skill(CHINAWARE_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 16, 0, 0)
     );
 
     public FlowerPot(EntityType<? extends Mob> entityType, Level level) {
@@ -67,7 +72,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
         } else if (! this.isVehicle() && ! this.idleAnimationState.isStarted()){
             this.idleAnimationState.start(this.tickCount);
         }
-        if (this.isVehicle() && this.hasSkill(this, "skill.pvz.flower_pot.refractory_ceramics")) {
+        if (this.isVehicle() && this.hasSkill(this, FIRE_RESISTANCE_SKILL_NAME)) {
             this.fireImmune();
             this.getPassengers().forEach((Entity::clearFire));
             this.getPassengers().forEach((entity -> {
@@ -82,7 +87,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     }
 
     public boolean fireImmune() {
-        return super.fireImmune() || this.hasSkill(this, "skill.pvz.flower_pot.refractory_ceramics");
+        return super.fireImmune() || this.hasSkill(this, FIRE_RESISTANCE_SKILL_NAME);
     }
     @Override
     protected void registerGoals() {
@@ -109,7 +114,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
-        } else if (hasSkill("skill.pvz.flower_pot.portable_pot") && (target instanceof Minecart || target instanceof Boat)) {
+        } else if (hasSkill(PORTABLE_SKILL_NAME) && (target instanceof Minecart || target instanceof Boat)) {
             if (isPlanting) {
                 if (!target.isVehicle()) {
                     if (event != null) {

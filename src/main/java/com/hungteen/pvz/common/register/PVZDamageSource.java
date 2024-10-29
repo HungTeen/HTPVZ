@@ -47,7 +47,7 @@ public class PVZDamageSource {
         knockBackStrength = strength;
         return source;
     }
-    public static DamageSource hitBossWithMultiplier(DamageSource source, Entity target, float multiplier) {
+    public static DamageSource hitBossWithProportion(DamageSource source, Entity target, float factor) {
         if (target instanceof EnderDragon || target instanceof EnderDragonPart) {
             hurtBossSource = new DamageSource(source.getMsgId()).setExplosion();
             if (source.getEntity() != null) {
@@ -59,7 +59,7 @@ public class PVZDamageSource {
             if (source.isProjectile()) {
                 hurtBossSource.setProjectile();
             }
-            bossMultiplier = multiplier;
+            bossFactor = factor;
             return hurtBossSource;
         }
         return source;
@@ -84,6 +84,15 @@ public class PVZDamageSource {
     public static boolean isSharp(DamageSource source) {
         return sharpSource == source || storedSharpSources.contains(source);
     }
+    public static DamageSource setNotEating(DamageSource source) {
+        notEatingSource = source;
+        return source;
+    }
+    public static boolean isEating(DamageSource source) {
+        return notEatingSource != source;
+    }
+
+
 
     //damageSource types
     public static DamageSource projectileDamageSource(String name, Entity projectile, Entity owner) {
@@ -92,10 +101,14 @@ public class PVZDamageSource {
     public static DamageSource chomperHurt(LivingEntity source) {
         return teamFilter(PVZDamageSource.setSharp(DamageSource.mobAttack(source)));
     }
+    public static DamageSource gargantuarCrash(LivingEntity source) {
+        return setNotEating(new EntityDamageSource("gargantuar_crush", source));
+    }
 
     public static DamageSource wallNutCollide(LivingEntity source) {
         return knockBack(new EntityDamageSource("nut_collide", source), 2F);
     }
+
 
     //variables and methods used
     private static DamageSource teamFilterSource = null;
@@ -105,7 +118,7 @@ public class PVZDamageSource {
     private static float multiplier = 1;
 
     private static DamageSource hurtBossSource = null;
-    private static float bossMultiplier = 1;
+    private static float bossFactor = 1;
 
     private static DamageSource knockBackSource = null;
     private static Entity knockBackEntity = null;
@@ -115,6 +128,8 @@ public class PVZDamageSource {
     private static int invTime = 0;
 
     private static DamageSource sharpSource = null;
+
+    private static DamageSource notEatingSource = null;
     public static Set<DamageSource> storedSharpSources = Set.of(DamageSource.CACTUS);
 
     public static void clear() {
@@ -139,7 +154,7 @@ public class PVZDamageSource {
         if (ev.getSource() == knockBackSource) {
             knockBackEntity = ev.getEntity();
         }
-        if (ev.getSource() == ignoreInvTimeSource && ev.getEntity() instanceof Player) {
+        if (ev.getSource() == ignoreInvTimeSource && ! (ev.getEntity() instanceof Player)) {
             invTime = ev.getEntity().invulnerableTime;
             ev.getEntity().invulnerableTime = 0;
         }
@@ -155,7 +170,7 @@ public class PVZDamageSource {
         }
         if (ev.getEntity() instanceof EnderDragon) {
             if (ev.getSource() == hurtBossSource) {
-                ev.setAmount(ev.getAmount() * bossMultiplier);
+                ev.setAmount(ev.getAmount() * bossFactor);
             }
         }
         if (ev.getSource() == byPassShieldSource) {

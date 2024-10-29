@@ -127,6 +127,7 @@ public class PeaGunItem extends ProjectileWeaponItem {
             pea.setPeaType(PeaBullet.PeaType.Fire);
             pea.setAttackDamage(10);
         }
+        pea.setNoGravity(true);
         return pea;
     }
     @Override

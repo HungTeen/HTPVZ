@@ -15,6 +15,7 @@ import com.hungteen.pvz.common.command.OwnCommand;
 import com.hungteen.pvz.common.command.PVZFogCommand;
 import com.hungteen.pvz.common.command.PlayerStatsCommand;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
+import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
@@ -65,6 +66,7 @@ public class PVZMod
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
     public static String ENEMY_TEAM = "pvzmod.enemyTeam";
+    public static String FRIENDLY_TEAM = "pvzmod.friendlyTeam";
     public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
     public PVZMod()
     {
@@ -146,8 +148,11 @@ public class PVZMod
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Wood).get(), map.get(PVZBlocks.WoodSet.StWood).get());
             });
             PVZBlocks.queueRelease();
+            PVZItems.queueRelease();
             PVZMobEffects.addMixs();
         });
+        RegisterSproutsEvent sproutEvent = new RegisterSproutsEvent();
+        MinecraftForge.EVENT_BUS.post(sproutEvent);
 
         //clear variables
         PVZBlocks.release();
@@ -163,7 +168,6 @@ public class PVZMod
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-
         PVZBiomes.checkFeatures();
     }
 
@@ -210,6 +214,10 @@ public class PVZMod
             if (scoreboard.getPlayerTeam(ENEMY_TEAM) == null) {
                 PlayerTeam playerteam = scoreboard.addPlayerTeam(ENEMY_TEAM);
                 playerteam.setDisplayName(Component.literal(ENEMY_TEAM));
+            }
+            if (scoreboard.getPlayerTeam(FRIENDLY_TEAM) == null) {
+                PlayerTeam playerteam = scoreboard.addPlayerTeam(FRIENDLY_TEAM);
+                playerteam.setDisplayName(Component.literal(FRIENDLY_TEAM));
             }
             //caps tick
             PVZPlayerCapability.tick(ev);

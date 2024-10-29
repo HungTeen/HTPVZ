@@ -34,10 +34,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.List;
 
 public class Plantern extends SimplePlant {
+    public static final String LEAD_SKILL_NAME = "skill.pvz.plantern.light_house";
+    public static final String DETECT_SKILL_NAME = "skill.pvz.plantern.lantern_radar";
     public static List<Skill> staticSkillList = List.of(
-            //TODO Skills not done!
-            new Skill("skill.pvz.plantern.light_house", PVZItems.LUX_ESSENCE, 8, 8, 0, 350),
-            new Skill("skill.pvz.plantern.lantern_radar", PVZItems.LUX_ESSENCE, 8, 8, 125, 350).avoidSkills(0)
+            new Skill(LEAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 0, 350),
+            new Skill(DETECT_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 125, 350).avoidSkills(LEAD_SKILL_NAME)
     );
     public AnimationState idleAnimationState = new AnimationState();
     @OnlyIn(Dist.CLIENT)
@@ -86,16 +87,16 @@ public class Plantern extends SimplePlant {
         if (level.getBlockState(pos).is(PVZBlocks.ENTITY_LIGHT.get())) {
             level.setBlock(pos, level.getBlockState(pos).setValue(EntityLightBlock.HAS_SOURCE, true).setValue(EntityLightBlock.LEVEL, 15), 2);
         }
-        if (hasSkill(this, "skill.pvz.plantern.light_house")) {
+        if (hasSkill(this, LEAD_SKILL_NAME)) {
             this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(0D); //can't attract enemy with lightHouse skill.
         }
-        if (! level.isClientSide && hasSkill("skill.pvz.plantern.light_house")) {
+        if (! level.isClientSide && hasSkill(LEAD_SKILL_NAME)) {
             this.setPose(this.getPose() == Pose.STANDING ? Pose.DIGGING : Pose.STANDING); // to refresh dimensions.
         }
     }
     @Override
     public EntityDimensions getDimensions(Pose pose) {
-        if (this.hasSkill("skill.pvz.plantern.light_house")) {
+        if (this.hasSkill(LEAD_SKILL_NAME)) {
             EntityDimensions dimensions = super.getDimensions(pose);
             float height = 2;
             while (height < 5 && height < this.getBbHeight() + 0.5) {
@@ -130,19 +131,14 @@ public class Plantern extends SimplePlant {
         public boolean canUse() {
             if (waitTick ++ > 20) {
                 waitTick = 0;
-                List<Player> list = entity.level.getEntities(EntityTypeTest.forClass(Player.class),
-                        new AABB(entity.getX() - 4, entity.getY() - 4, entity.getZ() - 4,
-                                entity.getX() + 4, entity.getY() + 4, entity.getZ() + 4),
+                List<LivingEntity> list = entity.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
+                        new AABB(entity.getX() - 8, entity.getY() - 3, entity.getZ() - 8,
+                                entity.getX() + 8, entity.getY() + 3, entity.getZ() + 8),
                         (player) -> EntityUtil.isTeammate(player, entity));
-                list.forEach((player -> player.addEffect(new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 100), this.entity)));
-                List<SunFlower> list1 = entity.level.getEntities(EntityTypeTest.forClass(SunFlower.class),
-                        new AABB(entity.getX() - 4, entity.getY() - 4, entity.getZ() - 4,
-                                entity.getX() + 4, entity.getY() + 4, entity.getZ() + 4),
-                        (plant) -> EntityUtil.isTeammate(plant, entity));
-                list1.forEach((plant -> plant.addEffect(new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 100), this.entity)));
+                list.forEach((player -> player.addEffect(new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 100, 0, false, false), this.entity)));
                 List<LivingEntity> list2 = entity.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
-                        new AABB(entity.getX() - 4, entity.getY() - 4, entity.getZ() - 4,
-                                entity.getX() + 4, entity.getY() + 4, entity.getZ() + 4),
+                        new AABB(entity.getX() - 8, entity.getY() - 3, entity.getZ() - 8,
+                                entity.getX() + 8, entity.getY() + 3, entity.getZ() + 8),
                         (entity) -> ! EntityUtil.isTeammate(entity, this.entity) && entity.hasEffect(MobEffects.INVISIBILITY));
                 list2.forEach((entity -> entity.removeEffect(MobEffects.INVISIBILITY)));
             }
@@ -158,7 +154,7 @@ public class Plantern extends SimplePlant {
         }
         @Override
         public boolean canUse() {
-            return plantern.hasSkill("skill.pvz.plantern.lantern_radar");
+            return plantern.hasSkill(DETECT_SKILL_NAME);
         }
         @Override
         public void tick() {

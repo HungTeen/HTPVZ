@@ -10,9 +10,13 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
+import com.hungteen.pvz.common.entity.plants.KernelPult;
 import com.hungteen.pvz.common.item.SeedItem;
+import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEnchantments;
+import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -21,12 +25,16 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -36,9 +44,12 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -46,6 +57,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -93,7 +105,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 16D)
+                .add(Attributes.MAX_HEALTH, 12D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1)
                 .add(Attributes.MOVEMENT_SPEED, 0);
     }
@@ -136,6 +148,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     /**blockTags this plant can plant on. if {@link SimplePlant#ROOT} is false then any block is accepted.*/
     public Set<TagKey<Block>> getAcceptableTags() {
         return Set.of(PVZBlockTags.PLANTABLE_DIRT);
+    }
+    public Set<TagKey<Block>> getMushroomAcceptableTags() {
+        return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE, PVZBlockTags.SCULK);
     }
 
     /**
@@ -274,7 +289,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                 if (isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null &&
                         isVehicleSafe(null, getVehicle(), false) != null &&
                         this.getAttribute(Attributes.MAX_HEALTH) != null) {
-                    if (! firstUnsafeSituationMercy) {
+                    if (! firstUnsafeSituationMercy) { //ensure plants won't instantly get hurt after leaving safe situation.
                         this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
                     } else {
                         firstUnsafeSituationMercy = false;
@@ -292,12 +307,29 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             setDeltaMovement(0, 0, 0);
             shouldAlign = false;
         }
+        //mushroom relative
+        if (this instanceof IMushroom mushroom) {
+            if (level.isClientSide) {
+                if (this.isSleeping() && this.tickCount % 100 < 30 && this.tickCount % 10 == 0) {
+                    level.addParticle(PVZParticles.Z.get(),
+                            this.position().x + random.nextFloat() * 0.6 - 0.3,
+                            this.position().y + random.nextFloat() * 0.3,
+                            this.position().z + random.nextFloat() * 0.6 - 0.3, 0, 0, 0);
+                }
+            } else {
+                if (! this.isSleeping() && mushroom.shouldFallAsleep()) {
+                    mushroom.fallAsleep();
+                } else if (this.isSleeping() && mushroom.shouldWakeUp()) {
+                    mushroom.wakeUp();
+                }
+            }
+        }
         //TODO relative codes. add particle when plant is dying.
     }
 
     /**
      * control if this plant can push another entity.*/
-    public Predicate<Entity> canPush(){
+    public Predicate<Entity> canPush() {
         return (entity) -> this.isPushable();
     }
     /**
@@ -320,17 +352,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         moveTo(pos.getX() + 0.5, this.getY(), pos.getZ() + 0.5);
     }
 
-    @SubscribeEvent
-    public static void handleShovel(PlayerInteractEvent.EntityInteract ev) {
-        Player player = ev.getEntity();
-        InteractionHand handIn = ev.getHand();
-        Entity entity = ev.getTarget();
-        ItemStack itemstack = player.getItemInHand(handIn);
-        if (itemstack.getItem() instanceof ShovelItem && entity instanceof IPlant plant) {
-            if (plant.onBeingShoveled(player, handIn)) {
-                ev.setCancellationResult(InteractionResult.CONSUME);
-                ev.setCanceled(true);
-            }
+    protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        if (isBeingShoveled(player, handIn, this)) {
+            return InteractionResult.CONSUME;
+        } else {
+            return super.mobInteract(player, handIn);
         }
     }
 
@@ -340,6 +366,18 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
 
     //for easy maintenance.
+    public static boolean isBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
+        ItemStack itemstack = player.getItemInHand(handIn);
+        ItemStack itemstack1 = player.getItemInHand(InteractionHand.MAIN_HAND);
+        boolean flag = (itemstack.getItem() instanceof ShovelItem || itemstack.getItem() instanceof IPlantShovelable)
+                && ! (itemstack != itemstack1 && itemstack1.getItem() instanceof SeedPacketItem<?>)
+                    // TODO why does shovel in offHand still runs useOn() when seedPacket is already planted? If can solve, this part can be deleted.
+                && ((IPlant) target).onBeingShoveled(player, handIn);
+        if (flag && itemstack.getItem() instanceof IPlantShovelable shovelable) {
+            shovelable.onShovelPlant(itemstack, player, target, handIn);
+        }
+        return flag;
+    }
     public static boolean onBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
         //check permission.
         final boolean[] permission = {false};
@@ -353,7 +391,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             }
         });
         //shovel plant.
-        if (!player.level.isClientSide()) {
+        if (! player.level.isClientSide()) {
             if (! permission[0]) {
                 player.displayClientMessage(Component.translatable("hint.pvz.plant.need_own_team"), true);
             } else {
@@ -375,8 +413,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                 }
                 return true;
             }
+            return false;
         }
-        return false;
+        return true;
     }
 
     //data
@@ -395,7 +434,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         tag.putBoolean("Root", getEntityData().get(ROOT));
         tag.putBoolean("HasCoincideDmg", getEntityData().get(TAKES_COINCIDE_DMG));
         tag.putInt("WiltCountDown", getEntityData().get(WILT_COUNTDOWN));
-        tag.putInt("Skill", getSkillVal(this));
+        ListTag skills = new ListTag();
+        for (String name : getSkillNames()) {
+            skills.add(StringTag.valueOf(name));
+        }
+        tag.put("Skill", skills);
         tag.putInt("PlantAttackTime", getAttackTime());
 
     }
@@ -403,7 +446,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
         if (tag.contains("Skill")) {
-            setSkillVal(this, tag.getInt("Skill"));
+            setSkillVal(this, getSkillValFromNames(tag.getList("Skill", Tag.TAG_STRING).stream().map(Tag::getAsString).toList()));
         }
         if (tag.contains("PlantAttackTime")) {
             this.setAttackTime(tag.getInt("PlantAttackTime"));

@@ -14,9 +14,10 @@ import java.util.function.Predicate;
 
 public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingEntity> {
 
-    protected final Predicate<Entity> predicate;
+    protected Predicate<Entity> predicate;
     protected double range;
 
+    /**@param range set to -1 to fit follow range attribute.*/
     public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, double range) {
         super(mobIn, LivingEntity.class, true);
         this.predicate = predicate;

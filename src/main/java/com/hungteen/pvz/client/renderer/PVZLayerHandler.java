@@ -47,6 +47,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.POTATO_MINE, PotatoMineModel::createBodyLayer);
         L(e, PVZEntities.SNOW_PEA, SnowPeaModel::createBodyLayer);
         L(e, PVZEntities.CHOMPER, ChomperModel::createBodyLayer);
+        L(e, PVZEntities.HYPNO_SHROOM, HypnoShroomModel::createBodyLayer);
         L(e, PVZEntities.TANGLE_KELP, TangleKelpModel::createBodyLayer);
         L(e, PVZEntities.JALAPENO, JalapenoModel::createBodyLayer);
         L(e, PVZEntities.GOLD_BLOOM, GoldBloomModel::createBodyLayer);

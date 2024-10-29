@@ -1,7 +1,7 @@
 package com.hungteen.pvz.client.renderer.plants;
 
 import com.hungteen.pvz.client.layer.DirtLayer;
-import com.hungteen.pvz.client.layer.fullskin.LightLayer;
+import com.hungteen.pvz.client.layer.LightLayer;
 import com.hungteen.pvz.client.model.plants.PotatoMineModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.PotatoMine;
@@ -15,13 +15,10 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.state.BlockState;
 
 import static com.hungteen.pvz.common.entity.plants.PotatoMine.EXPLODE_COUNT;
 
@@ -31,7 +28,8 @@ public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, Ent
     private static final ResourceLocation POISON = Util.prefix("textures/entity/plants/potato_mine/poisonous_potato_mine.png");
     public PotatoMineRenderer(EntityRendererProvider.Context context) {
         super(context, new PotatoMineModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("potato_mine:main"))), 0.2F);
-        this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/potato_mine/potato_mine_light.png")));
+        this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/potato_mine/potato_mine_light.png"),
+                (potatoMine, partialTicks, ageInTicks) -> (potatoMine.getEntityData().get(PotatoMine.PREPARE_COUNT) <= 0 && potatoMine.tickCount % 50 < 4) ? 1F : 0F));
         this.addLayer(new DirtLayer(this, context.getModelSet()));
     }
 

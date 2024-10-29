@@ -99,7 +99,7 @@ public class Starfruit extends ShooterPlant {
         if (needSound) {
             EntityUtil.playSound(this, this.getShootSound());
         }
-        bullet.shoot(deltaPos.x, 0, deltaPos.z, speed, (float) randomAngle);
+        bullet.shoot(deltaPos.x, 0.04, deltaPos.z, speed, (float) randomAngle);
         bullet.setOwner(this);
         bullet.setAttackDamage(this.getAttackDamage());
         this.level.addFreshEntity(bullet);
@@ -108,7 +108,7 @@ public class Starfruit extends ShooterPlant {
             angle += Math.PI / 2.5;
             bullet = this.createBullet();
             bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-            bullet.shoot(Math.cos(angle), 0, Math.sin(angle), speed, (float) randomAngle);
+            bullet.shoot(Math.cos(angle), 0.04, Math.sin(angle), speed, (float) randomAngle);
             bullet.setOwner(this);
             bullet.setAttackDamage(this.getAttackDamage());
             this.level.addFreshEntity(bullet);

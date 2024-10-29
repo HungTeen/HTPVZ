@@ -29,7 +29,6 @@ import java.util.UUID;
 public class PoleVaultingZombie extends PVZZombie {
     public static final UUID SPEED_MODIFIER_UUID = UUID.fromString("6e7b1022-c83a-d406-effb-ebded074d30a");
     protected static final EntityDataAccessor<Boolean> HAS_POLE = SynchedEntityData.defineId(PoleVaultingZombie.class, EntityDataSerializers.BOOLEAN);
-    @OnlyIn(Dist.CLIENT)
     public boolean renderPole = true;
 
     public PoleVaultingZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
@@ -86,7 +85,9 @@ public class PoleVaultingZombie extends PVZZombie {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        this.setHasPole(tag.getBoolean("has_pole"));
+        if (tag.contains("has_pole")) {
+            this.setHasPole(tag.getBoolean("has_pole"));
+        }
     }
 
     public static class PoleVaultGoal extends Goal {

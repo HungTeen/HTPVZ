@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -146,6 +147,7 @@ public class Sprout extends Mob implements IGardenPlant {
                     Entity entity = type.create(level);
                     if (entity instanceof LivingEntity entity1) {
                         this.plant = entity1;
+                        entity.moveTo(this.position());
                         if (entity instanceof IPlant plant) {
                             plant.setupPresentationAnim();
                         }
@@ -158,6 +160,7 @@ public class Sprout extends Mob implements IGardenPlant {
             }
             if (plant != null) {
                 plant.tick();
+                plant.moveTo(this.position());
                 plant.tickCount ++;
                 plant.hurtTime = this.hurtTime;
                 plant.deathTime = this.deathTime;

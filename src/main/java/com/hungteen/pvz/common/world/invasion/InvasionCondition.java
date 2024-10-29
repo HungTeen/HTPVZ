@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -34,7 +35,11 @@ public interface InvasionCondition {
         int i = 0;
         while (i < allProvidedArgs.size()) {
             try {
-                new ResourceLocation(allProvidedArgs.get(i));
+                String arg = allProvidedArgs.get(i);
+                new ResourceLocation(arg);
+                if (arg.startsWith("$")) {
+                    throw new ResourceLocationException(arg);
+                }
             } catch (ResourceLocationException exception) {
                 return i;
             }
@@ -117,6 +122,17 @@ public interface InvasionCondition {
         }
     }
 
+    class IsUndergroundCondition implements InvasionCondition {
+        @Override
+        public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
+            return target.level.getHeight(Heightmap.Types.WORLD_SURFACE, (int) target.getX(), (int) target.getZ()) > target.getY();
+        }
+        @Override
+        public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
+            return 0;
+        }
+    }
+
     /**Detects whether target player has achieved given advancement, accepting multiple arguments. When having more than 1 argument, all of them should be obtained.*/
     class ObtainedAdvancementCondition implements InvasionCondition {
         @Override
@@ -162,7 +178,7 @@ public interface InvasionCondition {
                             PVZMod.LOGGER.error("Argument item " + string + " in has_item condition of " + type.getName() + " is not available.");
                             return false;
                         }
-                        if (! player.getInventory().hasAnyOf(Set.of())) {
+                        if (! player.getInventory().hasAnyOf(Set.of(item))) {
                             return false;
                         }
                     }
@@ -173,6 +189,8 @@ public interface InvasionCondition {
         }
     }
 
+    //TODO add a time condition to limit some invasions happening only at night.
+
     /**Logic conditions.*/
     class And implements InvasionCondition {
         @Override
@@ -180,33 +198,42 @@ public interface InvasionCondition {
             if (arguments.isEmpty()) {
                 return false;
             }
-            InvasionCondition first = invasionConditions.get(Util.prefix(arguments.get(0)));
-            int firstLength = first.getArgLength(target, arguments.subList(1, arguments.size()), type, selectedTypes) + 1;
-            InvasionCondition second = invasionConditions.get(Util.prefix(arguments.get(firstLength + 1)));
-            int secondLength = second.getArgLength(target, arguments.subList(firstLength + 2, arguments.size()), type, selectedTypes) + 1;
-            return first.test(target, arguments.subList(1, firstLength), type, selectedTypes) &&
-                    second.test(target, arguments.subList(firstLength + 2, firstLength + 2 + secondLength), type, selectedTypes);
+            InvasionCondition first = invasionConditions.get(new ResourceLocation(arguments.get(0).substring(1)));
+            int firstLength = first.getArgLength(target, arguments.subList(1, arguments.size()), type, selectedTypes);
+            InvasionCondition second = invasionConditions.get(new ResourceLocation(arguments.get(firstLength + 2).substring(1)));
+            int secondLength = second.getArgLength(target, arguments.subList(firstLength + 3, arguments.size()), type, selectedTypes);
+            return first.test(target, arguments.subList(1, firstLength + 1), type, selectedTypes) &&
+                    second.test(target, arguments.subList(firstLength + 3, firstLength + 3 + secondLength), type, selectedTypes);
         }
 
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
-            InvasionCondition first = invasionConditions.get(Util.prefix(allProvidedArgs.get(0)));
+            if (allProvidedArgs.isEmpty() || ! allProvidedArgs.get(0).startsWith("$")) {
+                PVZMod.LOGGER.error("First condition in \"and\" condition of " + type.getName() + " not found, expected condition starting with \"$\".");
+                return 0;
+            }
+            InvasionCondition first = invasionConditions.get(new ResourceLocation(allProvidedArgs.get(0).substring(1)));
             if (first == null) {
-                PVZMod.LOGGER.error("First condition " + Util.prefix(allProvidedArgs.get(0)) +
+                PVZMod.LOGGER.error("First condition " + new ResourceLocation(allProvidedArgs.get(0)) +
                         " in \"and\" condition of " + type.getName() + "invasion type is not available!");
                 return 0;
             }
-            int firstLength = first.getArgLength(target, allProvidedArgs.subList(1, allProvidedArgs.size()), type, selectedTypes) + 1;
-            if (! allProvidedArgs.get(firstLength).equals("&&")) {
-                PVZMod.LOGGER.error("Found " + allProvidedArgs.get(firstLength) + " after first condition in \"and\" condition of " + type.getName() + ", expected \"&&\".");
+            int afterFirst = first.getArgLength(target, allProvidedArgs.subList(1, allProvidedArgs.size()), type, selectedTypes) + 1;
+            if (! allProvidedArgs.get(afterFirst).equals("&&")) {
+                PVZMod.LOGGER.error("Found " + allProvidedArgs.get(afterFirst) + " after first condition in \"and\" condition of " + type.getName() + ", expected \"&&\".");
+                return 0;
             }
-            InvasionCondition second = invasionConditions.get(Util.prefix(allProvidedArgs.get(firstLength + 1)));
+            if (! allProvidedArgs.get(afterFirst + 1).startsWith("$")) {
+                PVZMod.LOGGER.error("Second condition in \"and\" condition of " + type.getName() + " not found, expected condition starting with \"$\".");
+                return 0;
+            }
+            InvasionCondition second = invasionConditions.get(new ResourceLocation(allProvidedArgs.get(afterFirst + 1).substring(1)));
             if (second == null) {
-                PVZMod.LOGGER.error("Second condition " + Util.prefix(allProvidedArgs.get(firstLength + 1)) +
+                PVZMod.LOGGER.error("Second condition " + new ResourceLocation(allProvidedArgs.get(afterFirst + 1)) +
                         " in \"and\" condition of " + type.getName() + "invasion type is not available!");
                 return 0;
             }
-            return firstLength + second.getArgLength(target, allProvidedArgs.subList(firstLength + 2, allProvidedArgs.size()), type, selectedTypes) + 1;
+            return afterFirst + second.getArgLength(target, allProvidedArgs.subList(afterFirst + 2, allProvidedArgs.size()), type, selectedTypes) + 2;
         }
     }
 
@@ -216,33 +243,42 @@ public interface InvasionCondition {
             if (arguments.isEmpty()) {
                 return false;
             }
-            InvasionCondition first = invasionConditions.get(Util.prefix(arguments.get(0)));
-            int firstLength = first.getArgLength(target, arguments.subList(1, arguments.size()), type, selectedTypes) + 1;
-            InvasionCondition second = invasionConditions.get(Util.prefix(arguments.get(firstLength + 1)));
-            int secondLength = second.getArgLength(target, arguments.subList(firstLength + 2, arguments.size()), type, selectedTypes) + 1;
-            return first.test(target, arguments.subList(1, firstLength), type, selectedTypes) ||
-                    second.test(target, arguments.subList(firstLength + 2, firstLength + 2 + secondLength), type, selectedTypes);
+            InvasionCondition first = invasionConditions.get(new ResourceLocation(arguments.get(0).substring(1)));
+            int firstLength = first.getArgLength(target, arguments.subList(1, arguments.size()), type, selectedTypes);
+            InvasionCondition second = invasionConditions.get(new ResourceLocation(arguments.get(firstLength + 2).substring(1)));
+            int secondLength = second.getArgLength(target, arguments.subList(firstLength + 3, arguments.size()), type, selectedTypes);
+            return first.test(target, arguments.subList(1, firstLength + 1), type, selectedTypes) ||
+                    second.test(target, arguments.subList(firstLength + 3, firstLength + 3 + secondLength), type, selectedTypes);
         }
 
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
-            InvasionCondition first = invasionConditions.get(Util.prefix(allProvidedArgs.get(0)));
+            if (allProvidedArgs.isEmpty() || ! allProvidedArgs.get(0).startsWith("$")) {
+                PVZMod.LOGGER.error("First condition in \"or\" condition of " + type.getName() + " not found, expected condition starting with \"$\".");
+                return 0;
+            }
+            InvasionCondition first = invasionConditions.get(new ResourceLocation(allProvidedArgs.get(0).substring(1)));
             if (first == null) {
-                PVZMod.LOGGER.error("First condition " + Util.prefix(allProvidedArgs.get(0)) +
+                PVZMod.LOGGER.error("First condition " + new ResourceLocation(allProvidedArgs.get(0)) +
                         " in \"or\" condition of " + type.getName() + "invasion type is not available!");
                 return 0;
             }
-            int firstLength = first.getArgLength(target, allProvidedArgs.subList(1, allProvidedArgs.size()), type, selectedTypes) + 1;
-            if (! allProvidedArgs.get(firstLength).equals("||")) {
-                PVZMod.LOGGER.error("Found " + allProvidedArgs.get(firstLength) + " after first condition in \"or\" condition of " + type.getName() + ", expected \"||\".");
+            int afterFirst = first.getArgLength(target, allProvidedArgs.subList(1, allProvidedArgs.size()), type, selectedTypes) + 1;
+            if (! allProvidedArgs.get(afterFirst).equals("||")) {
+                PVZMod.LOGGER.error("Found " + allProvidedArgs.get(afterFirst) + " after first condition in \"or\" condition of " + type.getName() + ", expected \"||\".");
+                return 0;
             }
-            InvasionCondition second = invasionConditions.get(Util.prefix(allProvidedArgs.get(firstLength + 1)));
+            if (! allProvidedArgs.get(afterFirst + 1).startsWith("$")) {
+                PVZMod.LOGGER.error("Second condition in \"or\" condition of " + type.getName() + " not found, expected condition starting with \"$\".");
+                return 0;
+            }
+            InvasionCondition second = invasionConditions.get(new ResourceLocation(allProvidedArgs.get(afterFirst + 1).substring(1)));
             if (second == null) {
-                PVZMod.LOGGER.error("Second condition " + Util.prefix(allProvidedArgs.get(firstLength + 1)) +
+                PVZMod.LOGGER.error("Second condition " + new ResourceLocation(allProvidedArgs.get(afterFirst + 1)) +
                         " in \"or\" condition of " + type.getName() + "invasion type is not available!");
                 return 0;
             }
-            return firstLength + second.getArgLength(target, allProvidedArgs.subList(firstLength + 2, allProvidedArgs.size()), type, selectedTypes) + 1;
+            return afterFirst + second.getArgLength(target, allProvidedArgs.subList(afterFirst + 2, allProvidedArgs.size()), type, selectedTypes) + 2;
         }
     }
 
@@ -252,16 +288,19 @@ public interface InvasionCondition {
             if (arguments.isEmpty()) {
                 return false;
             }
-            InvasionCondition condition = invasionConditions.get(Util.prefix(arguments.get(0)));
-            int firstLength = condition.getArgLength(target, arguments.subList(1, arguments.size()), type, selectedTypes) + 1;
-            return ! condition.test(target, arguments.subList(1, firstLength), type, selectedTypes);
+            InvasionCondition condition = invasionConditions.get(new ResourceLocation(arguments.get(0).substring(1)));
+            return ! condition.test(target, arguments.subList(1, arguments.size()), type, selectedTypes);
         }
 
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
-            InvasionCondition condition = invasionConditions.get(Util.prefix(allProvidedArgs.get(0)));
+            if (allProvidedArgs.isEmpty() || ! allProvidedArgs.get(0).startsWith("$")) {
+                PVZMod.LOGGER.error("Condition in \"not\" condition of " + type.getName() + " not found, expected condition starting with \"$\".");
+                return 0;
+            }
+            InvasionCondition condition = invasionConditions.get(new ResourceLocation(allProvidedArgs.get(0).substring(1)));
             if (condition == null) {
-                PVZMod.LOGGER.error("Condition " + Util.prefix(allProvidedArgs.get(0)) +
+                PVZMod.LOGGER.error("Condition " + new ResourceLocation(allProvidedArgs.get(0)) +
                         " in \"not\" condition of " + type.getName() + "invasion type is not available!");
                 return 0;
             }

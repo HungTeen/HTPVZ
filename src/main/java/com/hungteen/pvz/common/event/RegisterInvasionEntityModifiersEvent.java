@@ -8,6 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 import org.apache.logging.log4j.util.TriConsumer;
+import org.jetbrains.annotations.Nullable;
 
 /**Register invasion entity modifiers. See {@link com.hungteen.pvz.common.world.invasion.InvasionType#invasionEntityModifiers InvasionType#invasionEntityModifiers}.*/
 public class RegisterInvasionEntityModifiersEvent extends Event {
@@ -16,9 +17,10 @@ public class RegisterInvasionEntityModifiersEvent extends Event {
     public RegisterInvasionEntityModifiersEvent() {
         builder.put(InvasionEntityModifiers.BABYLIZE, InvasionEntityModifiers::babylize)
                 .put(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers::addLifeBuoy)
-                .put(InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers::finalizeSpawn);
+                .put(InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers::finalizeSpawn)
+                .put(InvasionEntityModifiers.WITH_FOG, InvasionEntityModifiers::withFog);
     }
-    public static ImmutableMap<ResourceLocation, TriConsumer<Invasion, Entity, Integer>> get() {
+    public static ImmutableMap<ResourceLocation, TriConsumer<@Nullable Invasion, Entity, Integer>> get() {
         RegisterInvasionEntityModifiersEvent event = new RegisterInvasionEntityModifiersEvent();
         MinecraftForge.EVENT_BUS.post(event);
         return event.builder.build();

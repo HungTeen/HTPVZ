@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.interfaces.IAdvancedPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
@@ -38,7 +39,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Set;
 
-public class GatlingPea extends Repeater implements PlayerRideableJumping, IEntityPacketHandler {
+public class GatlingPea extends Repeater implements PlayerRideableJumping, IEntityPacketHandler, IAdvancedPlant {
 
     public AnimationState controlledAnimationState = new AnimationState();
     private boolean playerFire = false;
@@ -46,10 +47,12 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     protected static final EntityDataAccessor<Integer> OVERHEATING = SynchedEntityData.defineId(GatlingPea.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Boolean> FUSING = SynchedEntityData.defineId(GatlingPea.class, EntityDataSerializers.BOOLEAN);
 
+    public static final String LOW_BUDGET_SKILL_NAME = "skill.pvz.gatling_pea.low_budget_configuration";
+    public static final String RAPID_DEPLOYMENT_SKILL_NAME = "skill.pvz.plant.rapid_deployment";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.gatling_pea.low_budget_configuration", PVZItems.LUX_ESSENCE, 4, 4, -250, -1000),
-            new Skill("skill.pvz.pea_shooter.fire_shooter", PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(0),
-            new Skill("skill.pvz.plant.rapid_deployment", PVZItems.ORIGIN_ESSENCE, 16, 4, 150, 0)
+            new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, -1000),
+            new Skill(PeaShooter.FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(LOW_BUDGET_SKILL_NAME),
+            new Skill(RAPID_DEPLOYMENT_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 16, 4, 150, 0)
     );
     public GatlingPea(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
@@ -99,10 +102,6 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         return this.getFirstPassenger() instanceof Player ?
                 Set.of(0, 1 ,2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19) :
                 Set.of(8, 10, 12, 14);
-    }
-
-    public float getAttackDamage() {
-        return (float) (this.getFirstPassenger() instanceof Player ? 0.75 : 1) * super.getAttackDamage();
     }
 
     @Override
@@ -194,17 +193,20 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
 
     @Override
-    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (level.isClientSide && getPassengers().isEmpty() && (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty() || player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof SpyglassItem)
-                && ! (player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShovelItem)) {
-            sendPVZPacketToServer();
+    protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        if (getPassengers().isEmpty() && ! player.isShiftKeyDown()) {
+            if (level.isClientSide) {
+                sendPVZPacketToServer();
+            }
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        } else {
+            return super.mobInteract(player, handIn);
         }
-        return super.mobInteract(player, hand);
     }
     @Override
     public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting) {
-            if (hasSkill("skill.pvz.plant.rapid_deployment")) {
+            if (hasSkill(RAPID_DEPLOYMENT_SKILL_NAME) || (event != null && event.getEntity() != null && event.getEntity().isCreative())) {
                 return super.plantPositionSafe(event, level, pos, direction, true);
             }
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());
@@ -219,7 +221,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
             }
         }
         if (isPlanting) {
-            if (hasSkill("skill.pvz.plant.rapid_deployment")) {
+            if (hasSkill(RAPID_DEPLOYMENT_SKILL_NAME)) {
                 return super.plantVehicleSafe(event, target, true);
             }
             if (target.getType() == PVZEntities.REPEATER.get()) {
@@ -246,8 +248,8 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Fusing", entityData.get(FUSING));
         tag.putInt("Overheating", entityData.get(OVERHEATING));
-
     }
+
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
@@ -301,7 +303,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
 
     @Override
     public void handlePVZPacket(ServerPlayer player, int val) {
-        if (! hasSkill("skill.pvz.gatling_pea.low_budget_configuration")) {
+        if (! hasSkill(LOW_BUDGET_SKILL_NAME)) {
             if (EntityUtil.isTeammate(this, player)) {
                 player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
                 player.startRiding(this);

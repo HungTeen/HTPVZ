@@ -22,7 +22,7 @@ import java.util.*;
  * @param isAddition Whether this type is additional invasion type. Additional invasion types can't be selected single, while only one non-additional types con be selected.
  * @param conditions See {@link InvasionCondition}.**/
 public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLocation, List<String>>> conditions, List<ResourceLocation> entityModifiers,
-                           Optional<CompoundTag> flagEnemy, List<EnemyType> enemies, boolean isAddition, float length, float weight) {
+                           Optional<CompoundTag> flagEnemy, List<EnemyType> enemies, boolean isAddition, float threatFactor, float length, int weight) {
     public static Codec<InvasionType> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             ResourceLocation.CODEC.optionalFieldOf("loot").forGetter(InvasionType::loot),
             Codec.compoundList(ResourceLocation.CODEC, Codec.STRING.listOf()).optionalFieldOf("conditions", List.of()).forGetter(InvasionType::conditions),
@@ -30,32 +30,45 @@ public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLo
             CompoundTag.CODEC.optionalFieldOf("flag_enemy").forGetter(InvasionType::flagEnemy),
             EnemyType.CODEC.listOf().optionalFieldOf("enemies", List.of()).forGetter(InvasionType::enemies),
             Codec.BOOL.optionalFieldOf("is_addition", false).forGetter(InvasionType::isAddition),
+            Codec.FLOAT.optionalFieldOf("threat_factor", 1F).forGetter(InvasionType::threatFactor),
             Codec.FLOAT.optionalFieldOf("length", 1F).forGetter(InvasionType::length),
-            Codec.FLOAT.optionalFieldOf("weight", 1F).forGetter(InvasionType::weight)
+            Codec.INT.optionalFieldOf("weight", 100).forGetter(InvasionType::weight)
         ).apply(builder, InvasionType::new)
     );
     public static Map<ResourceLocation, InvasionType> invasionTypes;
     private static final Random random = new Random();
 
     public static final Map<ResourceLocation, TriConsumer<Invasion, Entity, Integer>> invasionEntityModifiers = RegisterInvasionEntityModifiersEvent.get();
-    public static final Map<ResourceLocation, TriPredicate<Invasion, Entity, Integer>> invasionSummonConditions = new HashMap<>();
+    public static final Map<ResourceLocation, TriPredicate<Invasion, Entity, Integer>> invasionSummonConditions = new HashMap<>();//TODO not done.
 
 
     //Methods
 
     public static List<InvasionType> generateTypes(LivingEntity target) {
         List<InvasionType> types = new ArrayList<>();
+        //main
+        int allWeight = 0;
+        List<InvasionType> toChoose = new ArrayList<>();
         for (InvasionType invasionType : invasionTypes.values()) {
-            if (! invasionType.isAddition && invasionType.isAvailable(target, types) && random.nextFloat() < invasionType.weight) {
+            if (! invasionType.isAddition && invasionType.isAvailable(target, types)) {
+                toChoose.add(invasionType);
+                allWeight += invasionType.weight;
+            }
+        }
+        if (toChoose.isEmpty()) {
+            return types;
+        }
+        int chooseWeight = random.nextInt(allWeight);
+        for (InvasionType invasionType : toChoose) {
+            chooseWeight -= invasionType.weight;
+            if (chooseWeight <= 0) {
                 types.add(invasionType);
                 break;
             }
         }
-        if (types.isEmpty()) {
-            return types;
-        }
+        //addition
         for (InvasionType invasionType : invasionTypes.values()) {
-            if (invasionType.isAddition && invasionType.isAvailable(target, types) && random.nextFloat() < invasionType.weight) {
+            if (invasionType.isAddition && invasionType.isAvailable(target, types) && random.nextInt(10000) < invasionType.weight) {
                 types.add(invasionType);
                 break;
             }

@@ -1,7 +1,7 @@
 package com.hungteen.pvz.generator.loot;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.api.events.RegisterSproutsEvent;
+import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.item.SproutItem;
 import com.hungteen.pvz.common.loot.AddItemModifier;

@@ -90,7 +90,11 @@ public abstract class ProducerPlant extends SimplePlant {
      * is producer going to gen, use for render sunflower sun layer.
      */
     public boolean isPlantInGen() {
-        return this.getAttackTime() <= 10 ;
+        return this.getAttackTime() <= getGenerateAnimLength();
+    }
+
+    public int getGenerateAnimLength() {
+        return 10;
     }
 
     static class ProducerGenGoal extends Goal {

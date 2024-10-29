@@ -49,19 +49,19 @@ public class MariGold extends SimplePlant implements IGardenPlant {
 
     //interaction
     @Override
-    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+    public InteractionResult mobInteract(Player player, InteractionHand handIn) {
         if (this.isAlive()) {
-            if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.dyeMarigold) && player.getItemInHand(hand).getItem() instanceof DyeItem dye) {
+            if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.dyeMarigold) && player.getItemInHand(handIn).getItem() instanceof DyeItem dye) {
                 if (this.isAlive() && this.getColor() != dye.getDyeColor().getTextColor()) {
                     this.level.playSound(player, this, SoundEvents.DYE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                     if (! this.level.isClientSide) {
                         this.setColor(dye.getDyeColor().getTextColor());
-                        player.getItemInHand(hand).shrink(1);
+                        player.getItemInHand(handIn).shrink(1);
                     }
                 }
             }
         }
-        return super.mobInteract(player, hand);
+        return super.mobInteract(player, handIn);
     }
 
     /**Check {@link IGardenPlant} for the two methods below.*/
@@ -201,7 +201,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 10D)
+                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override

@@ -24,7 +24,8 @@ public class PVZZombieEvents {
     public static final RegistryObject<Class<? extends ZombieEvent>> INVASION = ZOMBIE_EVENTS.register("invasion", () -> Invasion.class);
 
 
-    /**@return a {@link ZombieEvent} loaded from a CompoundTag.*/
+    /**Remember to {@link ZombieEvent#deserializeNBT(CompoundTag) deserialize} with the tag in the init method.
+     * @return a {@link ZombieEvent} loaded from a CompoundTag.*/
     public static ZombieEvent fromTag(Level level, UUID uuid, CompoundTag tag) {
         ResourceLocation name = new ResourceLocation(tag.getString("event_type"));
         Class<? extends ZombieEvent> evClass = PVZZombieEvents.REGISTRY.get().getValue(name);

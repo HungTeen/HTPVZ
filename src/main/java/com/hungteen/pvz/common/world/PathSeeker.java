@@ -1,11 +1,8 @@
 package com.hungteen.pvz.common.world;
 
-import com.hungteen.pvz.PVZConfig;
-import com.hungteen.pvz.PVZMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
@@ -28,8 +25,8 @@ public class PathSeeker {
     private static final Random random = new Random();
 
     public PathSeeker(ServerLevel level) {
-        this.level = level;
         this.tickCount = 0;
+        this.level = level;
     }
 
     //raytrace seeker
@@ -103,16 +100,6 @@ public class PathSeeker {
                 if (result.getType() != HitResult.Type.MISS && result.getBlockPos().distSqr(position) > (0.5625 * (24 - 4 * generation) * (24 - 4 * generation)) &&
                         dist > 144 && dist < 576 && result.getDirection() == Direction.UP) {
                     this.seeker.availablePositions.add(growFrom);
-                }
-                if (PVZConfig.PVZGameRules.getBoolean(seeker.level, PVZConfig.Common.showInvasionDetails)) {
-                    BlockPos pos = result.getBlockPos().offset(offset);
-                    for (int i = 0; i < 15; i ++) {
-                        seeker.level.sendParticles(Math.abs(this.direction.x) == 90 ? ParticleTypes.COMPOSTER : ParticleTypes.BUBBLE,
-                                (i * 0.1 * pos.getX() + (10 - i) * 0.1 * position.getX()) + 0.5,
-                                (i * 0.1 * pos.getY() + (10 - i) * 0.1 * position.getY()) + 0.5,
-                                (i * 0.1 * pos.getZ() + (10 - i) * 0.1 * position.getZ()) + 0.5,
-                                0, 0, 0, 0, 0.0D);
-                    }
                 }
                 if (this.generation <= 3 && Math.abs(this.direction.x) < 80 && dist > 64 && result.getDirection() != Direction.UP) {
                     this.branches.add(new Branch(5 /*to make branch not keep growing and has enough short acceptable distance.*/,

@@ -28,9 +28,11 @@ import java.util.function.Predicate;
 
 public class TorchWood extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
+    public static final String SOUL_SKILL_NAME = "skill.pvz.torch_wood.soul_torch";
+    public static final String ARMOR_SKILL_NAME = "skill.pvz.torch_wood.tough_bark";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.torch_wood.soul_torch", PVZItems.IGNIS_ESSENCE, 8, 4, 50, 0),
-            new Skill("skill.pvz.torch_wood.tough_bark", PVZItems.TERRA_ESSENCE, 8, 4, 50, 0)
+            new Skill(SOUL_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 4, 50, 0),
+            new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 4, 50, 0)
     );
 
     public TorchWood(EntityType<? extends Mob> entityType, Level level) {
@@ -38,7 +40,7 @@ public class TorchWood extends SimplePlant {
     }
 
     public boolean isSoulFire() {
-        return hasSkill("skill.pvz.torch_wood.soul_torch") && level.getBlockState(getOnPos()).is(BlockTags.SOUL_SPEED_BLOCKS);
+        return hasSkill(SOUL_SKILL_NAME) && level.getBlockState(getOnPos()).is(BlockTags.SOUL_SPEED_BLOCKS);
     }
     public boolean canBurn() {
         return ! this.isInWater() && ! this.isInPowderSnow;
@@ -73,7 +75,7 @@ public class TorchWood extends SimplePlant {
                     getZ() - 0.5 + this.random.nextFloat(),
                     0, 0, 0);
         }
-        if (hasSkill(this, "skill.pvz.torch_wood.tough_bark")) {
+        if (hasSkill(this, ARMOR_SKILL_NAME)) {
             this.getAttribute(Attributes.ARMOR).setBaseValue(30D);
             this.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(20D);
         }
@@ -135,7 +137,7 @@ public class TorchWood extends SimplePlant {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {
                         return;
                     } else if (pea.getPeaType() == PeaBullet.PeaType.Common) {
-                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 8 : 3F));
+                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 7F : 3F));
                     }
                     if (! pea.fireImmune()) {
                         pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :

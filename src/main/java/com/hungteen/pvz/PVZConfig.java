@@ -76,6 +76,7 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> dynamicSunRule;
         public static ForgeConfigSpec.ConfigValue<Boolean> showInvasionDetails;
         public static ForgeConfigSpec.ConfigValue<Boolean> dyeMarigold;
+        public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnInvasionsInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnFallenStarInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallyRegainSunInterval;
@@ -119,6 +120,10 @@ public class PVZConfig {
                             .translation("config.pvz.common.show_invasion_details")
                             .comment("if on, there will be particles and outputs showing how invasion searches positions mob can spawn."),
                     "showInvasionDetails", false);
+            naturallySpawnInvasionsInterval = add(builder
+                            .translation("config.pvz.common.naturally_spawn_invasions_interval")
+                            .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
+                    "naturallySpawnInvasionsInterval", 300, 0, 10000);
             naturallySpawnSunInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_sun_interval")
                             .comment("sun naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural sun spawn."),
@@ -185,7 +190,7 @@ public class PVZConfig {
             renderCoolDownValue = builder
                     .translation("config.pvz.client.render_cool_down_value")
                     .comment("turn on to display the exact time value of cool down of your items in the hot bar.")
-                    .define("renderCoolDownValue", false);
+                    .define("renderCoolDownValue", true);
             renderSeparateArmorBar = builder
                     .translation("config.pvz.client.render_separate_armor_bar")
                     .comment("turn on to display armor amount on health bar, or else display as a single bar and hide valina armor display.")

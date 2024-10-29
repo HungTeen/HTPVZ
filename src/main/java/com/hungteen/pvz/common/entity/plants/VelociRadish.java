@@ -1,13 +1,9 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
-import com.hungteen.pvz.api.interfaces.ICanGroupUp;
-import com.hungteen.pvz.api.interfaces.IHaveSkills;
-import com.hungteen.pvz.api.interfaces.IPlant;
+import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
@@ -24,6 +20,9 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -32,6 +31,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -39,6 +39,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BushBlock;
@@ -54,6 +55,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+import static com.hungteen.pvz.common.entity.SimplePlant.isBeingShoveled;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
 public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, INeedSafeSituation, IHaveSkills {
@@ -61,9 +63,13 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     private static final UUID HEALTH_MODIFIER_UUID = UUID.fromString("45e5f868-f733-423f-81b0-b3df87d3f266");
     private int animationTick = 0;
     private boolean animationChangeable = false;
+
+    public static final String STRONG_SKILL_NAME = "skill.pvz.veloci_radish.veloci_nip";
+    public static final String GROUP_SKILL_NAME = "skill.pvz.veloci_radish.clever_girls";
+
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.veloci_radish.veloci_nip", PVZItems.ORIGIN_ESSENCE, 8, 4, 25, 440).avoidSkills(1),
-            new Skill("skill.pvz.veloci_radish.clever_girls", PVZItems.LUX_ESSENCE, 8, 4, 100, 440).avoidSkills(0)
+            new Skill(STRONG_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 4, 25, 440),
+            new Skill(GROUP_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 4, 100, 440).avoidSkills(STRONG_SKILL_NAME)
     );
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
@@ -114,15 +120,27 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Root", getEntityData().get(ROOT));
-        tag.putInt("Skill", getSkillVal(this));
+        ListTag skills = new ListTag();
+        for (String name : getSkillNames()) {
+            skills.add(StringTag.valueOf(name));
+        }
+        tag.put("Skill", skills);
         tag.putInt("TickCount", tickCount);
 
+    }
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        if (isBeingShoveled(player, handIn, this)) {
+            return InteractionResult.CONSUME;
+        } else {
+            return super.mobInteract(player, handIn);
+        }
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
         if (tag.contains("Skill")) {
-            setSkillVal(this, tag.getInt("Skill"));
+            setSkillVal(this, getSkillValFromNames(tag.getList("Skill", Tag.TAG_STRING).stream().map(Tag::getAsString).toList()));
         }
         if (tag.contains("Root")) {
             this.getEntityData().set(ROOT, tag.getBoolean("Root"));
@@ -271,7 +289,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     @Override
     public void tick() {
         // skill
-        if (hasSkill(this, "skill.pvz.veloci_radish.veloci_nip")) {
+        if (hasSkill(this, STRONG_SKILL_NAME)) {
             if (!level.isClientSide) {
                 setGlowingTag(tickCount < 200 && (tickCount <= 100 || tickCount % 10 < 5));
                 if (! skillBoosted) {
@@ -280,12 +298,12 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                     this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 14, AttributeModifier.Operation.ADDITION));
                     this.heal(20);
                 } else if (tickCount > 200) {
-                    this.removeSkill(this, getSkillFromName("skill.pvz.veloci_radish.veloci_nip"));
+                    this.removeSkill(this, getSkillFromName(STRONG_SKILL_NAME));
                     this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(ATTACK_MODIFIER_UUID);
                     this.getAttribute(Attributes.MAX_HEALTH).removeModifier(HEALTH_MODIFIER_UUID);
                 }
             }
-        } else if (hasSkill(this, "skill.pvz.veloci_radish.clever_girls")) {
+        } else if (hasSkill(this, GROUP_SKILL_NAME)) {
             if (!level.isClientSide) {
                 for (int i = 0; i < 3; i ++) {
                     VelociRadish turnip = PVZEntities.VELOCI_RADISH.get().create(level);
@@ -299,7 +317,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                     cap.setOwner(thisCap.getOwner());
                     turnip.startFollowing(this);
                 }
-                this.removeSkill(this, getSkillFromName("skill.pvz.veloci_radish.clever_girls"));
+                this.removeSkill(this, getSkillFromName(GROUP_SKILL_NAME));
                 this.setDeltaMovement(this.getDeltaMovement().add(0.1, 0 ,0));
             }
         }
@@ -345,11 +363,6 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public boolean canBeLeashed(Player p_21418_) {
         return true;
     }
-    @Override
-    public boolean removeWhenFarAway(double p_27598_) {
-        PVZEntityCapability cap = this.getCapability(PVZEntityCapability.CAP).orElse(null);
-        return cap == null || ! cap.hasOwner();
-    }
 
     //ICanGroupUp
     ICanGroupUp leader = null;
@@ -391,6 +404,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 this.mob.getEntityData().set(POSE, 2);
             }
             if (((VelociRadish) this.mob).animationTick == 5 && this.mob.getEntityData().get(POSE) == 2) {
+                //TODO remake the relationship of attack and animation
                 this.mob.swing(InteractionHand.MAIN_HAND);
                 this.mob.doHurtTarget(entity);
             }

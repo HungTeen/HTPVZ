@@ -1,6 +1,7 @@
 package com.hungteen.pvz.api;
 
 import com.hungteen.pvz.api.events.ZombieEventEvent;
+import com.hungteen.pvz.common.network.ZombieEventPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -48,13 +49,17 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
      * <br><b>⚠ATTENTION⚠</b> Any children of ZombieEvent should contain a constructor of this type.*/
     public ZombieEvent(Level level, UUID uuid, CompoundTag tag) {
         this(level, uuid);
-        this.deserializeNBT(tag);
-        MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Load));
+        ZombieEventEvent event = new ZombieEventEvent(this, ZombieEventEvent.Phase.Load);
+        event.tag = tag;
+        MinecraftForge.EVENT_BUS.post(event);
     }
 
     public void remove() {
         MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Remove));
         this.removed = true;
+        if (! this.level.isClientSide) {
+            ZombieEventPacket.removalToClient(this);
+        }
     }
 
     public void tick(TickEvent.ServerTickEvent ev) {
@@ -100,6 +105,7 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
+        tag.putBoolean("removal", false);//Do not rewrite this.
         tag.putString("event_type", PVZAPI.get().getZombieEventType(this).toString());
         if (target != null) {
             tag.putUUID("target", this.target.getUUID());

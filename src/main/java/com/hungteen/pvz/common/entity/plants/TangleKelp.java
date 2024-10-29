@@ -33,10 +33,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -58,9 +55,11 @@ import java.util.Optional;
 
 public class TangleKelp extends SimplePlant implements Bucketable {
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(TangleKelp.class, EntityDataSerializers.BOOLEAN);
+    public static String TORPEDO_SKILL_NAME = "skill.pvz.tangle_kelp.torpedo_kelp";
+    public static String OXYGEN_SKILL_NAME = "skill.pvz.tangle_kelp.oxygen_algae";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.tangle_kelp.torpedo_kelp", PVZItems.AQUA_ESSENCE, 8, 4, 50, 0),
-            new Skill("skill.pvz.tangle_kelp.oxygen_algae", PVZItems.VENTUS_ESSENCE, 8, 8, 175, 700).avoidSkills(0)
+            new Skill(TORPEDO_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 4, 50, 0),
+            new Skill(OXYGEN_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 125, 0).avoidSkills(TORPEDO_SKILL_NAME)
     );
 
     public TangleKelp(EntityType<? extends Mob> entityType, Level level) {
@@ -72,10 +71,9 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 4D)
                 .add(Attributes.MOVEMENT_SPEED, 0.1D)
-                .add(Attributes.ATTACK_DAMAGE, 3.0D);
+                .add(Attributes.ATTACK_DAMAGE, 1D);
     }
     @Override
     protected void defineSynchedData() {
@@ -117,7 +115,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
                             random.nextFloat() * 0.3 - 0.15);
                 }
             }
-            if (this.hasSkill("skill.pvz.tangle_kelp.oxygen_algae")) {
+            if (this.hasSkill(OXYGEN_SKILL_NAME)) {
                 level.addParticle(ParticleTypes.BUBBLE,//TODO change that.
                         getX() - random.nextFloat() * 4 + 2, getY() + 0.5 - random.nextFloat() * 2, getZ() - random.nextFloat() * 4 + 2,
                         random.nextFloat() * 0.25 - 0.12,
@@ -145,6 +143,10 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         this.handleAirSupply(i);
     }
 
+    @Override
+    public MobType getMobType() {
+        return MobType.WATER;
+    }
     public boolean isPushedByFluid() {
         return true;
     }
@@ -245,8 +247,8 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     }
 
     @Override
-    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        return TangleKelp.bucketMobPickup(player, hand, this).orElse(super.mobInteract(player, hand));
+    protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        return TangleKelp.bucketMobPickup(player, handIn, this).orElse(super.mobInteract(player, handIn));
     }
 
     private static <T extends TangleKelp & Bucketable> Optional<InteractionResult> bucketMobPickup(Player player, InteractionHand hand, T tangleKelp) {
@@ -314,14 +316,14 @@ public class TangleKelp extends SimplePlant implements Bucketable {
 
         @Override
         public void tick() {
-            if (tangleKelp.tickCount % 50 < 2 && tangleKelp.hasSkill("skill.pvz.tangle_kelp.oxygen_algae")) {
+            if (tangleKelp.tickCount % 50 < 2 && tangleKelp.hasSkill(OXYGEN_SKILL_NAME)) {
                 List<LivingEntity> list = tangleKelp.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
                         new AABB(tangleKelp.getX() - 6, tangleKelp.getY() - 6, tangleKelp.getZ() - 6,
                                 tangleKelp.getX() + 6, tangleKelp.getY(), tangleKelp.getZ() + 6),
                         (player) -> EntityUtil.isTeammate(player, tangleKelp));
                 list.forEach((player -> player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 100), this.tangleKelp)));
             }
-            if (tangleKelp.hasSkill("skill.pvz.tangle_kelp.torpedo_kelp") && EntityUtil.isEntityValid(tangleKelp.getTarget())) {
+            if (tangleKelp.hasSkill(TORPEDO_SKILL_NAME) && EntityUtil.isEntityValid(tangleKelp.getTarget())) {
                 tangleKelp.lookAt(tangleKelp.getTarget(), 10, 10);
                 tangleKelp.setDeltaMovement(tangleKelp.getDeltaMovement().multiply(0, 1, 0)
                         .add(tangleKelp.getTarget().position().subtract(tangleKelp.position()).multiply(1, 0, 1).normalize()
@@ -336,16 +338,11 @@ public class TangleKelp extends SimplePlant implements Bucketable {
                     if (! entities.isEmpty()) {
                         entities.get(0).startRiding(this.tangleKelp);
                     }
-                } else if (tangleKelp.tickCount % 20 < 2) {
+                } else if (tangleKelp.tickCount % 40 < 2) {
                     Entity target = tangleKelp.getFirstPassenger();
                     target.hurt(PVZDamageSource.TANGLE_KELP, (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE));
-                    tangleKelp.hurt(PVZDamageSource.TANGLE_KELP, 1);
-                    if (! target.isAlive()) {
-                        this.tangleKelp.discard();
-                    }
+                    tangleKelp.hurt(PVZDamageSource.TANGLE_KELP, 0.5f);
                 }
-            } else {
-
             }
         }
     }

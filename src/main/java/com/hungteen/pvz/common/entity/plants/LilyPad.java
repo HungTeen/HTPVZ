@@ -44,9 +44,11 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     double xCurrentSpeed = 0;//can not understand how vanilla methods work...
     double zCurrentSpeed = 0;
     Vec3 storedPosition = Vec3.ZERO;
+    public static String BOAT_SKILL_NAME = "skill.pvz.lily_pad.lily_boat";
+    public static String FREE_SKILL_NAME = "skill.pvz.lily_pad.friendship_of_lily_pad";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.lily_pad.lily_boat", PVZItems.AQUA_ESSENCE, 6, 4, 0, 0),
-            new Skill("skill.pvz.lily_pad.friendship_of_lily_pad", PVZItems.LUX_ESSENCE, 6, 12, -25, 0).avoidSkills(0)
+            new Skill(BOAT_SKILL_NAME, PVZItems.AQUA_ESSENCE, 6, 4, 0, 0),
+            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 6, 12, -25, 0).avoidSkills(BOAT_SKILL_NAME)
             //new Skill("skill.pvz.lily_pad.lava_swimmer", PVZItems.IGNIS_ESSENCE, 9, 4, 75, 0).avoidSkills(0)
     );
 
@@ -75,6 +77,10 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     @Override
     public List<Skill> getStaticSkillList(){
         return staticSkillList;
+    }
+    @Override
+    public MobType getMobType() {
+        return MobType.WATER;
     }
 
     //overrides
@@ -175,8 +181,8 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     }
 
     @Override
-    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (! level.isClientSide() && hasSkill(this, "skill.pvz.lily_pad.lily_boat")) {
+    protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        if (! level.isClientSide() && hasSkill(this, BOAT_SKILL_NAME)) {
             if (EntityUtil.isTeammate(this, player) && getPassengers().isEmpty()
                     && player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()
                     && ! (player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShovelItem)) {
@@ -185,7 +191,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }
-        return super.mobInteract(player, hand);
+        return super.mobInteract(player, handIn);
     }
 
     @Override

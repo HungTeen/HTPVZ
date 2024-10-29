@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.api.events.RegisterSproutsEvent;
+import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.block.GardenFlowerPotBlock;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.creatures.Sprout;
@@ -108,6 +108,11 @@ public class SproutItem extends Item {
         itemStack.getOrCreateTag().put("transform_chances", fromChanceMapToTag(transformChance));
         return itemStack;
     }
+    public static ItemStack getTaggedItem(ItemStack itemStack, String name, Map<String, Integer> transformChance) {
+        itemStack.getOrCreateTag().putString("sprout_type", name);
+        itemStack.getOrCreateTag().put("transform_chances", fromChanceMapToTag(transformChance));
+        return itemStack;
+    }
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn){
@@ -119,10 +124,8 @@ public class SproutItem extends Item {
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
         if (! this.isMarigold) {
             if (this.allowedIn(tab)) {
-                RegisterSproutsEvent event = new RegisterSproutsEvent();
-                MinecraftForge.EVENT_BUS.post(event);
-                for (String name : event.sproutsMap.keySet()) {
-                    Map<String, Integer> transformChance = event.sproutsMap.get(name);
+                for (String name : RegisterSproutsEvent.sproutsMap.keySet()) {
+                    Map<String, Integer> transformChance = RegisterSproutsEvent.sproutsMap.get(name);
                     for (String i : transformChance.keySet()) {
                         if (! ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(i)) ||
                                 ! ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(i)).canSummon()) {

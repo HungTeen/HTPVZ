@@ -7,7 +7,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
-/**In order to put the event into api packet, the rapid ways are moved to {@link com.hungteen.pvz.util.Util Util.java} .
+/**In order to put the event into api packet, the rapid ways are moved to {@link com.hungteen.pvz.util.Util Util} .
  * <br>If you are writing a mod relying on this one, check Util.java above.*/
 public class PVZResourceEvent extends PlayerEvent {
     public int cost;
@@ -38,7 +38,7 @@ public class PVZResourceEvent extends PlayerEvent {
     /**
      * fired whenever a plant is planted by a {@link com.hungteen.pvz.common.item.SeedPacketItem#useOn(UseOnContext) SeedPacketItem#useOn(context)}.
      * <br>this event is cancelable. If cancel this event, the plant won't br planted.
-     * <br>if you want to change the resource cost, also subscribe {@link CheckResourceEvent}.
+     * <br>if you want to change the resource cost, subscribe {@link CheckResourceEvent}.
      * <br>fired only on the server.
      * <br><br> {@link com.hungteen.pvz.util.Util#checkPlantConditionEvent(Player, ItemStack, Entity) <b>rapid method</b>} here.
      */
@@ -48,9 +48,6 @@ public class PVZResourceEvent extends PlayerEvent {
 
         public CheckPlantConditionEvent(Player player, ItemStack plantCard, Entity spawningEntity, String resource, int cost, int coolDown) {
             super(player, plantCard, resource, cost, coolDown);
-            this.cost = cost;
-            this.resource = resource;
-            this.coolDown = coolDown;
             this.spawningEntity = spawningEntity;
         }
     }

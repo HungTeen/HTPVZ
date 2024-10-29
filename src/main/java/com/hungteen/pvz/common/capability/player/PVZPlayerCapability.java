@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
+import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
@@ -65,12 +66,13 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     public static void tick(TickEvent.ServerTickEvent ev) {
-        //timed sync
         for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
+            //timed sync
             if (++ syncCount > 20) {
                 getPlayerData(player).ifPresent(PVZPlayerCapNBT::syncAll);
                 syncCount = 0;
             }
+            //functional
             getPlayerData(player).ifPresent((nbt) -> {
                 if (! player.isSpectator()) {
                     //sun related mob effects.
@@ -230,6 +232,16 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 if (nbt.getValue("auto_set_cost_and_cd") == 1) {
                     nbt.setValue("plant_have_cost", player.isCreative() ? 0 : 1);
                     nbt.setValue("plant_have_cd", player.isCreative() ? 0 : 1);
+                }
+                //invasion spawn
+                int interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnInvasionsInterval);
+                if (player.tickCount % 50 == 0 && interval > 0) {
+                    int lastInvasion = nbt.getValue("last_invasion");
+                    if (lastInvasion > interval && player.getRandom().nextInt(lastInvasion) > (lastInvasion * 0.9F + (float) interval / 10)) {
+                        nbt.setValue("last_invasion", interval / 2);
+                        InvasionTeam.spawnFor(player);
+                    }
+                    nbt.addValue("last_invasion", 1);
                 }
             });
         }

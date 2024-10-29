@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.SimplePlant;
@@ -37,9 +38,11 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState openAnimationState = new AnimationState();
     protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(UmbrellaLeaf.class, EntityDataSerializers.BOOLEAN);
+    public static final String FREE_SKILL_NAME = "skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf";
+    public static final String BOUNCE_SKILL_NAME = "skill.pvz.umbrella_leaf.bounce_bounds_bonus";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf", PVZItems.LUX_ESSENCE, 8, 3, -75, -50),
-            new Skill("skill.pvz.umbrella_leaf.bounce_bounds_bonus", PVZItems.VENTUS_ESSENCE, 8, 6, 50, 0)
+            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 3, -75, -50),
+            new Skill(BOUNCE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 6, 50, 0)
     );
 
     public UmbrellaLeaf(EntityType<? extends Mob> entityType, Level level) {
@@ -69,27 +72,30 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         if (blockedCheck.getType() != HitResult.Type.MISS) {
             return false;
         }
-        return ! isClient ? (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this)
-                || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this))) :
-                entity instanceof Player player && ClientProxy.getPlayer() == player;
+        if (! isClient && entity instanceof Player) {
+            return false;
+        }
+        return (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this)
+                || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this)));
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf")) {
+        if (hasSkill(FREE_SKILL_NAME)) {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1D);
         }
         if (level.isClientSide) {
-            int width = hasSkill("skill.pvz.umbrella_leaf.bounce_bounds_bonus") ? 4 : 2;
+            int width = hasSkill(BOUNCE_SKILL_NAME) ? 4 : 2;
             List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(width, 1.5, width).move(0, 0.5, 0),
                     (entity) -> canBounce(entity, true));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
-                    entity1.setDeltaMovement(Math.min(0.5 * (entity1.getX() - this.getX()), 1),
-                            Math.min(Math.abs(vec.y), 1),
-                            0.5 * Math.min((entity1.getZ() - this.getZ()), 1));
+                    entity1.setDeltaMovement(Math.max(-0.8, Math.min(0.8 / (entity1.getX() - this.getX()), 0.8)),
+                            Math.max(Math.abs(vec.y) * 0.8, 0.35),
+                            Math.max(-0.8, Math.min(0.8 / (entity1.getZ() - this.getZ()), 0.8)));
+                    PVZMod.LOGGER.info(entity1.getX() - this.getX() + " " + Math.min(0.5 / (entity1.getX() - this.getX()), 0.5));
                     entity1.fallDistance = 0;
                 }));
                 sendPVZPacketToServer();
@@ -150,7 +156,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                 entity.setAttackTime(19);
             }
             entity.getEntityData().set(POSE, entity.getAttackTime() > 20);
-            if (entity.getAttackTime() == 22 && entity.hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf")) {
+            if (entity.getAttackTime() == 22 && entity.hasSkill(FREE_SKILL_NAME)) {
                 entity.discard();
             }
             return entity.getAttackTime() <= 20;
@@ -161,16 +167,16 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            int width = entity.hasSkill("skill.pvz.umbrella_leaf.bounce_bounds_bonus") ? 4 : 2;
+            int width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 4 : 2;
             List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(width, 1.5, width).move(0, 0.5, 0),
                     (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
                     entity.setDeltaMovement(0, 0.25, 0);
-                    entity1.setDeltaMovement(Math.min(0.5 * (entity1.getX() - entity.getX()), 1),
-                            Math.min(Math.abs(vec.y), 1),
-                            Math.min(0.5 * (entity1.getZ() - entity.getZ()), 1));
+                    entity1.setDeltaMovement(Math.max(-0.8, Math.min(0.8 / (entity1.getX() - entity.getX()), 0.8)),
+                            Math.max(Math.abs(vec.y) * 0.8, 0.35),
+                            Math.max(-0.8, Math.min(0.8 / (entity1.getZ() - entity.getZ()), 0.8)));
                     entity1.fallDistance = 0;
                     if (entity1 instanceof LivingEntity) {
                         ((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 5, 0, false, false));

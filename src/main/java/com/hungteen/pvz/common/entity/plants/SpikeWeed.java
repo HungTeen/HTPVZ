@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -41,9 +42,11 @@ import java.util.Set;
 
 public class SpikeWeed extends SimplePlant {
     protected static final EntityDataAccessor<Direction> ATTACH_FACE = SynchedEntityData.defineId(SpikeWeed.class, EntityDataSerializers.DIRECTION);
+    public static final String ON_WALL_SKILL_NAME = "skill.pvz.spike_weed.viscous_pseudoroots";
+    public static final String POISONOUS_SKILL_NAME = "skill.pvz.spike_weed.poison_attenna";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.spike_weed.viscous_pseudoroots", PVZItems.TERRA_ESSENCE, 6, 4, 0, 0),
-            new Skill("skill.pvz.spike_weed.poison_attenna", PVZItems.ORIGIN_ESSENCE, 6, 4, 100, 0)
+            new Skill(ON_WALL_SKILL_NAME, PVZItems.TERRA_ESSENCE, 6, 4, 0, 0),
+            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 4, 100, 0)
     );
 
     public SpikeWeed(EntityType<? extends Mob> entityType, Level level) {
@@ -163,7 +166,7 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
-        if (isPlanting && hasSkill("skill.pvz.spike_weed.viscous_pseudoroots")) {
+        if (isPlanting && hasSkill(ON_WALL_SKILL_NAME)) {
             setAttachFace(direction);
         }
         return super.plantPositionSafe(event, level, pos, direction, isPlanting);
@@ -196,8 +199,8 @@ public class SpikeWeed extends SimplePlant {
                     (entity1) -> EntityUtil.checkCanEntityBeAttack(entity, entity1));
             list.forEach((entity1 -> {
                 entity1.hurt(PVZDamageSource.SPIKE_WEED, (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
-                if (entity1 instanceof LivingEntity && entity.hasSkill("skill.pvz.spike_weed.poison_attenna")) {
-                    ((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 10));
+                if (entity1 instanceof LivingEntity && entity.hasSkill(POISONOUS_SKILL_NAME)) {
+                    ((LivingEntity) entity1).addEffect(new MobEffectInstance(PVZMobEffects.PHYTOTOXIN.get(), 60));
                 }
             }));
         }

@@ -1,6 +1,7 @@
 package com.hungteen.pvz.util;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.interfaces.IAdvancedPlant;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.api.events.PVZResourceEvent;

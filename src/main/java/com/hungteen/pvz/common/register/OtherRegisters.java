@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.entity.bullet.ButterBullet;
 import com.hungteen.pvz.common.entity.bullet.MelonBullet;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
+import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.menu.EssenceFurnaceRecipe;
 import com.hungteen.pvz.common.world.invasion.LootWithinInvasionCondition;
 import com.hungteen.pvz.common.world.zen_garden.GlowBerryDecorator;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraftforge.client.event.RegisterRecipeBookCategoriesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -80,11 +82,15 @@ public class OtherRegisters {
     public static final DeferredRegister<LootItemConditionType> LOOT_CONDITIONS = DeferredRegister.create(Registry.LOOT_ITEM_REGISTRY, PVZMod.MODID);
     public static final RegistryObject<LootItemConditionType> WITHIN_INVASION = LOOT_CONDITIONS.register("within_invasion", () -> new LootItemConditionType(new LootWithinInvasionCondition.Serializer()));
 
+    //Loot Table Function
+    public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTIONS = DeferredRegister.create(Registry.LOOT_FUNCTION_REGISTRY, PVZMod.MODID);
+    public static final RegistryObject<LootItemFunctionType> SET_SPROUT = LOOT_FUNCTIONS.register("set_sprout", () -> new LootItemFunctionType(new RegisterSproutsEvent.SetSproutTypeFunction.Serializer()));
     public static void modBusRegister(IEventBus bus){
         TREE_DECORATORS.register(bus);
         RECIPE_SERIALIZER.register(bus);
         RECIPE_TYPE.register(bus);
         LOOT_CONDITIONS.register(bus);
+        LOOT_FUNCTIONS.register(bus);
     }
 
 

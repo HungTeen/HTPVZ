@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Random;
 
 public class AddItemModifier extends LootModifier {
-    private static Random random = new Random();
     public static final Codec<AddItemModifier> CODEC = RecordCodecBuilder.create(instance -> codecStart(instance)
             .and(Codec.list(ItemStack.CODEC).fieldOf("items").forGetter(modifier -> modifier.itemStack))
             .apply(instance, AddItemModifier::new));

@@ -38,7 +38,7 @@ public interface IPlant extends INeedSafeSituation{
     /**Contorlling if this plant can occupy space so other plants can't plant on.*/
     boolean takesCoincideDmg();
 
-    /**Called in {@link com.hungteen.pvz.common.entity.SimplePlant#handleShovel(PlayerInteractEvent.EntityInteract) SimplePlant#handleShovel(EntityInteract)} .<br>
+    /**Called in {@link com.hungteen.pvz.common.entity.SimplePlant#mobInteract(Player, InteractionHand)}  SimplePlant#handleShovel(EntityInteract)} .<br>
      Is effective for all IPlant.<br>
      For plants not extending SimplePlant, can use {@link com.hungteen.pvz.common.entity.SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity) SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity)}.*/
     boolean onBeingShoveled(Player player, InteractionHand handIn);

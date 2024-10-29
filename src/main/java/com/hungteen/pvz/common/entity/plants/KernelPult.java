@@ -34,32 +34,31 @@ public class KernelPult extends ShooterPlant {
     private static final int BUTTER_CHANCE = 3;
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
 
+    public static final String BUTTER_SKILL_NAME = "skill.pvz.kernel_pult.butter_pult";
+    public static final String TRAP_SKILL_NAME = "skill.pvz.kernel_pult.butter_trap";
+
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.kernel_pult.butter_pult", PVZItems.ORIGIN_ESSENCE, 8, 8, 200, 300),
-            new Skill("skill.pvz.kernel_pult.butter_trap", PVZItems.AQUA_ESSENCE, 8, 8, 25, 0).avoidSkills(0)
+            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 200, 300),
+            new Skill(TRAP_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 8, 25, 0).avoidSkills(BUTTER_SKILL_NAME)
     );
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
     }
 
-    public InteractionResult mobInteract(Player player, InteractionHand p_28299_) {
-        ItemStack itemstack = player.getItemInHand(p_28299_);
+    public InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        ItemStack itemstack = player.getItemInHand(handIn);
         if (itemstack.is(Items.GLASS_BOTTLE) && this.getCurrentBullet() == CornTypes.BUTTER) {
 //            player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F); TODO add sound.
             if (! this.level.isClientSide) {
-                itemstack.shrink(1);
                 ItemStack itemstack1 = PotionUtils.setPotion(Items.POTION.getDefaultInstance(), PVZMobEffects.potionMap.get("butter").get());
-                ItemEntity entity = player.drop(itemstack1, false);
-                if (entity != null) {
-                    entity.setPickUpDelay(0);
-                    entity.playerTouch(player);
-                }
+                ItemStack itemstack2 = ItemUtils.createFilledResult(itemstack, player, itemstack1, false);
+                player.setItemInHand(handIn, itemstack2);
                 this.setCurrentBullet(CornTypes.KERNEL);
             }
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
-            return super.mobInteract(player, p_28299_);
+            return super.mobInteract(player, handIn);
         }
     }
     @Override
@@ -86,7 +85,7 @@ public class KernelPult extends ShooterPlant {
     protected BaseBullet createBullet() {
         if(this.getCurrentBullet() == CornTypes.BUTTER) {
             ButterBullet bullet = new ButterBullet(level, this);
-            if (this.hasSkill("skill.pvz.kernel_pult.butter_trap")) {
+            if (this.hasSkill(TRAP_SKILL_NAME)) {
                 bullet.setButterSkill(ButterBullet.ButterSkill.POTION);
             }
             return bullet;
@@ -100,7 +99,7 @@ public class KernelPult extends ShooterPlant {
     }
     @Override
     public int getShootCD() {
-        return this.hasSkill("skill.pvz.kernel_pult.butter_pult") ? 60 : 40;
+        return this.hasSkill(BUTTER_SKILL_NAME) ? 60 : 40;
     }
     @Override
     public int shootAnimLength() {
@@ -117,7 +116,7 @@ public class KernelPult extends ShooterPlant {
     }
 
     protected void changeBullet() {
-        if (hasSkill("skill.pvz.kernel_pult.butter_pult")) {
+        if (hasSkill(BUTTER_SKILL_NAME)) {
             setCurrentBullet(CornTypes.BUTTER);
             return;
         }

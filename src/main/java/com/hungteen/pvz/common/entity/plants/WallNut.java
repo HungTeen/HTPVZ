@@ -47,11 +47,16 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Float> IRON_ARMOR = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Boolean> IS_BOWLING = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.BOOLEAN);
+    public static String FIRST_AID_SKILL_NAME = "skill.pvz.wall_nut.wall_nut_first_aid";
+    public static String EXPLODE_SKILL_NAME = "skill.pvz.wall_nut.explode";
+    public static String ARMOR_SKILL_NAME = "skill.pvz.wall_nut.iron_armor";
+    public static String COLLISION_SKILL_NAME = "skill.pvz.wall_nut.elastic_collision";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.wall_nut.wall_nut_first_aid", PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
-            new Skill("skill.pvz.wall_nut.explode", PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
-            new Skill("skill.pvz.wall_nut.iron_armor", PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(1),
-            new Skill("skill.pvz.wall_nut.elastic_collision", PVZItems.TERRA_ESSENCE, 4, 4, 50, 0).avoidSkills(2)
+            new Skill(FIRST_AID_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
+            new Skill(EXPLODE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
+            new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(EXPLODE_SKILL_NAME),
+            new Skill(COLLISION_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 4, 50, 0)
+                    .avoidSkills(ARMOR_SKILL_NAME)
     );
 
     public WallNut(EntityType<? extends Mob> entityType, Level level) {
@@ -132,7 +137,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if (hasSkill(this, "skill.pvz.wall_nut.wall_nut_first_aid") && target != null && target.getClass() == this.getClass()) {
+        if (hasSkill(this, FIRST_AID_SKILL_NAME) && target != null && target.getClass() == this.getClass()) {
             if (EntityUtil.isTeammate(this, target)) {
                 if (((WallNut) target).getHealth() > ((WallNut) target).getMaxHealth() * 0.67) {
                     return Component.translatable("hint.pvz.plant.wall_nut.not_broken");
@@ -175,13 +180,13 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
         }
         storedArmor = getIronArmor();
 
-        if (this.hasSkill(this, "skill.pvz.wall_nut.explode") && this.getEntityData().get(EXPLODE_COUNT) > -1) {
+        if (this.hasSkill(this, EXPLODE_SKILL_NAME) && this.getEntityData().get(EXPLODE_COUNT) > -1) {
             this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) + 1);
             if (this.getEntityData().get(EXPLODE_COUNT) > 40) {
                 this.explode();
             }
         }
-        if (this.hasSkill(this, "skill.pvz.wall_nut.iron_armor") && getIronArmor() == 0) {
+        if (this.hasSkill(this, ARMOR_SKILL_NAME) && getIronArmor() == 0) {
             setIronArmor(getMaxIronArmor());
         }
     }
@@ -201,7 +206,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
     @Override
     public void actuallyHurt(DamageSource dmgSource, float dmg) {
         super.actuallyHurt(dmgSource, dmg);
-        if (this.hasSkill(this, "skill.pvz.wall_nut.explode") && this.getHealth() <= 0) {
+        if (this.hasSkill(this, EXPLODE_SKILL_NAME) && this.getHealth() <= 0) {
             this.setHealth(0.1F);
             this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) == -1 ? 0 : this.getEntityData().get(EXPLODE_COUNT));
         }
@@ -283,7 +288,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
             List<Entity> entities = wallNut.level.getEntities(wallNut, wallNut.getBoundingBox().inflate(0.5, 0.5, 0.5),
                     (target) -> EntityUtil.checkCanEntityBeAttack(wallNut, target));
             if (! entities.isEmpty() && damageCooldown <= 0) {
-                if (wallNut.hasSkill("skill.pvz.wall_nut.explode")) {
+                if (wallNut.hasSkill(EXPLODE_SKILL_NAME)) {
                     wallNut.explode();
                 } else {
                     entities.forEach((entity -> {
@@ -299,7 +304,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
                         deltaMovement.z * Math.sin(angle) + deltaMovement.x * Math.cos(angle));
             } else if (wallNut.horizontalCollision) {
                 wallNut.setDeltaMovement(wallNut.getDeltaMovement().add(
-                        wallNut.getDeltaMovement().subtract(storedDeltaMovement).scale(wallNut.hasSkill("skill.pvz.wall_nut.elastic_collision") ? 1 : 0.5F)));
+                        wallNut.getDeltaMovement().subtract(storedDeltaMovement).scale(wallNut.hasSkill(COLLISION_SKILL_NAME) ? 1 : 0.5F)));
                 wallNut.hurt(PVZDamageSource.wallNutCollide(this.wallNut), 10);
             }
             storedDeltaMovement = wallNut.getDeltaMovement();

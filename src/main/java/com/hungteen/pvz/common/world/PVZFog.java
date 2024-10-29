@@ -14,7 +14,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -33,7 +32,7 @@ public class PVZFog {
     private static Random random = new Random();
     private static float bufferStrength = 1;
 
-    public PVZFog(Level level, Vec3 position, int lifeTime, double strength, double range) {
+    private PVZFog(Level level, Vec3 position, int lifeTime, double strength, double range) {
         this(level.dimension().location(), position, lifeTime, strength, range, UUID.randomUUID());
     }
     private PVZFog(ResourceLocation dimension, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
@@ -85,7 +84,6 @@ public class PVZFog {
     public static void serverFogsTick() {
         for (PVZFog pvzFog : pvzFogs) {
             pvzFog.lifeLeft -= 0.025;
-            PVZMod.LOGGER.info("FOG TICK");
         }
     }
 

@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.portal.PortalForcer;
 import net.minecraft.world.level.portal.PortalInfo;
@@ -40,17 +41,17 @@ public class ZenGardenTeleporter extends PortalForcer {
             }
             if (vec3 == null) {
                 if (destWorld.dimension().location().equals(Util.prefix("zen_garden"))) {
-//                    HolderSet<Structure> holderSet = HolderSet.direct(PVZStructures.GARDEN_PORTAL.getHolder().get());
                     HolderSet<Structure> holderSet = (destWorld.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY)
                             .getHolder(PVZStructures.GARDEN_PORTAL.getKey())).map(HolderSet::direct).get();
                     Pair<BlockPos, Holder<Structure>> pair = destWorld.getChunkSource().getGenerator()
                             .findNearestMapStructure(destWorld, holderSet, new BlockPos(0, 85, 0), 100, false);
+                    int height = 84;//avoid players from teleporting directly onto sky islands
+                    //TODO better methods?
                     if (pair != null) {
-                        vec3 = Vec3.atLowerCornerOf(pair.getFirst());
+                        vec3 = new Vec3(pair.getFirst().getX() + 0.5, height, pair.getFirst().getZ() + 0.5);
                     } else {
-                        vec3 = new Vec3(0, 85, 0);
+                        vec3 = new Vec3(0, height, 0);
                     }
-                    //TODO change this.
                 } else {
                     BlockPos pos = player.getRespawnPosition();
                     if (pos == null) {
@@ -60,7 +61,7 @@ public class ZenGardenTeleporter extends PortalForcer {
                 }
             }
             return new PortalInfo(vec3, Vec3.ZERO, entity.getYRot(), entity.getXRot());
-        } else {
+        } else { //Naturally can't be non-player entities because the watering pot needs right-click to activate.
             return super.getPortalInfo(entity, destWorld, defaultPortalInfo);
         }
     }

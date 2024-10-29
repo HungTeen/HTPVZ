@@ -30,7 +30,7 @@ public class DirtLayer<T extends LivingEntity> extends RenderLayer<T, DirtModel<
             return;
         }
 
-        final ResourceLocation blockRes = ClientProxy.MC.getBlockRenderer().getBlockModelShaper().getTexture(entity.level.getBlockState(entity.blockPosition().below()), entity.level, entity.blockPosition().below()).getName();
+        final ResourceLocation blockRes = ClientProxy.MC.getBlockRenderer().getBlockModelShaper().getTexture(entity.level.getBlockState(entity.getOnPos()), entity.level, entity.getOnPos()).getName();
         final ResourceLocation textureRes = new ResourceLocation(blockRes.getNamespace(), "textures/" + blockRes.getPath() + ".png");
         VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(textureRes));
         this.model.setupAnim(entity, 0, 0, entity.tickCount + partialTicks, 0, 0);

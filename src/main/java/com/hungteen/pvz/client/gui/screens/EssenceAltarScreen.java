@@ -205,6 +205,10 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                         if (skill != null) {
                             list.add(Component.translatable("tooltip.pvz.not_compatible", Component.translatable(skill.name)).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
                         }
+                        skill = seedPacket.getStillRequire(menu.getItems().get(0), skills.get((mouseY - top) / 19 + shownFirstSkill));
+                        if (skill != null) {
+                            list.add(Component.translatable("tooltip.pvz.still_require", Component.translatable(skill.name)).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
+                        }
                     }
                 }
                 ClientProxy.MC.screen.renderTooltip(stack, list,

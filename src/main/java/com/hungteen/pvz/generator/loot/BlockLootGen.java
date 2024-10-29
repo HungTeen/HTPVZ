@@ -118,13 +118,7 @@ public class BlockLootGen extends BlockLoot {
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 3.0F)))
                                 .otherwise(LootItem.lootTableItem(seed)
                                         .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
-                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoubleCorpBlock.HALF, DoubleBlockHalf.LOWER))))))
-                .withPool(LootPool.lootPool()
-                        .when(condition)
-                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
-                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoubleCorpBlock.HALF, DoubleBlockHalf.LOWER)))
-                        .add(LootItem.lootTableItem(seed)
-                                .apply(ApplyBonusCount.addBonusBinomialDistributionCount(Enchantments.BLOCK_FORTUNE, 0.5714286F, 3)))));
+                                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoubleCorpBlock.HALF, DoubleBlockHalf.LOWER)))))));
         this.add(block, builder);
     }
 

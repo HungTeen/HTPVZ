@@ -37,6 +37,9 @@ public class PlayerCoolDownPacket {
 
     //method
     public static void clientCoolDown(ServerPlayer player) {
-            PVZPacketHandler.sendToClient(player, new PlayerCoolDownPacket());
+        PVZPacketHandler.sendToClient(player, new PlayerCoolDownPacket());
+    }
+    public static void clientCoolDown(ServerPlayer player, int coolDown) {
+        PVZPacketHandler.sendToClient(player, new PlayerCoolDownPacket(coolDown));
     }
 }

@@ -12,13 +12,15 @@ import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.world.invasion.Invasion;
+import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -32,6 +34,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
@@ -44,14 +47,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static net.minecraft.util.Mth.ceil;
+import static net.minecraft.util.Mth.*;
 
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID, value = Dist.CLIENT)
 @OnlyIn(Dist.CLIENT)
-public class PVZOverlayHandler{
-
+public class PVZOverlayHandler {
+    public static String invasionString = "";
     private static double bufferSunAmount = 0;
     private static int bufferSunBarLength = 0;
     private static final Random random = new Random();
@@ -226,6 +230,37 @@ public class PVZOverlayHandler{
         }
     }
 
+    private static void renderHypnosis(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+        if (getCameraPlayer() instanceof LocalPlayer player && player.hasEffect(PVZMobEffects.HYPNOTISED.get())) {
+            float time = Math.min(1, (float) player.getEffect(PVZMobEffects.HYPNOTISED.get()).getDuration() / 20);
+            double d0 = Mth.lerp(time, 2.0D, 1.0D);
+            double d1 = (double)width * d0;
+            double d2 = (double)height * d0;
+            double d3 = ((double)width - d1) / 2.0D;
+            double d4 = ((double)height - d2) / 2.0D;
+            RenderSystem.disableDepthTest();
+            RenderSystem.depthMask(false);
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+            RenderSystem.setShaderColor(0.6F * time, 0.2F * time, 0.2F * time, 1.0F);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderTexture(0, new ResourceLocation("textures/misc/nausea.png"));
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder bufferbuilder = tesselator.getBuilder();
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            bufferbuilder.vertex(d3, d4 + d2, -90.0D).uv(0.0F, 1.0F).endVertex();
+            bufferbuilder.vertex(d3 + d1, d4 + d2, -90.0D).uv(1.0F, 1.0F).endVertex();
+            bufferbuilder.vertex(d3 + d1, d4, -90.0D).uv(1.0F, 0.0F).endVertex();
+            bufferbuilder.vertex(d3, d4, -90.0D).uv(0.0F, 0.0F).endVertex();
+            tesselator.end();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.disableBlend();
+            RenderSystem.depthMask(true);
+            RenderSystem.enableDepthTest();
+        }
+    }
+
     private static void renderSunAsBar(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
         if (PVZConfig.renderSunAsNumber() && !gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements()) {
             stack.pushPose();
@@ -257,6 +292,9 @@ public class PVZOverlayHandler{
             mc.getProfiler().push("sun");
 
             Player player = getCameraPlayer();
+            if (! EntityUtil.isEntityValid(player)) {
+                return;
+            }
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
             RenderSystem.enableBlend();
 
@@ -413,7 +451,7 @@ public class PVZOverlayHandler{
             int y = height - 10;
             int w;
             for (int i = 0; i < 10; ++ i) {
-                x = i < 9 ? i * 20 + width / 2 - 80 : width / 2 - 110;
+                x = i < 9 ? i * 20 + width / 2 - 80 : width / 2 - 109;
                 Item item = i < 9 ? player.getInventory().getItem(i).getItem() : player.getOffhandItem().getItem();
                 if (player.getCooldowns().isOnCooldown(item)) {
                     String count = ((int) ((float) player.getCooldowns().cooldowns.get(item).endTime - player.getCooldowns().tickCount) / 2) + "";
@@ -438,7 +476,7 @@ public class PVZOverlayHandler{
             event.setIncrement(PVZConfig.renderPVZTypeInvasionBar() ? 0 : event.getIncrement() + 5);
             event.setCanceled(true);
             List<Object> list = Arrays.stream(tc.getArgs()).toList();
-            invasionBars.add(new ZombieEventBarInformation((UUID) list.get(list.size() - 1), event.getX(), event.getY(), event.getBossEvent()));
+            invasionBars.add(new ZombieEventBarInformation(UUID.fromString((String) list.get(list.size() - 1)), event.getX(), event.getY(), event.getBossEvent()));
         }
     }
 
@@ -501,7 +539,7 @@ public class PVZOverlayHandler{
     }
 
     private static Player getCameraPlayer() {
-        return !(ClientProxy.MC.getCameraEntity() instanceof Player) ? null : ClientProxy.getPlayer();
+        return ! (ClientProxy.MC.getCameraEntity() instanceof Player) ? null : ClientProxy.getPlayer();
     }
 
     public static void refreshMainHandItemStack(Player player) {
@@ -527,6 +565,7 @@ public class PVZOverlayHandler{
         ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "pvz_armor_on_health", PVZOverlayHandler::renderArmorOnHealthBar);
         ev.registerAbove(VanillaGuiOverlay.ARMOR_LEVEL.id(), "pvz_armor_bar", PVZOverlayHandler::renderArmorAsSingleBar);
         ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "butter", PVZOverlayHandler::renderButter);
+        ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "hypnosis", PVZOverlayHandler::renderHypnosis);
         ev.registerAbove(VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), "invasion", PVZOverlayHandler::renderInvasionBars);
     }
 

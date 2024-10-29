@@ -1,10 +1,8 @@
 package com.hungteen.pvz.client.renderer.plants;
 
-import com.hungteen.pvz.client.layer.fullskin.LightLayer;
-import com.hungteen.pvz.client.model.plants.SunFlowerModel;
+import com.hungteen.pvz.client.layer.LightLayer;
 import com.hungteen.pvz.client.model.plants.TangleKelpModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.common.entity.plants.SunFlower;
 import com.hungteen.pvz.common.entity.plants.TangleKelp;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;

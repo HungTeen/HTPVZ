@@ -37,6 +37,9 @@ public class ZombieEventPacket {
             if (event == null) {
                 cap.addEvent(PVZZombieEvents.fromTag(ClientProxy.getLevel(), uuid, eventTag));
             } else {
+                if (eventTag.contains("removal") && eventTag.getBoolean("removal")) {
+                    cap.getEvents().remove(event);
+                }
                 event.deserializeNBT(eventTag);
             }
         }));
@@ -47,5 +50,10 @@ public class ZombieEventPacket {
     //methods
     public static void toClient(ZombieEvent event) {
         PVZPacketHandler.sendToNearByClient(event.level, Vec3.atCenterOf(event.position), event.range, new ZombieEventPacket(event.uuid, event.serializeNBT()));
+    }
+    public static void removalToClient(ZombieEvent event) {
+        CompoundTag tag = new CompoundTag();
+        tag.putBoolean("removal", true);
+        PVZPacketHandler.sendToPlayers(new ZombieEventPacket(event.uuid, tag));
     }
 }

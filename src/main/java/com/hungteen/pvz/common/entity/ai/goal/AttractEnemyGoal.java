@@ -45,7 +45,7 @@ public class AttractEnemyGoal extends Goal {
     }
 
     public float getBasicAttractingStrength(Entity attacker, Entity target) {
-        return target instanceof IAttractsEnemy entity ? entity.getAttractStrength(attacker) : (target instanceof Player ? 5 : 10);
+        return target instanceof IAttractsEnemy entity ? entity.getAttractStrength(attacker) : (target instanceof Player ? 10 : 5);
     }
 
     public float getAttractingStrength(Entity attacker, Entity target) {
@@ -63,7 +63,7 @@ public class AttractEnemyGoal extends Goal {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
                 if (! EntityUtil.isEntityValid(targetOfTarget) ||
-                        (getBasicAttractingStrength(targetEntity, targetOfTarget) < getBasicAttractingStrength(targetEntity, entity)) &&
+                        (getAttractingStrength(targetEntity, targetOfTarget) < getAttractingStrength(targetEntity, entity)) &&
                                 ((! PVZConfig.PVZGameRules.getBoolean(entity.level, PVZConfig.Common.teamBattle)) || (EntityUtil.isTeammate(entity, targetOfTarget)))) {
                     if (((Mob) targetEntity).targetSelector.getAvailableGoals().stream().anyMatch((goal) -> goal.getGoal() instanceof TargetGoal)) {
                         ((Mob) targetEntity).setTarget(entity);

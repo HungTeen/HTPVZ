@@ -164,6 +164,9 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
             if (seedPacket.getNotCompatibleWith(item, seedPacket.getStaticSkillList().get(skillID)) != null) {
                 return false;
             }
+            if (seedPacket.getStillRequire(item, seedPacket.getStaticSkillList().get(skillID)) != null) {
+                return false;
+            }
             if (seedPacket.hasSkill(item, skillID)) {
                 return false;
             }

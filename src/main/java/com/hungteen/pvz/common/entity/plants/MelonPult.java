@@ -18,9 +18,11 @@ import java.util.Set;
 public class MelonPult extends ShooterPlant {
 
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
+    public static final String POTION_SKILL_NAME = "skill.pvz.melon_pult.glistering_melon";
+    public static final String GRAVITY_SKILL_NAME = "skill.pvz.melon_pult.gravitational_potential";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.melon_pult.glistering_melon", PVZItems.AQUA_ESSENCE, 8, 4, 100, 0),
-            new Skill("skill.pvz.melon_pult.gravitational_potential", PVZItems.TERRA_ESSENCE, 8, 8, 50, 0).avoidSkills(0)
+            new Skill(POTION_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 4, 100, 0),
+            new Skill(GRAVITY_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 8, 50, 0).avoidSkills(POTION_SKILL_NAME)
     );
 
     public MelonPult(EntityType<? extends Mob> type, Level worldIn) {
@@ -43,9 +45,9 @@ public class MelonPult extends ShooterPlant {
     @Override
     protected MelonBullet createBullet() {
         MelonBullet bullet = new MelonBullet(this.level, this, MelonBullet.MelonType.Common);
-        if (this.hasSkill("skill.pvz.melon_pult.glistering_melon")) {
+        if (this.hasSkill(POTION_SKILL_NAME)) {
             bullet.setMelonSkill(MelonBullet.MelonSkill.POTION);
-        } else if (this.hasSkill("skill.pvz.melon_pult.gravitational_potential")) {
+        } else if (this.hasSkill(GRAVITY_SKILL_NAME)) {
             bullet.setMelonSkill(MelonBullet.MelonSkill.GRAVITY);
         }
         return bullet;
@@ -61,7 +63,7 @@ public class MelonPult extends ShooterPlant {
     }
     @Override
     public int getShootCD() {
-        return this.hasSkill("skill.pvz.melon_pult.glistering_melon") ? 80 : 50;
+        return this.hasSkill(POTION_SKILL_NAME) ? 80 : 50;
     }
     @Override
     public int shootAnimLength() {

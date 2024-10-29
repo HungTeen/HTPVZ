@@ -89,12 +89,12 @@ public class PVZItems {
     public static final RegistryObject<Item> FLUORESCENT_DAISY_SEED_PACKET = item("fluorescent_daisy_seed_packet", ()-> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
 
     //food
-    public static final RegistryObject<Item> POP_SMARTS = item("pop_smarts", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.5F).build())));
-    public static final RegistryObject<Item> CABBAGE = tag(PVZItemTags.CABBAGE).composter(0.85F).item("cabbage", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(3).saturationMod(1F).build())));
-    public static final RegistryObject<Item> CORN = tag(PVZItemTags.CORN).composter(0.75F).item("corn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.2F).build())));
-    public static final RegistryObject<Item> POPCORN = item("popcorn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(1).saturationMod(0.5F).build())));
-    public static final RegistryObject<Item> CHOCOLATE = item("chocolate", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(1F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 30), 1).build())));
-    public static final RegistryObject<Item> TACO = item("taco", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).rarity(Rarity.RARE).food((new FoodProperties.Builder()).nutrition(1).saturationMod(0.5F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 200), 1).effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 100), 1).effect(() -> new MobEffectInstance(MobEffects.SATURATION, 30), 1).alwaysEat().build())));
+    public static final RegistryObject<Item> POP_SMARTS = item("pop_smarts", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(2).saturationMod(0.6F).build())));
+    public static final RegistryObject<Item> CABBAGE = tag(PVZItemTags.CABBAGE).composter(0.85F).item("cabbage", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(3).saturationMod(0.4F).build())));
+    public static final RegistryObject<Item> CORN = tag(PVZItemTags.CORN).composter(0.75F).item("corn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.4F).build())));
+    public static final RegistryObject<Item> POPCORN = item("popcorn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(1).saturationMod(0.2F).build())));
+    public static final RegistryObject<Item> CHOCOLATE = item("chocolate", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.3F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 30), 1).build())));
+    public static final RegistryObject<Item> TACO = item("taco", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).rarity(Rarity.RARE).food((new FoodProperties.Builder()).nutrition(6).saturationMod(1.2F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 200), 1).effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 100), 1).effect(() -> new MobEffectInstance(MobEffects.SATURATION, 30), 1).alwaysEat().build())));
 
 
     //spawners
@@ -121,13 +121,13 @@ public class PVZItems {
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> PEA_GUN = model(Model.Modeled).item("pea_gun", () -> new PeaGunItem( new Item.Properties().stacksTo(1).durability(400).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> CHILI_CHAN = model(Model.Handheld).item("chili_chan", () -> new ChiliChanItem( new Item.Properties().stacksTo(1).durability(233).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> ANVIL_HAMMER = tag(PVZItemTags.IRON, PVZItemTags.GIANT_HAMMER).model(Model.Modeled).item("anvil_hammer", () -> new AnvilHammerItem( new Item.Properties().stacksTo(1).durability(233).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> ANVIL_HAMMER = tag(PVZItemTags.IRON, PVZItemTags.GIANT_HAMMER).model(Model.Modeled).item("anvil_hammer", () -> new AnvilHammerItem( new Item.Properties().stacksTo(1).durability(300).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> JACK_IN_THE_BOX = tag(PVZItemTags.IRON).model(Model.Modeled).item("jack_in_the_box", () -> new JackInTheBoxItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1), false));
     public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> WATERING_POT = model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_BLOCKS)));
     public static final RegistryObject<Item> ZEN_GARDEN_PORTAL = model(Model.Modeled).item("zen_garden_portal", () -> new BlockItem(PVZBlocks.ZEN_GARDEN_PORTAL.get(), new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_BLOCKS)));
-    public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_MISC)));
+    public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 
     static {
         createBannerPatterns();
@@ -238,8 +238,12 @@ public class PVZItems {
     }
 
     public static void release(){
-        List.of(tagMap, seedMap, seedPacketMap, composterMap).forEach(Map::clear);
+        List.of(tagMap, seedMap, seedPacketMap).forEach(Map::clear);
         modelList.clear();
+    }
+
+    public static void queueRelease() {
+        composterMap.clear();
     }
 
     public enum Model {

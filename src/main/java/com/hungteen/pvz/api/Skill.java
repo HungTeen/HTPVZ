@@ -2,13 +2,14 @@ package com.hungteen.pvz.api;
 
 import net.minecraft.world.item.Item;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
 /**
  This class Skill is a pass if this entity can use this skill, how skill works is written in the Entity itself.
- <br>That means you can't make skills for exist entities, however, you can still make skills for your entities.
+ <br>That means you can't make skills for existing entities, however, you can still make skills for your entities.
  */
 
 public class Skill {
@@ -24,7 +25,8 @@ public class Skill {
     /**add num of the cost of resource. can be negative.*/
     public final int addCostResource;
     public final int addCoolDown;
-    public final Set<Short> avoidSkills = new HashSet<>();
+    public final Set<String> avoidSkills = new HashSet<>();
+    public final Set<String> requireSkills = new HashSet<>();
 
     public Skill(String name, Supplier<Item> item, int costItem, int costSeed){
         this(name, item, costItem, costSeed, 0,0);
@@ -38,16 +40,12 @@ public class Skill {
         this.addCoolDown = addCoolDown;
     }
 
-    public Skill avoidSkills(short... skills) {
-        for (short i : skills) {
-            avoidSkills.add(i);
-        }
+    public Skill avoidSkills(String... skills) {
+        avoidSkills.addAll(Arrays.asList(skills));
         return this;
     }
-    public Skill avoidSkills(int... skills) {
-        for (int i : skills) {
-            avoidSkills.add((short) i);
-        }
+    public Skill requireSkills(String... skills) {
+        requireSkills.addAll(Arrays.asList(skills));
         return this;
     }
 }

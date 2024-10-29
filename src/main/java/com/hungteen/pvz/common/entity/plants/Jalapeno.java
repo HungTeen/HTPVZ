@@ -24,9 +24,11 @@ import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 /**For damaging related logic, see {@link Anger}.*/
 public class Jalapeno extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
+    public static final String TRACK_SKILL_NAME = "skill.pvz.jalapeno.tracking_fire";
+    public static final String NO_FRIENDLY_FIRE_SKILL_NAME = "skill.pvz.jalapeno.precise_strike";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.jalapeno.tracking_fire", PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0),
-            new Skill("skill.pvz.jalapeno.precise_strike", PVZItems.IGNIS_ESSENCE, 4, 4, 100, 0)
+            new Skill(TRACK_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0),
+            new Skill(NO_FRIENDLY_FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 100, 0)
     );
 
     public void setupPresentationAnim() {
@@ -48,14 +50,14 @@ public class Jalapeno extends SimplePlant {
         if (! level.isClientSide) {
             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {
                 Anger anger = new Anger(level);
-                if (this.hasSkill("skill.pvz.jalapeno.precise_strike")) {
+                if (this.hasSkill(NO_FRIENDLY_FIRE_SKILL_NAME)) {
                     anger.preciseStrike = true;
                 }
                 anger.setPos(this.position().add(0, 1, 0));
                 anger.getCapability(PVZEntityCapability.CAP).orElse(null).setOwner(this);
                 anger.yRot = direction.toYRot();
                 level.addFreshEntity(anger);
-                if (this.hasSkill("skill.pvz.jalapeno.tracking_fire")) {
+                if (this.hasSkill(TRACK_SKILL_NAME)) {
                     anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) / 3);
                     anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
                     anger.maxLife = 150;

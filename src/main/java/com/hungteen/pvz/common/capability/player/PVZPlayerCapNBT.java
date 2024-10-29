@@ -39,9 +39,10 @@ public class PVZPlayerCapNBT {
         setValue("auto_set_cost_and_cd", 1, 0, 1);//naturally always 1. if 1, "plant_cost_sun" and "plant_have_cd" of this player will change with gamemode.
         setValue("plant_have_cost", 1, 0, 1);//naturally creative:0, survival:1.
         setValue("plant_have_cd", 1, 0, 1);//naturally creative:0, survival:1.
-        setValue("invasion_difficulty", 50, 0, 100);//invasion difficulty.
+        setValue("invasion_difficulty", 10, 0, 100);//invasion difficulty.
+        setValue("last_invasion", 0, 0, 1000);//time since last invasion occurred on this player.
         //resource
-        setValue(SUN, 50, 0, 200);// TODO remove sun to another PVZPlanterCap cap.
+        setValue(SUN, 50, 0, 200);
     }
 
     public void setTransportPos(Level destWorld, Vec3 pos) {
