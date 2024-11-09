@@ -116,6 +116,7 @@ public class PVZMobEffects {
         }
     }
 
+
     //methods
     public static void hypnotizeWithTeam(LivingEntity target, String teamName, int length) {
         target.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
@@ -130,6 +131,8 @@ public class PVZMobEffects {
         target.addEffect(new MobEffectInstance(PVZMobEffects.HYPNOTISED.get(), length));
     }
 
+
+    //
     public RegistryObject<net.minecraft.world.effect.MobEffect> build() {
         return handlingEffect;
     }
@@ -226,7 +229,6 @@ public class PVZMobEffects {
             }
         }
     }
-
     public static class PhytoToxinEffect extends MobEffect {
         protected PhytoToxinEffect(MobEffectCategory p_19451_, int p_19452_) {
             super(p_19451_, p_19452_);
@@ -251,7 +253,6 @@ public class PVZMobEffects {
             }
         }
     }
-
     public static class InvasionOmenEffect extends MobEffect {
         static LivingEntity removed = null;
 
@@ -278,7 +279,6 @@ public class PVZMobEffects {
             return duration == 1;
         }
     }
-
     /**About how Hypnotzed effect work, see {@link com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal HypnotizedTargetGoal}.*/
     public static class HypnotisedEffect extends MobEffect {
 

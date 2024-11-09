@@ -14,10 +14,10 @@ import net.minecraft.resources.ResourceLocation;
 
 public class PlanternRenderer<T extends Plantern> extends MobRenderer<T, EntityModel<T>> {
 
-    private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/plantern/plantern.png");
+    private static final ResourceLocation TEXTURE = Util.prefix("textures/entity/plants/plantern/plantern.png");
     public PlanternRenderer(EntityRendererProvider.Context context) {
         super(context, new PlanternModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("plantern:main"))), 0.6F);
-        this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/plantern/plantern_light.png")));
+        this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/plantern/plantern_light.png"), (plantern, partialTicks, ageInTicks)-> 0.4F + 0.1F * (float) Math.sin((double) plantern.tickCount / 60)));
     }
 
 
@@ -27,6 +27,6 @@ public class PlanternRenderer<T extends Plantern> extends MobRenderer<T, EntityM
 
     @Override
     public ResourceLocation getTextureLocation(T sunflower) {
-        return STATE0;
+        return TEXTURE;
     }
 }

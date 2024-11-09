@@ -17,6 +17,7 @@ import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.player.LocalPlayer;
@@ -216,6 +217,10 @@ public class PVZOverlayHandler {
             blit(stack, width / 2 - 91, k, 0, 30, 182, 5);
             if (j > 0) {
                 blit(stack, width / 2 - 91, k, 0, 35, j, 5);
+            }
+            if (gatlingPea.getFusing()) {
+                blitColor(stack, width / 2 - 91, k, 0, 40, 182, 5, 0xffffff,
+                        (int) (128 + Math.sin((float) gatlingPea.getOverheat() / 15 - Math.PI / 2) * 80));
             }
             mc.getProfiler().pop();
         }
@@ -500,8 +505,8 @@ public class PVZOverlayHandler {
                 stack.scale((float) scale, (float) scale, (float) scale);
                 width = (int) (width / scale);
                 height = (int) (height / scale);
-                blit(stack, width - 160, height - renderHeight, 0, 54, 158, 21);
-                blit(stack, (int) (width - 9 - 144 * (information.event.getProgress())), height - renderHeight, 7 + (int) (144 * (1 - information.event.getProgress())), 75, (int) (144 * (information.event.getProgress())), 21);
+                blit(stack, width - 160, height - renderHeight, 0, 59, 158, 21);
+                blit(stack, (int) (width - 9 - 144 * (information.event.getProgress())), height - renderHeight, 7 + (int) (144 * (1 - information.event.getProgress())), 80, (int) (144 * (information.event.getProgress())), 21);
                 for (int i = 0; i < invasion.waves.size(); i ++) {
                     Invasion.Wave wave = invasion.waves.get(i);
                     if (wave.isBigWave) {
@@ -509,13 +514,13 @@ public class PVZOverlayHandler {
                                 height - renderHeight + (invasion.currentWave >= i ? - 2 : + 3), 242, wave.isGivenUp ? 26 : 11, 14, (invasion.currentWave >= i ? 15 : 10));
                     }
                 }
-                blit(stack, (int) (width - 9 - 144 * (information.event.getProgress())), height - renderHeight + 3, 241, 41, 15, 12);
+                blit(stack, (int) (width - 9 - 144 * (information.event.getProgress())), height - renderHeight + 3, 241, 46, 15, 12);
                 renderHeight += 25;
                 stack.popPose();
             } else {
                 //when drawing at top, not affected by overlay scale.
-                blit(stack, information.x() - 2, information.y() + 2, 0, 40, 186, 9);
-                blit(stack, information.x(), information.y() + 4, 0, 49, (int) (182 * information.event.getProgress()), 5);
+                blit(stack, information.x() - 2, information.y() + 2, 0, 45, 186, 9);
+                blit(stack, information.x(), information.y() + 4, 0, 54, (int) (182 * information.event.getProgress()), 5);
                 for (int i = 0; i < invasion.waves.size(); i ++) {
                     Invasion.Wave wave = invasion.waves.get(i);
                     if (wave.isBigWave) {
@@ -534,8 +539,32 @@ public class PVZOverlayHandler {
         invasionBars.clear();
     }
 
-    public static void blit(PoseStack stack,int x, int y, float u, float v, int width, int height) {
-        GuiComponent.blit(stack,x,y,0,u,v,width,height,256,256);
+    public static void blit(PoseStack stack, int x, int y, float u, float v, int width, int height) {
+        GuiComponent.blit(stack, x, y, 0/*biltOffset*/, u, v, width, height, 256, 256);
+    }
+
+    private static void blitColor(PoseStack poseStack, int x, int y, float u, float v, int width, int height, int rgb, int alpha) {
+        Matrix4f p_93113_ = poseStack.last().pose();
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        float xStartPercent = u / 256;
+        float yStartPercent = v / 256;
+        float xEndPercent = (u + width) / 256;
+        float yEndPercent = (v + height) / 256;
+        int r = rgb >> 16 & 255;
+        int g = rgb >> 8 & 255;
+        int b = rgb & 255;
+        int biltOffset = 0;
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+        bufferbuilder.vertex(p_93113_, x, y + height, biltOffset)
+                .color(r, g, b, alpha).uv(xStartPercent, yEndPercent).endVertex();
+        bufferbuilder.vertex(p_93113_, x + width, y + height, biltOffset)
+                .color(r, g, b, alpha).uv(xEndPercent, yEndPercent).endVertex();
+        bufferbuilder.vertex(p_93113_, x + width, y, biltOffset)
+                .color(r, g, b, alpha).uv(xEndPercent, yStartPercent).endVertex();
+        bufferbuilder.vertex(p_93113_, x,y, biltOffset)
+                .color(r, g, b, alpha).uv(xStartPercent, yStartPercent).endVertex();
+        BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
     private static Player getCameraPlayer() {

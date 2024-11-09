@@ -15,7 +15,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 
 import javax.annotation.Nullable;
 
-public class Imp extends PVZZombie{
+public class Imp extends PVZZombie {
     public Imp(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
     }

@@ -11,6 +11,7 @@ import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.model.zombie.GargantuarModel;
 import com.hungteen.pvz.client.model.zombie.JackInABoxZombieModel;
 import com.hungteen.pvz.client.model.zombie.PoleVaultingZombieModel;
+import com.hungteen.pvz.client.model.zombie.TacoImpModel;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.client.model.geom.LayerDefinitions;
@@ -59,6 +60,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.PUMPKIN, PumpkinModel::createBodyLayer);
         L(e, PVZEntities.FLOWER_POT, FlowerPotModel::createBodyLayer);
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
+        L(e, PVZEntities.GATLING_PEA, GatlingPeaModel::createBodyLayer);
         L(e, PVZEntities.SPROUT, SproutModel::createBodyLayer);
         L(e, "melon_bullet", MelonBulletModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
@@ -69,6 +71,7 @@ public class PVZLayerHandler {
         L(e, "butter_bottom", ButterBottomModel::createBodyLayer);
         L(e, "ice", FrozenModel::createBodyLayer);
         L(e, PVZEntities.POLE_VAULTING_ZOMBIE, PoleVaultingZombieModel::createBodyLayer);
+        L(e, PVZEntities.TACO_IMP, TacoImpModel::createBodyLayer);
         L(e, PVZEntities.JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieModel::createBodyLayer);
         L(e, PVZEntities.GARGANTUAR, GargantuarModel::createBodyLayer);
         L(e, PVZItems.CONE_HELMET, () -> ConeHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));

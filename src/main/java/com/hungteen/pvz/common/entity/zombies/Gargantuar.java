@@ -129,7 +129,7 @@ public class Gargantuar extends PVZZombie {
         boolean flag = p_21372_.hurt(PVZDamageSource.gargantuarCrash(this), f);
         if (flag) {
             if (f1 > 0.0F && p_21372_ instanceof LivingEntity) {
-                ((LivingEntity)p_21372_).knockback((double)(f1 * 0.5F), (double) Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
+                ((LivingEntity)p_21372_).knockback(f1 * 0.5F, Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(this.getYRot() * ((float)Math.PI / 180F)));
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
             }
 
@@ -267,7 +267,7 @@ public class Gargantuar extends PVZZombie {
                     double dis = this.getAttackReachSqr(target);
                     if (distance <= dis) {
                         if (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER)) {
-                            target.hurt(PVZDamageSource.ignoreInvTime(DamageSource.mobAttack(mob).bypassArmor()), (float) mob.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2F);
+                            target.hurt(PVZDamageSource.ignoreInvTime(PVZDamageSource.gargantuarCrash(mob).bypassArmor()), (float) mob.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2F);
                             List<Entity> list = mob.level.getEntities((Entity) null,
                                     new AABB(target.position().add(-0.8, 0, -0.8), target.position().add(0.8, 1, 0.8)),
                                     (entity -> entity instanceof LivingEntity));

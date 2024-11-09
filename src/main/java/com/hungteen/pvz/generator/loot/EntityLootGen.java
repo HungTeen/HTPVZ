@@ -50,6 +50,10 @@ public class EntityLootGen extends EntityLoot {
         this.add(PVZEntities.POLE_VAULTING_ZOMBIE.get(), basicZombieLootTable());
         this.add(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get(), basicZombieLootTable());
         this.add(PVZEntities.IMP.get(), basicZombieLootTable());
+        this.add(PVZEntities.TACO_IMP.get(), LootTable.lootTable()
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                        .add(LootItem.lootTableItem(PVZItems.GOLDEN_TACO.get())))
+        );
         this.add(PVZEntities.GARGANTUAR.get(), basicZombieLootTable());
         //enter here
     }

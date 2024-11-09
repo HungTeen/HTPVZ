@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.model.plants.*;
+import com.hungteen.pvz.client.model.zombie.TacoImpModel;
 import com.hungteen.pvz.client.renderer.EntityLifterRenderer;
 import com.hungteen.pvz.client.renderer.ModelPartRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
@@ -197,6 +198,9 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<Gargantuar>> GARGANTUAR = attribute(Gargantuar::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x8a5949, 0x43446d)
             .collision(1.5F, 2.7F).entity("gargantuar", Gargantuar::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<TacoImp>> TACO_IMP = attribute(TacoImp::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0xfbc093, 0xa6de66)
+            .entity("taco_imp", TacoImp::new, MobCategory.MONSTER);
 
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F).entity("pea", PeaBullet::new, MobCategory.MISC);
@@ -224,7 +228,6 @@ public class PVZEntities {
         rS(STARFRUIT, StarfruitModel::new, StarfruitModel::createBodyLayer, 0.5F, "textures/entity/plants/starfruit/starfruit.png");
         rS(SPLIT_PEA, SplitPeaModel::new, SplitPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/split_pea/split_pea.png");
         rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.5F, "textures/entity/plants/repeater/repeater.png");
-        rS(GATLING_PEA, GatlingPeaModel::new, GatlingPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/gatling_pea/gatling_pea.png");
         rS(CABBAGE_PULT, CabbagePultModel::new, CabbagePultModel::createBodyLayer, 0.5F, "textures/entity/plants/cabbage_pult/cabbage_pult.png");
         rS(VELOCI_RADISH, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
         rS(LILY_PAD, LilyPadModel::new, LilyPadModel::createBodyLayer, 0.5F, "textures/entity/plants/lily_pad/lily_pad.png");
@@ -254,6 +257,7 @@ public class PVZEntities {
         r(e, TALL_NUT, TallNutRenderer::new);
         r(e, PLANTERN, PlanternRenderer::new);
         r(e, FLOWER_POT, FlowerPotRenderer::new);
+        r(e, GATLING_PEA, GatlingPeaRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
         r(e, STARFRUIT_BULLET, StarfruitBulletRenderer::new);
         r(e, CABBAGE, CabbageBulletRenderer::new);
@@ -268,6 +272,7 @@ public class PVZEntities {
         r(e, POLE_VAULTING_ZOMBIE, PoleVaultingZombieRenderer::new);
         r(e, JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieRenderer::new);
         r(e, IMP, ImpRenderer::new);
+        r(e, TACO_IMP, TacoImpRenderer::new);
         r(e, GARGANTUAR, GargantuarRenderer::new);
         r(e, SPROUT, SproutRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);

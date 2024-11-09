@@ -9,10 +9,7 @@ import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.HeadedModel;
-import net.minecraft.client.model.HierarchicalModel;
-import net.minecraft.client.model.QuadrupedModel;
+import net.minecraft.client.model.*;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -42,6 +39,9 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
         poseStack.pushPose();
         if (entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
             if (PVZConfig.renderButterOnHead()) {
+                if (model.young && model instanceof AgeableListModel<T> model1) {
+                    translateAgeable(poseStack, model1);
+                }
                 main = butterHeadModel.root();
                 vertexConsumer = bufferSource.getBuffer(model.renderType(Util.prefix("textures/models/butter/butter_head.png")));
                 //omg why cant they all be the Hierarchical ones?
@@ -66,6 +66,9 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
                 } else {
                     poseStack.translate(0, 1.5 - entity.getBbHeight(), 0);
                     main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
+                }
+                if (model.young && model instanceof AgeableListModel<T> model1) {
+                    poseStack.popPose();
                 }
             } else if (entity.isAlive()){
                 main = butterBottomModel.root();
@@ -109,6 +112,15 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
             renderHead(part, main, stack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
         }
         stack.popPose();
+    }
+
+    private void translateAgeable(PoseStack poseStack, AgeableListModel model) {
+        poseStack.pushPose();
+        if (model.scaleHead) {
+            float f = 1.5F / model.babyHeadScale;
+            poseStack.scale(f, f, f);
+        }
+        poseStack.translate(0.0D, model.babyYHeadOffset / 16.0F, model.babyZHeadOffset / 16.0F);
     }
 
     private float getBoneHeight(ModelPart part) {

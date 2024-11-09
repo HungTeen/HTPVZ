@@ -13,6 +13,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -71,8 +73,8 @@ public class MelonBullet extends BaseBullet {
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity));
                 entities.forEach((entity -> {
                     entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
-                                    PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
-                            , getKnockBackStrength()), this.getAttackDamage() / 4);
+                                    new IndirectEntityDamageSource(getDamageName(), this, getOwner() instanceof LivingEntity ? getOwner() : this))
+                            , getKnockBackStrength()), this.getAttackDamage() / 4);//splash damage regarded as non projectile.
                     if (this.getMelonType() == MelonType.Ice && entity.canFreeze()) {
                         entity.setTicksFrozen(400);
                     }

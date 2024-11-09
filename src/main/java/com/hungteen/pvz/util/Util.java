@@ -105,6 +105,6 @@ public class Util {
         for (int i = 0; i < tick; i ++) {
             player.getCooldowns().tick();
         }
-        PlayerCoolDownPacket.clientCoolDown(player);
+        PlayerCoolDownPacket.clientCoolDown(player, tick);
     }
 }

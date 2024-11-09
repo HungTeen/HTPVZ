@@ -72,8 +72,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         if (blockedCheck.getType() != HitResult.Type.MISS) {
             return false;
         }
-        if (! isClient && entity instanceof Player) {
-            return false;
+        if (isClient) {
+            return entity instanceof Player;
         }
         return (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this)
                 || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this)));

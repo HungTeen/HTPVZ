@@ -35,29 +35,28 @@ public class LightLayer<T extends LivingEntity, M extends EntityModel<T>> extend
 	protected static final RenderStateShard.LightmapStateShard LIGHTMAP = new RenderStateShard.LightmapStateShard(true);
 	protected static final RenderStateShard.OverlayStateShard OVERLAY = new RenderStateShard.OverlayStateShard(true);
 	protected ResourceLocation res;
-	private final TriFunction<T, Float, Float, Float> alphaFunction;
 	private final TriFunction<T, Float, Float, Vec3> colorFunction;
+	public float alpha = 1; //as long as renderType() is not changed, black acts the same as 0 alpha.
 
 	public LightLayer(RenderLayerParent<T, M> entityRendererIn, ResourceLocation texture) {
 		this(entityRendererIn, texture, LightLayer::defaultAlphaFunction);
 	}
 	public LightLayer(RenderLayerParent<T, M> entityRendererIn, ResourceLocation texture, TriFunction<T, Float, Float, Float> alphaFunction) {
-		this(entityRendererIn, texture, LightLayer::defaultColorFunction, alphaFunction);
+		this(entityRendererIn, (entity, partialTicks, ageInTicks) -> {
+			float tmp = alphaFunction.apply(entity, partialTicks, ageInTicks);
+			return new Vec3(tmp, tmp, tmp);
+		}, texture);
 	}
-	public LightLayer(RenderLayerParent<T, M> entityRendererIn, ResourceLocation texture, TriFunction<T, Float, Float, Vec3> colorFunction, TriFunction<T, Float, Float, Float> alphaFunction) {
+	public LightLayer(RenderLayerParent<T, M> entityRendererIn, TriFunction<T, Float, Float, Vec3> colorFunction, ResourceLocation texture) {
 		super(entityRendererIn);
 		this.res = texture;
 		this.colorFunction = colorFunction;
-		this.alphaFunction = alphaFunction;
 	}
 
-	public static Vec3 defaultColorFunction(LivingEntity entity, Float partialTick, Float ageInTicks) {
-		return new Vec3(0.5F, 0.5F, 0.5F);
-	}
 	public static float defaultAlphaFunction(LivingEntity entity, Float partialTick, Float ageInTicks) {
 		if(entity.isInvisible()) return 0;
 		if(entity instanceof ProducerPlant producer) {
-			return producer.isPlantInGen() ? (float) Math.min(producer.getAttackTime() , Math.min(producer.getGenerateAnimLength() - producer.getAttackTime(), 3)) / 3 : 0;
+			return producer.isPlantInGen() ? (float) Math.min(producer.getAttackTime() , Math.min(producer.getGenerateAnimLength() - producer.getAttackTime(), 4)) / 4 : 0;
 		}
 		return 1;
 	}
@@ -66,15 +65,12 @@ public class LightLayer<T extends LivingEntity, M extends EntityModel<T>> extend
 	public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, T livingEntity,
 					   float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw,
 					   float headPitch) {
-		float alpha	= this.alphaFunction.apply(livingEntity, partialTicks, ageInTicks);
 		Vec3 color = this.colorFunction.apply(livingEntity, partialTicks, ageInTicks);
-		if (alpha > 0) {
-			poseStack.pushPose();
-			VertexConsumer iVertexBuilder = bufferIn.getBuffer(renderType(res, 0, 0));
-			getParentModel().renderToBuffer(poseStack, iVertexBuilder, packedLightIn, OverlayTexture.NO_OVERLAY,
-					(float) color.x, (float) color.y, (float) color.z, alpha);
-			poseStack.popPose();
-		}
+		poseStack.pushPose();
+		VertexConsumer iVertexBuilder = bufferIn.getBuffer(renderType(res, 0, 0));
+		getParentModel().renderToBuffer(poseStack, iVertexBuilder, packedLightIn, OverlayTexture.NO_OVERLAY,
+				(float) color.x, (float) color.y, (float) color.z, alpha);
+		poseStack.popPose();
 	}
 
 	public RenderType renderType(ResourceLocation p_110437_, float p_110438_, float p_110439_) {

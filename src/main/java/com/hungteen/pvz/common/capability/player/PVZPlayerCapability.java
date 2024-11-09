@@ -226,7 +226,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                 }
                 if (player.hasEffect(PVZMobEffects.EXCITEMENT.get())) {
-                    Util.coolDownItems(player, 10);
+                    Util.coolDownItems(player, (1 + player.getEffect(PVZMobEffects.EXCITEMENT.get()).getAmplifier()) * 3);
                 }
                 //auto set sun cost and cd.
                 if (nbt.getValue("auto_set_cost_and_cd") == 1) {

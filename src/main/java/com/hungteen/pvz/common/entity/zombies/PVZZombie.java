@@ -48,6 +48,7 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
     public static final EntityDataAccessor<String> SKIN = SynchedEntityData.defineId(PVZZombie.class, EntityDataSerializers.STRING);
     public boolean renderHand = true; // controlled by renderer.
     public boolean renderHead = true; // controlled by renderer.
+    protected ZombieAttackGoal attackGoal;
     public static Consumer<Entity> CONEHEAD_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance());
     public static Consumer<Entity> BUCKET_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance());
     public static Consumer<Entity> DUCK_LIFEBUOY_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.LEGS, PVZItems.DUCK_LIFEBUOY.get().getDefaultInstance());
@@ -95,8 +96,9 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
 
     @Override
     protected void addBehaviourGoals() {
+        attackGoal = new ZombieAttackGoal(this, 1.0D, false);
         this.goalSelector.addGoal(1, new BlockWithShieldGoal(this));
-        this.goalSelector.addGoal(2, new ZombieAttackGoal(this, 1.0D, false));
+        this.goalSelector.addGoal(2, attackGoal);
         this.goalSelector.addGoal(3, new FollowGroupLeaderGoal(this));
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0D, true, 4, this::canBreakDoors));
         this.goalSelector.addGoal(7, new RandomStrollGoal(this, 1.0D));

@@ -5,6 +5,7 @@ import com.hungteen.pvz.api.interfaces.IAdvancedPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
+import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
@@ -50,6 +51,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     public static final String LOW_BUDGET_SKILL_NAME = "skill.pvz.gatling_pea.low_budget_configuration";
     public static final String RAPID_DEPLOYMENT_SKILL_NAME = "skill.pvz.plant.rapid_deployment";
     public static List<Skill> staticSkillList = List.of(
+            new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 150, 0),
             new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, -1000),
             new Skill(PeaShooter.FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(LOW_BUDGET_SKILL_NAME),
             new Skill(RAPID_DEPLOYMENT_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 16, 4, 150, 0)
@@ -84,6 +86,13 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         entityData.set(OVERHEATING, value);
     }
 
+    public boolean getFusing() {
+        return entityData.get(FUSING);
+    }
+    public void setFusing(boolean value) {
+        entityData.set(FUSING, value);
+    }
+
     @Override
     public boolean canShoot() {
         return ! entityData.get(FUSING);
@@ -91,7 +100,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     @Override
     public void shootBullet() {
         this.performShoot(SHOOT_OFFSET, 0, 0, true,
-                this.getOverheat() > MAX_OVERHEAT * 0.67 ? (this.getOverheat() - MAX_OVERHEAT * 0.67) / 50 : 0);
+                this.getOverheat() > MAX_OVERHEAT * 0.67 ? (this.getOverheat() - MAX_OVERHEAT * 0.67) / 25 : 0);
         this.setOverheat(this.getOverheat() + 12 * (this.getFirstPassenger() instanceof Player player && player.isCreative() ? 0 : 1));
         if (getOverheat() > MAX_OVERHEAT && ! this.entityData.get(FUSING)) {
             this.entityData.set(FUSING, true);
@@ -102,6 +111,11 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         return this.getFirstPassenger() instanceof Player ?
                 Set.of(0, 1 ,2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19) :
                 Set.of(8, 10, 12, 14);
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return PeaShooter.createAttributes()
+                .add(Attributes.ATTACK_KNOCKBACK, 0.3D);
     }
 
     @Override
@@ -155,8 +169,9 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
 
     @Override
-    public Vec3 getShootAngle(Entity target) {
-        return this.getFirstPassenger() instanceof Player ? this.getLookAngle().normalize() : super.getShootAngle(target);
+    public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
+        return this.getFirstPassenger() instanceof Player ? this.getLookAngle().normalize() :
+                super.getShootAngle(target, forwardOffset, rightOffset, heightOffset);
     }
 
     @Override

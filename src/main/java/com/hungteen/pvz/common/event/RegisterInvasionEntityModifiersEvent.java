@@ -18,7 +18,8 @@ public class RegisterInvasionEntityModifiersEvent extends Event {
         builder.put(InvasionEntityModifiers.BABYLIZE, InvasionEntityModifiers::babylize)
                 .put(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers::addLifeBuoy)
                 .put(InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers::finalizeSpawn)
-                .put(InvasionEntityModifiers.WITH_FOG, InvasionEntityModifiers::withFog);
+                .put(InvasionEntityModifiers.WITH_FOG, InvasionEntityModifiers::withFog)
+                .put(InvasionEntityModifiers.WITH_TACO, InvasionEntityModifiers::withTaco);
     }
     public static ImmutableMap<ResourceLocation, TriConsumer<@Nullable Invasion, Entity, Integer>> get() {
         RegisterInvasionEntityModifiersEvent event = new RegisterInvasionEntityModifiersEvent();

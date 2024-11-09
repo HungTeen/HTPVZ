@@ -38,10 +38,6 @@ public class BaseBullet extends Projectile {
 		super(bulletEntityType,level);
 	}
 
-	public void shootToTarget(LivingEntity target, float speed) {
-		this.setDeltaMovement(target.position().add(0, target.getEyeHeight(), 0).subtract(this.position()).normalize().scale(speed));
-	}
-
 	protected void splashParticle() {
 	}
 
@@ -156,9 +152,9 @@ public class BaseBullet extends Projectile {
 	protected boolean dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
 		//default normal damage.
-		boolean hurt = target.hurt(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(
+		boolean hurt = target.hurt(PVZDamageSource.ignoreInvTime(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(
 						PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
-				, getKnockBackStrength()), target, 0.2F), damage);
+				, getKnockBackStrength()), target, 0.2F)), damage);
 		this.discard();
 		return hurt;
 	}

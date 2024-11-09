@@ -46,4 +46,8 @@ public class PVZClientEventHandler {
         renderer.addLayer(new EntityFrozenLayer<>(renderer));
         renderer.addLayer(new EntityHypnotizedLayer<>(renderer));
     }
+
+    public static void addItemRenderer() {
+
+    }
 }

@@ -137,7 +137,7 @@ public class TorchWood extends SimplePlant {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {
                         return;
                     } else if (pea.getPeaType() == PeaBullet.PeaType.Common) {
-                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 7F : 3F));
+                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 8F : 4F));
                     }
                     if (! pea.fireImmune()) {
                         pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :

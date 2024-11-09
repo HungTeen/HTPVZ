@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.client.model.plants.StarfruitModel;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -60,59 +62,31 @@ public class Starfruit extends ShooterPlant {
         return 0.501F;
     }
     @Override
-    public void performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
-        LivingEntity target = this.getTarget();
-        //create bullet
-        final Vec3 vec = getShootAngle(target);
-        final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
-        final double deltaX = forwardOffset * vec.x - rightOffset * vec.z;
-        final double deltaZ = forwardOffset * vec.z + rightOffset * vec.x;
-        BaseBullet bullet = this.createBullet();
-        bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-        //predict
-        float speed = this.getBulletSpeed();
-        Vec3 deltaPos;
-        if (target != null) {
-            Vec3 targetSpeed;
-            if (storedEnemyPos != null) {
-                targetSpeed = target.position().subtract(storedEnemyPos)
-                        .multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
-            } else {
-                targetSpeed = target.getDeltaMovement();
+    public @Nullable Projectile performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
+        Projectile bullet = super.performShoot(forwardOffset, rightOffset, heightOffset, needSound, randomAngle);
+        if (bullet != null) {
+            Vec3 deltaPos = bullet.getDeltaMovement();
+            final double deltaY = bullet.getY() - this.getY();
+            double deltaX = bullet.getX() - this.getX();
+            double deltaZ = bullet.getZ() - this.getZ();
+            float speed = getBulletSpeed();
+            double angle = Math.atan2(deltaPos.z, deltaPos.x);
+            double distSqr = deltaX * deltaX + deltaZ * deltaZ;
+            for (int i = 0; i < 4; i ++) {
+                angle += Math.PI / 2.5;
+                deltaX = Math.sqrt(distSqr * Math.cos(angle));
+                deltaZ = Math.sqrt(distSqr * Math.sin(angle));
+                bullet = this.createBullet();
+                bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
+                bullet.shoot(Math.cos(angle), 0.04, Math.sin(angle), speed, (float) randomAngle);
+                bullet.setOwner(this);
+                if (bullet instanceof BaseBullet bullet1) {
+                    bullet1.setAttackDamage(this.getAttackDamage());
+                }
+                this.level.addFreshEntity(bullet);
             }
-            int time = Math.round(distanceTo(target) / speed);
-            deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
-                    target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),//angle limit move to targeting goals.
-                    target.getZ() + targetSpeed.z * time - bullet.getZ());
-            for (int tmp = 0; tmp < 3; tmp ++) {
-                //recurse to increase accuracy.
-                time = (int) Math.round(Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y + deltaPos.z * deltaPos.z) / speed);
-                deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
-                        target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),
-                        target.getZ() + targetSpeed.z * time - bullet.getZ());
-            }
-        } else {
-            deltaPos = vec;
         }
-        deltaPos = new Vec3 (deltaPos.x, 0, deltaPos.z);
-        //shoot
-        if (needSound) {
-            EntityUtil.playSound(this, this.getShootSound());
-        }
-        bullet.shoot(deltaPos.x, 0.04, deltaPos.z, speed, (float) randomAngle);
-        bullet.setOwner(this);
-        bullet.setAttackDamage(this.getAttackDamage());
-        this.level.addFreshEntity(bullet);
-        double angle = Math.atan2(deltaPos.z, deltaPos.x);
-        for (int i = 0; i < 4; i ++) {
-            angle += Math.PI / 2.5;
-            bullet = this.createBullet();
-            bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-            bullet.shoot(Math.cos(angle), 0.04, Math.sin(angle), speed, (float) randomAngle);
-            bullet.setOwner(this);
-            bullet.setAttackDamage(this.getAttackDamage());
-            this.level.addFreshEntity(bullet);
-        }
+        return bullet;
     }
 
     @Override

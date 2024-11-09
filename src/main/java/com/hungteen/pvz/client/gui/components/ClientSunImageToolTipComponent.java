@@ -49,7 +49,7 @@ public class ClientSunImageToolTipComponent implements ClientTooltipComponent {
 
     @Override
     public int getWidth(Font font) {
-        return font.width(sunText) + (int) (renderAsNumber ? 0 : (cost > 500 ? 5 : 8) * Math.ceil(Math.abs((float) cost / 100))) + font.width(cdText) + 10;
+        return font.width(sunText) + (int) (renderAsNumber ? 0 : (cost > 500 ? 5 : 8) * Math.ceil(Math.abs((float) cost / 100))) + font.width(cdText) + (sunText.isEmpty() ? 0 : 10);
     }
 
     @Override

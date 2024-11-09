@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +27,9 @@ public class SplitPea extends PeaShooter{
     public AnimationState forwardAnimationState = new AnimationState();
     public AnimationState backwardAnimationState = new AnimationState();
     LivingEntity backwardTarget = null;
+    int backwardAimTime = 0;
+    Vec3 storedBackWardEnemyPos = null;
+
     public static List<Skill> staticSkillList = List.of(
     );
     public SplitPea(EntityType<? extends Mob> type, Level worldIn) {
@@ -51,7 +55,9 @@ public class SplitPea extends PeaShooter{
         return backwardTarget;
     }
     public Set<Integer> shootTimes() {
-        return Set.of(6, 8, 12);
+        boolean flag = EntityUtil.isEntityValid(this.getBackTarget()) || this.backwardAnimationState.isStarted();
+        return (EntityUtil.isEntityValid(this.getTarget()) || this.forwardAnimationState.isStarted()) ?
+                (flag ? Set.of(6, 8, 12) : Set.of(12)) : (flag ? Set.of(6, 8) : Set.of());
     }
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_219422_) {
@@ -89,54 +95,100 @@ public class SplitPea extends PeaShooter{
     }
 
     @Override
-    public void performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
-        if (getAttackTime() > 10) {
-            if (EntityUtil.isEntityValid(getTarget())) {
-                super.performShoot(forwardOffset, rightOffset, heightOffset, needSound, randomAngle);
+    public void tick() {
+        super.tick();
+        if (EntityUtil.isEntityValid(getBackTarget())) {
+            if (storedBackWardEnemyPos == null || backwardAimTime % 50 == 0) {
+                storedBackWardEnemyPos = getBackTarget().position();
+                backwardAimTime = 0;
             }
+            backwardAimTime ++;
+        } else {
+            backwardAimTime = 0;
+        }
+    }
+
+    public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
+        if (target != null) {
+            Vec3 vec = EntityUtil.getNormalisedVector2d(this, target);
+            final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
+            final double deltaX = forwardOffset * vec.x - rightOffset * vec.z;
+            final double deltaZ = forwardOffset * vec.z + rightOffset * vec.x;
+            Vec3 bulletPos = new Vec3(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
+            double speed = this.getBulletSpeed();
+            Vec3 deltaPos;
+            Vec3 targetSpeed;
+            if (target == this.getTarget()) {
+                if (storedEnemyPos != null) {
+                    targetSpeed = target.position().subtract(storedEnemyPos)
+                            .multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
+                } else {
+                    targetSpeed = target.getDeltaMovement();
+                }
+            } else {
+                if (storedBackWardEnemyPos != null) {
+                    targetSpeed = target.position().subtract(storedBackWardEnemyPos)
+                            .multiply(1 / (float) backwardAimTime, 1 / (float) backwardAimTime, 1 / (float) backwardAimTime);
+                } else {
+                    targetSpeed = target.getDeltaMovement();
+                }
+            }
+            int time = (int) Math.round(distanceTo(target) / speed);
+            deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bulletPos.x,
+                    target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bulletPos.y,//angle limit move to targeting goals.
+                    target.getZ() + targetSpeed.z * time - bulletPos.z);
+            for (int tmp = 0; tmp < 3; tmp ++) {
+                //recurse to increase accuracy.
+                time = (int) Math.round(Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y + deltaPos.z * deltaPos.z) / speed);
+                deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bulletPos.x,
+                        target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bulletPos.y,
+                        target.getZ() + targetSpeed.z * time - bulletPos.z);
+            }
+            return deltaPos;
+        } else if (this.getAttackTime() > 10) {
+            if (storedEnemyPos != null) {
+                return storedEnemyPos.add(0, 1, 0).subtract(this.position().add(0, this.getEyeHeight(), 0));
+            } else {
+                return this.getLookAngle().normalize();
+            }
+        } else if (storedBackWardEnemyPos != null && this.getAttackTime() <= 10) {
+            return storedBackWardEnemyPos.add(0, 1, 0).subtract(this.position().add(0, this.getEyeHeight(), 0));
+        } else {
+            return this.getLookAngle().scale(-1);
+        }
+    }
+    @Override
+    public @Nullable Projectile performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
+        if (getAttackTime() > 10) {
+            return super.performShoot(forwardOffset, rightOffset, heightOffset, needSound, randomAngle);
         } else {
             LivingEntity target = this.getBackTarget();
-            if (EntityUtil.isEntityValid(target)) {
-                //create bullet
-                final Vec3 vec = EntityUtil.getNormalisedVector2d(this, target);
-                final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
-                final double deltaX = - forwardOffset * vec.x + rightOffset * vec.z;
-                final double deltaZ = - forwardOffset * vec.z - rightOffset * vec.x;
-                Projectile bullet = this.createBullet();
-                bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-                //predict
-                float speed = this.getBulletSpeed();
-                Vec3 deltaPos;
-                Vec3 targetSpeed = target.getDeltaMovement().add(0, 0.08, 0);
-                int time = Math.round(distanceTo(target) / speed);
-                deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
-                        target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),//angle limit move to targeting goals.
-                        target.getZ() + targetSpeed.z * time - bullet.getZ());
-                for (int tmp = 0; tmp < 3; tmp ++) {
-                    //recurse to increase accuracy.
-                    time = (int) Math.round(Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y + deltaPos.z * deltaPos.z) / speed);
-                    deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bullet.getX(),
-                            target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bullet.getY(),
-                            target.getZ() + targetSpeed.z * time - bullet.getZ());
-                }
-                double horizontal = Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.z * deltaPos.z);
-                double vertical = deltaPos.y;
-                if (vertical > horizontal * getMaxShootAngleTangent()) {
-                    deltaPos = new Vec3 (deltaPos.x, horizontal * getMaxShootAngleTangent(), deltaPos.z);
-                } else if (vertical < - horizontal * getMaxShootAngleTangent()) {
-                    deltaPos = new Vec3 (deltaPos.x, - horizontal * getMaxShootAngleTangent(), deltaPos.z);
-                }
-                //shoot
-                bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, speed, (float) randomAngle);
-                if (needSound) {
-                    EntityUtil.playSound(this, this.getShootSound());
-                }
-                bullet.setOwner(this);
-                if (bullet instanceof BaseBullet bullet1) {
-                    bullet1.setAttackDamage(this.getAttackDamage());
-                }
-                this.level.addFreshEntity(bullet);
+            //create bullet
+            Vec3 deltaPos = getShootAngle(target, forwardOffset, rightOffset, heightOffset);
+            Vec3 normalized = deltaPos.normalize();
+            final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
+            final double deltaX = forwardOffset * normalized.x - rightOffset * normalized.z;
+            final double deltaZ = forwardOffset * normalized.z + rightOffset * normalized.x;
+            Projectile bullet = this.createBullet();
+            bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
+            double horizontal = Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.z * deltaPos.z);
+            double vertical = deltaPos.y;
+            if (vertical > horizontal * getMaxShootAngleTangent()) {
+                deltaPos = new Vec3(deltaPos.x, horizontal * getMaxShootAngleTangent(), deltaPos.z);
+            } else if (vertical < - horizontal * getMaxShootAngleTangent()) {
+                deltaPos = new Vec3(deltaPos.x, - horizontal * getMaxShootAngleTangent(), deltaPos.z);
             }
+            //shoot
+            bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, getBulletSpeed(), (float) randomAngle);
+            if (needSound) {
+                EntityUtil.playSound(this, this.getShootSound());
+            }
+            bullet.setOwner(this);
+            if (bullet instanceof BaseBullet bullet1) {
+                bullet1.setAttackDamage(this.getAttackDamage());
+            }
+            this.level.addFreshEntity(bullet);
+            return bullet;
         }
     }
 
@@ -236,14 +288,27 @@ public class SplitPea extends PeaShooter{
             final int time = this.shooter.getAttackTime();
             if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && (EntityUtil.isEntityValid(target) || EntityUtil.isEntityValid(backTarget)))) {
                 this.shooter.setAttackTime(time > 0 ? time - 1 : this.shooter.getShootCD());
-                if (time <= 1 && EntityUtil.isEntityValid(target)) {
-                    shooter.aimTime = 0;
-                    shooter.storedEnemyPos = target.position();
-                }
             }
             shooter.getEntityData().set(POSE, (this.shooter.getAttackTime() < this.shooter.shootAnimLength()));
             //can shoot.
             return this.shooter.canShoot();
+        }
+
+        @Override
+        public void tick() {
+            int time = this.shooter.getAttackTime();
+            if (this.shooter.shootTimes().contains(time)) {
+                this.shooter.shootBullet();
+                if (time > 10) {
+                    if (EntityUtil.isEntityValid(this.shooter.getTarget())) {
+                        shooter.aimTime = 0;
+                        shooter.storedEnemyPos = this.shooter.getTarget().position();
+                    }
+                } else if (EntityUtil.isEntityValid(((SplitPea) this.shooter).getBackTarget())) {
+                    ((SplitPea) shooter).backwardAimTime = 0;
+                    ((SplitPea) shooter).storedBackWardEnemyPos = ((SplitPea) this.shooter).getBackTarget().position();
+                }
+            }
         }
     }
 }

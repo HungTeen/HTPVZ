@@ -69,7 +69,11 @@ public class PVZDamageSource {
         return source;
     }
     public static DamageSource ignoreInvTime(DamageSource source) {
+        return ignoreInvTime(source, 0);
+    }
+    public static DamageSource ignoreInvTime(DamageSource source, int invTimeLessThan) {
         ignoreInvTimeSource = source;
+        invTime = invTimeLessThan;
         return source;
     }
     public static DamageSource multiply(DamageSource source, float multiplier) {
@@ -89,7 +93,7 @@ public class PVZDamageSource {
         return source;
     }
     public static boolean isEating(DamageSource source) {
-        return notEatingSource != source;
+        return notEatingSource != source && ! source.isExplosion();
     }
 
 
@@ -155,8 +159,13 @@ public class PVZDamageSource {
             knockBackEntity = ev.getEntity();
         }
         if (ev.getSource() == ignoreInvTimeSource && ! (ev.getEntity() instanceof Player)) {
-            invTime = ev.getEntity().invulnerableTime;
-            ev.getEntity().invulnerableTime = 0;
+            if (ev.getEntity().invulnerableTime > invTime) {
+                invTime = 0;
+                ignoreInvTimeSource = null;
+            } else {
+                invTime = ev.getEntity().invulnerableTime;
+                ev.getEntity().invulnerableTime = 0;
+            }
         }
     }
 
@@ -178,6 +187,7 @@ public class PVZDamageSource {
         }
         if (ev.getSource() == ignoreInvTimeSource) {
             ev.getEntity().invulnerableTime = invTime;
+            invTime = 0;
         }
         if (ev.getSource() == multiplierSource) {
             ev.setAmount(ev.getAmount() * multiplier);

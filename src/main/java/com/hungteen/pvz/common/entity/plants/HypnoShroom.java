@@ -87,7 +87,7 @@ public class HypnoShroom extends SimplePlant implements IMushroom {
     public void die(DamageSource damageSource) {
         Entity entity = damageSource.getEntity();
         if (entity instanceof LivingEntity target && damageSource.getDirectEntity() == entity) {
-            if (! this.isSleeping() && ! EntityUtil.isTeammate(this, entity) && PVZDamageSource.isEating(damageSource) && this.distanceToSqr(entity) < 2 && ! (entity instanceof Player)) {
+            if (! this.isSleeping() && ! EntityUtil.isTeammate(this, entity) && PVZDamageSource.isEating(damageSource) && this.distanceToSqr(entity) < 4 && ! (entity instanceof Player)) {
                 PVZMobEffects.hypnotizeWithTeam(target, this, 2000);
                 this.setPose(Pose.USING_TONGUE);//to let client identify.
                 this.discard();

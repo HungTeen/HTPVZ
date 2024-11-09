@@ -49,6 +49,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.common.ForgeMod;
 
 import java.util.List;
 import java.util.Optional;
@@ -66,14 +67,15 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         super(entityType, level);
         this.entityData.set(root(), false);
         this.entityData.set(SimplePlant.TAKES_COINCIDE_DMG, false);
+        this.navigation.getNodeEvaluator().setCanFloat(true);
     }
 
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 4D)
-                .add(Attributes.MOVEMENT_SPEED, 0.1D)
-                .add(Attributes.ATTACK_DAMAGE, 1D);
+                .add(Attributes.MOVEMENT_SPEED, 0.5D)
+                .add(Attributes.ATTACK_DAMAGE, 2D);
     }
     @Override
     protected void defineSynchedData() {
@@ -86,6 +88,23 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     }
     public boolean canBreatheUnderwater() {
         return true;
+    }
+    @Override
+    protected float getWaterSlowDown() {
+        return 0F;
+    }
+    @Override
+    public void travel(Vec3 p_27490_) {
+        if (this.isEffectiveAi() && this.isInWater()) {
+            this.moveRelative(0.05F, p_27490_);
+            this.move(MoverType.SELF, this.getDeltaMovement());
+            this.setDeltaMovement(this.getDeltaMovement().scale(0.9D));
+            if (this.getTarget() == null) {
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -0.005D, 0.0D));
+            }
+        } else {
+            super.travel(p_27490_);
+        }
     }
     @Override
     public void tick() {
@@ -316,6 +335,12 @@ public class TangleKelp extends SimplePlant implements Bucketable {
 
         @Override
         public void tick() {
+            if (tangleKelp.getTarget() == null || tangleKelp.getTarget().getVehicle() != null) {
+                if (tangleKelp.getFirstPassenger() != tangleKelp.getTarget()) {
+                    tangleKelp.setTarget(null);
+                }
+                tangleKelp.getNavigation().stop();
+            }
             if (tangleKelp.tickCount % 50 < 2 && tangleKelp.hasSkill(OXYGEN_SKILL_NAME)) {
                 List<LivingEntity> list = tangleKelp.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
                         new AABB(tangleKelp.getX() - 6, tangleKelp.getY() - 6, tangleKelp.getZ() - 6,
@@ -325,10 +350,9 @@ public class TangleKelp extends SimplePlant implements Bucketable {
             }
             if (tangleKelp.hasSkill(TORPEDO_SKILL_NAME) && EntityUtil.isEntityValid(tangleKelp.getTarget())) {
                 tangleKelp.lookAt(tangleKelp.getTarget(), 10, 10);
-                tangleKelp.setDeltaMovement(tangleKelp.getDeltaMovement().multiply(0, 1, 0)
-                        .add(tangleKelp.getTarget().position().subtract(tangleKelp.position()).multiply(1, 0, 1).normalize()
-                                .scale(tangleKelp.getAttributeValue(Attributes.MOVEMENT_SPEED)))
-                        );
+                if (tangleKelp.tickCount % 10 < 2) {
+                    tangleKelp.getNavigation().moveTo(tangleKelp.getTarget(), 1F);
+                }
             }
             if (tangleKelp.isInWaterOrBubble()) {
                 if (! EntityUtil.isEntityValid(tangleKelp.getFirstPassenger())) {

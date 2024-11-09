@@ -29,20 +29,22 @@ public class EntityHypnotizedLayer<T extends LivingEntity, M extends EntityModel
     });
 
     public EntityHypnotizedLayer(RenderLayerParent<T, M> layerParent) {
-        super(layerParent, null, EntityHypnotizedLayer::hypnotisedColorFunction, (entity, partialTicks, ageInTicks) -> (float) Math.sin(ageInTicks / 20) * 0.2F + 0.4F);
+        super(layerParent, EntityHypnotizedLayer::hypnotisedColorFunction, null);
         renderer = (LivingEntityRenderer<T, M>) layerParent;
     }
 
     public static Vec3 hypnotisedColorFunction(LivingEntity entity, Float partialTick, Float ageInTicks) {
-        return new Vec3(0.7F + 0.3F * Math.sin(partialTick / 15),
-                0.2F + 0.2F * Math.sin(partialTick / 20),
-                0.4F + 0.3F * Math.sin(partialTick / 25));
+        return new Vec3(0.8F + 0.2F * Math.sin(partialTick / 15),
+                0.3F + 0.3F * Math.sin(partialTick / 23),
+                0.4F + 0.4F * Math.sin(partialTick / 10));
     }
     @Override
-    public void render(PoseStack stack, MultiBufferSource bufferSource, int p_117351_, T entity, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
+    public void render(PoseStack stack, MultiBufferSource bufferSource, int packedLightIn, T entity,
+                       float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         this.res = renderer.getTextureLocation(entity);
+        alpha = (float) Math.sin(ageInTicks / 20) * 0.2F + 0.4F;
         if (entity.getAttribute(Attributes.ARMOR).getModifier(PVZMobEffects.HYPNOTIZED_EFFECT_UUID) != null && entity.hurtTime <= 0 && entity.deathTime <= 0) {
-            super.render(stack, bufferSource, p_117351_, entity, p_117353_, p_117354_, p_117355_, p_117356_, p_117357_, p_117358_);
+            super.render(stack, bufferSource, packedLightIn, entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         }
     }
 

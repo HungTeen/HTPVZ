@@ -155,9 +155,9 @@ public class PeaBullet extends BaseBullet {
         } else {
             final float damage = this.getAttackDamage();
             //default normal damage.
-            hurt = target.hurt(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(PVZDamageSource.bypassShield(
+            hurt = target.hurt(PVZDamageSource.ignoreInvTime(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(PVZDamageSource.bypassShield(
                     PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
-                    , getKnockBackStrength()), target, 0.2F), damage);
+                    , getKnockBackStrength()), target, 0.2F)), damage);
             this.discard();
         }
         if (! hurt) {

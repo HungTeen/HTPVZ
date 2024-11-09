@@ -83,7 +83,7 @@ public class PeaShooter extends ShooterPlant {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
                 .add(Attributes.ATTACK_DAMAGE, 5D)
-                .add(Attributes.ATTACK_KNOCKBACK, 0D);
+                .add(Attributes.ATTACK_KNOCKBACK, 0.35D);
     }
 
 }

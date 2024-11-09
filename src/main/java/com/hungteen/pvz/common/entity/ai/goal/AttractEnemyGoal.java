@@ -25,7 +25,7 @@ public class AttractEnemyGoal extends Goal {
         countDown = 15;
     }
     public AttractEnemyGoal(Mob entity) {
-        this(entity, () -> true, entity.getAttribute(Attributes.FOLLOW_RANGE).getValue());
+        this(entity, () -> true, -1);
     }
 
     @Override
@@ -53,6 +53,7 @@ public class AttractEnemyGoal extends Goal {
     }
 
     public void attractEnemies(Mob entity) {
+        double range = this.range < 0 ? entity.getAttribute(Attributes.FOLLOW_RANGE).getValue() : this.range;
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
             //attracting limits about tergetEntity.
             boolean outOfHeightRegion = (targetEntity.getY() <= entity.getY()) == (targetEntity.getY() <= entity.getBbHeight() + entity.getY()) &&

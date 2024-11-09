@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 
 public class HypnoShroomRenderer<T extends HypnoShroom> extends MobRenderer<T, EntityModel<T>> {
@@ -19,9 +20,13 @@ public class HypnoShroomRenderer<T extends HypnoShroom> extends MobRenderer<T, E
     public HypnoShroomRenderer(EntityRendererProvider.Context context) {
         super(context, new HypnoShroomModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("hypno_shroom:main"))), 0.4F);
         this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/hypno_shroom/hypno_shroom_light_red.png"),
-                (shroom, partialTicks, ageInTicks) -> (float) Math.sin(ageInTicks / 20) * 0.3F + (shroom.isSleeping() ? 0.2F : 0.7F)));
+                (shroom, partialTicks, ageInTicks) -> (float) Math.max(0, Math.sin(ageInTicks / 20) * 0.2F + (shroom.isSleeping() ? 0F : 0.2F))));
         this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/hypno_shroom/hypno_shroom_light_blue.png"),
-                (shroom, partialTicks, ageInTicks) -> (float) Math.cos(ageInTicks / 20) * 0.3F + (shroom.isSleeping() ? 0.2F : 0.7F)));
+                (shroom, partialTicks, ageInTicks) -> (float) Math.max(0, Math.cos(ageInTicks / 20) * 0.2F + (shroom.isSleeping() ? 0F : 0.2F))));
+        this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/hypno_shroom/hypno_shroom_light_pink.png"),
+                (shroom, partialTicks, ageInTicks) -> (float) Math.max(0, Math.cos(ageInTicks / 20 + Math.PI) * 0.2F + (shroom.isSleeping() ? 0F : 0.2F))));
+        this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/hypno_shroom/hypno_shroom_light_green.png"),
+                (shroom, partialTicks, ageInTicks) -> (float) Math.max(0, Math.sin(ageInTicks / 20 + Math.PI) * 0.1F + (shroom.isSleeping() ? 0F : 0.1F))));
     }
 
 

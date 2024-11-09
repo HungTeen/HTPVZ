@@ -22,7 +22,7 @@ public class ChomperRenderer<T extends Chomper> extends MobRenderer<T, EntityMod
         super(context, new ChomperModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("chomper:main"))), 0.8F);
         this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/chomper/chomper_sculk.png"),
                 (chomper, partialTicks, ageInTicks) -> EntityUtil.isSculk(chomper) && ! chomper.hasSkill(Chomper.SUN_SKILL_NAME) ?
-                        (float) Math.sin(ageInTicks / 20) * 0.4F + 0.6F : 0));
+                        (float) Math.sin(ageInTicks / 20) * 0.2F + 0.4F : 0));
         this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/chomper/chomper_light.png"),
                 (chomper, partialTicks, ageInTicks) ->
                         chomper.hasSkill("skill.pvz.chomper.energy_transduction") && chomper.getPose() == Pose.CROAKING ?

@@ -37,6 +37,11 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
             this.rightLeg.xRot += this.swimAmount * 0.55F * Mth.sin(0.1F * p_102004_);
             this.head.xRot = 0.0F;
         }
+        if (zombie.isBaby()) {
+            hat.xScale = 1.5F;
+            hat.yScale = 1.5F;
+            hat.zScale = 1.5F;
+        }
 
         this.setArmPose(zombie);
 

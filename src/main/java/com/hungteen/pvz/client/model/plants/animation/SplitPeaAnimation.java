@@ -6,13 +6,13 @@ import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.animation.KeyframeAnimations;
 
 /**
- * Made with Blockbench 4.9.4
+ * Made with Blockbench 4.11.2
  * Exported for Minecraft version 1.19 or later with Mojang mappings
  * @author Author
  */
 public class SplitPeaAnimation {
 	public static final AnimationDefinition idle = AnimationDefinition.Builder.withLength(2.0F).looping()
-		.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION, 
+		.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 			new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(0.56F, KeyframeAnimations.degreeVec(10.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(1.56F, KeyframeAnimations.degreeVec(-10.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
