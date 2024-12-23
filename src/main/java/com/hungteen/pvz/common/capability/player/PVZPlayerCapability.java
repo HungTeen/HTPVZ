@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
 import com.hungteen.pvz.common.entity.FallenStar;
 import com.hungteen.pvz.common.entity.Sun;
+import com.hungteen.pvz.common.item.PumpkinHelmetItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -25,6 +26,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -64,7 +66,6 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         }
         return nbt;
     }
-
     public static void tick(TickEvent.ServerTickEvent ev) {
         for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
             //timed sync
@@ -242,6 +243,12 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         InvasionTeam.spawnFor(player);
                     }
                     nbt.addValue("last_invasion", 1);
+                }
+                //pumpkin helmet
+                ItemStack itemStack = player.containerMenu.getCarried();
+                if (itemStack.getItem() instanceof PumpkinHelmetItem pumpkinHelmet) {
+                    pumpkinHelmet.changeToPumpkin(itemStack, player.level, player.position().add(0, player.getBbHeight() / 2, 0), player.getXRot(), player.getYRot(), player.getDeltaMovement());
+                    player.containerMenu.setCarried(ItemStack.EMPTY);
                 }
             });
         }

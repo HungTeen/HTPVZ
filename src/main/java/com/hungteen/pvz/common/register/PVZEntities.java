@@ -3,7 +3,6 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.model.plants.*;
-import com.hungteen.pvz.client.model.zombie.TacoImpModel;
 import com.hungteen.pvz.client.renderer.EntityLifterRenderer;
 import com.hungteen.pvz.client.renderer.ModelPartRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
@@ -108,7 +107,7 @@ public class PVZEntities {
             .collision(0.9F, 1.4F).entity("moo_bloom", MooBloom::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<GrassCarp>> GRASSCARP = summonRule(Type.IN_WATER, Types.MOTION_BLOCKING_NO_LEAVES, GrassCarp::checkGrassCarpSpawnRules)
             .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
-            .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.WATER_AMBIENT);
+            .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.AXOLOTLS);
     public static final RegistryObject<EntityType<Anger>> ANGER = spawnEgg(0xff2f3b, 0xfff45b).attribute(Anger::createAttributes)
             .collision(0.4F, 0.4F).noLoot().entity("anger", Anger::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F).noLoot()
@@ -192,6 +191,9 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<JackInABoxZombie>> JACK_IN_A_BOX_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0xddd4d4, 0xcc4646)
             .entity("jack_in_a_box_zombie", JackInABoxZombie::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<DiggerZombie>> DIGGER_ZOMBIE = attribute(DiggerZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x3e81bf, 0xff4834)
+            .entity("digger_zombie", DiggerZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<Imp>> IMP = attribute(Imp::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0xaa3a39, 0x454ab0)
             .entity("imp", Imp::new, MobCategory.MONSTER);
@@ -271,6 +273,7 @@ public class PVZEntities {
         r(e, ZOMBIE, PVZZombieRenderer::new);
         r(e, POLE_VAULTING_ZOMBIE, PoleVaultingZombieRenderer::new);
         r(e, JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieRenderer::new);
+        r(e, DIGGER_ZOMBIE, DiggerZombieRenderer::new);
         r(e, IMP, ImpRenderer::new);
         r(e, TACO_IMP, TacoImpRenderer::new);
         r(e, GARGANTUAR, GargantuarRenderer::new);

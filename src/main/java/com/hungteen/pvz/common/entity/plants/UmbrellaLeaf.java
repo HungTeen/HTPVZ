@@ -5,11 +5,10 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
-import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -17,19 +16,18 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -65,11 +63,14 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     }
 
     public boolean canBounce(Entity entity, boolean isClient) {
+        AttributeInstance instance = this.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (instance != null && instance.getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
+            return false;
+        }
         if (entity.getType().is(Tags.EntityTypes.BOSSES) || entity.getDeltaMovement().length() < 0.5 || ! this.isAlive()) {
             return false;
         }
-        BlockHitResult blockedCheck = level.clip(new ClipContext(position(), entity.position(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
-        if (blockedCheck.getType() != HitResult.Type.MISS) {
+        if (Util.hasBlockBetween(this.level, this.position(), entity.position())) {
             return false;
         }
         if (isClient) {
@@ -148,6 +149,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         public UmbrellaLeafBounceGoal(UmbrellaLeaf entity) {
             super();
             this.entity = entity;
+            this.setFlags(EnumSet.of(Flag.TARGET));
         }
         @Override
         public boolean canUse() {

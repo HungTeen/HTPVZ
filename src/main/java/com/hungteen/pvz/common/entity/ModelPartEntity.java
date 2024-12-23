@@ -138,6 +138,7 @@ public class ModelPartEntity extends Entity {
         newPart.xScale = original.xScale;
         newPart.yScale = original.yScale;
         newPart.zScale = original.zScale;
+        newPart.visible = original.visible;
         return newPart;
     }
 

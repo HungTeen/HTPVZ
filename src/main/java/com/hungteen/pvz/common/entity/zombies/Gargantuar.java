@@ -18,7 +18,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -105,12 +104,19 @@ public class Gargantuar extends PVZZombie {
         this.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
         this.setItemSlot(EquipmentSlot.LEGS, ItemStack.EMPTY);
         this.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
+        Mob mob = this.getRider(level, difficulty, spawnType);
+        if (mob != null) {
+            mob.startRiding(this);
+        }
+        return spawnGroupData;
+    }
+
+    public Mob getRider(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType) {
         Imp imp = PVZEntities.IMP.get().create(this.level);
         imp.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
         imp.finalizeSpawn(level, difficulty, spawnType, null, null);
         imp.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
-        imp.startRiding(this);
-        return spawnGroupData;
+        return imp;
     }
 
     public boolean doHurtTarget(Entity p_21372_) {

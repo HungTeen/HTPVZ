@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
@@ -37,7 +38,10 @@ public class InvasionTeam {
 
 
     public static void spawnFor(ServerPlayer player) {
-        InvasionTeam team = new InvasionTeam(new PathSeeker((ServerLevel) player.level), player);
+        PathSeeker seeker = new PathSeeker((ServerLevel) player.level);
+        seeker.minDistance = 576;
+        seeker.maxDistance = 1024;
+        InvasionTeam team = new InvasionTeam(seeker, player);
         team.seeker.center = player.blockPosition();
         team.seeker.targetPos = player.blockPosition();
         teamsToSummon.put(player, team);
@@ -51,8 +55,11 @@ public class InvasionTeam {
         }
         if (! seeker.availablePositions.isEmpty()) {
             for (BlockPos pos : seeker.availablePositions) {
+                if (target.level.getBrightness(LightLayer.BLOCK, pos) > 0) {
+                    return false;
+                }
                 double dist = pos.distSqr(target.blockPosition());
-                if (dist > 100 && dist < 574) {
+                if (dist > 576 && dist < 1024) {
                     double horizontalDistSqr = (pos.getX() - target.getX()) * (pos.getX() - target.getX()) + (pos.getZ() - target.getZ()) * (pos.getZ() - target.getZ());
                     double verticalDist = pos.getY() - target.getY();
                     if (verticalDist > 0 || verticalDist * verticalDist < 1.5 * horizontalDistSqr) {

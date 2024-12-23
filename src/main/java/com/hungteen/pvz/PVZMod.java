@@ -121,7 +121,7 @@ public class PVZMod
         forgeBus.addGenericListener(Level.class, CapabilityHandler::attachLevelCaps);
         forgeBus.addListener(PVZMod::registerCommands);
         forgeBus.addListener(PVZMod::onServerTick);
-        forgeBus.addListener(PVZMod::onRenderTick);
+        forgeBus.addListener(PVZMod::onClientTick);
         PVZConfig.init();
 
         forgeBus.register(this);
@@ -230,23 +230,25 @@ public class PVZMod
     }
 
     @SubscribeEvent
-    public static void onRenderTick(TickEvent.RenderTickEvent ev) {
-        float time = 1F / Minecraft.fps > 10 ? 10 : 1F / Minecraft.fps;
+    public static void onClientTick(TickEvent.ClientTickEvent ev) {
         if (ev.phase == TickEvent.Phase.START) {
+            //counts
             if (ClientProxy.getPlayer() != null) {
-                PVZOverlayHandler.tick(time);
+                PVZOverlayHandler.tick(0.05F);
             }
-            EssenceAltarRenderer.time += Minecraft.getInstance().isPaused() ? 0 : time;
+            EssenceAltarRenderer.time += 0.05F;
             if (EssenceAltarRenderer.time > 200) {
                 EssenceAltarRenderer.time -= 200;
             }
-            EssenceAltarScreen.nameRollTime += time;
+            EssenceAltarScreen.nameRollTime += 0.05F;
             if (EssenceAltarScreen.nameRollTime > 20) {
                 EssenceAltarScreen.nameRollTime -= 20;
             }
             if (! Minecraft.getInstance().isPaused()) {
-                PVZFog.clientFogsTick(time);
+                PVZFog.clientFogsTick(0.05F);
             }
+            //caps tick
+            PVZEntityCapability.clientTick(ev);
         }
     }
 

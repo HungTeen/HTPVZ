@@ -43,10 +43,24 @@ public class ArrowWithATarget extends AbstractArrow {
             this.getOwner().gameEvent(GameEvent.PROJECTILE_LAND, result.getEntity());
         }
         super.onHitEntity(result);
+        if (this.isRemoved() && result.getEntity() instanceof LivingEntity living) {
+            if (! this.level.isClientSide && this.getPierceLevel() <= 0 && living.getArrowCount() > 0) {
+                living.setArrowCount(living.getArrowCount() - 1);
+                living.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+                    cap.setStuckArrowWithATarget(cap.getStuckArrowWithATarget() + 1);
+                });
+            }
+        }
     }
+
     @Override
     protected void onHitBlock(BlockHitResult result) {
         //TODO activate redstone blocks.
+//        BlockState state = level.getBlockState(result.getBlockPos().relative(result.getDirection()));
+//        if (state.is(Blocks.REDSTONE_WIRE)) {
+//            level.setBlock(result.getBlockPos().relative(result.getDirection()), state.setValue(BlockStateProperties.POWER, 8),3);
+//            level.updateNeighborsAt(result.getBlockPos().relative(result.getDirection()), Blocks.REDSTONE_WIRE);
+//        }
         super.onHitBlock(result);
     }
 }

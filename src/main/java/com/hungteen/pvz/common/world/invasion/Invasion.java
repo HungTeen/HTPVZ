@@ -172,7 +172,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 if (this.waves.size() > 0) {
                     Wave lastWave = this.waves.get(this.waves.size() - 1);
                     lastWave.threat *= 0.8;
-                    lastWave.minimumWaitTime += 150;
+                    lastWave.minimumWaitTime += 300;
                     if (lastWave.maximumWaitTime < lastWave.minimumWaitTime) lastWave.maximumWaitTime = lastWave.minimumWaitTime;
                 }
                 threat *= 1.2;
@@ -180,7 +180,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             }
             length += waveLength;
             threat = Math.max(100, threat);
-            this.addWave(bigWave, threat, (int) Math.max(400, waveLength * 0.8), (int) Math.max(1000, waveLength * 1.2));
+            this.addWave(bigWave, threat, (int) Math.max(400, waveLength * 0.6), (int) Math.max(1000, waveLength * 1.2));
         }
         return totalLength;
     }
@@ -245,9 +245,9 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                     ((this.members.isEmpty() || totalTime - lastRemoveTime > 150)
                             && this.waveEnemies.size() >= this.summonedEntities.size() /*enemies spawned up*/
                             && this.currentWaveTime > this.getCurrentWave().minimumWaitTime /*time up*/) ||
-                    ((this.members.isEmpty() || totalTime - lastRemoveTime > 150 ||
+                    ((this.members.size() < this.summonedEntities.size() / 2 || totalTime - lastRemoveTime > 150 ||
                             (totalTime - lastSpawnTime > 150 && this.waveEnemies.size() < this.summonedEntities.size()) /*enemies can't spawn*/)
-                            && this.waves.size() - 1 > this.currentWave /*not final wave*/
+                            && this.waves.size() - 1 > this.currentWave /*current wave is not final wave*/
                             && this.currentWaveTime > this.getCurrentWave().maximumWaitTime /*time up*/)
             )) {
                 this.switchWave();
@@ -396,6 +396,18 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
 
     public void switchWave() {
         if (this.currentWave < this.waves.size() - 1) {
+            for (Entity entity : this.members) {
+                if (! (entity instanceof LivingEntity living) ||
+                        living.getLastHurtByMobTimestamp() < living.tickCount - 500 || living.getLastHurtByMobTimestamp() > Math.max(500, living.tickCount)) {
+                    this.getCurrentWave().threat -= 20;
+                    if (target == null || (entity.distanceToSqr(target) >
+                            ((level.clip(new ClipContext(Vec3.atCenterOf(position), target.position(), ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null)).getType()
+                                    == HitResult.Type.MISS) ? 576 : 64))) {
+                        entity.discard();
+                        this.getCurrentWave().threat += 100;
+                    }
+                }
+            }
             this.currentWave += 1;
             this.currentWaveTime = 0;
             this.currentWaveThreat = 0;
@@ -407,15 +419,6 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 this.getCurrentWave().threat *= Math.min(2, (float) getPlayerAttack() / 800);
                 this.getCurrentWave().minimumWaitTime -= getPlayerAttack() / 5;
                 this.getCurrentWave().maximumWaitTime -= getPlayerAttack() / 5;
-            }
-            for (Entity entity : this.members) {
-                this.getCurrentWave().threat -= 20;
-                if (target == null || (entity.distanceToSqr(target) >
-                        ((level.clip(new ClipContext(Vec3.atCenterOf(position), target.position(), ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null)).getType()
-                                == HitResult.Type.MISS) ? 576 : 64))) {
-                    entity.discard();
-                    this.getCurrentWave().threat += 100;
-                }
             }
             this.getCurrentWave().threat = Math.max(0, this.getCurrentWave().threat);
             this.waveEnemies = generateEnemies(this.getCurrentWave().threat);

@@ -2,7 +2,9 @@ package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -25,6 +27,7 @@ import net.minecraft.world.item.SuspiciousStewItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 import static net.minecraft.world.level.biome.Biomes.*;
@@ -42,9 +45,9 @@ public class MooBloom extends Cow implements Shearable, net.minecraftforge.commo
     }
 
     public static boolean checkMooBloomSpawnRules(EntityType<? extends Animal> entityType, LevelAccessor level, MobSpawnType mobSpawnType, BlockPos blockPos, RandomSource rand) {
-        return level.getBiome(blockPos).is(SUNFLOWER_PLAINS)
-                || (level.getBiome(blockPos).is(FLOWER_FOREST) || level.getBiome(blockPos).is(MEADOW) && rand.nextInt(3) == 0)
-                || rand.nextInt(10) == 0
+        Holder<Biome> biome = level.getBiome(blockPos);
+        return ! biome.is(PVZBiomeTags.UNABLE_MOOBLOOM_SPAWNING) &&
+                (biome.is(SUNFLOWER_PLAINS) || (biome.is(PVZBiomeTags.EXTRA_MOOBLOOM_SPAWNING) && rand.nextInt(3) == 0) || rand.nextInt(10) == 0)
                 && checkAnimalSpawnRules(entityType, level, mobSpawnType, blockPos, rand);
     }
 

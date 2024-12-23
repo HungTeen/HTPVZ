@@ -2,11 +2,11 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
-import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
@@ -49,7 +49,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.common.ForgeMod;
 
 import java.util.List;
 import java.util.Optional;
@@ -244,7 +243,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         super.registerGoals();
         this.goalSelector.addGoal(1, new TangleKelpAttackGoal(this));
         this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this,
-                (entity)-> EntityUtil.checkCanEntityBeAttack(this, entity) && ! entity.isPassenger(), -1));
+                (entity) -> DisperseEnemyTargetGoal.getDefaultPredicate(this).test(entity) && ! entity.isPassenger(), -1));
     }
 
     public boolean rideableUnderWater() {

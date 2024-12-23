@@ -6,7 +6,6 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanAttack;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
-import com.hungteen.pvz.api.interfaces.IPlantShovelable;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
@@ -47,7 +46,6 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -229,8 +227,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         this.goalSelector.addGoal(1, new ChomperAttackGoal(this));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
         this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this,
-                (entity)-> this.getPose() != Pose.SWIMMING && EntityUtil.checkCanEntityBeAttack(this, entity) &&
-                        ! entity.isPassenger(), 3));
+                (entity) -> this.getPose() != Pose.SWIMMING && ! entity.isPassenger() && DisperseEnemyTargetGoal.getDefaultPredicate(this).test(entity), 3));
     }
     @Override
     protected void defineSynchedData() {

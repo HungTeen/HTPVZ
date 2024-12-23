@@ -2,12 +2,12 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.SimplePlant;
-import com.hungteen.pvz.common.entity.bullet.ButterBullet;
-import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
 import com.hungteen.pvz.common.entity.bullet.MelonBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
@@ -83,7 +83,7 @@ public class MelonPult extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 12D)
+                .add(Attributes.ATTACK_DAMAGE, 16D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

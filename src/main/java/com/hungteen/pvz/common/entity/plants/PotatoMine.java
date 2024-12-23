@@ -76,7 +76,7 @@ public class PotatoMine extends SimplePlant {
         if (!this.level.isClientSide) {
             this.dead = true;
             float radius = this.hasSkill(STRONG_SKILL_NAME) ? 3F : 2F;
-            level.explode(this, knockBack(ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), 0.1F), null, this.getX(), this.getY(), this.getZ(),
+            level.explode(this, knockBack(ignoreInvTime(teamFilter(multiply(DamageSource.explosion(this).bypassArmor(), 1.25F))), 0.1F), null, this.getX(), this.getY(), this.getZ(),
                     radius, false, Explosion.BlockInteraction.NONE);
             if (this.isPoisonous()) {
                 this.spawnPoisonCloud();
@@ -285,6 +285,11 @@ public class PotatoMine extends SimplePlant {
                 targets.addAll(this.potatoMine.level.getEntities(potatoMine, new AABB(potatoMine.getRootBlockPos()),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(potatoMine, entity)));
                 if (! targets.isEmpty()) {
+                    targets.forEach(target -> {
+                        if (target instanceof Mob mob) {
+                            mob.setTarget(potatoMine);
+                        }
+                    });
                     potatoMine.getEntityData().set(EXPLODE_COUNT, 0);
                 }
             }

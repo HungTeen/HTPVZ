@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.common.entity.bullet.ButterBullet;
 import com.hungteen.pvz.common.entity.bullet.MelonBullet;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.event.RegisterSproutsEvent;
@@ -64,13 +63,11 @@ public class OtherRegisters {
 
     //Bullet types.
     public static EntityDataSerializer<PeaBullet.PeaType> peaTypeDataSerializer = EntityDataSerializer.simpleEnum(PeaBullet.PeaType.class);
-    public static EntityDataSerializer<ButterBullet.ButterSkill> butterSkillDataSerializer = EntityDataSerializer.simpleEnum(ButterBullet.ButterSkill.class);
     public static EntityDataSerializer<MelonBullet.MelonType> melonTypeDataSerializer = EntityDataSerializer.simpleEnum(MelonBullet.MelonType.class);
     public static EntityDataSerializer<MelonBullet.MelonSkill> melonSkillDataSerializer = EntityDataSerializer.simpleEnum(MelonBullet.MelonSkill.class);
 
     static {
         EntityDataSerializers.registerSerializer(peaTypeDataSerializer);
-        EntityDataSerializers.registerSerializer(butterSkillDataSerializer);
         EntityDataSerializers.registerSerializer(melonTypeDataSerializer);
         EntityDataSerializers.registerSerializer(melonSkillDataSerializer);
     }

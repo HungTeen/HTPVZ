@@ -11,7 +11,7 @@ import java.util.Optional;
 public class HypnotizedTargetGoal extends DisperseEnemyTargetGoal {
 
     public HypnotizedTargetGoal(Mob mob) {
-     super(mob, target -> EntityUtil.checkCanEntityBeAttack(mob, target), -1);
+     super(mob);
     }
     @Override
     public boolean canUse() {

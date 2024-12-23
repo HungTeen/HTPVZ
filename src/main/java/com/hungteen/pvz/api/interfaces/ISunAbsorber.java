@@ -11,9 +11,6 @@ public interface ISunAbsorber {
         return true;
     }
     void onAbsorb(ISun sun);
-    boolean isSunContainer();
-    /**If object {@link ISunAbsorber#isSunContainer() is sun container}, this method below can be used.*/
-    int getContainingSun();
     default Vec3 position() {
         return this instanceof Entity ? ((Entity) this).position().add(0, ((Entity) this).getBbHeight() / 2, 0) :
                 Vec3.atCenterOf(((BlockEntity) this).getBlockPos());

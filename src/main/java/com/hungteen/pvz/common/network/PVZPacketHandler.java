@@ -27,6 +27,7 @@ public class PVZPacketHandler {
         CHANNEL.registerMessage(id ++, PlanternRefreshGlowPacket.class, PlanternRefreshGlowPacket::toBytes, PlanternRefreshGlowPacket::new, PlanternRefreshGlowPacket::handle);
         CHANNEL.registerMessage(id ++, ZombieEventPacket.class, ZombieEventPacket::toBytes, ZombieEventPacket::new, ZombieEventPacket::handle);
         CHANNEL.registerMessage(id ++, PlayerKnockBackPacket.class, PlayerKnockBackPacket::toBytes, PlayerKnockBackPacket::new, PlayerKnockBackPacket::handle);
+        CHANNEL.registerMessage(id ++, PVZEntityCapPacket.class, PVZEntityCapPacket::toBytes, PVZEntityCapPacket::new, PVZEntityCapPacket::handle);
         //CLIENT TO SERVER.
         CHANNEL.registerMessage(id ++, PVZAddSkillPacket.class, PVZAddSkillPacket::toBytes, PVZAddSkillPacket::new, PVZAddSkillPacket::handle);
         CHANNEL.registerMessage(id ++, PVZEntityInteractPacket.class, PVZEntityInteractPacket::toBytes, PVZEntityInteractPacket::new, PVZEntityInteractPacket::handle);
@@ -43,7 +44,7 @@ public class PVZPacketHandler {
     }
 
     public static <MSG> void sendToNearByClient(Level world, Vec3 vec, double dis, MSG msg){
-        PVZPacketHandler.CHANNEL.send(PacketDistributor.NEAR.with(() ->
+        CHANNEL.send(PacketDistributor.NEAR.with(() ->
                 new PacketDistributor.TargetPoint(vec.x, vec.y, vec.z, dis, world.dimension())), msg);
     }
 

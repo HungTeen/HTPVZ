@@ -14,7 +14,7 @@ public class TacoImpModel<T extends TacoImp> extends PVZZombieModel<T> {
     }
     public static LayerDefinition createBodyLayer() {
         MeshDefinition definition = PlayerModel.createMesh(CubeDeformation.NONE, false);
-        //pole
+        //taco
         PartDefinition root = definition.getRoot();
         PartDefinition taco = root.getChild("body").addOrReplaceChild("taco", CubeListBuilder.create().texOffs(64, 0).addBox(-3.5F, -13.0F, -7.0F, 7.0F, 7.0F, 14.0F, new CubeDeformation(0.0F))
                 .texOffs(86, 11).addBox(2.0F, -16.0F, -10.0F, 0.0F, 10.0F, 20.0F, new CubeDeformation(0.0F))

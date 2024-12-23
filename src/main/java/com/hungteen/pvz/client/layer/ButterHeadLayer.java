@@ -58,7 +58,7 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
                     poseStack.translate(0, -getBoneHeight(head) / 16, 0);
                     main.compile(poseStack.last(), vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                     main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
-                } else if (model instanceof QuadrupedModel model1) {
+                } else if (model instanceof QuadrupedModel<?> model1) {
                     model1.head.translateAndRotate(poseStack);
                     poseStack.translate(0, -getBoneHeight(model1.head) / 16, 0);
                     main.compile(poseStack.last(), vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);

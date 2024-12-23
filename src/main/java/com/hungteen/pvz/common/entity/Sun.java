@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.entity;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.interfaces.ISun;
 import com.hungteen.pvz.api.interfaces.ISunAbsorber;
+import com.hungteen.pvz.api.interfaces.ISunContainer;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.network.SpawnParticlePacket;
@@ -27,7 +28,7 @@ import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Map;
 
-public class Sun extends Entity implements ISunAbsorber, ISun {
+public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     public static final float SUN_FALL_SPEED = 0.03F;
     public static final int DEFAULT_AMOUNT = 50;
     public static final int MAX_LIVE_TICK = 500;
@@ -173,14 +174,6 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         } else {
             return false;
         }
-    }
-    @Override
-    public int getContainingSun(){
-        return getAmount();
-    }
-    @Override
-    public boolean isSunContainer() {
-        return true;
     }
 
     //basic

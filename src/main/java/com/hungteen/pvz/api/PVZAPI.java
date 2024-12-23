@@ -2,7 +2,6 @@ package com.hungteen.pvz.api;
 
 import com.google.common.base.Suppliers;
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -37,7 +36,7 @@ public class PVZAPI {
         //player
         /**The key for sun in playerStats. */
         String getSunString();
-        /**The sun a player have. For {@link com.hungteen.pvz.api.interfaces.ISunAbsorber ISunAbsorber}, use {@link ISunAbsorber#getContainingSun() getContainingSun()}.*/
+        /**The sun a player have. For {@link com.hungteen.pvz.api.interfaces.ISunContainer ISunAbsorber}, use {@link com.hungteen.pvz.api.interfaces.ISunContainer#getAmount() getContainingSun()}.*/
         int getSun(Player player);
         /**Whether it costs player's sun when planting.*/
         boolean plantHaveCost(Player player);

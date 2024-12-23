@@ -13,7 +13,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
@@ -39,10 +38,6 @@ public class PVZWorldEvents {
     public static void PVZShieldBlock(ShieldBlockEvent ev) {
         LivingEntity entity = ev.getEntity();
 
-        if (ev.getDamageSource().getEntity() instanceof LivingEntity source && source.isUsingItem() &&
-                source.getUseItem().getItem() instanceof ShieldItem && entity.isUsingItem()) {
-            ev.getEntity().stopUsingItem();
-        }
         if (! (entity instanceof Player)) {
             ItemStack item = entity.getUseItem();
 

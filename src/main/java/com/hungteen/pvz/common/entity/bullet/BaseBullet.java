@@ -4,6 +4,7 @@ import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -152,11 +153,19 @@ public class BaseBullet extends Projectile {
 	protected boolean dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
 		//default normal damage.
-		boolean hurt = target.hurt(PVZDamageSource.ignoreInvTime(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(
-						PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
-				, getKnockBackStrength()), target, 0.2F)), damage);
+		boolean hurt = target.hurt(getDamageSource(target), damage);
 		this.discard();
 		return hurt;
+	}
+
+	protected DamageSource getDamageSource(Entity target) {
+		DamageSource source = PVZDamageSource.ignoreInvTime(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(
+				PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
+				, getKnockBackStrength()), target, 0.2F));
+		if (! this.isNoGravity()) {
+			source.damageHelmet();
+		}
+		return source;
 	}
 
 	protected int getMaxLiveTick() {

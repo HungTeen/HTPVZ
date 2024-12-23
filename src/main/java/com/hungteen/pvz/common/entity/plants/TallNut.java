@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
-public class TallNut extends WallNut{
+public class TallNut extends WallNut {
     public static final String  PROJ_PROTECTION_SKILL_NAME = "skill.pvz.tall_nut.projectile_protection";
     public static List<Skill> staticSkillList = List.of(
             new Skill(WallNut.FIRST_AID_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
@@ -38,9 +38,9 @@ public class TallNut extends WallNut{
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 75D)
-                .add(Attributes.ARMOR, 60D)
-                .add(Attributes.ARMOR_TOUGHNESS, 30D)
+                .add(Attributes.MAX_HEALTH, 100D)
+                .add(Attributes.ARMOR, 80D)
+                .add(Attributes.ARMOR_TOUGHNESS, 40D)
                 .add(Attributes.FOLLOW_RANGE, 3D);
     }
     public void setupPresentationAnim() {
@@ -48,7 +48,7 @@ public class TallNut extends WallNut{
     public boolean canBowling() {return false;}
 
     public float getMaxIronArmor() {
-        return 300;
+        return 400;
     }
 
     @SubscribeEvent

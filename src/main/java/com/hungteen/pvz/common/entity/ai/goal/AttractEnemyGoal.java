@@ -47,6 +47,9 @@ public class AttractEnemyGoal extends Goal {
     public float getBasicAttractingStrength(Entity attacker, Entity target) {
         return target instanceof IAttractsEnemy entity ? entity.getAttractStrength(attacker) : (target instanceof Player ? 10 : 5);
     }
+    public float getAttractingLevel(Entity attacker, Entity target) {
+        return target instanceof IAttractsEnemy entity ? entity.getAttractLevel(attacker) : 10;
+    }
 
     public float getAttractingStrength(Entity attacker, Entity target) {
         return getBasicAttractingStrength(attacker, target) / target.distanceTo(attacker);
@@ -63,9 +66,11 @@ public class AttractEnemyGoal extends Goal {
             if (targetEntity instanceof Mob && ! EntityUtil.isTeammate(entity, targetEntity)) {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
+                float thisLevel = getAttractingLevel(targetEntity, entity);
+                float originalLevel = getAttractingLevel(targetEntity, targetOfTarget);
                 if (! EntityUtil.isEntityValid(targetOfTarget) ||
-                        (getAttractingStrength(targetEntity, targetOfTarget) < getAttractingStrength(targetEntity, entity)) &&
-                                ((! PVZConfig.PVZGameRules.getBoolean(entity.level, PVZConfig.Common.teamBattle)) || (EntityUtil.isTeammate(entity, targetOfTarget)))) {
+                        ((originalLevel < thisLevel || (originalLevel == thisLevel && getAttractingStrength(targetEntity, targetOfTarget) < getAttractingStrength(targetEntity, entity))) &&
+                                ((! PVZConfig.PVZGameRules.getBoolean(entity.level, PVZConfig.Common.teamBattle)) || (EntityUtil.isTeammate(entity, targetOfTarget))))) {
                     if (((Mob) targetEntity).targetSelector.getAvailableGoals().stream().anyMatch((goal) -> goal.getGoal() instanceof TargetGoal)) {
                         ((Mob) targetEntity).setTarget(entity);
                     }

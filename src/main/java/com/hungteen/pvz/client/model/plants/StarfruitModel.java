@@ -28,7 +28,7 @@ public class StarfruitModel<T extends Starfruit> extends HierarchicalModel<T> {
 
 	public StarfruitModel(ModelPart root) {
 		this.total = root.getChild("total");
-		this.body = total.getChild("body");
+		this.body = total.getChild("head");
 		this.r1 = body.getChild("1");
 		this.r2 = body.getChild("2");
 		this.r3 = body.getChild("3");
@@ -47,7 +47,8 @@ public class StarfruitModel<T extends Starfruit> extends HierarchicalModel<T> {
 
 		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-		PartDefinition body = total.addOrReplaceChild("body", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		//named head to let butter layer identify.
+		PartDefinition body = total.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition main_r1 = body.addOrReplaceChild("main_r1", CubeListBuilder.create().texOffs(0, 32).addBox(-4.3F, -2.5F, -5.0F, 9.0F, 5.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.2F, -3.0F, 0.0F, 0.0F, 3.1416F, 0.0F));
 

@@ -8,11 +8,12 @@ import com.hungteen.pvz.common.entity.plants.LilyPad;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 
-public class LilyPadModel<T extends LilyPad> extends EntityModel<T> {
+public class LilyPadModel<T extends LilyPad> extends HierarchicalModel<T> {
 	private final ModelPart total;
 	private final ModelPart eyes;
 
@@ -42,5 +43,10 @@ public class LilyPadModel<T extends LilyPad> extends EntityModel<T> {
 	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		total.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+	}
+
+	@Override
+	public ModelPart root() {
+		return total;
 	}
 }

@@ -2,15 +2,17 @@ package com.hungteen.pvz.client.gui;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.plants.GatlingPea;
-import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
@@ -30,12 +32,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
@@ -48,15 +50,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import static net.minecraft.util.Mth.*;
+import static net.minecraft.util.Mth.ceil;
 
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID, value = Dist.CLIENT)
 @OnlyIn(Dist.CLIENT)
 public class PVZOverlayHandler {
-    public static String invasionString = "";
     private static double bufferSunAmount = 0;
     private static int bufferSunBarLength = 0;
     private static final Random random = new Random();
@@ -127,38 +127,47 @@ public class PVZOverlayHandler {
             mc.getProfiler().push("pvz_armor");
 
             int armorHealth = 0;
+            int ironArmorHealth = 0;
             for (ItemStack itemStack : player.getArmorSlots()) {
                 if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
-                    armorHealth += itemStack.getMaxDamage() - itemStack.getDamageValue();
+                    int extra = itemStack.getMaxDamage() - itemStack.getDamageValue();
+                    armorHealth += extra;
+                    if (itemStack.is(PVZItemTags.IRON)) {
+                        ironArmorHealth += extra;
+                    }
                 }
             }
-
             if (armorHealth == 0) return;
-
-            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
-            RenderSystem.enableBlend();
-
             armorHealth /= 5; // 5 durability equals to 1 health.
+            ironArmorHealth /= 5;
 
             int armorRows = (int) Math.ceil((float) armorHealth / 5.0F / 10.0F);
             int rowHeight = Math.max(6 - armorRows, 3);
             int left = width / 2 - 100;
             int top = height - gui.leftHeight;
-            int draws = Mth.ceil((float) armorHealth / 5.0F);
-            for (int i = draws; armorHealth > 0; -- i) {
+            int totalDrawTimes = Mth.ceil((float) armorHealth / 5.0F);
+
+            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
+            RenderSystem.enableBlend();
+            for (int i = totalDrawTimes; i > 0; -- i) {
                 int x = left + ((i - 1) % 10) * 8 + 9;
                 int y = top - ((i - 1) / 10) * rowHeight;
-                if (i == draws && Math.round((float) armorHealth / 5.0F) != draws) {
+                if (i == totalDrawTimes && Math.round((float) armorHealth / 5.0F) != Math.ceil((float) armorHealth / 5.0F)) {
                     blit(stack, x, y, 100, 10, 9, 9);
                 } else {
                     blit(stack, x, y, 90, 10, 9, 9);
                 }
-                armorHealth -= 5;
+                if (ironArmorHealth > (i - 1) * 5) {
+                    if (i > Math.floor((float) ironArmorHealth / 5.0F) && Math.round((float) ironArmorHealth / 5.0F) != Math.ceil((float) ironArmorHealth / 5.0F)) {
+                        blit(stack, x, y, 120, 10, 9, 9);
+                    } else {
+                        blit(stack, x, y, 110, 10, 9, 9);
+                    }
+                }
             }
             RenderSystem.disableBlend();
 
-
-            gui.leftHeight += 10;
+            gui.leftHeight += ((armorHealth / 50 - 1) / 10) * rowHeight;
             mc.getProfiler().pop();
         }
     }
@@ -172,32 +181,43 @@ public class PVZOverlayHandler {
             mc.getProfiler().push("pvz_armor");
 
             int armorHealth = 0;
+            int ironArmorHealth = 0;
             for (ItemStack itemStack : player.getArmorSlots()) {
                 if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
-                    armorHealth += itemStack.getMaxDamage() - itemStack.getDamageValue();
+                    int extra = itemStack.getMaxDamage() - itemStack.getDamageValue();
+                    armorHealth += extra;
+                    if (itemStack.is(PVZItemTags.IRON)) {
+                        ironArmorHealth += extra;
+                    }
                 }
             }
-            int health = (int) (player.getMaxHealth() + Mth.ceil(player.getAbsorptionAmount()));
-            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
-            RenderSystem.enableBlend();
-
+            if (armorHealth == 0) return;
             armorHealth /= 5; // 5 durability equals to 1 health.
+            ironArmorHealth /= 5;
 
-            int healthRows = Mth.ceil((health) / 2.0F / 10.0F);
+            int health = (int) (player.getMaxHealth() + Mth.ceil(player.getAbsorptionAmount()));
+            int healthRows = Mth.ceil(health / 2.0F / 10.0F);
             int rowHeight = Math.max(12 - healthRows, 3);
             int left = width / 2 - 100;
             int top = height - gui.leftHeight + healthRows * rowHeight + (rowHeight != 10 ? 10 - rowHeight : 0);
+            int totalDrawTimes = (int) Math.min(Mth.ceil((float) armorHealth / 5.0F), Math.ceil((float) health / 2));
 
-            for (int i = 0; armorHealth > 0 && health > 0; ++i) {
-                int x = left + (i % 10) * 8 + 9;
-                int y = top - (i / 10) * rowHeight;
-                health -= 2;
-                if (2 <= armorHealth) {
-                    blit(stack, x, y, 90, 0, 9, 9);
-                    armorHealth -= 2;
-                } else {
+            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
+            RenderSystem.enableBlend();
+            for (int i = totalDrawTimes; i > 0; -- i) {
+                int x = left + ((i - 1) % 10) * 8 + 9;
+                int y = top - ((i - 1) / 10) * rowHeight;
+                if (health - 2 * i == 1 || i == totalDrawTimes && Math.round((float) armorHealth / 5.0F) != Math.ceil((float) armorHealth / 5.0F)) {
                     blit(stack, x, y, 100, 0, 9, 9);
-                    armorHealth -= 1;
+                } else {
+                    blit(stack, x, y, 90, 0, 9, 9);
+                }
+                if (ironArmorHealth > (i - 1) * 5) {
+                    if (health - 2 * i == 1 || i > Math.floor((float) ironArmorHealth / 5.0F) && Math.round((float) ironArmorHealth / 5.0F) != Math.ceil((float) ironArmorHealth / 5.0F)) {
+                        blit(stack, x, y, 120, 0, 9, 9);
+                    } else {
+                        blit(stack, x, y, 110, 0, 9, 9);
+                    }
                 }
             }
             RenderSystem.disableBlend();
@@ -226,12 +246,18 @@ public class PVZOverlayHandler {
         }
     }
 
-    private static void renderButter(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
-        if (ClientProxy.MC.getCameraEntity() instanceof LivingEntity entity &&
-                entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null)
-        {
-            gui.renderTextureOverlay(Util.prefix("textures/gui/butter_outline.png"),
-                    entity.hasEffect(PVZMobEffects.BUTTER.get()) ? Math.min(1, (float) entity.getEffect(PVZMobEffects.BUTTER.get()).getDuration() / 60) : 0);
+    private static void renderOverlays(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+        if (ClientProxy.MC.getCameraEntity() instanceof LivingEntity entity) {
+            ItemStack itemStack = entity.getItemBySlot(EquipmentSlot.HEAD);
+            if (itemStack.is(PVZItems.PUMPKIN_HELMET.get()) && ClientProxy.MC.options.getCameraType().isFirstPerson()) {
+                PVZOverlayHandler.renderTextureOverlay(Util.prefix("textures/gui/outline/pumpkin_outline_" +
+                                itemStack.getDamageValue() * 3 / itemStack.getMaxDamage() + ".png"), width, height
+                        , Util.clientLight(entity.level, entity.position()), 1);
+            }
+            if (entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
+                gui.renderTextureOverlay(Util.prefix("textures/gui/outline/butter_outline.png"),
+                        entity.hasEffect(PVZMobEffects.BUTTER.get()) ? Math.min(1, (float) entity.getEffect(PVZMobEffects.BUTTER.get()).getDuration() / 60) : 0);
+            }
         }
     }
 
@@ -363,6 +389,7 @@ public class PVZOverlayHandler {
 
             }
             RenderSystem.disableBlend();
+            Util.setTexture(new ResourceLocation("textures/gui/icons.png"));
             mc.getProfiler().pop();
         }
     }
@@ -376,7 +403,7 @@ public class PVZOverlayHandler {
             int x;
             int y = height - 32;
             int w;
-            if (storedMainHandItemStack.getItem() instanceof SeedPacketItem<?>) {
+            if (storedMainHandItemStack != null && storedMainHandItemStack.getItem() instanceof SeedPacketItem<?>) {
                 x = player.getInventory().selected * 20 + width / 2 - 80;
                 if (mainHandResourceIsSun) {
                     if (PVZConfig.renderSunAsNumber()) {
@@ -410,7 +437,7 @@ public class PVZOverlayHandler {
                 }
             }
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
-            if (storedOffHandItemStack.getItem() instanceof SeedPacketItem<?>) {
+            if (storedOffHandItemStack != null && storedOffHandItemStack.getItem() instanceof SeedPacketItem<?>) {
                 x = width / 2 - 110;
                 if (offHandResourceIsSun) {
                     if (PVZConfig.renderSunAsNumber()) {
@@ -593,10 +620,31 @@ public class PVZOverlayHandler {
         ev.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "item_cooldown", PVZOverlayHandler::renderCoolDownValue);
         ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "pvz_armor_on_health", PVZOverlayHandler::renderArmorOnHealthBar);
         ev.registerAbove(VanillaGuiOverlay.ARMOR_LEVEL.id(), "pvz_armor_bar", PVZOverlayHandler::renderArmorAsSingleBar);
-        ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "butter", PVZOverlayHandler::renderButter);
+        ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "overlays", PVZOverlayHandler::renderOverlays);
         ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "hypnosis", PVZOverlayHandler::renderHypnosis);
         ev.registerAbove(VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), "invasion", PVZOverlayHandler::renderInvasionBars);
     }
-
+    public static void renderTextureOverlay(ResourceLocation texture, double screenWidth, double screenHeight, int rgb, float alpha) {
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        float r = (float) (rgb >> 16 & 255) / 255;
+        float g = (float) (rgb >> 8 & 255) / 255;
+        float b = (float) (rgb & 255) / 255;
+        RenderSystem.setShaderColor(r, g, b, alpha);
+        RenderSystem.setShaderTexture(0, texture);
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferbuilder.vertex(0.0D, screenHeight, -90.0D).uv(0.0F, 1.0F).endVertex();
+        bufferbuilder.vertex(screenWidth, screenHeight, -90.0D).uv(1.0F, 1.0F).endVertex();
+        bufferbuilder.vertex(screenWidth, 0.0D, -90.0D).uv(1.0F, 0.0F).endVertex();
+        bufferbuilder.vertex(0.0D, 0.0D, -90.0D).uv(0.0F, 0.0F).endVertex();
+        tesselator.end();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+    }
     public record ZombieEventBarInformation(UUID uuid, int x, int y, BossEvent event) {};
 }

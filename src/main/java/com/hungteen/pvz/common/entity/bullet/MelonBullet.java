@@ -2,9 +2,9 @@ package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.OtherRegisters;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZMobEffects;
-import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -12,8 +12,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -21,14 +19,14 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -74,7 +72,7 @@ public class MelonBullet extends BaseBullet {
                 entities.forEach((entity -> {
                     entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
                                     new IndirectEntityDamageSource(getDamageName(), this, getOwner() instanceof LivingEntity ? getOwner() : this))
-                            , getKnockBackStrength()), this.getAttackDamage() / 4);//splash damage regarded as non projectile.
+                            , getKnockBackStrength()), this.getAttackDamage() / 3);//splash damage regarded as non projectile.
                     if (this.getMelonType() == MelonType.Ice && entity.canFreeze()) {
                         entity.setTicksFrozen(400);
                     }
@@ -94,7 +92,7 @@ public class MelonBullet extends BaseBullet {
                 entities.forEach((entity -> {
                     entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
                                     PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
-                            , getKnockBackStrength()), this.getAttackDamage() / 4);
+                            , getKnockBackStrength()), this.getAttackDamage() / 3);
                     if (this.getMelonType() == MelonType.Ice && entity.canFreeze()) {
                         entity.setTicksFrozen(400);
                     }

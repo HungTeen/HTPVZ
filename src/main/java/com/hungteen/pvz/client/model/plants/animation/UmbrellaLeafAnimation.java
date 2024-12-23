@@ -12,7 +12,7 @@ import net.minecraft.client.animation.KeyframeAnimations;
  */
 public class UmbrellaLeafAnimation {
 	public static final AnimationDefinition idle = AnimationDefinition.Builder.withLength(1.52F).looping()
-		.addAnimation("total", new AnimationChannel(AnimationChannel.Targets.POSITION,
+		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.POSITION,
 			new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(0.76F, KeyframeAnimations.posVec(0.0F, -0.25F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(1.52F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
@@ -63,7 +63,7 @@ public class UmbrellaLeafAnimation {
 		.build();
 
 	public static final AnimationDefinition open = AnimationDefinition.Builder.withLength(1.0F)
-		.addAnimation("total", new AnimationChannel(AnimationChannel.Targets.POSITION, 
+		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.POSITION,
 			new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 12.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(0.28F, KeyframeAnimations.posVec(0.0F, 10.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(0.48F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),

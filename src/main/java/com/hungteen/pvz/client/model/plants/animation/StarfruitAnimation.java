@@ -12,13 +12,13 @@ import net.minecraft.client.animation.KeyframeAnimations;
  */
 public class StarfruitAnimation {
 	public static final AnimationDefinition idle = AnimationDefinition.Builder.withLength(2.0F).looping()
-		.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 			new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(0.52F, KeyframeAnimations.degreeVec(-2.0F, -2.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(1.28F, KeyframeAnimations.degreeVec(0.0F, 2.0F, 2.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
 		))
-		.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.POSITION, 
+		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.POSITION,
 			new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 			new Keyframe(0.12F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 			new Keyframe(0.8F, KeyframeAnimations.posVec(0.0F, 1.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
@@ -61,13 +61,13 @@ public class StarfruitAnimation {
 		.build();
 
 	public static final AnimationDefinition shoot = AnimationDefinition.Builder.withLength(2.0F).looping()
-		.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.ROTATION, 
+		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.ROTATION,
 			new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(1.04F, KeyframeAnimations.degreeVec(-2.0F, -15.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(1.28F, KeyframeAnimations.degreeVec(0.0F, 360.0F, 2.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(2.0F, KeyframeAnimations.degreeVec(0.0F, 360.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
 		))
-		.addAnimation("body", new AnimationChannel(AnimationChannel.Targets.POSITION, 
+		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.POSITION,
 			new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 			new Keyframe(0.12F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
 			new Keyframe(0.68F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),

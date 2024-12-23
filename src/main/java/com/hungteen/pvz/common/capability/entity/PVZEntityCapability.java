@@ -3,10 +3,11 @@ package com.hungteen.pvz.common.capability.entity;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
+import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.common.network.PVZEntityCapPacket;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -35,15 +36,28 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     public UUID ownerUuid = null;
     //invasion
     public Set<UUID> zombieEventUUIDs = new HashSet<>();
-    private final ServerScoreboard scoreboard;
     public short tickCount = 0;
     public String hypnosisTempTeam;
     public boolean containsInvasion = false;
+    //client
+    public boolean isDirty = true;
+    private int stuckArrowWithATarget = 0;
 
     public static final Capability<PVZEntityCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
     public PVZEntityCapability(Entity entity) {
         this.entity = entity;
-        scoreboard = entity.getServer().getScoreboard();
+    }
+
+    public static void clientTick(TickEvent.ClientTickEvent ev) {
+        if (ClientProxy.MC.level == null) {
+            return;
+        }
+        ClientProxy.MC.level.getEntities().getAll().forEach(entity -> {
+            entity.getCapability(CAP).ifPresent((cap) -> {
+            //sync
+                PVZEntityCapPacket.read(entity.getUUID(), cap);
+            });
+        });
     }
 
     public static void tick(TickEvent.ServerTickEvent ev) {
@@ -67,9 +81,9 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                     if (! EntityUtil.isEntityValid(cap.owner)) {
                         cap.owner = null;
                     } else if (EntityUtil.canReteamToOwner(cap.entity, cap.owner)) {
-                        PlayerTeam team = cap.scoreboard.getPlayersTeam(cap.owner.getScoreboardName());
-                        if (team != null && team != cap.scoreboard.getPlayersTeam(name)) {
-                            cap.scoreboard.addPlayerToTeam(name, team);
+                        PlayerTeam team = cap.entity.getServer().getScoreboard().getPlayersTeam(cap.owner.getScoreboardName());
+                        if (team != null && team != cap.entity.getServer().getScoreboard().getPlayersTeam(name)) {
+                            cap.entity.getServer().getScoreboard().addPlayerToTeam(name, team);
                         }
                     }
                 }
@@ -100,6 +114,15 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                         removingUUIDs.forEach(uuid -> cap.zombieEventUUIDs.remove(uuid));
                     });
                 }
+
+                //stuck arrow_with_a_target render----------------------------------------------------------------------
+                if (cap.stuckArrowWithATarget > 0 && entity1.tickCount % 3200 == 0) {
+                    cap.stuckArrowWithATarget --;
+                    cap.isDirty = true;
+                }
+
+                //sync--------------------------------------------------------------------------------------------------
+                PVZEntityCapPacket.sync(entity1.getUUID(), cap);
             });
         }))));
     }
@@ -109,7 +132,7 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
         this.owner = entity;
         if (entity == null) {
             this.ownerUuid = null;
-            scoreboard.removePlayerFromTeam(this.entity.getScoreboardName());
+            this.entity.getServer().getScoreboard().removePlayerFromTeam(this.entity.getScoreboardName());
         } else {
             this.ownerUuid = entity.getUUID();
             Scoreboard scoreboard = this.entity.getServer().getScoreboard();
@@ -134,6 +157,16 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
         return zombieEventUUIDs != null;
     }
 
+    //client
+    public void setStuckArrowWithATarget(int num) {
+        this.stuckArrowWithATarget = num;
+        this.isDirty = true;
+    }
+
+    public int getStuckArrowWithATarget() {
+        return this.stuckArrowWithATarget;
+    }
+
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         return cap == CAP ? LazyOptional.of(() -> (T) this) : LazyOptional.empty();
@@ -147,6 +180,7 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             basicTag.putString("team_before_hypnosis", hypnosisTempTeam); //when this variable is saved it can only be the team before hypnosis.
         }
         basicTag.putInt("cost", cost);
+        basicTag.putInt("stuck_arrow_with_a_target", stuckArrowWithATarget);
         if (owner != null) {
             basicTag.putUUID("owner", owner.getUUID());
         }
@@ -170,6 +204,9 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
         }
         if (nbt.contains("cost")) {
             this.cost = nbt.getInt("cost");
+        }
+        if (nbt.contains("stuck_arrow_with_a_target")) {
+            this.stuckArrowWithATarget = nbt.getInt("stuck_arrow_with_a_target");
         }
         if (nbt.contains("team_before_hypnosis")) {
             this.hypnosisTempTeam = nbt.getString("team_before_hypnosis");

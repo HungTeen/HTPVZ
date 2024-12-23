@@ -87,7 +87,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
         entityData.set(IRON_ARMOR, value);
     }
     public float getMaxIronArmor() {
-        return 200;
+        return 150;
     }
     public boolean isBowling() {
         return this.entityData.get(IS_BOWLING);
@@ -128,6 +128,24 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
     @Override
     public Predicate<Entity> canPush(){
         return entity -> true;
+    }
+
+    public void push(Entity entity) {
+        int i = 0;
+        while (i < 5) {
+            i ++;
+            super.push(entity);
+        }
+    }
+
+    @Override
+    //to prevent entities from going through wall nuts.
+    protected void pushEntities() {
+        int i = 0;
+        while (i < 4) {
+            i ++;
+            super.pushEntities();
+        }
     }
 
     @Override

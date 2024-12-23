@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -21,7 +22,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
-public class SplitPea extends PeaShooter{
+public class SplitPea extends PeaShooter {
     protected static final EntityDataAccessor<Byte> TARGET = SynchedEntityData.defineId(SplitPea.class, EntityDataSerializers.BYTE);
 
     public AnimationState forwardAnimationState = new AnimationState();
@@ -219,7 +220,7 @@ public class SplitPea extends PeaShooter{
         @Override
         public boolean canUse() {
             byte target = 0;
-            if (! EntityUtil.isEntityValid(splitPea.backwardTarget)) {
+            if (! DisperseEnemyTargetGoal.getDefaultPredicate(splitPea).and(splitPea::isHeightAvailable).test(splitPea.backwardTarget)) {
                 splitPea.backwardTarget = null;
             } else {
                 Vec3 vec1 = splitPea.getLookAngle();

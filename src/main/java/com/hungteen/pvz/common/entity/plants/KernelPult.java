@@ -12,13 +12,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
@@ -27,7 +27,6 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
-import java.util.Set;
 
 public class KernelPult extends ShooterPlant {
     public static final EntityDataAccessor<Integer> CURRENT_BULLET = SynchedEntityData.defineId(KernelPult.class, EntityDataSerializers.INT);
@@ -35,11 +34,9 @@ public class KernelPult extends ShooterPlant {
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
 
     public static final String BUTTER_SKILL_NAME = "skill.pvz.kernel_pult.butter_pult";
-    public static final String TRAP_SKILL_NAME = "skill.pvz.kernel_pult.butter_trap";
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 200, 300),
-            new Skill(TRAP_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 8, 25, 0).avoidSkills(BUTTER_SKILL_NAME)
+            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 200, 300)
     );
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {
@@ -85,9 +82,6 @@ public class KernelPult extends ShooterPlant {
     protected BaseBullet createBullet() {
         if(this.getCurrentBullet() == CornTypes.BUTTER) {
             ButterBullet bullet = new ButterBullet(level, this);
-            if (this.hasSkill(TRAP_SKILL_NAME)) {
-                bullet.setButterSkill(ButterBullet.ButterSkill.POTION);
-            }
             return bullet;
         }
         return new CornBullet(level, this);

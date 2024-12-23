@@ -1,5 +1,7 @@
 package com.hungteen.pvz.client.model.zombie;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.PlayerModel;
@@ -16,6 +18,12 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
     }
     public PVZZombieModel(ModelPart p_170821_, boolean slim) {
         super(p_170821_, slim);
+    }
+
+    @Override
+    protected Iterable<ModelPart> headParts() {
+        //why didn't they just animate models only in setupAnim() instead of also in renderToBuffer()?
+        return Iterables.concat(super.headParts(), ImmutableList.of(this.hat));
     }
 
     public void setupAnim(T zombie, float p_102002_, float p_102003_, float p_102004_, float p_102005_, float p_102006_) {
@@ -36,11 +44,6 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
             this.leftLeg.xRot -= this.swimAmount * 0.55F * Mth.sin(0.1F * p_102004_);
             this.rightLeg.xRot += this.swimAmount * 0.55F * Mth.sin(0.1F * p_102004_);
             this.head.xRot = 0.0F;
-        }
-        if (zombie.isBaby()) {
-            hat.xScale = 1.5F;
-            hat.yScale = 1.5F;
-            hat.zScale = 1.5F;
         }
 
         this.setArmPose(zombie);
@@ -80,8 +83,8 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
         this.leftSleeve.copyFrom(this.leftArm);
         this.rightSleeve.copyFrom(this.rightArm);
         this.jacket.copyFrom(this.body);
+        this.hat.copyFrom(this.head);
     }
-
     public boolean isAggressive(T p_104155_) {
         return p_104155_.isAggressive();
     }

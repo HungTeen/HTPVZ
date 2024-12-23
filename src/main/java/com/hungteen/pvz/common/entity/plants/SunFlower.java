@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
+import com.hungteen.pvz.api.interfaces.ISunContainer;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
@@ -11,6 +12,7 @@ import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -53,8 +55,16 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
 
     @Override
     public int extraMaxSun(BlockPos pos, Entity giveTo) {
-        return giveTo instanceof Player player && EntityUtil.isTeammate(player, this) ?
-                Math.min(50, Math.max(1000 - (int) player.getAttributeValue(PVZAttributes.SUN.get()), 0)) : 0;
+        int light = level.getBrightness(LightLayer.SKY, this.blockPosition()) - level.getSkyDarken();
+        int extra = (light > 12 || this.hasEffect(PVZMobEffects.BRIGHTNESS.get())) ? 50 : (light > 9 ? 25 : 0);
+        int current = 0;
+        if (giveTo instanceof Player player && player.getAttribute(PVZAttributes.SUN.get()) != null) {
+            current = (int) ((LivingEntity) giveTo).getAttributeValue(PVZAttributes.SUN.get());
+        } else if (giveTo instanceof ISunContainer container) {
+            current = container.getCapacity();
+        }
+        return EntityUtil.isTeammate(giveTo, this) ?
+                Math.min(extra, Math.max(1000 - current, 0)) : 0;
     }
     @Override
     public boolean requireRefreshExtraMaxSun() {

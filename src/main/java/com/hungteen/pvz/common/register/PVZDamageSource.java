@@ -3,15 +3,19 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IArmorEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
+import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.boss.EnderDragonPart;
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
@@ -30,13 +34,12 @@ public class PVZDamageSource {
 
     /**For compatibility pvz damages are not changing any vanilla damage types but added decorations to them to meet PvZ's need.
      * <br>However, thus the damage sources decorated by PvZ damageSource decorators are unable to safely reuse due because they may be still stored in PVZDamageSource and may be affected by PvZ damage-related events. Before reuse them, call {@link PVZDamageSource#clear()}.
-     * <br><br>For damage that are sharp, use {@link PVZDamageSource#storedSharpSources}.*/
+     * <br><br>For damage that are sharp, use {@link PVZDamageSource#staticSharpSources}.*/
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
     public static final DamageSource SPIKE_WEED = new DamageSource("spike_weed");
     public static final DamageSource FALLEN_STAR = new DamageSource("fallen_star");
     public static final DamageSource TANGLE_KELP = setSharp(new DamageSource("tangle_kelp").bypassArmor());
 
-    //TODO need a decorator for AOE damages?
     //damageSource decorators
     public static DamageSource teamFilter(DamageSource source) {
         teamFilterSource = source;
@@ -48,7 +51,7 @@ public class PVZDamageSource {
         return source;
     }
     public static DamageSource hitBossWithProportion(DamageSource source, Entity target, float factor) {
-        if (target instanceof EnderDragon || target instanceof EnderDragonPart) {
+        if (target.getType().is(Tags.EntityTypes.BOSSES) || (target instanceof PartEntity<?> part && part.getParent().getType().is(Tags.EntityTypes.BOSSES))) {
             hurtBossSource = new DamageSource(source.getMsgId()).setExplosion();
             if (source.getEntity() != null) {
                 PVZEntityCapability cap = source.getEntity().getCapability(PVZEntityCapability.CAP).orElse(null);
@@ -59,6 +62,7 @@ public class PVZDamageSource {
             if (source.isProjectile()) {
                 hurtBossSource.setProjectile();
             }
+            //TODO change to copy();
             bossFactor = factor;
             return hurtBossSource;
         }
@@ -86,7 +90,14 @@ public class PVZDamageSource {
         return source;
     }
     public static boolean isSharp(DamageSource source) {
-        return sharpSource == source || storedSharpSources.contains(source);
+        return sharpSource == source || staticSharpSources.contains(source);
+    }
+    public static DamageSource setElectric(DamageSource source) {
+        electricSource = source;
+        return source;
+    }
+    public static boolean isElectric(DamageSource source) {
+        return electricSource == source || staticElectricSources.contains(source);
     }
     public static DamageSource setNotEating(DamageSource source) {
         notEatingSource = source;
@@ -132,9 +143,11 @@ public class PVZDamageSource {
     private static int invTime = 0;
 
     private static DamageSource sharpSource = null;
+    private static DamageSource electricSource = null;
 
     private static DamageSource notEatingSource = null;
-    public static Set<DamageSource> storedSharpSources = Set.of(DamageSource.CACTUS);
+    public static Set<DamageSource> staticSharpSources = Set.of(DamageSource.CACTUS);
+    public static Set<DamageSource> staticElectricSources = Set.of(DamageSource.LIGHTNING_BOLT);
 
     public static void clear() {
         sharpSource = null;
@@ -144,9 +157,38 @@ public class PVZDamageSource {
         knockBackSource = null;
         teamFilterSource = null;
     }
+    public static DamageSource copy(DamageSource source) {
+        return source;//TODO complete this.
+    }
+
     @SubscribeEvent
     public static void handleAttack(LivingAttackEvent ev) {
         //handle damageSource decorators.
+        if (PVZDamageSource.isElectric(ev.getSource())) {
+            ev.setCanceled(true);
+            LivingEntity entity = ev.getEntity();
+            if (entity.getUseItem().is(PVZItemTags.IRON)) {
+                entity.stopUsingItem();
+            }
+            Map<EquipmentSlot, ItemStack> invalidItems = new HashMap<>();
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                ItemStack item = entity.getItemBySlot(slot);
+                if (item.is(PVZItemTags.IRON)){
+                    invalidItems.put(slot, item);
+                    entity.setItemSlot(slot, ItemStack.EMPTY);
+                }
+            }
+            if (electricSource == ev.getSource()) {
+                electricSource = null;
+                entity.hurt(ev.getSource(), ev.getAmount());
+            } else {
+                entity.hurt(new DamageSource(ev.getSource().getMsgId()), ev.getAmount()); //TODO change to copy().
+            }
+            for (EquipmentSlot slot : invalidItems.keySet()) {
+                entity.setItemSlot(slot, invalidItems.get(slot));
+            }
+            return;
+        }
         if (ev.getSource() == teamFilterSource) {
             if (ev.getSource().getEntity() != null && isTeammate(ev.getSource().getEntity(), ev.getEntity())) {
                 ev.setCanceled(true);
@@ -160,6 +202,7 @@ public class PVZDamageSource {
         }
         if (ev.getSource() == ignoreInvTimeSource && ! (ev.getEntity() instanceof Player)) {
             if (ev.getEntity().invulnerableTime > invTime) {
+                //can not activate.
                 invTime = 0;
                 ignoreInvTimeSource = null;
             } else {
@@ -177,7 +220,19 @@ public class PVZDamageSource {
             ((Entity) vehicle).hurt(ev.getSource(), ev.getAmount());
             return;
         }
-        if (ev.getEntity() instanceof EnderDragon) {
+        //handle ExtraHealthArmorItem
+        if (! ev.getSource().isBypassArmor() || ev.getSource() == DamageSource.FREEZE) {
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                if (slot.getType() == EquipmentSlot.Type.ARMOR) {
+                    ItemStack stack = ev.getEntity().getItemBySlot(slot);
+                    if (stack.getItem() instanceof ExtraHealthArmorItem item) {
+                        item.handleHurt(ev);
+                    }
+                }
+            }
+        }
+        //handle damageSource decorations
+        if (ev.getEntity().getType().is(Tags.EntityTypes.BOSSES)) {
             if (ev.getSource() == hurtBossSource) {
                 ev.setAmount(ev.getAmount() * bossFactor);
             }
@@ -186,8 +241,9 @@ public class PVZDamageSource {
             ev.getSource().bypassArmor = false;
         }
         if (ev.getSource() == ignoreInvTimeSource) {
+            int tmp = ev.getEntity().invulnerableTime;
             ev.getEntity().invulnerableTime = invTime;
-            invTime = 0;
+            invTime = tmp;
         }
         if (ev.getSource() == multiplierSource) {
             ev.setAmount(ev.getAmount() * multiplier);

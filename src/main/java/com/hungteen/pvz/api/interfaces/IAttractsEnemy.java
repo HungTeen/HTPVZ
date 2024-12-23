@@ -8,4 +8,7 @@ public interface IAttractsEnemy {
     default float getAttractStrength(Entity attacker) {
         return 50;
     }
+    default float getAttractLevel(Entity attacker) {
+        return 10;
+    }
 }

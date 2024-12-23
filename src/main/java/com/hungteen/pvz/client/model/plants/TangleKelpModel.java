@@ -7,11 +7,12 @@ import com.hungteen.pvz.common.entity.plants.TangleKelp;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 
-public class TangleKelpModel<T extends TangleKelp> extends EntityModel<T> {
+public class TangleKelpModel<T extends TangleKelp> extends HierarchicalModel<T> {
 	private final ModelPart total;
 	private final ModelPart c1;
 	private final ModelPart c2;
@@ -94,5 +95,10 @@ public class TangleKelpModel<T extends TangleKelp> extends EntityModel<T> {
 	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		total.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+	}
+
+	@Override
+	public ModelPart root() {
+		return total;
 	}
 }

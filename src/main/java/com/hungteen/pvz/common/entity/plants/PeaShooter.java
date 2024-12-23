@@ -18,7 +18,7 @@ import java.util.UUID;
 public class PeaShooter extends ShooterPlant {
     protected static final UUID ATTRIBUTE_MODIFIER_UUID = UUID.fromString("fa192025-b0e7-65ef-9bc3-546a895a193d");
     protected boolean skillBoosted = false;
-    protected static final double SHOOT_OFFSET = -0.4D;//pea spawning position in front of the original pos of pea shooters.
+    protected static final double SHOOT_OFFSET = -0.3D;//pea spawning position in front of the original pos of pea shooters.
     public static String PUNCH_SKILL_NAME = "skill.pvz.pea_shooter.punch";
     public static String SNIPER_SKILL_NAME = "skill.pvz.pea_shooter.sniper";
     public static String FIRE_SKILL_NAME = "skill.pvz.pea_shooter.fire_shooter";

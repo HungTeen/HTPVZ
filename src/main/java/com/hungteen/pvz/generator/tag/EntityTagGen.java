@@ -7,7 +7,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -25,6 +24,7 @@ public class EntityTagGen extends EntityTypeTagsProvider {
         //atEntityRegister
         PVZEntities.tagMap.forEach((entity, tagList)-> tagList.forEach((tag) -> this.tag(tag).add((EntityType<?>) entity.get())));
         this.tag(PVZEntityTags.ENEMY).add(EntityType.END_CRYSTAL);
+        this.tag(PVZEntityTags.FRIENDLY).add(EntityType.ENDERMAN);
     }
 
     private static TagKey<EntityType<?>> tag(String path) {

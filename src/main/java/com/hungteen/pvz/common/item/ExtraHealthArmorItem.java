@@ -10,9 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,8 +21,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Consumer;
 
@@ -36,21 +34,7 @@ public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken{
 
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-        return "pvz:textures/models/armor/" + Registry.ITEM.getKey(stack.getItem()).getPath() + "_" + (stack.getDamageValue() * 3 / stack.getMaxDamage() + ".png");
-    }
-
-    @SubscribeEvent
-    public static void onLivingHurt(LivingHurtEvent event) {
-        if (! event.getSource().isBypassArmor() || event.getSource() == DamageSource.FREEZE) {
-            for (EquipmentSlot slot : EquipmentSlot.values()) {
-                if (slot.getType() == EquipmentSlot.Type.ARMOR) {
-                    ItemStack stack = event.getEntity().getItemBySlot(slot);
-                    if (stack.getItem() instanceof ExtraHealthArmorItem item) {
-                        item.handleHurt(event);
-                    }
-                }
-            }
-        }
+        return "pvz:textures/models/armor/" + ForgeRegistries.ITEMS.getKey(stack.getItem()).getPath() + "_" + (stack.getDamageValue() * 3 / stack.getMaxDamage() + ".png");
     }
 
     public void handleHurt(LivingHurtEvent event) {
@@ -68,8 +52,8 @@ public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken{
         if (level.isClientSide && PVZConfig.Client.zombiesDropParts.get()) {
             EntityModelSet models = Minecraft.getInstance().getEntityModels();
             new ModelPartEntity(level,
-                    models.bakeLayer(PVZLayerHandler.LayerLocationMap.get(Registry.ITEM.getKey(this).getPath() + ":main")),
-                    new ResourceLocation("pvz:textures/models/armor/" + Registry.ITEM.getKey(this).getPath() + "_2.png"))
+                    models.bakeLayer(PVZLayerHandler.LayerLocationMap.get(ForgeRegistries.ITEMS.getKey(this).getPath() + ":main")),
+                    new ResourceLocation("pvz:textures/models/armor/" + ForgeRegistries.ITEMS.getKey(this).getPath() + "_2.png"))
                     .pos(pos)
                     .rotation(new Vec3(0.5, 0, 0)).join(level);
         }
@@ -85,7 +69,7 @@ public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken{
         @Override
         public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
             EntityModelSet models = Minecraft.getInstance().getEntityModels();
-            ModelPart root = models.bakeLayer(PVZLayerHandler.LayerLocationMap.get(Registry.ITEM.getKey(itemStack.getItem()).getPath() + ":main"));
+            ModelPart root = models.bakeLayer(PVZLayerHandler.LayerLocationMap.get(ForgeRegistries.ITEMS.getKey(itemStack.getItem()).getPath() + ":main"));
             return new BucketHelmetModel<>(root);
         }
     }

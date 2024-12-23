@@ -40,7 +40,7 @@ public class PVZBiomeModifier implements BiomeModifier {
     public static void addSpawn(ModifiableBiomeInfo.BiomeInfo.Builder builder) {
         builder.getMobSpawnSettings().getSpawner(MobCategory.CREATURE)
                 .add(new MobSpawnSettings.SpawnerData(PVZEntities.MOOBLOOM.get(), 50, 1, 2));
-        builder.getMobSpawnSettings().getSpawner(MobCategory.WATER_AMBIENT)
-                .add(new MobSpawnSettings.SpawnerData(PVZEntities.GRASSCARP.get(), 20, 1,1));
+        builder.getMobSpawnSettings().getSpawner(MobCategory.AXOLOTLS)
+                .add(new MobSpawnSettings.SpawnerData(PVZEntities.GRASSCARP.get(), 30, 1,1));
     }
 }

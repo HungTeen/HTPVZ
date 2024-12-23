@@ -1,18 +1,12 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.client.model.plants.StarfruitModel;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
-import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.bullet.StarfruitBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
-import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -22,7 +16,6 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 public class Starfruit extends ShooterPlant {
     public static List<Skill> staticSkillList = List.of(

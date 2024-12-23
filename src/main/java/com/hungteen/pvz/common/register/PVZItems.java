@@ -7,7 +7,6 @@ import com.hungteen.pvz.common.item.*;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -115,6 +114,7 @@ public class PVZItems {
     //equipments
     public static final RegistryObject<Item> CONE_HELMET = item("cone_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.CONE, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(250), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(750), EquipmentSlot.HEAD));
+    public static final RegistryObject<Item> PUMPKIN_HELMET = item("pumpkin_helmet", () -> new PumpkinHelmetItem(PVZArmorMaterials.PUMPKIN, new Item.Properties().durability(500), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> DUCK_LIFEBUOY = item("duck_lifebuoy", () -> new DuckLifebuoyItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> SCREEN_DOOR_SHIELD = tag(PVZItemTags.IRON, PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).model(Model.Modeled).item("screen_door_shield", () -> new PVZShieldItem((new Item.Properties()).durability(250).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 

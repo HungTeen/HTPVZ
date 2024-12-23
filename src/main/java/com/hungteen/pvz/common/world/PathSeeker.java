@@ -23,6 +23,8 @@ public class PathSeeker {
     public BlockPos targetPos;
     private static int count = 0;
     private static final Random random = new Random();
+    public int minDistance = 144;
+    public int maxDistance = 576;
 
     public PathSeeker(ServerLevel level) {
         this.tickCount = 0;
@@ -98,7 +100,7 @@ public class PathSeeker {
                 double dist = result.getBlockPos().distSqr(seeker.targetPos);
                 //add to available positions.
                 if (result.getType() != HitResult.Type.MISS && result.getBlockPos().distSqr(position) > (0.5625 * (24 - 4 * generation) * (24 - 4 * generation)) &&
-                        dist > 144 && dist < 576 && result.getDirection() == Direction.UP) {
+                        dist > seeker.minDistance && dist < seeker.maxDistance && result.getDirection() == Direction.UP) {
                     this.seeker.availablePositions.add(growFrom);
                 }
                 if (this.generation <= 3 && Math.abs(this.direction.x) < 80 && dist > 64 && result.getDirection() != Direction.UP) {

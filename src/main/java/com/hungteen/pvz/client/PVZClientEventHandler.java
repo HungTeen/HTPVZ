@@ -3,6 +3,7 @@ package com.hungteen.pvz.client;
 import com.hungteen.pvz.client.layer.ButterHeadLayer;
 import com.hungteen.pvz.client.layer.EntityFrozenLayer;
 import com.hungteen.pvz.client.layer.EntityHypnotizedLayer;
+import com.hungteen.pvz.client.layer.StuckArrowWithATargetLayer;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -45,9 +46,6 @@ public class PVZClientEventHandler {
         renderer.addLayer(new ButterHeadLayer<>(renderer));
         renderer.addLayer(new EntityFrozenLayer<>(renderer));
         renderer.addLayer(new EntityHypnotizedLayer<>(renderer));
-    }
-
-    public static void addItemRenderer() {
-
+        renderer.addLayer(new StuckArrowWithATargetLayer<>(renderer));
     }
 }

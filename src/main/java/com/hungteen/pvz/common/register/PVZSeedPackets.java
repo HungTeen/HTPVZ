@@ -66,7 +66,7 @@ public class PVZSeedPackets {
                 .recipe(Items.GLOW_LICHEN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.TORCH_WOOD).cost(300).coolDown(SLOW).skillList(TorchWood.staticSkillList)
                 .recipeBlock(PVZBlocks.woodList.get(0).get(PVZBlocks.WoodSet.Log), PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
-        add(PVZEntities.TALL_NUT).cost(125).coolDown(SLOW).skillList(TallNut.staticSkillList)
+        add(PVZEntities.TALL_NUT).cost(125).coolDown(VERY_SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.NETHER_WART_SEED_PACKET);
         add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
                 .recipeBlock(PVZBlocks.PLANTERN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE);
@@ -76,7 +76,7 @@ public class PVZSeedPackets {
                 .recipe(Items.PUMPKIN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.UMBRELLA_LEAF).cost(100).coolDown(FAST).skillList(UmbrellaLeaf.staticSkillList)
                 .recipe(Items.BIG_DRIPLEAF, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
-        add(PVZEntities.MELON_PULT).cost(375).coolDown(MEDIUM).skillList(MelonPult.staticSkillList)
+        add(PVZEntities.MELON_PULT).cost(450).coolDown(SLOW).skillList(MelonPult.staticSkillList)
                 .recipe(Items.MELON, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         //the end
         add(PVZEntities.GATLING_PEA).cost(375).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)

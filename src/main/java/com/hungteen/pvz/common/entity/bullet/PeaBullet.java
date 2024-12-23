@@ -9,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -150,16 +151,7 @@ public class PeaBullet extends BaseBullet {
     @Override
     protected boolean dealDamageTo(Entity target) {
         boolean hurt;
-        if (!ignoreShield) {
-            hurt = super.dealDamageTo(target);
-        } else {
-            final float damage = this.getAttackDamage();
-            //default normal damage.
-            hurt = target.hurt(PVZDamageSource.ignoreInvTime(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(PVZDamageSource.bypassShield(
-                    PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()))
-                    , getKnockBackStrength()), target, 0.2F)), damage);
-            this.discard();
-        }
+        hurt = super.dealDamageTo(target);
         if (! hurt) {
             return false;
         }
@@ -180,7 +172,13 @@ public class PeaBullet extends BaseBullet {
         }
         return true;
     }
-
+    protected DamageSource getDamageSource(Entity target) {
+        DamageSource source = super.getDamageSource(target);
+        if (ignoreShield) {
+            PVZDamageSource.bypassShield(source);
+        }
+        return source;
+    }
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();

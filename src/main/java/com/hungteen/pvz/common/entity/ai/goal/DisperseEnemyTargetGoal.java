@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -17,14 +18,19 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
     protected Predicate<Entity> predicate;
     protected double range;
 
-    /**@param range set to -1 to fit follow range attribute.*/
+    /**@param range set to -1 to fit follow range attribute. See {@link DisperseEnemyTargetGoal#getFollowDistance()}.*/
     public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, double range) {
         super(mobIn, LivingEntity.class, true);
         this.predicate = predicate;
         this.range = range;
     }
     public DisperseEnemyTargetGoal(Mob mobIn) {
-        this(mobIn, (entity)-> EntityUtil.checkCanEntityBeAttack(mobIn, entity), -1);
+        this(mobIn, getDefaultPredicate(mobIn), -1);
+    }
+
+    public static Predicate<Entity> getDefaultPredicate(Mob mobIn) {
+        return (entity) -> EntityUtil.checkCanEntityBeAttack(mobIn, entity) &&
+                ! Util.hasBlockBetween(mobIn.level, mobIn.position().add(0, mobIn.getEyeHeight(), 0), entity.position().add(0, entity.getBbHeight() / 2, 0));
     }
     protected double getFollowDistance() {
         return range < 0 ? this.mob.getAttributeValue(Attributes.FOLLOW_RANGE) : range;
@@ -40,6 +46,17 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
         }
         return flag;
     }
+    @Override
+    public boolean canContinueToUse() {
+        if (EntityUtil.isEntityValid(target)) {
+            if (! this.predicate.test(target)) {
+                target = null;
+                this.mob.setTarget(null);
+                return false;
+            }
+        }
+        return super.canContinueToUse();
+    }
 
     protected AABB getTargetSearchArea(double p_26069_) {
         return this.mob.getBoundingBox().inflate(p_26069_, 12.0D, p_26069_);
@@ -51,7 +68,8 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
                 this.predicate), this.targetConditions, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
         if (target != null) {
             double dist = this.mob.distanceTo(target);
-            List<Entity> list = this.mob.level.getEntities(target, target.getBoundingBox().inflate(dist / 4), (entity) -> entity instanceof LivingEntity && this.predicate.test(entity));
+            List<Entity> list = this.mob.level.getEntities(target, target.getBoundingBox().inflate(dist / 4),
+                    (entity) -> entity instanceof LivingEntity && this.predicate.test(entity));
             list.add(target);
             this.target = (LivingEntity) list.get(mob.getRandom().nextInt(list.size()));
         }

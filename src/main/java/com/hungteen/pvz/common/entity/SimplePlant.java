@@ -10,12 +10,10 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
-import com.hungteen.pvz.common.entity.plants.KernelPult;
 import com.hungteen.pvz.common.item.SeedItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEnchantments;
-import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
@@ -34,8 +32,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -44,26 +40,19 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
@@ -353,7 +342,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
 
     protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
-        if (isBeingShoveled(player, handIn, this)) {
+        if (! level.isClientSide && isBeingShoveled(player, handIn, this)) {
             return InteractionResult.CONSUME;
         } else {
             return super.mobInteract(player, handIn);
@@ -367,6 +356,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
 
     //for easy maintenance.
     public static boolean isBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
+        if (target.level.isClientSide) {
+            return false;
+        }
         ItemStack itemstack = player.getItemInHand(handIn);
         ItemStack itemstack1 = player.getItemInHand(InteractionHand.MAIN_HAND);
         boolean flag = (itemstack.getItem() instanceof ShovelItem || itemstack.getItem() instanceof IPlantShovelable)
@@ -465,7 +457,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
 
     //others
     @Override
-    protected void pushEntities(){
+    protected void pushEntities() {
         List<Entity> list = this.level.getEntities(this, this.getBoundingBox(), EntitySelector.pushableBy(this).and(this.canPush()));
         if (!list.isEmpty()) {
             int i = this.level.getGameRules().getInt(GameRules.RULE_MAX_ENTITY_CRAMMING);
@@ -485,6 +477,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             }
         }
     }
+
     public int getAttackTime() {
         return entityData.get(ATTACK_TIME);
     }

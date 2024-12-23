@@ -2,7 +2,6 @@ package com.hungteen.pvz.common.world.invasion;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.event.RegisterInvasionConditionsEvent;
-import com.hungteen.pvz.util.Util;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.Registry;
@@ -125,7 +124,7 @@ public interface InvasionCondition {
     class IsUndergroundCondition implements InvasionCondition {
         @Override
         public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
-            return target.level.getHeight(Heightmap.Types.WORLD_SURFACE, (int) target.getX(), (int) target.getZ()) > target.getY();
+            return target.level.getHeight(Heightmap.Types.WORLD_SURFACE, (int) target.getX(), (int) target.getZ()) > target.getY() + 15;
         }
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {

@@ -9,10 +9,6 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -22,18 +18,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Wearable;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LiquidBlockContainer;
-import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -51,7 +42,7 @@ public class DuckLifebuoyItem extends ArmorItem implements Wearable {
 
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-        return slot == EquipmentSlot.LEGS ? "pvz:textures/models/armor/" + Registry.ITEM.getKey(stack.getItem()).getPath() + ".png" : null;
+        return slot == EquipmentSlot.LEGS ? "pvz:textures/models/armor/" + ForgeRegistries.ITEMS.getKey(stack.getItem()).getPath() + ".png" : null;
     }
 
 
@@ -97,7 +88,7 @@ public class DuckLifebuoyItem extends ArmorItem implements Wearable {
         @Override
         public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
             EntityModelSet models = Minecraft.getInstance().getEntityModels();
-            ModelPart root = models.bakeLayer(PVZLayerHandler.LayerLocationMap.get(Registry.ITEM.getKey(itemStack.getItem()).getPath() + ":main"));
+            ModelPart root = models.bakeLayer(PVZLayerHandler.LayerLocationMap.get(ForgeRegistries.ITEMS.getKey(itemStack.getItem()).getPath() + ":main"));
             return new DuckLifebuoyModel<>(root);
         }
     }

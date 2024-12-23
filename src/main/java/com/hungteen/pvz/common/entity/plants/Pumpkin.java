@@ -13,16 +13,22 @@ import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
@@ -32,8 +38,10 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
     float storedHealth;
 
     public static final String FIRST_AID_SKILL_NAME = "skill.pvz.pumpkin.wall_nut_first_aid";
+    public static final String PUMPKIN_HELMET_SKILL_NAME = "skill.pvz.pumpkin.pumpkin_helmet";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(FIRST_AID_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, 0, 0)
+            new Skill(FIRST_AID_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
+            new Skill(PUMPKIN_HELMET_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 12, 200, 500)
     );
 
     public Pumpkin(EntityType<? extends Mob> entityType, Level level) {
@@ -82,6 +90,26 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
         if (source.isBypassArmor() || entity == null) return false;
         Vec3 pos = entity.position().subtract(target.position());
         return (pos.y * pos.y / (pos.x * pos.x + pos.z * pos.z) < 3);
+    }
+
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (! player.level.isClientSide && this.hasSkill(PUMPKIN_HELMET_SKILL_NAME) && this.getPassengers().isEmpty() &&
+                EntityUtil.isTeammate(player, this) && player.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && player.isShiftKeyDown()) {
+            if (this.isPassenger()) {
+                this.stopRiding();
+            }
+            ItemStack itemStack = PVZItems.PUMPKIN_HELMET.get().getDefaultInstance();
+            itemStack.setDamageValue((int) (itemStack.getMaxDamage() * (1 - this.getHealth()) / this.getMaxHealth()));
+            CompoundTag tag = new CompoundTag();
+            tag.putString("id", ForgeRegistries.ENTITY_TYPES.getKey(this.getType()).toString());
+            this.addAdditionalSaveData(tag);
+            itemStack.getOrCreateTag().put("entity_data", tag);
+            player.setItemSlot(EquipmentSlot.HEAD, itemStack);
+            this.discard();
+            return InteractionResult.CONSUME;
+        }
+        return super.mobInteract(player, hand);
     }
 
     @Override
