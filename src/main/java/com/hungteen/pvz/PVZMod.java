@@ -7,10 +7,11 @@ import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
 import com.hungteen.pvz.common.capability.CapabilityHandler;
-import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.command.CoolDownCommand;
 import com.hungteen.pvz.common.command.OwnCommand;
 import com.hungteen.pvz.common.command.PVZFogCommand;
 import com.hungteen.pvz.common.command.PlayerStatsCommand;
@@ -113,6 +114,7 @@ public class PVZMod
             modBus.addListener(ClientSunImageToolTipComponent::register);
             modBus.addListener(ZenGardenEffects::register);
             modBus.addListener(PVZClientEventHandler::addLayers);
+            modBus.addListener(PVZClientEventHandler::registerExtraModels);
         }
 
 
@@ -255,6 +257,7 @@ public class PVZMod
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent ev){
         CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
+        CoolDownCommand.register(dispatcher, ev.getBuildContext());
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);
         PVZFogCommand.register(dispatcher);

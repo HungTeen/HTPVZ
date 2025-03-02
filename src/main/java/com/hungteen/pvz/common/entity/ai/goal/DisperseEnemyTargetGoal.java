@@ -29,7 +29,7 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
     }
 
     public static Predicate<Entity> getDefaultPredicate(Mob mobIn) {
-        return (entity) -> EntityUtil.checkCanEntityBeAttack(mobIn, entity) &&
+        return (entity) -> EntityUtil.checkCanEntityBeAttack(mobIn, entity) && entity != mobIn &&
                 ! Util.hasBlockBetween(mobIn.level, mobIn.position().add(0, mobIn.getEyeHeight(), 0), entity.position().add(0, entity.getBbHeight() / 2, 0));
     }
     protected double getFollowDistance() {

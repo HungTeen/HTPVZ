@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag> {
     private final Entity entity;
@@ -132,7 +133,6 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
         this.owner = entity;
         if (entity == null) {
             this.ownerUuid = null;
-            this.entity.getServer().getScoreboard().removePlayerFromTeam(this.entity.getScoreboardName());
         } else {
             this.ownerUuid = entity.getUUID();
             Scoreboard scoreboard = this.entity.getServer().getScoreboard();
@@ -146,6 +146,14 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     public Entity getOwner() {
         this.owner = owner == null ? ((ServerLevel) (entity.level)).getEntity(ownerUuid) : owner;
         return owner;
+    }
+
+    public static Entity getOwner(Entity entity) {
+        AtomicReference<Entity> entity1 = new AtomicReference<>();
+        entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+            entity1.set(cap.getOwner());
+        });
+        return entity1.get();
     }
 
     public boolean hasOwner() {

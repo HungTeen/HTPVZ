@@ -4,7 +4,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 /**ISun can be absorbed by ISunAbsorber. It doesn't directly interact with ISunContainer but ISunContainers may call {@link ISun#getAmount()}.*/
-public interface ISun extends ISunAbsorber, ISunContainer{
+public interface ISun extends ISunAbsorber, ISunContainer {
 
     void setAmount(int num);
     @Override

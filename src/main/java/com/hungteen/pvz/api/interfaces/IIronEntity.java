@@ -8,9 +8,10 @@ public interface IIronEntity {
         return true;
     }
     default void onAttracted(Vec3 from) {
-        Entity zhege = (Entity) this;
-        zhege.setDeltaMovement(zhege.getDeltaMovement()
-                .add(from.x - zhege.getX(), from.y - zhege.getY(), from.z - zhege.getZ())
-                .normalize().scale(4 / from.distanceToSqr(zhege.position())));
+        if (this instanceof Entity entity) {
+            entity.setDeltaMovement(entity.getDeltaMovement()
+                    .add(from.x - entity.getX(), from.y - entity.getY(), from.z - entity.getZ())
+                    .normalize().scale(4 / from.distanceToSqr(entity.position())));
+        }
     }
 }

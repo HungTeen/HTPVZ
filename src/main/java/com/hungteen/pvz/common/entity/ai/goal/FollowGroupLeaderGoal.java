@@ -43,10 +43,11 @@ public class FollowGroupLeaderGoal extends Goal {
                 double range = ((ICanGroupUp) mob).getGroupRangeSqr();
                 Predicate<Entity> Leaderpredicate = (target) ->
                         EntityUtil.isTeammate(mob, target) && target instanceof ICanGroupUp &&
-                                ICanGroupUp.canBeFollowed(target) || ! ((ICanGroupUp) target).isFollower();
+                                ICanGroupUp.canBeFollowed((Entity & ICanGroupUp) target) || ! ((ICanGroupUp) target).isFollower();
                 List<? extends LivingEntity> list = mob.level.getEntitiesOfClass(mob.getClass(),
                         mob.getBoundingBox().inflate(range, range, range), Leaderpredicate);
-                ICanGroupUp entity = (ICanGroupUp) DataFixUtils.orElse(list.stream().filter(ICanGroupUp::canBeFollowed).findAny(), this.mob);
+                ICanGroupUp entity = (Entity & ICanGroupUp) DataFixUtils
+                        .orElse(list.stream().filter(entity1 -> ICanGroupUp.canBeFollowed((Entity & ICanGroupUp) entity1)).findAny(), this.mob);
                 entity.addFollowers(
                         (Stream<? extends ICanGroupUp>) list.stream().filter((target) -> target instanceof ICanGroupUp && ! ((ICanGroupUp) target).isFollower()));
                 return this.mob.isFollower();

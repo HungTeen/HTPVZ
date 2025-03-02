@@ -12,7 +12,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**Use this interface to identify if an entity is a plant .<br>
@@ -58,7 +57,7 @@ public interface IPlant extends INeedSafeSituation{
             return preCondition.result;
         }
 
-        MutableComponent result = this.plantPositionSafe(event, level, pos, direction, isPlanting);
+        MutableComponent result = this.customPositionSafe(event, level, pos, direction, isPlanting);
 
         PVZPlantConditionMatchingEvent.OnBlock postCondition = new PVZPlantConditionMatchingEvent.OnBlock(
                 (Entity) this, event, result, level, pos, direction, true, PVZPlantConditionMatchingEvent.Phase.POST);
@@ -75,7 +74,7 @@ public interface IPlant extends INeedSafeSituation{
             return preCondition.result;
         }
 
-        MutableComponent result = this.plantVehicleSafe(event, target, isPlanting);
+        MutableComponent result = this.customVehicleSafe(event, target, isPlanting);
 
         PVZPlantConditionMatchingEvent.OnEntity postCondition = new PVZPlantConditionMatchingEvent.OnEntity(
                 (Entity) this, event, result, target, true, PVZPlantConditionMatchingEvent.Phase.POST);
@@ -83,10 +82,10 @@ public interface IPlant extends INeedSafeSituation{
         return postCondition.result;
     }
 
-    default MutableComponent plantPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
+    default MutableComponent customPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
         return null;
     }
-    default MutableComponent plantVehicleSafe(@javax.annotation.Nullable PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    default MutableComponent customVehicleSafe(@javax.annotation.Nullable PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         return null;
     }
 }

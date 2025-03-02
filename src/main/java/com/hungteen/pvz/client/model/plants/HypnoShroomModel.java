@@ -18,7 +18,7 @@ public class HypnoShroomModel<T extends HypnoShroom> extends HierarchicalModel<T
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("modid", "hypnoshroommodel"), "main");
 	private final ModelPart total;
-	private final ModelPart bone;
+	private final ModelPart head;
 	private final ModelPart reye;
 	private final ModelPart leye;
 	private final ModelPart hat;
@@ -27,12 +27,12 @@ public class HypnoShroomModel<T extends HypnoShroom> extends HierarchicalModel<T
 
 	public HypnoShroomModel(ModelPart root) {
 		this.total = root.getChild("total");
-		this.bone = this.total.getChild("bone");
-		this.reye = this.bone.getChild("reye");
-		this.leye = this.bone.getChild("leye");
-		this.hat = this.bone.getChild("hat");
-		this.lclosed = this.bone.getChild("lclosed");
-		this.rclosed = this.bone.getChild("rclosed");
+		this.head = this.total.getChild("head");
+		this.reye = this.head.getChild("reye");
+		this.leye = this.head.getChild("leye");
+		this.hat = this.head.getChild("hat");
+		this.lclosed = this.head.getChild("lclosed");
+		this.rclosed = this.head.getChild("rclosed");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -41,7 +41,7 @@ public class HypnoShroomModel<T extends HypnoShroom> extends HierarchicalModel<T
 
 		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-		PartDefinition bone = total.addOrReplaceChild("bone", CubeListBuilder.create().texOffs(0, 32).addBox(-4.0F, -7.0F, -4.0F, 8.0F, 7.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition bone = total.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 32).addBox(-4.0F, -7.0F, -4.0F, 8.0F, 7.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition reye = bone.addOrReplaceChild("reye", CubeListBuilder.create().texOffs(0, 0).addBox(-2.0F, -2.0F, 0.0F, 4.0F, 4.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(-3.0F, -4.0F, -4.25F));
 

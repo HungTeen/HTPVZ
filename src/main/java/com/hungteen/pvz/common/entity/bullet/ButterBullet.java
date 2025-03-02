@@ -17,7 +17,6 @@ public class ButterBullet extends BaseBullet {
     public ButterBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);
         this.setNoGravity(false);
-        this.damageName = "butter";
         this.size = 1.5F;
     }
 
@@ -25,7 +24,6 @@ public class ButterBullet extends BaseBullet {
         super(PVZEntities.BUTTER.get(), worldIn, kernelPult);
         setOwner(kernelPult);
         this.setNoGravity(false);
-        this.damageName = "butter";
         this.size = 1.5F;
     }
 
@@ -34,6 +32,16 @@ public class ButterBullet extends BaseBullet {
         super.shoot(deltaX, deltaY, deltaZ, speed, randomAngle);
         double time = Math.min(distance / speed, 100);
         this.setDeltaMovement(this.getDeltaMovement().add(0.0D, 0.05D * time, 0.0D));
+    }
+
+    public void tick() {
+        super.tick();
+        Vec3 movement = getDeltaMovement();
+        level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.CORN_KERNELS.get())),
+                getX(), getY(), getZ(),
+                - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.12,
+                - movement.y * 0.25 + random.nextFloat() * 0.25,
+                - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.12);
     }
     @Override
     protected boolean dealDamageTo(Entity target) {

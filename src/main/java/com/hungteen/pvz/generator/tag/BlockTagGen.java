@@ -42,7 +42,7 @@ public class BlockTagGen extends BlockTagsProvider {
             );
         }
         //others
-        this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT, Blocks.SOUL_SAND, Blocks.SOUL_SOIL);
+        this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT, Blocks.SOUL_SAND, Blocks.SOUL_SOIL, Blocks.SAND, Blocks.RED_SAND);
         this.tag(PVZBlockTags.PLANTABLE_DIRT).add(
                 Blocks.GRASS_BLOCK, Blocks.MYCELIUM, Blocks.PODZOL, Blocks.DIRT_PATH,
                 Blocks.CRIMSON_NYLIUM, Blocks.WARPED_NYLIUM,

@@ -17,7 +17,7 @@ public class PumpkinHelmetModel<T extends LivingEntity> extends HumanoidModel<T>
         PartDefinition partdefinition = meshdefinition.getRoot();
 
         final PartDefinition head = partdefinition.getChild("head");
-        PartDefinition total = head.addOrReplaceChild("pumpkin_helmet", PumpkinModel.cubes, PartPose.offsetAndRotation(0.0F, 3.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
+        PartDefinition total = head.addOrReplaceChild("pumpkin_helmet", PumpkinModel.cubes, PartPose.offset(0.0F, 3.0F, 0.0F));
         partdefinition.addOrReplaceChild("hat", CubeListBuilder.create().texOffs(0, 0), PartPose.ZERO);
         partdefinition.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0), PartPose.ZERO);
         partdefinition.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(0, 0), PartPose.ZERO);

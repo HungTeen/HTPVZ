@@ -23,6 +23,7 @@ public class PVZPacketHandler {
         CHANNEL.registerMessage(id ++, PlayerCapPacket.class, PlayerCapPacket::toBytes, PlayerCapPacket::new, PlayerCapPacket::handle);
         CHANNEL.registerMessage(id ++, SpawnParticlePacket.class, SpawnParticlePacket::toBytes, SpawnParticlePacket::new, SpawnParticlePacket::handle);
         CHANNEL.registerMessage(id ++, PlayerCoolDownPacket.class, PlayerCoolDownPacket::toBytes, PlayerCoolDownPacket::new, PlayerCoolDownPacket::handle);
+        CHANNEL.registerMessage(id ++, PlayerContinueCoolDownPacket.class, PlayerContinueCoolDownPacket::toBytes, PlayerContinueCoolDownPacket::new, PlayerContinueCoolDownPacket::handle);
         CHANNEL.registerMessage(id ++, DropDamagedArmorPacket.class, DropDamagedArmorPacket::toBytes, DropDamagedArmorPacket::new, DropDamagedArmorPacket::handle);
         CHANNEL.registerMessage(id ++, PlanternRefreshGlowPacket.class, PlanternRefreshGlowPacket::toBytes, PlanternRefreshGlowPacket::new, PlanternRefreshGlowPacket::handle);
         CHANNEL.registerMessage(id ++, ZombieEventPacket.class, ZombieEventPacket::toBytes, ZombieEventPacket::new, ZombieEventPacket::handle);

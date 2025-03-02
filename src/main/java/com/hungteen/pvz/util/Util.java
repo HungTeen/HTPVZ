@@ -64,6 +64,7 @@ public class Util {
         return obj.getId().getPath();
     }
 
+
     //planting tools
     /**in order to put event into api, the rapid way to create the events are defined here.*/
     public static PVZResourceEvent.CheckResourceEvent checkPlantResourceEvent(Player player, ItemStack plantCard) {
@@ -87,6 +88,7 @@ public class Util {
                 1 : item.getBaseCoolDown(plantCard);
         return new PVZResourceEvent.CheckPlantConditionEvent(player, plantCard, spawningEntity, resource, cost, coolDown);
     }
+
 
     //rendering tools
     @OnlyIn(Dist.CLIENT)
@@ -161,7 +163,6 @@ public class Util {
             above = x == 0 ? z == 0 ? l.get(4) : l.get(5) : z == 0 ? l.get(6) : l.get(7);
             below = x == 0 ? z == 0 ? l.get(0) : l.get(1) : z == 0 ? l.get(2) : l.get(3);
         }
-//        PVZMod.LOGGER.info("(" + x + ", " + z + ") : " + above + " : " + below);
         double blockLight = above * y + below * (1 - y);
         int skyExposed = level.getBrightness(LightLayer.SKY, new BlockPos(pos));
         float dayTime = level.getTimeOfDay(1F);
@@ -173,9 +174,11 @@ public class Util {
         } else if (dayTime > 0.6875 && dayTime < 0.75) {
             skyLight = (15 - 12 * (float) (0.75 - dayTime) * 16);
         }
-        skyLight = Math.max(ClientProxy.getLevel().dimensionType().ambientLight(), skyLight);
+        PVZMod.LOGGER.info(ClientProxy.getLevel().dimensionType().ambientLight() * 15 + " : " + skyLight + " : " + blockLight) ;
+        skyLight = Math.max(ClientProxy.getLevel().dimensionType().ambientLight() * 15, skyLight);
         int light = (int) (0xFF * Math.max(Math.max(0, skyLight - 15 + skyExposed), blockLight) / 15);
         return (light << 16) + (light << 8) + light;
+        //TODO still have bug. Can find a better way?
     }
 
     public static int clientLight(Level level, BlockPos pos) {

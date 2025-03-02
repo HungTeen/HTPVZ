@@ -2,19 +2,15 @@ package com.hungteen.pvz.common.item;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.hungteen.pvz.common.entity.zombies.Gargantuar;
 import com.hungteen.pvz.common.network.PlayerKnockBackPacket;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -31,11 +27,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class AnvilHammerItem extends SwordItem {
     private static final UUID modifierUuid = UUID.fromString("70580191-35bc-68f7-c1f0-b133ca9ff778");
@@ -71,11 +65,11 @@ public class AnvilHammerItem extends SwordItem {
                 return Ingredient.of(Items.ANVIL);
             }
         },
-                4, -3.7F, p_43117_);
+                4, -3.6F, p_43117_);
     }
     @Override
     public boolean hurtEnemy(ItemStack itemStack, LivingEntity target, LivingEntity user) {
-        if (user instanceof Player player && player.getAttackStrengthScale(0.5F) == 1) {
+        if (user instanceof Player player && player.getAttackStrengthScale(0.5F) >= 1) {
             target.hurt(PVZDamageSource.ignoreInvTime(DamageSource.playerAttack(player).bypassArmor()), (float) user.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2F);
             List<Entity> list = player.level.getEntities((Entity) null,
                     new AABB(target.position().add(-0.8, 0, -0.8), target.position().add(0.8, 1, 0.8)),
@@ -103,6 +97,10 @@ public class AnvilHammerItem extends SwordItem {
         return super.hurtEnemy(itemStack, target, user);
     }
 
+    @Override
+    public boolean canDisableShield(ItemStack stack, ItemStack shield, LivingEntity entity, LivingEntity attacker) {
+        return attacker instanceof Player player && player.getAttackStrengthScale(0.5F) >= 1;
+    }
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn){

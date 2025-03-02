@@ -15,10 +15,10 @@ public class PumpkinModel<T extends Pumpkin> extends HierarchicalModel<T> {
 	private final ModelPart total;
 
 	public static CubeListBuilder cubes = CubeListBuilder.create().texOffs(0, 0).addBox(-8.5F, -10.0F, -8.5F, 17.0F, 10.0F, 17.0F, new CubeDeformation(0.0F))
-			.texOffs(2, 27).addBox(8.0F, -6.0F, -8.5F, 1.0F, 6.0F, 17.0F, new CubeDeformation(0.005F))
-			.texOffs(0, 50).addBox(-8.0F, -9.5F, -8.0F, 16.0F, 9.0F, 16.0F, new CubeDeformation(0.005F));
+			.texOffs(50, 0).addBox(-8.5F, -5.999F, -9.0F, 17.0F, 6.0F, 1.0F, new CubeDeformation(0.0F))
+			.texOffs(0, 34).addBox(-8.0F, -9.5F, -8.0F, 16.0F, 9.0F, 16.0F, new CubeDeformation(0.0F));
 
-	public static PartPose pose = PartPose.offsetAndRotation(0.0F, 24.0F, 0.0F, 0.0F, 1.5708F, 0.0F);
+	public static PartPose pose = PartPose.offset(0.0F, 24.0F, 0.0F);
 
 	public PumpkinModel(ModelPart root) {
 		this.total = root.getChild("total");

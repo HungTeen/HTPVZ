@@ -177,7 +177,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     //definitions
 
     @Override
-    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return net.minecraft.network.chat.Component.translatable("hint.pvz.plant.entity_not_present");
         }

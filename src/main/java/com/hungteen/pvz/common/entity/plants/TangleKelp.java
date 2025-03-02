@@ -181,7 +181,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         return new BlockPos(this.position());
     }
     @Override
-    public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+    public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
@@ -232,7 +232,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
         return null;
     }
     @Override
-    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
@@ -363,8 +363,9 @@ public class TangleKelp extends SimplePlant implements Bucketable {
                     }
                 } else if (tangleKelp.tickCount % 40 < 2) {
                     Entity target = tangleKelp.getFirstPassenger();
-                    target.hurt(PVZDamageSource.TANGLE_KELP, (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE));
-                    tangleKelp.hurt(PVZDamageSource.TANGLE_KELP, 0.5f);
+                    target.hurt(PVZDamageSource.transferKiller(new DamageSource("tangle_kelp").bypassArmor(), PVZEntityCapability.getOwner(tangleKelp)),
+                            (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                    tangleKelp.hurt(new DamageSource("tangle_kelp").bypassArmor(), 0.5f);
                 }
             }
         }

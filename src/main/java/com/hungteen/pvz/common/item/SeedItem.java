@@ -6,6 +6,7 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -43,7 +44,11 @@ public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
     //definitions
     @Override
     public Component getName(ItemStack itemStack) {
-        return Component.translatable("item.pvz.seed", Component.translatable(entitySupplier.get().getDescriptionId()));
+        Component original = Component.translatable(this.getDescriptionId(itemStack));
+        if (original.getContents() instanceof TranslatableContents contents && original.getString().equals(contents.getKey())) {
+            return Component.translatable("item.pvz.seed", Component.translatable(entitySupplier.get().getDescriptionId()));
+        }
+        return original;
     }
 
     @Override

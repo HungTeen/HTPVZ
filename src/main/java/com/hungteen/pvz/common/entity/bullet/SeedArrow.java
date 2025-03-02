@@ -4,6 +4,7 @@ import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -18,7 +19,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import javax.annotation.Nullable;
 
 public class SeedArrow <T extends Entity> extends Arrow {
-    private final LivingEntity owner;
+    private LivingEntity owner;
     private final ItemStack seedPacket;
     public SeedArrow(Level level, LivingEntity owner, ItemStack seedPacket) {
         super(PVZEntities.SEED_ARROW.get(), level);
@@ -32,7 +33,15 @@ public class SeedArrow <T extends Entity> extends Arrow {
     @Override
     public void setOwner(@Nullable Entity entity) {
         if (! level.isClientSide()) {
-            this.getCapability(PVZEntityCapability.CAP).orElse(null).setOwner(entity);
+            PVZEntityCapability cap = this.getCapability(PVZEntityCapability.CAP).orElse(null);
+            if (cap != null) {
+                cap.setOwner(entity);
+            }
+        }
+        if (entity instanceof LivingEntity living) {
+            this.owner = living;
+        } else {
+            this.owner = null;
         }
         super.setOwner(entity);
     }
@@ -48,25 +57,34 @@ public class SeedArrow <T extends Entity> extends Arrow {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         if (owner instanceof Player player && seedPacket != null && seedPacket.getItem() instanceof SeedPacketItem<?> item) {
-            MutableComponent result1 = item.plantOnEntity(player, seedPacket, this.level, result.getEntity());
-            if (result1 != null) {
-                result1 = item.plantOnBlock(player, seedPacket, this.level, result.getEntity().blockPosition().below(), Direction.UP);
+            if (player.getCooldowns().isOnCooldown(item)) {
+                player.displayClientMessage(Component.translatable("hint.pvz.plant.on_cool_down", seedPacket.getDisplayName()), true);
+            } else {
+                MutableComponent result1 = item.plantOnEntity(player, seedPacket, this.level, result.getEntity());
+                if (result1 != null) {
+                    result1 = item.plantOnBlock(player, seedPacket, this.level, result.getEntity().blockPosition().below(), Direction.UP);
+                }
+                if (result1 != null) {
+                    player.displayClientMessage(result1, true);
+                }
+                this.discard();
             }
-            if (result1 != null) {
-                player.displayClientMessage(result1, true);
-            }
-            this.discard();
         }
         super.onHitEntity(result);
     }
     @Override
     protected void onHitBlock(BlockHitResult result) {
         if (owner instanceof Player player && seedPacket != null && seedPacket.getItem() instanceof SeedPacketItem<?> item) {
-            MutableComponent result1 = item.plantOnBlock(player, seedPacket, this.level, result.getBlockPos(), result.getDirection());
-            if (result1 != null) {
-                player.displayClientMessage(result1, true);
+            if (player.getCooldowns().isOnCooldown(item)) {
+                player.displayClientMessage(Component.translatable("hint.pvz.plant.on_cool_down", seedPacket.getDisplayName()), true);
             } else {
-                this.discard();
+                MutableComponent result1 = item.plantOnBlock(player, seedPacket, this.level, result.getBlockPos(), result.getDirection());
+                if (result1 != null) {
+                    player.displayClientMessage(result1, true);
+                    this.setOwner(null);
+                } else {
+                    this.discard();
+                }
             }
         }
         super.onHitBlock(result);

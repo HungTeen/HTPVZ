@@ -10,7 +10,6 @@ import com.hungteen.pvz.common.entity.plants.GatlingPea;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
-import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.common.world.invasion.Invasion;
@@ -32,7 +31,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -248,12 +246,6 @@ public class PVZOverlayHandler {
 
     private static void renderOverlays(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
         if (ClientProxy.MC.getCameraEntity() instanceof LivingEntity entity) {
-            ItemStack itemStack = entity.getItemBySlot(EquipmentSlot.HEAD);
-            if (itemStack.is(PVZItems.PUMPKIN_HELMET.get()) && ClientProxy.MC.options.getCameraType().isFirstPerson()) {
-                PVZOverlayHandler.renderTextureOverlay(Util.prefix("textures/gui/outline/pumpkin_outline_" +
-                                itemStack.getDamageValue() * 3 / itemStack.getMaxDamage() + ".png"), width, height
-                        , Util.clientLight(entity.level, entity.position()), 1);
-            }
             if (entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
                 gui.renderTextureOverlay(Util.prefix("textures/gui/outline/butter_outline.png"),
                         entity.hasEffect(PVZMobEffects.BUTTER.get()) ? Math.min(1, (float) entity.getEffect(PVZMobEffects.BUTTER.get()).getDuration() / 60) : 0);
@@ -616,10 +608,11 @@ public class PVZOverlayHandler {
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_level", PVZOverlayHandler::renderSunAsStats);
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_bar", PVZOverlayHandler::renderSunAsBar);
         ev.registerBelow(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "gatling_overheat", PVZOverlayHandler::renderGatlingOverheat);
+//        ev.registerBelow(VanillaGuiOverlay.SPYGLASS.id(), "pumpkin", PVZOverlayHandler::renderPumpkinHelmet);
         ev.registerAbove(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "card_cost", PVZOverlayHandler::renderCostOfSeeds);
         ev.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "item_cooldown", PVZOverlayHandler::renderCoolDownValue);
-        ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "pvz_armor_on_health", PVZOverlayHandler::renderArmorOnHealthBar);
-        ev.registerAbove(VanillaGuiOverlay.ARMOR_LEVEL.id(), "pvz_armor_bar", PVZOverlayHandler::renderArmorAsSingleBar);
+        ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "armor_on_health", PVZOverlayHandler::renderArmorOnHealthBar);
+        ev.registerAbove(VanillaGuiOverlay.ARMOR_LEVEL.id(), "armor_bar", PVZOverlayHandler::renderArmorAsSingleBar);
         ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "overlays", PVZOverlayHandler::renderOverlays);
         ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "hypnosis", PVZOverlayHandler::renderHypnosis);
         ev.registerAbove(VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), "invasion", PVZOverlayHandler::renderInvasionBars);

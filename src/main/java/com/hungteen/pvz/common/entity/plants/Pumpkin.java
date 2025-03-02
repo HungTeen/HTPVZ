@@ -1,13 +1,13 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
@@ -81,7 +81,7 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
         return ! (plant instanceof ICanBePlantedOn) &&
                 (! isPlanting || getPassengers().isEmpty()) &&
                 (! isPassenger() || ! (this.getVehicle() instanceof ICanBePlantedOn vehicle) || (vehicle.canHold(plant, isPlanting, true))) &&
-                plant.getBbWidth() < 1;
+                plant.getBbWidth() <= 1;
     }
 
     @Override
@@ -94,20 +94,34 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (! player.level.isClientSide && this.hasSkill(PUMPKIN_HELMET_SKILL_NAME) && this.getPassengers().isEmpty() &&
-                EntityUtil.isTeammate(player, this) && player.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && player.isShiftKeyDown()) {
-            if (this.isPassenger()) {
-                this.stopRiding();
+        if (this.hasSkill(PUMPKIN_HELMET_SKILL_NAME) && ! this.isVehicle() &&
+                player.getItemBySlot(EquipmentSlot.HEAD).isEmpty() && player.isShiftKeyDown()) {
+            if (! player.level.isClientSide) {
+                if (! EntityUtil.isTeammate(player, this)) {
+                    player.displayClientMessage(Component.translatable("hint.pvz.plant.need_own_team"), true);
+                    return super.mobInteract(player, hand);
+                }
+                if (this.isPassenger()) {
+                    this.stopRiding();
+                }
+                ItemStack itemStack = PVZItems.PUMPKIN_HELMET.get().getDefaultInstance();
+                CompoundTag tag = new CompoundTag();
+                this.saveWithoutId(tag);
+                tag.putString("id", ForgeRegistries.ENTITY_TYPES.getKey(this.getType()).toString());
+//                this.addAdditionalSaveData(tag);
+                tag.remove("Pos");
+                itemStack.getOrCreateTag().put("entity_data", tag);
+                int durability = (int) (itemStack.getMaxDamage() * (1 - this.getHealth() / this.getMaxHealth()));
+                itemStack.setDamageValue(durability);
+                if (this.hasCustomName()) {
+                    itemStack.setHoverName(this.getName());
+                }
+                player.setItemSlot(EquipmentSlot.HEAD, itemStack);
+                this.discard();
+                return InteractionResult.CONSUME;
+            } else {
+                return InteractionResult.SUCCESS;
             }
-            ItemStack itemStack = PVZItems.PUMPKIN_HELMET.get().getDefaultInstance();
-            itemStack.setDamageValue((int) (itemStack.getMaxDamage() * (1 - this.getHealth()) / this.getMaxHealth()));
-            CompoundTag tag = new CompoundTag();
-            tag.putString("id", ForgeRegistries.ENTITY_TYPES.getKey(this.getType()).toString());
-            this.addAdditionalSaveData(tag);
-            itemStack.getOrCreateTag().put("entity_data", tag);
-            player.setItemSlot(EquipmentSlot.HEAD, itemStack);
-            this.discard();
-            return InteractionResult.CONSUME;
         }
         return super.mobInteract(player, hand);
     }
@@ -117,7 +131,7 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
         return 0.05;
     }
     @Override
-    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
@@ -176,7 +190,7 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
                         return null;
                     } else {
                         return target.getFirstPassenger() != null ?
-                                plantVehicleSafe(event, target.getFirstPassenger(), true) :
+                                customVehicleSafe(event, target.getFirstPassenger(), true) :
                                 Component.translatable("hint.pvz.plant.no_enough_place");
                     }
                 }
@@ -204,11 +218,11 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
             //target is not riding.
             } else if (target.getVehicle() == null) {
                 target.startRiding(this);
-                var positionCheck = plantPositionSafe(event, target.level, target.getOnPos(), Direction.UP, true);
+                var positionCheck = customPositionSafe(event, target.level, target.getOnPos(), Direction.UP, true);
                 if (positionCheck != null) {
                     return positionCheck;
                 }
-                return target instanceof IPlant plant ? plant.plantVehicleSafe(event, this, false) :
+                return target instanceof IPlant plant ? plant.customVehicleSafe(event, this, false) :
                         target instanceof INeedSafeSituation needSafeSituation ? needSafeSituation.isVehicleSafe(event, this, false) :
                                 null;
             } else {

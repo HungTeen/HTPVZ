@@ -132,12 +132,12 @@ public class IcebergLettuce extends ShooterPlant {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(0.4, 0.2, 0.4),
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(0.6, 0.2, 0.6),
                     (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity) && ! ((LivingEntity) entity).hasEffect(PVZMobEffects.FREEZE.get())));
             if (entities.isEmpty() && this.entity.tickCount < 300) {
                 return;
             }
-            MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 60);
+            MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 120);
             if (entity.hasSkill(RANGE_SKILL_NAME)) {
                 entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 0.25, 2),
                         (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity)));

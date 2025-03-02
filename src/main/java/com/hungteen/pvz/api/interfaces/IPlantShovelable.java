@@ -6,5 +6,5 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public interface IPlantShovelable {
-    default void onShovelPlant(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {}
+    default void onPlantShoveled(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {}
 }

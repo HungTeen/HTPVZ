@@ -9,6 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -46,6 +47,8 @@ public class StarfruitBullet extends BaseBullet {
         } else {
             this.setDeltaMovement(this.getDeltaMovement().multiply(-1, 1, 1));
         }
+        BlockState blockstate = this.level.getBlockState(result.getBlockPos());
+        blockstate.onProjectileHit(this.level, blockstate, result, this);
     }
     public void tick() {
         super.tick();

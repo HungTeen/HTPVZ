@@ -1,11 +1,20 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.api.interfaces.IPlantShovelable;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.List;
 
 public class SeedDispensaryItem extends Item implements IPlantShovelable {
     public SeedDispensaryItem(Properties p_41383_) {
@@ -13,11 +22,18 @@ public class SeedDispensaryItem extends Item implements IPlantShovelable {
     }
 
     @Override
-    public void onShovelPlant(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {
+    public void onPlantShoveled(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {
         ItemStack itemStack1 = target.getPickResult();
         if (itemStack1 != null && !itemStack1.isEmpty()) {
             player.getInventory().add(itemStack1);
             itemStack.shrink(1);
         }
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn) {
+        tooltip.add(Component.translatable("tooltip.pvz.seed_dispensary").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
+        super.appendHoverText(stack, level, tooltip, flagIn);
     }
 }

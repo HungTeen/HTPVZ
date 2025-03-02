@@ -1,10 +1,10 @@
 package com.hungteen.pvz.common.entity.plants;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
@@ -74,9 +74,9 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             return false;
         }
         if (isClient) {
-            return entity instanceof Player;
+            return entity == ClientProxy.getPlayer();
         }
-        return (entity instanceof LivingEntity || EntityUtil.checkCanEntityBeAttack(entity, this)
+        return ((entity instanceof LivingEntity && ! (entity instanceof Player)) || EntityUtil.checkCanEntityBeAttack(entity, this)
                 || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this)));
     }
 
@@ -93,10 +93,11 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
-                    entity1.setDeltaMovement(Math.max(-0.8, Math.min(0.8 / (entity1.getX() - this.getX()), 0.8)),
-                            Math.max(Math.abs(vec.y) * 0.8, 0.35),
-                            Math.max(-0.8, Math.min(0.8 / (entity1.getZ() - this.getZ()), 0.8)));
-                    PVZMod.LOGGER.info(entity1.getX() - this.getX() + " " + Math.min(0.5 / (entity1.getX() - this.getX()), 0.5));
+                    double dist = Math.sqrt((entity1.getX() - getX()) * (entity1.getX() - getX()) + (entity1.getZ() - getZ()) * (entity1.getZ() - getZ()));
+                    dist = dist == 0 ? 0.01 : dist;
+                    entity1.setDeltaMovement(Math.max(-0.8, Math.min((entity1.getX() - this.getX()) / dist, 0.8)),
+                            Math.max(Math.abs(vec.y), 0.35),
+                            Math.max(-0.8, Math.min((entity1.getZ() - this.getZ()) / dist, 0.8)));
                     entity1.fallDistance = 0;
                 }));
                 sendPVZPacketToServer();
@@ -176,13 +177,13 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
                     entity.setDeltaMovement(0, 0.25, 0);
-                    entity1.setDeltaMovement(Math.max(-0.8, Math.min(0.8 / (entity1.getX() - entity.getX()), 0.8)),
-                            Math.max(Math.abs(vec.y) * 0.8, 0.35),
-                            Math.max(-0.8, Math.min(0.8 / (entity1.getZ() - entity.getZ()), 0.8)));
+                    double dist = Math.sqrt((entity1.getX() - entity.getX()) * (entity1.getX() - entity.getX()) + (entity1.getZ() - entity.getZ()) * (entity1.getZ() - entity.getZ()));
+                    dist = dist == 0 ? 0.01 : dist;
+                    entity1.setDeltaMovement(Math.max(-0.8, Math.min((entity1.getX() - entity.getX()) / dist, 0.8)),
+                            Math.max(Math.abs(vec.y), 0.35),
+                            Math.max(-0.8, Math.min((entity1.getZ() - entity.getZ()) / dist, 0.8)));
                     entity1.fallDistance = 0;
-                    if (entity1 instanceof LivingEntity) {
-                        ((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 5, 0, false, false));
-                    } else if (entity1 instanceof Projectile) {
+                    if (entity1 instanceof Projectile) {
                         ((Projectile) entity1).setOwner(entity);
                     }
                 }));

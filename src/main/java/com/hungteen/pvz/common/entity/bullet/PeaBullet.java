@@ -27,7 +27,6 @@ public class PeaBullet extends BaseBullet {
 
     public PeaBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);
-        this.damageName = "pea";
     }
 
     public PeaBullet(Level worldIn, LivingEntity peaShooter, PeaType type) {
@@ -35,7 +34,6 @@ public class PeaBullet extends BaseBullet {
         setOwner(peaShooter);
         setPeaType(type);
         this.knockBackStrengh = (float) peaShooter.getAttribute(Attributes.ATTACK_KNOCKBACK).getValue();
-        this.damageName = "pea";
     }
 
     @Override
@@ -68,11 +66,11 @@ public class PeaBullet extends BaseBullet {
         if (level.isClientSide) {
             Vec3 movement = getDeltaMovement();
             if (movement.distanceToSqr(Vec3.ZERO) >= 3) {
-                for (int i = 5; i < 10; i ++) {
-                    level.addParticle(ParticleTypes.CLOUD,
-                            getX() - movement.x / 5 * i + this.random.nextFloat() / 5,
-                            getY() - movement.y / 5 * i + this.random.nextFloat() / 5,
-                            getZ() - movement.z / 5 * i + this.random.nextFloat() / 5,
+                for (int i = 0; i < 10; i ++) {
+                    level.addParticle(ParticleTypes.POOF,
+                            getX() - movement.x / 10 * i + this.random.nextFloat() / 5,
+                            getY() - movement.y / 10 * i + this.random.nextFloat() / 5,
+                            getZ() - movement.z / 10 * i + this.random.nextFloat() / 5,
                             0, 0, 0);
                 }
             }

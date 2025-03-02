@@ -81,7 +81,7 @@ public class ModelPartEntity extends Entity {
         this.setDeltaMovement(
                 new Vec3(this.random.nextFloat() * 0.5 - 0.25, this.random.nextFloat() * 0.25, this.random.nextFloat()* 0.5 - 0.25));
         if (! level.isClientSide) {
-            PVZMod.LOGGER.error("tryING to summon ModelPartEntity [" + this.getUUID() + "] in server! ");
+            PVZMod.LOGGER.error("trying to summon ModelPartEntity [" + this.getUUID() + "] in server! ");
         }
     }
 

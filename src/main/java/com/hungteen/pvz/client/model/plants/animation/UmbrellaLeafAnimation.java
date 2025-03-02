@@ -6,7 +6,7 @@ import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.animation.KeyframeAnimations;
 
 /**
- * Made with Blockbench 4.9.4
+ * Made with Blockbench 4.11.2
  * Exported for Minecraft version 1.19 or later with Mojang mappings
  * @author Author
  */
@@ -63,7 +63,7 @@ public class UmbrellaLeafAnimation {
 		.build();
 
 	public static final AnimationDefinition open = AnimationDefinition.Builder.withLength(1.0F)
-		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.POSITION,
+		.addAnimation("head", new AnimationChannel(AnimationChannel.Targets.POSITION, 
 			new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 12.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(0.28F, KeyframeAnimations.posVec(0.0F, 10.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
 			new Keyframe(0.48F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),

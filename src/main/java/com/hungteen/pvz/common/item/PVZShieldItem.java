@@ -10,7 +10,7 @@ import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public class PVZShieldItem extends ShieldItem implements IDropWhenBroken{
+public class PVZShieldItem extends ShieldItem implements IDropWhenBroken {
     public PVZShieldItem(Properties p_43089_) {
         super(p_43089_);
     }

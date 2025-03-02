@@ -12,7 +12,7 @@ public class BlockWithShieldGoal extends Goal {
     }
     @Override
     public boolean canUse() {
-        return (mob.isUsingItem() || mob.tickCount % 100 < 2) &&
+        return (mob.isUsingItem() || mob.tickCount % 200 < 2) &&
                 (mob.getMainHandItem().getItem() instanceof ShieldItem || mob.getOffhandItem().getItem() instanceof ShieldItem);
     }
 

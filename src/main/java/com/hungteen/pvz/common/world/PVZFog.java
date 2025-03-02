@@ -28,7 +28,7 @@ public class PVZFog {
     public double range;
     public double effect = 0;
     public final UUID uuid;
-    private static List<PVZFog> pvzFogs = new ArrayList<>();
+    public static List<PVZFog> pvzFogs = new ArrayList<>();
     private static Random random = new Random();
     private static float bufferStrength = 1;
 

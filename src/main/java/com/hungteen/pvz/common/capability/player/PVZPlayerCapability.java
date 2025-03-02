@@ -1,11 +1,13 @@
 package com.hungteen.pvz.common.capability.player;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
 import com.hungteen.pvz.common.entity.FallenStar;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.PumpkinHelmetItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.network.PlayerContinueCoolDownPacket;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
@@ -16,6 +18,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
@@ -26,30 +29,31 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag> {
 
     private PVZPlayerCapNBT nbt = null;
+    private Player player;
     public static final Capability<PVZPlayerCapNBT> NBT = CapabilityManager.get(new CapabilityToken<>(){});
     private final LazyOptional<PVZPlayerCapNBT> opt = LazyOptional.of(this::createNBT);
     public static int syncCount = 0;
@@ -57,6 +61,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     //TODO combine this class with PVZPlayerCapNBT.
 
     public PVZPlayerCapability(Player player) {
+        this.player = player;
         this.opt.ifPresent(cap -> cap.setPlayer(player));
     }
 
@@ -76,6 +81,14 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
             //functional
             getPlayerData(player).ifPresent((nbt) -> {
                 if (! player.isSpectator()) {
+                    //team
+                    if (player.getTeam() == null && PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.joinDefaultTeam)) {
+                        PlayerTeam playerTeam = player.getServer().getScoreboard().getPlayerTeam(PVZMod.FRIENDLY_TEAM);
+                        String name = player.getScoreboardName();
+                        if (playerTeam != null) {
+                            player.getServer().getScoreboard().addPlayerToTeam(name, playerTeam);
+                        }
+                    }
                     //sun related mob effects.
                     ++ nbt.sunCountDown;
                     if (player.hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
@@ -117,7 +130,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                                 if (modifier.getId().toString().startsWith("a975c974-")) {
                                     maxSun.removeModifier(modifier.getId());
                                 }
-                            } else if (entity.distanceToSqr(player) > 900) {
+                            } else if (entity.distanceToSqr(player) > 400) {
                                 maxSun.removeModifier(modifier.getId());
                             }
                         });
@@ -130,11 +143,12 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                             if (! EntityUtil.isEntityValid(entity)) {
                                 if (modifier.getId().toString().startsWith("a975c974-")) {
                                     String string = modifier.getId().toString();
-                                    int x = Integer.parseInt(string.substring(9, 13) + string.substring(14, 18), 16);
-                                    int y = Integer.parseInt(string.substring(19, 23) + string.substring(24, 28), 16);
-                                    int z = Integer.parseInt(string.substring(28), 16);
+                                    //stored a positive number to avoid errors.
+                                    int x = Integer.parseInt(string.substring(9, 13) + string.substring(14, 18), 16) - 30000000;
+                                    int y = Integer.parseInt(string.substring(19, 23) + string.substring(24, 28), 16) - 128;
+                                    int z = Integer.parseInt(string.substring(28), 16) - 30000000;
                                     BlockPos pos = new BlockPos(x, y, z);
-                                    if (pos.distSqr(player.getOnPos()) > 900) {
+                                    if (pos.distSqr(player.getOnPos()) > 400) {
                                         maxSun.removeModifier(modifier.getId());
                                     } else if (player.level.getBlockState(pos).getBlock() instanceof IMaxSunExpander maxSunExpander && maxSunExpander.requireRefreshExtraMaxSun()) {
                                         maxSun.removeModifier(modifier.getId());
@@ -144,7 +158,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                                     maxSun.removeModifier(modifier.getId());
                                 }
                             } else {
-                                if (entity.distanceToSqr(player) > 900) {
+                                if (entity.distanceToSqr(player) > 400) {
                                     maxSun.removeModifier(modifier.getId());
                                 } else if (entity instanceof IMaxSunExpander maxSunExpander && maxSunExpander.requireRefreshExtraMaxSun()) {
                                     maxSun.removeModifier(modifier.getId());
@@ -158,7 +172,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         entities.addAll(refreshEntities);
                         entities.forEach((entity) -> {
                             if (entity instanceof IMaxSunExpander) {
-                                if (! maxSun.modifierById.containsKey(entity.getUUID())) {
+                                if (! maxSun.modifierById.keySet().stream().anyMatch(uuid1 -> uuid1.equals(entity.getUUID()))) {
                                     maxSun.addTransientModifier(getEntityModifier(entity, player));
                                 }
                             }
@@ -218,16 +232,27 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                 }
                 //cool down effects.
-                if (nbt.getValue("plant_have_cd") == 0) {
-                    Set<Item> keyset = Set.copyOf(player.getCooldowns().cooldowns.keySet());
-                    for (Item i : keyset) {
-                        if (i instanceof SeedPacketItem) {
-                            player.getCooldowns().removeCooldown(i);
+                if (! player.level.isClientSide) {
+                    if (nbt.getValue("plant_have_cd") == 0) {
+                        Set<Item> keyset = Set.copyOf(player.getCooldowns().cooldowns.keySet());
+                        for (Item i : keyset) {
+                            if (i instanceof SeedPacketItem) {
+                                player.getCooldowns().removeCooldown(i);
+                            }
                         }
                     }
-                }
-                if (player.hasEffect(PVZMobEffects.EXCITEMENT.get())) {
-                    Util.coolDownItems(player, (1 + player.getEffect(PVZMobEffects.EXCITEMENT.get()).getAmplifier()) * 3);
+                    if (player.hasEffect(PVZMobEffects.EXCITEMENT.get())) {
+                        Util.coolDownItems(player, (1 + player.getEffect(PVZMobEffects.EXCITEMENT.get()).getAmplifier()) * 3);
+                    }
+                    if (player.tickCount % 20 == 19) {
+                        Map<Item, ItemCooldowns.CooldownInstance> coolDowns = player.getCooldowns().cooldowns;
+                        int cur = player.getCooldowns().tickCount;
+                        coolDowns.keySet().forEach(item -> {
+                            ItemCooldowns.CooldownInstance instance = coolDowns.get(item);
+                            PlayerContinueCoolDownPacket.sync(player, item,
+                                    instance.startTime - cur, instance.endTime - cur);
+                        });
+                    }
                 }
                 //auto set sun cost and cd.
                 if (nbt.getValue("auto_set_cost_and_cd") == 1) {
@@ -256,11 +281,11 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
 
     private static AttributeModifier getBlockModifier(BlockPos pos, IMaxSunExpander sunExpander, Player player) {
         return new AttributeModifier(
-                //get uuid from position.
+                //get uuid from position. using a positive number to avoid errors.
                 UUID.fromString("a975c974-" +
-                        Integer.toHexString(pos.getX()).substring(0, 4) + "-" + Integer.toHexString(pos.getX()).substring(4, 8) +
-                        "-" + Integer.toHexString(pos.getY()).substring(0, 4) + "-" + Integer.toHexString(pos.getY()).substring(4, 8) +
-                        Integer.toHexString(pos.getZ()))
+                        Integer.toHexString(pos.getX() + 30000000).substring(0, 4) + "-" + Integer.toHexString(pos.getX() + 30000000).substring(4, 8) +
+                        "-" + Integer.toHexString(pos.getY() + 128).substring(0, 4) + "-" + Integer.toHexString(pos.getY() + 128).substring(4, 8) +
+                        Integer.toHexString(pos.getZ() + 30000000))
                 , "extra_max_sun", sunExpander.extraMaxSun(pos, player), AttributeModifier.Operation.ADDITION);
     }
 
@@ -324,11 +349,32 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
 
     @Override
     public CompoundTag serializeNBT() {
-        return getPlayerData().serializeNBT();
+        CompoundTag tag = new CompoundTag();
+        tag.put("PVZData", getPlayerData().serializeNBT());
+        CompoundTag cdTag = new CompoundTag();
+        ItemCooldowns coolDowns = player.getCooldowns();
+        for (Item item : coolDowns.cooldowns.keySet()) {
+            ItemCooldowns.CooldownInstance instance = coolDowns.cooldowns.get(item);
+            int[] tmp = new int[2];
+            tmp[0] = instance.startTime - coolDowns.tickCount;
+            tmp[1] = instance.endTime - coolDowns.tickCount;
+            cdTag.putIntArray(ForgeRegistries.ITEMS.getKey(item).toString(), tmp);
+        }
+        tag.put("CoolDowns", cdTag);
+        return tag;
     }
 
     @Override
     public void deserializeNBT(CompoundTag tag) {
-        getPlayerData().deserializeNBT(tag);
+        getPlayerData().deserializeNBT(tag.getCompound("PVZData"));
+        ItemCooldowns coolDowns = player.getCooldowns();
+        CompoundTag cdTag = tag.getCompound("CoolDowns");
+        for (String name : cdTag.getAllKeys()) {
+            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(name));
+            if (item != null) {
+                int[] tmp = cdTag.getIntArray(name);
+                coolDowns.cooldowns.put(item, new ItemCooldowns.CooldownInstance(coolDowns.tickCount + tmp[0], coolDowns.tickCount + tmp[1]));
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.command;
 
 import com.hungteen.pvz.common.network.PVZFogPacket;
+import com.hungteen.pvz.common.world.PVZFog;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -10,9 +11,9 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
 import java.util.UUID;
 
 public class PVZFogCommand {
@@ -42,9 +43,13 @@ public class PVZFogCommand {
                                         (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), 2, IntegerArgumentType.getInteger(command, "value"))))))
                                 .then(Commands.literal("strength").then(Commands.argument("value", IntegerArgumentType.integer()).executes(
                                         (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), 3, IntegerArgumentType.getInteger(command, "value"))))))
-                                .then(Commands.literal("remove").executes(
-                                        (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), 7, 0))))
-                        ));
+                        ))
+                .then(Commands.literal("remove")
+                        .then(Commands.argument("uuid", UuidArgument.uuid()).executes(
+                                (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), 7, 0))))
+                        .then(Commands.literal("all").executes(
+                                (command -> removaAllFogs(command.getSource()))
+                        )));
         dispatcher.register(builder);
     }
 
@@ -77,5 +82,19 @@ public class PVZFogCommand {
             source.sendFailure(Component.translatable("commands.pvz.fog.not_exists", "["+ uuid +"]"));
             return 0;
         }
+    }
+
+    private static int removaAllFogs(CommandSourceStack source) {
+        int num = PVZFog.pvzFogs.size();
+        List<PVZFog> fogs = List.copyOf(PVZFog.pvzFogs);
+        fogs.forEach(fog -> modifyFog(source, fog.uuid, 7, 0));
+        UUID uuid;
+        if (num == 1) {
+            uuid = fogs.get(0).uuid;
+            source.sendSuccess(Component.translatable("commands.pvz.fog.modify", "["+ uuid +"]"), true);
+        } else {
+            source.sendSuccess(Component.translatable("commands.pvz.fog.remove_all", num), true);
+        }
+        return num;
     }
 }

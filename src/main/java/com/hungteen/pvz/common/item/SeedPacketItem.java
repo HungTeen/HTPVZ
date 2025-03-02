@@ -1,7 +1,10 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.api.events.SeedPacketPlantEvent;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.api.interfaces.IPlant;
@@ -10,7 +13,6 @@ import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.util.Util;
@@ -21,17 +23,19 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -45,7 +49,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -134,7 +140,11 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
 
     @Override
     public Component getName(ItemStack itemStack) {
-        return Component.translatable("item.pvz.seed_packet", Component.translatable(entitySupplier.get().getDescriptionId()));
+        Component original = super.getName(itemStack);
+        if (original.getContents() instanceof TranslatableContents contents && original.getString().equals(contents.getKey())) {
+            return Component.translatable("item.pvz.seed_packet", Component.translatable(entitySupplier.get().getDescriptionId()));
+        }
+        return original;
     }
 
     public int getSkillVal(Object obj) {
@@ -156,6 +166,9 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
 
     //TODO do not use if main hand interacting result consumes action.
     protected void used(ItemStack itemstack, Player player) {
+        if (!PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.plantNeedsDurability)) {
+            return;
+        }
         itemstack.hurtAndBreak(1, player, (entity1) ->
                 player.broadcastBreakEvent(entity1.getItemInHand(InteractionHand.MAIN_HAND) == itemstack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND));
     }
@@ -242,6 +255,8 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                     });
                 }
                 if (! entity.isRemoved()) {
+                    SeedPacketPlantEvent event1 = new SeedPacketPlantEvent(player, itemStack, entity);
+                    MinecraftForge.EVENT_BUS.post(event1);
                     ((ServerLevel) level).addFreshEntityWithPassengers(entity);
                 }
                 if (cap != null) {
@@ -323,6 +338,8 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                     });
                 }
                 if (! entity.isRemoved()) {
+                    SeedPacketPlantEvent event1 = new SeedPacketPlantEvent(player, itemStack, entity);
+                    MinecraftForge.EVENT_BUS.post(event1);
                     ((ServerLevel) level).addFreshEntityWithPassengers(entity);
                 }
                 if (cap != null && shouldDefineOwner(itemStack)) {

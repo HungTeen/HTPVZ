@@ -28,7 +28,6 @@ import net.minecraft.world.level.gameevent.EntityPositionSource;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
-import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -59,8 +58,8 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
         super.addBehaviourGoals();
         this.goalSelector.addGoal(1, new DiggerZombieDigGoal(this));
     }
-    public boolean shouldDropHelmet() {
-        return this.getHealth() <= this.getMaxHealth() * 0.8F;
+    public boolean hasHelmet() {
+        return this.getHealth() >= this.getMaxHealth() * 0.8F;
     }
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
@@ -140,7 +139,8 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
         }
         @Override
         public void tick() {
-            if (this.zombie.getTarget() != null && zombie.getMainHandItem().getItem() instanceof PickaxeItem && ! zombie.shouldDropHelmet() && zombie.distanceToSqr(zombie.getTarget()) > 9) {
+            if (this.zombie.getTarget() != null && zombie.getMainHandItem().getItem() instanceof PickaxeItem && zombie.hasHelmet() &&
+                    (zombie.distanceToSqr(zombie.getTarget()) > 9 || ! zombie.level.getBlockState(zombie.blockPosition().above()).isAir())) {
                 switch (zombie.getPose()) {
                     case STANDING -> zombie.setPose(Pose.DIGGING);
                     case DIGGING -> {
@@ -188,6 +188,12 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                         }
                         zombie.noPhysics = true;
                         zombie.setNoGravity(true);
+                        if (! zombie.level.getBlockState(zombie.blockPosition().above()).isAir()) {
+                            zombie.getNavigation().stop();
+                            double speed = zombie.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
+                            Vec3 delta1 = zombie.getTarget().position().subtract(zombie.position()).normalize().multiply(speed, speed, speed);
+                            zombie.moveTo(zombie.position().add(delta1));
+                        }
                     }
                     case EMERGING -> {
                         zombie.getNavigation().stop();
@@ -252,11 +258,9 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
 
         @Override
         public void jump() {
-            Path path = zombie.navigation.path;
             if (zombie.getPose() == Pose.STANDING) {
                 super.jump();
             }
         }
     }
-    //TODO add a navigation and add a tag which determine what type of block digger zombies can't go through.
 }

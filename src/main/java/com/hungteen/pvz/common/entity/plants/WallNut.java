@@ -38,8 +38,7 @@ import net.minecraftforge.common.ForgeHooks;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.hungteen.pvz.common.register.PVZDamageSource.ignoreInvTime;
-import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
+import static com.hungteen.pvz.common.register.PVZDamageSource.*;
 
 public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity {
     float storedHealth;
@@ -127,13 +126,12 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
 
     @Override
     public Predicate<Entity> canPush(){
-        return entity -> true;
+        return entity -> entity.getType() == EntityType.PLAYER || ! EntityUtil.isTeammate(this, entity);
     }
 
     public void push(Entity entity) {
-        int i = 0;
-        while (i < 5) {
-            i ++;
+        boolean avoid = level.isClientSide || ! EntityUtil.isTeammate(this, entity);
+        for (int i = 0; i < (avoid ? 5 : 1); i ++) {
             super.push(entity);
         }
     }
@@ -141,15 +139,13 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
     @Override
     //to prevent entities from going through wall nuts.
     protected void pushEntities() {
-        int i = 0;
-        while (i < 4) {
-            i ++;
+        for (int i = 0; i < 4; i ++) {
             super.pushEntities();
         }
     }
 
     @Override
-    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
@@ -176,7 +172,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
             }
             return Component.translatable("hint.pvz.plant.need_own_team");
         }
-        return super.plantVehicleSafe(event, target, isPlanting);
+        return super.customVehicleSafe(event, target, isPlanting);
     }
 
     //overrides
@@ -216,7 +212,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
     private void explode() {
         if (!this.level.isClientSide) {
             this.dead = true;
-            level.explode(this, ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), null, this.getX(), this.getY(), this.getZ(), 3F, false, Explosion.BlockInteraction.NONE);
+            level.explode(this, transferKiller(ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), PVZEntityCapability.getOwner(this)), null, this.getX(), this.getY(), this.getZ(), 3F, false, Explosion.BlockInteraction.NONE);
             this.discard();
         }
     }

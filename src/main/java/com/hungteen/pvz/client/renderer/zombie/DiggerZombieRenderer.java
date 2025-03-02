@@ -42,6 +42,14 @@ public class DiggerZombieRenderer<T extends DiggerZombie, M extends DiggerZombie
     public void render(T zombie, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource p_115459_, int packedLight) {
         if (PVZConfig.zombieDropParts() && ! ClientProxy.MC.isPaused()) {
             this.model.setupAnim(zombie, 0, 0, partialTicks, zombie.getYRot(), zombie.getXRot());
+            if (zombie.renderHat && ! zombie.hasHelmet()) {
+                zombie.renderHat = false;
+                Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
+                        zombie.getRandom().nextFloat() * 0.15,
+                        zombie.getRandom().nextFloat() * 0.25 - 0.125);
+                new ModelPartEntity(zombie.level, model.helmet, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
+                        .speed(speed).rotation(new Vec3(0.5, 0.4, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
+            }
             if (zombie.renderHand && zombie.shouldDropHand()) {
                 zombie.renderHand = false;
                 Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
@@ -61,14 +69,6 @@ public class DiggerZombieRenderer<T extends DiggerZombie, M extends DiggerZombie
                         .speed(speed).rotation(new Vec3(0.5, 0.3, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
                 new ModelPartEntity(zombie.level, model.hat, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
                         .speed(speed).rotation(new Vec3(0.5, 0.3, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
-            }
-            if (zombie.renderHat && zombie.shouldDropHelmet()) {
-                zombie.renderHat = false;
-                Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
-                        zombie.getRandom().nextFloat() * 0.15,
-                        zombie.getRandom().nextFloat() * 0.25 - 0.125);
-                new ModelPartEntity(zombie.level, model.helmet, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.4, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
             }
         }
         super.render(zombie, entityYaw, partialTicks, poseStack, p_115459_, packedLight);

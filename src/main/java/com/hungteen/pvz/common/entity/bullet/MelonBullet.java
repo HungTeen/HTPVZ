@@ -12,7 +12,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -38,7 +37,6 @@ public class MelonBullet extends BaseBullet {
     public MelonBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);
         this.setNoGravity(false);
-        this.damageName = "melon";
         this.knockBackStrengh = 0.5F;
         this.size = 2F;
     }
@@ -48,7 +46,6 @@ public class MelonBullet extends BaseBullet {
         setOwner(melonPult);
         this.setMelonType(type);
         this.setNoGravity(false);
-        this.damageName = "melon";
         this.knockBackStrengh = 0.5F;
         this.size = 2F;
     }
@@ -62,7 +59,6 @@ public class MelonBullet extends BaseBullet {
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        super.onHitEntity(result);
         if (! this.level.isClientSide()) {
             if (this.getMelonSkill() == MelonSkill.POTION) {
                 applySplash(getMobEffects(), result.getEntity());
@@ -70,24 +66,24 @@ public class MelonBullet extends BaseBullet {
                 List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(1.5, 1, 1.5).move(0, -0.5, 0),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity));
                 entities.forEach((entity -> {
-                    entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
-                                    new IndirectEntityDamageSource(getDamageName(), this, getOwner() instanceof LivingEntity ? getOwner() : this))
-                            , getKnockBackStrength()), this.getAttackDamage() / 3);//splash damage regarded as non projectile.
+                    entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(PVZDamageSource.setInterrupting(
+                                    PVZDamageSource.owned(getDamageName(), getOwner() instanceof LivingEntity ? (LivingEntity) getOwner() : null)))
+                            , getKnockBackStrength()), this.getAttackDamage() / 3);//splash damage regarded as non-projectile.
                     if (this.getMelonType() == MelonType.Ice && entity.canFreeze()) {
                         entity.setTicksFrozen(400);
                     }
                 }));
             }
         }
+        super.onHitEntity(result);
     }
     @Override
     protected void onHitBlock(BlockHitResult result) {
-        super.onHitBlock(result);
         if (!this.level.isClientSide()) {
             if (this.getMelonSkill() == MelonSkill.POTION) {
                 applySplash(getMobEffects(), null);
             } else {
-                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(2, 2, 2),
+                List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(3, 2, 3),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity));
                 entities.forEach((entity -> {
                     entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(
@@ -99,14 +95,14 @@ public class MelonBullet extends BaseBullet {
                 }));
             }
         }
-        this.discard();
+        super.onHitBlock(result);
     }
     @Override
     public float getAttackDamage() {
         return (float) (this.attackDamage * (this.getMelonSkill() == MelonSkill.GRAVITY ? this.getDeltaMovement().distanceToSqr(Vec3.ZERO) : 1));
     }
     public List<MobEffectInstance> getMobEffects() {
-        List<MobEffectInstance> list = new java.util.ArrayList<>(List.of(new MobEffectInstance(MobEffects.HEAL, 1)));
+        List<MobEffectInstance> list = new java.util.ArrayList<>(List.of(new MobEffectInstance(MobEffects.HEAL, 2)));
         if (this.getMelonType() == MelonType.Ice) {
             list.add(new MobEffectInstance(PVZMobEffects.FREEZE.get(), 80));
         }

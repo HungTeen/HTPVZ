@@ -223,6 +223,7 @@ public class PVZMobEffects {
         }
 
         public void applyEffectTick(LivingEntity entity, int level) {
+            entity.setRemainingFireTicks(0);
             entity.setTicksFrozen(350);
             if (entity.isOnFire()) {
                 entity.removeEffect(FREEZE.get());

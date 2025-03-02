@@ -26,8 +26,9 @@ public class WallNutArmorLayer <T extends WallNut> extends RenderLayer<T, WallNu
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int p_117351_, T wallNut, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
+    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int p_117351_, T wallNut, float p_117353_, float partialTicks, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
         if (wallNut.hasIronArmor()) {
+            this.model.setupAnim(wallNut, 0, 0, wallNut.tickCount + partialTicks, 0, 0);
             float armorHealth = wallNut.getIronArmor() / wallNut.getMaxIronArmor();
             VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(
                     armorHealth > 0.67 ? STATE0 : (armorHealth > 0.33 ? STATE1 : STATE2)));

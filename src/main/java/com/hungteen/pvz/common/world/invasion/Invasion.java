@@ -231,14 +231,14 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             List<ServerPlayer> players = ((ServerLevel) level).getPlayers(player -> player.distanceToSqr(Vec3.atCenterOf(this.position)) < (this.range + 15) * (this.range + 15));
             Collection<ServerPlayer> players1 = this.invasionEvent.getPlayers();
             for (ServerPlayer player : players1) {
-                if (!players.contains(player)) {
+                if (! players.contains(player)) {
                     this.invasionEvent.removePlayer(player);
-                } else {
-                    players.remove(player);
                 }
             }
             for (ServerPlayer player : players) {
-                this.invasionEvent.addPlayer(player);
+                if (! players1.contains(player)) {
+                    this.invasionEvent.addPlayer(player);
+                }
             }
             //switch wave.
             if (! this.level.isClientSide && (
@@ -286,8 +286,8 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 targetTeammateCount = teammates.size();
                 maxTargetTeammateCount = Math.max(targetTeammateCount, maxTargetTeammateCount);
                 if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
-                    PVZMod.LOGGER.info(
-                            " TIME " + this.currentWaveTime + "/" + this.totalTime + "/" + (int) (10000 * this.types.get(0).length() * ((this.invasionLevel) * 0.1 + 0.5) + 100) / (this.totalTime + 1) + " " +
+                    PVZMod.LOGGER.info("invasion " + this.uuid +
+                            "\n TIME " + this.currentWaveTime + "/" + this.totalTime + "/" + (int) (10000 * this.types.get(0).length() * ((this.invasionLevel) * 0.1 + 0.5) + 100) / (this.totalTime + 1) + " " +
                             this.getCurrentWave().minimumWaitTime + "/" + this.getCurrentWave().maximumWaitTime +
                             "\n " + "LV " + invasionLevel + " WAVE " + (this.currentWave + 1) + "/" + this.waves.size() + "  THREAT " + this.currentWaveThreat + "/" + this.getCurrentWave().threat +
                             "\n ENEMIES " + this.summonedEntities.size() + "/" + this.members.size() + "/" + this.waveEnemies.size() + "  POS_SEKR " + pathSeeker.availablePositions.size() +

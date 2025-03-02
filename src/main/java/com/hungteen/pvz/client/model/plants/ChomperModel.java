@@ -95,6 +95,7 @@ public class ChomperModel<T extends Chomper> extends HierarchicalModel<T> {
 		this.animate(chomper.digestAnimationState, ChomperAnimation.digest, ageInTicks);
 		this.animate(chomper.swallowAnimationState, ChomperAnimation.swallow, ageInTicks);
 		this.animate(chomper.swimAnimationState, ChomperAnimation.swim, ageInTicks);
+		this.animate(chomper.meleeAnimationState, ChomperAnimation.melee, ageInTicks);
 	}
 
 	@Override

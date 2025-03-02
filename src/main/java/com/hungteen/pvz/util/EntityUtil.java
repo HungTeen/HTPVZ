@@ -8,11 +8,13 @@ import com.hungteen.pvz.api.events.TeammateTestingEvent;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
-import jdk.jfr.Event;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -22,6 +24,7 @@ import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
+import java.util.UUID;
 
 public class EntityUtil {
     public static final Random random = new Random();
@@ -130,5 +133,23 @@ public class EntityUtil {
                 (! (entity instanceof LivingEntity living)) || ! living.hasEffect(PVZMobEffects.HYPNOTISED.get()));
         MinecraftForge.EVENT_BUS.post(event);
         return event.result;
+    }
+
+    public static boolean attributeHasModifierOfUUID(LivingEntity entity, Attribute attribute, UUID uuid) {
+        AttributeInstance attr = entity.getAttribute(attribute);
+        return attr != null && attr.modifierById.keySet().stream().anyMatch(uuid1 -> uuid1.equals(uuid));
+    }
+
+    public static void removeModifierFromAttribute(LivingEntity entity, Attribute attribute, UUID uuid) {
+        AttributeInstance attr = entity.getAttribute(attribute);
+        if (attr != null) {
+            attr.removeModifier(uuid);
+        }
+    }
+    public static void addModifierToAttribute(LivingEntity entity, Attribute attribute, AttributeModifier modifier) {
+        AttributeInstance attr = entity.getAttribute(attribute);
+        if (attr != null && attr.modifierById.keySet().stream().noneMatch(uuid1 -> uuid1.equals(modifier.getId()))) {
+            attr.addTransientModifier(modifier);
+        }
     }
 }

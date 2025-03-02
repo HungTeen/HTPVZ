@@ -320,6 +320,21 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
         }
     }
 
+    //pick-up
+    @Override
+    public boolean wantsToPickUp(ItemStack itemStack) {
+        if (this.isBald() && itemStack.is(Items.KELP) || itemStack.is(Items.BONE_MEAL)) {
+            return true;
+        } else {
+            for (Item item : GrassCarp.fishMap.keySet()) {
+                if (itemStack.is(item)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     //sounds
     @Override
@@ -383,7 +398,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
 
         @Override
         public boolean canContinueToUse() {
-            return isAllowed(target, carp.isBald());
+            return isWanted(target);
         }
 
         @Override
@@ -399,8 +414,9 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
 
         @Override
         public void tick() {
-            if (this.carp.distanceTo(this.target) <= 1) {
+            if (this.carp.distanceToSqr(this.target) <= 2) {
                 this.carp.setItemSlot(EquipmentSlot.MAINHAND, this.target.getItem());
+                this.carp.take(this.target, 1);
                 setGuaranteedDrop(EquipmentSlot.MAINHAND);
                 if (target.getItem().getItem() == Items.KELP) {
                     this.carp.nextCheckLeft = this.carp.getNextCheckTime() / 2;
@@ -417,7 +433,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
 
         private ItemEntity searchItem() {
             if (--this.coolDown <= 0) {
-                final List<ItemEntity> list = this.carp.level.getEntitiesOfClass(ItemEntity.class, this.carp.getBoundingBox().inflate(16), (item) -> isAllowed(item, carp.isBald()));
+                final List<ItemEntity> list = this.carp.level.getEntitiesOfClass(ItemEntity.class, this.carp.getBoundingBox().inflate(16), this::isWanted);
                 if (!list.isEmpty()) {
                     return list.get(0);
                 }
@@ -425,19 +441,9 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
             return null;
         }
 
-        private static boolean isAllowed(ItemEntity itemEntity, boolean bald) {
-            if (!itemEntity.hasPickUpDelay() && itemEntity.isAlive() && itemEntity.isInWater()) {
-                if (bald && itemEntity.getItem().is(Items.KELP) || itemEntity.getItem().is(Items.BONE_MEAL)) {
-                    return true;
-                } else {
-                    for (Item item : GrassCarp.fishMap.keySet()) {
-                        if (itemEntity.getItem().is(item)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
+        public boolean isWanted(ItemEntity itemEntity) {
+            return itemEntity.isInWater() && !itemEntity.hasPickUpDelay() && !itemEntity.isRemoved() &&
+                    this.carp.getMainHandItem().isEmpty() && this.carp.wantsToPickUp(itemEntity.getItem());
         }
     }
 }

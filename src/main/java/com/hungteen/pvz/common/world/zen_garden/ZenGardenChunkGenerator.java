@@ -1,16 +1,11 @@
 package com.hungteen.pvz.common.world.zen_garden;
 
-import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.common.register.PVZBlocks;
-import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.*;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -106,7 +101,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
                 }
             }
         }
-        PVZMod.LOGGER.info("generated: (" + chunkPos.x + ", " + chunkPos.z + ")");
+//        PVZMod.LOGGER.info("generated: (" + chunkPos.x + ", " + chunkPos.z + ")");
     }
 
     public void init(RandomState randomState) {

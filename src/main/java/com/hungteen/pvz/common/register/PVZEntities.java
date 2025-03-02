@@ -68,7 +68,7 @@ public class PVZEntities {
     public static Map<EntityType<? extends Entity>, List</*0:model, 1:layerDefinition, 2:shadowSize*/?>> simpleRenderedMap = new HashMap<>();
     public static Map<EntityType<? extends Entity>, Function<Mob, ResourceLocation>> simpleTextureLocationMap = new HashMap<>();
     //collision
-    private static Pair<Float, Float> storedCollision = Pair.of(0.6F, 1.8F);
+    private static Pair<Float, Float> storedCollision = Pair.of(0.6F, 1.95F);
     //spawn egg
     private static Pair<Integer, Integer> storedSpawnEgg = null;
     @Deprecated // will be cleared after register.
@@ -100,7 +100,7 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<PVZBoat>> BOAT = collision(1.375F, 0.5625F).entity("pvz_boat", PVZBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = collision(1.375F, 0.5625F).entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<Sun>> SUN = collision(0.2F, 0.2F).entity("sun", Sun::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<FallenStar>> FALLEN_STAR = collision(0.4F, 0.4F).noSummon().entity("fallen_star", FallenStar::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<FallenStar>> FALLEN_STAR = collision(0.4F, 0.4F).entity("fallen_star", FallenStar::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<LootBag>> LOOT_BAG = collision(0.2F, 0.2F).noSummon().entity("loot_bag", LootBag::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<MooBloom>> MOOBLOOM = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, MooBloom::checkMooBloomSpawnRules)
             .spawnEgg(0xffc100, 0x88b830).attribute(MooBloom::createAttributes)
@@ -129,7 +129,7 @@ public class PVZEntities {
             .collision(0.75F, 1.0F).entity("marigold", MariGold::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TallNut::checkSpawnRules)
-            .collision(0.9F, 1.9F).entity("tall_nut", TallNut::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(1F, 1.9F).entity("tall_nut", TallNut::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PeaShooter::checkSpawnRules)
             .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, OtherRegisters.PVZPlantMobCategory);
@@ -300,7 +300,7 @@ public class PVZEntities {
                 () -> EntityType.Builder.of(factory, classification).sized(coh, cov).noSummon().build(Util.prefix(name).toString());
         storedCanSummon = true;
         RegistryObject<EntityType<T>> entity = ENTITIES.register(name, supplier);
-        storedCollision = Pair.of(0.6F, 1.8F);
+        storedCollision = Pair.of(0.6F, 1.95F);
         //spawn egg
         if (storedSpawnEgg != null) {
             spawnEggMap.put(entity, storedSpawnEgg);

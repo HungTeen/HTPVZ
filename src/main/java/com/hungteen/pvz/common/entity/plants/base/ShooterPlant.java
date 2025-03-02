@@ -12,7 +12,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -23,7 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.Set;
 
 public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	public Vec3 storedEnemyPos = null;
@@ -166,22 +166,24 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			double speed = this.getBulletSpeed();
 			Vec3 deltaPos;
 			Vec3 targetSpeed;
-			if (storedEnemyPos != null) {
+			if (storedEnemyPos != null && aimTime > 0) {
 				targetSpeed = target.position().subtract(storedEnemyPos)
 						.multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
 			} else {
-				targetSpeed = target.getDeltaMovement();
+				targetSpeed = target.getDeltaMovement().add(0, 0.08/*minus gravity*/, 0);
 			}
 			int time = (int) Math.round(distanceTo(target) / speed);
 			deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bulletPos.x,
 					target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bulletPos.y,//angle limit move to targeting goals.
 					target.getZ() + targetSpeed.z * time - bulletPos.z);
+
 			for (int tmp = 0; tmp < 3; tmp ++) {
 				//recurse to increase accuracy.
 				time = (int) Math.round(Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y + deltaPos.z * deltaPos.z) / speed);
 				deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bulletPos.x,
 						target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bulletPos.y,
 						target.getZ() + targetSpeed.z * time - bulletPos.z);
+
 			}
 			return deltaPos;
 		} else if (storedEnemyPos != null) {

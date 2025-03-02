@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
@@ -9,10 +10,8 @@ import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
-import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,14 +35,14 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.BushBlock;
-import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
@@ -55,7 +54,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-import static com.hungteen.pvz.common.entity.SimplePlant.isBeingShoveled;
+import static com.hungteen.pvz.common.entity.SimplePlant.tryShovel;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
 public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, INeedSafeSituation, IHaveSkills {
@@ -74,7 +73,6 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
     public final AnimationState attackAnimationState = new AnimationState();
-    public boolean skillBoosted = false;
     protected boolean firstUnsafeSituationMercy = true;
     protected static final EntityDataAccessor<Integer> POSE = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.BOOLEAN);
@@ -130,8 +128,8 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
-        if (isBeingShoveled(player, handIn, this)) {
-            return InteractionResult.CONSUME;
+        if (tryShovel(player, handIn, this)) {
+            return level.isClientSide ? InteractionResult.CONSUME : InteractionResult.SUCCESS;
         } else {
             return super.mobInteract(player, handIn);
         }
@@ -198,7 +196,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
     //overrides
     @Override
-    public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+    public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
@@ -250,7 +248,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
 
     @Override
-    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
@@ -270,7 +268,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                         return null;
                     } else {
                         return target.getFirstPassenger() != null ?
-                                plantVehicleSafe(event, target.getFirstPassenger(), true) :
+                                customVehicleSafe(event, target.getFirstPassenger(), true) :
                                 Component.translatable("hint.pvz.plant.no_enough_place");
                     }
                 }
@@ -290,10 +288,9 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public void tick() {
         // skill
         if (hasSkill(this, STRONG_SKILL_NAME)) {
-            if (!level.isClientSide) {
+            if (! level.isClientSide) {
                 setGlowingTag(tickCount < 200 && (tickCount <= 100 || tickCount % 10 < 5));
-                if (! skillBoosted) {
-                    skillBoosted = true;
+                if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER_UUID)) {
                     this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTACK_MODIFIER_UUID, "skill bonus", 26, AttributeModifier.Operation.ADDITION));
                     this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 14, AttributeModifier.Operation.ADDITION));
                     this.heal(20);
@@ -304,7 +301,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 }
             }
         } else if (hasSkill(this, GROUP_SKILL_NAME)) {
-            if (!level.isClientSide) {
+            if (! level.isClientSide) {
                 for (int i = 0; i < 3; i ++) {
                     VelociRadish turnip = PVZEntities.VELOCI_RADISH.get().create(level);
                     turnip.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
@@ -322,21 +319,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
             }
         }
         //check plant situation damage.
-        if (! level.isClientSide) {
-            if (this.tickCount % 10 == 0) {
-                if (isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null &&
-                        isVehicleSafe(null, getVehicle(), false) != null &&
-                        this.getAttribute(Attributes.MAX_HEALTH) != null) {
-                    if (! firstUnsafeSituationMercy) {
-                        this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
-                    } else {
-                        firstUnsafeSituationMercy = false;
-                    }
-                } else {
-                    firstUnsafeSituationMercy = true;
-                }
-            }
-        }
+        firstUnsafeSituationMercy = SimplePlant.testPlantSafe(this, firstUnsafeSituationMercy);
         //animation
         animationTick ++;
         if (entityData.get(POSE) == 0) {

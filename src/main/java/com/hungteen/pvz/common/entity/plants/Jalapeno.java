@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
+import static com.hungteen.pvz.common.register.PVZDamageSource.transferKiller;
 
 /**For damaging related logic, see {@link Anger}.*/
 public class Jalapeno extends SimplePlant {
@@ -27,8 +28,8 @@ public class Jalapeno extends SimplePlant {
     public static final String TRACK_SKILL_NAME = "skill.pvz.jalapeno.tracking_fire";
     public static final String NO_FRIENDLY_FIRE_SKILL_NAME = "skill.pvz.jalapeno.precise_strike";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(TRACK_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0),
-            new Skill(NO_FRIENDLY_FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 100, 0)
+            new Skill(TRACK_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 200, 0),
+            new Skill(NO_FRIENDLY_FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 50, 0)
     );
 
     public void setupPresentationAnim() {
@@ -45,7 +46,7 @@ public class Jalapeno extends SimplePlant {
         return true;
     }
     public void explode() {
-        level.explode(this, teamFilter(DamageSource.explosion(this).bypassArmor()), null, this.getX(), this.getY() + 1, this.getZ(),
+        level.explode(this, transferKiller(teamFilter(DamageSource.explosion(this).bypassArmor()), PVZEntityCapability.getOwner(this)), null, this.getX(), this.getY() + 1, this.getZ(),
                 1F, false, Explosion.BlockInteraction.NONE);
         if (! level.isClientSide) {
             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {

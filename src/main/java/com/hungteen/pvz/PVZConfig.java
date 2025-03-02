@@ -75,6 +75,8 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> jackInTheBoxGriefing;
         public static ForgeConfigSpec.ConfigValue<Boolean> dynamicSunRule;
         public static ForgeConfigSpec.ConfigValue<Boolean> showInvasionDetails;
+        public static ForgeConfigSpec.ConfigValue<Boolean> joinDefaultTeam;
+        public static ForgeConfigSpec.ConfigValue<Boolean> plantNeedsDurability;
         public static ForgeConfigSpec.ConfigValue<Boolean> dyeMarigold;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnInvasionsInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
@@ -112,6 +114,10 @@ public class PVZConfig {
                             .translation("config.pvz.common.dynamic_sun_rule")
                             .comment("if on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),
                     "dynamicSunRule", true);
+            plantNeedsDurability = add(builder
+                            .translation("config.pvz.common.plant_needs_durability")
+                            .comment("if on, when player plants a plant the seed packet it use lost 1 durability."),
+                    "plantNeedsDurability", true);
             dyeMarigold = add(builder
                             .translation("config.pvz.common.dye_marigold")
                             .comment("if on, player can dye marigold with dye."),
@@ -120,6 +126,10 @@ public class PVZConfig {
                             .translation("config.pvz.common.show_invasion_details")
                             .comment("if on, there will be particles and outputs showing how invasion searches positions mob can spawn."),
                     "showInvasionDetails", false);
+            joinDefaultTeam = add(builder
+                            .translation("config.pvz.common.join_default_team")
+                            .comment("if on, players without a team will automatically join a default player team of pvz mod, to prevent sweeping damage from hurting plants."),
+                    "joinDefaultTeam", true);
             naturallySpawnInvasionsInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_invasions_interval")
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),

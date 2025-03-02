@@ -5,24 +5,34 @@ import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal;
 import com.hungteen.pvz.common.entity.plants.Plantern;
+import com.hungteen.pvz.common.item.IDropWhenBroken;
+import com.hungteen.pvz.common.network.DropDamagedArmorPacket;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.network.PlanternRefreshGlowPacket;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -79,6 +89,54 @@ public class PVZEntityEventHandler {
                     }
                 }
             });
+        }
+    }
+
+    @SubscribeEvent
+    public static void PVZShieldBlock(ShieldBlockEvent ev) {
+        LivingEntity entity = ev.getEntity();
+
+        if (! (entity instanceof Player)) {
+            ItemStack item = entity.getUseItem();
+
+            Vec3 dmgPos = ev.getDamageSource().getSourcePosition();
+            if (dmgPos != null) {
+                Vec3 facing = entity.getViewVector(1.0F).scale(1);
+                Vec3 dmgDirection = dmgPos.vectorTo(entity.position()).normalize();
+                dmgDirection = new Vec3(dmgDirection.x, 0.0D, dmgDirection.z).scale(1);
+                if (dmgDirection.dot(facing) > -0.25D) {
+                    ev.setCanceled(true);
+                    return;
+                }
+            }
+            //code below are from Player#hurtCurrentlyUsedShield(dmg).
+            if (item.is(PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS) && item.isDamageableItem()) {
+                int dmg = 1 + Mth.floor(ev.getBlockedDamage());
+                InteractionHand interactionhand = entity.getUsedItemHand();
+                if (ev.shieldTakesDamage()) {
+                    item.hurtAndBreak(dmg, entity, (entity1) -> {
+                        if (item.getItem() instanceof IDropWhenBroken item1) {
+                            DropDamagedArmorPacket.drop(item1, entity.level,
+                                    entity.position().add(0, 1, 0));
+                        }
+                        entity.broadcastBreakEvent(interactionhand);
+                    });
+                }
+                if (ev.getDamageSource().getEntity() instanceof LivingEntity sourceEntity &&
+                        sourceEntity.getMainHandItem().canDisableShield(entity.getUseItem(), entity, sourceEntity)) {
+                    entity.stopUsingItem();
+                }
+                if (item.isEmpty()) {
+                    if (interactionhand == InteractionHand.MAIN_HAND) {
+                        entity.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+                    } else {
+                        entity.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+                    }
+
+                    entity.stopUsingItem();
+                    entity.playSound(SoundEvents.SHIELD_BREAK, 0.8F, 0.8F + entity.level.random.nextFloat() * 0.4F);
+                }
+            }
         }
     }
 }

@@ -17,24 +17,25 @@ public class UmbrellaLeafModel<T extends UmbrellaLeaf> extends HierarchicalModel
 	private final ModelPart flower;
 
 	public UmbrellaLeafModel(ModelPart root) {
-		this.total = root.getChild("head");
-		this.flower = total.getChild("leaves").getChild("flower");
+		this.total = root.getChild("total");
+		this.flower = total.getChild("head").getChild("leaves").getChild("flower");
 	}
 
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		//named as head to allow butter layer identify.
-		PartDefinition total = partdefinition.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -12.5F, -1.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(0.0F))
-		.texOffs(0, 49).addBox(-3.0F, -11.0F, -3.0F, 6.0F, 11.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-		PartDefinition eyes_closed = total.addOrReplaceChild("eyes_closed", CubeListBuilder.create().texOffs(18, 0).addBox(-3.0F, -11.0F, -3.0F, 6.0F, 11.0F, 6.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition head = total.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -12.5F, -1.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 49).addBox(-3.0F, -11.0F, -3.0F, 6.0F, 11.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition leaves = total.addOrReplaceChild("leaves", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition eyes_closed = head.addOrReplaceChild("eyes_closed", CubeListBuilder.create().texOffs(18, 0).addBox(-3.0F, -11.0F, -3.0F, 6.0F, 11.0F, 6.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+		PartDefinition leaves = head.addOrReplaceChild("leaves", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition flower = leaves.addOrReplaceChild("flower", CubeListBuilder.create().texOffs(-7, 4).addBox(-3.5F, -0.15F, -3.5F, 7.0F, 0.0F, 7.0F, new CubeDeformation(0.0F))
-		.texOffs(-7, 11).addBox(-3.5F, -0.01F, -3.5F, 7.0F, 0.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -12.9F, 0.0F));
+				.texOffs(-7, 11).addBox(-3.5F, -0.01F, -3.5F, 7.0F, 0.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -12.9F, 0.0F));
 
 		PartDefinition open = leaves.addOrReplaceChild("open", CubeListBuilder.create(), PartPose.offset(0.0F, -12.0F, 0.0F));
 
@@ -57,6 +58,7 @@ public class UmbrellaLeafModel<T extends UmbrellaLeaf> extends HierarchicalModel
 		PartDefinition sw = closed.addOrReplaceChild("sw", CubeListBuilder.create().texOffs(0, 35).addBox(-1.0F, -0.25F, -1.0F, 8.0F, 6.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -12.0F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 256, 256);
+
 	}
 
 	@Override

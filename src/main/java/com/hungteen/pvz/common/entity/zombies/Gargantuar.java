@@ -36,7 +36,7 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -60,7 +60,7 @@ public class Gargantuar extends PVZZombie {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return PVZZombie.createAttributes()
-                .add(Attributes.ARMOR, 100D)
+                .add(Attributes.ARMOR, 120D)
                 .add(Attributes.ARMOR_TOUGHNESS, 80D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.75D)
                 .add(Attributes.ATTACK_SPEED, 1D)
@@ -150,15 +150,15 @@ public class Gargantuar extends PVZZombie {
 
         return flag;
     }
-    private void maybeDisableShield(Player p_21425_, ItemStack p_21426_, ItemStack p_21427_) {
-        if (!p_21426_.isEmpty() && !p_21427_.isEmpty() && (p_21426_.getItem() instanceof AxeItem || p_21426_.is(PVZItemTags.GIANT_HAMMER)) && p_21427_.is(Items.SHIELD)) {
+
+    private void maybeDisableShield(Player target, ItemStack itemStack, ItemStack targetHolding) {
+        if (!itemStack.isEmpty() && !targetHolding.isEmpty() && (itemStack.getItem() instanceof AxeItem || itemStack.is(PVZItemTags.GIANT_HAMMER)) && targetHolding.getItem() instanceof ShieldItem item) {
             float f = 0.25F + (float)EnchantmentHelper.getBlockEfficiency(this) * 0.05F;
             if (this.random.nextFloat() < f) {
-                p_21425_.getCooldowns().addCooldown(Items.SHIELD, 100);
-                this.level.broadcastEntityEvent(p_21425_, (byte)30);
+                target.getCooldowns().addCooldown(item, 100);
+                this.level.broadcastEntityEvent(target, (byte)30);
             }
         }
-
     }
 
     @Override
@@ -198,7 +198,9 @@ public class Gargantuar extends PVZZombie {
                 Entity entity = gargantuar.getFirstPassenger();
                 if (EntityUtil.isEntityValid(entity)) {
                     entity.stopRiding();
-                    entity.setDeltaMovement(gargantuar.getLookAngle().normalize().scale(2).add(0, 0.15, 0));
+                    double dist = EntityUtil.isEntityValid(gargantuar.getTarget()) ? gargantuar.getTarget().position().subtract(gargantuar.position())
+                            .multiply(new Vec3(1, 0, 1)).distanceTo(Vec3.ZERO) : 8;
+                    entity.setDeltaMovement(gargantuar.getLookAngle().normalize().scale(Math.min(dist / 5, 3)).add(0, 0.15, 0));
                 }
             } else if (animCount >= 59) {
                 gargantuar.setPose(Pose.STANDING);

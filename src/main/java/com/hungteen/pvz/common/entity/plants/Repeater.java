@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -31,8 +32,7 @@ public class Repeater extends PeaShooter {
 
     @Override
     public void baseTick() {
-        if (!skillBoosted && this.hasSkill("skill.pvz.pea_shooter.punch")) {
-            skillBoosted = true;
+        if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_KNOCKBACK, ATTRIBUTE_MODIFIER_UUID)) {
             this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.4, AttributeModifier.Operation.ADDITION));
         }
         super.baseTick();

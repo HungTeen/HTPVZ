@@ -63,7 +63,7 @@ public class MelonPult extends ShooterPlant {
     }
     @Override
     public int getShootCD() {
-        return this.hasSkill(POTION_SKILL_NAME) ? 80 : 50;
+        return 50;
     }
     @Override
     public int shootAnimLength() {

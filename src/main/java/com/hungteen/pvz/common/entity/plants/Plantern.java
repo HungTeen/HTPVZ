@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.entity.plants;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.block.EntityLightBlock;
 import com.hungteen.pvz.common.entity.SimplePlant;
@@ -13,7 +12,6 @@ import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -24,12 +22,8 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.MultifaceBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 
@@ -41,7 +35,6 @@ public class Plantern extends SimplePlant {
             new Skill(DETECT_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 125, 350).avoidSkills(LEAD_SKILL_NAME)
     );
     public AnimationState idleAnimationState = new AnimationState();
-    @OnlyIn(Dist.CLIENT)
     private int skillGlowTime = 0;
 
     public Plantern(EntityType<? extends Mob> entityType, Level level) {
@@ -162,7 +155,6 @@ public class Plantern extends SimplePlant {
             plantern.level.getEntities(this.plantern, this.plantern.getBoundingBox().inflate(24, 10, 24), (entity) -> {
                 if (! EntityUtil.checkCanEntityBeAttack(this.plantern, entity)) return false;
                 double entityAngle = Math.atan2(entity.getZ() - plantern.getZ(), entity.getX() - plantern.getX());
-                PVZMod.LOGGER.info(entityAngle + " : " + angle);
                 return Math.abs(angle - entityAngle) < 0.5;
             }).forEach((entity) -> {
                 if (entity instanceof LivingEntity livingEntity) {

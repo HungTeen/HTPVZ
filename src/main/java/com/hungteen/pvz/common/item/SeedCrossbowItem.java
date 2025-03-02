@@ -12,15 +12,16 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
@@ -28,7 +29,6 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class SeedCrossbowItem extends CrossbowItem {
     public static final Predicate<ItemStack> ARROW_FIREWORK_OR_SEED_PACKET = ARROW_OR_FIREWORK.or((itemStack) -> itemStack.getItem() instanceof SeedPacketItem<?>);
@@ -65,8 +65,8 @@ public class SeedCrossbowItem extends CrossbowItem {
             Projectile projectile;
             if (flag) {
                 projectile = new FireworkRocketEntity(level, bullet, entity, entity.getX(), entity.getEyeY() - (double)0.15F, entity.getZ(), true);
-            } else if (bullet.getItem() instanceof SeedPacketItem<?> item) {
-                if (entity instanceof Player player && ! player.getCooldowns().isOnCooldown(item)) {
+            } else if (bullet.getItem() instanceof SeedPacketItem<?>) {
+                if (entity instanceof Player) {
                     projectile = new SeedArrow<>(level, entity, bullet);
                     projectile.setPos(entity.getX(), entity.getEyeY() - (double)0.15F, entity.getZ());
                 } else {

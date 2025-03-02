@@ -146,7 +146,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
      * @see INeedSafeSituation
      */
     @Override
-    public MutableComponent plantPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+    public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
@@ -202,7 +202,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
 
     @Override
-    public MutableComponent plantVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (this.isPassenger() && ! EntityUtil.isEntityValid(this.getVehicle())) {
             this.stopRiding();
         }
@@ -242,7 +242,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                         return null;
                     } else {
                         return target.getFirstPassenger() != null ?
-                                plantVehicleSafe(event, target.getFirstPassenger(), true) :
+                                customVehicleSafe(event, target.getFirstPassenger(), true) :
                                 Component.translatable("hint.pvz.plant.no_enough_place");
                     }
                 }
@@ -273,21 +273,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public void baseTick() {
         super.baseTick();
         //check plant situation damage.
-        if (! level.isClientSide) {
-            if (this.tickCount % 10 == 0) {
-                if (isPositionSafe(null, this.level, getRootBlockPos(), getGrowDirection(), false) != null &&
-                        isVehicleSafe(null, getVehicle(), false) != null &&
-                        this.getAttribute(Attributes.MAX_HEALTH) != null) {
-                    if (! firstUnsafeSituationMercy) { //ensure plants won't instantly get hurt after leaving safe situation.
-                        this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
-                    } else {
-                        firstUnsafeSituationMercy = false;
-                    }
-                } else {
-                    firstUnsafeSituationMercy = true;
-                }
-            }
-        }
+        firstUnsafeSituationMercy = testPlantSafe(this, firstUnsafeSituationMercy);
         //about aligning blocks.
         if (! this.isOnGround() || this.getDeltaMovement().distanceToSqr(new Vec3(0, 0, 0)) > 0.05) {
             shouldAlign = true;
@@ -342,8 +328,8 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
 
     protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
-        if (! level.isClientSide && isBeingShoveled(player, handIn, this)) {
-            return InteractionResult.CONSUME;
+        if (tryShovel(player, handIn, this)) {
+            return level.isClientSide ? InteractionResult.CONSUME : InteractionResult.SUCCESS;
         } else {
             return super.mobInteract(player, handIn);
         }
@@ -354,21 +340,25 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         return onBeingShoveled(player, handIn, this);
     }
 
-    //for easy maintenance.
-    public static boolean isBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
-        if (target.level.isClientSide) {
-            return false;
-        }
+    //for easy maintenance. These methods are put here because they imported classes that are not in api pack.
+    public static boolean tryShovel(Player player, InteractionHand handIn, LivingEntity target) {
         ItemStack itemstack = player.getItemInHand(handIn);
         ItemStack itemstack1 = player.getItemInHand(InteractionHand.MAIN_HAND);
-        boolean flag = (itemstack.getItem() instanceof ShovelItem || itemstack.getItem() instanceof IPlantShovelable)
-                && ! (itemstack != itemstack1 && itemstack1.getItem() instanceof SeedPacketItem<?>)
+        boolean success = (itemstack.getItem() instanceof ShovelItem || itemstack.getItem() instanceof IPlantShovelable)
+                && ! player.getCooldowns().isOnCooldown(itemstack.getItem())
+                && ! (handIn == InteractionHand.OFF_HAND && itemstack1.getItem() instanceof SeedPacketItem<?>);
                     // TODO why does shovel in offHand still runs useOn() when seedPacket is already planted? If can solve, this part can be deleted.
-                && ((IPlant) target).onBeingShoveled(player, handIn);
-        if (flag && itemstack.getItem() instanceof IPlantShovelable shovelable) {
-            shovelable.onShovelPlant(itemstack, player, target, handIn);
+        if (target.level.isClientSide) {
+            return success;
         }
-        return flag;
+        if (success) {
+            success = ((IPlant) target).onBeingShoveled(player, handIn);
+        }
+        //post-shovel.
+        if (success && itemstack.getItem() instanceof IPlantShovelable shovelable) {
+            shovelable.onPlantShoveled(itemstack, player, target, handIn);
+        }
+        return success;
     }
     public static boolean onBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
         //check permission.
@@ -409,6 +399,28 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
         return true;
     }
+
+    /**a method that should be added to {@link Entity#baseTick() baseTick()} method of each {@link INeedSafeSituation} to test if the plant is safe. Put here for easy maintenance.
+     @return boolean value of if this plant still has first time environment hurt mercy.*/
+    public static <T extends LivingEntity & IPlant & INeedSafeSituation> boolean testPlantSafe(T plant, boolean firstUnsafeSituationMercy) {
+        if (! plant.level.isClientSide) {
+            if (plant.tickCount % 20 == 0) {
+                if (plant.isPositionSafe(null, plant.level, plant.getRootBlockPos(), plant.getGrowDirection(), false) != null &&
+                        plant.isVehicleSafe(null, plant.getVehicle(), false) != null &&
+                        plant.getAttribute(Attributes.MAX_HEALTH) != null) {
+                    if (! firstUnsafeSituationMercy) { //ensure plants won't instantly get hurt after leaving safe situation.
+                        plant.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * plant.getAttribute(Attributes.MAX_HEALTH).getValue()));
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return true;
+                }
+            }
+        }
+        return firstUnsafeSituationMercy;
+    }
+
 
     //data
     @Override

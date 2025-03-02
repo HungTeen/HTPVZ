@@ -49,7 +49,7 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
                     if (hasHead((model1.root()))) {
                         renderHead(model1.root(), main, poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                     } else {
-                        poseStack.translate(0, -getBoneHeight(model1.root()) / 16 + 1, 0);//TODO why should +1 ?
+                        poseStack.translate(0, 1 - getBoneHeight(model1.root()) / 16, 0);//TODO why should +1 ?
                         main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                     }
                 } else if (model instanceof HeadedModel model1) {

@@ -24,11 +24,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 
 public class BaseBullet extends Projectile {
-	protected float airSlowDown = 0.99F;
 	protected float attackDamage = 0F;
 	protected float size = 1F;// need sync?
 	protected float knockBackStrengh = 0F;
-	protected String damageName = "pvz_bullet";
+	protected String damageName = "pvz.shot";
 
 	public BaseBullet(EntityType<? extends Projectile> type, Level worldIn, LivingEntity shooter) {
 		super(type, worldIn);
@@ -159,9 +158,12 @@ public class BaseBullet extends Projectile {
 	}
 
 	protected DamageSource getDamageSource(Entity target) {
-		DamageSource source = PVZDamageSource.ignoreInvTime(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(
-				PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
-				, getKnockBackStrength()), target, 0.2F));
+		DamageSource source = PVZDamageSource.transferKiller(
+				PVZDamageSource.ignoreInvTime(
+						PVZDamageSource.hitBossWithProportion(
+								PVZDamageSource.knockBack(
+										PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
+				, getKnockBackStrength()), target, 0.2F)), PVZEntityCapability.getOwner(this));
 		if (! this.isNoGravity()) {
 			source.damageHelmet();
 		}

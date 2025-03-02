@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -76,7 +77,8 @@ public class PotatoMine extends SimplePlant {
         if (!this.level.isClientSide) {
             this.dead = true;
             float radius = this.hasSkill(STRONG_SKILL_NAME) ? 3F : 2F;
-            level.explode(this, knockBack(ignoreInvTime(teamFilter(multiply(DamageSource.explosion(this).bypassArmor(), 1.25F))), 0.1F), null, this.getX(), this.getY(), this.getZ(),
+            level.explode(this, knockBack(transferKiller(knockBack(ignoreInvTime(teamFilter(multiply(DamageSource.explosion(this).bypassArmor(), 1.25F))), 0.1F), PVZEntityCapability.getOwner(this)), 0.2F),
+                    null, this.getX(), this.getY(), this.getZ(),
                     radius, false, Explosion.BlockInteraction.NONE);
             if (this.isPoisonous()) {
                 this.spawnPoisonCloud();
@@ -280,7 +282,7 @@ public class PotatoMine extends SimplePlant {
         @Override
         public boolean canUse() {
             if (potatoMine.getEntityData().get(EXPLODE_COUNT) == -1 && potatoMine.getEntityData().get(PREPARE_COUNT) == 0) {
-                List<Entity> targets = this.potatoMine.level.getEntities(potatoMine, potatoMine.getBoundingBox(),
+                List<Entity> targets = this.potatoMine.level.getEntities(potatoMine, potatoMine.getBoundingBox().inflate(0.6, 0.3, 0.6),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(potatoMine, entity));
                 targets.addAll(this.potatoMine.level.getEntities(potatoMine, new AABB(potatoMine.getRootBlockPos()),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(potatoMine, entity)));

@@ -48,11 +48,8 @@ public interface ICanGroupUp {
         return this.getSchoolSize() > 1;
     }
 
-    static boolean canBeFollowed(Entity target) {
-        if (! (target instanceof ICanGroupUp)) {
-            return false;
-        }
-        return ((ICanGroupUp) target).hasFollowers() && ((ICanGroupUp) target).getSchoolSize() < ((ICanGroupUp) target).getMaxSchoolSize();
+    static <T extends Entity & ICanGroupUp> boolean canBeFollowed(T target) {
+        return target.hasFollowers() && target.getSchoolSize() < target.getMaxSchoolSize();
     }
 
     default boolean inRangeOfLeader() {
