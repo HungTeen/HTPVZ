@@ -11,7 +11,6 @@ import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -63,14 +62,6 @@ public class PotatoMine extends SimplePlant {
     public PotatoMine(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
         this.setPoisonous(Math.random() <= 0.02);
-    }
-
-
-    /**{@link PotatoMine#isOnGround()} sometimes cannot reflect actual situation. So added this.*/
-    public boolean leavingGround() {
-        return (! this.isPassenger()) && this.getY()
-                - this.level.getBlockState(this.getOnPos()).getCollisionShape(this.level, this.getOnPos()).max(Direction.Axis.Y)
-                - this.getOnPos().getY() > 0.05;
     }
 
     private void explode() {
@@ -140,7 +131,7 @@ public class PotatoMine extends SimplePlant {
         if (getEntityData().get(PREPARE_COUNT) - 1 <= 7) {
             getEntityData().set(DATA_POSE, Pose.STANDING);
         }
-        if (this.leavingGround() || (hasSkill(QUICK_LOAD_SKILL_NAME) && this.getEntityData().get(PREPARE_COUNT) > 10)) {
+        if (EntityUtil.isLeavingGround(this) || (hasSkill(QUICK_LOAD_SKILL_NAME) && this.getEntityData().get(PREPARE_COUNT) > 10)) {
             this.getEntityData().set(PREPARE_COUNT, 10);
         }
         if (hasSkill(POISONOUS_SKILL_NAME) && ! this.getEntityData().get(IS_POISONOUS)) {

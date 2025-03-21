@@ -41,6 +41,7 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/**Basic class for pvz zombies. Pose.LONG_JUMPING is regarded tied and hanged under something here.*/
 public class PVZZombie extends Zombie implements ICanGroupUp {
     public static final EntityDataAccessor<String> SKIN = SynchedEntityData.defineId(PVZZombie.class, EntityDataSerializers.STRING);
     public boolean renderHand = true; // controlled by renderer.
@@ -123,6 +124,26 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
     public int getExperienceReward() {
         return 0;
     }
+
+    public boolean isHanging() {
+        return false;
+    }
+    public boolean needHangingPose() {
+        return false;
+    }
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        if (pose == Pose.LONG_JUMPING) {
+            EntityDimensions dimensions = super.getDimensions(pose);
+            return new EntityDimensions(dimensions.width, 1.5F, dimensions.fixed);
+        }
+        return super.getDimensions(pose);
+    }
+
+    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+        return super.getStandingEyeHeight(pose, dimensions) - (pose == Pose.LONG_JUMPING ? 0.5F : 0);
+    }
+
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
@@ -141,8 +162,16 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
     }
 
     @Override
-    public void tick(){
+    public void tick() {
         super.tick();
+        if (this.isHanging()) {
+            this.fallDistance = 0;
+        }
+        if (this.needHangingPose()) {
+            this.setPose(Pose.LONG_JUMPING);
+        } else if (this.getPose() == Pose.LONG_JUMPING) {
+            this.setPose(Pose.STANDING);
+        }
         if (! EntityUtil.isEntityValid(this.getVehicle())) {
             this.stopRiding();
         }
@@ -156,6 +185,8 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
         }
     }
 
+
+    //utils
     public static ItemStack getOverworldBanner() {
         final ItemStack itemstack = new ItemStack(Items.RED_BANNER);
         final CompoundTag tag = new CompoundTag();

@@ -101,7 +101,7 @@ public class BaseBullet extends Projectile {
 				}
 				vec3 = target.position().subtract(this.position()).subtract(this.getDeltaMovement().x * timeLand, 0, this.getDeltaMovement(). z * timeLand);
 				this.setDeltaMovement(this.getDeltaMovement()
-						.add(Math.min(0.02, Math.max(-0.02, vec3.x / timeLand)), 0, Math.min(0.02, Math.max(-0.02, vec3.z / timeLand))));
+						.add(Math.min(0.03, Math.max(-0.03, vec3.x / timeLand)), 0, Math.min(0.03, Math.max(-0.03, vec3.z / timeLand))));
 			}
 		}
 	}
@@ -219,7 +219,6 @@ public class BaseBullet extends Projectile {
 
 	@Override
 	protected void defineSynchedData() {
-
 	}
 
 	@Override

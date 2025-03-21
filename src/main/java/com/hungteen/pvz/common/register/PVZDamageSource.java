@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.events.DamageSourceSharpEvent;
 import com.hungteen.pvz.api.interfaces.IArmorEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.entity.living.*;
@@ -47,7 +49,7 @@ public class PVZDamageSource {
         return new OwnedIndirectDamageSource(name, projectile, owner instanceof LivingEntity ? owner : projectile).setProjectile();
     }
     public static DamageSource chomperHurt(LivingEntity source) {
-        return teamFilter(PVZDamageSource.setSharp(owned("eaten", source)));
+        return PVZDamageSource.transferKiller(teamFilter(PVZDamageSource.setSharp(owned("eaten", source))), PVZEntityCapability.getOwner(source));
     }
     public static DamageSource gargantuarCrash(LivingEntity source) {
         return setNotEating(new EntityDamageSource("crush", source));
@@ -128,8 +130,12 @@ public class PVZDamageSource {
         sharpSource = source;
         return source;
     }
-    public static boolean isSharp(DamageSource source) {
-        return sharpSource == source || staticSharpSources.contains(source);
+    public static boolean isSharp(DamageSource source, Entity target) {
+        boolean flag = sharpSource == source || source == DamageSource.CACTUS;
+        DamageSourceSharpEvent event = new DamageSourceSharpEvent(target, source, flag);
+        MinecraftForge.EVENT_BUS.post(event);
+        flag = event.result;
+        return flag;
     }
     /**Set the damage source electric, so it will ignore armor tagged made with iron material.*/
     public static DamageSource setElectric(DamageSource source) {
@@ -174,7 +180,6 @@ public class PVZDamageSource {
     public static DamageSource sharpSource = null;
     public static DamageSource electricSource = null;
     public static DamageSource notEatingSource = null;
-    public static Set<DamageSource> staticSharpSources = Set.of(DamageSource.CACTUS);
     public static Set<DamageSource> staticElectricSources = Set.of(DamageSource.LIGHTNING_BOLT);
     public static DamageSource interruptingSource = null;
 

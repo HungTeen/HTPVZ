@@ -8,6 +8,7 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.UseAnim;
@@ -76,6 +77,45 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
             this.rightArm.xRot = (-(float)Math.PI / 2F) + this.head.xRot + 0.5F - (this.head.yRot > 0 ? 0 : this.head.yRot / 2);
             this.leftArm.xRot = (-(float)Math.PI / 2F) + this.head.xRot + 0.2F;
         }
+
+        //tied
+        if (zombie.getPose() == Pose.LONG_JUMPING) {
+            this.body.xRot = 1.4f;
+            this.rightArm.xRot += 0.8f;
+            this.leftArm.xRot += 0.8f;
+            this.body.y = 9F;
+            this.body.z = -4f;
+            this.head.y = 10F;
+            this.head.z = -6f;
+            this.leftArm.z = -3f;
+            this.rightArm.z = -3f;
+            this.leftArm.y = 9F;
+            this.rightArm.y = 9F;
+            this.rightLeg.z = 7f;
+            this.leftLeg.z = 7f;
+            this.leftLeg.y = 11f;
+            this.rightLeg.y = 11f;
+            this.rightLeg.zRot += 0.1f;
+            this.rightLeg.x = -2.5f;
+            this.leftLeg.zRot -= 0.1f;
+            this.leftLeg.x = 2.5f;
+        } else {
+            this.body.y = 0F;
+            this.body.z = 0f;
+            this.head.y = 0F;
+            this.head.z = 0f;
+            this.leftArm.z = 0f;
+            this.rightArm.z = 0f;
+            this.leftArm.y = 2F;
+            this.rightArm.y = 2F;
+            this.rightLeg.z = 0f;
+            this.leftLeg.z = 0f;
+            this.leftLeg.y = 12f;
+            this.rightLeg.y = 12f;
+            this.rightLeg.x = -2f;
+            this.leftLeg.x = 2f;
+        }
+
 
         //sleeves and pants
         this.leftPants.copyFrom(this.leftLeg);

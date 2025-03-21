@@ -85,52 +85,6 @@ public class InvasionTypeGen implements DataProvider {
                 entityModifiers(InvasionEntityModifiers.BABYLIZE),
                 Optional.empty(), List.of(), true, 1.5F, 1,50
         ));
-        map.put(Util.prefix("first_invasion"), new InvasionType(
-                loot("pvz:invasion/first_invasion",
-                        LootTable.lootTable().withPool(
-                                LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(4.0F, 8.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PEA_SHOOTER.get())).setWeight(15))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(15))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(1.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.WALL_NUT.get())).setWeight(15))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(15))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(PVZItems.ORIGIN_ESSENCE.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 10.0F))))
-                                        .add(LootItem.lootTableItem(Items.POTATO).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1))
-                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get())
-                                                .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.common")))
-                        )
-                ),
-                conditions(
-//                        put(new InvasionCondition.Not(), "$pvz:obtained_advancement", "pvz:first_invasion"),
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
-                ),
-                entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.WITH_TACO),
-                Optional.of(EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZZombie.getOverworldBanner()).get()),
-                List.of(
-                        new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.ZOMBIE.get()).get(),
-                                List.of(), 150, 20, false, 0
-                        ),
-                        new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.IMP.get()).get(),
-                                List.of(), IMP, 10, false, 0.5F
-                        ),
-                        new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), 450, 15, false, 0.1F
-                        )
-                ),
-                false, 1, 0.5F,100
-        ));
         map.put(Util.prefix("overworld_less_weight_thick_zombie"), new InvasionType(
                 loot("pvz:invasion/overworld_common",
                         LootTable.lootTable().withPool(

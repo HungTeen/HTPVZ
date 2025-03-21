@@ -46,7 +46,7 @@ public class HypnoShroom extends SimplePlant implements IMushroom {
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return ShooterPlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 2D)
+                .add(Attributes.MAX_HEALTH, 1D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override

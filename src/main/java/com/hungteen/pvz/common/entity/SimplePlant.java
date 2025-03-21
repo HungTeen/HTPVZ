@@ -404,7 +404,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
      @return boolean value of if this plant still has first time environment hurt mercy.*/
     public static <T extends LivingEntity & IPlant & INeedSafeSituation> boolean testPlantSafe(T plant, boolean firstUnsafeSituationMercy) {
         if (! plant.level.isClientSide) {
-            if (plant.tickCount % 20 == 0) {
+            if (plant.tickCount % 40 == 0) {
                 if (plant.isPositionSafe(null, plant.level, plant.getRootBlockPos(), plant.getGrowDirection(), false) != null &&
                         plant.isVehicleSafe(null, plant.getVehicle(), false) != null &&
                         plant.getAttribute(Attributes.MAX_HEALTH) != null) {

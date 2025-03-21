@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.util.MathUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -71,6 +72,9 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			deltaPos = new Vec3(deltaPos.x, horizontal * getMaxShootAngleTangent(), deltaPos.z);
 		} else if (vertical < - horizontal * getMaxShootAngleTangent()) {
 			deltaPos = new Vec3(deltaPos.x, - horizontal * getMaxShootAngleTangent(), deltaPos.z);
+		}
+		if (MathUtil.horizontalDistSqrOf(deltaPos) == 0) {
+			deltaPos = new Vec3(this.random.nextFloat(), 0, this.random.nextFloat());
 		}
 		//shoot
 		bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, getBulletSpeed(), (float) randomAngle);

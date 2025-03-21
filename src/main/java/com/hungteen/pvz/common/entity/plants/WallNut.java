@@ -12,6 +12,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.util.MathUtil;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -286,7 +287,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
             if (damageCooldown > 0) {
                 damageCooldown -= 1;
             }
-            if (wallNut.canBowling() && wallNut.getDeltaMovement().distanceToSqr(Vec3.ZERO) > 0.25) {
+            if (wallNut.canBowling() && MathUtil.horizontalDistSqrOf(wallNut.getDeltaMovement()) > 0.25) {
                 wallNut.setBowling(true);
             }
             wallNut.entityData.set(TAKES_COINCIDE_DMG, ! wallNut.isBowling());

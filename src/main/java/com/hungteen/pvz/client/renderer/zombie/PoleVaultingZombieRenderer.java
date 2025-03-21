@@ -32,38 +32,17 @@ public class PoleVaultingZombieRenderer<T extends PoleVaultingZombie, M extends 
 
     @Override
     public void render(T zombie, float p_115456_, float partialTicks, PoseStack p_115458_, MultiBufferSource p_115459_, int p_115460_) {
+        super.render(zombie, p_115456_, partialTicks, p_115458_, p_115459_, p_115460_);
         if (PVZConfig.zombieDropParts() && ! ClientProxy.MC.isPaused()) {
-            this.model.setupAnim(zombie, 0, 0, partialTicks, zombie.getYRot(), zombie.getXRot());
-            if (zombie.renderHand && zombie.shouldDropHand()) {
-                zombie.renderHand = false;
-                Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
-                        zombie.getRandom().nextFloat() * 0.15,
-                        zombie.getRandom().nextFloat() * 0.25 - 0.125);
-                new ModelPartEntity(zombie.level, model.leftArm, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight() * 0.75, 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
-                new ModelPartEntity(zombie.level, model.leftSleeve, getTextureLocation(zombie)).pos(zombie.position().add(0,  zombie.getBbHeight() * 0.75, 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
-            }
-            if (zombie.renderHead && zombie.shouldDropHead()) {
-                zombie.renderHead = false;
-                Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
-                        zombie.getRandom().nextFloat() * 0.15,
-                        zombie.getRandom().nextFloat() * 0.25 - 0.125);
-                new ModelPartEntity(zombie.level, model.head, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
-                new ModelPartEntity(zombie.level, model.hat, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
-            }
             if (zombie.renderPole && (! zombie.hasPole() || zombie.shouldDropHead())) {
                 zombie.renderPole = false;
                 Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
-                    zombie.getRandom().nextFloat() * 0.15,
-                    zombie.getRandom().nextFloat() * 0.25 - 0.125);
+                        zombie.getRandom().nextFloat() * 0.15,
+                        zombie.getRandom().nextFloat() * 0.25 - 0.125);
                 new ModelPartEntity(zombie.level, model.pole, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
                         .speed(speed).rotation(new Vec3(0.15, 0, 0.15)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
             }
         }
-        super.render(zombie, p_115456_, partialTicks, p_115458_, p_115459_, p_115460_);
     }
 
     @Override

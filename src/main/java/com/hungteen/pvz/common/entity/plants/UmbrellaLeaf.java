@@ -4,6 +4,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
+import com.hungteen.pvz.common.entity.zombies.BungeeZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -185,6 +186,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                     entity1.fallDistance = 0;
                     if (entity1 instanceof Projectile) {
                         ((Projectile) entity1).setOwner(entity);
+                    } else if (entity1 instanceof BungeeZombie bungeeZombie) {
+                        bungeeZombie.setHangingPosition(null);
                     }
                 }));
                 entity.setAttackTime(30);

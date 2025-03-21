@@ -144,7 +144,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                 switch (zombie.getPose()) {
                     case STANDING -> zombie.setPose(Pose.DIGGING);
                     case DIGGING -> {
-                        if (! zombie.leavingGround()) {
+                        if (! EntityUtil.isLeavingGround(zombie)) {
                             Vec3 delta = zombie.getDeltaMovement();
                             if (delta.y > -0.2) {
                                 delta = delta.multiply(1, 0, 1).add(0, -0.2, 0);
@@ -181,7 +181,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                         Vec3 delta = zombie.getDeltaMovement();
                         delta = delta.multiply(1, 0, 1).add(0, Math.signum(y) * 0.03, 0);
                         zombie.setDeltaMovement(delta);
-                        if (zombie.leavingGround()) {
+                        if (EntityUtil.isLeavingGround(zombie)) {
                             zombie.setNoGravity(false);
                             zombie.noPhysics = false;
                             zombie.setPose(Pose.STANDING);
@@ -197,7 +197,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                     }
                     case EMERGING -> {
                         zombie.getNavigation().stop();
-                        if (! zombie.leavingGround()) {
+                        if (! EntityUtil.isLeavingGround(zombie)) {
                             Vec3 delta = zombie.getDeltaMovement();
                             if (delta.y < 0.24) {
                                 delta = delta.multiply(1, 0, 1).add(0, 0.24, 0);
@@ -212,7 +212,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                         }
                     }
                     default -> {
-                        if (zombie.leavingGround()) {
+                        if (EntityUtil.isLeavingGround(zombie)) {
                             zombie.setNoGravity(false);
                             zombie.noPhysics = false;
                         }
@@ -222,7 +222,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                 switch (zombie.getPose()) {
                     case EMERGING -> {
                         zombie.getNavigation().stop();
-                        if (! zombie.leavingGround()) {
+                        if (! EntityUtil.isLeavingGround(zombie)) {
                             Vec3 delta = zombie.getDeltaMovement();
                             if (delta.y < 0.24) {
                                 delta = delta.multiply(1, 0, 1).add(0, 0.24, 0);

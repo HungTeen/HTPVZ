@@ -6,6 +6,7 @@ import com.hungteen.pvz.client.model.plants.PotatoMineModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.PotatoMine;
 import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
@@ -51,7 +52,7 @@ public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, Ent
 
     @Override
     public void render(T potatoMine, float p_115456_, float p_115457_, PoseStack poseStack, MultiBufferSource buffer, int p_115460_) {
-        if (potatoMine.leavingGround()) {
+        if (EntityUtil.isLeavingGround(potatoMine)) {
             if (potatoMine.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(potatoMine) < 12.25D)) {
                 poseStack.pushPose();
                 ItemStack itemStack = (potatoMine.isPoisonous() ? Items.POISONOUS_POTATO : Items.POTATO).getDefaultInstance();

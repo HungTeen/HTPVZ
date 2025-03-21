@@ -12,7 +12,6 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
@@ -41,6 +40,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.monster.Slime;
@@ -84,12 +84,12 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(Chomper.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ATTACK_TIME = SynchedEntityData.defineId(Chomper.class, EntityDataSerializers.INT);
     private static final UUID SPEED_MODIFIER_UUID = UUID.fromString("54570731-895f-e8d3-2a83-87c6604fb109");
-    private final Map<Pose, AnimationState> poseMap = Map.of(Pose.STANDING, idleAnimationState, Pose.DIGGING, digAnimationState, Pose.USING_TONGUE, attackAnimationState,
+    private final Map<Pose, AnimationState> poseMap = Map.of(Pose.STANDING, idleAnimationState, Pose.DYING, idleAnimationState, Pose.DIGGING, digAnimationState, Pose.USING_TONGUE, attackAnimationState,
             Pose.EMERGING, outAnimationState, Pose.CROUCHING, digestAnimationState, Pose.CROAKING, swallowAnimationState, Pose.SWIMMING, swimAnimationState, Pose.SPIN_ATTACK, meleeAnimationState);
 
     public static final String SUN_SKILL_NAME = "skill.pvz.chomper.energy_transduction";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SUN_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 50, 0)
+            new Skill(SUN_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 50, 300)
     );
     Vec3 storedPosition;
     private BlockPos originalPos;
@@ -222,8 +222,9 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getPose() != Pose.SWIMMING, 2));
         this.goalSelector.addGoal(1, new ChomperAttackGoal(this));
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
-        this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this,
-                (entity) -> this.getPose() != Pose.SWIMMING && ! entity.isPassenger() && EntityUtil.checkCanEntityBeAttack(this, entity) && entity != this, 3));
+        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, false,
+                (entity) -> this.getPose() != Pose.SWIMMING && ! entity.isPassenger() && EntityUtil.checkCanEntityBeAttack(this, entity)
+                        && entity != this && entity.position().distanceToSqr(this.position()) < 9));
     }
     @Override
     protected void defineSynchedData() {
@@ -238,12 +239,14 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         if (DATA_POSE.equals(data)) {
             for (AnimationState animationState : this.poseMap.values()) {
                 if (this.poseMap.get(entityData.get(DATA_POSE)) == animationState) {
-                    animationState.start(this.tickCount);
+                    if (! animationState.isStarted()) {
+                        animationState.start(this.tickCount);
+                        this.animTick = 0;
+                    }
                 } else {
                     animationState.stop();
                 }
             }
-            this.animTick = 0;
         }
         super.onSyncedDataUpdated(data);
     }
@@ -545,12 +548,12 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     chomper.setPose(Pose.SWIMMING);
                 }
                 case USING_TONGUE, SPIN_ATTACK -> {
-                    if (chomper.animTick == 11) {
+                    if (chomper.animTick == (chomper.getPose() == Pose.USING_TONGUE ? 11 : 14)) {
                         LivingEntity target = chomper.getTarget();
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) &&
                                 chomper.distanceToSqr(target.position()) <= (chomper.getPose() == Pose.SPIN_ATTACK ? 16 : 6) && ! target.getType().is(Tags.EntityTypes.BOSSES)) {
                             target.startRiding(chomper);
-                            target.hurt(PVZDamageSource.transferKiller(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper), 2F), PVZEntityCapability.getOwner(chomper)), 5F);
+                            target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper), 2F), 5F);
                             if (target.getBbWidth() > 1.25 || target instanceof Slime /*to prevent a vanilla bug*/) {
                                 target.stopRiding();
                             }
@@ -559,7 +562,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                         Entity rider = chomper.getFirstPassenger();
                         if (rider != null) {
                             chomper.setAttackTime(chomper.getAttackCD());
-                            rider.hurt(PVZDamageSource.chomperHurt(chomper).bypassArmor(), 35);
+                            rider.hurt(PVZDamageSource.chomperHurt(chomper).bypassArmor(), 40);
                             if (rider.isAlive()) {
                                 rider.stopRiding();
                             } else {
@@ -583,10 +586,10 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                 case CROAKING -> {
                     if (chomper.hasSkill(SUN_SKILL_NAME)) {
                         if (chomper.animTick == 30) {
-                            Sun.spawnSunWithEffects(this.chomper.level, 50, this.chomper.getOnPos().above(), 0.4F);
+                            Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.4F);
                         }
                         else if (chomper.animTick == 35) {
-                            Sun.spawnSunWithEffects(this.chomper.level, 25, this.chomper.getOnPos().above(), 0.4F);
+                            Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.4F);
                         }
                         else if (chomper.animTick == 38) {
                             Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
@@ -595,7 +598,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                             Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
                         }
                         else if (chomper.animTick == 53) {
-                            Sun.spawnSunWithEffects(this.chomper.level, 15, this.chomper.getOnPos().above(), 0.5F);
+                            Sun.spawnSunWithEffects(this.chomper.level, 10, this.chomper.getOnPos().above(), 0.5F);
                         }
                         else if (chomper.animTick > 60 && chomper.animTick % 60 == 0) {
                             Sun.spawnSunWithEffects(this.chomper.level, 5, this.chomper.getOnPos().above(), 0.5F);

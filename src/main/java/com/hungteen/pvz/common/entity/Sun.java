@@ -110,6 +110,9 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
 
     @Override
     public boolean canAttractThis(Player player) {
+        if (player.isCreative()) {
+            return true;
+        }
         final boolean[] tmp = new boolean[1];
         PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) ->
                 tmp[0] = nbt.getValue(PVZPlayerCapNBT.SUN) < nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond());
@@ -151,9 +154,17 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
         }
         //player absorb.
         PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
-            nbt.addValue(PVZPlayerCapNBT.SUN, getAmount());
-            this.remove(Entity.RemovalReason.DISCARDED);
+            int origin = nbt.getValue(PVZPlayerCapNBT.SUN);
+            int num = getAmount();
+            nbt.addValue(PVZPlayerCapNBT.SUN, num);
+            int actual = nbt.getValue(PVZPlayerCapNBT.SUN);
+            if (actual - origin >= num || player.isCreative()) {
+                this.remove(Entity.RemovalReason.DISCARDED);
+            } else {
+                this.setAmount(num - actual + origin);
+            }
         });
+        //TODO add a event here.
     }
 
     //ISunAbsorber

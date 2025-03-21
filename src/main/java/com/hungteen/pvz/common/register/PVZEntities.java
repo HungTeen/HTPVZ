@@ -194,6 +194,9 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<DiggerZombie>> DIGGER_ZOMBIE = attribute(DiggerZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x3e81bf, 0xff4834)
             .entity("digger_zombie", DiggerZombie::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<BungeeZombie>> BUNGEE_ZOMBIE = attribute(BungeeZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x9b2e31, 0x8b7054)
+            .entity("bungee_zombie", BungeeZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<Imp>> IMP = attribute(Imp::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0xaa3a39, 0x454ab0)
             .entity("imp", Imp::new, MobCategory.MONSTER);
@@ -213,7 +216,7 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<MelonBullet>> MELON = collision(0.8F, 0.8F).entity("melon", MelonBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<SeedArrow>> SEED_ARROW = collision(0.2F, 0.2F).entity("seed_arrow", SeedArrow::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<ArrowWithATarget>> ARROW_WITH_A_TARGET = collision(0.2F, 0.2F).entity("arrow_with_a_target", ArrowWithATarget::new, MobCategory.MISC);
-
+    public static final RegistryObject<EntityType<Hook>> HOOK = collision(0.2F, 0.2F).entity("hook", Hook::new, MobCategory.MISC);
 
     //client
     /** For simply rendered entities (accepts only Mob!), auto render at {@link PVZEntities#simpleRenderHandler()}.
@@ -274,12 +277,14 @@ public class PVZEntities {
         r(e, POLE_VAULTING_ZOMBIE, PoleVaultingZombieRenderer::new);
         r(e, JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieRenderer::new);
         r(e, DIGGER_ZOMBIE, DiggerZombieRenderer::new);
+        r(e, BUNGEE_ZOMBIE, BungeeZombieRenderer::new);
         r(e, IMP, ImpRenderer::new);
         r(e, TACO_IMP, TacoImpRenderer::new);
         r(e, GARGANTUAR, GargantuarRenderer::new);
         r(e, SPROUT, SproutRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);
+        r(e, HOOK, HookRenderer::new);
         r(e, MODEL_PART, ModelPartRenderer::new);
         r(e, ENTITY_LIFTER, EntityLifterRenderer::new);
         r(e, FALLEN_STAR, FallenStarRenderer::new);

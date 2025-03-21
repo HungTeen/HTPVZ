@@ -11,10 +11,7 @@ import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.command.CoolDownCommand;
-import com.hungteen.pvz.common.command.OwnCommand;
-import com.hungteen.pvz.common.command.PVZFogCommand;
-import com.hungteen.pvz.common.command.PlayerStatsCommand;
+import com.hungteen.pvz.common.command.*;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
 import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -22,6 +19,7 @@ import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.world.PVZFog;
+import com.hungteen.pvz.common.world.team.PVZTeamData;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenEffects;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
@@ -66,8 +64,8 @@ public class PVZMod
     public static final String MODID = "pvz";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static String ENEMY_TEAM = "pvzmod.enemyTeam";
-    public static String FRIENDLY_TEAM = "pvzmod.friendlyTeam";
+    public static String ENEMY_TEAM = "team.pvz.enemy_team";
+    public static String FRIENDLY_TEAM = "team.pvz.friendly_team";
     public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
     public PVZMod()
     {
@@ -215,17 +213,20 @@ public class PVZMod
             Scoreboard scoreboard = ev.getServer().getScoreboard();
             if (scoreboard.getPlayerTeam(ENEMY_TEAM) == null) {
                 PlayerTeam playerteam = scoreboard.addPlayerTeam(ENEMY_TEAM);
-                playerteam.setDisplayName(Component.literal(ENEMY_TEAM));
+                playerteam.setDisplayName(Component.translatable(ENEMY_TEAM));
+                PVZTeamData.setEvil(ev.getServer().getScoreboard(), ENEMY_TEAM, true);
             }
             if (scoreboard.getPlayerTeam(FRIENDLY_TEAM) == null) {
                 PlayerTeam playerteam = scoreboard.addPlayerTeam(FRIENDLY_TEAM);
-                playerteam.setDisplayName(Component.literal(FRIENDLY_TEAM));
+                playerteam.setDisplayName(Component.translatable(FRIENDLY_TEAM));
             }
             //caps tick
             PVZPlayerCapability.tick(ev);
             PVZEntityCapability.tick(ev);
             PVZFogCapability.tick(ev);
             PVZZombieEventCapability.tick(ev);
+            //scoreboard tick
+            PVZTeamData.tick();
             //server stress releasing
             ServerStressReleaseGoals.averageTickTime = Math.round(ev.getServer().getAverageTickTime());
         }
@@ -261,5 +262,6 @@ public class PVZMod
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);
         PVZFogCommand.register(dispatcher);
+        TeamSetEvilCommand.register(dispatcher);
     }
 }

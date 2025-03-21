@@ -19,10 +19,13 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
     protected double range;
 
     /**@param range set to -1 to fit follow range attribute. See {@link DisperseEnemyTargetGoal#getFollowDistance()}.*/
-    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, double range) {
-        super(mobIn, LivingEntity.class, true);
+    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, boolean mustSee, double range) {
+        super(mobIn, LivingEntity.class, mustSee);
         this.predicate = predicate;
         this.range = range;
+    }
+    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, double range) {
+        this(mobIn, predicate, true, range);
     }
     public DisperseEnemyTargetGoal(Mob mobIn) {
         this(mobIn, getDefaultPredicate(mobIn), -1);

@@ -8,6 +8,8 @@ import com.hungteen.pvz.api.events.TeammateTestingEvent;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
+import com.hungteen.pvz.common.world.team.PVZTeamData;
+import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -18,6 +20,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
@@ -37,6 +40,13 @@ public class EntityUtil {
         }
     }
 
+    /**{@link Entity#isOnGround()} sometimes cannot reflect actual situation. So added this.*/
+    public static boolean isLeavingGround(Entity entity) {
+        return (! entity.isPassenger()) && entity.getY()
+                - entity.level.getBlockState(entity.getOnPos()).getCollisionShape(entity.level, entity.getOnPos()).max(Direction.Axis.Y)
+                - entity.getOnPos().getY() > 0.05;
+    }
+
     /**Check if entities are teammates. <b>CAN ONLY</b> call on server.
      * <br>I you want to check if an entity is attackable, use {@link EntityUtil#checkCanEntityBeAttack(Entity, Entity)}.*/
     public static boolean isTeammate(Entity A, Entity B) {
@@ -50,20 +60,19 @@ public class EntityUtil {
         Team teamB = B.getTeam();
         boolean AIsEnemy = (! A.getType().is(PVZEntityTags.FRIENDLY)) && (A instanceof Enemy || A.getType().is(PVZEntityTags.ENEMY) || A.getType().is(Tags.EntityTypes.BOSSES));
         boolean BIsEnemy = (! B.getType().is(PVZEntityTags.FRIENDLY)) && (B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY) || B.getType().is(Tags.EntityTypes.BOSSES));
-        Team enemyTeam = A.getServer().getScoreboard().getPlayerTeam(PVZMod.ENEMY_TEAM);
-        Team friendlyTeam = A.getServer().getScoreboard().getPlayerTeam(PVZMod.FRIENDLY_TEAM);
+        Scoreboard scoreboard = A.getServer().getScoreboard();
 
         boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, PVZConfig.Common.teamBattle);
 
         if (teamA == teamB) {
             result = teamA != null || (AIsEnemy == BIsEnemy);
         } else if (teamA == null) {
-            result = ((teamB == enemyTeam) == AIsEnemy);
+            result = PVZTeamData.isEvil(scoreboard, teamB.getName()) == AIsEnemy;
         } else if (teamB == null) {
-            result = ((teamA == enemyTeam) == BIsEnemy);
-        } else if (teamA == enemyTeam || teamB == enemyTeam) {
+            result = PVZTeamData.isEvil(scoreboard, teamA.getName()) == BIsEnemy;
+        } else if (PVZTeamData.isEvil(scoreboard, teamA.getName()) || PVZTeamData.isEvil(scoreboard, teamB.getName())) {
             result = false;
-        } else if (teamA == friendlyTeam || teamB == friendlyTeam) {
+        } else if (! PVZTeamData.isEvil(scoreboard, teamA.getName()) || ! PVZTeamData.isEvil(scoreboard, teamB.getName())) {
             result = true;
         } else {
             result = ! teamBattle;
