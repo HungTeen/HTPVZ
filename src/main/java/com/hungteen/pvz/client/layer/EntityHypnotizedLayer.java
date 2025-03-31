@@ -43,7 +43,7 @@ public class EntityHypnotizedLayer<T extends LivingEntity, M extends EntityModel
                        float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         this.res = renderer.getTextureLocation(entity);
         alpha = (float) Math.sin(ageInTicks / 20) * 0.2F + 0.4F;
-        if (entity.getAttribute(Attributes.ARMOR).getModifier(PVZMobEffects.HYPNOTIZED_EFFECT_UUID) != null && entity.hurtTime <= 0 && entity.deathTime <= 0) {
+        if (entity.getAttribute(Attributes.ARMOR).getModifier(PVZMobEffects.HYPNOTIZED_EFFECT_UUID) != null && entity.hurtTime <= 0 && entity.deathTime <= 0 && ! entity.isInvisible()) {
             super.render(stack, bufferSource, packedLightIn, entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
         }
     }

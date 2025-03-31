@@ -131,17 +131,26 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
     public boolean needHangingPose() {
         return false;
     }
+
     @Override
     public EntityDimensions getDimensions(Pose pose) {
         if (pose == Pose.LONG_JUMPING) {
             EntityDimensions dimensions = super.getDimensions(pose);
             return new EntityDimensions(dimensions.width, 1.5F, dimensions.fixed);
+        } else if (pose == Pose.SWIMMING) {
+            EntityDimensions dimensions = super.getDimensions(pose);
+            return new EntityDimensions(dimensions.width, 0.6F, dimensions.fixed);
         }
         return super.getDimensions(pose);
     }
 
     protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-        return super.getStandingEyeHeight(pose, dimensions) - (pose == Pose.LONG_JUMPING ? 0.5F : 0);
+        return switch (pose) {
+            case SWIMMING, FALL_FLYING, SPIN_ATTACK -> 0.5F;
+            case CROUCHING -> this.isBaby() ? 0.75F : 1.37F;
+            case LONG_JUMPING -> this.isBaby() ? 0.65F : 1.24F;
+            default -> this.isBaby() ? 0.93F : 1.74F;
+        };
     }
 
     @Override

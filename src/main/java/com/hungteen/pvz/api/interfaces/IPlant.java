@@ -88,4 +88,11 @@ public interface IPlant extends INeedSafeSituation{
     default MutableComponent customVehicleSafe(@javax.annotation.Nullable PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         return null;
     }
+
+    public interface IWaterPlant extends IPlant {
+        @Override
+        default boolean needWaterPotInGarden() {
+            return true;
+        }
+    }
 }

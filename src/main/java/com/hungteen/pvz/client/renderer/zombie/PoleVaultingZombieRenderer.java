@@ -8,26 +8,15 @@ import com.hungteen.pvz.common.entity.zombies.PoleVaultingZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.ZombieModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
-import net.minecraft.client.renderer.entity.layers.ArrowLayer;
-import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
-public class PoleVaultingZombieRenderer<T extends PoleVaultingZombie, M extends PoleVaultingZombieModel<T>> extends HumanoidMobRenderer<T, M> {
+public class PoleVaultingZombieRenderer<T extends PoleVaultingZombie, M extends PoleVaultingZombieModel<T>> extends AbstractPVZZombieRenderer<T, M> {
     private static final ResourceLocation TEXTURE = Util.prefix("textures/entity/zombie/pole_vaulting_zombie/pole_vaulting_zombie.png");
     public PoleVaultingZombieRenderer(EntityRendererProvider.Context context) {
-        super(context, (M) new PoleVaultingZombieModel<T>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("pole_vaulting_zombie:main"))), 0.5F);
-        this.addLayer(new HumanoidArmorLayer<>(this,
-                new ZombieModel<>(context.bakeLayer(ModelLayers.ZOMBIE_INNER_ARMOR)),
-                new ZombieModel<>(context.bakeLayer(ModelLayers.ZOMBIE_OUTER_ARMOR))));
-        if (PVZConfig.renderZombieStuckArrows()) {
-            this.addLayer(new ArrowLayer<>(context, this));
-        }
+        super(context, (M) new PoleVaultingZombieModel<T>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("pole_vaulting_zombie:main"))));
     }
 
     @Override

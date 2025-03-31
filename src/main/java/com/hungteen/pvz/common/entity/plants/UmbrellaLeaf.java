@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
@@ -14,6 +15,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -68,7 +71,10 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         if (instance != null && instance.getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
             return false;
         }
-        if (entity.getType().is(Tags.EntityTypes.BOSSES) || entity.getDeltaMovement().length() < 0.5 || ! this.isAlive()) {
+        if (entity.getType().is(Tags.EntityTypes.BOSSES) || ! this.isAlive()) {
+            return false;
+        }
+        if (entity.getDeltaMovement().length() < 0.5 || entity.getDeltaMovement().subtract(this.getDeltaMovement()).length() < 0.5) {
             return false;
         }
         if (Util.hasBlockBetween(this.level, this.position(), entity.position())) {
@@ -186,6 +192,16 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                     entity1.fallDistance = 0;
                     if (entity1 instanceof Projectile) {
                         ((Projectile) entity1).setOwner(entity);
+                        if (entity1 instanceof AbstractHurtingProjectile projectile) {
+                            Vec3 vec3 = entity.getDeltaMovement().normalize();
+                            projectile.setDeltaMovement(vec3);
+                            projectile.xPower = vec3.x * 0.1D;
+                            projectile.yPower = vec3.y * 0.1D;
+                            projectile.zPower = vec3.z * 0.1D;
+                            projectile.hurt(PVZEntityCapability.getOwner(entity) instanceof Player player ?
+                                            DamageSource.playerAttack(player) : DamageSource.mobAttack(entity)
+                                    , 0F);
+                        }
                     } else if (entity1 instanceof BungeeZombie bungeeZombie) {
                         bungeeZombie.setHangingPosition(null);
                     }

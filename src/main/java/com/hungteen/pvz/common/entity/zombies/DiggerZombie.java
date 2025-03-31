@@ -41,7 +41,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
     private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
     public static final EntityDimensions STANDING_DIMENSIONS = EntityDimensions.scalable(0.6F, 1.8F);
     private static final Map<Pose, EntityDimensions> POSES = ImmutableMap.<Pose, EntityDimensions>builder().put(Pose.STANDING, STANDING_DIMENSIONS).put(Pose.SLEEPING, SLEEPING_DIMENSIONS).put(Pose.FALL_FLYING, EntityDimensions.scalable(0.6F, 0.8F)).put(Pose.SWIMMING, EntityDimensions.scalable(0.6F, 0.8F)).put(Pose.SPIN_ATTACK, EntityDimensions.scalable(0.6F, 0.8F)).put(Pose.CROUCHING, EntityDimensions.scalable(0.6F, 1.5F)).put(Pose.DYING, EntityDimensions.fixed(0.2F, 0.2F)).build();
-    private UUID TRACKING_MODIFIER = UUID.fromString("c5321b12-712e-7474-5b37-f162e6b49f56");
+    private final UUID TRACKING_MODIFIER = UUID.fromString("c5321b12-712e-7474-5b37-f162e6b49f56");
     //TODO add a navigator.
     public DiggerZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
@@ -68,14 +68,6 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
         return spawnGroupData;
     }
 
-    public boolean leavingGround() {
-        return (! this.isPassenger()) && this.getY()
-                - this.level.getBlockState(this.getOnPos()).getCollisionShape(this.level, this.getOnPos()).max(Direction.Axis.Y)
-                - this.getOnPos().getY() > 0.05;
-    }
-    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-        return super.getStandingEyeHeight(pose, dimensions);
-    }
     public EntityDimensions getDimensions(Pose p_36166_) {
         return POSES.getOrDefault(p_36166_, STANDING_DIMENSIONS);
     }

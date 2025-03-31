@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.entity.ModelPartEntity;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends PVZZombieModel<T>> extends HumanoidMobRenderer<T, M> {
@@ -55,6 +57,16 @@ public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends P
         super.render(zombie, p_115456_, partialTicks, p_115458_, p_115459_, p_115460_);
     }
 
+    protected void setupRotations(T zombie, PoseStack poseStack, float p_114111_, float p_114112_, float p_114113_) {
+        super.setupRotations(zombie, poseStack, p_114111_, p_114112_, p_114113_);
+        float f = zombie.getSwimAmount(p_114113_);
+        if (f > 0.0F) {
+            float f3 = zombie.isInWater() || zombie.isInFluidType((fluidType, height) -> zombie.canSwimInFluidType(fluidType)) ? -90.0F - zombie.getXRot() : -90.0F;
+            float f4 = Mth.lerp(f, 0.0F, f3);
+            poseStack.mulPose(Vector3f.XP.rotationDegrees(f4));
+            poseStack.translate(0.0D, -f, 0.3F);
+        }
+    }
 
     @Override
     public abstract ResourceLocation getTextureLocation(T zombie);

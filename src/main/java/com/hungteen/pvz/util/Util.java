@@ -11,16 +11,20 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -117,5 +121,14 @@ public class Util {
     public static boolean hasBlockBetween(Level level, Vec3 pos1, Vec3 pos2) {
         BlockHitResult result = level.clip(new ClipContext(pos1, pos2, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
         return result.getType() != HitResult.Type.MISS;
+    }
+
+    //debug tools
+    public static void showPathEnd(Mob mob) {
+        Path path = mob.getNavigation().path;
+        if (! mob.level.isClientSide && path != null) {
+            ((ServerLevel) mob.level).sendParticles(ParticleTypes.COMPOSTER, path.getEndNode().x + 0.5, path.getEndNode().y + 0.5, path.getEndNode().z + 0.5,
+                    1, 0.0D, 0.0D, 0.0D, 0.25F);
+        }
     }
 }

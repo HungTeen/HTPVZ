@@ -9,6 +9,7 @@ import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.common.world.team.PVZTeamData;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffects;
@@ -41,10 +42,24 @@ public class EntityUtil {
     }
 
     /**{@link Entity#isOnGround()} sometimes cannot reflect actual situation. So added this.*/
+    public static boolean isLeavingGround(Entity entity, double tolerance) {
+        float width = entity.getBbWidth();
+        for (int x = -1; x < 2; x ++) {
+            for (int z = -1; z < 2 ; z ++) {
+                if (width < 1 && (x == 0 || z == 0)) continue;
+                BlockPos pos = new BlockPos(entity.position().add(x * width * 0.5F ,0, z * width * 0.5F));
+                if ((! entity.isPassenger()) && entity.getY()
+                        - entity.level.getBlockState(pos).getCollisionShape(entity.level, entity.getOnPos()).max(Direction.Axis.Y)
+                        - entity.getOnPos().getY() > tolerance) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static boolean isLeavingGround(Entity entity) {
-        return (! entity.isPassenger()) && entity.getY()
-                - entity.level.getBlockState(entity.getOnPos()).getCollisionShape(entity.level, entity.getOnPos()).max(Direction.Axis.Y)
-                - entity.getOnPos().getY() > 0.05;
+        return isLeavingGround(entity, 0.05);
     }
 
     /**Check if entities are teammates. <b>CAN ONLY</b> call on server.

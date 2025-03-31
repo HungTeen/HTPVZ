@@ -32,6 +32,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -515,7 +516,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         //TODO handle situation when player is not available when loading.
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
-        return level.getBlockState(pos.below()).is(PVZBlockTags.PLANTABLE_DIRT);
+        return entityType instanceof IWaterPlant ? level.getBlockState(pos.below()).is(PVZBlockTags.PLANTABLE_DIRT) : level.getBlockState(pos).getFluidState().is(FluidTags.WATER);
     }
 
 }

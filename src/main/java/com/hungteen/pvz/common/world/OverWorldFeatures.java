@@ -56,10 +56,10 @@ public class OverWorldFeatures {
                         InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.top()),
                         BiomeFilter.biome()));
         PLANTERN_CF = FeatureUtils.register("pvz:plantern", Feature.FLOWER,
-                new RandomPatchConfiguration(2, 1, 1, PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK,
+                new RandomPatchConfiguration(1, 1, 1, PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK,
                         new SimpleBlockConfiguration(new DualNoiseProvider(new InclusiveRange<>(1, 3),
-                                new NormalNoise.NoiseParameters(-10, 1.0D), 1.0F, 2345L,
-                                new NormalNoise.NoiseParameters(-3, 1.0D), 1.0F,
+                                new NormalNoise.NoiseParameters(-10, 1.0D), 0.5F, 2345L,
+                                new NormalNoise.NoiseParameters(-3, 1.0D), 0.5F,
                                 List.of(PVZBlocks.PLANTERN.get().defaultBlockState()))))));
         PLANTERN_PF = PlacementUtils.register("pvz:plantern", PLANTERN_CF,
                 InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());

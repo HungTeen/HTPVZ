@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
@@ -53,7 +54,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import java.util.List;
 import java.util.Optional;
 
-public class TangleKelp extends SimplePlant implements Bucketable {
+public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWaterPlant {
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(TangleKelp.class, EntityDataSerializers.BOOLEAN);
     public static String TORPEDO_SKILL_NAME = "skill.pvz.tangle_kelp.torpedo_kelp";
     public static String OXYGEN_SKILL_NAME = "skill.pvz.tangle_kelp.oxygen_algae";
@@ -90,7 +91,7 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     }
     @Override
     protected float getWaterSlowDown() {
-        return 0F;
+        return 0.9F;
     }
     @Override
     public void travel(Vec3 p_27490_) {
@@ -247,10 +248,6 @@ public class TangleKelp extends SimplePlant implements Bucketable {
     }
 
     public boolean rideableUnderWater() {
-        return true;
-    }
-
-    public boolean needWaterPotInGarden() {
         return true;
     }
 

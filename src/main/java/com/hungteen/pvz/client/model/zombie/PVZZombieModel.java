@@ -115,6 +115,12 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
             this.rightLeg.x = -2f;
             this.leftLeg.x = 2f;
         }
+        if (zombie.getPose() == Pose.SWIMMING) {
+            this.head.xRot -= 1.5F;
+            this.head.z = -2F;
+        } else {
+            this.head.z = 0;
+        }
 
 
         //sleeves and pants

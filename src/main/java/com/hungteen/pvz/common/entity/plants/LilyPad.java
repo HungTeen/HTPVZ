@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
@@ -39,7 +40,7 @@ import net.minecraftforge.fluids.FluidType;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class LilyPad extends SimplePlant implements ICanBePlantedOn {
+public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWaterPlant {
 
     double xCurrentSpeed = 0;//can not understand how vanilla methods work...
     double zCurrentSpeed = 0;
@@ -71,7 +72,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                .add(ForgeMod.SWIM_SPEED.get(), 50D)
+                .add(ForgeMod.SWIM_SPEED.get(), 15D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
@@ -90,7 +91,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
     }
     @Override
     protected float getWaterSlowDown() {
-        return 0F;
+        return 1F;
     }
     @Override
     public boolean canBeRiddenUnderFluidType(FluidType type, Entity rider)
@@ -134,10 +135,6 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn {
         }
         this.shouldAlign = false;
         super.tick();
-    }
-    @Override
-    public boolean needWaterPotInGarden() {
-        return true;
     }
 
     @Override
