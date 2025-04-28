@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.bullet;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
@@ -76,12 +77,12 @@ public class BaseBullet extends Projectile {
 		double dy = vec3.y;
 		double dz = vec3.z;
 		this.updateRotation();
-		if (this.isInWater() || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
+		if (this.isInFluidType() || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
 			dx -= (1 - this.getWaterSlowDown()) * dx;
 			dy -= (1 - this.getWaterSlowDown()) * dy;
 			dz -= (1 - this.getWaterSlowDown()) * dz;
 			if (! this.isNoGravity()) {
-				dy += 0.035;
+				dy += 0.06;
 			}
 		}
 		this.setDeltaMovement(dx, dy, dz);
@@ -92,8 +93,11 @@ public class BaseBullet extends Projectile {
 		}
 		if (! this.isNoGravity()) { //when is pult ammo.
 			this.setDeltaMovement(this.getDeltaMovement().add(0.0D, - 0.1D, 0.0D));
-			if (this.getOwner() instanceof Mob owner && EntityUtil.isEntityValid(owner) && EntityUtil.isEntityValid(owner.getTarget()) && this.getDeltaMovement().y < 0) {
+			if (this.getOwner() instanceof Mob owner && EntityUtil.isEntityValid(owner) && EntityUtil.isEntityValid(owner.getTarget())
+					&& this.getDeltaMovement().y < 0 && this.getY() > owner.getTarget().getY()) {
 				Entity target = owner.getTarget();
+				float fixLimit = Math.min((float) Math.max(0.03, 0.5F * target.getDeltaMovement().distanceToSqr(Vec3.ZERO)), (float) (this.getDeltaMovement().distanceToSqr(Vec3.ZERO) / 10));
+				if (fixLimit > 0.1) PVZMod.LOGGER.info(fixLimit + "");
 				double timeLand = 5;
 				double heightRelate = target.getY() + target.getBbHeight() / 2 - this.getY();
 				for (int i = 0; i < 5; i ++) {
@@ -101,7 +105,7 @@ public class BaseBullet extends Projectile {
 				}
 				vec3 = target.position().subtract(this.position()).subtract(this.getDeltaMovement().x * timeLand, 0, this.getDeltaMovement(). z * timeLand);
 				this.setDeltaMovement(this.getDeltaMovement()
-						.add(Math.min(0.03, Math.max(-0.03, vec3.x / timeLand)), 0, Math.min(0.03, Math.max(-0.03, vec3.z / timeLand))));
+						.add(Math.min(fixLimit, Math.max(-fixLimit, vec3.x / timeLand)), 0, Math.min(fixLimit, Math.max(-fixLimit, vec3.z / timeLand))));
 			}
 		}
 	}

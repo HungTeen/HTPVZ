@@ -1,13 +1,13 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.util.EntityUtil;
@@ -30,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -42,15 +43,16 @@ import java.util.function.Predicate;
 
 public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWaterPlant {
 
-    double xCurrentSpeed = 0;//can not understand how vanilla methods work...
+    double xCurrentSpeed = 0;//can not understand how vanilla methods work...TODO try use vanilla methods!
     double zCurrentSpeed = 0;
     Vec3 storedPosition = Vec3.ZERO;
     public static String BOAT_SKILL_NAME = "skill.pvz.lily_pad.lily_boat";
     public static String FREE_SKILL_NAME = "skill.pvz.lily_pad.friendship_of_lily_pad";
+    public static String LAVA_SWIMMER_SKILL_NAME = "skill.pvz.lily_pad.lava_swimmer";
     public static List<Skill> staticSkillList = List.of(
             new Skill(BOAT_SKILL_NAME, PVZItems.AQUA_ESSENCE, 6, 4, 0, 0),
-            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 6, 12, -25, 0).avoidSkills(BOAT_SKILL_NAME)
-            //new Skill("skill.pvz.lily_pad.lava_swimmer", PVZItems.IGNIS_ESSENCE, 9, 4, 75, 0).avoidSkills(0)
+            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 6, 12, -25, 0).avoidSkills(BOAT_SKILL_NAME),
+            new Skill(LAVA_SWIMMER_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 9, 4, 75, 0).avoidSkills(BOAT_SKILL_NAME)
     );
 
     public LilyPad(EntityType<? extends Mob> entityType, Level level) {
@@ -59,7 +61,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
 
     @Override
     public boolean canHold(LivingEntity plant, boolean isPlanting) {
-        return ! (plant.getType().is(PVZEntityTags.MUST_PLANT_IN_DIRT)) && ICanBePlantedOn.canHold(this, plant, isPlanting);
+        return !(plant.getType().is(PVZEntityTags.MUST_PLANT_IN_DIRT)) && ICanBePlantedOn.canHold(this, plant, isPlanting);
     }
 
     @Override
@@ -83,11 +85,14 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
     public MobType getMobType() {
         return MobType.WATER;
     }
-
     //overrides
     @Override
     public boolean canBeCollidedWith() {
-        return true;
+        return this.isAlive();
+    }
+    @Override
+    public boolean canCollideWith(Entity entity) {
+        return super.canCollideWith(entity) || true;
     }
     @Override
     protected float getWaterSlowDown() {
@@ -108,10 +113,9 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
     }
     @Override
     public void tick() {
-        if (! this.noPhysics) {
-            //TODO find a way to support lava situation.
-            if (! level.getFluidState(new BlockPos(position().add(0, this.getBbHeight(), 0))).isEmpty()) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0, 0.04, 0).multiply(0.5, 0.5, 0.5));
+        if (! this.noPhysics && ! this.level.isClientSide) {
+            if (! level.getFluidState(new BlockPos(position().add(0, this.getBbHeight(), 0))).isEmpty() || this.isInLava()) {
+                this.setDeltaMovement(this.getDeltaMovement().add(0, 0.06, 0).multiply(0.5, 0.5, 0.5));
             } else if (! level.getFluidState(new BlockPos(position().add(0, this.getEyeHeight(), 0))).isEmpty()) {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.5, 0.5));
                 if (Math.abs(this.getDeltaMovement().y) < 0.001 && this.getDeltaMovement().y != 0) {
@@ -163,6 +167,8 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
                 this.flyingSpeed = 0.02F;
                 super.travel(vec3);
             }
+//        } else {
+//            super.travel(vec3);
         }
     }
 
@@ -195,6 +201,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
     public Predicate<Entity> canPush(){
         return entity -> true;
     }
+    @Override
     public boolean canBreatheUnderwater() {
         return true;
     }
@@ -202,10 +209,10 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
         return 750;
     }
     public boolean fireImmune() {
-        return super.fireImmune() || this.hasSkill(this, "skill.pvz.lily_pad.lava_swimmer");
+        return super.fireImmune() || this.hasSkill(this, LAVA_SWIMMER_SKILL_NAME);
     }
     protected void handleAirSupply(int p_30344_) {
-        if (this.isAlive() && !this.isInWaterOrBubble()) {
+        if (this.isAlive() && ! this.isInFluidType()) {
             this.setAirSupply(p_30344_ - 1);
             if (this.getAirSupply() == -20) {
                 this.setAirSupply(0);
@@ -265,7 +272,8 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
         }
         //root block available check.
         if (! this.getEntityData().get(root()) || (! level.getBlockState(pos).isAir())) {
-            if (level.getBlockState(pos).getFluidState().is(FluidTags.WATER)) {
+            FluidState state = level.getBlockState(pos).getFluidState();
+            if (state.is(FluidTags.WATER) || (this.hasSkill(LAVA_SWIMMER_SKILL_NAME) && state.is(FluidTags.LAVA))) {
                 //final plant.
                 if (isPlanting) {
                     this.moveTo(

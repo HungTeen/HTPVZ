@@ -1,17 +1,19 @@
 package com.hungteen.pvz.common.entity.zombies;
 
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 
@@ -26,14 +28,17 @@ public class SnorkelZombie extends PVZZombie {
         this.waterNavigation = new WaterBoundPathNavigation(this, p_34272_);
         this.waterNavigation.setCanFloat(true);
         this.groundNavigation = new GroundPathNavigation(this, p_34272_);
-//        this.waterNavigation.setCanFloat(true);
+        this.navigation = waterNavigation; //to avoid being equipped with life buoy.
+    }
+    public static boolean checkSpawnRules(EntityType<PVZZombie> p_218956_, ServerLevelAccessor p_218957_, MobSpawnType p_218958_, BlockPos p_218959_, RandomSource p_218960_) {
+        if (!p_218957_.getFluidState(p_218959_.below()).is(FluidTags.WATER)) {
+            return false;
+        } else {
+            return p_218957_.getDifficulty() != Difficulty.PEACEFUL;
+        }
     }
 
     public void tick() {
-        if (this.getPose() == Pose.SWIMMING && ! this.isSwimming()
-                && this.level.noCollision(this, this.getBoundingBoxForPose(Pose.STANDING).deflate(1.0E-7D))) {
-            this.setPose(Pose.STANDING);
-        }
         this.groundNavigation.setCanFloat(this.getPose() != Pose.SWIMMING && ! level.getBlockState(this.blockPosition().above().above()).getFluidState().isEmpty());
         super.tick();
     }
@@ -57,7 +62,7 @@ public class SnorkelZombie extends PVZZombie {
     @Override
     public void updateSwimming() {
         if (! this.level.isClientSide) {
-            if (this.isEffectiveAi() && this.isInWater() && this.wantsToSwim()) {
+            if (this.isEffectiveAi() && this.isInFluidType() && this.wantsToSwim()) {
                 this.navigation = this.waterNavigation;
                 this.setSwimming(true);
                 this.setPose(Pose.SWIMMING);
@@ -69,14 +74,17 @@ public class SnorkelZombie extends PVZZombie {
     }
 
     public void travel(Vec3 p_32394_) {
-        if (this.isEffectiveAi() && this.isInWater() && this.wantsToSwim()) {
+        if (this.getPose() == Pose.SWIMMING && ! this.isSwimming()
+                && this.level.noCollision(this, this.getBoundingBoxForPose(Pose.STANDING).deflate(1.0E-7D))) {
+            this.setPose(Pose.STANDING);
+        }
+        if (this.isEffectiveAi() && this.isInFluidType() && this.wantsToSwim()) {
             this.moveRelative(0.02F, p_32394_);
             this.move(MoverType.SELF, this.getDeltaMovement());
             this.setDeltaMovement(this.getDeltaMovement().scale(0.9D));
         } else {
             super.travel(p_32394_);
         }
-
     }
 
     static class SnorkelMoveControl extends MoveControl {
@@ -89,7 +97,7 @@ public class SnorkelZombie extends PVZZombie {
 
         public void tick() {
             LivingEntity target = this.zombie.getTarget();
-            if (this.zombie.wantsToSwim() && this.zombie.isInWater()) {
+            if (this.zombie.wantsToSwim() && this.zombie.isInFluidType()) {
                 if (target != null && target.getY() > this.zombie.getY() || this.zombie.searchingForLand) {
                     this.zombie.setDeltaMovement(this.zombie.getDeltaMovement().add(0.0D, 0.002D, 0.0D));
                 }

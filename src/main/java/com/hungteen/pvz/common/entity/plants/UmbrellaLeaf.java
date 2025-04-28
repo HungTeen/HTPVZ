@@ -83,6 +83,11 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         if (isClient) {
             return entity == ClientProxy.getPlayer();
         }
+        Vec3 vec31 = entity.getDeltaMovement();
+        Vec3 vec32 = this.position().subtract(entity.position());
+        if (vec31.x * vec32.x + vec31.y * vec32.y + vec31.z * vec32.z < 0) {
+            return false;
+        }
         return ((entity instanceof LivingEntity && ! (entity instanceof Player)) || EntityUtil.checkCanEntityBeAttack(entity, this)
                 || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this)));
     }
@@ -94,7 +99,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1D);
         }
         if (level.isClientSide) {
-            int width = hasSkill(BOUNCE_SKILL_NAME) ? 4 : 2;
+            float width = hasSkill(BOUNCE_SKILL_NAME) ? 3 : 1F;
             List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(width, 1.5, width).move(0, 0.5, 0),
                     (entity) -> canBounce(entity, true));
             if (! entities.isEmpty()) {
@@ -177,8 +182,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            int width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 4 : 2;
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(width, 1.5, width).move(0, 0.5, 0),
+            float width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 5 : 2.5F;
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(width, 2.5, width),
                     (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
@@ -190,10 +195,12 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                             Math.max(Math.abs(vec.y), 0.35),
                             Math.max(-0.8, Math.min((entity1.getZ() - entity.getZ()) / dist, 0.8)));
                     entity1.fallDistance = 0;
+                    Vec3 vec3 = entity1.getDeltaMovement().multiply(1, 0, 1).normalize();
+                    entity1.setYRot((float) (vec3.z == 0 ? (vec3.x > 0 ? - Math.PI / 2 : Math.PI) : Math.atan(- vec3.x / vec3.z) + (vec3.z < 0 ? Math.PI : 0)) * 57.3F);
                     if (entity1 instanceof Projectile) {
                         ((Projectile) entity1).setOwner(entity);
                         if (entity1 instanceof AbstractHurtingProjectile projectile) {
-                            Vec3 vec3 = entity.getDeltaMovement().normalize();
+                            vec3 = entity.getDeltaMovement().normalize();
                             projectile.setDeltaMovement(vec3);
                             projectile.xPower = vec3.x * 0.1D;
                             projectile.yPower = vec3.y * 0.1D;

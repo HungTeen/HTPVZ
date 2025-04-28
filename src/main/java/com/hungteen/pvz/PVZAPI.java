@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZZombieEvents;
 import com.hungteen.pvz.api.ZombieEvent;
+import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
@@ -16,12 +17,16 @@ import net.minecraft.world.entity.player.Player;
 
 public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
     @Override
-    public String getSunString() {
+    public String getSunResourceName() {
         return PVZPlayerCapNBT.SUN;
     }
     @Override
+    public String getInvasionThreatResourceName() {
+        return Invasion.INVASION_THREAT;
+    }
+    @Override
     public int getSun(Player player) {
-        return PVZPlayerCapability.getValue(player, getSunString());
+        return PVZPlayerCapability.getValue(player, getSunResourceName());
     }
     @Override
     public boolean plantHaveCost(Player player) {

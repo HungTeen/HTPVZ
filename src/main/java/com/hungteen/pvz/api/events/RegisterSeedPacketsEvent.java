@@ -22,7 +22,7 @@ public class RegisterSeedPacketsEvent extends Event {
         packetSet.add(new SeedPacketData(entitySupplier, resource, cost, coolDown));
     }
     public void add(Supplier<EntityType<? extends LivingEntity>> entitySupplier, int cost, int coolDown) {
-        add(entitySupplier, PVZAPI.get().getSunString(), cost, coolDown);
+        add(entitySupplier, PVZAPI.get().getSunResourceName(), cost, coolDown);
     }
 
     /**Returns all newly-added data.*/
@@ -44,7 +44,7 @@ public class RegisterSeedPacketsEvent extends Event {
         public List<Skill> skillList = List.of();
         public int cost = 0;
         public int coolDown = 5;
-        public String resource = PVZAPI.get().getSunString();
+        public String resource = PVZAPI.get().getSunResourceName();
         public boolean creativeOnly;
 
         public SeedPacketData(Supplier<EntityType<T>> entitySupplier){

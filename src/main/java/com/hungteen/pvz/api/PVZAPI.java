@@ -34,8 +34,10 @@ public class PVZAPI {
 
     public interface IPVZAPI{
         //player
-        /**The key for sun in playerStats. */
-        String getSunString();
+        /**The key for sun in playerStats and EntityCap. */
+        String getSunResourceName();
+        /**The key for invasion threat in Invasion and EntityCap.*/
+        String getInvasionThreatResourceName();
         /**The sun a player have. For {@link com.hungteen.pvz.api.interfaces.ISunContainer ISunAbsorber}, use {@link com.hungteen.pvz.api.interfaces.ISunContainer#getAmount() getContainingSun()}.*/
         int getSun(Player player);
         /**Whether it costs player's sun when planting.*/
@@ -73,8 +75,12 @@ public class PVZAPI {
         public static final PVZAPI.IPVZAPI INSTANCE = new DummyAPI();
 
         @Override
-        public String getSunString() {
+        public String getSunResourceName() {
             return "pvz.sun";
+        }
+        @Override
+        public String getInvasionThreatResourceName() {
+            return "pvz.invasion_threat";
         }
         @Override
         public boolean plantHaveCost(Player player) {

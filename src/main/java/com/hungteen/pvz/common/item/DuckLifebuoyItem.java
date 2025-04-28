@@ -13,13 +13,13 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Wearable;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -72,11 +72,11 @@ public class DuckLifebuoyItem extends ArmorItem implements Wearable {
                 }
             }
         }
-        AttributeInstance speed = livingEntity.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speed = livingEntity.getAttribute(ForgeMod.SWIM_SPEED.get());
         if (speed != null && ! (livingEntity instanceof Player)) {
             if (isInWater && livingEntity.getPose() == Pose.STANDING /*getWaterSlowDown() is not callable...*/ && speed.getModifier(SPEED_MODIFIER_UUID) == null) {
                 speed.addTransientModifier(new AttributeModifier(SPEED_MODIFIER_UUID,
-                        "duck_lifebuoy", 5, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                        "duck_lifebuoy", 15, AttributeModifier.Operation.ADDITION));
             } else if (speed.getModifier(SPEED_MODIFIER_UUID) != null){
                 speed.removeModifier(SPEED_MODIFIER_UUID);
             }

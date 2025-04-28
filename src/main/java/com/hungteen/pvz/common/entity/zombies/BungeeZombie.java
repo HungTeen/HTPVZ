@@ -2,32 +2,49 @@ package com.hungteen.pvz.common.entity.zombies;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.entity.Hook;
+import com.hungteen.pvz.common.entity.bullet.ArrowWithATarget;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.DynamicGameEventListener;
+import net.minecraft.world.level.gameevent.EntityPositionSource;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.gameevent.GameEventListener;
+import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
 import net.minecraft.world.phys.Vec3;
 
-public class BungeeZombie extends PVZZombie {
+import javax.annotation.Nullable;
+import java.util.function.BiConsumer;
+
+public class BungeeZombie extends PVZZombie implements VibrationListener.VibrationListenerConfig {
     /**
      * The position the zombie ties itself on.
      */
     private static final EntityDataAccessor<BlockPos> TIED_POSITION = SynchedEntityData.defineId(BungeeZombie.class, EntityDataSerializers.BLOCK_POS);
     private static final EntityDataAccessor<Boolean> TIED = SynchedEntityData.defineId(BungeeZombie.class, EntityDataSerializers.BOOLEAN);
     public double ropeLengthSqr = 25;
+    private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
 
     public BungeeZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
+        this.dynamicGameEventListener = new DynamicGameEventListener<>(new VibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 8, this, (VibrationListener.ReceivingEvent)null, 0.0F, 0));
     }
 
     @Override
@@ -105,8 +122,63 @@ public class BungeeZombie extends PVZZombie {
                 this.getPassengers().forEach(Entity::stopRiding);
             }
         }
+        if (level instanceof ServerLevel serverlevel) {
+            this.dynamicGameEventListener.getListener().tick(serverlevel);
+        }
     }
 
+    @Override
+    public boolean shouldListen(ServerLevel p_223872_, GameEventListener listener, BlockPos p_223874_, GameEvent gameEvent, GameEvent.Context context) {
+        if (gameEvent == GameEvent.PROJECTILE_LAND && context.sourceEntity() instanceof LivingEntity entity) {
+            return entity.getLastHurtByMob() == this && EntityUtil.checkCanEntityBeAttack(this, entity) && ! (entity instanceof Slime);
+        }
+        return false;
+    }
+
+    @Override
+    public void onSignalReceive(ServerLevel p_223865_, GameEventListener p_223866_, BlockPos pos, GameEvent p_223868_, @javax.annotation.Nullable Entity target, @Nullable Entity ownerOfTarget, float p_223871_) {
+        if (! this.isDeadOrDying() && (this.getTarget() == null || this.getTarget().blockPosition().distSqr(pos) < target.blockPosition().distSqr(pos))) {
+            if (target instanceof LivingEntity entity) {
+                this.setTarget(entity);
+            } else if (ownerOfTarget instanceof LivingEntity entity) {
+                this.setTarget(entity);
+            }
+        }
+    }
+    @Override
+    public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerLevel> p_219413_) {
+        Level level = this.level;
+        if (level instanceof ServerLevel serverlevel) {
+            p_219413_.accept(this.dynamicGameEventListener, serverlevel);
+        }
+    }
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        if (this.entityData.get(TIED)) {
+            BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, this.entityData.get(TIED_POSITION)).resultOrPartial(PVZMod.LOGGER::error).ifPresent((p_219418_) -> {
+                tag.put("hanging_pos", p_219418_);
+            });
+            tag.putDouble("tied_rope_length", this.ropeLengthSqr);
+        }
+        VibrationListener.codec(this).encodeStart(NbtOps.INSTANCE, this.dynamicGameEventListener.getListener()).resultOrPartial(PVZMod.LOGGER::error).ifPresent((p_219418_) -> {
+            tag.put("listener", p_219418_);
+        });
+    }
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag){
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("hanging_pos")) {
+            this.entityData.set(TIED, true);
+            BlockPos.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("hanging_pos"))).resultOrPartial(PVZMod.LOGGER::error)
+                    .ifPresent((p_219408_) -> this.entityData.set(TIED_POSITION, p_219408_));
+            this.ropeLengthSqr = tag.getDouble("tied_rope_length");
+        }
+        if (tag.contains("listener")) {
+            VibrationListener.codec(this).parse(new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("listener"))).resultOrPartial(PVZMod.LOGGER::error)
+                    .ifPresent((p_219408_) -> this.dynamicGameEventListener.updateListener(p_219408_, this.level));
+        }
+    }
     public class BungeeZombieAttackGoal extends Goal {
         public BungeeZombie zombie;
         private int stayTime = 0;
@@ -123,7 +195,6 @@ public class BungeeZombie extends PVZZombie {
 
         @Override
         public void tick() {
-            PVZMod.LOGGER.info("" + stayTime);
             Entity target = zombie.getTarget();
             boolean targetAvailable = EntityUtil.isEntityValid(target) && target.getBbWidth() <= 1;
             if (! this.zombie.isHanging() || this.zombie.tickCount % 200 <= 1) {
@@ -134,7 +205,6 @@ public class BungeeZombie extends PVZZombie {
                             BlockPos nowPos = zombie.getHangingPosition();
                             if ((nowPos == null || ! nowPos.equals(pos)) && zombie.blockPosition().offset(0, Math.ceil(zombie.getBbHeight()), 0).getY() <= pos.getY()) {
                                 Hook hook = new Hook(PVZEntities.HOOK.get(), this.zombie.level);
-                                PVZMod.LOGGER.info("Hook launched!");
                                 Vec3 zombieCenter = this.zombie.position().add(0, zombie.getBbHeight() / 2, 0);
                                 hook.setPos(zombieCenter);
                                 hook.setOwner(zombie);
@@ -148,7 +218,18 @@ public class BungeeZombie extends PVZZombie {
             } else if (this.zombie.tickCount % 10 <= 1 && this.zombie.getHangingPosition() != null) {
                 BlockPos pos = zombie.blockPosition().offset(0, Math.ceil(zombie.getBbHeight()),0);
                 BlockPos pos1 = zombie.getHangingPosition();
-
+                //TODO about arrow_with_a_target.
+                if (this.zombie.tickCount % 50 <= 1 && zombie.getHangingPosition() != null && zombie.getPassengers().isEmpty()
+                        && Math.abs(this.zombie.getDeltaMovement().y) < 0.1 && zombie.blockPosition().distSqr(zombie.getHangingPosition()) < zombie.ropeLengthSqr
+                        && EntityUtil.isEntityValid(zombie.getTarget()) && this.zombie.distanceToSqr(zombie.getTarget()) > 5) {
+                    ArrowWithATarget arrow = PVZEntities.ARROW_WITH_A_TARGET.get().create(level);
+                    if (arrow != null) {
+                        arrow.setOwner(this.zombie);
+                        arrow.setDeltaMovement(0, -0.3, 0);
+                        arrow.setPos(zombie.position().add(0, -0.5, 0));
+                        level.addFreshEntity(arrow);
+                    }
+                }
                 //about rope
                 if ((zombie.getPassengers().isEmpty() || (targetAvailable && zombie.getPassengers().get(0) != target)) &&
                         MathUtil.horizontalDistSqrBetween(pos1, pos) < 9 && MathUtil.horizontalDistSqrOf(zombie.getDeltaMovement()) < 0.5 /*stable under hanging pos*/) {
@@ -166,7 +247,6 @@ public class BungeeZombie extends PVZZombie {
                 }
                 if (zombie.ropeLengthSqr <= 0.5) {
                     zombie.ropeLengthSqr = 0.5;
-
                 } else if (zombie.getHangingPosition() != null && targetAvailable && zombie.getPassengers().isEmpty()) {
                     double maxLen = Math.pow(this.zombie.getHangingPosition().getY() - target.getY() - this.zombie.getBbHeight() - 1, 2);
                     if (zombie.ropeLengthSqr > maxLen) {

@@ -50,7 +50,7 @@ public class IcebergLettuce extends ShooterPlant {
 
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_DIRT, BlockTags.SNOW, BlockTags.ICE);
+        return Set.of(PVZBlockTags.PLANTABLE_DIRT, BlockTags.SNOW, BlockTags.ICE, PVZBlockTags.PLANTABLE_STONE);
     }
     @Override
     protected void registerGoals() {

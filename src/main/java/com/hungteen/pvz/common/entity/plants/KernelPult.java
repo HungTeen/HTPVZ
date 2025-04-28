@@ -30,7 +30,7 @@ import java.util.List;
 
 public class KernelPult extends ShooterPlant {
     public static final EntityDataAccessor<Integer> CURRENT_BULLET = SynchedEntityData.defineId(KernelPult.class, EntityDataSerializers.INT);
-    private static final int BUTTER_CHANCE = 3;
+    private static final int BUTTER_CHANCE = 5;
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
 
     public static final String BUTTER_SKILL_NAME = "skill.pvz.kernel_pult.butter_pult";

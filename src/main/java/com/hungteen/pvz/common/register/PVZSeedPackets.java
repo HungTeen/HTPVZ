@@ -65,7 +65,7 @@ public class PVZSeedPackets {
         add(PVZEntities.SPIKE_WEED).cost(100).coolDown(MEDIUM).skillList(SpikeWeed.staticSkillList)
                 .recipe(Items.GLOW_LICHEN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.TORCH_WOOD).cost(300).coolDown(SLOW).skillList(TorchWood.staticSkillList)
-                .recipeBlock(PVZBlocks.woodList.get(0).get(PVZBlocks.WoodSet.Log), PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
+                .recipeBlock(PVZBlocks.woodList.get(0)/*Nut wood*/.get(PVZBlocks.WoodSet.Log), PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
         add(PVZEntities.TALL_NUT).cost(125).coolDown(VERY_SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.NETHER_WART_SEED_PACKET);
         add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)

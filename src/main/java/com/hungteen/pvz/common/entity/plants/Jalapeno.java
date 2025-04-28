@@ -52,19 +52,19 @@ public class Jalapeno extends SimplePlant {
             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {
                 Anger anger = new Anger(level);
                 if (this.hasSkill(NO_FRIENDLY_FIRE_SKILL_NAME)) {
-                    anger.preciseStrike = true;
+                    anger.friendlyFire = false;
                 }
                 anger.setPos(this.position().add(0, 1, 0));
-                anger.getCapability(PVZEntityCapability.CAP).orElse(null).setOwner(this);
+                anger.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
                 anger.yRot = direction.toYRot();
                 level.addFreshEntity(anger);
                 if (this.hasSkill(TRACK_SKILL_NAME)) {
                     anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) / 3);
-                    anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
                     anger.maxLife = 150;
                 } else {
                     anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE));
                     anger.targetSelector.disableControlFlag(Goal.Flag.TARGET);
+                    anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(1F);
                 }
             }
         }

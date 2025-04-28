@@ -18,6 +18,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
+import net.minecraftforge.common.util.TriPredicate;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -69,14 +70,14 @@ public class InvasionTeam {
                             result.set(false);
                             final int size = random.nextInt(4);
                             List<CompoundTag> tags = new ArrayList<>();
-                            Optional<CompoundTag> leader = invasionTypes.get(0).flagEnemy();
+                            Optional<InvasionType.EnemyType> leader = invasionTypes.get(0).flagEnemy();
                             List<InvasionType.EnemyType> types = invasionTypes.get(0).enemies();
                             for (int i = 0; i < size; i ++) {
                                 tags.add(types.get(random.nextInt(types.size())).entityData());
                             }
                             Entity entity;
                             if (leader.isPresent()) {
-                                entity = summonEntity(leader.get().copy(), target.level, vec3);
+                                entity = summonEntity(leader.get().entityData().copy(), target.level, vec3);
                             } else {
                                 entity = summonEntity(tags.get(0).copy(), target.level, vec3);
                                 tags.remove(tags.get(0));
@@ -122,8 +123,15 @@ public class InvasionTeam {
                 }
             });
         }
-        this.invasionTypes.forEach(type -> type.getModifiers().forEach(
-                modifier -> modifier.accept(null, entity, 0)));
+        if (! this.invasionTypes.stream().allMatch(type -> {
+            for (TriPredicate<Invasion, Entity, Integer> predicate : type.getModifiers()) {
+                if (! predicate.test(null, entity, 0)) return false;
+            }
+            return true;
+        })) {
+            entity.discard();
+            return null;
+        }
         ((ServerLevel) level).addFreshEntityWithPassengers(entity);
         PlayerTeam enemyTeam = entity.getServer().getScoreboard().getPlayerTeam(PVZMod.ENEMY_TEAM);
         String name = entity.getScoreboardName();

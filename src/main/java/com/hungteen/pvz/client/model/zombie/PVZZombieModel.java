@@ -78,8 +78,22 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
             this.leftArm.xRot = (-(float)Math.PI / 2F) + this.head.xRot + 0.2F;
         }
 
-        //tied
-        if (zombie.getPose() == Pose.LONG_JUMPING) {
+
+        this.body.y = 0F;
+        this.body.z = 0f;
+        this.head.y = 0F;
+        this.head.z = 0f;
+        this.leftArm.z = 0f;
+        this.rightArm.z = 0f;
+        this.leftArm.y = 2F;
+        this.rightArm.y = 2F;
+        this.rightLeg.z = 0f;
+        this.leftLeg.z = 0f;
+        this.leftLeg.y = 12f;
+        this.rightLeg.y = 12f;
+        this.rightLeg.x = -2f;
+        this.leftLeg.x = 2f;
+        if (zombie.getPose() == Pose.LONG_JUMPING) { //used as tied
             this.body.xRot = 1.4f;
             this.rightArm.xRot += 0.8f;
             this.leftArm.xRot += 0.8f;
@@ -99,27 +113,20 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
             this.rightLeg.x = -2.5f;
             this.leftLeg.zRot -= 0.1f;
             this.leftLeg.x = 2.5f;
-        } else {
-            this.body.y = 0F;
-            this.body.z = 0f;
-            this.head.y = 0F;
-            this.head.z = 0f;
-            this.leftArm.z = 0f;
-            this.rightArm.z = 0f;
-            this.leftArm.y = 2F;
-            this.rightArm.y = 2F;
-            this.rightLeg.z = 0f;
-            this.leftLeg.z = 0f;
-            this.leftLeg.y = 12f;
-            this.rightLeg.y = 12f;
-            this.rightLeg.x = -2f;
-            this.leftLeg.x = 2f;
-        }
-        if (zombie.getPose() == Pose.SWIMMING) {
+        } else if (zombie.getPose() == Pose.CROAKING) { //used as spell_casting
+            this.rightArm.z = 0.0F;
+            this.rightArm.x = -5.0F;
+            this.leftArm.z = 0.0F;
+            this.leftArm.x = 5.0F;
+            this.rightArm.xRot = Mth.cos(p_102004_ * 0.6662F) * 0.25F;
+            this.leftArm.xRot = Mth.cos(p_102004_ * 0.6662F) * 0.25F;
+            this.rightArm.zRot = 2.3561945F;
+            this.leftArm.zRot = -2.3561945F;
+            this.rightArm.yRot = 0.0F;
+            this.leftArm.yRot = 0.0F;
+        } else if (zombie.getPose() == Pose.SWIMMING) {
             this.head.xRot -= 1.5F;
             this.head.z = -2F;
-        } else {
-            this.head.z = 0;
         }
 
 

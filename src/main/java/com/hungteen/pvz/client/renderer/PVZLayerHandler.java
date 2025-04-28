@@ -70,6 +70,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.POLE_VAULTING_ZOMBIE, PoleVaultingZombieModel::createBodyLayer);
         L(e, PVZEntities.SNORKEL_ZOMBIE, SnorkelZombieModel::createBodyLayer);
         L(e, PVZEntities.TACO_IMP, TacoImpModel::createBodyLayer);
+        L(e, PVZEntities.FIRE_IMP, FireImpModel::createBodyLayer);
         L(e, PVZEntities.JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieModel::createBodyLayer);
         L(e, PVZEntities.DIGGER_ZOMBIE, DiggerZombieModel::createBodyLayer);
         L(e, PVZEntities.GARGANTUAR, GargantuarModel::createBodyLayer);

@@ -104,9 +104,11 @@ public class Gargantuar extends PVZZombie {
         this.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
         this.setItemSlot(EquipmentSlot.LEGS, ItemStack.EMPTY);
         this.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
-        Mob mob = this.getRider(level, difficulty, spawnType);
-        if (mob != null) {
-            mob.startRiding(this);
+        if (! this.isVehicle()) {
+            Mob mob = this.getRider(level, difficulty, spawnType);
+            if (mob != null) {
+                mob.startRiding(this);
+            }
         }
         return spawnGroupData;
     }
@@ -114,7 +116,7 @@ public class Gargantuar extends PVZZombie {
     public Mob getRider(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType) {
         Imp imp = PVZEntities.IMP.get().create(this.level);
         imp.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-        imp.finalizeSpawn(level, difficulty, spawnType, null, null);
+//        imp.finalizeSpawn(level, difficulty, spawnType, null, null);
         imp.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
         return imp;
     }

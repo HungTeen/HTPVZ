@@ -90,7 +90,8 @@ public class PVZEntities {
     public static Map<RegistryObject, List<TagKey<EntityType<?>>>> tagMap = new HashMap<>();
     //no summon
     public static boolean storedCanSummon = true;
-
+    //fire immuine
+    public static boolean storedFireImmuine = false;
 
 
     //registry
@@ -101,7 +102,7 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = collision(1.375F, 0.5625F).entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<Sun>> SUN = collision(0.2F, 0.2F).entity("sun", Sun::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<FallenStar>> FALLEN_STAR = collision(0.4F, 0.4F).entity("fallen_star", FallenStar::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<LootBag>> LOOT_BAG = collision(0.2F, 0.2F).noSummon().entity("loot_bag", LootBag::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<LootBag>> LOOT_BAG = collision(0.2F, 0.2F).fireImmuine().noSummon().entity("loot_bag", LootBag::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<MooBloom>> MOOBLOOM = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, MooBloom::checkMooBloomSpawnRules)
             .spawnEgg(0xffc100, 0x88b830).attribute(MooBloom::createAttributes)
             .collision(0.9F, 1.4F).entity("moo_bloom", MooBloom::new, MobCategory.CREATURE);
@@ -206,30 +207,47 @@ public class PVZEntities {
     //zombies
     public static final RegistryObject<EntityType<PVZZombie>> ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0xb97141, 0x799587)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .entity("zombie", PVZZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<PoleVaultingZombie>> POLE_VAULTING_ZOMBIE = attribute(PoleVaultingZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0xd1575b, 0x3d97dc)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .entity("pole_vaulting_zombie", PoleVaultingZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<SnorkelZombie>> SNORKEL_ZOMBIE = attribute(SnorkelZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0xffe300, 0xa03232)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SnorkelZombie::checkSpawnRules)
             .entity("snorkel_zombie", SnorkelZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<JackInABoxZombie>> JACK_IN_A_BOX_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0xddd4d4, 0xcc4646)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .entity("jack_in_a_box_zombie", JackInABoxZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<DiggerZombie>> DIGGER_ZOMBIE = attribute(DiggerZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x3e81bf, 0xff4834)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .entity("digger_zombie", DiggerZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<BungeeZombie>> BUNGEE_ZOMBIE = attribute(BungeeZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x9b2e31, 0x8b7054)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .entity("bungee_zombie", BungeeZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<Imp>> IMP = attribute(Imp::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0xaa3a39, 0x454ab0)
-            .entity("imp", Imp::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<Gargantuar>> GARGANTUAR = attribute(Gargantuar::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x8a5949, 0x43446d)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .collision(1.5F, 2.7F).entity("gargantuar", Gargantuar::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<Imp>> IMP = attribute(Imp::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0xaa3a39, 0x454ab0)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
+            .entity("imp", Imp::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<LavaDiverZombie>> LAVA_DIVER_ZOMBIE = attribute(LavaDiverZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x514b44, 0xffac00).fireImmuine()
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, LavaDiverZombie::checkSpawnRules)
+            .entity("lava_diver_zombie", LavaDiverZombie::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<FireImp>> FIRE_IMP = attribute(FireImp::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x6e7a74, 0xffc000).fireImmuine()
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, FireImp::checkSpawnRules)
+            .entity("fire_imp", FireImp::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<TacoImp>> TACO_IMP = attribute(TacoImp::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0xfbc093, 0xa6de66)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .entity("taco_imp", TacoImp::new, MobCategory.MONSTER);
 
     //bullets
@@ -304,7 +322,9 @@ public class PVZEntities {
         r(e, DIGGER_ZOMBIE, DiggerZombieRenderer::new);
         r(e, BUNGEE_ZOMBIE, BungeeZombieRenderer::new);
         r(e, SNORKEL_ZOMBIE, SnorkelZombieRenderer::new);
+        r(e, LAVA_DIVER_ZOMBIE, LavaDiverZombieRenderer::new);
         r(e, IMP, ImpRenderer::new);
+        r(e, FIRE_IMP, FireImpRenderer::new);
         r(e, TACO_IMP, TacoImpRenderer::new);
         r(e, GARGANTUAR, GargantuarRenderer::new);
         r(e, SPROUT, SproutRenderer::new);
@@ -327,10 +347,19 @@ public class PVZEntities {
     private static <T extends Entity> RegistryObject<EntityType<T>> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
         float coh = storedCollision.getFirst();
         float cov = storedCollision.getSecond();
-        Supplier<EntityType<T>> supplier = storedCanSummon ? () -> EntityType.Builder.of(factory, classification).sized(coh, cov).build(Util.prefix(name).toString()) :
-                () -> EntityType.Builder.of(factory, classification).sized(coh, cov).noSummon().build(Util.prefix(name).toString());
-        storedCanSummon = true;
+        EntityType.Builder<T> builder = EntityType.Builder.of(factory, classification).sized(coh, cov);
+        if (! storedCanSummon) {
+            builder.noSummon();
+        }
+        if (storedFireImmuine) {
+            builder.fireImmune();
+        }
+        Supplier<EntityType<T>> supplier = () -> {
+            return builder.build(Util.prefix(name).toString());
+        };
         RegistryObject<EntityType<T>> entity = ENTITIES.register(name, supplier);
+        storedCanSummon = true;
+        storedFireImmuine = false;
         storedCollision = Pair.of(0.6F, 1.95F);
         //spawn egg
         if (storedSpawnEgg != null) {
@@ -389,6 +418,11 @@ public class PVZEntities {
 
     private static PVZEntities noSummon() {
         storedCanSummon = false;
+        return reflector;
+    }
+
+    private static PVZEntities fireImmuine() {
+        storedFireImmuine = true;
         return reflector;
     }
 

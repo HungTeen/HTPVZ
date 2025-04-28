@@ -7,6 +7,7 @@ import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
 import com.hungteen.pvz.common.register.PVZBannerPatterns;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -14,6 +15,9 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -84,6 +88,9 @@ public class PVZZombie extends Zombie implements ICanGroupUp {
         return spawnGroupData;
     }
 
+    public static boolean checkSpawnRules(EntityType<PVZZombie> p_219014_, ServerLevelAccessor p_219015_, MobSpawnType p_219016_, BlockPos p_219017_, RandomSource p_219018_) {
+        return p_219015_.getDifficulty() != Difficulty.PEACEFUL && ! p_219015_.getBlockState(p_219017_.below()).getFluidState().is(FluidTags.LAVA);
+    }
     //configs
     @Override
     protected void defineSynchedData() {

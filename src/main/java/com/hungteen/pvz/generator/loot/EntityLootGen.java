@@ -51,13 +51,19 @@ public class EntityLootGen extends EntityLoot {
         this.add(PVZEntities.SNORKEL_ZOMBIE.get(), basicZombieLootTable());
         this.add(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get(), basicZombieLootTable());
         this.add(PVZEntities.DIGGER_ZOMBIE.get(), basicZombieLootTable());
-        this.add(PVZEntities.BUNGEE_ZOMBIE.get(), basicZombieLootTable());
+        this.add(PVZEntities.BUNGEE_ZOMBIE.get(), basicZombieLootTable()
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                        .add(LootItem.lootTableItem(PVZItems.ARROW_WITH_A_TARGET.get())
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F))))));
         this.add(PVZEntities.IMP.get(), basicZombieLootTable());
+        this.add(PVZEntities.FIRE_IMP.get(), basicZombieLootTable());
         this.add(PVZEntities.TACO_IMP.get(), LootTable.lootTable()
                 .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
                         .add(LootItem.lootTableItem(PVZItems.GOLDEN_TACO.get())))
         );
         this.add(PVZEntities.GARGANTUAR.get(), basicZombieLootTable());
+        this.add(PVZEntities.LAVA_DIVER_ZOMBIE.get(), basicZombieLootTable());
         //enter here
     }
 

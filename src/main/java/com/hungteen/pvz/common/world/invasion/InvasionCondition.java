@@ -124,7 +124,7 @@ public interface InvasionCondition {
     class IsUndergroundCondition implements InvasionCondition {
         @Override
         public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
-            return target.level.getHeight(Heightmap.Types.WORLD_SURFACE, (int) target.getX(), (int) target.getZ()) > target.getY() + 15;
+            return target.level.getHeight(Heightmap.Types.WORLD_SURFACE, (int) target.getX(), (int) target.getZ()) > target.getY() + 20;
         }
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
