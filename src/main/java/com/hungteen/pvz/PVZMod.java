@@ -1,8 +1,6 @@
 package com.hungteen.pvz;
 
-import com.hungteen.pvz.client.PVZClientEventHandler;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
-import com.hungteen.pvz.client.gui.components.ClientSunImageToolTipComponent;
 import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
@@ -20,7 +18,6 @@ import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.world.PVZFog;
 import com.hungteen.pvz.common.world.team.PVZTeamData;
-import com.hungteen.pvz.common.world.zen_garden.ZenGardenEffects;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
@@ -52,7 +49,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -107,14 +103,6 @@ public class PVZMod
 
         modBus.addListener(EventPriority.NORMAL, OtherRegisters::essenceFurnaceRecipeBookRegister);
 
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            modBus.addListener(PVZOverlayHandler::registerOverlay);
-            modBus.addListener(ClientSunImageToolTipComponent::register);
-            modBus.addListener(ZenGardenEffects::register);
-            modBus.addListener(PVZClientEventHandler::addLayers);
-            modBus.addListener(PVZClientEventHandler::registerExtraModels);
-        }
-
 
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addGenericListener(Entity.class, CapabilityHandler::attachEntityCaps);
@@ -123,6 +111,8 @@ public class PVZMod
         forgeBus.addListener(PVZMod::onServerTick);
         forgeBus.addListener(PVZMod::onClientTick);
         PVZConfig.init();
+
+        PROXY.addClientListeners(modBus, forgeBus);
 
         forgeBus.register(this);
     }

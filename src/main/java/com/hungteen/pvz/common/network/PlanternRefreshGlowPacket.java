@@ -1,9 +1,7 @@
 package com.hungteen.pvz.common.network;
 
 import com.hungteen.pvz.common.entity.plants.Plantern;
-import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
@@ -45,7 +43,7 @@ public class PlanternRefreshGlowPacket {
                 List<Plantern> list = player.level.getEntities(EntityTypeTest.forClass(Plantern.class),
                         new AABB(player.getX() - 200, player.getY() - 200, player.getZ() - 200,
                                 player.getX() + 200, player.getY() + 200, player.getZ() + 200),
-                        (plantern) -> set.contains(plantern.getUUID()));
+                        (plantern) -> set.contains(plantern.getUUID()) && plantern.distanceToSqr(player) > 400);
                 list.forEach(Plantern::refreshSkillGlowTime);
             }
         });

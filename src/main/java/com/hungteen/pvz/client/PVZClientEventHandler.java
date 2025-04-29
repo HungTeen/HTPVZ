@@ -25,15 +25,14 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 
-@Mod.EventBusSubscriber
 public class PVZClientEventHandler {
 
+    @SubscribeEvent
     public static void addLayers(@SuppressWarnings("rawtypes") EntityRenderersEvent.AddLayers ev){
         try {
             //get private field.
@@ -85,6 +84,7 @@ public class PVZClientEventHandler {
         }
     }
 
+    @SubscribeEvent
     public static void registerExtraModels(ModelEvent.RegisterAdditional ev) {
         ev.register(new ModelResourceLocation("pvz:pumpkin_helmet_equipped_0#inventory"));
         ev.register(new ModelResourceLocation("pvz:pumpkin_helmet_equipped_1#inventory"));

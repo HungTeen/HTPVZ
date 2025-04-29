@@ -5,7 +5,6 @@ import com.hungteen.pvz.common.block.EntityLightBlock;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -35,7 +34,7 @@ public class Plantern extends SimplePlant {
             new Skill(DETECT_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 125, 350).avoidSkills(LEAD_SKILL_NAME)
     );
     public AnimationState idleAnimationState = new AnimationState();
-    private int skillGlowTime = 0;
+    private int skillGlowTime = 0; //only available in client.
 
     public Plantern(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -108,7 +107,8 @@ public class Plantern extends SimplePlant {
         this.skillGlowTime = 5;
     }
     public boolean isCurrentlyGlowing() {
-        return this.skillGlowTime > 0 && ClientProxy.getPlayer() != null && this.distanceToSqr(ClientProxy.getPlayer()) > 400 || super.isCurrentlyGlowing();
+        return this.skillGlowTime > 0 || super.isCurrentlyGlowing();
+        //To avoid server crash the part of testing player position is not put here.
     }
 
     public static class OfferBrightnessGoal extends Goal {
