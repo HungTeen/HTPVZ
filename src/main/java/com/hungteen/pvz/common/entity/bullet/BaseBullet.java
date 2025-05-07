@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.entity.bullet;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
@@ -97,7 +96,6 @@ public class BaseBullet extends Projectile {
 					&& this.getDeltaMovement().y < 0 && this.getY() > owner.getTarget().getY()) {
 				Entity target = owner.getTarget();
 				float fixLimit = Math.min((float) Math.max(0.03, 0.5F * target.getDeltaMovement().distanceToSqr(Vec3.ZERO)), (float) (this.getDeltaMovement().distanceToSqr(Vec3.ZERO) / 10));
-				if (fixLimit > 0.1) PVZMod.LOGGER.info(fixLimit + "");
 				double timeLand = 5;
 				double heightRelate = target.getY() + target.getBbHeight() / 2 - this.getY();
 				for (int i = 0; i < 5; i ++) {

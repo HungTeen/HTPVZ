@@ -14,18 +14,15 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.util.ArrayList;
@@ -60,6 +57,7 @@ public class BlockLootGen extends BlockLoot {
         this.dropOther(PVZBlocks.NUT_LEAVES_WITH_NUTS.get(), PVZItems.NUT.get());
         this.addOreDrop(PVZBlocks.ORIGIN_ORE.get(), PVZItems.ORIGIN_ESSENCE.get());
         this.addSlabDrop(PVZBlocks.GARDEN_FLOWER_POT.get());
+        this.addConditionDrop(PVZBlocks.FLOATING_SOUL_SOIL.get(), HAS_SILK_TOUCH);
         //TODO bug that essence alter and origin block drop self without tool.
 
         //the rest
@@ -75,7 +73,11 @@ public class BlockLootGen extends BlockLoot {
     protected Iterable<Block> getKnownBlocks() {
         return new ArrayList<>(lootedList);
     }
-
+    protected void addConditionDrop(Block block, LootItemCondition.Builder condition) {
+        outPut(block);
+        lootedList.add(block);
+        this.add(block, createSelfDropDispatchTable(block, condition, LootItem.lootTableItem(block)));
+    }
     protected void addLeavesDrops(Block block, Block sapling, float... chance) {
         outPut(block);
         lootedList.add(block);

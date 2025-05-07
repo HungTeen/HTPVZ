@@ -310,8 +310,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                         turnip.setCustomName(this.getCustomName());
                     }
                     PVZEntityCapability cap = turnip.getCapability(PVZEntityCapability.CAP).orElse(null);
-                    PVZEntityCapability thisCap = getCapability(PVZEntityCapability.CAP).orElse(null);
-                    cap.setOwner(thisCap.getOwner());
+                    cap.setOwner(PVZEntityCapability.getOwner(this));
                     turnip.startFollowing(this);
                 }
                 this.removeSkill(this, getSkillFromName(GROUP_SKILL_NAME));

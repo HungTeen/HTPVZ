@@ -39,7 +39,7 @@ public class JackInABoxZombie extends PVZZombie {
         }
         @Override
         public boolean canUse() {
-            return ! mob.isFreezing() && ! mob.getMainHandItem().isEmpty() && mob.getMainHandItem().getUseDuration() > 0 &&
+            return mob.getTicksFrozen() <= 0 && ! mob.getMainHandItem().isEmpty() && mob.getMainHandItem().getUseDuration() > 0 &&
                     (! mob.isUsingItem() || mob.getUseItemRemainingTicks() > mob.getMainHandItem().getUseDuration() - 60) &&
                     mob.tickCount > 100 && (mob.isUsingItem() || mob.getRandom().nextFloat() < (mob.getTarget() != null && mob.getTarget().distanceToSqr(mob) < 25 ? 0.005F : 0.0001F));
         }

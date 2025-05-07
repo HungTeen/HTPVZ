@@ -50,7 +50,7 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
     @Nullable
     public ZombieEvent getEvent(UUID uuid) {
         for (ZombieEvent i : this.events) {
-            if (i != null && i.uuid.equals(uuid)) {//TODO why there can be null?
+            if (i != null && i.uuid.equals(uuid)) {
                 return i;
             }
         }

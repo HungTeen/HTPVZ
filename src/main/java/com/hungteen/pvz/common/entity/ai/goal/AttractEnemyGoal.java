@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.entity.ai.goal;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.interfaces.IAttractsEnemy;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -30,7 +31,7 @@ public class AttractEnemyGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return -- countDown <= 0 && condition.get();
+        return ! this.entity.hasEffect(MobEffects.INVISIBILITY) && -- countDown <= 0 && condition.get();
     }
 
     @Override

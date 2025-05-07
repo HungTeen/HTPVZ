@@ -59,6 +59,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
         L(e, PVZEntities.GATLING_PEA, GatlingPeaModel::createBodyLayer);
         L(e, PVZEntities.SPROUT, SproutModel::createBodyLayer);
+        L(e, PVZEntities.LAVA_GHASTLING, LavaGhastlingModel::createBodyLayer);
         L(e, "melon_bullet", MelonBulletModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "starfruit_bullet", StarfruitBulletModel::createBodyLayer);

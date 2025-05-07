@@ -1,11 +1,11 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.interfaces.IHangable;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
-import com.hungteen.pvz.common.entity.zombies.BungeeZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -81,7 +81,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             return false;
         }
         if (isClient) {
-            return entity == ClientProxy.getPlayer();
+            return entity == ClientProxy.getPlayer() && ! entity.isShiftKeyDown();
         }
         Vec3 vec31 = entity.getDeltaMovement();
         Vec3 vec32 = this.position().subtract(entity.position());
@@ -182,7 +182,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            float width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 5 : 2.5F;
+            float width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 5 : 3F;
             List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(width, 2.5, width),
                     (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {
@@ -209,8 +209,8 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                                             DamageSource.playerAttack(player) : DamageSource.mobAttack(entity)
                                     , 0F);
                         }
-                    } else if (entity1 instanceof BungeeZombie bungeeZombie) {
-                        bungeeZombie.setHangingPosition(null);
+                    } else if (entity1 instanceof IHangable hangable) {
+                        hangable.setHangingPosition(null);
                     }
                 }));
                 entity.setAttackTime(30);

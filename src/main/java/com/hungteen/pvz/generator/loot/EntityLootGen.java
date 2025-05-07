@@ -62,8 +62,21 @@ public class EntityLootGen extends EntityLoot {
                 .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
                         .add(LootItem.lootTableItem(PVZItems.GOLDEN_TACO.get())))
         );
+        this.add(PVZEntities.GHAST_RIDER.get(), LootTable.lootTable()
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                        .add(LootItem.lootTableItem(PVZItems.PEPPER.get())))
+        );
         this.add(PVZEntities.GARGANTUAR.get(), basicZombieLootTable());
         this.add(PVZEntities.LAVA_DIVER_ZOMBIE.get(), basicZombieLootTable());
+        this.add(PVZEntities.LAVA_GHASTLING.get(), LootTable.lootTable()
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                        .add(LootItem.lootTableItem(Items.GHAST_TEAR)
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 0.2F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.GUNPOWDER)
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F))))));
         //enter here
     }
 

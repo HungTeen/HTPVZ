@@ -69,12 +69,12 @@ public class EntityUtil {
         for (int x = -1; x < 2; x ++) {
             for (int z = -1; z < 2 ; z ++) {
                 if (width < 1 && (x == 0 || z == 0)) continue;
-                BlockPos pos = new BlockPos(entity.position().add(x * width * 0.5F ,0, z * width * 0.5F));
+                BlockPos pos = new BlockPos(entity.getX() + x * width * 0.5F ,entity.getOnPos().getY(), entity.getZ() + z * width * 0.5F);
                 if (entity.getY() - entity.getOnPos().getY()
-                        - Math.max(entity.level.getBlockState(entity.getOnPos()).getCollisionShape(entity.level, entity.getOnPos()).max(Direction.Axis.Y), 0)
+                        - Math.max(entity.level.getBlockState(pos).getCollisionShape(entity.level, pos).max(Direction.Axis.Y), 0)
                          < tolerance) {
                     return false;
-                    }
+                }
             }
         }
         return true;
@@ -92,7 +92,7 @@ public class EntityUtil {
     }
 
     public static boolean isLeavingGround(Entity entity) {
-        return isLeavingGround(entity, 0.05);
+        return isLeavingGround(entity, 0.0001);
     }
 
     public static boolean isSculk(LivingEntity entity) {

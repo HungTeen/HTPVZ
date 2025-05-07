@@ -159,7 +159,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     @Override
     public double getPassengersRidingOffset() {
         return 1.5;
-    }//TODO modify this.
+    }
     @Override
     public boolean rideableUnderWater() {
         return true;

@@ -11,13 +11,19 @@ import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.*;
+import net.minecraft.world.effect.InstantenousMobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.*;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.player.Player;
@@ -28,15 +34,13 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 
 @SuppressWarnings("all")
@@ -48,11 +52,10 @@ public class PVZMobEffects {
     public static final DeferredRegister<Potion> POTIONS = DeferredRegister.create(ForgeRegistries.POTIONS, PVZMod.MODID);
     public static Map<String, RegistryObject<Potion>> potionMap = new HashMap<>();
     public static RegistryObject<net.minecraft.world.effect.MobEffect> handlingEffect = null;
+    public static Map<ResourceLocation, BiPredicate<LivingEntity, MobEffectInstance>> unappliableMap = new HashMap<>();
 
     /** For function of brightness mobEffect, see {@link PVZPlayerCapability#tick(TickEvent.ServerTickEvent)}.
      */
-
-
     public static RegistryObject<net.minecraft.world.effect.MobEffect> BRIGHTNESS = effect("brightness", () ->
             new MobEffect(MobEffectCategory.BENEFICIAL, 0xffffc1)
     ).registerPotion(300, true).registerPotion("long_brightness", 800, 0, true).build();
@@ -65,16 +68,21 @@ public class PVZMobEffects {
                     .addAttributeModifier(Attributes.MOVEMENT_SPEED, FREEZE_EFFECT_UUID.toString(), -1, AttributeModifier.Operation.MULTIPLY_TOTAL)
                     .addAttributeModifier(Attributes.JUMP_STRENGTH, FREEZE_EFFECT_UUID.toString(), -1, AttributeModifier.Operation.MULTIPLY_TOTAL)
                     .addAttributeModifier(Attributes.ATTACK_SPEED, FREEZE_EFFECT_UUID.toString(), -1, AttributeModifier.Operation.MULTIPLY_TOTAL)
-    ).registerPotion(120).registerPotion("long_freeze", 240, 0, true).build();
+    )
+            .unapplicableWhen((entity, effectInstance) -> ! entity.canFreeze() || entity.getType().is(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES))
+            .registerPotion(120).registerPotion("long_freeze", 240, 0, true).build();
 
     public static final UUID BUTTER_EFFECT_UUID = UUID.fromString("a8e46cba-102c-a828-4342-305ece91d14e");
     public static RegistryObject<net.minecraft.world.effect.MobEffect> BUTTER = effect("butter", () ->
             new ButterMobEffect(MobEffectCategory.HARMFUL, 0xffe054)
                     .addAttributeModifier(Attributes.MOVEMENT_SPEED, BUTTER_EFFECT_UUID.toString(), -0.3F, AttributeModifier.Operation.MULTIPLY_TOTAL)
-    ).registerPotion(150, false).registerPotion("long_butter", 300, 0, false).build();
+    )
+            .unapplicableWhen((entity, effectInstance) -> entity.getType().is(PVZEntityTags.BUTTER_INVULNERABLE))
+            .registerPotion(150, false).registerPotion("long_butter", 300, 0, false).build();
 
     public static final RegistryObject<net.minecraft.world.effect.MobEffect> PHYTOTOXIN = effect("phytotoxin", () ->
             new PhytoToxinEffect(MobEffectCategory.HARMFUL, 5149489/*Same as poison effect*/))
+            .unapplicableWhen((entity, effectInstance) -> entity.getType().is(PVZEntityTags.PLANT))
             .registerPotion(400)
             .registerPotion("long_phytotoxin", 1000, 0, true)
             .registerPotion("strong_phytotoxin", 400, 1, true).build();
@@ -87,6 +95,7 @@ public class PVZMobEffects {
     public static final RegistryObject<net.minecraft.world.effect.MobEffect> HYPNOTISED = effect("hypnotized", () ->
             new HypnotisedEffect(MobEffectCategory.HARMFUL, 0xff9dc0)
                     .addAttributeModifier(Attributes.ARMOR, HYPNOTIZED_EFFECT_UUID.toString(), 2F, AttributeModifier.Operation.ADDITION))
+            .unapplicableWhen((entity, effectInstance) -> entity.getType().is(PVZEntityTags.HYPNOTISED_INVULNERABLE))
             .build();
 
     public static void addMixs() {
@@ -97,25 +106,6 @@ public class PVZMobEffects {
         PotionBrewing.addMix(potionMap.get("phytotoxin").get(), Items.REDSTONE, potionMap.get("long_phytotoxin").get());
         PotionBrewing.addMix(potionMap.get("phytotoxin").get(), Items.GLOWSTONE_DUST, potionMap.get("strong_phytotoxin").get());
     }
-
-    @SubscribeEvent
-    public static void checkEffectAppliable(MobEffectEvent.Applicable event) {
-        LivingEntity entity = event.getEntity();
-        net.minecraft.world.effect.MobEffect effect = event.getEffectInstance().getEffect();
-        if (effect instanceof ButterMobEffect && entity.getType().is(PVZEntityTags.BUTTER_INVULNERABLE)) {
-            event.setResult(Event.Result.DENY);
-        }
-        if (effect instanceof PhytoToxinEffect && entity.getType().is(PVZEntityTags.PLANT)) {
-            event.setResult(Event.Result.DENY);
-        }
-        if (effect instanceof FrozenMobEffect && ! entity.canFreeze()) {
-            event.setResult(Event.Result.DENY);
-        }
-        if (effect instanceof HypnotisedEffect && entity.getType().is(PVZEntityTags.HYPNOTISED_INVULNERABLE)) {
-            event.setResult(Event.Result.DENY);
-        }
-    }
-
 
     //methods
     public static void hypnotizeWithTeam(LivingEntity target, String teamName, int length) {
@@ -138,6 +128,10 @@ public class PVZMobEffects {
     }
     public static PVZMobEffects effect(String name, Supplier<net.minecraft.world.effect.MobEffect> supplier) {
         handlingEffect = EFFECTS.register(name, supplier);
+        return reflector;
+    }
+    public static PVZMobEffects unapplicableWhen(BiPredicate<LivingEntity, MobEffectInstance> condition) {
+        unappliableMap.put(handlingEffect.getId() ,condition);
         return reflector;
     }
     public static PVZMobEffects registerPotion(String name, String potionName, int length, int strength, boolean foil) {
@@ -224,9 +218,16 @@ public class PVZMobEffects {
 
         public void applyEffectTick(LivingEntity entity, int level) {
             entity.setRemainingFireTicks(0);
-            entity.setTicksFrozen(350);
+            entity.setTicksFrozen(400);
             if (entity.isOnFire()) {
                 entity.removeEffect(FREEZE.get());
+            }
+            if (entity instanceof Mob mob) {
+                //two systems controlling gravity...
+                mob.setNoGravity(false);
+                if (mob instanceof FlyingMob) {
+                    mob.setDeltaMovement(entity.getDeltaMovement().add(0, -0.105, 0));
+                }
             }
         }
     }

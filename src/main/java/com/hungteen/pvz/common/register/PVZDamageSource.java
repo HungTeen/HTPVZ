@@ -91,9 +91,9 @@ public class PVZDamageSource {
         if (target.getType().is(Tags.EntityTypes.BOSSES) || (target instanceof PartEntity<?> part && part.getParent().getType().is(Tags.EntityTypes.BOSSES))) {
             hurtBossSource = new DamageSource(source.getMsgId()).setExplosion();
             if (source.getEntity() != null) {
-                PVZEntityCapability cap = source.getEntity().getCapability(PVZEntityCapability.CAP).orElse(null);
-                if (cap != null && EntityUtil.isEntityValid(cap.getOwner())) {
-                    hurtBossSource = new IndirectEntityDamageSource(source.getMsgId(), source.getEntity(), cap.getOwner());
+                Entity owner = PVZEntityCapability.getOwner(source.getEntity());
+                if (EntityUtil.isEntityValid(PVZEntityCapability.getOwner(source.getEntity()))) {
+                    hurtBossSource = new IndirectEntityDamageSource(source.getMsgId(), source.getEntity(), owner);
                 }
             }
             if (source.isProjectile()) {

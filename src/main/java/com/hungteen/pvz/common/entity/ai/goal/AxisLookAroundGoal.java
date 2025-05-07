@@ -28,7 +28,7 @@ public class AxisLookAroundGoal extends RandomLookAroundGoal {
     }
 
     public boolean canUse() {
-        return this.mob.getRandom().nextFloat() < 0.005F;
+        return this.mob.getRandom().nextFloat() < (this.mob.getYRot() + 1 % 90 < 1 ? 0.005F : 0.05F);
     }
     public boolean canContinueToUse() {
         return this.lookTime >= 0;

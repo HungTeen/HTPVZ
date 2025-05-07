@@ -42,7 +42,6 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
     public static final EntityDimensions STANDING_DIMENSIONS = EntityDimensions.scalable(0.6F, 1.8F);
     private static final Map<Pose, EntityDimensions> POSES = ImmutableMap.<Pose, EntityDimensions>builder().put(Pose.STANDING, STANDING_DIMENSIONS).put(Pose.SLEEPING, SLEEPING_DIMENSIONS).put(Pose.FALL_FLYING, EntityDimensions.scalable(0.6F, 0.8F)).put(Pose.SWIMMING, EntityDimensions.scalable(0.6F, 0.8F)).put(Pose.SPIN_ATTACK, EntityDimensions.scalable(0.6F, 0.8F)).put(Pose.CROUCHING, EntityDimensions.scalable(0.6F, 1.5F)).put(Pose.DYING, EntityDimensions.fixed(0.2F, 0.2F)).build();
     private final UUID TRACKING_MODIFIER = UUID.fromString("c5321b12-712e-7474-5b37-f162e6b49f56");
-    //TODO add a navigator.
     public DiggerZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
         this.jumpControl = new DiggerZombieJumpControl(this);

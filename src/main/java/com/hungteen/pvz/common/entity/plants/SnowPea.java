@@ -7,14 +7,12 @@ import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -133,7 +131,7 @@ public class SnowPea extends PeaShooter {
         @Override
         protected void findTarget() {
             Predicate<Entity> storedPredicate = this.predicate;
-            this.predicate = this.predicate.and(target -> ! target.isFreezing());
+            this.predicate = this.predicate.and(target -> target.getTicksFrozen() <= 0);
             super.findTarget();
             this.predicate = storedPredicate;
             if (this.target == null) {

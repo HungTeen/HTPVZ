@@ -1,5 +1,8 @@
 package com.hungteen.pvz.common.entity.creatures;
 
+import com.hungteen.pvz.api.events.TeammateTestingEvent;
+import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.entity.zombies.TacoImp;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
@@ -15,6 +18,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
 
@@ -41,6 +45,17 @@ public class Anger extends FlyingMob {
         this.goalSelector.addGoal(0, new AngerLittingGoal(this));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class,
                 true, (entity) -> EntityUtil.checkCanEntityBeAttack(this, entity)));
+    }
+
+    @SubscribeEvent
+    public static void onPlantCheckTeammate(TeammateTestingEvent event) {
+        //won't be regarded as target by shooters/pults.
+        if (event.A instanceof Anger || event.B instanceof Anger) {
+            Entity other = event.A instanceof Anger ? event.B : event.A;
+            if (! event.currentResult) {
+                event.currentResult = other instanceof ShooterPlant;
+            }
+        }
     }
     public void tick() {
         this.noPhysics = true;

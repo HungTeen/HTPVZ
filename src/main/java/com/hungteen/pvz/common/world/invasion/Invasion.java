@@ -274,7 +274,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 }
                 //summoning.
                 int threatLeft = this.getCurrentWave().threat - this.currentWaveThreat;
-                if (threatLeft > 0 && this.members.size() < 5 + this.invasionLevel / 2) {
+                if (threatLeft > 0 && (this.getLivingMembersThreat() <= 500 + this.getCurrentWave().threat / 2 || this.members.size() < 5 + this.invasionLevel / 2)) {
                     Pair<CompoundTag/*enemy*/, Integer> pair = this.selectEntity();
                     if (pair != null) {
                         CompoundTag entityData = pair.getFirst();

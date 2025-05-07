@@ -65,12 +65,12 @@ public class MelonBullet extends BaseBullet {
             } else {
                 List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(1.5, 1, 1.5).move(0, -0.5, 0),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity));
-                entities.forEach((entity -> {
-                    entity.hurt(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(PVZDamageSource.setInterrupting(
+                entities.forEach((target -> {
+                    target.hurt(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(PVZDamageSource.setInterrupting(
                                     PVZDamageSource.owned(getDamageName(), getOwner() instanceof LivingEntity ? (LivingEntity) getOwner() : null)))
-                            , getKnockBackStrength()), this.getAttackDamage() / 3);//splash damage regarded as non-projectile.
-                    if (this.getMelonType() == MelonType.Ice && entity.canFreeze()) {
-                        entity.setTicksFrozen(400);
+                            , getKnockBackStrength()), target, 0.05F), this.getAttackDamage() / 3);//splash damage regarded as non-projectile.
+                    if (this.getMelonType() == MelonType.Ice && target.canFreeze()) {
+                        target.setTicksFrozen(400);
                     }
                 }));
             }

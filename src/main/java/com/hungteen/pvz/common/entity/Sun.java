@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.events.AbsorbSunEvent;
 import com.hungteen.pvz.api.interfaces.ISun;
 import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.api.interfaces.ISunContainer;
@@ -24,6 +25,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Map;
@@ -138,32 +140,44 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
 
     @Override
     public void onAbsorbedBy(ISunAbsorber absorber) {
-        absorber.onAbsorb(this);
+        AbsorbSunEvent event = new AbsorbSunEvent.ISunAbsorber(this, absorber, AbsorbSunEvent.Phase.Start);
+        MinecraftForge.EVENT_BUS.post(event);
+        if (! event.isCanceled()) {
+            absorber.onAbsorb(this);
+            event = new AbsorbSunEvent.ISunAbsorber(this, absorber, AbsorbSunEvent.Phase.End);
+            MinecraftForge.EVENT_BUS.post(event);
+        }
     }
 
     @Override
     public void onAbsorbedBy(Player player) {
-        //sun mending enchantment.
-        if (getAmount() >= 50) {
-            Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
-            if (entry != null) {
-                ItemStack itemStack = entry.getValue();
-                setAmount(getAmount() - 25);
-                itemStack.setDamageValue(itemStack.getDamageValue() - 1);
+        AbsorbSunEvent event = new AbsorbSunEvent.Player(this, player, AbsorbSunEvent.Phase.Start);
+        MinecraftForge.EVENT_BUS.post(event);
+        if (! event.isCanceled()) {
+            //sun mending enchantment.
+            if (getAmount() >= 50) {
+                Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
+                if (entry != null) {
+                    ItemStack itemStack = entry.getValue();
+                    setAmount(getAmount() - 25);
+                    itemStack.setDamageValue(itemStack.getDamageValue() - 1);
+                }
             }
+            //player absorb.
+            PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
+                int origin = nbt.getValue(PVZPlayerCapNBT.SUN);
+                int num = getAmount();
+                nbt.addValue(PVZPlayerCapNBT.SUN, num);
+                int actual = nbt.getValue(PVZPlayerCapNBT.SUN);
+                if (actual - origin >= num || player.isCreative()) {
+                    this.remove(Entity.RemovalReason.DISCARDED);
+                } else {
+                    this.setAmount(num - actual + origin);
+                }
+            });
+            event = new AbsorbSunEvent.Player(this, player, AbsorbSunEvent.Phase.End);
+            MinecraftForge.EVENT_BUS.post(event);
         }
-        //player absorb.
-        PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
-            int origin = nbt.getValue(PVZPlayerCapNBT.SUN);
-            int num = getAmount();
-            nbt.addValue(PVZPlayerCapNBT.SUN, num);
-            int actual = nbt.getValue(PVZPlayerCapNBT.SUN);
-            if (actual - origin >= num || player.isCreative()) {
-                this.remove(Entity.RemovalReason.DISCARDED);
-            } else {
-                this.setAmount(num - actual + origin);
-            }
-        });
         //TODO add a event here.
     }
 

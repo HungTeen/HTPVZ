@@ -364,15 +364,13 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public static boolean onBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
         //check permission.
         final boolean[] permission = {false};
-        target.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> {
-            Entity owner = cap.getOwner();
-            if (owner != null) {
-                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.shovelPermission) ?
-                        (EntityUtil.isTeammate(owner, player) || ! PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.teamBattle)) : owner.is(player);
-            } else {
-                permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.shovelPermission) && EntityUtil.isTeammate(target, player);
-            }
-        });
+        Entity owner = PVZEntityCapability.getOwner(target);
+        if (owner != null) {
+            permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.shovelPermission) ?
+                    (EntityUtil.isTeammate(owner, player) || ! PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.teamBattle)) : owner.is(player);
+        } else {
+            permission[0] = PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.shovelPermission) && EntityUtil.isTeammate(target, player);
+        }
         //shovel plant.
         if (! player.level.isClientSide()) {
             if (! permission[0]) {

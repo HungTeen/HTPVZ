@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.api.events.GetPeaGunBulletEvent;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.Map;
@@ -28,7 +30,7 @@ import java.util.function.Predicate;
 public class PeaGunItem extends ProjectileWeaponItem {
 
     //add reflections here.
-    public static Map<Item, TriFunction<Level, Player, EquipmentSlot, Projectile>> itemMap = Map.of(
+    private static Map<Item, TriFunction<Level, Player, EquipmentSlot, Projectile>> itemMap = Map.of(
             PVZItems.PEA.get(), (level, shooter, slot) -> summonPeaBullet(level, shooter, slot, PVZItems.PEA.get()),
             PVZItems.SNOW_PEA.get(), (level, shooter, slot) -> summonPeaBullet(level, shooter, slot, PVZItems.SNOW_PEA.get()),
             PVZItems.FLAME_PEA.get(), (level, shooter, slot) -> summonPeaBullet(level, shooter, slot, PVZItems.FLAME_PEA.get()));
@@ -55,13 +57,19 @@ public class PeaGunItem extends ProjectileWeaponItem {
         if (player.getAbilities().instabuild && bulletStack.getItem() == Items.ARROW) {
             bulletStack = PVZItems.PEA.get().getDefaultInstance();
         }
-
         if (bulletStack == ItemStack.EMPTY) {
             return super.use(level, player, hand);
         }
-        if (itemMap.containsKey(bulletStack.getItem())) {
+        EquipmentSlot slot = hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
+        GetPeaGunBulletEvent event = new GetPeaGunBulletEvent(player, level, slot, bulletStack,null);
+        MinecraftForge.EVENT_BUS.post(event);
+        Projectile projectile = event.projectile;
+        if (projectile == null && itemMap.containsKey(bulletStack.getItem())) {
+            projectile = itemMap.get(bulletStack.getItem()).apply(level, player, slot);
+        }
+        if (projectile != null && ! event.isCanceled()) {
             if (level.isClientSide) {
-                if (! player.isPassenger()) {
+                if (! player.isPassenger() && ! player.isShiftKeyDown()) {
                     double resistance = 1 - player.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
                     player.setDeltaMovement(player.getDeltaMovement().add(new Vec3(
                             Math.sin(player.getYRot() / 57.3) * 0.5 * Math.cos(player.getXRot() / 57.3),
@@ -70,6 +78,9 @@ public class PeaGunItem extends ProjectileWeaponItem {
                             .multiply(resistance, resistance, resistance)));
                 }
             } else {
+                ItemStack bullet =
+                        player.getAbilities().instabuild || EnchantmentHelper.getTagEnchantmentLevel(Enchantments.INFINITY_ARROWS, player.getItemInHand(hand)) > 0 ?
+                                bulletStack.copy().split(1): bulletStack.split(1);
                 if (player.isPassenger() && ! player.getVehicle().isPassenger()) {
                     double resistance = player.getVehicle() instanceof LivingEntity living ? 1 - living.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) : 1;
                     player.getVehicle().setDeltaMovement(player.getVehicle().getDeltaMovement().add(new Vec3(
@@ -78,16 +89,11 @@ public class PeaGunItem extends ProjectileWeaponItem {
                             - Math.cos(player.getYRot() / 57.3) * 0.25 * Math.cos(player.getXRot() / 57.3))
                             .multiply(resistance, resistance, resistance)));
                 }
-                ItemStack bullet =
-                        player.getAbilities().instabuild || EnchantmentHelper.getTagEnchantmentLevel(Enchantments.INFINITY_ARROWS, player.getItemInHand(hand)) > 0 ?
-                        bulletStack.copy().split(1): bulletStack.split(1);
-                Projectile projectile = itemMap.get(bullet.getItem()).apply(level, player,
-                        hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
                 projectile.setOwner(player);
                 projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.0F, 1.0F);
                 level.addFreshEntity(projectile);
                 player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), player.getAbilities().instabuild ? 3 :
-                        Math.max(0, 30 - EnchantmentHelper.getTagEnchantmentLevel(Enchantments.QUICK_CHARGE, player.getItemInHand(hand)) * 4));
+                        Math.max(0, 30 - Math.min(10, EnchantmentHelper.getTagEnchantmentLevel(Enchantments.QUICK_CHARGE, player.getItemInHand(hand)) * 4)));
                 player.getItemInHand(hand).hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
             }
             return InteractionResultHolder.consume(player.getItemInHand(hand));
@@ -130,6 +136,7 @@ public class PeaGunItem extends ProjectileWeaponItem {
         pea.setNoGravity(true);
         return pea;
     }
+
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(PeaGunClients.INSTANCE);

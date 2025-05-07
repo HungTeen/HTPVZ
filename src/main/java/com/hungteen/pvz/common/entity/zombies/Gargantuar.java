@@ -50,7 +50,6 @@ import java.util.List;
 
 public class Gargantuar extends PVZZombie {
 
-
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState throwAnimationState = new AnimationState();
     public AnimationState attackAnimationState = new AnimationState();

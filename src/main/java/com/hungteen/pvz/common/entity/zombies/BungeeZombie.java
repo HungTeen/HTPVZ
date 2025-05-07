@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.zombies;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.interfaces.IHangable;
 import com.hungteen.pvz.common.entity.Hook;
 import com.hungteen.pvz.common.entity.bullet.ArrowWithATarget;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -33,7 +34,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 
-public class BungeeZombie extends PVZZombie implements VibrationListener.VibrationListenerConfig {
+public class BungeeZombie extends PVZZombie implements VibrationListener.VibrationListenerConfig, IHangable {
     /**
      * The position the zombie ties itself on.
      */
@@ -77,22 +78,24 @@ public class BungeeZombie extends PVZZombie implements VibrationListener.Vibrati
     public boolean shouldRiderSit() {
         return false;
     }
-
-    @Override
-    public boolean isHanging() {
-        return this.getHangingPosition() != null || super.isHanging();
-    }
-
     @Override
     public boolean needHangingPose() {
         return (this.getHangingPosition() != null && ! this.isPassenger() && EntityUtil.isLeavingGround(this))
                 || super.needHangingPose();
     }
-
+    @Override
+    public boolean isHanging() {
+        return this.getHangingPosition() != null || super.isHanging();
+    }
+    @Override
+    public boolean hangableToBlockPos(BlockPos pos) {
+        return true;
+    }
+    @Override
     public BlockPos getHangingPosition() {
         return this.entityData.get(TIED) ? this.entityData.get(TIED_POSITION) : null;
     }
-
+    @Override
     public void setHangingPosition(BlockPos pos) {
         if (pos == null) {
             this.entityData.set(TIED, false);
@@ -100,6 +103,14 @@ public class BungeeZombie extends PVZZombie implements VibrationListener.Vibrati
             this.entityData.set(TIED, true);
             this.entityData.set(TIED_POSITION, pos);
         }
+    }
+    @Override
+    public double getRopeLengthSqr() {
+        return this.ropeLengthSqr;
+    }
+    @Override
+    public void setRopeLengthSqr(int lengthSqr) {
+        this.ropeLengthSqr = lengthSqr;
     }
 
     public void tick() {
@@ -218,7 +229,6 @@ public class BungeeZombie extends PVZZombie implements VibrationListener.Vibrati
             } else if (this.zombie.tickCount % 10 <= 1 && this.zombie.getHangingPosition() != null) {
                 BlockPos pos = zombie.blockPosition().offset(0, Math.ceil(zombie.getBbHeight()),0);
                 BlockPos pos1 = zombie.getHangingPosition();
-                //TODO about arrow_with_a_target.
                 if (this.zombie.tickCount % 50 <= 1 && zombie.getHangingPosition() != null && zombie.getPassengers().isEmpty()
                         && Math.abs(this.zombie.getDeltaMovement().y) < 0.1 && zombie.blockPosition().distSqr(zombie.getHangingPosition()) < zombie.ropeLengthSqr
                         && EntityUtil.isEntityValid(zombie.getTarget()) && this.zombie.distanceToSqr(zombie.getTarget()) > 5) {

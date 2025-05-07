@@ -40,7 +40,7 @@ public class TorchWood extends SimplePlant {
     }
 
     public boolean isSoulFire() {
-        return hasSkill(SOUL_SKILL_NAME) && level.getBlockState(getOnPos()).is(BlockTags.SOUL_SPEED_BLOCKS);
+        return hasSkill(SOUL_SKILL_NAME) && level.getBlockState(getOnPos()).is(BlockTags.SOUL_FIRE_BASE_BLOCKS);
     }
     public boolean canBurn() {
         return ! this.isInWater() && ! this.isInPowderSnow;

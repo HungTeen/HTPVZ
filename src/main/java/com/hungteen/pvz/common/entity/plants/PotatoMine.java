@@ -4,6 +4,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
+import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -74,7 +75,7 @@ public class PotatoMine extends SimplePlant {
             if (this.isPoisonous()) {
                 this.spawnPoisonCloud();
             }
-            this.discard();//TODO modify damage calculator.
+            this.discard();
             ((ServerLevel) this.level).sendParticles(PVZParticles.MASHED_POTATO.get(),
                     getX() + random.nextFloat() * 0.5 - 0.25,
                     getY() + random.nextFloat() * 0.5 + 0.25,
@@ -116,6 +117,7 @@ public class PotatoMine extends SimplePlant {
         this.goalSelector.addGoal(1, new PotatoExplodeGoal(this));
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
         this.goalSelector.addGoal(1, new PotatoPrepareGoal(this));
+        this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
     @Override
     public List<Skill> getStaticSkillList(){
@@ -181,7 +183,7 @@ public class PotatoMine extends SimplePlant {
 
     @Override
     public void die(DamageSource damageSource) {
-        if (this.entityData.get(PREPARE_COUNT) <= 0 && ! damageSource.isMagic() && ! EntityUtil.isTeammate(this, damageSource.getEntity())) {
+        if (this.entityData.get(PREPARE_COUNT) <= 0 && ! damageSource.isMagic() && (damageSource.getEntity() == null || ! EntityUtil.isTeammate(this, damageSource.getEntity()))) {
             this.explode();
         }
         super.die(damageSource);

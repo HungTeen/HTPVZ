@@ -4,7 +4,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.IEventBus;
 
 public class CommonProxy {
-
     public static Player getPlayer(){
         return null;
     }

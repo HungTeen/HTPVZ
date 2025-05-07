@@ -529,7 +529,7 @@ public class InvasionTypeGen implements DataProvider {
                                 List.of(), BUCKET, 5, false, 0.8F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(EntityType.GHAST).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(),
+                                EntityBuilder.of(PVZEntities.LAVA_GHASTLING.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(),
                                 List.of(), BUCKET, 15, true, 0.4F
                         )
                 ),

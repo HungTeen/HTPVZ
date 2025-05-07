@@ -21,7 +21,6 @@ import com.hungteen.pvz.common.world.team.PVZTeamData;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -63,8 +62,7 @@ public class PVZMod
     public static String ENEMY_TEAM = "team.pvz.enemy_team";
     public static String FRIENDLY_TEAM = "team.pvz.friendly_team";
     public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
-    public PVZMod()
-    {
+    public PVZMod() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::commonSetup);
         modBus.addListener(EventPriority.NORMAL, DataGenHandler::dataGen);
@@ -229,15 +227,15 @@ public class PVZMod
             if (ClientProxy.getPlayer() != null) {
                 PVZOverlayHandler.tick(0.05F);
             }
-            EssenceAltarRenderer.time += 0.05F;
-            if (EssenceAltarRenderer.time > 200) {
-                EssenceAltarRenderer.time -= 200;
-            }
-            EssenceAltarScreen.nameRollTime += 0.05F;
-            if (EssenceAltarScreen.nameRollTime > 20) {
-                EssenceAltarScreen.nameRollTime -= 20;
-            }
-            if (! Minecraft.getInstance().isPaused()) {
+            if (! ClientProxy.MC.isPaused()) {
+                EssenceAltarRenderer.time += 0.05F;
+                if (EssenceAltarRenderer.time > 200) {
+                    EssenceAltarRenderer.time -= 200;
+                }
+                EssenceAltarScreen.nameRollTime += 0.05F;
+                if (EssenceAltarScreen.nameRollTime > 20) {
+                    EssenceAltarScreen.nameRollTime -= 20;
+                }
                 PVZFog.clientFogsTick(0.05F);
             }
             //caps tick

@@ -50,7 +50,7 @@ public class IcebergLettuce extends ShooterPlant {
 
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_DIRT, BlockTags.SNOW, BlockTags.ICE, PVZBlockTags.PLANTABLE_STONE);
+        return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.UNPLANTABLE_DIRT, BlockTags.SNOW, BlockTags.ICE, PVZBlockTags.PLANTABLE_STONE);
     }
     @Override
     protected void registerGoals() {
@@ -76,7 +76,7 @@ public class IcebergLettuce extends ShooterPlant {
     }
     @Override
     public void die(DamageSource damageSource) {
-        if (! damageSource.isMagic() && ! EntityUtil.isTeammate(this, damageSource.getEntity())) {
+        if (! damageSource.isMagic() && damageSource.getEntity() != null && ! EntityUtil.isTeammate(this, damageSource.getEntity())) {
             if (damageSource.getEntity() instanceof LivingEntity target && damageSource.getDirectEntity() == damageSource.getEntity()) {
                 MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 40);
                 if (this.hasSkill(RANGE_SKILL_NAME)) {
@@ -117,7 +117,7 @@ public class IcebergLettuce extends ShooterPlant {
     }
     @Override
     public double getMaxShootAngleTangent() {
-        return Double.POSITIVE_INFINITY;
+        return 1;
     }
 
     private static class IcebergLettuceFreezeGoal extends Goal {
@@ -134,7 +134,7 @@ public class IcebergLettuce extends ShooterPlant {
         public void tick() {
             List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(0.6, 0.2, 0.6),
                     (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity) && ! ((LivingEntity) entity).hasEffect(PVZMobEffects.FREEZE.get())));
-            if (entities.isEmpty() && this.entity.tickCount < 300) {
+            if (entities.isEmpty() && this.entity.tickCount < 100) {
                 return;
             }
             MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 120);

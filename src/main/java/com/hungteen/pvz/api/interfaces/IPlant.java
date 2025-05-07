@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
  * Also, override {@link net.minecraft.world.entity.Mob#removeWhenFarAway(double)} .
  */
 
-public interface IPlant extends INeedSafeSituation{
+public interface IPlant extends INeedSafeSituation {
     /**EntityData controlling if the plant need proper block to plant on.*/
     EntityDataAccessor<Boolean> root();
 
@@ -89,7 +89,7 @@ public interface IPlant extends INeedSafeSituation{
         return null;
     }
 
-    public interface IWaterPlant extends IPlant {
+    interface IWaterPlant extends IPlant {
         @Override
         default boolean needWaterPotInGarden() {
             return true;

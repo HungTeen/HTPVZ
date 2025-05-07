@@ -3,10 +3,16 @@ package com.hungteen.pvz.common.world;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.item.PVZShieldItem;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.register.PVZMobEffects;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.level.SaplingGrowTreeEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class PVZWorldEvents {
@@ -22,7 +28,14 @@ public class PVZWorldEvents {
             item.clientBroken(ev.getEntity().position(), ev.getEntity().level);
         }
     }
-
+    @SubscribeEvent
+    public static void checkEffectApplicable(MobEffectEvent.Applicable event) {
+        LivingEntity entity = event.getEntity();
+        ResourceLocation location = ForgeRegistries.MOB_EFFECTS.getKey(event.getEffectInstance().getEffect());
+        if (PVZMobEffects.unappliableMap.containsKey(location) && PVZMobEffects.unappliableMap.get(location).test(entity, event.getEffectInstance())) {
+            event.setResult(Event.Result.DENY);
+        }
+    }
     //for test
 //    @SubscribeEvent
 //    public static void plantOnZombie(PVZPlantConditionMatchingEvent.OnEntity ev) {
