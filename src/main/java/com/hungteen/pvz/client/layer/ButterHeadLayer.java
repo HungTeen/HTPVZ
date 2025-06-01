@@ -98,18 +98,20 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
                            VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         stack.pushPose();
         root.translateAndRotate(stack);
-        for (String name: root.children.keySet()) {
-            if (name.contains("head")) {
-                stack.pushPose();
-                root.getChild(name).translateAndRotate(stack);
-                stack.translate(0, - getBoneHeight(root.getChild(name)) / 16 - 0.125, 0);
-                main.compile(stack.last(), vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-                main.render(stack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-                stack.popPose();
+        if (root.visible) {
+            for (String name: root.children.keySet()) {
+                if (name.contains("head")) {
+                    stack.pushPose();
+                    root.getChild(name).translateAndRotate(stack);
+                    stack.translate(0, - getBoneHeight(root.getChild(name)) / 16 - 0.125, 0);
+                    main.compile(stack.last(), vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+                    main.render(stack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+                    stack.popPose();
+                }
             }
-        }
-        for (ModelPart part: root.children.values()) {
-            renderHead(part, main, stack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            for (ModelPart part: root.children.values()) {
+                renderHead(part, main, stack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            }
         }
         stack.popPose();
     }

@@ -62,12 +62,13 @@ public class PVZAPI {
          * check can AttackGoal continue to attack target. <b>CAN ONLY</b> call on server.
          */
         boolean canAttack(Entity attacker, Entity target);
+        float getPlantDamageResistance(Entity target);
         /**Check if an entity is in sculk situation. The result can be modified with {@link com.hungteen.pvz.api.events.SculkJudgmentEvent SculkJudgementEvent}.*/
         boolean isSculk(LivingEntity entity);
         /**This returns the type of a {@link ZombieEvent} and is used by ZombieEvent is self.*/
         ResourceLocation getZombieEventType(ZombieEvent event);
         /**To prevent unwanted hypnotise from hurting hypno-shroom.*/
-        void setNotEating(DamageSource damageSource);
+        DamageSource setNotEating(DamageSource damageSource);
     }
 
     public static class DummyAPI implements IPVZAPI {
@@ -124,6 +125,11 @@ public class PVZAPI {
         }
 
         @Override
+        public float getPlantDamageResistance(Entity target) {
+            return 0;
+        }
+
+        @Override
         public boolean isSculk(LivingEntity entity) {
             return false;
         }
@@ -134,6 +140,8 @@ public class PVZAPI {
         }
 
         @Override
-        public void setNotEating(DamageSource damageSource) {}
+        public DamageSource setNotEating(DamageSource damageSource) {
+            return damageSource;
+        }
     }
 }

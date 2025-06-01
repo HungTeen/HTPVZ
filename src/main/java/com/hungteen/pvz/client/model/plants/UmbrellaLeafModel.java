@@ -66,7 +66,8 @@ public class UmbrellaLeafModel<T extends UmbrellaLeaf> extends HierarchicalModel
 		flower.visible = ! umbrellaLeaf.hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf");
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		this.animate(umbrellaLeaf.idleAnimationState, UmbrellaLeafAnimation.idle, ageInTicks);
-		this.animate(umbrellaLeaf.openAnimationState, UmbrellaLeafAnimation.open, ageInTicks);
+		this.animate(umbrellaLeaf.openAnimationState, umbrellaLeaf.hasSkill(UmbrellaLeaf.BOUNCE_SKILL_NAME) ?
+				UmbrellaLeafAnimation.open_expanded : UmbrellaLeafAnimation.open, ageInTicks);
 	}
 
 	@Override

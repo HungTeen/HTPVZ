@@ -5,11 +5,14 @@ import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZEntityCapPacket;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
@@ -62,20 +65,28 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     public static void tick(TickEvent.ServerTickEvent ev) {
-        ev.getServer().getAllLevels().forEach((level -> level.getAllEntities().forEach((entity1 -> {
-            entity1.getCapability(CAP).ifPresent((cap) -> {
+        ev.getServer().getAllLevels().forEach((level -> level.getAllEntities().forEach((entity -> {
+            entity.getCapability(CAP).ifPresent((cap) -> {
+                //handle freeze and fire.
+                if (entity.getTicksFrozen() > 0 && (entity.isInFluidType() && EntityUtil.getFluidEntityIn(entity).is(FluidTags.LAVA) || entity.wasOnFire || entity.isOnFire())) {
+                    entity.setRemainingFireTicks(0);
+                    entity.setTicksFrozen(0);
+                    if (entity instanceof LivingEntity living && living.hasEffect(PVZMobEffects.FREEZE.get())) {
+                        living.removeEffect(PVZMobEffects.FREEZE.get());
+                    }
+                }
                 if (++cap.tickCount > 10) {
                     cap.tickCount = 0;
                     //target--------------------------------------------------------------------------------------------
                     //TODO find out why entities still target on entities that has been killed.
-                    if (entity1 instanceof Mob mob && ! EntityUtil.isEntityValid(mob.getTarget())) {
+                    if (entity instanceof Mob mob && ! EntityUtil.isEntityValid(mob.getTarget())) {
                         mob.setTarget(null);
                     }
                     //owner---------------------------------------------------------------------------------------------
                     if (! EntityUtil.isEntityValid(cap.owner)) {
-                        Entity entity = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
-                        if (entity != null) {
-                            cap.setOwner(entity);
+                        Entity entity1 = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
+                        if (entity1 != null) {
+                            cap.setOwner(entity1);
                         }
                     }
                     String name = cap.entity.getScoreboardName();
@@ -117,13 +128,13 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                 }
 
                 //stuck arrow_with_a_target render----------------------------------------------------------------------
-                if (cap.stuckArrowWithATarget > 0 && entity1.tickCount % 3200 == 0) {
+                if (cap.stuckArrowWithATarget > 0 && entity.tickCount % 3200 == 0) {
                     cap.stuckArrowWithATarget --;
                     cap.isDirty = true;
                 }
 
                 //sync--------------------------------------------------------------------------------------------------
-                PVZEntityCapPacket.sync(entity1.getUUID(), cap);
+                PVZEntityCapPacket.sync(entity.getUUID(), cap);
             });
         }))));
     }
@@ -161,7 +172,7 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     //invasion
-    public boolean isInInvasion() {
+    public boolean isInZombieEvent() {
         return zombieEventUUIDs != null;
     }
 

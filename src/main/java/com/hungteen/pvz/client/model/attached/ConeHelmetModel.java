@@ -21,7 +21,7 @@ public class ConeHelmetModel<T extends LivingEntity> extends HumanoidModel<T> {
 		final PartDefinition head = partdefinition.getChild("head");
 		PartDefinition total = head.addOrReplaceChild("cone_helmet", CubeListBuilder.create().texOffs(0, 32).addBox(-5.0F, -1.0F, -5.0F, 10.0F, 1.0F, 10.0F, new CubeDeformation(0.0F))
 		.texOffs(0, 43).addBox(-3.0F, -6.0F, -3.0F, 6.0F, 5.0F, 6.0F, new CubeDeformation(0.0F))
-		.texOffs(20, 50).addBox(-2.0F, -10.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -7.0F, 0.0F));
+		.texOffs(20, 50).addBox(-2.0F, -10.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -7.51F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 64, 64);
 	}

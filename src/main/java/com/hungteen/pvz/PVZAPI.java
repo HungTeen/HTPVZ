@@ -1,11 +1,11 @@
 package com.hungteen.pvz;
 
+import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZZombieEvents;
-import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -58,6 +58,11 @@ public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
     }
 
     @Override
+    public float getPlantDamageResistance(Entity target) {
+        return target instanceof LivingEntity livingEntity && livingEntity.getAttribute(PVZAttributes.PLANT_HURT_RESISTANCE.get()) != null ?
+                (float) livingEntity.getAttribute(PVZAttributes.PLANT_HURT_RESISTANCE.get()).getValue() : 0;
+    }
+    @Override
     public boolean isTeammate(Entity A, Entity B) {
         return EntityUtil.isTeammate(A, B);
     }
@@ -78,7 +83,7 @@ public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
     }
 
     @Override
-    public void setNotEating(DamageSource damageSource) {
-        PVZDamageSource.setNotEating(damageSource);
+    public DamageSource setNotEating(DamageSource damageSource) {
+        return PVZDamageSource.setNotEating(damageSource);
     }
 }

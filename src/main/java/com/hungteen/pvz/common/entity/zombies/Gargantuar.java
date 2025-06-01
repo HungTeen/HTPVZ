@@ -164,7 +164,7 @@ public class Gargantuar extends PVZZombie {
 
     @Override
     public void positionRider(Entity entity) {
-        entity.setPos(this.getPosition(0).add(0, this.getPassengersRidingOffset() + entity.getMyRidingOffset() ,0).add(this.getLookAngle().multiply(1, 0, 1).normalize().scale(this.isBaby() ? -0.5 : -0.7)));
+        entity.setPos(this.getPosition(0).add(0, this.getPassengersRidingOffset() + entity.getMyRidingOffset() ,0).add(this.getViewVector(0).multiply(1, 0, 1).normalize().scale(this.isBaby() ? -0.5 : -0.7)));
     }
 
     public static class GargantuarRiderGoal extends Goal {
@@ -201,7 +201,7 @@ public class Gargantuar extends PVZZombie {
                     entity.stopRiding();
                     double dist = EntityUtil.isEntityValid(gargantuar.getTarget()) ? gargantuar.getTarget().position().subtract(gargantuar.position())
                             .multiply(new Vec3(1, 0, 1)).distanceTo(Vec3.ZERO) : 8;
-                    entity.setDeltaMovement(gargantuar.getLookAngle().normalize().scale(Math.min(dist / 5, 3)).add(0, 0.15, 0));
+                    entity.setDeltaMovement(gargantuar.getViewVector(0).normalize().scale(Math.min(dist / 5, 3)).add(0, 0.15, 0));
                 }
             } else if (animCount >= 59) {
                 gargantuar.setPose(Pose.STANDING);

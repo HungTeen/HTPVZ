@@ -6,16 +6,24 @@ import com.hungteen.pvz.common.entity.ModelPartEntity;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends PVZZombieModel<T>> extends HumanoidMobRenderer<T, M> {
@@ -28,9 +36,13 @@ public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends P
             this.addLayer(new ArrowLayer<>(context, this));
         }
     }
+    @Override
+    public boolean shouldRender(T zombie, Frustum frustum, double p_114493_, double p_114494_, double p_114495_) {
+        return zombie.isHanging() || super.shouldRender(zombie, frustum, p_114493_, p_114494_, p_114495_);
+    }
 
     @Override
-    public void render(T zombie, float p_115456_, float partialTicks, PoseStack p_115458_, MultiBufferSource p_115459_, int p_115460_) {
+    public void render(T zombie, float p_115456_, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int p_115460_) {
         if (PVZConfig.zombieDropParts() && ! ClientProxy.MC.isPaused()) {
             this.model.setupAnim(zombie, 0, 0, partialTicks, zombie.getYRot(), zombie.getXRot());
             if (zombie.renderHand && zombie.shouldDropHand()) {
@@ -54,7 +66,8 @@ public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends P
                         .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
             }
         }
-        super.render(zombie, p_115456_, partialTicks, p_115458_, p_115459_, p_115460_);
+        super.render(zombie, p_115456_, partialTicks, poseStack, bufferSource, p_115460_);
+        renderLeash(zombie, partialTicks, poseStack, bufferSource);
     }
 
     protected void setupRotations(T zombie, PoseStack poseStack, float p_114111_, float p_114112_, float p_114113_) {
@@ -67,7 +80,73 @@ public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends P
             poseStack.translate(0.0D, -f, 0.3F);
         }
     }
+    protected void renderLeash(T zombie, float partialTicks, PoseStack poseStack, MultiBufferSource buffer) {
+        if (! zombie.isHanging()) {
+            return;
+        }
+        poseStack.pushPose();
+        Vec3 vec3 = null;
+        BlockPos tiedPosition = zombie.getHangingPosition();
+        if (tiedPosition != null) {
+            vec3 = Vec3.atCenterOf(tiedPosition);
+        } else {
+            Entity entity = zombie.getHangingEntity();
+            if (entity != null) {
+                tiedPosition = entity.blockPosition();
+                vec3 = entity.position();
+            }
+        }
+        if (vec3 == null) {
+            return;
+        }
+        double entityRot = (double)(Mth.lerp(partialTicks, zombie.yRotO, zombie.yRot) * ((float)Math.PI / 180F)) + (Math.PI / 2D);
+        Vec3 leashOffset = zombie.getLeashOffset();
+        double leashOffsetX = Math.cos(entityRot) * leashOffset.z + Math.sin(entityRot) * leashOffset.x;
+        double leashOffsetZ = Math.sin(entityRot) * leashOffset.z - Math.cos(entityRot) * leashOffset.x;
+        double offsetX = Mth.lerp(partialTicks, zombie.xo, zombie.getX()) + leashOffsetX;
+        double offsetY = Mth.lerp(partialTicks, zombie.yo, zombie.getY()) + leashOffset.y;
+        double offsetZ = Mth.lerp(partialTicks, zombie.zo, zombie.getZ()) + leashOffsetZ;
+        poseStack.translate(leashOffsetX, leashOffset.y, leashOffsetZ);
+        float leashX = (float)(vec3.x - offsetX);
+        float leashY = (float)(vec3.y - offsetY);
+        float leashZ = (float)(vec3.z - offsetZ);
+        float width = 0.025F;
+        VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.leash());
+        Matrix4f matrix4f = poseStack.last().pose();
+        float f4 = Mth.fastInvSqrt(leashX * leashX + leashZ * leashZ) * width / 2.0F;
+        float fZ = leashZ * f4;
+        float fX = leashX * f4;
+        BlockPos blockpos = new BlockPos(zombie.getEyePosition(partialTicks));
+        int entityBlockLight = this.getBlockLightLevel(zombie, blockpos);
+        int anchorBlockLight = zombie.level.getBrightness(LightLayer.BLOCK, tiedPosition);
+        int entitySkyLight = zombie.level.getBrightness(LightLayer.SKY, blockpos);
+        int anchorSkyLight = zombie.level.getBrightness(LightLayer.SKY, tiedPosition);
 
+        for(int i = 0; i <= 24; ++i) {
+            addVertexPair(vertexconsumer, matrix4f, leashX, leashY, leashZ, entityBlockLight, anchorBlockLight, entitySkyLight, anchorSkyLight, width, width, fZ, fX, i, false);
+        }
+        for(int i = 24; i >= 0; --i) {
+            addVertexPair(vertexconsumer, matrix4f, leashX, leashY, leashZ, entityBlockLight, anchorBlockLight, entitySkyLight, anchorSkyLight, width, width, fZ, fX, i, true);
+        }
+        poseStack.popPose();
+    }
+    private static void addVertexPair(VertexConsumer vertexConsumer, Matrix4f matrix4f, float leashX, float leashY, float leashZ
+            , int entityBlockLight, int anchorBlockLight, int entitySkyLight, int anchorSkyLight
+            , float widthZ, float widthX, float fZ, float fX, int progress, boolean bool) {
+        float progressPercent = (float)progress / 24.0F;
+        int i = (int)Mth.lerp(progressPercent, (float)entityBlockLight, (float)anchorBlockLight);
+        int j = (int)Mth.lerp(progressPercent, (float)entitySkyLight, (float)anchorSkyLight);
+        int k = LightTexture.pack(i, j);
+        float joint = progress % 2 == (bool ? 1 : 0) ? 0.7F : 1.0F;
+        float r = 0.5F * joint;
+        float g = 0.4F * joint;
+        float b = 0.3F * joint;
+        float progressX = leashX * progressPercent;
+        float progressY = leashY > 0.0F ? leashY * progressPercent * progressPercent : leashY - leashY * (1.0F - progressPercent) * (1.0F - progressPercent);
+        float progressZ = leashZ * progressPercent;
+        vertexConsumer.vertex(matrix4f, progressX - fZ, progressY + widthX, progressZ + fX).color(r, g, b, 1.0F).uv2(k).endVertex();
+        vertexConsumer.vertex(matrix4f, progressX + fZ, progressY + widthZ - widthX, progressZ - fX).color(r, g, b, 1.0F).uv2(k).endVertex();
+    }
     @Override
     public abstract ResourceLocation getTextureLocation(T zombie);
 }

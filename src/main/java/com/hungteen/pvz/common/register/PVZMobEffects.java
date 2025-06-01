@@ -34,6 +34,7 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -68,6 +69,7 @@ public class PVZMobEffects {
                     .addAttributeModifier(Attributes.MOVEMENT_SPEED, FREEZE_EFFECT_UUID.toString(), -1, AttributeModifier.Operation.MULTIPLY_TOTAL)
                     .addAttributeModifier(Attributes.JUMP_STRENGTH, FREEZE_EFFECT_UUID.toString(), -1, AttributeModifier.Operation.MULTIPLY_TOTAL)
                     .addAttributeModifier(Attributes.ATTACK_SPEED, FREEZE_EFFECT_UUID.toString(), -1, AttributeModifier.Operation.MULTIPLY_TOTAL)
+                    .addAttributeModifier(Attributes.KNOCKBACK_RESISTANCE, FREEZE_EFFECT_UUID.toString(), 1, AttributeModifier.Operation.ADDITION)
     )
             .unapplicableWhen((entity, effectInstance) -> ! entity.canFreeze() || entity.getType().is(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES))
             .registerPotion(120).registerPotion("long_freeze", 240, 0, true).build();
@@ -216,12 +218,11 @@ public class PVZMobEffects {
             return true;
         }
 
+        /**About how this effect removes and is removed by fire or lava,
+         * see {@link PVZEntityCapability#tick(TickEvent.ServerTickEvent)} and {@link PVZDamageSource#handleAttack(LivingAttackEvent)}.*/
         public void applyEffectTick(LivingEntity entity, int level) {
             entity.setRemainingFireTicks(0);
             entity.setTicksFrozen(400);
-            if (entity.isOnFire()) {
-                entity.removeEffect(FREEZE.get());
-            }
             if (entity instanceof Mob mob) {
                 //two systems controlling gravity...
                 mob.setNoGravity(false);

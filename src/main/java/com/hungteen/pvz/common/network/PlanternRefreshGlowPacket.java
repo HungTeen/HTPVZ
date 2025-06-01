@@ -1,14 +1,13 @@
 package com.hungteen.pvz.common.network;
 
 import com.hungteen.pvz.common.entity.plants.Plantern;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.phys.AABB;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -40,11 +39,12 @@ public class PlanternRefreshGlowPacket {
         ctx.get().enqueueWork(() -> {
             Player player = ClientProxy.getPlayer();
             if (player != null) {
-                List<Plantern> list = player.level.getEntities(EntityTypeTest.forClass(Plantern.class),
-                        new AABB(player.getX() - 200, player.getY() - 200, player.getZ() - 200,
-                                player.getX() + 200, player.getY() + 200, player.getZ() + 200),
-                        (plantern) -> set.contains(plantern.getUUID()) && plantern.distanceToSqr(player) > 400);
-                list.forEach(Plantern::refreshSkillGlowTime);
+                for (UUID uuid : set) {
+                    Entity entity = ((ClientLevel) player.level).getEntities().get(uuid);
+                    if (entity instanceof Plantern plantern) {
+                        plantern.refreshSkillGlowTime();
+                    }
+                }
             }
         });
         ctx.get().setPacketHandled(true);

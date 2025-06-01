@@ -63,7 +63,7 @@ public interface InvasionCondition {
         return event.builder.build();
     }
 
-    /**Detects which dimention target is in. Accepts only 1 argument.*/
+    /**Detects which dimension target is in. Accepts only 1 argument.*/
     class InDimensionCondition implements InvasionCondition {
         @Override
         public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {

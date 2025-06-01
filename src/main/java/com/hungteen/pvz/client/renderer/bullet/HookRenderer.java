@@ -10,6 +10,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -20,7 +21,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 
-public class HookRenderer extends EntityRenderer<Hook> {
+public class HookRenderer<T extends Hook> extends EntityRenderer<T> {
     public static final ResourceLocation HOOK_LOCATION = Util.prefix("textures/entity/projectiles/hook.png");
 
     public HookRenderer(EntityRendererProvider.Context p_173917_) {
@@ -28,7 +29,12 @@ public class HookRenderer extends EntityRenderer<Hook> {
     }
 
     @Override
-    public void render(Hook hook, float p_113840_, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int p_113844_) {
+    public boolean shouldRender(T p_114491_, Frustum p_114492_, double p_114493_, double p_114494_, double p_114495_) {
+        return true;
+    }
+
+    @Override
+    public void render(T hook, float p_113840_, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int p_113844_) {
         poseStack.pushPose();
         poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, hook.yRotO, hook.getYRot()) - 90.0F));
         poseStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTicks, hook.xRotO, hook.getXRot())));
@@ -64,7 +70,7 @@ public class HookRenderer extends EntityRenderer<Hook> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(Hook p_114482_) {
+    public ResourceLocation getTextureLocation(T p_114482_) {
         return HOOK_LOCATION;
     }
 
@@ -72,7 +78,7 @@ public class HookRenderer extends EntityRenderer<Hook> {
         p_113828_.vertex(p_113826_, (float)p_113829_, (float)p_113830_, (float)p_113831_).color(255, 255, 255, 255).uv(p_113832_, p_113833_).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(p_113837_).normal(p_113827_, (float)p_113834_, (float)p_113836_, (float)p_113835_).endVertex();
     }
 
-    private void renderLeash(Hook hook, Entity owner, float p_115463_, PoseStack poseStack, MultiBufferSource buffer) {
+    private void renderLeash(T hook, Entity owner, float p_115463_, PoseStack poseStack, MultiBufferSource buffer) {
         poseStack.pushPose();
         BlockPos tiedPosition = owner.blockPosition();
         double d0 = (double)(Mth.lerp(p_115463_, hook.yRotO, hook.yRot) * ((float)Math.PI / 180F)) + (Math.PI / 2D);

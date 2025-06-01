@@ -558,7 +558,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) &&
                                 chomper.distanceToSqr(target.position()) <= (chomper.getPose() == Pose.SPIN_ATTACK ? 16 : 6) && ! target.getType().is(Tags.EntityTypes.BOSSES)) {
                             target.startRiding(chomper);
-                            target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper), 2F), 5F);
+                            target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper, target), 2F), 5F);
                             if (target.getBbWidth() > 1.25 || target instanceof Slime /*to prevent a vanilla bug*/) {
                                 target.stopRiding();
                             }
@@ -567,7 +567,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                         Entity rider = chomper.getFirstPassenger();
                         if (rider != null) {
                             chomper.setAttackTime(chomper.getAttackCD());
-                            rider.hurt(PVZDamageSource.chomperHurt(chomper).bypassArmor(), 40);
+                            rider.hurt(PVZDamageSource.chomperHurt(chomper, rider).bypassArmor(), 40);
                             if (rider.isAlive()) {
                                 rider.stopRiding();
                             } else {

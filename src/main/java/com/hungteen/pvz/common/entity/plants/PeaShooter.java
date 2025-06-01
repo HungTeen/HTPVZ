@@ -58,15 +58,16 @@ public class PeaShooter extends ShooterPlant {
             } else if (this.hasSkill(SNIPER_SKILL_NAME)) {
                 this.getAttribute(Attributes.FOLLOW_RANGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 36, AttributeModifier.Operation.ADDITION));
                 this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 1, AttributeModifier.Operation.ADDITION));
+                this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 9, AttributeModifier.Operation.MULTIPLY_BASE));
+            } else if (this.hasSkill(FIRE_SKILL_NAME)) {
+                this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.5, AttributeModifier.Operation.MULTIPLY_BASE));
             }
         }
         super.baseTick();
     }
 
     public float getAttackDamage() {
-        return (float) (getAttribute(Attributes.ATTACK_DAMAGE).getValue() *
-                        (this.hasSkill(this, SNIPER_SKILL_NAME) ? 10 :
-                                this.hasSkill(this, FIRE_SKILL_NAME) ? 1.5 : 1));
+        return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue();
     }
 
     @Override

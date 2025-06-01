@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
@@ -18,6 +19,8 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -81,21 +84,21 @@ public class SplitPea extends PeaShooter {
     }
     @Override
     public void setTarget(LivingEntity entity) {
-        if (entity != null) {
-            Vec3 vec1 = this.getLookAngle();
-            Vec3 vec2 = entity.position().subtract(this.position());
-            if (vec2.x * vec1.x + vec2.y * vec1.y + vec2.z * vec1.z <= 0) {
-                if (this.backwardTarget == null) {
-                    this.backwardTarget = entity;
-                }
-            } else if (entity != backwardTarget) {
-                super.setTarget(entity);
+        if (entity != null && getEntityRelativeAngle(entity) < - 0.5/*120 degrees backward*/) {
+            LivingChangeTargetEvent changeTargetEvent = ForgeHooks.onLivingChangeTarget(this, entity, LivingChangeTargetEvent.LivingTargetType.MOB_TARGET);
+            if (!changeTargetEvent.isCanceled()) {
+                this.backwardTarget = changeTargetEvent.getNewTarget();
             }
-        } else {
-            super.setTarget(null);
+        } else if (entity != backwardTarget) {
+            super.setTarget(entity);
         }
     }
-
+    public double/*cos of vectors*/ getEntityRelativeAngle(Entity entity) {
+        Vec3 vec1 = getViewVector(0);
+        Vec3 vec2 = entity.position().subtract(this.position()).multiply(1, 0, 1).normalize();
+        PVZMod.LOGGER.info(xRot + "(" + xRotO + ") : " + yRot + "(" + yRotO + ")\n" + getViewVector(0) + "\n" + getLookAngle());
+        return vec2.x * vec1.x + vec2.z * vec1.z;
+    }
     @Override
     public void tick() {
         super.tick();
@@ -151,12 +154,12 @@ public class SplitPea extends PeaShooter {
             if (storedEnemyPos != null) {
                 return storedEnemyPos.add(0, 1, 0).subtract(this.position().add(0, this.getEyeHeight(), 0));
             } else {
-                return this.getLookAngle().normalize();
+                return this.getViewVector(0).normalize();
             }
         } else if (storedBackWardEnemyPos != null && this.getAttackTime() <= 10) {
             return storedBackWardEnemyPos.add(0, 1, 0).subtract(this.position().add(0, this.getEyeHeight(), 0));
         } else {
-            return this.getLookAngle().scale(-1);
+            return this.getViewVector(0).scale(-1);
         }
     }
     @Override
@@ -227,18 +230,14 @@ public class SplitPea extends PeaShooter {
             if (! DisperseEnemyTargetGoal.getDefaultPredicate(splitPea).and(splitPea::isHeightAvailable).test(splitPea.backwardTarget)) {
                 splitPea.backwardTarget = null;
             } else {
-                Vec3 vec1 = splitPea.getLookAngle();
-                Vec3 vec2 = splitPea.getBackTarget().position().subtract(splitPea.position());
-                if (vec2.x * vec1.x + vec2.y * vec1.y + vec2.z * vec1.z > 0) {
+                if (splitPea.getEntityRelativeAngle(splitPea.getBackTarget()) > -0.5) {
                     splitPea.backwardTarget = null;
                 } else {
                     target += 1;
                 }
             }
             if (EntityUtil.isEntityValid(splitPea.getTarget())) {
-                Vec3 vec1 = splitPea.getLookAngle();
-                Vec3 vec2 = splitPea.getTarget().position().subtract(splitPea.position());
-                if (vec2.x * vec1.x + vec2.y * vec1.y + vec2.z * vec1.z <= 0) {
+                if (splitPea.getEntityRelativeAngle(splitPea.getTarget()) < 0) {
                     splitPea.setTarget(null);
                 } else {
                     target += 2;
@@ -253,7 +252,7 @@ public class SplitPea extends PeaShooter {
         @Override
         public void tick() {
             double range = this.splitPea.getAttribute(Attributes.FOLLOW_RANGE).getValue();
-            Vec3 vec = this.splitPea.getLookAngle().multiply(1, 0, 1).normalize();
+            Vec3 vec = this.splitPea.getViewVector(0).multiply(1, 0, 1).normalize();
             AABB area = this.splitPea.getBoundingBox().inflate(range / 2, 4.0, range / 2);
             if (this.splitPea.backwardTarget != null) {
                 area = area.move(vec.x * range / 2, 0, vec.z * range / 2);
@@ -264,9 +263,9 @@ public class SplitPea extends PeaShooter {
                     (entity) -> EntityUtil.checkCanEntityBeAttack(splitPea, entity)), TargetingConditions.forCombat().range(range).selector(null),
                     this.splitPea, this.splitPea.getX(), this.splitPea.getEyeY(), this.splitPea.getZ());
             if (EntityUtil.isEntityValid(target)) {
-                if (this.splitPea.backwardTarget != null) {
+                if (this.splitPea.backwardTarget != null && splitPea.getEntityRelativeAngle(target) > 0) {
                     this.splitPea.setTarget(target);
-                } else {
+                } else if (this.splitPea.getTarget() != null && splitPea.getEntityRelativeAngle(target) < -0.5) {
                     this.splitPea.backwardTarget = target;
                 }
             }

@@ -69,7 +69,7 @@ public class PotatoMine extends SimplePlant {
         if (!this.level.isClientSide) {
             this.dead = true;
             float radius = this.hasSkill(STRONG_SKILL_NAME) ? 3F : 2F;
-            level.explode(this, knockBack(transferKiller(knockBack(ignoreInvTime(teamFilter(multiply(DamageSource.explosion(this).bypassArmor(), 1.25F))), 0.1F), PVZEntityCapability.getOwner(this)), 0.2F),
+            level.explode(this, transferKiller(knockBack(ignoreInvTime(teamFilter(multiply(DamageSource.explosion(this).bypassArmor(), 1.25F))), 0.2F), PVZEntityCapability.getOwner(this)),
                     null, this.getX(), this.getY(), this.getZ(),
                     radius, false, Explosion.BlockInteraction.NONE);
             if (this.isPoisonous()) {

@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.entity.zombies;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.api.interfaces.IHangable;
 import com.hungteen.pvz.common.entity.Hook;
 import com.hungteen.pvz.common.entity.bullet.ArrowWithATarget;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -11,9 +10,6 @@ import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -34,25 +30,12 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 
-public class BungeeZombie extends PVZZombie implements VibrationListener.VibrationListenerConfig, IHangable {
-    /**
-     * The position the zombie ties itself on.
-     */
-    private static final EntityDataAccessor<BlockPos> TIED_POSITION = SynchedEntityData.defineId(BungeeZombie.class, EntityDataSerializers.BLOCK_POS);
-    private static final EntityDataAccessor<Boolean> TIED = SynchedEntityData.defineId(BungeeZombie.class, EntityDataSerializers.BOOLEAN);
-    public double ropeLengthSqr = 25;
-    private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
+public class BungeeZombie extends PVZZombie implements VibrationListener.VibrationListenerConfig {
+private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
 
     public BungeeZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
         this.dynamicGameEventListener = new DynamicGameEventListener<>(new VibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 8, this, (VibrationListener.ReceivingEvent)null, 0.0F, 0));
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(TIED_POSITION, new BlockPos(0, -50, 0));
-        this.entityData.define(TIED, false);
     }
 
     @Override
@@ -78,62 +61,16 @@ public class BungeeZombie extends PVZZombie implements VibrationListener.Vibrati
     public boolean shouldRiderSit() {
         return false;
     }
-    @Override
-    public boolean needHangingPose() {
-        return (this.getHangingPosition() != null && ! this.isPassenger() && EntityUtil.isLeavingGround(this))
-                || super.needHangingPose();
-    }
-    @Override
-    public boolean isHanging() {
-        return this.getHangingPosition() != null || super.isHanging();
-    }
-    @Override
-    public boolean hangableToBlockPos(BlockPos pos) {
-        return true;
-    }
-    @Override
-    public BlockPos getHangingPosition() {
-        return this.entityData.get(TIED) ? this.entityData.get(TIED_POSITION) : null;
-    }
-    @Override
-    public void setHangingPosition(BlockPos pos) {
-        if (pos == null) {
-            this.entityData.set(TIED, false);
-        } else {
-            this.entityData.set(TIED, true);
-            this.entityData.set(TIED_POSITION, pos);
-        }
-    }
-    @Override
-    public double getRopeLengthSqr() {
-        return this.ropeLengthSqr;
-    }
-    @Override
-    public void setRopeLengthSqr(int lengthSqr) {
-        this.ropeLengthSqr = lengthSqr;
-    }
 
     public void tick() {
         super.tick();
         if (this.tickCount % 10 == 0 && this.getHangingPosition() != null && this.level.getBlockState(getHangingPosition()).getCollisionShape(level, getHangingPosition()).isEmpty()) {
             this.setHangingPosition(null);
         }
-        if (! level.isClientSide) {
-            if (this.getHangingPosition() != null) {
-            double actualLengthSq = this.blockPosition().offset(0, Math.ceil(this.getBbHeight()),0).distSqr(this.getHangingPosition());
-                if (actualLengthSq > this.ropeLengthSqr) {
-                    double stretched = Math.min(0.5, (actualLengthSq - this.ropeLengthSqr) / 10);
-                    Vec3 vec3 = Vec3.atBottomCenterOf(this.getHangingPosition()).subtract(this.position()).normalize().multiply(stretched, stretched, stretched);
-                    this.setDeltaMovement(this.getDeltaMovement().add(vec3));
-                    if (actualLengthSq > Math.max(16, 4 * ropeLengthSqr)) {
-                        this.setHangingPosition(null);
-                    }
-                }
-            } else if (! this.getPassengers().isEmpty()) {
+        if (level instanceof ServerLevel serverlevel) {
+            if (this.getHangingPosition() == null && ! this.getPassengers().isEmpty()) {
                 this.getPassengers().forEach(Entity::stopRiding);
             }
-        }
-        if (level instanceof ServerLevel serverlevel) {
             this.dynamicGameEventListener.getListener().tick(serverlevel);
         }
     }
@@ -166,12 +103,6 @@ public class BungeeZombie extends PVZZombie implements VibrationListener.Vibrati
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        if (this.entityData.get(TIED)) {
-            BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, this.entityData.get(TIED_POSITION)).resultOrPartial(PVZMod.LOGGER::error).ifPresent((p_219418_) -> {
-                tag.put("hanging_pos", p_219418_);
-            });
-            tag.putDouble("tied_rope_length", this.ropeLengthSqr);
-        }
         VibrationListener.codec(this).encodeStart(NbtOps.INSTANCE, this.dynamicGameEventListener.getListener()).resultOrPartial(PVZMod.LOGGER::error).ifPresent((p_219418_) -> {
             tag.put("listener", p_219418_);
         });
@@ -179,12 +110,6 @@ public class BungeeZombie extends PVZZombie implements VibrationListener.Vibrati
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
-        if (tag.contains("hanging_pos")) {
-            this.entityData.set(TIED, true);
-            BlockPos.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("hanging_pos"))).resultOrPartial(PVZMod.LOGGER::error)
-                    .ifPresent((p_219408_) -> this.entityData.set(TIED_POSITION, p_219408_));
-            this.ropeLengthSqr = tag.getDouble("tied_rope_length");
-        }
         if (tag.contains("listener")) {
             VibrationListener.codec(this).parse(new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("listener"))).resultOrPartial(PVZMod.LOGGER::error)
                     .ifPresent((p_219408_) -> this.dynamicGameEventListener.updateListener(p_219408_, this.level));

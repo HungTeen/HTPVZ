@@ -344,7 +344,7 @@
   "skill.pvz.chomper.energy_transduction": "Energy Transduction",
   "skill.pvz.chomper.energy_transduction.desc": "Chompers produce some sun when finish digesting, but lose the ability of sensing vibration on sculk blocks.",
   "skill.pvz.flower_pot.refractory_ceramics": "Refractory Ceramics",
-  "skill.pvz.flower_pot.refractory_ceramics.desc": "Protect itself and the entity riding the pot from fire damage.",
+  "skill.pvz.flower_pot.refractory_ceramics.desc": "Protect also the entity riding the pot from fire damage.",
   "skill.pvz.flower_pot.free_seat": "Free Seat",
   "skill.pvz.flower_pot.free_seat.desc": "Free, but need longer cool down",
   "skill.pvz.flower_pot.chinaware": "Chinaware",

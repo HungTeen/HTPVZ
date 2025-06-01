@@ -28,8 +28,8 @@ public class DiggerZombieRenderer<T extends DiggerZombie, M extends DiggerZombie
     }
 
     @Override
-    public void render(T zombie, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource p_115459_, int packedLight) {
-        super.render(zombie, entityYaw, partialTicks, poseStack, p_115459_, packedLight);
+    public void render(T zombie, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        super.render(zombie, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
         if (PVZConfig.zombieDropParts() && ! ClientProxy.MC.isPaused()) {
             if (zombie.renderHat && ! zombie.hasHelmet()) {
                 zombie.renderHat = false;

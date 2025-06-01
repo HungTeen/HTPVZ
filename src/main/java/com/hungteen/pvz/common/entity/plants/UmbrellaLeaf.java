@@ -33,7 +33,6 @@ import net.minecraftforge.common.Tags;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
@@ -43,7 +42,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     public static final String FREE_SKILL_NAME = "skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf";
     public static final String BOUNCE_SKILL_NAME = "skill.pvz.umbrella_leaf.bounce_bounds_bonus";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 3, -75, -50),
+            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 3, -75, -190),
             new Skill(BOUNCE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 6, 50, 0)
     );
 
@@ -145,11 +144,6 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     }
 
     @Override
-    public Predicate<Entity> canPush(){
-        return entity -> true;
-    }
-
-    @Override
     public void handlePVZPacket(ServerPlayer player, int val) {
         if (this.getAttackTime() <= 20) {
             setAttackTime(30);
@@ -171,10 +165,10 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                 entity.setAttackTime(19);
             }
             entity.getEntityData().set(POSE, entity.getAttackTime() > 20);
-            if (entity.getAttackTime() == 22 && entity.hasSkill(FREE_SKILL_NAME)) {
+            if (entity.getAttackTime() == 25 && entity.hasSkill(FREE_SKILL_NAME)) {
                 entity.discard();
             }
-            return entity.getAttackTime() <= 20;
+            return entity.getAttackTime() <= 24;
         }
         @Override
         public boolean requiresUpdateEveryTick() {
@@ -182,7 +176,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            float width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 5 : 3F;
+            float width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 6 : 4F;
             List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(width, 2.5, width),
                     (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {

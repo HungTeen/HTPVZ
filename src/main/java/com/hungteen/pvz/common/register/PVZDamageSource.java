@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.events.DamageSourceSharpEvent;
 import com.hungteen.pvz.api.interfaces.IArmorEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
@@ -48,14 +49,17 @@ public class PVZDamageSource {
     public static DamageSource projectileDamageSource(String name, Entity projectile, Entity owner) {
         return new OwnedIndirectDamageSource(name, projectile, owner instanceof LivingEntity ? owner : projectile).setProjectile();
     }
-    public static DamageSource chomperHurt(LivingEntity source) {
-        return PVZDamageSource.transferKiller(teamFilter(PVZDamageSource.setSharp(owned("eaten", source))), PVZEntityCapability.getOwner(source));
+    public static DamageSource wallNutCollide(LivingEntity source, Entity target) {
+        return hitBossWithProportion(knockBack(new OwnedDamageSource("nut_collide", source), 2F), target);
+    }
+    public static DamageSource chomperHurt(LivingEntity source, Entity target) {
+        return hitBossWithProportion(transferKiller(teamFilter(setSharp(owned("eaten", source))), PVZEntityCapability.getOwner(source)), target);
+    }
+    public static DamageSource spikeWeedHurt(LivingEntity source, Entity target) {
+        return hitBossWithProportion(transferKiller(setSharp(new DamageSource("spike_weed")), PVZEntityCapability.getOwner(source)), target);
     }
     public static DamageSource gargantuarCrash(LivingEntity source) {
         return setNotEating(new EntityDamageSource("crush", source));
-    }
-    public static DamageSource wallNutCollide(LivingEntity source) {
-        return knockBack(new OwnedDamageSource("nut_collide", source), 2F);
     }
     public static DamageSource owned(String name, LivingEntity source) {
         return new OwnedDamageSource(name, source);
@@ -87,6 +91,9 @@ public class PVZDamageSource {
         return source;
     }
     /**Set the rate of damage apply on bosses and make the damage available for ender dragons. To avoid dealing too much damage that instantly kill bosses.*/
+    public static DamageSource hitBossWithProportion(DamageSource source, Entity target) {
+        return hitBossWithProportion(source, target, 1 - PVZAPI.get().getPlantDamageResistance(target));
+    }
     public static DamageSource hitBossWithProportion(DamageSource source, Entity target, float factor) {
         if (target.getType().is(Tags.EntityTypes.BOSSES) || (target instanceof PartEntity<?> part && part.getParent().getType().is(Tags.EntityTypes.BOSSES))) {
             hurtBossSource = new DamageSource(source.getMsgId()).setExplosion();
@@ -208,6 +215,9 @@ public class PVZDamageSource {
         //handle damageSource decorators.
         Entity attacker = ev.getSource().getEntity();
         LivingEntity target = ev.getEntity();
+        if (ev.getSource().isFire()) {
+            target.setTicksFrozen(0);
+        }
         if (PVZDamageSource.isElectric(ev.getSource())) {
             ev.setCanceled(true);
             if (target.getUseItem().is(PVZItemTags.IRON)) {

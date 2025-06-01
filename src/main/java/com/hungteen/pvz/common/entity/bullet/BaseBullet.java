@@ -165,7 +165,7 @@ public class BaseBullet extends Projectile {
 						PVZDamageSource.hitBossWithProportion(
 								PVZDamageSource.knockBack(
 										PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
-				, getKnockBackStrength()), target, 0.2F)), PVZEntityCapability.getOwner(this));
+				, getKnockBackStrength()), target)), PVZEntityCapability.getOwner(this));
 		if (! this.isNoGravity()) {
 			source.damageHelmet();
 		}

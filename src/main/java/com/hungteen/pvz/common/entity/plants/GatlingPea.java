@@ -169,7 +169,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
 
     @Override
     public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
-        return this.getFirstPassenger() instanceof Player ? this.getLookAngle().normalize() :
+        return this.getFirstPassenger() instanceof Player ? this.getViewVector(0).normalize() :
                 super.getShootAngle(target, forwardOffset, rightOffset, heightOffset);
     }
 
@@ -289,7 +289,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
     @Override
     public void positionRider(Entity entity) {
-        entity.setPos(this.getPosition(0).add(this.getLookAngle().normalize().scale(-0.5)));
+        entity.setPos(this.getPosition(0).add(this.getViewVector(0).normalize().scale(-0.5)));
     }
 
     @Override

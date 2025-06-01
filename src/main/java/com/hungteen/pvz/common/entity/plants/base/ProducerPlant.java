@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.plants.base;
 
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -16,6 +17,8 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.dimension.DimensionType;
 
 public abstract class ProducerPlant extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
@@ -97,6 +100,14 @@ public abstract class ProducerPlant extends SimplePlant {
         return 10;
     }
 
+    public SunState getSunState() {
+        int light = level.getBrightness(LightLayer.SKY, this.blockPosition()) - level.getSkyDarken();
+        DimensionType dimensionType = this.level.dimensionType();
+        return (light > 12 || this.hasEffect(PVZMobEffects.BRIGHTNESS.get()) || dimensionType.ambientLight() >= 0.08)
+                ? SunState.FULL : (light > 9 ? SunState.HALF : SunState.NONE);
+    }
+
+
     static class ProducerGenGoal extends Goal {
 
         private final ProducerPlant producer;
@@ -114,7 +125,6 @@ public abstract class ProducerPlant extends SimplePlant {
         public boolean canContinueToUse() {
             return true;
         }
-
         @Override
         public void stop() {
         }
@@ -134,5 +144,8 @@ public abstract class ProducerPlant extends SimplePlant {
             }
             producer.entityData.set(POSE, this.producer.getGenCD() - time < 10 || time < 10);
         }
+    }
+    public enum SunState {
+        FULL, HALF, NONE
     }
 }

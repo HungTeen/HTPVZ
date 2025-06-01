@@ -5,6 +5,7 @@ import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.data.loot.EntityLoot;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -25,59 +26,62 @@ import java.util.List;
 public class EntityLootGen extends EntityLoot {
     @Override
     public void addTables(){
-        for (RegistryObject<EntityType<?>> obj: PVZEntities.noLootList) {
-            this.add(obj.get(), LootTable.lootTable());
+        for (RegistryObject<EntityType<?>> obj: PVZEntities.ENTITIES.getEntries()) {
+            this.add(PVZEntities.MOOBLOOM.get(), LootTable.lootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(Items.LEATHER)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                    .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(Items.BEEF)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F)))
+                                    .apply(SmeltItemFunction.smelted().when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE)))
+                                    .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
+            );
+            this.add(PVZEntities.GRASSCARP.get(), LootTable.lootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(Items.KELP)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
+                                    .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
+            );
+            this.add(PVZEntities.ZOMBIE.get(), basicZombieLootTable());
+            this.add(PVZEntities.POLE_VAULTING_ZOMBIE.get(), basicZombieLootTable());
+            this.add(PVZEntities.SNORKEL_ZOMBIE.get(), basicZombieLootTable());
+            this.add(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get(), basicZombieLootTable());
+            this.add(PVZEntities.DIGGER_ZOMBIE.get(), basicZombieLootTable());
+            this.add(PVZEntities.BUNGEE_ZOMBIE.get(), basicZombieLootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                            .add(LootItem.lootTableItem(PVZItems.ARROW_WITH_A_TARGET.get())
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                    .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F))))));
+            this.add(PVZEntities.IMP.get(), basicZombieLootTable());
+            this.add(PVZEntities.FIRE_IMP.get(), basicZombieLootTable());
+            this.add(PVZEntities.TACO_IMP.get(), LootTable.lootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                            .add(LootItem.lootTableItem(PVZItems.GOLDEN_TACO.get())))
+            );
+            this.add(PVZEntities.GHAST_RIDER.get(), LootTable.lootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                            .add(LootItem.lootTableItem(PVZItems.PEPPER.get())))
+            );
+            this.add(PVZEntities.GARGANTUAR.get(), basicZombieLootTable());
+            this.add(PVZEntities.LAVA_DIVER_ZOMBIE.get(), basicZombieLootTable());
+            this.add(PVZEntities.LAVA_GHASTLING.get(), LootTable.lootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                            .add(LootItem.lootTableItem(Items.GHAST_TEAR)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 0.2F)))
+                                    .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(Items.GUNPOWDER)
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                    .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F))))));
+            //enter here
+
+            if (! map.containsKey(obj.get().getDefaultLootTable())) {
+                this.add(obj.get(), LootTable.lootTable());
+            }
         }
 
-        this.add(PVZEntities.MOOBLOOM.get(), LootTable.lootTable()
-                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                        .add(LootItem.lootTableItem(Items.LEATHER)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
-                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                        .add(LootItem.lootTableItem(Items.BEEF)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F)))
-                                .apply(SmeltItemFunction.smelted().when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
-        );
-        this.add(PVZEntities.GRASSCARP.get(), LootTable.lootTable()
-                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                        .add(LootItem.lootTableItem(Items.KELP)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
-        );
-        this.add(PVZEntities.ZOMBIE.get(), basicZombieLootTable());
-        this.add(PVZEntities.POLE_VAULTING_ZOMBIE.get(), basicZombieLootTable());
-        this.add(PVZEntities.SNORKEL_ZOMBIE.get(), basicZombieLootTable());
-        this.add(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get(), basicZombieLootTable());
-        this.add(PVZEntities.DIGGER_ZOMBIE.get(), basicZombieLootTable());
-        this.add(PVZEntities.BUNGEE_ZOMBIE.get(), basicZombieLootTable()
-                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
-                        .add(LootItem.lootTableItem(PVZItems.ARROW_WITH_A_TARGET.get())
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F))))));
-        this.add(PVZEntities.IMP.get(), basicZombieLootTable());
-        this.add(PVZEntities.FIRE_IMP.get(), basicZombieLootTable());
-        this.add(PVZEntities.TACO_IMP.get(), LootTable.lootTable()
-                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
-                        .add(LootItem.lootTableItem(PVZItems.GOLDEN_TACO.get())))
-        );
-        this.add(PVZEntities.GHAST_RIDER.get(), LootTable.lootTable()
-                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
-                        .add(LootItem.lootTableItem(PVZItems.PEPPER.get())))
-        );
-        this.add(PVZEntities.GARGANTUAR.get(), basicZombieLootTable());
-        this.add(PVZEntities.LAVA_DIVER_ZOMBIE.get(), basicZombieLootTable());
-        this.add(PVZEntities.LAVA_GHASTLING.get(), LootTable.lootTable()
-                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
-                        .add(LootItem.lootTableItem(Items.GHAST_TEAR)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 0.2F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))))
-                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
-                        .add(LootItem.lootTableItem(Items.GUNPOWDER)
-                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
-                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F))))));
-        //enter here
     }
 
     protected void add(EntityType<?> entityType, LootTable.Builder builder) {
@@ -100,7 +104,11 @@ public class EntityLootGen extends EntityLoot {
 
     protected Iterable<EntityType<?>> getKnownEntities() {
         List<EntityType<?>> list = new ArrayList();
-        PVZEntities.ENTITIES.getEntries().stream().toList().forEach((obj) -> list.add(obj.get()));
+        PVZEntities.ENTITIES.getEntries().stream().toList().forEach((obj) -> {
+            if (LivingEntity.class.isAssignableFrom(obj.get().getBaseClass())) {
+                list.add(obj.get());
+            }
+        });
         return list;
     }
 

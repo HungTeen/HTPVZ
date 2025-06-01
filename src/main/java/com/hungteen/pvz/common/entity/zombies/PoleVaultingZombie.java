@@ -95,7 +95,7 @@ public class PoleVaultingZombie extends PVZZombie {
         @Override
         public boolean canUse() {
             if (! zombie.hasPole()) return false;
-            var lookAngle = this.zombie.getLookAngle().normalize();
+            var lookAngle = this.zombie.getViewVector(0).normalize();
             List<Entity> entities = zombie.level.getEntities(zombie,
                     zombie.getBoundingBox().inflate(1.5, 0, 1.5).move(lookAngle.scale(2)),
                     (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.zombie, entity));
@@ -104,7 +104,7 @@ public class PoleVaultingZombie extends PVZZombie {
 
         @Override
         public void tick() {
-            var lookAngle = this.zombie.getLookAngle().normalize();
+            var lookAngle = this.zombie.getViewVector(0).normalize();
             zombie.addEffect(new MobEffectInstance(MobEffects.JUMP, 1, 2));
             zombie.jumpControl.jump();
             zombie.setDeltaMovement(zombie.getDeltaMovement().add(lookAngle));

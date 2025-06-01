@@ -38,7 +38,7 @@ public class AxisLookAroundGoal extends RandomLookAroundGoal {
     public void tick() {
         --this.lookTime;
         this.mob.getLookControl().setLookAt(this.mob.getX() + this.relX, this.mob.getEyeY(), this.mob.getZ() + this.relZ);
-        Vec3 vec = this.mob.getLookAngle();
+        Vec3 vec = this.mob.getViewVector(0);
         if (vec.x == relX && vec.z == relZ) {
             this.lookTime = -1;
         }

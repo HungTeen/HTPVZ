@@ -20,8 +20,8 @@ public class PoleVaultingZombieRenderer<T extends PoleVaultingZombie, M extends 
     }
 
     @Override
-    public void render(T zombie, float p_115456_, float partialTicks, PoseStack p_115458_, MultiBufferSource p_115459_, int p_115460_) {
-        super.render(zombie, p_115456_, partialTicks, p_115458_, p_115459_, p_115460_);
+    public void render(T zombie, float p_115456_, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int p_115460_) {
+        super.render(zombie, p_115456_, partialTicks, poseStack, bufferSource, p_115460_);
         if (PVZConfig.zombieDropParts() && ! ClientProxy.MC.isPaused()) {
             if (zombie.renderPole && (! zombie.hasPole() || zombie.shouldDropHead())) {
                 zombie.renderPole = false;

@@ -193,7 +193,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 		} else if (storedEnemyPos != null) {
 			return storedEnemyPos.add(0, 1, 0).subtract(this.position().add(0, this.getEyeHeight(), 0));
 		} else {
-			return this.getLookAngle().normalize();
+			return this.getViewVector(0).normalize();
 		}
 	}
 

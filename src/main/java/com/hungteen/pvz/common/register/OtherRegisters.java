@@ -5,7 +5,7 @@ import com.hungteen.pvz.common.entity.bullet.MelonBullet;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.menu.EssenceFurnaceRecipe;
-import com.hungteen.pvz.common.world.invasion.LootWithinInvasionCondition;
+import com.hungteen.pvz.common.world.invasion.LootWithinZombieEventCondition;
 import com.hungteen.pvz.common.world.zen_garden.GlowBerryDecorator;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.RecipeBookCategories;
@@ -77,7 +77,7 @@ public class OtherRegisters {
 
     //Loot Table Condition.
     public static final DeferredRegister<LootItemConditionType> LOOT_CONDITIONS = DeferredRegister.create(Registry.LOOT_ITEM_REGISTRY, PVZMod.MODID);
-    public static final RegistryObject<LootItemConditionType> WITHIN_INVASION = LOOT_CONDITIONS.register("within_invasion", () -> new LootItemConditionType(new LootWithinInvasionCondition.Serializer()));
+    public static final RegistryObject<LootItemConditionType> WITHIN_INVASION = LOOT_CONDITIONS.register("within_zombie_event", () -> new LootItemConditionType(new LootWithinZombieEventCondition.Serializer()));
 
     //Loot Table Function
     public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTIONS = DeferredRegister.create(Registry.LOOT_FUNCTION_REGISTRY, PVZMod.MODID);

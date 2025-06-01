@@ -7,7 +7,6 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
 import com.hungteen.pvz.common.register.PVZAttributes;
-import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -18,7 +17,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
 
 import java.util.List;
 
@@ -42,8 +40,8 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
 
     @Override
     public int getGenCD() {
-        int light = level.getBrightness(LightLayer.SKY, this.blockPosition()) - level.getSkyDarken();
-        return (light > 12 || this.hasEffect(PVZMobEffects.BRIGHTNESS.get())) ? 300 : (light > 9 ? 450 : 600);
+        SunState sunState = this.getSunState();
+        return sunState == SunState.FULL ? 300 : sunState == SunState.HALF ? 450 : 600;
     }
     public int getSunAmount(){
         return 50;
@@ -55,8 +53,8 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
 
     @Override
     public int extraMaxSun(BlockPos pos, Entity giveTo) {
-        int light = level.getBrightness(LightLayer.SKY, this.blockPosition()) - level.getSkyDarken();
-        int extra = (light > 12 || this.hasEffect(PVZMobEffects.BRIGHTNESS.get())) ? 50 : (light > 9 ? 25 : 0);
+        SunState sunState = this.getSunState();
+        int extra = sunState == SunState.FULL ? 50 : sunState == SunState.HALF ? 25 : 0;
         int current = 0;
         if (giveTo instanceof Player player && player.getAttribute(PVZAttributes.SUN.get()) != null) {
             current = (int) ((LivingEntity) giveTo).getAttributeValue(PVZAttributes.SUN.get());

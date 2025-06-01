@@ -3,7 +3,6 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.block.EntityLightBlock;
-import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZBlocks;
@@ -22,7 +21,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -199,8 +197,7 @@ public class SpikeWeed extends SimplePlant {
                     entity.getBoundingBox().inflate(0.1 * Math.abs(direction.getX()), 0.1 * Math.abs(direction.getY()), 0.1 * Math.abs(direction.getZ())),
                     (entity1) -> EntityUtil.checkCanEntityBeAttack(entity, entity1));
             list.forEach((entity1 -> {
-                entity1.hurt(PVZDamageSource.transferKiller(PVZDamageSource.setSharp(new DamageSource("spike_weed")), PVZEntityCapability.getOwner(entity)),
-                        (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
+                entity1.hurt(PVZDamageSource.spikeWeedHurt(entity, entity1), (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
                 if (entity1 instanceof LivingEntity && entity.hasSkill(POISONOUS_SKILL_NAME)) {
                     ((LivingEntity) entity1).addEffect(new MobEffectInstance(PVZMobEffects.PHYTOTOXIN.get(), 60));
                 }

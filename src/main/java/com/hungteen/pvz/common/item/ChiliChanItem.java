@@ -58,7 +58,7 @@ public class ChiliChanItem extends ShovelItem {
     }
     public boolean hurtEnemy(ItemStack itemStack, LivingEntity target, LivingEntity user) {
         if (! (user instanceof Player player) || player.getAttackStrengthScale(0.5F) == 1) {
-            Vec3 vec3 = user.getLookAngle();
+            Vec3 vec3 = user.getViewVector(0);
             AttributeInstance attribute = target.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
             double knockBackModifier = 1;
             if (attribute != null) {

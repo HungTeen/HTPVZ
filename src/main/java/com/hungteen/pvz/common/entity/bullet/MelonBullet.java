@@ -68,7 +68,7 @@ public class MelonBullet extends BaseBullet {
                 entities.forEach((target -> {
                     target.hurt(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(PVZDamageSource.setInterrupting(
                                     PVZDamageSource.owned(getDamageName(), getOwner() instanceof LivingEntity ? (LivingEntity) getOwner() : null)))
-                            , getKnockBackStrength()), target, 0.05F), this.getAttackDamage() / 3);//splash damage regarded as non-projectile.
+                            , getKnockBackStrength()), target), this.getAttackDamage() / 3);//splash damage regarded as non-projectile.
                     if (this.getMelonType() == MelonType.Ice && target.canFreeze()) {
                         target.setTicksFrozen(400);
                     }
@@ -104,7 +104,7 @@ public class MelonBullet extends BaseBullet {
     public List<MobEffectInstance> getMobEffects() {
         List<MobEffectInstance> list = new java.util.ArrayList<>(List.of(new MobEffectInstance(MobEffects.HEAL, 2)));
         if (this.getMelonType() == MelonType.Ice) {
-            list.add(new MobEffectInstance(PVZMobEffects.FREEZE.get(), 80));
+            list.add(new MobEffectInstance(PVZMobEffects.FREEZE.get(), 30));
         }
         return list;
     }

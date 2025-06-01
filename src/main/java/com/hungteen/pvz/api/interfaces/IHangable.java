@@ -28,5 +28,5 @@ public interface IHangable {
         return null;
     }
     double getRopeLengthSqr();
-    void setRopeLengthSqr(int lengthSqr);
+    void setRopeLengthSqr(double lengthSqr);
 }

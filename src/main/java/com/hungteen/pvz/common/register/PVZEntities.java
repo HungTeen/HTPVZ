@@ -83,10 +83,6 @@ public class PVZEntities {
     //attributes
     private static Supplier<AttributeSupplier.Builder> storedAttribute = null;
     public static Map<RegistryObject, Supplier<AttributeSupplier.Builder>> attributesMap = new HashMap<>();
-    //loot
-    private static boolean storedNoLoot = false;
-    @Deprecated // will be cleared after register.
-    public static List<RegistryObject> noLootList = new ArrayList<>();
     //tag
     private static List<TagKey<EntityType<?>>> storedTags = null;
     @Deprecated // will be cleared after register.
@@ -113,8 +109,8 @@ public class PVZEntities {
             .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.AXOLOTLS);
     public static final RegistryObject<EntityType<Anger>> ANGER = spawnEgg(0xff2f3b, 0xfff45b).attribute(Anger::createAttributes)
-            .collision(0.4F, 0.4F).noLoot().entity("anger", Anger::new, MobCategory.CREATURE);
-    public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F).noLoot()
+            .collision(0.4F, 0.4F).entity("anger", Anger::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F)
             .entity("sprout", Sprout::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
 
@@ -123,87 +119,87 @@ public class PVZEntities {
             .entity("model_part", ModelPartEntity::new, MobCategory.MISC);
 
     //plants
-    public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, WallNut::checkSpawnRules)
             .collision(0.8F, 1F).entity("wall_nut", WallNut::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SunFlower::checkSpawnRules)
             .collision(0.75F, 1.1F).entity("sun_flower", SunFlower::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes).tag(PVZEntityTags.PLANT)
             .collision(0.75F, 1.0F).entity("marigold", MariGold::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TallNut::checkSpawnRules)
             .collision(1F, 1.9F).entity("tall_nut", TallNut::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PeaShooter::checkSpawnRules)
             .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<SplitPea>> SPLIT_PEA = attribute(SplitPea::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<SplitPea>> SPLIT_PEA = attribute(SplitPea::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SplitPea::checkSpawnRules)
             .collision(0.7F, 1.3F).entity("split_pea", SplitPea::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<Repeater>> REPEATER = attribute(Repeater::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<Repeater>> REPEATER = attribute(Repeater::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Repeater::checkSpawnRules)
             .collision(0.7F, 1.3F).entity("repeater", Repeater::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<GatlingPea>> GATLING_PEA = attribute(GatlingPea::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<GatlingPea>> GATLING_PEA = attribute(GatlingPea::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, GatlingPea::checkSpawnRules)
             .collision(0.7F, 1.3F).entity("gatling_pea", GatlingPea::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<SnowPea>> SNOW_PEA = attribute(SnowPea::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<SnowPea>> SNOW_PEA = attribute(SnowPea::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SnowPea::checkSpawnRules)
             .collision(0.7F, 1.3F).entity("snow_pea", SnowPea::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<TangleKelp>> TANGLE_KELP = attribute(TangleKelp::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<TangleKelp>> TANGLE_KELP = attribute(TangleKelp::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TangleKelp::checkSpawnRules)
             .collision(0.6F, 0.5F).entity("tangle_kelp", TangleKelp::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<Pumpkin>> PUMPKIN = attribute(Pumpkin::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<Pumpkin>> PUMPKIN = attribute(Pumpkin::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Pumpkin::checkSpawnRules)
             .collision(1F, 0.5F).entity("pumpkin", Pumpkin::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<FlowerPot>> FLOWER_POT = attribute(FlowerPot::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
-            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, FlowerPot::checkSpawnRules)
+    public static final RegistryObject<EntityType<FlowerPot>> FLOWER_POT = attribute(FlowerPot::createAttributes).tag(PVZEntityTags.PLANT)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, FlowerPot::checkSpawnRules).fireImmuine()
             .collision(0.75F, 0.475F).entity("flower_pot", FlowerPot::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<Starfruit>> STARFRUIT = attribute(Starfruit::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<Starfruit>> STARFRUIT = attribute(Starfruit::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Starfruit::checkSpawnRules)
             .collision(0.8F, 0.55F).entity("starfruit", Starfruit::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<LilyPad>> LILY_PAD = attribute(LilyPad::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<LilyPad>> LILY_PAD = attribute(LilyPad::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, LilyPad::checkSpawnRules)
             .collision(0.875F, 0.2F).entity("lily_pad", LilyPad::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<Plantern>> PLANTERN = attribute(Plantern::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<Plantern>> PLANTERN = attribute(Plantern::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Plantern::checkSpawnRules)
             .collision(0.8F, 2F).entity("plantern", Plantern::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<CabbagePult>> CABBAGE_PULT = attribute(CabbagePult::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<CabbagePult>> CABBAGE_PULT = attribute(CabbagePult::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, CabbagePult::checkSpawnRules)
             .collision(0.7F, 1F).entity("cabbage_pult", CabbagePult::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<MelonPult>> MELON_PULT = attribute(MelonPult::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<MelonPult>> MELON_PULT = attribute(MelonPult::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, MelonPult::checkSpawnRules)
             .collision(0.9F, 1F).entity("melon_pult", MelonPult::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<UmbrellaLeaf>> UMBRELLA_LEAF = attribute(UmbrellaLeaf::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<UmbrellaLeaf>> UMBRELLA_LEAF = attribute(UmbrellaLeaf::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, UmbrellaLeaf::checkSpawnRules)
-            .collision(0.8F, 1F).entity("umbrella_leaf", UmbrellaLeaf::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<PotatoMine>> POTATO_MINE = attribute(PotatoMine::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
+            .collision(0.8F, 0.8F).entity("umbrella_leaf", UmbrellaLeaf::new, OtherRegisters.PVZPlantMobCategory);
+    public static final RegistryObject<EntityType<PotatoMine>> POTATO_MINE = attribute(PotatoMine::createAttributes).tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PotatoMine::checkSpawnRules)
             .collision(0.4F, 0.4F).entity("potato_mine", PotatoMine::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<IcebergLettuce>> ICEBERG_LETTUCE = attribute(IcebergLettuce::createAttributes).noLoot().tag(PVZEntityTags.PLANT, EntityTypeTags.POWDER_SNOW_WALKABLE_MOBS)
+    public static final RegistryObject<EntityType<IcebergLettuce>> ICEBERG_LETTUCE = attribute(IcebergLettuce::createAttributes).tag(PVZEntityTags.PLANT, EntityTypeTags.POWDER_SNOW_WALKABLE_MOBS)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, IcebergLettuce::checkSpawnRules)
             .collision(0.4F, 0.4F).entity("iceberg_lettuce", IcebergLettuce::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<Jalapeno>> JALAPENO = attribute(Jalapeno::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<Jalapeno>> JALAPENO = attribute(Jalapeno::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Jalapeno::checkSpawnRules)
             .collision(0.6F, 1.6F).entity("jalapeno", Jalapeno::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<GoldBloom>> GOLD_BLOOM = attribute(GoldBloom::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<GoldBloom>> GOLD_BLOOM = attribute(GoldBloom::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, GoldBloom::checkSpawnRules)
             .collision(0.6F, 0.6F).entity("gold_bloom", GoldBloom::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<SpikeWeed>> SPIKE_WEED = attribute(SpikeWeed::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
+    public static final RegistryObject<EntityType<SpikeWeed>> SPIKE_WEED = attribute(SpikeWeed::createAttributes).tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SpikeWeed::checkSpawnRules)
             .collision(0.95F, 0.125F).entity("spike_weed", SpikeWeed::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<TorchWood>> TORCH_WOOD = attribute(TorchWood::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<TorchWood>> TORCH_WOOD = attribute(TorchWood::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TorchWood::checkSpawnRules)
             .collision(0.95F, 0.65F).entity("torch_wood", TorchWood::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<VelociRadish>> VELOCI_RADISH = attribute(VelociRadish::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<VelociRadish>> VELOCI_RADISH = attribute(VelociRadish::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, VelociRadish::checkSpawnRules)
             .collision(0.5F, 0.5825F).entity("veloci_radish", VelociRadish::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<KernelPult>> KERNEL_PULT = attribute(KernelPult::createAttributes).noLoot().tag(PVZEntityTags.PLANT, PVZEntityTags.BUTTER_INVULNERABLE)
+    public static final RegistryObject<EntityType<KernelPult>> KERNEL_PULT = attribute(KernelPult::createAttributes).tag(PVZEntityTags.PLANT, PVZEntityTags.BUTTER_INVULNERABLE)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, KernelPult::checkSpawnRules)
             .collision(0.6F, 1F).entity("kernel_pult", KernelPult::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<Chomper>> CHOMPER = attribute(Chomper::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<Chomper>> CHOMPER = attribute(Chomper::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Chomper::checkSpawnRules)
             .collision(1.2F, 1.8F).entity("chomper", Chomper::new, OtherRegisters.PVZPlantMobCategory);
-    public static final RegistryObject<EntityType<HypnoShroom>> HYPNO_SHROOM = attribute(HypnoShroom::createAttributes).noLoot().tag(PVZEntityTags.PLANT)
+    public static final RegistryObject<EntityType<HypnoShroom>> HYPNO_SHROOM = attribute(HypnoShroom::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, HypnoShroom::checkSpawnRules)
             .collision(0.8F, 1F).entity("hypno_shroom", HypnoShroom::new, OtherRegisters.PVZPlantMobCategory);
 
@@ -339,7 +335,7 @@ public class PVZEntities {
         r(e, IMP, ImpRenderer::new);
         r(e, FIRE_IMP, FireImpRenderer::new);
         r(e, TACO_IMP, TacoImpRenderer::new);
-        r(e, GHAST_RIDER, FireImpRenderer::new);
+        r(e, GHAST_RIDER, GhastRiderRenderer::new);
         r(e, GARGANTUAR, GargantuarRenderer::new);
         r(e, LAVA_GHASTLING, LavaGhastlingRenderer::new);
         r(e, SPROUT, SproutRenderer::new);
@@ -391,11 +387,6 @@ public class PVZEntities {
             attributesMap.put(entity, storedAttribute);
             storedAttribute = null;
         }
-        //noloot
-        if (storedNoLoot) {
-            noLootList.add(entity);
-            storedNoLoot = false;
-        }
         //tag
         if (storedTags != null) {
             tagMap.put(entity, storedTags);
@@ -407,10 +398,6 @@ public class PVZEntities {
 
     private static PVZEntities collision(Float width, Float height) {
         storedCollision = Pair.of(width, height);
-        return reflector;
-    }
-    private static PVZEntities noLoot() {
-        storedNoLoot = true;
         return reflector;
     }
     private static PVZEntities tag(TagKey<EntityType<?>>... tags){
@@ -492,7 +479,6 @@ public class PVZEntities {
     }
 
     public static void release() {
-        noLootList.clear();
         List.of(spawnEggMap, spawnPlacementMap, tagMap).forEach(Map::clear);
     }
 }

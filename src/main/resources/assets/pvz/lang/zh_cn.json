@@ -344,7 +344,7 @@
   "skill.pvz.chomper.energy_transduction": "能量转化",
   "skill.pvz.chomper.energy_transduction.desc": "大嘴花在消化完成时生产一定量的阳光，但失去在幽匿方块上检测振动信号的能力。",
   "skill.pvz.flower_pot.refractory_ceramics": "耐火陶瓷",
-  "skill.pvz.flower_pot.refractory_ceramics.desc": "给予自身和其上的生物防火效果。",
+  "skill.pvz.flower_pot.refractory_ceramics.desc": "为其上的生物也赋予防火效果。",
   "skill.pvz.flower_pot.free_seat": "免费餐盒",
   "skill.pvz.flower_pot.free_seat.desc": "免费，但需要更长的冷却时间。",
   "skill.pvz.flower_pot.chinaware": "青花瓷",

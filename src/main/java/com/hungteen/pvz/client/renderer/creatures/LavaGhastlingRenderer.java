@@ -14,7 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class LavaGhastlingRenderer<T extends LavaGhastling> extends MobRenderer<T, EntityModel<T>> {
 
-    private static final ResourceLocation COMMON = Util.prefix("textures/entity/plants/flower_pot/flower_pot.png");
+    private static final ResourceLocation COMMON = Util.prefix("textures/entity/lava_ghastling/lava_ghastling.png");
+    private static final ResourceLocation RIDEN = Util.prefix("textures/entity/lava_ghastling/lava_ghastling_light.png");
 
     public LavaGhastlingRenderer(EntityRendererProvider.Context context) {
         super(context, new LavaGhastlingModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("lava_ghastling:main"))), 0.4F);
@@ -27,7 +28,7 @@ public class LavaGhastlingRenderer<T extends LavaGhastling> extends MobRenderer<
 
     @Override
     public ResourceLocation getTextureLocation(T flowerPot) {
-        return COMMON;
+        return flowerPot.isVehicle() ? RIDEN : COMMON;
     }
 
 }

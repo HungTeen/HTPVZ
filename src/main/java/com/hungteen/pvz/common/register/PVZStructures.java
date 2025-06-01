@@ -2,6 +2,8 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
+import com.hungteen.pvz.common.world.structures.SacrificialVenueStructure;
+import com.hungteen.pvz.common.world.structures.SacrificialVenueStructurePiece;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.HolderSet;
@@ -16,7 +18,9 @@ import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.heightproviders.ConstantHeight;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
@@ -34,6 +38,8 @@ public class PVZStructures {
     public static final DeferredRegister<StructureSet> STRUCTURE_SETS = DeferredRegister.create(Registry.STRUCTURE_SET_REGISTRY, PVZMod.MODID);
     public static final DeferredRegister<Structure> STRUCTURES = DeferredRegister.create(Registry.STRUCTURE_REGISTRY, PVZMod.MODID);
     public static final DeferredRegister<StructureTemplatePool> TEMPLATE_POOLS = DeferredRegister.create(Registry.TEMPLATE_POOL_REGISTRY, PVZMod.MODID);
+    public static final DeferredRegister<StructureType<?>> STRUCTURE_TYPES = DeferredRegister.create(Registry.STRUCTURE_TYPE_REGISTRY, PVZMod.MODID);
+    public static final DeferredRegister<StructurePieceType> STRUCTURE_PIECE_TYPES = DeferredRegister.create(Registry.STRUCTURE_PIECE_REGISTRY, PVZMod.MODID);
 
     //garden_green_houses
     public static final RegistryObject<StructureTemplatePool> GREEN_HOUSE_POOL = TEMPLATE_POOLS.register("green_house", () -> new StructureTemplatePool(Util.prefix("green_house"),
@@ -73,6 +79,18 @@ public class PVZStructures {
     public static final RegistryObject<StructureSet> GARDEN_PORTAL_SET = STRUCTURE_SETS.register("garden_portal", () ->
             new StructureSet(GARDEN_PORTAL.getHolder().get(), new RandomSpreadStructurePlacement(12, 10, RandomSpreadType.LINEAR, 105325493)));
 
+    //sacrificial_venue
+    public static final RegistryObject<StructurePieceType> SACRIFICIAL_VENUE_PIECE = STRUCTURE_PIECE_TYPES.register("sacrificial_venue", () -> StructurePieceType.setTemplatePieceId(SacrificialVenueStructurePiece::new, "PVZSV"));
+    public static final RegistryObject<StructureTemplatePool> SACRIFICIAL_VENUE_POOL = TEMPLATE_POOLS.register("sacrificial_venue", () -> new StructureTemplatePool(Util.prefix("sacrificial_venue"),
+            new ResourceLocation("empty"), List.of(
+            Pair.of(SinglePoolElement.single("pvz:sacrificial_venue").apply(Projection.RIGID), 1)
+    )));
+    public static final RegistryObject<StructureType<?>> SACRIFICIAL_VENUE_TYPE = STRUCTURE_TYPES.register("sacrificial_venue", () -> () -> SacrificialVenueStructure.CODEC);
+    public static final RegistryObject<Structure> SACRIFICIAL_VENUE = STRUCTURES.register("sacrificial_venue", () -> new SacrificialVenueStructure(new Structure.StructureSettings(
+            biomes(PVZBiomeTags.HAS_SACRIFICIAL_VENUE), Map.of(), GenerationStep.Decoration.UNDERGROUND_STRUCTURES, TerrainAdjustment.NONE)));
+    public static final RegistryObject<StructureSet> SACRIFICIAL_VENUE_SET = STRUCTURE_SETS.register("sacrificial_venue", () ->
+            new StructureSet(SACRIFICIAL_VENUE.getHolder().get(), new RandomSpreadStructurePlacement(24/*4*/, 2/*18*/, RandomSpreadType.LINEAR, 103563853)));
+
 
     private static HolderSet<Biome> biomes(TagKey<Biome> tagKey) {
         return BuiltinRegistries.BIOME.getOrCreateTag(tagKey);
@@ -81,6 +99,8 @@ public class PVZStructures {
     public static void register(IEventBus modBus) {
         STRUCTURE_SETS.register(modBus);
         STRUCTURES.register(modBus);
+        STRUCTURE_TYPES.register(modBus);
+        STRUCTURE_PIECE_TYPES.register(modBus);
         TEMPLATE_POOLS.register(modBus);
     }
 }

@@ -64,11 +64,10 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
         super.tick();
         if (this.isVehicle() && this.idleAnimationState.isStarted()) {
             this.idleAnimationState.stop();
-        } else if (! this.isVehicle() && ! this.idleAnimationState.isStarted()){
+        } else if (! this.isVehicle() && ! this.idleAnimationState.isStarted()) {
             this.idleAnimationState.start(this.tickCount);
         }
         if (this.isVehicle() && this.hasSkill(this, FIRE_RESISTANCE_SKILL_NAME)) {
-            this.fireImmune();
             this.getPassengers().forEach((Entity::clearFire));
             this.getPassengers().forEach((entity -> {
                 if (entity instanceof LivingEntity e) {
@@ -81,9 +80,6 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
         this.idleAnimationState.start(this.tickCount);
     }
 
-    public boolean fireImmune() {
-        return super.fireImmune() || this.hasSkill(this, FIRE_RESISTANCE_SKILL_NAME);
-    }
     @Override
     protected void registerGoals() {
         super.registerGoals();

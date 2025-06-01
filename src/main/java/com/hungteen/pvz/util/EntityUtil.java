@@ -29,6 +29,7 @@ import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
@@ -80,7 +81,7 @@ public class EntityUtil {
         return true;
     }
 
-    public static Fluid getFluidEntityIn(LivingEntity entity) {
+    public static @Nullable Fluid getFluidEntityIn(Entity entity) {
         if (! entity.isInFluidType()) {
             return null;
         }

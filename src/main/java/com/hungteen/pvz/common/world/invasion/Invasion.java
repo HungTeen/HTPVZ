@@ -180,7 +180,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                     lastWave.minimumWaitTime += 300;
                     if (lastWave.maximumWaitTime < lastWave.minimumWaitTime) lastWave.maximumWaitTime = lastWave.minimumWaitTime;
                 }
-                threat *= 1.2;
+                threat *= 1.8;
                 waveLength *= 1.5;
             }
             length += waveLength;
@@ -277,7 +277,6 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 if (threatLeft > 0 && (this.getLivingMembersThreat() <= 500 + this.getCurrentWave().threat / 2 || this.members.size() < 5 + this.invasionLevel / 2)) {
                     Pair<CompoundTag/*enemy*/, Integer> pair = this.selectEntity();
                     if (pair != null) {
-                        CompoundTag entityData = pair.getFirst();
                         if (summonEntity(pair)) {
                             this.currentWaveThreat += pair.getSecond();
                             this.currentWaveSummoned += 1;
@@ -335,7 +334,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     public int getPlayerFleeWill() {
         return (int) (Math.max(1, 500 / Math.max(1, getPlayerAttack() + 1)) + Math.max(1, 100 / Math.max(1, getPlayerHurt() + 1))
                 + (target == null ? 0 : target.blockPosition().distSqr(this.position))) + (int) this.seekPositionHardness * 4 +
-                Math.max(0, (this.totalTime - (int) (10000 * this.types.get(0).length() * ((this.invasionLevel) * 0.1 + 0.5) + 100))/ (getPlayerActivation() + 1));
+                Math.max(0, (this.totalTime - (int) (10000 * this.getMainType().length() * ((this.invasionLevel) * 0.1 + 0.5) + 100))/ (getPlayerActivation() + 1));
     }
     /**Return a relative value of the will player join the invasion.*/
     public int getPlayerActivation() {
@@ -375,6 +374,9 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             return result[0];
         }
     }
+    public InvasionType getMainType() {
+        return this.types.get(0);
+    }
 
     public int getLivingMembersThreat() {
         int result = 0;
@@ -390,7 +392,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
 
     public void end(Vec3 position, String endType, boolean success) {
         if (success) {
-            InvasionType invasionType = this.types.get(0);
+            InvasionType invasionType = this.getMainType();
             if (invasionType != null && invasionType.loot().isPresent()) {
                 LootBag.drop(level, new BlockPos(position), invasionType.loot().get(), this.invasionLevel / 2 + 4);
             }
@@ -651,7 +653,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 Math.max(1, 100 / (getPlayerHurt() + 1)) + " " +
                 (target == null ? 0 : target.blockPosition().distSqr(this.position)) + " " +
                 ((int) this.seekPositionHardness * 4) + " " +
-                Math.max(0, (this.totalTime - (int) (10000 * this.types.get(0).length() * ((this.invasionLevel) * 0.1 + 0.5) + 100)) / (getPlayerActivation() + 1)) +
+                Math.max(0, (this.totalTime - (int) (10000 * this.getMainType().length() * ((this.invasionLevel) * 0.1 + 0.5) + 100)) / (getPlayerActivation() + 1)) +
                 "\n  ACT " + getPlayerActivation() + " : " + (getPlayerActivation() - (this.storedTargetPos == null ? 0 : (int) target.position().distanceToSqr(this.storedTargetPos) * 2)) + " " +
                 (this.storedTargetPos == null ? 0 : (int) target.position().distanceToSqr(this.storedTargetPos) * 2)
         );
@@ -713,7 +715,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                     }
                 }
             }
-            if (this.types.isEmpty() || this.types.get(0).isAddition()) {
+            if (this.types.isEmpty() || this.getMainType().isAddition()) {
                 PVZMod.LOGGER.warn("Trying to load an invasion which contains no main invasion type.");
                 remove();
                 return;

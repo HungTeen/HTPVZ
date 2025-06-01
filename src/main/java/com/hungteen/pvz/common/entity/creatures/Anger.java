@@ -2,7 +2,6 @@ package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
-import com.hungteen.pvz.common.entity.zombies.TacoImp;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;

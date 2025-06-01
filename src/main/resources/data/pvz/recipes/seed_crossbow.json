@@ -5,16 +5,16 @@
       "item": "minecraft:crossbow"
     },
     "&": {
-      "item": "pvz:alaya_resin"
+      "item": "minecraft:vine"
     },
     "%": {
-      "item": "pvz:alaya_resin"
+      "item": "pvz:origin_essence"
     }
   },
   "pattern": [
     "&%&",
     " $ ",
-    " % "
+    " & "
   ],
   "result": {
     "item": "pvz:seed_crossbow"

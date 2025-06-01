@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class PVZZombieEventCapability implements ICapabilitySerializable<CompoundTag> {
     public static final Capability<PVZZombieEventCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
@@ -34,6 +35,12 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         return cap == CAP ? LazyOptional.of(() -> (T) this) : LazyOptional.empty();
+    }
+
+    public static PVZZombieEventCapability fromLevel(Level level) {
+        AtomicReference<PVZZombieEventCapability> result = new AtomicReference<>();
+        level.getCapability(CAP).ifPresent(result::set);
+        return result.get();
     }
 
     public boolean hasEvent(UUID uuid) {

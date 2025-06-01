@@ -23,6 +23,7 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class BlockLootGen extends BlockLoot {
             .hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1))));
     private static final LootItemCondition.Builder HAS_SHEARS = MatchTool
             .toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS));
-    private static final LootItemCondition.Builder HAS_NO_SHEARS_OR_SILK_TOUCH = HAS_SHEARS.or(HAS_SILK_TOUCH);
+    private static final LootItemCondition.Builder HAS_SHEARS_OR_SILK_TOUCH = HAS_SHEARS.or(HAS_SILK_TOUCH);
 
     @Override
     public void addTables(){
@@ -76,7 +77,9 @@ public class BlockLootGen extends BlockLoot {
     protected void addConditionDrop(Block block, LootItemCondition.Builder condition) {
         outPut(block);
         lootedList.add(block);
-        this.add(block, createSelfDropDispatchTable(block, condition, LootItem.lootTableItem(block)));
+        this.add(block, LootTable.lootTable().withPool(LootPool.lootPool().when(condition)
+                .setRolls(ConstantValue.exactly(1.0F))
+                .add(LootItem.lootTableItem(block))));
     }
     protected void addLeavesDrops(Block block, Block sapling, float... chance) {
         outPut(block);

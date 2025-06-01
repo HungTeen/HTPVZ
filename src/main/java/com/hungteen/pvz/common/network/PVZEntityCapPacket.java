@@ -38,6 +38,12 @@ public class PVZEntityCapPacket {
         tag.putInt("stuckArrowWithATarget", stuckArrowWithATarget);
         return tag;
     }
+    public static void read(UUID uuid, PVZEntityCapability cap) {
+        if (PVZEntityCapPacket.clientPacketsToHandle.containsKey(uuid)) {
+            CompoundTag tag = PVZEntityCapPacket.clientPacketsToHandle.get(uuid);
+            cap.setStuckArrowWithATarget(tag.getInt("stuckArrowWithATarget"));
+        }
+    }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
@@ -50,12 +56,6 @@ public class PVZEntityCapPacket {
     public static void sync(UUID uuid, PVZEntityCapability cap) {
         if (cap.isDirty) {
             PVZPacketHandler.sendToPlayers(new PVZEntityCapPacket(uuid, cap));
-        }
-    }
-    public static void read(UUID uuid, PVZEntityCapability cap) {
-        if (PVZEntityCapPacket.clientPacketsToHandle.containsKey(uuid)) {
-            CompoundTag tag = PVZEntityCapPacket.clientPacketsToHandle.get(uuid);
-            cap.setStuckArrowWithATarget(tag.getInt("stuckArrowWithATarget"));
         }
     }
 }

@@ -307,9 +307,9 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
                     wallNut.explode();
                 } else {
                     entities.forEach((entity -> {
-                        entity.hurt(PVZDamageSource.wallNutCollide(this.wallNut), (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                        entity.hurt(PVZDamageSource.wallNutCollide(this.wallNut, entity), (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE));
                         damageCooldown = 5;
-                        wallNut.hurt(PVZDamageSource.wallNutCollide(this.wallNut), 15);
+                        wallNut.hurt(PVZDamageSource.wallNutCollide(this.wallNut, entity), 15);
                     }));
                 }
                 Vec3 deltaMovement = wallNut.getDeltaMovement();
@@ -320,7 +320,7 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
             } else if (wallNut.horizontalCollision) {
                 wallNut.setDeltaMovement(wallNut.getDeltaMovement().add(
                         wallNut.getDeltaMovement().subtract(storedDeltaMovement).scale(wallNut.hasSkill(COLLISION_SKILL_NAME) ? 1 : 0.5F)));
-                wallNut.hurt(PVZDamageSource.wallNutCollide(this.wallNut), 10);
+                wallNut.hurt(PVZDamageSource.wallNutCollide(this.wallNut, wallNut), 10);
             }
             storedDeltaMovement = wallNut.getDeltaMovement();
             if (++ wiltTick % 20 == 0) {

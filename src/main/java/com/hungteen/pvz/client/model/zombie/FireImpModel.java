@@ -15,7 +15,11 @@ public class FireImpModel<T extends PVZZombie> extends PVZZombieModel<T> {
         MeshDefinition definition = PlayerModel.createMesh(CubeDeformation.NONE, false);
         //pole
         PartDefinition root = definition.getRoot();
-        PartDefinition ears = root.getChild("head").addOrReplaceChild("ears", CubeListBuilder.create(), PartPose.offset(0.0F, 1.0F, 0.0F));
+        root.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
+        PartDefinition light = root.getChild("head")
+                .addOrReplaceChild("light", CubeListBuilder.create().texOffs(64, 12).addBox(8.0F, 7.0F, -2.0F, -6.0F, -6.0F, -6.0F, new CubeDeformation(-1.5F)), PartPose.offset(-5.0F, -8.0F, 5.0F));
+        PartDefinition ears = root.getChild("head")
+                .addOrReplaceChild("ears", CubeListBuilder.create(), PartPose.offset(0.0F, 1.0F, 0.0F));
         PartDefinition cube_r1 = ears.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(24, -8).addBox(-1.0F, -7.0F, -1.0F, 0.0F, 8.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-3.0F, -7.0F, 0.0F, 0.0F, -0.5F, 0.0F));
         PartDefinition cube_r2 = ears.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(24, -8).addBox(-1.0F, -7.0F, -1.0F, 0.0F, 8.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(5.0F, -7.0F, 0.0F, 0.0F, 0.5F, 0.0F));
         PartDefinition tail = root.getChild("body").addOrReplaceChild("tail", CubeListBuilder.create(), PartPose.offset(0.0F, 8.0F, 2.0F));
