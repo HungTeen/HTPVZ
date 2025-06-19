@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.network;
 
-import com.hungteen.pvz.common.item.IDropWhenBroken;
+import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;

@@ -24,7 +24,7 @@ import static com.hungteen.pvz.common.register.PVZDamageSource.transferKiller;
 
 /**For damaging related logic, see {@link Anger}.*/
 public class Jalapeno extends SimplePlant {
-    public AnimationState idleAnimationState = new AnimationState();
+    public AnimationState explodeAnimationState = new AnimationState();
     public static final String TRACK_SKILL_NAME = "skill.pvz.jalapeno.tracking_fire";
     public static final String NO_FRIENDLY_FIRE_SKILL_NAME = "skill.pvz.jalapeno.precise_strike";
     public static List<Skill> staticSkillList = List.of(
@@ -32,14 +32,14 @@ public class Jalapeno extends SimplePlant {
             new Skill(NO_FRIENDLY_FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 50, 0)
     );
 
-    public void setupPresentationAnim() {
-        this.idleAnimationState.start(this.tickCount);
-    }
-
     public Jalapeno(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
-        this.idleAnimationState.start(this.tickCount);
         this.entityData.set(root(), false);
+    }
+    public void tick() {
+        if (! level.isClientSide && this.isEffectiveAi() && !this.explodeAnimationState.isStarted()) {
+            this.explodeAnimationState.start(this.tickCount);
+        }
     }
     @Override
     public boolean fireImmune() {
@@ -91,7 +91,7 @@ public class Jalapeno extends SimplePlant {
         super.die(damageSource);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

@@ -28,8 +28,10 @@ public class PoleVaultingZombieRenderer<T extends PoleVaultingZombie, M extends 
                 Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
                         zombie.getRandom().nextFloat() * 0.15,
                         zombie.getRandom().nextFloat() * 0.25 - 0.125);
+                model.pole.visible = true;
                 new ModelPartEntity(zombie.level, model.pole, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
                         .speed(speed).rotation(new Vec3(0.15, 0, 0.15)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
+                model.pole.visible = false;
             }
         }
     }

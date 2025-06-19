@@ -44,7 +44,7 @@ public class IcebergLettuce extends ShooterPlant {
                 .add(Attributes.FOLLOW_RANGE, 8D);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

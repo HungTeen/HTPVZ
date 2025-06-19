@@ -1,18 +1,17 @@
 package com.hungteen.pvz.common.block;
 
 import com.hungteen.pvz.common.block.entity.EssenceFurnaceBlockEntity;
-import com.hungteen.pvz.common.menu.EssenceFurnaceMenu;
 import com.hungteen.pvz.common.register.PVZBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.*;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -52,19 +51,6 @@ public class EssenceFurnaceBlock extends BaseEntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState p_153274_, BlockEntityType<T> p_153275_) {
         return createTickerHelper(p_153275_, PVZBlockEntities.ESSENCE_FURNACE.get(), EssenceFurnaceBlockEntity::tick);
     }
-
-//    @Override
-//    public MenuProvider getMenuProvider(BlockState blockState, Level level, BlockPos blockPos) {
-//        BlockEntity blockentity = level.getBlockEntity(blockPos);
-//        if (blockentity instanceof EssenceFurnaceBlockEntity be) {
-//            Component component = be.getDisplayName();
-//            return new SimpleMenuProvider(
-//                    (id, inventory, player) -> new EssenceFurnaceMenu(inventory, id, be.dataAccess, ContainerLevelAccess.create(player.level, blockPos)),
-//                    component);
-//        } else {
-//            return null;
-//        }
-//    }
 
     public void onRemove(BlockState p_48713_, Level level, BlockPos pos, BlockState p_48716_, boolean p_48717_) {
         if (!p_48713_.is(p_48716_.getBlock())) {

@@ -56,7 +56,7 @@ public class PVZItems {
 
     @Deprecated
     public static Map<RegistryObject<?>, Float> composterMap = new HashMap<>();
-    private static float storedComposterChance = 0;
+    private static float storedComposterChance = -1;
 
 
     //registry
@@ -129,6 +129,7 @@ public class PVZItems {
     public static final RegistryObject<Item> WATERING_POT = model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_BLOCKS)));
     public static final RegistryObject<Item> ZEN_GARDEN_PORTAL = model(Model.Modeled).item("zen_garden_portal", () -> new BlockItem(PVZBlocks.ZEN_GARDEN_PORTAL.get(), new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_BLOCKS)));
     public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> ALMANAC = item("almanac", () -> new AlmanacItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
 
     static {
         createBannerPatterns();
@@ -190,6 +191,7 @@ public class PVZItems {
         storedModel = Pair.of(Model.Simple, new ArrayList<>());
         if (storedComposterChance > 0) {
             composterMap.put(itemObj, storedComposterChance);
+            storedComposterChance = -1;
         }
         return itemObj;
     }
@@ -215,7 +217,7 @@ public class PVZItems {
     }
 
     public static void createSeedPackets() {
-        PVZSeedPackets.seedPackets.forEach((data) -> {
+        for (RegisterSeedPacketsEvent.SeedPacketData<?> data : PVZSeedPackets.seedPacketData) {
             String name = data.entitySupplier instanceof RegistryObject<?> ? name((RegistryObject<?>) data.entitySupplier) : name((EntityType<?>) data.entitySupplier.get());
             if (data instanceof PVZSeedPackets.RecipeSeedPacketData<?> && ((PVZSeedPackets.RecipeSeedPacketData<?>)data).recipe != null) {
                 model(Model.SeedPacket, res("seed_packets/" + name(((PVZSeedPackets.RecipeSeedPacketData<?>) data).getBackCard())), res("plants/" + name));
@@ -224,9 +226,9 @@ public class PVZItems {
                     item(name + "_seed_packet", () -> new SeedPacketItem(
                             new Item.Properties().stacksTo(1).defaultDurability(150).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly
                     )));
-        });
+        };
 
-        PVZSeedPackets.seedPackets.forEach((data) -> {
+        for (RegisterSeedPacketsEvent.SeedPacketData<?> data : PVZSeedPackets.seedPacketData) {
             String name = data.entitySupplier instanceof RegistryObject<?> ? name((RegistryObject<?>) data.entitySupplier) : name((EntityType<?>) data.entitySupplier.get());
             if (data instanceof PVZSeedPackets.RecipeSeedPacketData<?> && ((PVZSeedPackets.RecipeSeedPacketData<?>)data).recipe != null) {
                 model(Model.SeedPacket, res("seed_packets/seed"), res("plants/" + name));
@@ -235,7 +237,7 @@ public class PVZItems {
                     item(name + "_seed", () -> new SeedItem(
                             new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.resource, data.cost, data.coolDown, data.creativeOnly
                     )));
-        });
+        };
     }
 
     public static void release(){

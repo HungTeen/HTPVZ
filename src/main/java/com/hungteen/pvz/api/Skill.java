@@ -27,8 +27,7 @@ public class Skill {
     public final int addCoolDown;
     public final Set<String> avoidSkills = new HashSet<>();
     public final Set<String> requireSkills = new HashSet<>();
-
-    public Skill(String name, Supplier<Item> item, int costItem, int costSeed){
+    public Skill(String name, Supplier<Item> item, int costItem, int costSeed) {
         this(name, item, costItem, costSeed, 0,0);
     }
     public Skill(String name, Supplier<Item> item, int costItem, int costSeed, int addCostResource, int addCoolDown){

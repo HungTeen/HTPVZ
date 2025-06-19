@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -26,7 +27,8 @@ public class TorchWoodFireLayer<T extends TorchWood, M extends TorchWoodModel<T>
         poseStack.pushPose();
         poseStack.mulPose(Vector3f.XP.rotationDegrees(180.0F));
         poseStack.translate(-0.5, -0.8, -0.5);
-        this.blockRenderer.renderSingleBlock(torchWood.isSoulFire() ? Blocks.SOUL_FIRE.defaultBlockState() : Blocks.FIRE.defaultBlockState(), poseStack, bufferSource, p_117351_, OverlayTexture.NO_OVERLAY);
+        this.blockRenderer.renderSingleBlock(torchWood.isSoulFire() ? Blocks.SOUL_FIRE.defaultBlockState() : Blocks.FIRE.defaultBlockState(),
+                poseStack, bufferSource, p_117351_, OverlayTexture.NO_OVERLAY, net.minecraftforge.client.model.data.ModelData.EMPTY, RenderType.tripwire());
         poseStack.popPose();
     }
 }

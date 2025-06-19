@@ -1,6 +1,10 @@
 package com.hungteen.pvz.api.interfaces;
 
 import com.hungteen.pvz.api.Skill;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,7 +15,7 @@ public interface IHaveSkills {
     /**
      * If you want to add a PVZ skill for your plant or any mob else (or even not mob?), use this interface. Skills can't be attached on exist entities. Don't support skill level.
      * <br>Remember to save and load the skills.
-     * <br><br>Store as a single Integer.
+     * <br><br> Store as a list of skills' name.
      */
 
     default List<Skill> getStaticSkillList() {
@@ -61,12 +65,36 @@ public interface IHaveSkills {
         }
         return result;
     }
+    default Set<Integer> getSkills(int skillVal) {
+        Set<Integer> result = new HashSet<>();
+        for (int i = 0; i < 32; i ++){
+            if ((1 << i & skillVal) == 1 << i) {
+                result.add(i);
+            }
+        }
+        return result;
+    }
 
     default List<String> getSkillNames() {
+        return getSkillNames(this);
+    }
+
+    default List<String> getSkillNames(Object object) {
         List<Skill> skillList = this.getStaticSkillList();
         if (skillList != null) {
             List<String> list = new ArrayList<>();
-            for (int skill : this.getSkills(this)) {
+            for (int skill : this.getSkills(object)) {
+                list.add(skillList.get(skill).name);
+            }
+            return list;
+        }
+        return List.of();
+    }
+    default List<String> getSkillNames(int skillVal) {
+        List<Skill> skillList = this.getStaticSkillList();
+        if (skillList != null) {
+            List<String> list = new ArrayList<>();
+            for (int skill : this.getSkills(skillVal)) {
                 list.add(skillList.get(skill).name);
             }
             return list;
@@ -151,5 +179,24 @@ public interface IHaveSkills {
             }
         }
         return null;
+    }
+
+    default void saveSkills(CompoundTag tag) {
+        saveSkills(this, tag);
+    }
+    default void saveSkills(Object obj, CompoundTag tag) {
+        ListTag skills = new ListTag();
+        for (String name : getSkillNames(obj)) {
+            skills.add(StringTag.valueOf(name));
+        }
+        tag.put("PVZSkills", skills);
+    }
+
+    default boolean readSkills(CompoundTag tag) {
+        if (tag.contains("PVZSkills")) {
+            setSkillVal(this, getSkillValFromNames(tag.getList("PVZSkills", Tag.TAG_STRING).stream().map(Tag::getAsString).toList()));
+            return true;
+        }
+        return false;
     }
 }

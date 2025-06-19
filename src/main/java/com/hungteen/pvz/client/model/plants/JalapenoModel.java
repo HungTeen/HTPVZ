@@ -53,7 +53,7 @@ public class JalapenoModel<T extends Jalapeno> extends HierarchicalModel<T> {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		this.inner.x = (float) (random.nextFloat() * 0.5 - 0.25);
 		this.inner.z = (float) (random.nextFloat() * 0.5 - 0.25);
-		this.animate(entity.idleAnimationState, JalapenoAnimation.explode, ageInTicks);
+		this.animate(entity.explodeAnimationState, JalapenoAnimation.explode, ageInTicks);
 	}
 
 	@Override

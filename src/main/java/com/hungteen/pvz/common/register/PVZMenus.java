@@ -1,8 +1,10 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.client.gui.screens.AlmanacScreen;
 import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
 import com.hungteen.pvz.client.gui.screens.EssenceFurnaceScreen;
+import com.hungteen.pvz.common.menu.AlmanacMenu;
 import com.hungteen.pvz.common.menu.EssenceAltarMenu;
 import com.hungteen.pvz.common.menu.EssenceFurnaceMenu;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -22,11 +24,14 @@ public class PVZMenus {
             () -> IForgeMenuType.create((id, inv, data) -> new EssenceAltarMenu(inv, id)));
     public static final RegistryObject<MenuType<EssenceFurnaceMenu>> ESSENCE_FURNACE = MENU_TYPES.register("essence_furnace",
             () -> IForgeMenuType.create((id, inv, data) -> new EssenceFurnaceMenu(inv, id, data.readBlockPos())));
+    public static final RegistryObject<MenuType<AlmanacMenu>> ALMANAC = MENU_TYPES.register("almanac",
+            () -> IForgeMenuType.create((id, inv, data) -> new AlmanacMenu(inv, id)));
 
 
     @OnlyIn(Dist.CLIENT)
     public static void registerScreens() {
         MenuScreens.register(ESSENCE_ALTAR.get(), EssenceAltarScreen::new);
         MenuScreens.register(ESSENCE_FURNACE.get(), EssenceFurnaceScreen::new);
+        MenuScreens.register(ALMANAC.get(), AlmanacScreen::new);
     }
 }

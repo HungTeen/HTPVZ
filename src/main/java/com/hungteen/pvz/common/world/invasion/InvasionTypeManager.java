@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.world.DataSkillManager;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -35,5 +36,6 @@ public class InvasionTypeManager extends SimpleJsonResourceReloadListener {
     @SubscribeEvent
     public static void addListener(AddReloadListenerEvent ev) {
         ev.addListener(new InvasionTypeManager());
+        ev.addListener(new DataSkillManager());
     }
 }

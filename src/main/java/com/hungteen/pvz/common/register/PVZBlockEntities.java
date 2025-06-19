@@ -2,10 +2,8 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
-import com.hungteen.pvz.common.block.entity.EssenceAltarBlockEntity;
-import com.hungteen.pvz.common.block.entity.EssenceFurnaceBlockEntity;
-import com.hungteen.pvz.common.block.entity.PVZSignBlockEntity;
-import com.hungteen.pvz.common.block.entity.EntityLightBlockEntity;
+import com.hungteen.pvz.client.renderer.blockentity.SilverSwordOrnamentRenderer;
+import com.hungteen.pvz.common.block.entity.*;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.world.level.block.Block;
@@ -31,6 +29,7 @@ public class PVZBlockEntities {
     public static final RegistryObject<BlockEntityType<EssenceAltarBlockEntity>> ESSENCE_ALTAR = bEntity("essence_altar", EssenceAltarBlockEntity::new);
     public static final RegistryObject<BlockEntityType<EssenceFurnaceBlockEntity>> ESSENCE_FURNACE = bEntity("essence_furnace", EssenceFurnaceBlockEntity::new);
     public static final RegistryObject<BlockEntityType<EntityLightBlockEntity>> ENTITY_LIGHT = bEntity("entity_light", EntityLightBlockEntity::new);
+    public static final RegistryObject<BlockEntityType<SilverSwordOrnamentBlockEntity>> SILVER_SWORD_SCULPTURE = bEntity("silver_sword_ornament", SilverSwordOrnamentBlockEntity::new);
     /**binding renderer at {@link PVZBlockEntities#registerRenderer(EntityRenderersEvent.RegisterRenderers)}
      <br>use {@link PVZBlocks#blockEntity(String)} to attach blockEntity to block.*/
 
@@ -55,6 +54,7 @@ public class PVZBlockEntities {
     public static void registerRenderer(EntityRenderersEvent.RegisterRenderers e){
         r(e, SIGN, SignRenderer::new);
         r(e, ESSENCE_ALTAR, EssenceAltarRenderer::new);
+        r(e, SILVER_SWORD_SCULPTURE, SilverSwordOrnamentRenderer::new);
     }
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent

@@ -19,9 +19,6 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -81,6 +78,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         super(entityType, level);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 4.0F);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -118,11 +116,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Root", getEntityData().get(ROOT));
-        ListTag skills = new ListTag();
-        for (String name : getSkillNames()) {
-            skills.add(StringTag.valueOf(name));
-        }
-        tag.put("Skill", skills);
+        saveSkills(tag);
         tag.putInt("TickCount", tickCount);
 
     }
@@ -137,9 +131,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
-        if (tag.contains("Skill")) {
-            setSkillVal(this, getSkillValFromNames(tag.getList("Skill", Tag.TAG_STRING).stream().map(Tag::getAsString).toList()));
-        }
+        readSkills(tag);
         if (tag.contains("Root")) {
             this.getEntityData().set(ROOT, tag.getBoolean("Root"));
         }
@@ -160,7 +152,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
 
     //skills
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
     @Override

@@ -65,7 +65,7 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

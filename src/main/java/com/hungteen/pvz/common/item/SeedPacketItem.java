@@ -15,11 +15,15 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEnchantments;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -65,7 +69,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     private final int cost;
     private final int coolDown;
     private final List<Skill> skillList;
-    private final boolean creativeOnly;
+    public final boolean creativeOnly;
 
     public SeedPacketItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, List<Skill> skillList, String resource, int cost, int coolDown, boolean creativeOnly) {
         super(p_41383_);
@@ -130,7 +134,10 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     //definitions
     @Override
     public List<Skill> getStaticSkillList(){
-        return skillList;
+        List<Skill> list = new ArrayList<>(skillList);
+        List<Skill> additional = PVZSeedPackets.additionalSkills.get(getEntity());
+        list.addAll(additional);
+        return list;
     }
 
 
@@ -148,11 +155,9 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     public int getSkillVal(Object obj) {
-        if (obj instanceof ItemStack itemStack && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null){
+        if (obj instanceof ItemStack itemStack && itemStack.getItem() instanceof SeedPacketItem && itemStack.getTag() != null) {
             CompoundTag tag = itemStack.getTag();
-            if (tag.contains("Skill")) {
-                return tag.getInt("Skill");
-            }
+            return getSkillValFromNames(tag.getList("PVZSkills", Tag.TAG_STRING).stream().map(Tag::getAsString).toList());
         }
         return 0;
     }
@@ -160,7 +165,12 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     @Override
     public void setSkillVal(Object obj, int value) {
         if (obj instanceof ItemStack itemStack && itemStack.getItem() instanceof SeedPacketItem) {
-            itemStack.getTag().putInt("Skill", value);
+            CompoundTag tag = itemStack.getTag();
+            ListTag skills = new ListTag();
+            for (String name : getSkillNames(value)) {
+                skills.add(StringTag.valueOf(name));
+            }
+            tag.put("PVZSkills", skills);
         }
     }
 

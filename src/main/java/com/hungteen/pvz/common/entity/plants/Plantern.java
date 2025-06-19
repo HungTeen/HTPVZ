@@ -49,7 +49,7 @@ public class Plantern extends SimplePlant {
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

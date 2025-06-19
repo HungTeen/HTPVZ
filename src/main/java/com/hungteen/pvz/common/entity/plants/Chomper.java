@@ -103,9 +103,9 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         this.dynamicGameEventListener = new DynamicGameEventListener<>(new VibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 8, this, (VibrationListener.ReceivingEvent)null, 0.0F, 0));
     }
 
-    public static boolean isSculk(LivingEntity chomper) {
+    public static boolean isSculk(Chomper chomper) {
         return EntityUtil.isSculk(chomper) &&
-                ! ((IHaveSkills) chomper).hasSkill(SUN_SKILL_NAME);
+                ! chomper.hasSkill(SUN_SKILL_NAME);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         return true;
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
@@ -295,7 +295,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         for (String name : getSkillNames()) {
             skills.add(StringTag.valueOf(name));
         }
-        tag.put("Skill", skills);
+        saveSkills(tag);
         tag.putInt("PlantAttackTime", getAttackTime());
         tag.putInt("Pose", getEntityData().get(DATA_POSE).ordinal());
         tag.putLong("OriginalPos", this.getOriginalPos().asLong());
@@ -307,9 +307,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
-        if (tag.contains("Skill")) {
-            setSkillVal(this, getSkillValFromNames(tag.getList("Skill", Tag.TAG_STRING).stream().map(Tag::getAsString).toList()));
-        }
+        readSkills(tag);
         if (tag.contains("PlantAttackTime")) {
             this.setAttackTime(tag.getInt("PlantAttackTime"));
         }

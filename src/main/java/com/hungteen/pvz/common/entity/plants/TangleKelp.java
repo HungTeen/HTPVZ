@@ -83,7 +83,7 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
         this.entityData.define(FROM_BUCKET, false);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
     public boolean canBreatheUnderwater() {

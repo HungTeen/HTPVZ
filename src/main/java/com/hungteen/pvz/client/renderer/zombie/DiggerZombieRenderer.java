@@ -8,9 +8,12 @@ import com.hungteen.pvz.common.entity.zombies.DiggerZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 public class DiggerZombieRenderer<T extends DiggerZombie, M extends DiggerZombieModel<T>> extends AbstractPVZZombieRenderer<T, M> {
@@ -22,11 +25,20 @@ public class DiggerZombieRenderer<T extends DiggerZombie, M extends DiggerZombie
     @Override
     protected void setupRotations(T zombie, PoseStack poseStack, float p_117804_, float p_117805_, float p_117806_) {
         super.setupRotations(zombie, poseStack, p_117804_, p_117805_, p_117806_);
-        if (zombie.isVisuallySwimming()) {
-             poseStack.translate(0, -0.3D, 0F);
+        float f = zombie.getSwimAmount(p_117806_);
+        if (f > 0.0F) {
+            float f3 = zombie.isInWater() || zombie.isInFluidType((fluidType, height) -> zombie.canSwimInFluidType(fluidType)) ? -90.0F - zombie.getXRot() : -90.0F;
+            float f4 = Mth.lerp(f, 0.0F, f3);
+            poseStack.translate(0.0D, f, -0.3F);
+            poseStack.mulPose(Vector3f.XP.rotationDegrees(-f4 * 0.5F));
         }
     }
-
+    @Override
+    protected int getBlockLightLevel(T p_114606_, BlockPos p_114607_) {
+        return Math.max(super.getBlockLightLevel(p_114606_, p_114607_),
+                Math.max(super.getBlockLightLevel(p_114606_, p_114607_.above()),
+                        super.getBlockLightLevel(p_114606_, p_114607_.above().above())));
+    }
     @Override
     public void render(T zombie, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         super.render(zombie, entityYaw, partialTicks, poseStack, bufferSource, packedLight);

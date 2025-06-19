@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "pvz:glowstone_dust_from_smelting_lunar_stone"
+        "recipe": "pvz:damaged_anvil_from_anvil_hammer"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

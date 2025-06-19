@@ -164,7 +164,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         int length = 0;
         while (length < totalLength) {
             int threat = (int) (Math.pow((100 + length * 0.4), 1.05) * (0.8 + random.nextFloat() * 0.4));
-            int waveLength = 200 * threat / (100 + length / 7);
+            int waveLength = 200 * threat / (100 + length / (8 - 2 * length / totalLength));
             Difficulty difficulty = ((ServerLevel) level).getServer().getWorldData().getDifficulty();
             switch (difficulty) {
                 case PEACEFUL -> threat = 0;

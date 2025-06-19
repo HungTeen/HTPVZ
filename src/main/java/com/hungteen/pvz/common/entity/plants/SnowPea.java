@@ -39,7 +39,7 @@ public class SnowPea extends PeaShooter {
                 .add(Attributes.ATTACK_DAMAGE, 4D);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
@@ -77,7 +77,7 @@ public class SnowPea extends PeaShooter {
             this.timeOverheat = 0;
         }
 
-        if (this.timeOverheat > 300 && ForgeEventFactory.canLivingConvert(this, PVZEntities.PEA_SHOOTER.get(), (timer) -> this.timeOverheat = timer)) {
+        if (this.timeOverheat > 1200 && ForgeEventFactory.canLivingConvert(this, PVZEntities.PEA_SHOOTER.get(), (timer) -> this.timeOverheat = timer)) {
 //            this.playConvertedSound();TODO add sound.
             PeaShooter peaShooter = convertTo(PVZEntities.PEA_SHOOTER.get(), true);
             if (peaShooter != null) {

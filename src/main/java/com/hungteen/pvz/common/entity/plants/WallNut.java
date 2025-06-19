@@ -111,12 +111,10 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
-    public void setupPresentationAnim() {
-    }
     @Override
     protected void registerGoals() {
         super.registerGoals();

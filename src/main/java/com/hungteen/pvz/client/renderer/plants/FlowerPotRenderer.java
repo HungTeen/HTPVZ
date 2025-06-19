@@ -14,8 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class FlowerPotRenderer<T extends FlowerPot> extends MobRenderer<T, EntityModel<T>> {
 
-    private static final ResourceLocation COMMON = Util.prefix("textures/entity/plants/flower_pot/lava_ghastling.png");
-    private static final ResourceLocation CHINAWARE = Util.prefix("textures/entity/plants/flower_pot/lava_ghastling_light.png");
+    private static final ResourceLocation COMMON = Util.prefix("textures/entity/plants/flower_pot/flower_pot.png");
+    private static final ResourceLocation CHINAWARE = Util.prefix("textures/entity/plants/flower_pot/flower_pot_chinaware.png");
 
     public FlowerPotRenderer(EntityRendererProvider.Context context) {
         super(context, new FlowerPotModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("flower_pot:main"))), 0.4F);

@@ -27,10 +27,10 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     public static final String  PORTABLE_SKILL_NAME = "skill.pvz.flower_pot.portable_pot";
     public static final String  CHINAWARE_SKILL_NAME = "skill.pvz.flower_pot.chinaware";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(FIRE_RESISTANCE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 6, 0, 140),
+            new Skill(FIRE_RESISTANCE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 6, 75, 140),
             new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 4, -25, 140)
                     .avoidSkills(FIRE_RESISTANCE_SKILL_NAME, CHINAWARE_SKILL_NAME),
-            new Skill(PORTABLE_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 4, 75, 440),
+            new Skill(PORTABLE_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 4, 25, 440),
             new Skill(CHINAWARE_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 16, 0, 0)
     );
 
@@ -46,7 +46,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
 
     //entity settings
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

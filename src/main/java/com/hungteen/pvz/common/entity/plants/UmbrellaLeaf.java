@@ -139,7 +139,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                 .add(Attributes.FOLLOW_RANGE, 1D);// only for enemy attraction.
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

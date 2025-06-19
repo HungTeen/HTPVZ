@@ -174,7 +174,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 				targetSpeed = target.position().subtract(storedEnemyPos)
 						.multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
 			} else {
-				targetSpeed = target.getDeltaMovement().add(0, 0.08/*minus gravity*/, 0);
+				targetSpeed = target.getDeltaMovement().add(0, 0.1/*minus gravity*/, 0);
 			}
 			int time = (int) Math.round(distanceTo(target) / speed);
 			deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bulletPos.x,

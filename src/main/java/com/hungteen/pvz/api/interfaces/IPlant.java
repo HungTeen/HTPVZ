@@ -1,7 +1,9 @@
 package com.hungteen.pvz.api.interfaces;
 
+import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZPlantConditionMatchingEvent;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.MutableComponent;
@@ -14,12 +16,15 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**Use this interface to identify if an entity is a plant .<br>
  * If need skills, implements {@link IHaveSkills} .<br>
  * Also, override {@link net.minecraft.world.entity.Mob#removeWhenFarAway(double)} .
  */
 
-public interface IPlant extends INeedSafeSituation {
+public interface IPlant extends INeedSafeSituation, IHaveSkills {
     /**EntityData controlling if the plant need proper block to plant on.*/
     EntityDataAccessor<Boolean> root();
 
@@ -48,6 +53,14 @@ public interface IPlant extends INeedSafeSituation {
     }
     /**called when a sprout transform into this plant in Zen Garden. Only in client side.*/
     default void setupPresentationAnim() {}
+    @Override
+    default List<Skill> getStaticSkillList() {
+        List<Skill> list = new ArrayList<>(getBasicStaticSkillList());
+        List<Skill> additional = PVZSeedPackets.additionalSkills.get(((Entity) this).getType());
+        list.addAll(additional);
+        return list;
+    }
+    List<Skill> getBasicStaticSkillList();
 
     default MutableComponent isPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
         PVZPlantConditionMatchingEvent.OnBlock preCondition = new PVZPlantConditionMatchingEvent.OnBlock(

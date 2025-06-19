@@ -32,7 +32,7 @@ public class TallNut extends WallNut {
         super(entityType, level);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
@@ -43,9 +43,9 @@ public class TallNut extends WallNut {
                 .add(Attributes.ARMOR_TOUGHNESS, 40D)
                 .add(Attributes.FOLLOW_RANGE, 3D);
     }
-    public void setupPresentationAnim() {
+    public boolean canBowling() {
+        return false;
     }
-    public boolean canBowling() {return false;}
 
     public float getMaxIronArmor() {
         return 400;

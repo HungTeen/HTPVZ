@@ -1,10 +1,10 @@
 package com.hungteen.pvz.client.gui.screens;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.menu.EssenceAltarMenu;
@@ -32,6 +32,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -107,7 +108,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         stack.translate(-0.01F, 1.75F, -1F);
         stack.mulPose(Vector3f.YP.rotationDegrees(-90F));
         stack.mulPose(Vector3f.XP.rotationDegrees(180.0F));
-        this.model.setupAnim(EssenceAltarRenderer.time * (this.getMenu().slots.get(0).hasItem() ? 1 : 0));
+        this.model.setupAnim(PVZMod.clientTime * (this.getMenu().slots.get(0).hasItem() ? 1 : 0));
         MultiBufferSource.BufferSource multibuffersource$buffersource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         VertexConsumer vertexconsumer = multibuffersource$buffersource.getBuffer(this.model.renderType(BLOCK_TEXTURE));
         this.model.renderToBuffer(stack, vertexconsumer, 0xf000f0, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
@@ -120,7 +121,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         //render buttons.
         boolean notMoreThanThree = skills.size() <= 3;
         if (this.getMenu().slots.get(0).hasItem() && this.getMenu().slots.get(0).getItem().getItem() instanceof SeedPacketItem<?>) {
-            if (skills.size() > 0) {
+            if (! skills.isEmpty()) {
                 int x = leftPos + 60;
                 int y = topPos;
                 if (notMoreThanThree) {
@@ -187,6 +188,11 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks){
         super.render(stack, mouseX, mouseY, partialTicks);
+        renderTooltip(stack, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderTooltip(@NotNull PoseStack stack, int mouseX, int mouseY) {
         int top = this.topPos + 14;
         int bottom = top + 57;
         boolean notMoreThanThree = skills.size() <= 3;
@@ -198,7 +204,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                         Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_AQUA)),
                         Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name + ".desc").withStyle(Style.EMPTY.withColor(0x545454))));
                 if (menu.getItems().get(0).getItem() instanceof SeedPacketItem<?> seedPacket) {
-                    if (seedPacket.hasSkill(menu.getItems().get(0), (mouseY - top) / 19 + shownFirstSkill)){
+                    if (seedPacket.hasSkill(menu.getItems().get(0), (mouseY - top) / 19 + shownFirstSkill)) {
                         list.add(Component.translatable("tooltip.pvz.already_attached").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
                     } else {
                         Skill skill = seedPacket.getNotCompatibleWith(menu.getItems().get(0), skills.get((mouseY - top) / 19 + shownFirstSkill));
@@ -217,7 +223,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                         mouseX, mouseY, font, ItemStack.EMPTY);
             }
         } else {
-            this.renderTooltip(stack, mouseX, mouseY);
+            super.renderTooltip(stack, mouseX, mouseY);
         }
     }
 

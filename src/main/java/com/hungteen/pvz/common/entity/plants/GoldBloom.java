@@ -3,13 +3,10 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
-import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
 
@@ -23,19 +20,24 @@ public class GoldBloom extends SimplePlant {
             new Skill(TRANSPORTER_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 6, 300, -1140)
     );
 
+    public void tick() {
+        if (! level.isClientSide && this.isEffectiveAi() && !this.explodeAnimationState.isStarted()) {
+            this.explodeAnimationState.start(this.tickCount);
+        }
+    }
+
     public void setupPresentationAnim() {
         this.idleAnimationState.start(this.tickCount);
     }
 
     public GoldBloom(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
-        this.explodeAnimationState.start(this.tickCount);
         this.entityData.set(root(), false);
     }
 
     //entity settings
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

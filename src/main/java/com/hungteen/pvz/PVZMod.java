@@ -1,9 +1,9 @@
 package com.hungteen.pvz;
 
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
+import com.hungteen.pvz.client.gui.screens.AlmanacScreen;
 import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
 import com.hungteen.pvz.common.capability.CapabilityHandler;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.level.PVZFogCapability;
@@ -62,6 +62,8 @@ public class PVZMod
     public static String ENEMY_TEAM = "team.pvz.enemy_team";
     public static String FRIENDLY_TEAM = "team.pvz.friendly_team";
     public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+    public static float clientTime = 0;
+
     public PVZMod() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::commonSetup);
@@ -122,6 +124,7 @@ public class PVZMod
 
         PVZDimensions.register();
         PVZEnchantments.handleEnchantmentTypes();
+        PVZSeedPackets.sortAndClear();
 
         event.enqueueWork(() -> {
             PVZBlocks.flammableMap.forEach((blockObj, pair) ->
@@ -146,7 +149,6 @@ public class PVZMod
         PVZBlocks.release();
         PVZItems.release();
         PVZEntities.release();
-        PVZSeedPackets.seedPackets.clear();
 
         //network
         PVZPacketHandler.init();
@@ -228,9 +230,10 @@ public class PVZMod
                 PVZOverlayHandler.tick(0.05F);
             }
             if (! ClientProxy.MC.isPaused()) {
-                EssenceAltarRenderer.time += 0.05F;
-                if (EssenceAltarRenderer.time > 200) {
-                    EssenceAltarRenderer.time -= 200;
+                clientTime += 0.05F;
+                AlmanacScreen.tick ++;
+                if (clientTime > 10000) {
+                    clientTime -= 10000;
                 }
                 EssenceAltarScreen.nameRollTime += 0.05F;
                 if (EssenceAltarScreen.nameRollTime > 20) {
@@ -244,7 +247,7 @@ public class PVZMod
     }
 
     @SubscribeEvent
-    public static void registerCommands(RegisterCommandsEvent ev){
+    public static void registerCommands(RegisterCommandsEvent ev) {
         CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
         CoolDownCommand.register(dispatcher, ev.getBuildContext());
         PlayerStatsCommand.register(dispatcher);

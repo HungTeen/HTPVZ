@@ -8,6 +8,8 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +18,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+
+import java.util.Collection;
 
 public class JackInTheBoxItem extends Item {
     public final boolean destructive;
@@ -34,12 +38,34 @@ public class JackInTheBoxItem extends Item {
                     net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(level, user) && PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.jackInTheBoxGriefing) ?
                             Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
             level.explode(null, user.getX(), user.getY(), user.getZ(), 3, explosion$blockinteraction);
+            spawnLingeringCloud(user);
             if (! (user instanceof Player player) || ! player.getAbilities().instabuild) {
                 itemStack.shrink(1);
             }
         }
         if (! EntityUtil.isEntityValid(user) && ! (user instanceof Player)) {
             user.discard();
+        }
+    }
+
+
+    private void spawnLingeringCloud(Entity user) {
+        if (user instanceof LivingEntity living) {
+            Collection<MobEffectInstance> collection = living.getActiveEffects();
+            if (!collection.isEmpty()) {
+                AreaEffectCloud areaeffectcloud = new AreaEffectCloud(user.level, user.getX(), user.getY(), user.getZ());
+                areaeffectcloud.setRadius(2.5F);
+                areaeffectcloud.setRadiusOnUse(-0.5F);
+                areaeffectcloud.setWaitTime(10);
+                areaeffectcloud.setDuration(areaeffectcloud.getDuration() / 2);
+                areaeffectcloud.setRadiusPerTick(-areaeffectcloud.getRadius() / (float)areaeffectcloud.getDuration());
+
+                for(MobEffectInstance mobeffectinstance : collection) {
+                    areaeffectcloud.addEffect(new MobEffectInstance(mobeffectinstance));
+                }
+
+                user.level.addFreshEntity(areaeffectcloud);
+            }
         }
     }
 

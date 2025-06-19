@@ -155,7 +155,7 @@ public class PeaBullet extends BaseBullet {
         }
         if (getPeaType() == PeaType.Fire) {
             if (! target.fireImmune() && target.getRemainingFireTicks() < 40) {
-                target.setSecondsOnFire(2);
+                target.setSecondsOnFire(3);
             }
         } else
         if (getPeaType() == PeaType.SoulFire) {

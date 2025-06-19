@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
 import com.hungteen.pvz.client.model.attached.BucketHelmetModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.ModelPartEntity;
@@ -27,7 +28,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
-public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken{
+public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken {
     public ExtraHealthArmorItem(ArmorMaterial material, Properties properties, EquipmentSlot armorType) {
         super(material, armorType, properties);
     }

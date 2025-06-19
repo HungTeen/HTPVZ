@@ -61,7 +61,7 @@ public class HypnoShroom extends SimplePlant implements IMushroom {
         this.entityData.define(IS_SLEEPING, false);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
@@ -78,6 +78,9 @@ public class HypnoShroom extends SimplePlant implements IMushroom {
                 this.sleepAnimationState.stop();
             }
         }
+    }
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
     }
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {

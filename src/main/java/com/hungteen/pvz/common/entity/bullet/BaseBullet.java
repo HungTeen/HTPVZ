@@ -142,7 +142,7 @@ public class BaseBullet extends Projectile {
 	}
 	@Override
 	protected void onHitEntity(EntityHitResult result) {
-		if (!this.level.isClientSide()) {
+		if (! this.level.isClientSide()) {
 			this.dealDamageTo(result.getEntity());
 		}
 	}

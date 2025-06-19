@@ -30,7 +30,8 @@ public class SacrificialVenueStructure extends Structure {
         boolean summonable = heightAvailable(context, pos);
         PVZMod.LOGGER.info("attempting to generate structure at " + pos + " and " + (summonable ? "succeeded" : "failed"));
         return summonable ? Optional.of(new Structure.GenerationStub(pos, structurePiecesBuilder -> structurePiecesBuilder.addPiece(
-//                        new ShipwreckPieces.ShipwreckPiece(context.structureTemplateManager(), new ResourceLocation("shipwreck/with_mast"), pos, Rotation.NONE, true)
+//                new IglooPieces.IglooPiece(context.structureTemplateManager(), new ResourceLocation("igloo/bottom"),
+//                        context.chunkPos().getWorldPosition(), Rotation.NONE, 0)
                         new SacrificialVenueStructurePiece(context.structureTemplateManager(), new StructurePlaceSettings(), pos)
                 ))): Optional.empty();
     }

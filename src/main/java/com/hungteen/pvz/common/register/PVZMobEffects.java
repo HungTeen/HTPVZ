@@ -195,7 +195,7 @@ public class PVZMobEffects {
                 //two systems controlling gravity...
                 mob.setNoGravity(false);
                 if (mob instanceof FlyingMob) {
-                    mob.setDeltaMovement(mob.getDeltaMovement().add(0, -0.105, 0));
+                    mob.setDeltaMovement(mob.getDeltaMovement().add(0, -0.2, 0));
                 }
                 //reset attack target.
                 try {

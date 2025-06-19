@@ -23,9 +23,6 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -265,7 +262,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         entityData.set(SKILL, val);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList() {
         return List.of();
     }
 
@@ -437,20 +434,14 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         tag.putBoolean("Root", getEntityData().get(ROOT));
         tag.putBoolean("HasCoincideDmg", getEntityData().get(TAKES_COINCIDE_DMG));
         tag.putInt("WiltCountDown", getEntityData().get(WILT_COUNTDOWN));
-        ListTag skills = new ListTag();
-        for (String name : getSkillNames()) {
-            skills.add(StringTag.valueOf(name));
-        }
-        tag.put("Skill", skills);
+        saveSkills(tag);
         tag.putInt("PlantAttackTime", getAttackTime());
 
     }
     @Override
-    public void readAdditionalSaveData(CompoundTag tag){
+    public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains("Skill")) {
-            setSkillVal(this, getSkillValFromNames(tag.getList("Skill", Tag.TAG_STRING).stream().map(Tag::getAsString).toList()));
-        }
+        readSkills(tag);
         if (tag.contains("PlantAttackTime")) {
             this.setAttackTime(tag.getInt("PlantAttackTime"));
         }

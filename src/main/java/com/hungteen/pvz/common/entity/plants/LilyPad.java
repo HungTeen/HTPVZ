@@ -78,7 +78,7 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
     @Override

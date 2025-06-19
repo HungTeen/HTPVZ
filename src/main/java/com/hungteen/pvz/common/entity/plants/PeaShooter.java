@@ -32,7 +32,7 @@ public class PeaShooter extends ShooterPlant {
         super(type, worldIn);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

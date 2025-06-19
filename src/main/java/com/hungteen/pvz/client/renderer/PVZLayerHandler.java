@@ -1,5 +1,6 @@
 package com.hungteen.pvz.client.renderer;
 
+import com.hungteen.pvz.client.model.SilverSwordOrnamentModel;
 import com.hungteen.pvz.client.model.SproutModel;
 import com.hungteen.pvz.client.model.attached.*;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
@@ -63,7 +64,9 @@ public class PVZLayerHandler {
         L(e, "melon_bullet", MelonBulletModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "starfruit_bullet", StarfruitBulletModel::createBodyLayer);
+
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
+        L(e, "silver_sword_ornament", SilverSwordOrnamentModel::createBodyLayer);
         L(e, "dirt", DirtModel::createBodyLayer);
         L(e, "butter_head", ButterHeadModel::createBodyLayer);
         L(e, "butter_bottom", ButterBottomModel::createBodyLayer);

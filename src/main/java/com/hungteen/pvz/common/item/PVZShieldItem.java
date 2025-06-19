@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
 import com.hungteen.pvz.common.entity.ModelPartEntity;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.client.renderer.item.ItemProperties;

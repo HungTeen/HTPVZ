@@ -43,6 +43,7 @@ public class PVZDamageSource {
      * */
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
     public static final DamageSource FALLEN_STAR = new DamageSource("fallen_star");
+    public static final DamageSource SILVER_SWORD = new DamageSource("silver_sword");
 
 
     //damageSource types
@@ -138,7 +139,7 @@ public class PVZDamageSource {
         return source;
     }
     public static boolean isSharp(DamageSource source, Entity target) {
-        boolean flag = sharpSource == source || source == DamageSource.CACTUS;
+        boolean flag = sharpSource == source || source == DamageSource.CACTUS || source == PVZDamageSource.SILVER_SWORD;
         DamageSourceSharpEvent event = new DamageSourceSharpEvent(target, source, flag);
         MinecraftForge.EVENT_BUS.post(event);
         flag = event.result;

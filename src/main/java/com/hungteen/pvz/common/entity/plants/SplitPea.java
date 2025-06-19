@@ -41,7 +41,7 @@ public class SplitPea extends PeaShooter {
         super(type, worldIn);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
     @Override

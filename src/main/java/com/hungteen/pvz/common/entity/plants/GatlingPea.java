@@ -57,7 +57,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         super(type, worldIn);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

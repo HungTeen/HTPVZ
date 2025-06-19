@@ -63,7 +63,10 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         }
         return super.mobInteract(player, handIn);
     }
-
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+        this.setGrowLevel(2);
+    }
     /**Check {@link IGardenPlant} for the two methods below.*/
     @Override
     public InteractionResult onWatered(Player player, ItemStack stack) {

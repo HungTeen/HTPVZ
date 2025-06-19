@@ -120,7 +120,7 @@ public class PotatoMine extends SimplePlant {
         this.goalSelector.addGoal(3, new AxisLookAroundGoal(this));
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
     @Override

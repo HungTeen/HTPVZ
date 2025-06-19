@@ -105,7 +105,7 @@ public class RecipeGen extends RecipeProvider {
                             .pattern("BCB")
                             .pattern("BBB")
                             .define('B', PVZItems.seedMap.get(data).get())
-                            .define('C', data.getBackCard().get())
+                            .define('C', data.basePacketSupplier.get())
                             .unlockedBy("has_origin", has(packet))
                             .save(c, prefix("seed_packets/fusion/" + name(itemObj)));
                 }
