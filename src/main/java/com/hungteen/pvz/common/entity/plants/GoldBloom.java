@@ -20,19 +20,15 @@ public class GoldBloom extends SimplePlant {
             new Skill(TRANSPORTER_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 6, 300, -1140)
     );
 
-    public void tick() {
-        if (! level.isClientSide && this.isEffectiveAi() && !this.explodeAnimationState.isStarted()) {
-            this.explodeAnimationState.start(this.tickCount);
-        }
-    }
-
     public void setupPresentationAnim() {
+        this.explodeAnimationState.stop();
         this.idleAnimationState.start(this.tickCount);
     }
 
     public GoldBloom(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
         this.entityData.set(root(), false);
+        this.explodeAnimationState.start(this.tickCount);
     }
 
     //entity settings

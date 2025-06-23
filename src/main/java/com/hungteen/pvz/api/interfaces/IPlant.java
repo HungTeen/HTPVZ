@@ -57,7 +57,7 @@ public interface IPlant extends INeedSafeSituation, IHaveSkills {
     default List<Skill> getStaticSkillList() {
         List<Skill> list = new ArrayList<>(getBasicStaticSkillList());
         List<Skill> additional = PVZSeedPackets.additionalSkills.get(((Entity) this).getType());
-        list.addAll(additional);
+        if (additional != null) list.addAll(additional);
         return list;
     }
     List<Skill> getBasicStaticSkillList();

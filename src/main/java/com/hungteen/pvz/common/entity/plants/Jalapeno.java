@@ -35,12 +35,12 @@ public class Jalapeno extends SimplePlant {
     public Jalapeno(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
         this.entityData.set(root(), false);
+        this.explodeAnimationState.start(this.tickCount);
     }
-    public void tick() {
-        if (! level.isClientSide && this.isEffectiveAi() && !this.explodeAnimationState.isStarted()) {
-            this.explodeAnimationState.start(this.tickCount);
-        }
+    public void setupPresentationAnim() {
+        this.explodeAnimationState.stop();
     }
+
     @Override
     public boolean fireImmune() {
         return true;

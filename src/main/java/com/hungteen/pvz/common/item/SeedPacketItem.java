@@ -136,7 +136,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     public List<Skill> getStaticSkillList(){
         List<Skill> list = new ArrayList<>(skillList);
         List<Skill> additional = PVZSeedPackets.additionalSkills.get(getEntity());
-        list.addAll(additional);
+        if (additional != null) list.addAll(additional);
         return list;
     }
 
