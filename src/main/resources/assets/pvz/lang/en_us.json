@@ -206,6 +206,7 @@
   "entity.pvz.iceberg_lettuce": "Iceberg Lettuce",
   "entity.pvz.imp": "Imp",
   "entity.pvz.jalapeno": "Jalapeno",
+  "entity.pvz.jalapeno_zombie": "Jalapeno Zombie",
   "entity.pvz.jack_in_a_box_zombie": "Jack-in-a-box Zombie",
   "entity.pvz.kernel_pult": "Kernel Pult",
   "entity.pvz.lava_diver_zombie": "Lava Diver Zombie",
@@ -332,6 +333,7 @@
   "item.pvz.ignis_essence": "Ignis Essence",
   "item.pvz.imp_spawn_egg": "Imp Spawn Egg",
   "item.pvz.jack_in_a_box_zombie_spawn_egg": "Jack-in-a-box Zombie Spawn Egg",
+  "item.pvz.jalapeno_zombie_spawn_egg": "Jalapeno Zombie Spawn Egg",
   "item.pvz.jack_in_the_box": "Jack-in-the-box",
   "item.pvz.jewel": "Jewel",
   "item.pvz.lava_diver_zombie_spawn_egg": "Lava Diver Zombie Spawn Egg",
@@ -495,5 +497,6 @@
   "tooltip.pvz.seed_dispensary": "Has the power to \"generate seeds\"...That is to say, it can create the seeds of various plants according to their special traits, which can then be planted within the flower pots within your Zen Garden",
   "tooltip.pvz.slow": "Slow",
   "tooltip.pvz.still_require": "Require %s",
-  "tooltip.pvz.very_slow": "Very Slow"
+  "tooltip.pvz.very_slow": "Very Slow",
+  "entity.pvz.pea_shooter_zombie": "豌豆射手僵尸"
 }

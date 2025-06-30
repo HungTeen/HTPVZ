@@ -25,6 +25,7 @@ import com.hungteen.pvz.common.entity.creatures.MooBloom;
 import com.hungteen.pvz.common.entity.creatures.Sprout;
 import com.hungteen.pvz.common.entity.plants.*;
 import com.hungteen.pvz.common.entity.zombies.*;
+import com.hungteen.pvz.common.entity.zombies.zombotany.*;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.generator.loot.EntityLootGen;
 import com.hungteen.pvz.util.Util;
@@ -252,6 +253,24 @@ public class PVZEntities {
             .spawnEgg(0xfbc093, 0xa6de66).collision(0.95F, 0.95F).fireImmuine()
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Ghast::checkGhastSpawnRules)
             .entity("lava_ghastling", LavaGhastling::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<PeaShooterZombie>> PEA_SHOOTER_ZOMBIE = attribute(PeaShooterZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x90b030, 0x799587)
+            .entity("pea_shooter_zombie", PeaShooterZombie::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<JalapenoZombie>> JALAPENO_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
+            .spawnEgg(0x799587, 0xFF5500)
+            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
+            .fireImmuine()
+            .entity("jalapeno_zombie", JalapenoZombie::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<GatlingPeaZombie>> GATLING_PEA_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x90b030, 0x799587)
+            .entity("gatling_pea_zombie", GatlingPeaZombie::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<WallNutZombie>> WALL_NUT_ZOMBIE = attribute(WallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x90b030, 0x799587)
+            .entity("wall_nut_zombie", WallNutZombie::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<TallNutZombie>> TALL_NUT_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x90b030, 0x799587)
+            .entity("tall_nut_zombie", TallNutZombie::new, MobCategory.MONSTER);
+
 
     //bosses
     public static final RegistryObject<EntityType<GhastRiderBoss>> GHAST_RIDER = attribute(GhastRiderBoss::createAttributes).tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES)
@@ -346,6 +365,11 @@ public class PVZEntities {
         r(e, ENTITY_LIFTER, EntityLifterRenderer::new);
         r(e, FALLEN_STAR, FallenStarRenderer::new);
         r(e, LOOT_BAG, ItemEntityRenderer::new);
+        r(e, PEA_SHOOTER_ZOMBIE, PeaShooterZombieRenderer::new);
+        r(e, JALAPENO_ZOMBIE, JalapenoZombieRenderer::new);
+        r(e, GATLING_PEA_ZOMBIE, GatlingPeaZombieRenderer::new);
+        r(e, WALL_NUT_ZOMBIE, WallNutZombieRenderer::new);
+        r(e, TALL_NUT_ZOMBIE, TallNutZombieRenderer::new);
 
         //enter here
 

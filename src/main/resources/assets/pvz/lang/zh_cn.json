@@ -206,6 +206,7 @@
   "entity.pvz.iceberg_lettuce": "冰冻生菜",
   "entity.pvz.imp": "小鬼僵尸",
   "entity.pvz.jalapeno": "火爆辣椒",
+  "entity.pvz.jalapeno_zombie": "火爆辣椒僵尸",
   "entity.pvz.jack_in_a_box_zombie": "玩偶匣僵尸",
   "entity.pvz.kernel_pult": "玉米投手",
   "entity.pvz.lava_diver_zombie": "潜岩浆僵尸",
@@ -332,6 +333,7 @@
   "item.pvz.ignis_essence": "烈焰精华",
   "item.pvz.imp_spawn_egg": "小鬼僵尸刷怪蛋",
   "item.pvz.jack_in_a_box_zombie_spawn_egg": "玩偶匣僵尸刷怪蛋",
+  "item.pvz.jalapeno_zombie_spawn_egg": "火爆辣椒僵尸刷怪蛋",
   "item.pvz.jack_in_the_box": "玩偶匣",
   "item.pvz.jewel": "宝石",
   "item.pvz.lava_diver_zombie_spawn_egg": "潜岩浆僵尸刷怪蛋",
@@ -495,5 +497,6 @@
   "tooltip.pvz.seed_dispensary": "具有「化种」之能…依据原有植物的特性，可以将「化种」所得的种子种植在「禅境花园」的花盆中。",
   "tooltip.pvz.slow": "慢",
   "tooltip.pvz.still_require": "需要 %s",
-  "tooltip.pvz.very_slow": "非常慢"
+  "tooltip.pvz.very_slow": "非常慢",
+  "entity.pvz.pea_shooter_zombie": "豌豆射手僵尸"
 }
