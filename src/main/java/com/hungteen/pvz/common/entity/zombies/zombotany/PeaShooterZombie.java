@@ -3,44 +3,44 @@ package com.hungteen.pvz.common.entity.zombies.zombotany;
 import com.hungteen.pvz.api.interfaces.IShooter;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
+import com.hungteen.pvz.common.entity.zombies.PVZZombie;
+import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
 import com.hungteen.pvz.util.Util;
-import com.hungteen.pvz.util.EntityUtil;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.entity.AnimationState;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class PeaShooterZombie extends AbstractZombotanyZombie implements IShooter {
+public class PeaShooterZombie extends PVZZombie implements IZombotany, IShooter {
 
+    private static final ResourceLocation TEXTURE = Util.prefix("textures/entity/plants/pea_shooter/pea_shooter.png");
     protected static final UUID ATTRIBUTE_MODIFIER_UUID = UUID.fromString("fa202025-b0e7-65AE-8bc3-546a895a193d");
     protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(PeaShooterZombie.class, EntityDataSerializers.BOOLEAN);
     protected static final double SHOOT_OFFSET = -0.3D;
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState shootAnimationState = new AnimationState();
-    private boolean isInSniperMode = false;
+    public boolean isInSniperMode = false;
     public Vec3 storedEnemyPos = null;
     public int aimTime = 0;
 
-    private static final EntityDataAccessor<Integer> ATTACK_TIME = SynchedEntityData.defineId(PeaShooterZombie.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Integer> ATTACK_TIME = SynchedEntityData.defineId(PeaShooterZombie.class, EntityDataSerializers.INT);
 
 
     public PeaShooterZombie(EntityType<? extends Zombie> type, Level level) {
@@ -85,7 +85,7 @@ public class PeaShooterZombie extends AbstractZombotanyZombie implements IShoote
                 storedEnemyPos = getTarget().position();
                 aimTime = 0;
             }
-            aimTime++;
+            aimTime ++;
         } else {
             aimTime = 0;
         }
@@ -97,7 +97,7 @@ public class PeaShooterZombie extends AbstractZombotanyZombie implements IShoote
      * {@link #isHeightAvailable(Entity)}
      */
     public double getMaxShootAngleTangent() {
-        return 0.15;
+        return 1;
     }
 
     public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
@@ -174,7 +174,7 @@ public class PeaShooterZombie extends AbstractZombotanyZombie implements IShoote
 
     @Override
     public void shootBullet() {
-        this.performShoot(SHOOT_OFFSET, 0, -0.2F, true, 0);
+        this.performShoot(SHOOT_OFFSET, 0, 0.4F, true, 0);
     }
 
 
@@ -198,23 +198,12 @@ public class PeaShooterZombie extends AbstractZombotanyZombie implements IShoote
     }
 
     @Override
+    public EntityType<?> getPlantType() {
+        return PVZEntities.PEA_SHOOTER.get();
+    }
+    @Override
     public ResourceLocation getPlantTextureLocation() {
-        return Util.prefix("textures/entity/plants/pea_shooter/pea_shooter.png");
-    }
-
-    @Override
-    public String getPlantModelClassName() {
-        return "com.hungteen.pvz.client.model.plants.PeaShooterModel";
-    }
-
-    @Override
-    public float getPlantHeadScale() {
-        return 1.0F;
-    }
-
-    @Override
-    public float getPlantHeadOffsetY() {
-        return 1.1F;
+        return TEXTURE;
     }
 
     public AnimationState getAnimationState(String name) {
@@ -261,7 +250,6 @@ public class PeaShooterZombie extends AbstractZombotanyZombie implements IShoote
 
 
     protected void shooterAttackGoalTick() {
-
         LivingEntity target = this.getTarget();
         if (this.canShoot() && EntityUtil.isEntityValid(target)) {
             int time = this.getAttackTime();

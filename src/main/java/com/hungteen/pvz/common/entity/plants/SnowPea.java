@@ -52,7 +52,6 @@ public class SnowPea extends PeaShooter {
         }
         return bullet;
     }
-
     @Override
     protected void registerGoals() {
         super.registerGoals();

@@ -20,6 +20,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
@@ -110,6 +111,12 @@ public class EntityUtil {
     /**Check if entities are teammates. <b>CAN ONLY</b> call on server.
      * <br>I you want to check if an entity is attackable, use {@link EntityUtil#checkCanEntityBeAttack(Entity, Entity)}.*/
     public static boolean isTeammate(Entity A, Entity B) {
+        if (A instanceof Projectile proj && proj.getOwner() != null) {
+            return isTeammate(proj.getOwner(), B);
+        }
+        if (B instanceof Projectile proj) {
+            return isTeammate(A, proj.getOwner());
+        }
         boolean result;
         if (A == null || B == null) {
             PVZMod.LOGGER.error(A == null ? "A" : "B" + " is null!");

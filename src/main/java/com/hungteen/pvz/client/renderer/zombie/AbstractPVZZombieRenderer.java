@@ -4,7 +4,6 @@ import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.client.model.zombie.PVZZombieModel;
 import com.hungteen.pvz.common.entity.ModelPartEntity;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
-import com.hungteen.pvz.common.entity.zombies.zombotany.AbstractZombotanyZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -12,7 +11,6 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -27,9 +25,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.LinkedList;
-import java.util.Queue;
 
 public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends PVZZombieModel<T>> extends HumanoidMobRenderer<T, M> {
     public AbstractPVZZombieRenderer(EntityRendererProvider.Context context, M p_174170_) {
@@ -60,30 +55,15 @@ public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends P
                 new ModelPartEntity(zombie.level, model.leftSleeve, getTextureLocation(zombie)).pos(zombie.position().add(0,  zombie.getBbHeight() * 0.75, 0))
                         .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
             }
-
             if (zombie.renderHead && zombie.shouldDropHead()) {
                 zombie.renderHead = false;
                 Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
                         zombie.getRandom().nextFloat() * 0.15,
                         zombie.getRandom().nextFloat() * 0.25 - 0.125);
-                if(zombie instanceof AbstractZombotanyZombie zombotanyZombie){
-                    if (this instanceof ZombotanyRenderer<?> zombotanyRenderer) {
-                            ModelPart plantHead = zombotanyRenderer.plantHead;
-                            if (plantHead != null) {
-                                model.head.visible = true;
-                                model.hat.visible = true;
-                                new ModelPartEntity(zombie.level, model.head, zombotanyZombie.getPlantTextureLocation()).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
-                                new ModelPartEntity(zombie.level, model.hat, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
-                            }
-                    }
-                }else {
-                    new ModelPartEntity(zombie.level, model.head, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                            .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
-                    new ModelPartEntity(zombie.level, model.hat, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                            .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
-                }
+                new ModelPartEntity(zombie.level, model.head, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
+                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
+                new ModelPartEntity(zombie.level, model.hat, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
+                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
             }
         }
         super.render(zombie, p_115456_, partialTicks, poseStack, bufferSource, p_115460_);
@@ -150,6 +130,7 @@ public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends P
         }
         poseStack.popPose();
     }
+
     private static void addVertexPair(VertexConsumer vertexConsumer, Matrix4f matrix4f, float leashX, float leashY, float leashZ
             , int entityBlockLight, int anchorBlockLight, int entitySkyLight, int anchorSkyLight
             , float widthZ, float widthX, float fZ, float fX, int progress, boolean bool) {

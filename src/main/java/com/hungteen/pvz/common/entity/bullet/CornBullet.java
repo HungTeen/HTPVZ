@@ -24,13 +24,6 @@ public class CornBullet extends BaseBullet {
         this.size = 0.5F;
     }
 
-    public void shoot(double deltaX, double deltaY, double deltaZ, float speed, float randomAngle) {
-        double distance = new Vec3(deltaX, deltaY, deltaZ).distanceTo(Vec3.ZERO);
-        super.shoot(deltaX, deltaY, deltaZ, speed, randomAngle);
-        double time = Math.min(distance / speed, 100);
-        this.setDeltaMovement(this.getDeltaMovement().add(0.0D, 0.05D * time, 0.0D));
-    }
-
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
         for (int i = 0; i < 5; i ++) {

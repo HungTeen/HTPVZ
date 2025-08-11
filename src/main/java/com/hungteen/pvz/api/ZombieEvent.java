@@ -58,6 +58,7 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
         MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Remove));
         this.removed = true;
         if (! this.level.isClientSide) {
+            //TODO this class should not appear in api.
             ZombieEventPacket.removalToClient(this);
         }
     }

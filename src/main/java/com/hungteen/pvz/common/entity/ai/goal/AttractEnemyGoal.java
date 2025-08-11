@@ -48,10 +48,13 @@ public class AttractEnemyGoal extends Goal {
     public float getBasicAttractingStrength(Entity attacker, Entity target) {
         return target instanceof IAttractsEnemy entity ? entity.getAttractStrength(attacker) : (target instanceof Player ? 10 : 5);
     }
+
+    /**Attractor in higher level absolutely attracts enemy.*/
     public float getAttractingLevel(Entity attacker, Entity target) {
         return target instanceof IAttractsEnemy entity ? entity.getAttractLevel(attacker) : 10;
     }
 
+    /**For attractors in same level, one has more strength is more attractive.*/
     public float getAttractingStrength(Entity attacker, Entity target) {
         return getBasicAttractingStrength(attacker, target) / target.distanceTo(attacker);
     }

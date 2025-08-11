@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.client.ClientUtil;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.client.model.geom.ModelPart;
@@ -56,7 +57,7 @@ public class ModelPartEntity extends Entity {
     @OnlyIn(Dist.CLIENT)
     public ModelPartEntity(Level p_19871_, ModelPart model, ResourceLocation texture, int life) {
         this(p_19871_, life);
-        this.model = copyModelPart(model);
+        this.model = ClientUtil.copyModelPart(model);
         this.texture = texture;
         this.originalScale = new Vec3(model.xScale, model.yScale, model.zScale);
     }
@@ -98,12 +99,6 @@ public class ModelPartEntity extends Entity {
     public ModelPartEntity join(Level level) {
         this.level = level;
         entities.add(this);
-//        if (level instanceof ClientLevel cLevel) {
-//            int id = -7356299;
-//            if (cLevel.getEntity(id) == null) {
-//                cLevel.putNonPlayerEntity(id, this);
-//            }
-//        }
         return this;
     }
 
@@ -127,21 +122,6 @@ public class ModelPartEntity extends Entity {
     }
 
 
-
-    @OnlyIn(Dist.CLIENT)
-    public static ModelPart copyModelPart(ModelPart original) {
-        Map<String, ModelPart> children = new HashMap<>();
-        for (String part : original.children.keySet()) {
-            children.put(part, copyModelPart(original.children.get(part)));
-        }
-        ModelPart newPart = new ModelPart(original.cubes, children);
-        newPart.xScale = original.xScale;
-        newPart.yScale = original.yScale;
-        newPart.zScale = original.zScale;
-        newPart.visible = original.visible;
-        return newPart;
-    }
-
     //settings
     /**Resize the rotation and scale every render tick if necessary because ModelPartEntity resets the size itself before the start of render tick. */
     public void baseTick() {
@@ -150,9 +130,9 @@ public class ModelPartEntity extends Entity {
         if (this.level.isClientSide) {
             this.clearFire();
             if (model != null) {
-                this.model.xRot += rotation.x;
-                this.model.yRot += rotation.y;
-                this.model.zRot += rotation.z;
+                this.model.xRot += (float) rotation.x;
+                this.model.yRot += (float) rotation.y;
+                this.model.zRot += (float) rotation.z;
             } else {
                 this.currentRotation = this.currentRotation.add(rotation);
             }

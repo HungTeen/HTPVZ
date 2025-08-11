@@ -4,7 +4,6 @@ import com.hungteen.pvz.client.model.plants.animation.MarigoldAnimation;
 import com.hungteen.pvz.common.entity.plants.MariGold;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -106,10 +105,10 @@ public class MariGoldModel<T extends MariGold> extends HierarchicalModel<T> {
         int level = marigold.getGrowLevel();
         float scale = level >= 3 ? 1 : Math.min(1, (float) ((level + 1) * 0.3 + 0.2));
         total.xScale *= scale;
-        total.x -= (1 - scale) * marigold.getBbWidth() * 16;
+        total.x -= (1 - scale) * 8;
         total.yScale *= scale;
         total.zScale *= scale;
-        total.z += (1 - scale) * marigold.getBbWidth() * 16;
+        total.z += (1 - scale) * 8;
     }
 
     @Override

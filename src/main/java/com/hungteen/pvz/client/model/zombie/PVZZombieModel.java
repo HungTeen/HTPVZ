@@ -3,7 +3,6 @@ package com.hungteen.pvz.client.model.zombie;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
-import com.hungteen.pvz.common.entity.zombies.zombotany.AbstractZombotanyZombie;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -29,21 +28,12 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
     }
 
     public void setupAnim(T zombie, float p_102002_, float p_102003_, float p_102004_, float p_102005_, float p_102006_) {
-        if(zombie instanceof AbstractZombotanyZombie zombotanyZombie){
-            this.head.visible = zombotanyZombie.controlledByRenderHead && zombie.renderHead;
-            this.hat.visible = zombotanyZombie.controlledByRenderHat && zombie.renderHead;
-            this.leftSleeve.visible = zombotanyZombie.controlledByRenderHand && (zombie.getMainArm() == HumanoidArm.LEFT || zombie.renderHand);
-            this.leftArm.visible = zombotanyZombie.controlledByRenderHand && (zombie.getMainArm() == HumanoidArm.LEFT || zombie.renderHand);
-            this.rightSleeve.visible = zombotanyZombie.controlledByRenderHand && (zombie.getMainArm() == HumanoidArm.RIGHT || zombie.renderHand);
-            this.rightArm.visible = zombotanyZombie.controlledByRenderHand && (zombie.getMainArm() == HumanoidArm.RIGHT || zombie.renderHand);
-        }else {
-            this.head.visible = zombie.renderHead;
-            this.hat.visible = zombie.renderHead;
-            this.leftSleeve.visible = zombie.getMainArm() == HumanoidArm.LEFT || zombie.renderHand;
-            this.leftArm.visible = zombie.getMainArm() == HumanoidArm.LEFT || zombie.renderHand;
-            this.rightSleeve.visible = zombie.getMainArm() == HumanoidArm.RIGHT || zombie.renderHand;
-            this.rightArm.visible = zombie.getMainArm() == HumanoidArm.RIGHT || zombie.renderHand;
-        }
+        this.head.visible = zombie.renderHead;
+        this.hat.visible = zombie.renderHead;
+        this.leftSleeve.visible = zombie.getMainArm() == HumanoidArm.LEFT || zombie.renderHand;
+        this.leftArm.visible = zombie.getMainArm() == HumanoidArm.LEFT || zombie.renderHand;
+        this.rightSleeve.visible = zombie.getMainArm() == HumanoidArm.RIGHT || zombie.renderHand;
+        this.rightArm.visible = zombie.getMainArm() == HumanoidArm.RIGHT || zombie.renderHand;
         super.setupAnim(zombie, p_102002_, p_102003_, p_102004_, p_102005_, p_102006_);
         AnimationUtils.animateZombieArms(this.leftArm, this.rightArm, this.isAggressive(zombie), this.attackTime, p_102004_);
         if (this.swimAmount > 0.0F) {
@@ -138,16 +128,6 @@ public class PVZZombieModel<T extends PVZZombie> extends PlayerModel<T> {
             this.head.xRot -= 1.5F;
             this.head.z = -2F;
         }
-
-        if(zombie instanceof AbstractZombotanyZombie zombotanyZombie){
-            this.head.x += zombotanyZombie.getPlantHeadOffsetX();
-            this.head.y += zombotanyZombie.getPlantHeadOffsetY();
-            this.head.z += zombotanyZombie.getPlantHeadOffsetZ();
-            this.head.xScale = zombotanyZombie.getPlantHeadScale();
-            this.head.yScale = zombotanyZombie.getPlantHeadScale();
-            this.head.zScale = zombotanyZombie.getPlantHeadScale();
-        }
-
         //sleeves and pants
         this.leftPants.copyFrom(this.leftLeg);
         this.rightPants.copyFrom(this.rightLeg);

@@ -4,10 +4,10 @@ import net.minecraft.world.entity.LivingEntity;
 
 public interface ICanBePlantedOn {
     default <T extends LivingEntity & ICanBePlantedOn> boolean canHold(LivingEntity plant, boolean isPlanting) {
-        return this instanceof LivingEntity living ? canHold((T) living, plant, isPlanting, false) : false;
+        return this instanceof LivingEntity living && canHold((T) living, plant, isPlanting, false);
     }
     default <T extends LivingEntity & ICanBePlantedOn> boolean canHold(LivingEntity plant, boolean isPlanting, boolean passengerTested) {
-        return this instanceof LivingEntity living ? canHold((T) living, plant, isPlanting, passengerTested) :false;
+        return this instanceof LivingEntity living && canHold((T) living, plant, isPlanting, passengerTested);
     }
 
     //for easy calling.

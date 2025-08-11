@@ -1,6 +1,7 @@
 package com.hungteen.pvz.client.layer;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.client.ClientUtil;
 import com.hungteen.pvz.client.model.attached.ButterBottomModel;
 import com.hungteen.pvz.client.model.attached.ButterHeadModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
@@ -40,27 +41,27 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
         if (entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
             if (PVZConfig.renderButterOnHead()) {
                 if (model.young && model instanceof AgeableListModel<T> model1) {
-                    translateAgeable(poseStack, model1);
+                    ClientUtil.translateAgeable(poseStack, model1);
                 }
                 main = butterHeadModel.root();
                 vertexConsumer = bufferSource.getBuffer(model.renderType(Util.prefix("textures/models/butter/butter_head.png")));
                 //omg why cant they all be the Hierarchical ones?
                 if (model instanceof HierarchicalModel<?> model1) {
-                    if (hasHead((model1.root()))) {
-                        renderHead(model1.root(), main, poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
+                    if (ClientUtil.hasHead((model1.root()))) {
+                        ClientUtil.renderOnHead(model1.root(), main, poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                     } else {
-                        poseStack.translate(0, 1 - getBoneHeight(model1.root()) / 16, 0);//TODO why should +1 ?
+                        poseStack.translate(0, 1 - ClientUtil.getBoneHeight(model1.root()) / 16, 0);//TODO why should +1 ?
                         main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                     }
                 } else if (model instanceof HeadedModel model1) {
                     ModelPart head = model1.getHead();
                     head.translateAndRotate(poseStack);
-                    poseStack.translate(0, -getBoneHeight(head) / 16, 0);
+                    poseStack.translate(0, -ClientUtil.getBoneHeight(head) / 16, 0);
                     main.compile(poseStack.last(), vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                     main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                 } else if (model instanceof QuadrupedModel<?> model1) {
                     model1.head.translateAndRotate(poseStack);
-                    poseStack.translate(0, -getBoneHeight(model1.head) / 16, 0);
+                    poseStack.translate(0, -ClientUtil.getBoneHeight(model1.head) / 16, 0);
                     main.compile(poseStack.last(), vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                     main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                 } else {
@@ -79,57 +80,4 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
         poseStack.popPose();
     }
 
-
-    public boolean hasHead(ModelPart root) {
-        for (String name: root.children.keySet()) {
-            if (name.contains("head")) {
-                return true;
-            }
-        }
-        for (ModelPart part: root.children.values()) {
-            if (hasHead(part)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void renderHead(ModelPart root, ModelPart main, PoseStack stack,
-                           VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        stack.pushPose();
-        root.translateAndRotate(stack);
-        if (root.visible) {
-            for (String name: root.children.keySet()) {
-                if (name.contains("head")) {
-                    stack.pushPose();
-                    root.getChild(name).translateAndRotate(stack);
-                    stack.translate(0, - getBoneHeight(root.getChild(name)) / 16 - 0.125, 0);
-                    main.compile(stack.last(), vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-                    main.render(stack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-                    stack.popPose();
-                }
-            }
-            for (ModelPart part: root.children.values()) {
-                renderHead(part, main, stack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-            }
-        }
-        stack.popPose();
-    }
-
-    private void translateAgeable(PoseStack poseStack, AgeableListModel model) {
-        poseStack.pushPose();
-        if (model.scaleHead) {
-            float f = 1.5F / model.babyHeadScale;
-            poseStack.scale(f, f, f);
-        }
-        poseStack.translate(0.0D, model.babyYHeadOffset / 16.0F, model.babyZHeadOffset / 16.0F);
-    }
-
-    private float getBoneHeight(ModelPart part) {
-        float result = 0;
-        for (ModelPart.Cube cube : part.cubes) {
-            result = Math.max(cube.maxY - cube.minY, result);
-        }
-        return result;
-    }
 }

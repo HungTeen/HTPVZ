@@ -212,18 +212,18 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     }
 
     protected boolean checkBlock(BlockPos pos) {
-        if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.level, this)) return false;
+        if (! net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.level, this)) return false;
 
-        if (!this.level.getFluidState(pos.above()).isEmpty()) {
+        if (! this.level.getFluidState(pos.above()).isEmpty()) {
             return false;
         } else if (this.level.getBlockState(pos.above()).is(PVZBlocks.CARP_GRASS.get()) && this.level.getBlockState(pos.above()).getValue(BlockStateProperties.AGE_3) != 0) {
             this.level.setBlock(pos.above(), PVZBlocks.CARP_GRASS.get().defaultBlockState(), 18);
             return true;
-        } else if (this.level.getBlockState(pos.above()).is(Blocks.AIR)) {
+        } else if (this.level.getBlockState(pos.above()).isAir()) {
             if (this.level.getBlockState(pos).is(PVZBlockTags.UNPLANTABLE_DIRT)) {
                 this.level.setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), 3);
                 return true;
-            } else if (this.level.getBlockState(pos).is(PVZBlockTags.PLANTABLE_STONE)) {
+            } else if (this.level.getBlockState(pos).isCollisionShapeFullBlock(level, pos)) {
                 this.level.setBlock(pos.above(), PVZBlocks.CARP_GRASS.get().defaultBlockState(), 3);
                 return true;
             }

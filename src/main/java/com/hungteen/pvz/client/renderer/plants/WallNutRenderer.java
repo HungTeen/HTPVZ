@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
 import static com.hungteen.pvz.common.entity.plants.WallNut.EXPLODE_COUNT;
 
@@ -47,7 +48,7 @@ public class WallNutRenderer<T extends WallNut> extends MobRenderer<T, EntityMod
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T wallNut) {
+    public ResourceLocation getTextureLocation(@NotNull T wallNut) {
         float healthPercent = wallNut.getHealth()/wallNut.getMaxHealth();
         return healthPercent > 0.67 ? STATE0 : (healthPercent > 0.33 ? STATE1 : STATE2);
     }

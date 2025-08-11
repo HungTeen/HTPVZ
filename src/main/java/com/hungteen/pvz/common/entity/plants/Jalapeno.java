@@ -78,10 +78,12 @@ public class Jalapeno extends SimplePlant {
                 .add(Attributes.ATTACK_DAMAGE, 25.0D);
     }
     @Override
-    public void baseTick() {
-        super.baseTick();
-        level.addParticle(ParticleTypes.LAVA, getX(), getY(), getZ(),
-                random.nextFloat() * 0.15 - 0.075, random.nextFloat() * 0.15, random.nextFloat() * 0.15 - 0.075);
+    public void tick() {
+        super.tick();
+        if (level.isClientSide) {
+            level.addParticle(ParticleTypes.LAVA, getX(), getY(), getZ(),
+                    random.nextFloat() * 0.15 - 0.075, random.nextFloat() * 0.15, random.nextFloat() * 0.15 - 0.075);
+        }
     }
     @Override
     public void die(DamageSource damageSource) {

@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
 import com.hungteen.pvz.client.model.plants.*;
+import com.hungteen.pvz.client.model.zombie.*;
 import com.hungteen.pvz.client.renderer.EntityLifterRenderer;
 import com.hungteen.pvz.client.renderer.ModelPartRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
@@ -256,6 +257,9 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<PeaShooterZombie>> PEA_SHOOTER_ZOMBIE = attribute(PeaShooterZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x90b030, 0x799587)
             .entity("pea_shooter_zombie", PeaShooterZombie::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<SnowPeaZombie>> SNOW_PEA_ZOMBIE = attribute(PeaShooterZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x90b030, 0x799587)
+            .entity("snow_pea_zombie", SnowPeaZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<JalapenoZombie>> JALAPENO_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
             .spawnEgg(0x799587, 0xFF5500)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
@@ -270,6 +274,9 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<TallNutZombie>> TALL_NUT_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x90b030, 0x799587)
             .entity("tall_nut_zombie", TallNutZombie::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<PumpkinZombie>> PUMPKIN_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+            .spawnEgg(0x90b030, 0x799587)
+            .entity("pumpkin_zombie", PumpkinZombie::new, MobCategory.MONSTER);
 
 
     //bosses
@@ -365,11 +372,13 @@ public class PVZEntities {
         r(e, ENTITY_LIFTER, EntityLifterRenderer::new);
         r(e, FALLEN_STAR, FallenStarRenderer::new);
         r(e, LOOT_BAG, ItemEntityRenderer::new);
-        r(e, PEA_SHOOTER_ZOMBIE, PeaShooterZombieRenderer::new);
-        r(e, JALAPENO_ZOMBIE, JalapenoZombieRenderer::new);
-        r(e, GATLING_PEA_ZOMBIE, GatlingPeaZombieRenderer::new);
-        r(e, WALL_NUT_ZOMBIE, WallNutZombieRenderer::new);
-        r(e, TALL_NUT_ZOMBIE, TallNutZombieRenderer::new);
+        r(e, PEA_SHOOTER_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, PeaShooterZombieModel.class));
+        r(e, SNOW_PEA_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, SnowPeaZombieModel.class));
+        r(e, GATLING_PEA_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, GatlingPeaZombieModel.class));
+        r(e, JALAPENO_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, JalapenoZombieModel.class));
+        r(e, WALL_NUT_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, WallNutZombieModel.class));
+        r(e, TALL_NUT_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, TallNutZombieModel.class));
+        r(e, PUMPKIN_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, ZombotanyModel.class));
 
         //enter here
 

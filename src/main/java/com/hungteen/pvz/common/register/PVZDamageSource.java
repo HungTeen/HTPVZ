@@ -256,8 +256,9 @@ public class PVZDamageSource {
         if (ev.getSource() == knockBackSource) {
             knockBackEntity = target;
         }
-        if (ev.getSource() == ignoreInvTimeSource && ! (target instanceof Player)) {
-            if (target.invulnerableTime <= invTimeLessThan) {
+        if (ev.getSource() == ignoreInvTimeSource) {
+            PVZMod.LOGGER.info(target.invulnerableTime + "");
+            if (target.invulnerableTime <= (target instanceof Player ? Math.min(15, invTimeLessThan) : invTimeLessThan)) {
                 invTimeTmp = target.invulnerableTime;
                 target.invulnerableTime = 0;
             }
@@ -295,7 +296,7 @@ public class PVZDamageSource {
                 ev.setAmount(ev.getAmount() * bossFactor);
             }
         }
-        if (ev.getSource() == ignoreInvTimeSource) {
+        if (ev.getSource() == ignoreInvTimeSource && invTimeTmp > 0) {
             entity.invulnerableTime = invTimeTmp;
         }
         if (ev.getSource() == multiplierSource) {

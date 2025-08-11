@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public class TallNutRenderer<T extends TallNut> extends MobRenderer<T, EntityModel<T>> {
 
@@ -29,7 +30,7 @@ public class TallNutRenderer<T extends TallNut> extends MobRenderer<T, EntityMod
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T tallNut) {
+    public ResourceLocation getTextureLocation(@NotNull T tallNut) {
         float healthPercent = tallNut.getHealth()/tallNut.getMaxHealth();
         return healthPercent > 0.67 ? STATE0 : (healthPercent > 0.33 ? STATE1 : STATE2);
     }

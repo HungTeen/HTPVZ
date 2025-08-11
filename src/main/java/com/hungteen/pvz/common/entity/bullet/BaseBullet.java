@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 
 public class BaseBullet extends Projectile {
 	protected float attackDamage = 0F;
+	protected float gravity = 0.1F;
 	protected float size = 1F;// need sync?
 	protected float knockBackStrengh = 0F;
 	protected String damageName = "pvz.shot";
@@ -65,6 +66,18 @@ public class BaseBullet extends Projectile {
 	}
 
 	@Override
+	public void shoot(double deltaX, double deltaY, double deltaZ, float speed, float randomAngle) {
+		if (! this.isNoGravity()) {
+			double distance = new Vec3(deltaX, deltaY, deltaZ).distanceTo(Vec3.ZERO);
+			super.shoot(deltaX, deltaY, deltaZ, speed, randomAngle);
+			double time = Math.min(distance / speed, 100);
+			this.setDeltaMovement(this.getDeltaMovement().add(0.0D, gravity / 2 * time, 0.0D));
+			return;
+		}
+		super.shoot(deltaX, deltaY, deltaZ, speed, randomAngle);
+	}
+
+	@Override
 	public void tick() {
 		super.tick();
 		HitResult hitresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
@@ -81,7 +94,7 @@ public class BaseBullet extends Projectile {
 			dy -= (1 - this.getWaterSlowDown()) * dy;
 			dz -= (1 - this.getWaterSlowDown()) * dz;
 			if (! this.isNoGravity()) {
-				dy += 0.06;
+				dy += gravity * 0.6;
 			}
 		}
 		this.setDeltaMovement(dx, dy, dz);
@@ -91,7 +104,7 @@ public class BaseBullet extends Projectile {
 			this.discard();
 		}
 		if (! this.isNoGravity()) { //when is pult ammo.
-			this.setDeltaMovement(this.getDeltaMovement().add(0.0D, - 0.1D, 0.0D));
+			this.setDeltaMovement(this.getDeltaMovement().add(0.0D, - gravity, 0.0D));
 			if (this.getOwner() instanceof Mob owner && EntityUtil.isEntityValid(owner) && EntityUtil.isEntityValid(owner.getTarget())
 					&& this.getDeltaMovement().y < 0 && this.getY() > owner.getTarget().getY()) {
 				Entity target = owner.getTarget();
@@ -99,7 +112,7 @@ public class BaseBullet extends Projectile {
 				double timeLand = 5;
 				double heightRelate = target.getY() + target.getBbHeight() / 2 - this.getY();
 				for (int i = 0; i < 5; i ++) {
-					timeLand = (timeLand + 2 * heightRelate / (2 * this.getDeltaMovement().y - 0.1 * timeLand)) / 2;
+					timeLand = (timeLand + 2 * heightRelate / (2 * this.getDeltaMovement().y - gravity * timeLand)) / 2;
 				}
 				vec3 = target.position().subtract(this.position()).subtract(this.getDeltaMovement().x * timeLand, 0, this.getDeltaMovement(). z * timeLand);
 				this.setDeltaMovement(this.getDeltaMovement()
@@ -235,6 +248,9 @@ public class BaseBullet extends Projectile {
 		if (compound.contains("knock_back_strength")) {
 			this.size = compound.getFloat("knock_back_strength");
 		}
+		if (compound.contains("gravity")) {
+			this.gravity = compound.getFloat("gravity");
+		}
 	}
 
 	@Override
@@ -243,6 +259,7 @@ public class BaseBullet extends Projectile {
 		compound.putFloat("attack_damage", this.attackDamage);
 		compound.putFloat("size", this.size);
 		compound.putFloat("knock_back_strength", this.knockBackStrengh);
+		compound.putFloat("gravity", this.gravity);
 	}
 
 
