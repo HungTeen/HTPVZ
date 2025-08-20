@@ -7,6 +7,7 @@ import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -19,6 +20,7 @@ import java.util.Random;
 
 public class FallenStar extends ItemEntity {
     public Vec3 storedSpeed;
+    public boolean persistent = false;
     public static Random random = new Random();
     public FallenStar(EntityType<? extends ItemEntity> p_19870_, Level p_19871_) {
         super(p_19870_, p_19871_);
@@ -45,10 +47,23 @@ public class FallenStar extends ItemEntity {
     }
 
     @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        tag.putBoolean("Persistent", this.persistent);
+        super.addAdditionalSaveData(tag);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("Persistent")) {
+            this.persistent = tag.getBoolean("Persistent");
+        }
+    }
+    @Override
     public void baseTick() {
         super.baseTick();
         //disappear when day
-        if (! level.isClientSide && level.isDay() && random.nextInt(400) == 0) {
+        if (! this.persistent && ! level.isClientSide && level.isDay() && random.nextInt(100) == 0) {
             this.discard();
         }
         //moving && bouncing.

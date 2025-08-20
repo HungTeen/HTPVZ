@@ -21,6 +21,12 @@ public class PVZPlayerCapNBT {
 
     private Pair<Vec3, Vec3> gardenPos = new Pair<>(null, null);
     public static final String SUN = "pvz.sun";
+    public static final String CAN_PLANT = "can_plant";
+    public static final String PLANT_HAVE_COST = "plant_have_cost";
+    public static final String AUTO_SET_COST_AND_CD = "auto_set_cost_and_cd";
+    public static final String PLANT_HAVE_CD = "plant_have_cd";
+    public static final String INVASION_DIFFICULTY = "invasion_difficulty";
+    public static final String LAST_INVASION = "last_invasion";
 
     //sun effect count
     public int sunCountDown = 0;
@@ -35,12 +41,12 @@ public class PVZPlayerCapNBT {
 
     public void initBasicValues() {
         //basic
-        setValue("can_plant", 1, 0, 1);//naturally always 1. if 0, player can't plant.
-        setValue("auto_set_cost_and_cd", 1, 0, 1);//naturally always 1. if 1, "plant_cost_sun" and "plant_have_cd" of this player will change with gamemode.
-        setValue("plant_have_cost", 1, 0, 1);//naturally creative:0, survival:1.
-        setValue("plant_have_cd", 1, 0, 1);//naturally creative:0, survival:1.
-        setValue("invasion_difficulty", 0, 0, 100);//invasion difficulty.
-        setValue("last_invasion", 0, 0, 1000);//time since last invasion occurred on this player.
+        setValue(CAN_PLANT, 1, 0, 1);//naturally always 1. if 0, player can't plant.
+        setValue(AUTO_SET_COST_AND_CD, 1, 0, 1);//naturally always 1. if 1, "plant_cost_sun" and "plant_have_cd" of this player will change with gamemode.
+        setValue(PLANT_HAVE_COST, 1, 0, 1);//naturally creative:0, survival:1.
+        setValue(PLANT_HAVE_CD, 1, 0, 1);//naturally creative:0, survival:1.
+        setValue(INVASION_DIFFICULTY, 0, 0, 100);//invasion difficulty.
+        setValue(LAST_INVASION, 0, 0, 1000);//time since last invasion occurred on this player.
         //resource
         setValue(SUN, 50, 0, 200);
     }

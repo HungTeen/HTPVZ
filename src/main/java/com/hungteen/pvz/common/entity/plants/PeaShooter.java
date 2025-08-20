@@ -56,9 +56,9 @@ public class PeaShooter extends ShooterPlant {
             if (this.hasSkill(PUNCH_SKILL_NAME)) {
                 this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.8, AttributeModifier.Operation.ADDITION));
             } else if (this.hasSkill(SNIPER_SKILL_NAME)) {
-                this.getAttribute(Attributes.FOLLOW_RANGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 36, AttributeModifier.Operation.ADDITION));
+                this.getAttribute(Attributes.FOLLOW_RANGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 64, AttributeModifier.Operation.ADDITION));
                 this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 1, AttributeModifier.Operation.ADDITION));
-                this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 9, AttributeModifier.Operation.MULTIPLY_BASE));
+                this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 15, AttributeModifier.Operation.MULTIPLY_BASE));
             } else if (this.hasSkill(FIRE_SKILL_NAME)) {
                 this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.5, AttributeModifier.Operation.MULTIPLY_BASE));
             }
@@ -77,7 +77,7 @@ public class PeaShooter extends ShooterPlant {
 
     @Override
     public float getBulletSpeed() {
-        return (this.hasSkill(this, SNIPER_SKILL_NAME) ? 4F : 1F) * super.getBulletSpeed();
+        return (this.hasSkill(this, SNIPER_SKILL_NAME) ? 5F : 1F) * super.getBulletSpeed();
     }
 
     public static AttributeSupplier.Builder createAttributes() {

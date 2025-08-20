@@ -1,13 +1,20 @@
 package com.hungteen.pvz.common.world;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.item.PVZShieldItem;
+import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemCooldowns;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -34,6 +41,22 @@ public class PVZWorldEvents {
         ResourceLocation location = ForgeRegistries.MOB_EFFECTS.getKey(event.getEffectInstance().getEffect());
         if (PVZMobEffects.unappliableMap.containsKey(location) && PVZMobEffects.unappliableMap.get(location).test(entity, event.getEffectInstance())) {
             event.setResult(Event.Result.DENY);
+        }
+    }
+
+    @SubscribeEvent
+    public static void playerRespawnCoolDown(PlayerEvent.PlayerRespawnEvent event) {
+        if (! event.getEntity().level.isClientSide && ! event.isEndConquered()) {
+            PVZPlayerCapNBT nbt = PVZPlayerCapability.getPlayerData(event.getEntity()).orElse(null);
+                if (PVZPlayerCapability.getValue(event.getEntity(), PVZPlayerCapNBT.PLANT_HAVE_CD) == 0) {
+                    return;
+                }
+                ItemCooldowns cooldowns = event.getEntity().getCooldowns();
+            for (Item item : PVZSeedPackets.dataMap.keySet()) {
+                if (item instanceof SeedPacketItem<?> item1) {
+                    cooldowns.addCooldown(item, item1.getBaseCoolDown(null));
+                }
+            }
         }
     }
     //for test

@@ -7,7 +7,7 @@ import net.minecraft.world.phys.Vec3;
 public interface IZombotany {
 
     default float getPlantHeadScale() {
-        return 1.0F;
+        return 1.001F;
     }
 
     default Vec3 getPlantHeadOffset() {

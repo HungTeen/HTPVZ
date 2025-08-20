@@ -15,6 +15,9 @@ public class PVZItemTags {
     public static final TagKey<Item> CORN = forgeTag("crops/kernel");
 
     public static final TagKey<Item> ENTITY_DAMAGEABLE_SHIELDS = pvzTag("entity_damageable_shields");
+    public static final TagKey<Item> SEED_PACKETS = pvzTag("seed_packets");
+    public static final TagKey<Item> SEEDS = pvzTag("seeds");
+
 
     //definition
 

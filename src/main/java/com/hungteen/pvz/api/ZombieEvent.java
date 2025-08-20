@@ -1,7 +1,6 @@
 package com.hungteen.pvz.api;
 
 import com.hungteen.pvz.api.events.ZombieEventEvent;
-import com.hungteen.pvz.common.network.ZombieEventPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -57,10 +56,7 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
     public void remove() {
         MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Remove));
         this.removed = true;
-        if (! this.level.isClientSide) {
-            //TODO this class should not appear in api.
-            ZombieEventPacket.removalToClient(this);
-        }
+        PVZAPI.get().removeClientZombieEvent(this);
     }
 
     public void tick(TickEvent.ServerTickEvent ev) {

@@ -233,7 +233,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 }
                 //cool down effects.
                 if (! player.level.isClientSide) {
-                    if (nbt.getValue("plant_have_cd") == 0) {
+                    if (nbt.getValue(PVZPlayerCapNBT.PLANT_HAVE_CD) == 0) {
                         Set<Item> keyset = Set.copyOf(player.getCooldowns().cooldowns.keySet());
                         for (Item i : keyset) {
                             if (i instanceof SeedPacketItem) {
@@ -255,19 +255,19 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                 }
                 //auto set sun cost and cd.
-                if (nbt.getValue("auto_set_cost_and_cd") == 1) {
-                    nbt.setValue("plant_have_cost", player.isCreative() ? 0 : 1);
-                    nbt.setValue("plant_have_cd", player.isCreative() ? 0 : 1);
+                if (nbt.getValue(PVZPlayerCapNBT.AUTO_SET_COST_AND_CD) == 1) {
+                    nbt.setValue(PVZPlayerCapNBT.PLANT_HAVE_COST, player.isCreative() ? 0 : 1);
+                    nbt.setValue(PVZPlayerCapNBT.PLANT_HAVE_CD, player.isCreative() ? 0 : 1);
                 }
                 //invasion spawn
                 int interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnInvasionsInterval);
                 if (player.tickCount % 50 == 0 && interval > 0) {
-                    int lastInvasion = nbt.getValue("last_invasion");
+                    int lastInvasion = nbt.getValue(PVZPlayerCapNBT.LAST_INVASION);
                     if (lastInvasion > interval && player.getRandom().nextInt(lastInvasion) > (lastInvasion * 0.9F + (float) interval / 10)) {
-                        nbt.setValue("last_invasion", interval / 2);
+                        nbt.setValue(PVZPlayerCapNBT.LAST_INVASION, interval / 2);
                         InvasionTeam.spawnFor(player);
                     }
-                    nbt.addValue("last_invasion", 1);
+                    nbt.addValue(PVZPlayerCapNBT.LAST_INVASION, 1);
                 }
                 //pumpkin helmet
                 ItemStack itemStack = player.containerMenu.getCarried();

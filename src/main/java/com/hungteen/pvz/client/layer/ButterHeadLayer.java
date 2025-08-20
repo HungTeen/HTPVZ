@@ -41,6 +41,7 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
         if (entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
             if (PVZConfig.renderButterOnHead()) {
                 if (model.young && model instanceof AgeableListModel<T> model1) {
+                    poseStack.pushPose();
                     ClientUtil.translateAgeable(poseStack, model1);
                 }
                 main = butterHeadModel.root();

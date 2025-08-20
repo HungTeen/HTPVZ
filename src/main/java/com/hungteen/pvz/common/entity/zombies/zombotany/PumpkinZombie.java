@@ -81,7 +81,10 @@ public class PumpkinZombie extends PVZZombie implements IZombotany, IArmorEntity
         }
         @Override
         public boolean canUse() {
-            return entity.tickCount % 10 < 2 && entity.getPassengers().isEmpty();
+            if (entity.getFirstPassenger() instanceof LivingEntity passenger && ! EntityUtil.isTeammate(entity, passenger)) {
+                passenger.stopRiding();
+            }
+            return entity.tickCount % 40 < 2 && entity.getPassengers().isEmpty();
         }
         public void tick() {
             List<LivingEntity> passengerAlts = entity.level.getEntitiesOfClass(LivingEntity.class, this.entity.getBoundingBox().inflate(0.5F),

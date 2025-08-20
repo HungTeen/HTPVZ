@@ -27,7 +27,9 @@ public class DirtLayer<T extends LivingEntity> extends RenderLayer<T, DirtModel<
         if (EntityUtil.isLeavingGround(entity) && ! entity.isPassenger()) {
             return;
         }
-
+        if (entity.isInvisibleTo(ClientProxy.getPlayer())) {
+            return;
+        }
         ResourceLocation blockRes = ClientProxy.MC.getBlockRenderer().getBlockModelShaper().getTexture(entity.level.getBlockState(entity.getOnPos()), entity.level, entity.getOnPos()).getName();
         if (blockRes.equals(new ResourceLocation("missingno"))) {
             blockRes = new ResourceLocation("block/dirt");
@@ -35,7 +37,8 @@ public class DirtLayer<T extends LivingEntity> extends RenderLayer<T, DirtModel<
         final ResourceLocation textureRes = new ResourceLocation(blockRes.getNamespace(), "textures/" + blockRes.getPath() + ".png");
         VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(textureRes));
         this.model.setupAnim(entity, 0, 0, entity.tickCount + partialTicks, 0, 0);
-        this.model.renderToBuffer(poseStack, vertexconsumer, p_117351_, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1.0F);
+        this.model.renderToBuffer(poseStack, vertexconsumer, p_117351_, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F,
+                entity.isInvisible() ? (entity.isInvisibleTo(ClientProxy.getPlayer()) ? 0.15F : 0) : 1);
     }
 
 }

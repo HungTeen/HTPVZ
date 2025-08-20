@@ -49,7 +49,9 @@ public class PeaGunItem extends ProjectileWeaponItem {
         return super.canApplyAtEnchantingTable(stack, enchantment) ||
                 enchantment == Enchantments.INFINITY_ARROWS ||
                 enchantment == Enchantments.FLAMING_ARROWS ||
-                enchantment == Enchantments.QUICK_CHARGE;
+                enchantment == Enchantments.QUICK_CHARGE ||
+                enchantment == Enchantments.PUNCH_ARROWS ||
+                enchantment == Enchantments.POWER_ARROWS;
     }
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -62,6 +64,7 @@ public class PeaGunItem extends ProjectileWeaponItem {
         }
         EquipmentSlot slot = hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
         GetPeaGunBulletEvent event = new GetPeaGunBulletEvent(player, level, slot, bulletStack,null);
+        int punch = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.PUNCH_ARROWS, player.getItemBySlot(slot));
         MinecraftForge.EVENT_BUS.post(event);
         Projectile projectile = event.projectile;
         if (projectile == null && itemMap.containsKey(bulletStack.getItem())) {
@@ -75,7 +78,7 @@ public class PeaGunItem extends ProjectileWeaponItem {
                             Math.sin(player.getYRot() / 57.3) * 0.5 * Math.cos(player.getXRot() / 57.3),
                             Math.sin((player.getXRot() % 360) / 57.3) * 0.3,
                             - Math.cos(player.getYRot() / 57.3) * 0.5 * Math.cos(player.getXRot() / 57.3))
-                            .multiply(resistance, resistance, resistance)));
+                            .multiply((1 + punch * 0.1) * resistance, (1 + punch * 0.1) * resistance, (1 + punch * 0.1) * resistance)));
                 }
             } else {
                 ItemStack bullet =
@@ -87,10 +90,10 @@ public class PeaGunItem extends ProjectileWeaponItem {
                             Math.sin(player.getYRot() / 57.3) * 0.25 * Math.cos(player.getXRot() / 57.3),
                             Math.sin((player.getXRot() % 360) / 57.3) * 0.15,
                             - Math.cos(player.getYRot() / 57.3) * 0.25 * Math.cos(player.getXRot() / 57.3))
-                            .multiply(resistance, resistance, resistance)));
+                            .multiply((1 + punch * 0.1) * resistance, (1 + punch * 0.1) * resistance, (1 + punch * 0.1) * resistance)));
                 }
                 projectile.setOwner(player);
-                projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.0F, 1.0F);
+                projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.0F + punch * 1.5F, 1.0F);
                 level.addFreshEntity(projectile);
                 player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), player.getAbilities().instabuild ? 3 :
                         Math.max(0, 30 - Math.min(10, EnchantmentHelper.getTagEnchantmentLevel(Enchantments.QUICK_CHARGE, player.getItemInHand(hand)) * 4)));
@@ -123,16 +126,19 @@ public class PeaGunItem extends ProjectileWeaponItem {
         PeaBullet pea = PVZEntities.PEA.get().create(level);
         pea.moveTo(shooter.getX(), shooter.getEyeY() - 0.2, shooter.getZ());
         boolean attachFire = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.FLAMING_ARROWS, shooter.getItemBySlot(slot)) > 0;
+        int punch = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.PUNCH_ARROWS, shooter.getItemBySlot(slot));
+        int force = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.POWER_ARROWS, shooter.getItemBySlot(slot));
         if (bulletItem == PVZItems.PEA.get()) {
             pea.setPeaType(attachFire ? PeaBullet.PeaType.Fire : PeaBullet.PeaType.Common);
-            pea.setAttackDamage(6);
+            pea.setAttackDamage(6 + force * 2);
         } else if (bulletItem == PVZItems.SNOW_PEA.get()) {
             pea.setPeaType(attachFire ? PeaBullet.PeaType.Common : PeaBullet.PeaType.Ice);
-            pea.setAttackDamage(4);
+            pea.setAttackDamage(4 + force * 2);
         } else if (bulletItem == PVZItems.FLAME_PEA.get()) {
             pea.setPeaType(PeaBullet.PeaType.Fire);
-            pea.setAttackDamage(10);
+            pea.setAttackDamage(10 + force * 2);
         }
+        pea.setKnockBackStrength(0.35F + force * 0.05F);
         pea.setNoGravity(true);
         return pea;
     }

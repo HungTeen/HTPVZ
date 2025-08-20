@@ -92,7 +92,14 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
         super.renderToBuffer(poseStack, vertexConsumer, p_102036_, p_102037_, p_102038_, p_102039_, p_102040_, p_102041_);
         VertexConsumer headConsumer = this.multiBufferSource.getBuffer(RenderType.entityTranslucent(this.textureLocation));
         this.head.visible = true;
+        if (this.young) {
+            poseStack.pushPose();
+            ClientUtil.translateAgeable(poseStack, this);
+        }
         this.head.render(poseStack, headConsumer, p_102036_, p_102037_, p_102038_, p_102039_, p_102040_, p_102041_);
+        if (this.young) {
+            poseStack.popPose();
+        }
     }
     protected void animate(AnimationState p_233382_, AnimationDefinition p_233383_, float p_233384_) {
         this.animate(p_233382_, p_233383_, p_233384_, 1.0F);

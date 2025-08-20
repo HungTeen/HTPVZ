@@ -255,27 +255,27 @@ public class PVZEntities {
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Ghast::checkGhastSpawnRules)
             .entity("lava_ghastling", LavaGhastling::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<PeaShooterZombie>> PEA_SHOOTER_ZOMBIE = attribute(PeaShooterZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0x90b030, 0x799587)
+            .spawnEgg(0x799587, 0x90b030)
             .entity("pea_shooter_zombie", PeaShooterZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<SnowPeaZombie>> SNOW_PEA_ZOMBIE = attribute(PeaShooterZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0x90b030, 0x799587)
+            .spawnEgg(0x799587, 0x4bcecf)
             .entity("snow_pea_zombie", SnowPeaZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<JalapenoZombie>> JALAPENO_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
-            .spawnEgg(0x799587, 0xFF5500)
+            .spawnEgg(0x799587, 0xff472a)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .fireImmuine()
             .entity("jalapeno_zombie", JalapenoZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<GatlingPeaZombie>> GATLING_PEA_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0x90b030, 0x799587)
+            .spawnEgg(0x799587, 0x475d67)
             .entity("gatling_pea_zombie", GatlingPeaZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<WallNutZombie>> WALL_NUT_ZOMBIE = attribute(WallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0x90b030, 0x799587)
+            .spawnEgg(0x799587, 0xd4b367)
             .entity("wall_nut_zombie", WallNutZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<TallNutZombie>> TALL_NUT_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0x90b030, 0x799587)
+            .spawnEgg(0x799587, 0xcda65d)
             .entity("tall_nut_zombie", TallNutZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<PumpkinZombie>> PUMPKIN_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0x90b030, 0x799587)
+            .spawnEgg(0x799587, 0xdd854c)
             .entity("pumpkin_zombie", PumpkinZombie::new, MobCategory.MONSTER);
 
 

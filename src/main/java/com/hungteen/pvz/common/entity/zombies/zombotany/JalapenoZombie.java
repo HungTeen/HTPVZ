@@ -102,7 +102,7 @@ public class JalapenoZombie extends PVZZombie implements IZombotany {
                 anger.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
                 anger.yRot = direction.toYRot();
                 level.addFreshEntity(anger);
-                anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 8);
+                anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 4);
                 anger.targetSelector.disableControlFlag(Goal.Flag.TARGET);
                 anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(1F);
             }

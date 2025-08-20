@@ -20,6 +20,8 @@ import com.hungteen.pvz.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -28,6 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -43,6 +46,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
@@ -51,6 +55,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -234,14 +239,26 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             if (entity != null && itemStack.hasCustomHoverName()) {
                 entity.setCustomName(itemStack.getHoverName());
             }
-            PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
-            if (cap != null && shouldDefineOwner(itemStack)) {
-                cap.setOwner(player);
+            //CanPlaceOn test
+            if (itemStack.getOrCreateTag().contains("CanPlaceOn")) {
+                ListTag list = itemStack.getTag().getList("CanPlaceOn", Tag.TAG_STRING);
+                for (Tag s : list) {
+                    if (s instanceof StringTag stringTag) {
+                        Block block = level.getBlockState(pos).getBlock();
+                        if (! ForgeRegistries.BLOCKS.getKey(block).equals(new ResourceLocation(stringTag.getAsString()))) {
+                            return Component.translatable("hint.pvz.plant.cant_plant_on", entity.getName(), block.getName());
+                        }
+                    }
+                }
             }
             //enchantment.
             if (entity instanceof IPlant && (EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), itemStack) > 0 ||
                     itemStack.getOrCreateTag().contains("CanPlaceOn"))) {
                 entity.getEntityData().set(((IPlant) entity).root(), false);
+            }
+            PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
+            if (cap != null && shouldDefineOwner(itemStack)) {
+                cap.setOwner(player);
             }
             //handle skills.
             if (canBoost() && entity instanceof IHaveSkills) {
@@ -256,6 +273,8 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
 
             if (posCheck == null) {
                 //plant.
+                ((ServerLevel) level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(entity.getOnPos()))
+                        .setPos(entity.getOnPos()), entity.getX(), entity.getY(), entity.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.25F);
                 PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, - event.cost));
                 if (event.coolDown > 0) {
                     SeedPacketItem.seedPacketItemList.forEach(item1 -> {
@@ -275,8 +294,6 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 }
                 return null;
             }
-            //display massage when not on a proper place.
-            player.displayClientMessage(posCheck, true);
             if (entity != null) {
                 entity.discard();
                 return posCheck;

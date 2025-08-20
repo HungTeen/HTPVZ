@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
 import com.hungteen.pvz.common.entity.plants.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -99,7 +100,8 @@ public class PVZSeedPackets {
                 .recipe(Items.MELON, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         //the end
         add(PVZEntities.GATLING_PEA).cost(375).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
-                .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET);
+                .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET)
+                .note(Component.translatable("container.pvz.almanac.can_only_plant_on", Component.translatable("entity.pvz.repeater").withStyle(ChatFormatting.RED)));
         //abyss
         add(PVZEntities.CHOMPER).cost(150).coolDown(MEDIUM).skillList(Chomper.staticSkillList)
                 .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly()
@@ -129,6 +131,7 @@ public class PVZSeedPackets {
     public static void sortAndClear() {
         seedPacketData.forEach(data -> {
             PVZSeedPackets.dataMap.put(PVZItems.seedPacketMap.get(data).get(), data);
+            PVZSeedPackets.dataMap.put(PVZItems.seedMap.get(data).get(), data);
             Item base = data.basePacketSupplier.get();
             if (sortedCreative.containsKey(base)) {
                 sortedCreative.get(base).add(PVZItems.seedPacketMap.get(data).get());

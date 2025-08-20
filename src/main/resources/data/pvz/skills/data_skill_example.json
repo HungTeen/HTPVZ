@@ -1,0 +1,9 @@
+{
+  "entity_type": "pvz:marigold",
+  "skills": [
+    {
+      "name": "skill.pvz.marigold.example_skill",
+      "item": "pvz:jewel"
+    }
+  ]
+}

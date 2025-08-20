@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -20,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.Nullable;
 
 import static com.hungteen.pvz.common.entity.plants.PotatoMine.EXPLODE_COUNT;
 
@@ -30,7 +32,10 @@ public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, Ent
     public PotatoMineRenderer(EntityRendererProvider.Context context) {
         super(context, new PotatoMineModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("potato_mine:main"))), 0.2F);
         this.addLayer(new LightLayer<>(this, Util.prefix("textures/entity/plants/potato_mine/potato_mine_light.png"),
-                (potatoMine, partialTicks, ageInTicks) -> (potatoMine.getEntityData().get(PotatoMine.PREPARE_COUNT) <= 0 && potatoMine.tickCount % 50 < 4) ? 1F : 0F));
+                (potatoMine, partialTicks, ageInTicks) -> (
+                        potatoMine.getEntityData().get(PotatoMine.PREPARE_COUNT) <= 0 && potatoMine.tickCount % 50 < 4) ? (
+                                potatoMine.isInvisible() ? 0.25F : 1
+                        ) : 0F));
         this.addLayer(new DirtLayer(this, context.getModelSet()));
     }
 
@@ -48,6 +53,12 @@ public class PotatoMineRenderer<T extends PotatoMine> extends MobRenderer<T, Ent
     @Override
     public ResourceLocation getTextureLocation(T potatoMine) {
         return potatoMine.isPoisonous() ? POISON : COMMON;
+    }
+
+    @Nullable
+    @Override
+    protected RenderType getRenderType(T potatoMine, boolean p_115323_, boolean p_115324_, boolean p_115325_) {
+        return super.getRenderType(potatoMine, p_115323_, p_115324_, p_115325_);
     }
 
     @Override

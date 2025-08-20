@@ -69,6 +69,8 @@ public class PVZAPI {
         ResourceLocation getZombieEventType(ZombieEvent event);
         /**To prevent unwanted hypnotise from hurting hypno-shroom.*/
         DamageSource setNotEating(DamageSource damageSource);
+        void removeClientZombieEvent(ZombieEvent event);
+
     }
 
     public static class DummyAPI implements IPVZAPI {
@@ -142,6 +144,10 @@ public class PVZAPI {
         @Override
         public DamageSource setNotEating(DamageSource damageSource) {
             return damageSource;
+        }
+
+        @Override
+        public void removeClientZombieEvent(ZombieEvent event) {
         }
     }
 }

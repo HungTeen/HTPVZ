@@ -127,23 +127,23 @@ public class EntityUtil {
         Team teamB = B.getTeam();
         boolean AIsEnemy = (! A.getType().is(PVZEntityTags.FRIENDLY)) && (A instanceof Enemy || A.getType().is(PVZEntityTags.ENEMY) || A.getType().is(Tags.EntityTypes.BOSSES));
         boolean BIsEnemy = (! B.getType().is(PVZEntityTags.FRIENDLY)) && (B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY) || B.getType().is(Tags.EntityTypes.BOSSES));
-        Scoreboard scoreboard = A.getServer().getScoreboard();
 
         boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, PVZConfig.Common.teamBattle);
+
+        Scoreboard scoreboard = A.getServer().getScoreboard();
+        boolean teamAEvil = teamA != null && PVZTeamData.isEvil(scoreboard, teamA.getName());
+        boolean teamBEvil = teamB != null && PVZTeamData.isEvil(scoreboard, teamB.getName());
 
         if (teamA == teamB) {
             result = teamA != null || (AIsEnemy == BIsEnemy);
         } else if (teamA == null) {
-            result = PVZTeamData.isEvil(scoreboard, teamB.getName()) == AIsEnemy;
+            result = teamBEvil == AIsEnemy;
         } else if (teamB == null) {
-            result = PVZTeamData.isEvil(scoreboard, teamA.getName()) == BIsEnemy;
-        } else if (PVZTeamData.isEvil(scoreboard, teamA.getName()) || PVZTeamData.isEvil(scoreboard, teamB.getName())) {
-            result = false;
-        } else if (! PVZTeamData.isEvil(scoreboard, teamA.getName()) || ! PVZTeamData.isEvil(scoreboard, teamB.getName())) {
-            result = true;
-        } else {
-            result = ! teamBattle;
-        }
+            result = teamAEvil == BIsEnemy;
+        } else if (teamBattle) {
+            return false;
+        } else result = !teamAEvil && !teamBEvil;
+
         TeammateTestingEvent event = new TeammateTestingEvent(A, B, result);
         MinecraftForge.EVENT_BUS.post(event);
         return event.currentResult;

@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -133,8 +134,8 @@ public class TorchWood extends SimplePlant {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(1, 1.5, 1).move(0, 1, 0),
-                    (entity) -> (entity instanceof PeaBullet && EntityUtil.isTeammate(entity, this.entity)));
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(1.5, 1.5, 1.5).move(0, 1, 0),
+                    (entity) -> (EntityUtil.isTeammate(entity, this.entity)));
             entities.forEach((entity) -> {
                 if (entity instanceof PeaBullet pea && pea.changeCoolDown <= 0) {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {
@@ -146,6 +147,11 @@ public class TorchWood extends SimplePlant {
                         pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :
                                 this.entity.isSoulFire() ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);
                         pea.changeCoolDown = 5;
+                    }
+                } else if (entity instanceof LivingEntity living && living.getTicksFrozen() > living.getTicksRequiredToFreeze()) {
+                    living.setTicksFrozen(living.getTicksRequiredToFreeze());
+                    if (living.hasEffect(PVZMobEffects.FREEZE.get())) {
+                        living.removeEffect(PVZMobEffects.FREEZE.get());
                     }
                 }
             });

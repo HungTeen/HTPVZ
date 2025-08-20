@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal;
 import com.hungteen.pvz.common.entity.plants.Plantern;
@@ -83,7 +84,7 @@ public class PVZEntityEventHandler {
                 if (cap.containsInvasion) {
                     if (event.getSource().getEntity() instanceof ServerPlayer player) {
                         AtomicInteger amplifier = new AtomicInteger();
-                        player.getCapability(PVZPlayerCapability.NBT).ifPresent(cap1 -> amplifier.set(cap1.getValue("invasion_difficulty")));
+                        player.getCapability(PVZPlayerCapability.NBT).ifPresent(cap1 -> amplifier.set(cap1.getValue(PVZPlayerCapNBT.INVASION_DIFFICULTY)));
                         player.addEffect(new MobEffectInstance(PVZMobEffects.INVASION_OMEN.get(),
                                         player.getRandom().nextInt(600) + 400, (int) Math.floor((float) amplifier.get() / 10)));
                     }

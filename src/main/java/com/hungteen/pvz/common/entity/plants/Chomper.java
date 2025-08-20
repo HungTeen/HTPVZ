@@ -367,7 +367,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         }
         //root block available check.
         BlockPos finalPos = pos;
-        if ((! entityData.get(this.root())) || getAcceptableTags().stream().anyMatch((tag) -> level.getBlockState(finalPos).is(tag))) {
+        if (plantableOn(level.getBlockState(finalPos))) {
             //final plant.
             BlockState state = level.getBlockState(pos);
             if (isPlanting) {
@@ -395,6 +395,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     protected PathNavigation createNavigation(Level level) {
         return new GroundPathNavigation(this, level);
     }
+    @Override
     public Set<TagKey<Block>> getAcceptableTags() {
         return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.UNPLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE);
     }

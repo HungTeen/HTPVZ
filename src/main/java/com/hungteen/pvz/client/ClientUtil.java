@@ -126,7 +126,6 @@ public class ClientUtil {
     }
 
     public static void translateAgeable(PoseStack poseStack, AgeableListModel model) {
-        poseStack.pushPose();
         if (model.scaleHead) {
             float f = 1.5F / model.babyHeadScale;
             poseStack.scale(f, f, f);

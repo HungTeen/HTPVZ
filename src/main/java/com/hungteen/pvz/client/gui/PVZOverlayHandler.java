@@ -244,7 +244,7 @@ public class PVZOverlayHandler {
         }
     }
 
-    private static void renderOverlays(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+    private static void renderButterOverlay(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
         if (ClientProxy.MC.getCameraEntity() instanceof LivingEntity entity) {
             if (entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
                 gui.renderTextureOverlay(Util.prefix("textures/gui/outline/butter_outline.png"),
@@ -613,7 +613,7 @@ public class PVZOverlayHandler {
         ev.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "item_cooldown", PVZOverlayHandler::renderCoolDownValue);
         ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "armor_on_health", PVZOverlayHandler::renderArmorOnHealthBar);
         ev.registerAbove(VanillaGuiOverlay.ARMOR_LEVEL.id(), "armor_bar", PVZOverlayHandler::renderArmorAsSingleBar);
-        ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "overlays", PVZOverlayHandler::renderOverlays);
+        ev.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "butter", PVZOverlayHandler::renderButterOverlay);
         ev.registerAbove(VanillaGuiOverlay.FROSTBITE.id(), "hypnosis", PVZOverlayHandler::renderHypnosis);
         ev.registerAbove(VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), "invasion", PVZOverlayHandler::renderInvasionBars);
     }

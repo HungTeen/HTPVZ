@@ -21,13 +21,13 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -83,25 +83,34 @@ public class PotatoMine extends SimplePlant {
                     20, 0.5, 0.5, 0.5, 0.1);
         }
     }
-
-    public void addEffect(Entity entity) {
-        if (entity instanceof LivingEntity livingEntity && entity.isAlive()) {
-            MobEffect mobEffect = MobEffects.POISON;
-            int time = 100;
-            if(livingEntity instanceof Mob mob && mob.getMobType() == MobType.UNDEAD){
-                mobEffect = MobEffects.WITHER;
-                time += 200;
+    @Override
+    public boolean isInvisible() {
+        if (this.level.isClientSide) {
+            Player player = ClientProxy.getPlayer();
+            if (player != null && this.entityData.get(PREPARE_COUNT) <= 0 && ! player.isCreative() && ! player.isSpectator() && player.distanceTo(this) > 2) {
+                return (this.getTeam() != player.getTeam() && this.getTeam() != null) || super.isInvisible();
             }
-            livingEntity.addEffect(new MobEffectInstance(mobEffect, time, 1));
         }
+        return super.isInvisible();
     }
+
+    @Override
+    public boolean isInvisibleTo(Player player) {
+        if (this.level.isClientSide) {
+            if (this.entityData.get(PREPARE_COUNT) <= 0 && ! player.isCreative() && ! player.isSpectator() && player.distanceTo(this) < 4) {
+                return false;
+            }
+        }
+        return super.isInvisibleTo(player);
+    }
+
     private void spawnPoisonCloud() {
         AreaEffectCloud areaeffectcloud = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
         areaeffectcloud.setRadius(2F);
         areaeffectcloud.setDuration(400);
         areaeffectcloud.setWaitTime(0);
         areaeffectcloud.setOwner(this);
-        areaeffectcloud.addEffect(new MobEffectInstance(PVZMobEffects.PHYTOTOXIN.get(), 100));
+        areaeffectcloud.addEffect(new MobEffectInstance(PVZMobEffects.PHYTOTOXIN.get(), 400));
 
         if(!this.level.isClientSide)this.level.addFreshEntity(areaeffectcloud);
     }

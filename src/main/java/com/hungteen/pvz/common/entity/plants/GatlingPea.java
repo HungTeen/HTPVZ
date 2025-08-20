@@ -49,7 +49,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     public static final String RAPID_DEPLOYMENT_SKILL_NAME = "skill.pvz.plant.rapid_deployment";
     public static List<Skill> staticSkillList = List.of(
             new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 150, 0),
-            new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, -1000),
+            new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, -800),
             new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(LOW_BUDGET_SKILL_NAME),
             new Skill(RAPID_DEPLOYMENT_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 16, 4, 150, 0)
     );
@@ -169,7 +169,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
 
     @Override
     public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
-        return this.getFirstPassenger() instanceof Player ? this.getViewVector(0).normalize() :
+        return this.getFirstPassenger() instanceof Player player ? player.getViewVector(0).normalize() :
                 super.getShootAngle(target, forwardOffset, rightOffset, heightOffset);
     }
 
@@ -208,7 +208,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
-        if (getPassengers().isEmpty() && ! player.isShiftKeyDown()) {
+        if (getPassengers().isEmpty() && ! player.isShiftKeyDown() && ! this.hasSkill(LOW_BUDGET_SKILL_NAME)) {
             if (level.isClientSide) {
                 sendPVZPacketToServer();
             }
@@ -243,6 +243,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                 if (gatlingPea != null) {
                     gatlingPea.setSkillVal(this.getSkillVal());
                     if (event != null) {
+                        event.spawningEntity = gatlingPea;
                         gatlingPea.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
                     }
                     if (this.hasCustomName()) {

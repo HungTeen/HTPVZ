@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.api.events.PlantShoveledEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
@@ -51,6 +52,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
@@ -131,11 +133,6 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             return !list.isEmpty();
         }
     }
-
-    /**blockTags this plant can plant on. if {@link SimplePlant#ROOT} is false then any block is accepted.*/
-    public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_DIRT);
-    }
     public Set<TagKey<Block>> getMushroomAcceptableTags() {
         return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE, PVZBlockTags.SCULK);
     }
@@ -181,7 +178,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
         //root block available check.
         BlockPos finalPos = pos;
-        if ((! entityData.get(this.root())) || getAcceptableTags().stream().anyMatch((tag) -> level.getBlockState(finalPos).is(tag))) {
+        if (plantableOn(level.getBlockState(finalPos))) {
             //final plant.
             BlockState state = level.getBlockState(pos);
             if (isPlanting) {
@@ -191,7 +188,6 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                                 (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
                                 state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
                         pos.getZ() + 0.5 + offset.getZ());
-                ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.25F);
             }
             return null;
         } else {
@@ -342,21 +338,28 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public static boolean tryShovel(Player player, InteractionHand handIn, LivingEntity target) {
         ItemStack itemstack = player.getItemInHand(handIn);
         ItemStack itemstack1 = player.getItemInHand(InteractionHand.MAIN_HAND);
-        boolean success = (itemstack.getItem() instanceof ShovelItem || itemstack.getItem() instanceof IPlantShovelable)
+        boolean result = (itemstack.getItem() instanceof ShovelItem || itemstack.getItem() instanceof IPlantShovelable)
                 && ! player.getCooldowns().isOnCooldown(itemstack.getItem())
                 && ! (handIn == InteractionHand.OFF_HAND && itemstack1.getItem() instanceof SeedPacketItem<?>);
                     // TODO why does shovel in offHand still runs useOn() when seedPacket is already planted? If can solve, this part can be deleted.
         if (target.level.isClientSide) {
-            return success;
+            return result;
         }
-        if (success) {
-            success = ((IPlant) target).onBeingShoveled(player, handIn);
+        if (result) {
+            PlantShoveledEvent event = new PlantShoveledEvent(player, handIn, target, PlantShoveledEvent.Phase.PRE);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.isCanceled()) {
+                return false;
+            }
+            result = ((IPlant) target).onBeingShoveled(player, handIn);
+            //post-shovel.
+            if (result && itemstack.getItem() instanceof IPlantShovelable shovelable) {
+                shovelable.onPlantShoveled(itemstack, player, target, handIn);
+                event = new PlantShoveledEvent(player, handIn, target, PlantShoveledEvent.Phase.POST);
+                MinecraftForge.EVENT_BUS.post(event);
+            }
         }
-        //post-shovel.
-        if (success && itemstack.getItem() instanceof IPlantShovelable shovelable) {
-            shovelable.onPlantShoveled(itemstack, player, target, handIn);
-        }
-        return success;
+        return result;
     }
     public static boolean onBeingShoveled(Player player, InteractionHand handIn, LivingEntity target) {
         //check permission.

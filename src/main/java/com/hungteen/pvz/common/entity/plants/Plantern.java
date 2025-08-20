@@ -158,7 +158,7 @@ public class Plantern extends SimplePlant {
                 return Math.abs(angle - entityAngle) < 0.5;
             }).forEach((entity) -> {
                 if (entity instanceof LivingEntity livingEntity) {
-                    livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 15));
+                    livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 25));
                 }
             });
         }

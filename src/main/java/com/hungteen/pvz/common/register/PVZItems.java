@@ -130,6 +130,7 @@ public class PVZItems {
     public static final RegistryObject<Item> ZEN_GARDEN_PORTAL = model(Model.Modeled).item("zen_garden_portal", () -> new BlockItem(PVZBlocks.ZEN_GARDEN_PORTAL.get(), new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_BLOCKS)));
     public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ALMANAC = item("almanac", () -> new AlmanacItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> SHELL_STARTUP = item("shell_startup", () -> new DescriptionItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL), "tooltip.pvz.shell_startup"));
 
     static {
         createBannerPatterns();
@@ -223,7 +224,7 @@ public class PVZItems {
                 model(Model.SeedPacket, res("seed_packets/" + name(((PVZSeedPackets.RecipeSeedPacketData<?>) data).getBackCard())), res("plants/" + name));
             }
             seedPacketMap.put(data,
-                    item(name + "_seed_packet", () -> new SeedPacketItem(
+                    tag(PVZItemTags.SEED_PACKETS).item(name + "_seed_packet", () -> new SeedPacketItem(
                             new Item.Properties().stacksTo(1).defaultDurability(150).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly
                     )));
         };
@@ -234,7 +235,7 @@ public class PVZItems {
                 model(Model.SeedPacket, res("seed_packets/seed"), res("plants/" + name));
             }
             seedMap.put(data,
-                    item(name + "_seed", () -> new SeedItem(
+                    tag(PVZItemTags.SEEDS).item(name + "_seed", () -> new SeedItem(
                             new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.resource, data.cost, data.coolDown, data.creativeOnly
                     )));
         };

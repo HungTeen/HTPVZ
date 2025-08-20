@@ -257,7 +257,6 @@ public class PVZDamageSource {
             knockBackEntity = target;
         }
         if (ev.getSource() == ignoreInvTimeSource) {
-            PVZMod.LOGGER.info(target.invulnerableTime + "");
             if (target.invulnerableTime <= (target instanceof Player ? Math.min(15, invTimeLessThan) : invTimeLessThan)) {
                 invTimeTmp = target.invulnerableTime;
                 target.invulnerableTime = 0;

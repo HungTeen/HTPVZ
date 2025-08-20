@@ -58,6 +58,9 @@ public class ModelPartEntity extends Entity {
     public ModelPartEntity(Level p_19871_, ModelPart model, ResourceLocation texture, int life) {
         this(p_19871_, life);
         this.model = ClientUtil.copyModelPart(model);
+        this.model.x = 0;
+        this.model.y = 0;
+        this.model.z = 0;
         this.texture = texture;
         this.originalScale = new Vec3(model.xScale, model.yScale, model.zScale);
     }

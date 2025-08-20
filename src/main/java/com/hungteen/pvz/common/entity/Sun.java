@@ -230,7 +230,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
             this.setDeltaMovement(new Vec3(0, 0, 0));
         }
         //choose attractor.
-        if (! level.isClientSide && (this.tickCount+this.getId()) % ((this.attractedBy != null && this.attractingPlayer != null) ? 250 : 50) == 0 ||
+        if ((this.tickCount+this.getId()) % ((this.attractedBy != null && this.attractingPlayer != null) ? 250 : 50) == 0 ||
                 ((this.attractedBy != null && this.distanceToSqr(this.attractedBy.position()) > 64.0D) ||
                         (this.attractingPlayer != null && this.distanceToSqr(this.attractingPlayer) > 64.0D)) ||
                 (attractedBy instanceof Entity entity && ! EntityUtil.isEntityValid(entity)) ||
@@ -260,30 +260,28 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
             }
         }
         //being attracted.
-        if (! level.isClientSide) {
-            if (this.attractingPlayer != null) {
-                if (distanceToSqr(attractingPlayer) < 0.8F){
-                    onAbsorbedBy(attractingPlayer);
-                }
-                Vec3 vec3 = this.attractingPlayer.position().subtract(this.position());
-                double d0 = vec3.lengthSqr();
-                if (d0 < 25.0D) {
-                    double d1 = 1.0D - Math.sqrt(d0) / 5.0D;
-                    this.setDeltaMovement(this.getDeltaMovement().add(vec3.normalize().scale(d1 * d1 * 0.3D)));
-                }
-            } else if (this.attractedBy != null) {
-                if (distanceToSqr(attractedBy.position()) < 0.8F){
-                    onAbsorbedBy(attractedBy);
-                }
-                Vec3 vec3 = this.attractedBy.position().subtract(this.position());
-                double d0 = vec3.lengthSqr();
-                if (d0 < 25.0D) {
-                    double d1 = 1.0D - Math.sqrt(d0) / 5.0D;
-                    this.setDeltaMovement(this.getDeltaMovement().add(vec3.normalize().scale(d1 * d1 * (attractedBy instanceof Sun ? 0.1D: 0.3D))));
-                }
+        if (this.attractingPlayer != null) {
+            if (distanceToSqr(attractingPlayer) < 0.8F){
+                onAbsorbedBy(attractingPlayer);
             }
-            this.move(MoverType.SELF, this.getDeltaMovement());
+            Vec3 vec3 = this.attractingPlayer.position().subtract(this.position());
+            double d0 = vec3.lengthSqr();
+            if (d0 < 25.0D) {
+                double d1 = 1.0D - Math.sqrt(d0) / 5.0D;
+                this.setDeltaMovement(this.getDeltaMovement().add(vec3.normalize().scale(d1 * d1 * 0.3D)));
+            }
+        } else if (this.attractedBy != null) {
+            if (distanceToSqr(attractedBy.position()) < 0.8F){
+                onAbsorbedBy(attractedBy);
+            }
+            Vec3 vec3 = this.attractedBy.position().subtract(this.position());
+            double d0 = vec3.lengthSqr();
+            if (d0 < 25.0D) {
+                double d1 = 1.0D - Math.sqrt(d0) / 5.0D;
+                this.setDeltaMovement(this.getDeltaMovement().add(vec3.normalize().scale(d1 * d1 * (attractedBy instanceof Sun ? 0.1D: 0.3D))));
+            }
         }
+        this.move(MoverType.SELF, this.getDeltaMovement());
         //about controlled color.
         if (this.controller != null && (this.controller.isSpectator() || (!this.controller.isAlive()))) {
             this.controller = null;
