@@ -8,8 +8,9 @@ import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.EntityLifter;
-import com.hungteen.pvz.common.entity.LootBag;
+import com.hungteen.pvz.common.item.LootBagItem;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.world.PathSeeker;
 import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.datafixers.util.Pair;
@@ -35,8 +36,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
@@ -392,13 +395,23 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     }
 
     public void end(Vec3 position, String endType, boolean success) {
-        if (success) {
-            InvasionType invasionType = this.getMainType();
-            if (invasionType != null && invasionType.loot().isPresent()) {
-                LootBag.drop(level, new BlockPos(position), invasionType.loot().get(), this.invasionLevel / 2 + 4);
-            }
-        }
         if (target instanceof Player player) {
+            if (success) {
+                InvasionType invasionType = this.getMainType();
+                if (invasionType != null && invasionType.loot().isPresent()) {
+                    ItemStack stack = LootBagItem.modify(PVZItems.LOOT_BAG.get().getDefaultInstance(), invasionType.loot().get(), this.invasionLevel / 2 + 4);
+                    ItemEntity bag = new ItemEntity(this.level, position.x, position.y, position.z, stack);
+                    bag.setPickUpDelay(40);
+                    bag.setInvisible(true);
+                    bag.setGlowingTag(true);
+                    bag.moveTo(Vec3.atCenterOf(new BlockPos(position)));
+                    level.addFreshEntity(bag);
+                    bag.setDeltaMovement(
+                            player.getRandom().nextFloat() / 3,
+                            player.getRandom().nextFloat() / 3,
+                            player.getRandom().nextFloat() / 3);
+                }
+            }
             player.getCapability(PVZPlayerCapability.NBT)
                     .ifPresent(cap -> {
                         cap.setValue(PVZPlayerCapNBT.INVASION_DIFFICULTY,

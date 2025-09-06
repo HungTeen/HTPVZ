@@ -30,6 +30,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -134,7 +135,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
     }
     public Set<TagKey<Block>> getMushroomAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE, PVZBlockTags.SCULK);
+        return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.PLANTABLE_STONE, PVZBlockTags.SCULK, BlockTags.LOGS);
     }
 
     /**

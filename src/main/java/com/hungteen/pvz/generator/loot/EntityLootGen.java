@@ -1,6 +1,7 @@
 package com.hungteen.pvz.generator.loot;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.item.SeedItem;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.data.loot.EntityLoot;
@@ -75,6 +76,34 @@ public class EntityLootGen extends EntityLoot {
                             .add(LootItem.lootTableItem(Items.GUNPOWDER)
                                     .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
                                     .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F))))));
+            this.add(PVZEntities.PEA_SHOOTER_ZOMBIE.get(), basicZombieLootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PEA_SHOOTER.get())))
+                            .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.03F, 0.03F))));
+            this.add(PVZEntities.SNOW_PEA_ZOMBIE.get(), basicZombieLootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SNOW_PEA.get())))
+                            .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.03F, 0.03F))));
+            this.add(PVZEntities.GATLING_PEA.get(), basicZombieLootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.GATLING_PEA.get())))
+                            .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.03F, 0.03F))));
+            this.add(PVZEntities.WALL_NUT_ZOMBIE.get(), basicZombieLootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.WALL_NUT.get())))
+                            .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.03F, 0.03F))));
+            this.add(PVZEntities.TALL_NUT_ZOMBIE.get(), basicZombieLootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TALL_NUT.get())))
+                            .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.03F, 0.03F))));
+            this.add(PVZEntities.PUMPKIN_ZOMBIE.get(), basicZombieLootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PUMPKIN.get())))
+                            .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.03F, 0.03F))));
+            this.add(PVZEntities.JALAPENO_ZOMBIE.get(), basicZombieLootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.JALAPENO.get())))
+                            .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.03F, 0.03F))));
             //enter here
 
             if (! map.containsKey(obj.get().getDefaultLootTable())) {

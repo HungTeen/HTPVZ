@@ -62,7 +62,7 @@ public class ClientUtil {
         return null;
     }
     public static boolean hasHead(ModelPart root) {
-        return getFirstHead(root) != null;
+        return getFirstHead(root) != root;
     }
     public static ModelPart getFirstHead(ModelPart root) {
         ModelPart part = getPartMatchingPredicate((string, modelPart) -> string.contains("head"), root);

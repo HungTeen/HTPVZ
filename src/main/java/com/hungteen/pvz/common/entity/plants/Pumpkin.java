@@ -48,10 +48,6 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
         super(entityType, level);
         storedHealth = 0;
     }
-
-    public void setupPresentationAnim() {
-    }
-
     //entity settings
     public void setSecondsOnFire(int seconds) {
         super.setSecondsOnFire(seconds * 3);//balance test.
@@ -89,7 +85,7 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
         Entity entity = source.getDirectEntity();
         if (source.isBypassArmor() || entity == null) return false;
         Vec3 pos = entity.position().subtract(target.position());
-        return (pos.y * pos.y / (pos.x * pos.x + pos.z * pos.z) < 3);
+        return (pos.y < 0 || pos.y * pos.y / (pos.x * pos.x + pos.z * pos.z) < 3);
     }
 
     @Override

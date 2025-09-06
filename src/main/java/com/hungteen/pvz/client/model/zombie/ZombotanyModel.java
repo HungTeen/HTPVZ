@@ -21,18 +21,21 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieModel<T> {
     protected ModelPart attachedHead;
-    ResourceLocation textureLocation;
     MultiBufferSource multiBufferSource;
+    RenderType renderType;
     private static final Vector3f ANIMATION_VECTOR_CACHE = new Vector3f();
     public ZombotanyModel(ModelPart modelPart) {
         super(modelPart);
         head.children.clear();
+        hat.children.clear();
+        hat.cubes = List.of();
     }
 
     @Override
@@ -43,13 +46,19 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
             headRenderer = renderer;
         }
         if (headRenderer != null) {
+            ResourceLocation textureLocation;
             try {
-                this.textureLocation = zombie.getPlantTextureLocation() == null ?
+                textureLocation = zombie.getPlantTextureLocation() == null ?
                         headRenderer.getTextureLocation(null) : zombie.getPlantTextureLocation();
             } catch (Exception ignored) {
                 PVZMod.LOGGER.error("Missing Head Texture for zombotany " + zombie);
-                this.textureLocation = new ResourceLocation("missingno");
+                textureLocation = new ResourceLocation("missingno");
             }
+            boolean flag = ! zombie.isInvisible();
+            boolean flag1 = !flag && !zombie.isInvisibleTo(ClientProxy.getPlayer());
+            boolean flag2 = ClientProxy.MC.shouldEntityAppearGlowing(zombie);
+            PVZMod.LOGGER.info(zombie.getType().getDescription().getString() + " " + flag + " " + flag1 + " " + flag2);
+            this.renderType = this.getRenderType(zombie, textureLocation, flag, flag1, flag2);
         }
         if (this.attachedHead == null) {
             if (headRenderer != null) {
@@ -57,21 +66,21 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
                 this.attachedHead.getAllParts().forEach(ModelPart::resetPose);
             }
             if (attachedHead != null) {
-                if (ClientProxy.MC.levelRenderer.shouldShowEntityOutlines() && ClientProxy.MC.shouldEntityAppearGlowing(zombie)) {
-                    OutlineBufferSource outlinebuffersource = ClientProxy.MC.levelRenderer.renderBuffers.outlineBufferSource();
-                    this.multiBufferSource = outlinebuffersource;
-                    int i = zombie.getTeamColor();
-                    int k = i >> 16 & 255;
-                    int l = i >> 8 & 255;
-                    int i1 = i & 255;
-                    outlinebuffersource.setColor(k, l, i1, 255);
-                } else {
-                    this.multiBufferSource = ClientProxy.MC.levelRenderer.renderBuffers.bufferSource();;
-                }
                 this.head = this.attachedHead;
             }
         }
         if (attachedHead != null) {
+            if (ClientProxy.MC.levelRenderer.shouldShowEntityOutlines() && ClientProxy.MC.shouldEntityAppearGlowing(zombie)) {
+                OutlineBufferSource outlinebuffersource = ClientProxy.MC.levelRenderer.renderBuffers.outlineBufferSource();
+                this.multiBufferSource = outlinebuffersource;
+                int i = zombie.getTeamColor();
+                int k = i >> 16 & 255;
+                int l = i >> 8 & 255;
+                int i1 = i & 255;
+                outlinebuffersource.setColor(k, l, i1, 255);
+            } else {
+                this.multiBufferSource = ClientProxy.MC.levelRenderer.renderBuffers.bufferSource();;
+            }
             Vec3 offset = zombie.getPlantHeadOffset();
             this.head.x += (float) offset.x;
             this.head.y += (float) offset.y;
@@ -90,13 +99,14 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
         }
         this.head.visible = false;
         super.renderToBuffer(poseStack, vertexConsumer, p_102036_, p_102037_, p_102038_, p_102039_, p_102040_, p_102041_);
-        VertexConsumer headConsumer = this.multiBufferSource.getBuffer(RenderType.entityTranslucent(this.textureLocation));
+        VertexConsumer headConsumer = this.multiBufferSource.getBuffer(renderType);
         this.head.visible = true;
         if (this.young) {
             poseStack.pushPose();
             ClientUtil.translateAgeable(poseStack, this);
         }
         this.head.render(poseStack, headConsumer, p_102036_, p_102037_, p_102038_, p_102039_, p_102040_, p_102041_);
+//        this.head.render(poseStack, this.multiBufferSource.getBuffer(RenderType.outline(this.textureLocation)), p_102036_, p_102037_, p_102038_, p_102039_, p_102040_, p_102041_);
         if (this.young) {
             poseStack.popPose();
         }
@@ -142,5 +152,15 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
         }).findFirst().map((p_233397_) -> {
             return p_233397_.getChild(p_233394_);
         });
+    }
+    @Nullable
+    protected RenderType getRenderType(T p_115322_, ResourceLocation resourceLocation, boolean p_115323_, boolean p_115324_, boolean p_115325_) {
+        if (p_115324_) {
+            return RenderType.itemEntityTranslucentCull(resourceLocation);
+        } else if (p_115323_) {
+            return this.renderType(resourceLocation);
+        } else {
+            return p_115325_ ? RenderType.outline(resourceLocation) : null;
+        }
     }
 }

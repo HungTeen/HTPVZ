@@ -114,10 +114,10 @@ public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLo
     }
 
     //enemy type
-    public record EnemyType(CompoundTag entityData, @Nullable List<ResourceLocation> conditions, int threat, int weight, boolean isElite, float startFrom) {
+    public record EnemyType(CompoundTag entityData, @Nullable List<Pair<ResourceLocation, List<String>>> conditions, int threat, int weight, boolean isElite, float startFrom) {
         public static final Codec<EnemyType> CODEC = RecordCodecBuilder.create(builder -> builder.group(
                 CompoundTag.CODEC.fieldOf("entity").forGetter(EnemyType::entityData),
-                ResourceLocation.CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(EnemyType::conditions),
+                Codec.compoundList(ResourceLocation.CODEC, Codec.STRING.listOf()).optionalFieldOf("conditions", List.of()).forGetter(EnemyType::conditions),
                 Codec.INT.fieldOf("threat").forGetter(EnemyType::threat),
                 Codec.INT.optionalFieldOf("weight", 10).forGetter(EnemyType::weight),
                 Codec.BOOL.optionalFieldOf("is_elite", false).forGetter(EnemyType::isElite),

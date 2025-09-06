@@ -66,11 +66,13 @@ public class LightLayer<T extends LivingEntity, M extends EntityModel<T>> extend
 					   float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw,
 					   float headPitch) {
 		Vec3 color = this.colorFunction.apply(livingEntity, partialTicks, ageInTicks);
-		poseStack.pushPose();
-		VertexConsumer iVertexBuilder = bufferIn.getBuffer(renderType(res, 0, 0));
-		getParentModel().renderToBuffer(poseStack, iVertexBuilder, packedLightIn, OverlayTexture.NO_OVERLAY,
-				(float) color.x, (float) color.y, (float) color.z, alpha);
+		if (color.distanceToSqr(Vec3.ZERO) > 0) {
+			poseStack.pushPose();
+			VertexConsumer iVertexBuilder = bufferIn.getBuffer(renderType(res, 0, 0));
+			getParentModel().renderToBuffer(poseStack, iVertexBuilder, packedLightIn, OverlayTexture.NO_OVERLAY,
+					(float) color.x, (float) color.y, (float) color.z, alpha);
 		poseStack.popPose();
+		}
 	}
 
 	public RenderType renderType(ResourceLocation p_110437_, float p_110438_, float p_110439_) {

@@ -30,14 +30,16 @@ public interface InvasionCondition {
     Map<ResourceLocation, InvasionCondition> invasionConditions = registerConditions();
     boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes);
     default int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
-        //accepts all following ResourceLocations, stops at the end or non-ResourceLocation argument.
+        //accepts all following ResourceLocations, stops at the end, non-ResourceLocation and non-tag argument.
         int i = 0;
         while (i < allProvidedArgs.size()) {
             try {
                 String arg = allProvidedArgs.get(i);
-                new ResourceLocation(arg);
-                if (arg.startsWith("$")) {
-                    throw new ResourceLocationException(arg);
+                if (! arg.startsWith("#")) {
+                    new ResourceLocation(arg);
+                    if (arg.startsWith("$")) {
+                        throw new ResourceLocationException(arg);
+                    }
                 }
             } catch (ResourceLocationException exception) {
                 return i;
@@ -101,7 +103,7 @@ public interface InvasionCondition {
         @Override
         public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
             if (arguments.isEmpty()) {
-                PVZMod.LOGGER.warn("Condition in_biome of " + type.getName() + "received no arguments.");
+                PVZMod.LOGGER.warn("Condition in_biome of " + type.getName() + " received no arguments.");
             }
             for (String argument : arguments) {
                 if (argument.startsWith("#")) {

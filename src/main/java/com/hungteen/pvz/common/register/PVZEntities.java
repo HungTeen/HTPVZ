@@ -35,7 +35,6 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
@@ -57,7 +56,10 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -103,7 +105,6 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<PVZChestBoat>> CHEST_BOAT = collision(1.375F, 0.5625F).entity("pvz_chest_boat", PVZChestBoat::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<Sun>> SUN = collision(0.2F, 0.2F).entity("sun", Sun::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<FallenStar>> FALLEN_STAR = collision(0.4F, 0.4F).entity("fallen_star", FallenStar::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<LootBag>> LOOT_BAG = collision(0.2F, 0.2F).fireImmuine().noSummon().entity("loot_bag", LootBag::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<MooBloom>> MOOBLOOM = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, MooBloom::checkMooBloomSpawnRules)
             .spawnEgg(0xffc100, 0x88b830).attribute(MooBloom::createAttributes)
             .collision(0.9F, 1.4F).entity("moo_bloom", MooBloom::new, MobCategory.CREATURE);
@@ -371,7 +372,6 @@ public class PVZEntities {
         r(e, MODEL_PART, ModelPartRenderer::new);
         r(e, ENTITY_LIFTER, EntityLifterRenderer::new);
         r(e, FALLEN_STAR, FallenStarRenderer::new);
-        r(e, LOOT_BAG, ItemEntityRenderer::new);
         r(e, PEA_SHOOTER_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, PeaShooterZombieModel.class));
         r(e, SNOW_PEA_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, SnowPeaZombieModel.class));
         r(e, GATLING_PEA_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, GatlingPeaZombieModel.class));

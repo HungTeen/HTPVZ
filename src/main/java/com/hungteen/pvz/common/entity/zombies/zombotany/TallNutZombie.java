@@ -37,7 +37,7 @@ public class TallNutZombie extends WallNutZombie {
 
     public static AttributeSupplier.@NotNull Builder createAttributes() {
         return Zombie.createAttributes()
-                .add(Attributes.MAX_HEALTH, 80D)
+                .add(Attributes.MAX_HEALTH, 60D)
                 .add(Attributes.ARMOR, 50D)
                 .add(Attributes.ARMOR_TOUGHNESS, 10D);
     }

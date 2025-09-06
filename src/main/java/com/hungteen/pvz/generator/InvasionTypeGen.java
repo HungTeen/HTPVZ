@@ -20,6 +20,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
@@ -88,8 +90,8 @@ public class InvasionTypeGen implements DataProvider {
         ));
         map.put(Util.prefix("overworld_underground"), new InvasionType(loot(),
                 conditions(
-                        put(new InvasionCondition.IsUndergroundCondition()),
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
+                        condition(new InvasionCondition.IsUndergroundCondition()),
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
                 ),
                 entityModifiers(), Optional.empty(), List.of(
                 new InvasionType.EnemyType(
@@ -135,7 +137,7 @@ public class InvasionTypeGen implements DataProvider {
                         )
                 ),
                 conditions(
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO),
                 Optional.of(
@@ -210,8 +212,8 @@ public class InvasionTypeGen implements DataProvider {
                         )
                 ),
                 conditions(
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
-                        put(new InvasionCondition.InBiomeCondition(), "minecraft:swamp", "minecraft:mangrove_swamp")
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
+                        condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS))
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO),
                 Optional.of(
@@ -298,8 +300,8 @@ public class InvasionTypeGen implements DataProvider {
                         )
                 ),
                 conditions(
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
-                        put(new InvasionCondition.InBiomeCondition(), "minecraft:badlands", "minecraft:desert", "minecraft:wooded_badlands", "minecraft:eroded_badlands")
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
+                        condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.IS_BADLANDS), arg(BiomeTags.HAS_DESERT_PYRAMID))
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO),
                 Optional.of(
@@ -354,7 +356,7 @@ public class InvasionTypeGen implements DataProvider {
         ));
         map.put(Util.prefix("overworld_more_weight_thick_zombie"), new InvasionType(loot("pvz:invasion/overworld_common"),
                 conditions(
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO),
                 Optional.of(
@@ -411,7 +413,7 @@ public class InvasionTypeGen implements DataProvider {
         ));
         map.put(Util.prefix("overworld_with_gargantuar"), new InvasionType(loot("pvz:invasion/overworld_common"),
                 conditions(
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO),
                 Optional.of(
@@ -456,6 +458,67 @@ public class InvasionTypeGen implements DataProvider {
                 ),
                 false, 1, 1F,300
         ));
+        map.put(Util.prefix("overworld_zombotany"), new InvasionType(loot("pvz:invasion/overworld_common"),
+                conditions(
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_end")
+                ),
+                entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES),
+                Optional.of(
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZZombie.getOverworldBanner()).get(),
+                                List.of(), BUCKET, 20, true, 0F
+                        )
+                ),
+                List.of(
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.PEA_SHOOTER_ZOMBIE.get()).get(),
+                                List.of(), POLE, 20, false, 0
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.SNOW_PEA_ZOMBIE.get()).get(),
+                                List.of(
+                                        condition(new InvasionCondition.InBiomeCondition(), arg(Tags.Biomes.IS_COLD))
+                                ), CONE, 20, false, 0
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get()).get(),
+                                List.of(), BUCKET, 20, false, 0
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.PEA_SHOOTER_ZOMBIE.get())).get(),
+                                List.of(), BUCKET, 5, false, 0.3F
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get())).get(),
+                                List.of(), GARG + CONE, 50, true, 0.5F
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.JALAPENO_ZOMBIE.get()).get(),
+                                List.of(), DOOR, 5, true, 0.4F
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get()).get(),
+                                List.of(), BUCKET, 15, false, 0
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).get(),
+                                List.of(), BUCKET, 5, false, 0
+                        ),
+                        new InvasionType.EnemyType(// for first waves
+                                EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get()).get(),
+                                List.of(), ZOMBIE, 1, false, 0
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get())).get(),
+                                List.of(), GARG, 5, false, 0.3F
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.TALL_NUT_ZOMBIE.get()).get(),
+                                List.of(), GARG, 10, false, 0.5F
+                        )
+                ),
+                false, 1, 1F,300
+        ));
 
 
         //nether
@@ -489,8 +552,8 @@ public class InvasionTypeGen implements DataProvider {
                         )
                 ),
                 conditions(
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether"),
-                        put(new InvasionCondition.InBiomeCondition(), "minecraft:soul_sand_valley")
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether"),
+                        condition(new InvasionCondition.InBiomeCondition(), "minecraft:soul_sand_valley")
                 ),
                 entityModifiers(InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO, InvasionEntityModifiers.WITH_FOG),
                 Optional.of(
@@ -576,8 +639,8 @@ public class InvasionTypeGen implements DataProvider {
                                                 .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.nether_defensive")))
                         )),
                 conditions(
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether"),
-                        put(new InvasionCondition.Not(), "$pvz:in_biome", "minecraft:basalt_deltas")
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether"),
+                        condition(new InvasionCondition.Not(), arg(new InvasionCondition.InBiomeCondition(), "minecraft:basalt_deltas"))
                 ),
                 entityModifiers(InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO, InvasionEntityModifiers.WITH_FOG),
                 Optional.of(
@@ -641,7 +704,7 @@ public class InvasionTypeGen implements DataProvider {
         map.put(Util.prefix("nether_basic"), new InvasionType(
                 loot("pvz:invasion/nether_basic"),
                 conditions(
-                        put(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether")
+                        condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether")
                 ),
                 entityModifiers(InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO, InvasionEntityModifiers.WITH_FOG),
                 Optional.of(
@@ -706,7 +769,7 @@ public class InvasionTypeGen implements DataProvider {
         return List.of(conditions);
     }
 
-    protected Pair<ResourceLocation, List<String>> put(InvasionCondition condition, String... arguments) {
+    protected Pair<ResourceLocation, List<String>> condition(InvasionCondition condition, String... arguments) {
         return Pair.of(condition.getName(), Arrays.stream(arguments).toList());
     }
 
@@ -715,7 +778,7 @@ public class InvasionTypeGen implements DataProvider {
     }
 
     protected String arg(TagKey tag) {
-        return "#" + tag.location().toString();
+        return "#" + tag.location();
     }
 
     protected String arg(RegistryObject object) {
@@ -732,6 +795,12 @@ public class InvasionTypeGen implements DataProvider {
 
     protected String arg(EntityType type) {
         return ForgeRegistries.ENTITY_TYPES.getKey(type).toString();
+    }
+    protected String[] arg(InvasionCondition condition, String... args) {
+        List<String> list = new ArrayList<>();
+        list.add(arg(condition));
+        list.addAll(Arrays.asList(args));
+        return list.toArray(String[]::new);
     }
 
     protected List<ResourceLocation> entityModifiers() {
