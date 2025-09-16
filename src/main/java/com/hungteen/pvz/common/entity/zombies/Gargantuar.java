@@ -104,7 +104,7 @@ public class Gargantuar extends PVZZombie {
         this.setItemSlot(EquipmentSlot.LEGS, ItemStack.EMPTY);
         this.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
         if (! this.isVehicle()) {
-            Mob mob = this.getRider(level, difficulty, spawnType);
+            Mob mob = this.getRider();
             if (mob != null) {
                 mob.startRiding(this);
             }
@@ -112,10 +112,9 @@ public class Gargantuar extends PVZZombie {
         return spawnGroupData;
     }
 
-    public Mob getRider(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType) {
+    public Mob getRider() {
         Imp imp = PVZEntities.IMP.get().create(this.level);
         imp.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-//        imp.finalizeSpawn(level, difficulty, spawnType, null, null);
         imp.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
         return imp;
     }
@@ -164,7 +163,9 @@ public class Gargantuar extends PVZZombie {
 
     @Override
     public void positionRider(Entity entity) {
-        entity.setPos(this.getPosition(0).add(0, this.getPassengersRidingOffset() + entity.getMyRidingOffset() ,0).add(this.getViewVector(0).multiply(1, 0, 1).normalize().scale(this.isBaby() ? -0.5 : -0.7)));
+        entity.setPos(this.getPosition(0)
+                .add(0, this.getPassengersRidingOffset() + entity.getMyRidingOffset() ,0)
+                .add(new Vec3(- Math.sin(yBodyRot / 57.2), 0, Math.cos(yBodyRot / 57.2)).normalize().scale(this.isBaby() ? -0.5 : -0.7)));
     }
 
     public static class GargantuarRiderGoal extends Goal {

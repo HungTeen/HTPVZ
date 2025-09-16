@@ -57,7 +57,6 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
             boolean flag = ! zombie.isInvisible();
             boolean flag1 = !flag && !zombie.isInvisibleTo(ClientProxy.getPlayer());
             boolean flag2 = ClientProxy.MC.shouldEntityAppearGlowing(zombie);
-            PVZMod.LOGGER.info(zombie.getType().getDescription().getString() + " " + flag + " " + flag1 + " " + flag2);
             this.renderType = this.getRenderType(zombie, textureLocation, flag, flag1, flag2);
         }
         if (this.attachedHead == null) {

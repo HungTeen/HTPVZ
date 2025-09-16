@@ -8,6 +8,8 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -16,6 +18,9 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -101,6 +106,14 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
         return true;
     }
 
+    @Override
+    public MutableComponent customPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
+        BlockState state = level.getBlockState(pos);
+        if (isPlanting && (state.isAir() || state.getBlock() instanceof LiquidBlock)) {
+            return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), state.getBlock().getName());
+        }
+        return null;
+    }
     @Override
     public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {

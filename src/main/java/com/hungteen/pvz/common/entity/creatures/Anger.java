@@ -126,27 +126,25 @@ public class Anger extends FlyingMob {
             if (anger.tickCount > anger.maxLife || level.getBlockState(this.anger.blockPosition()).isSuffocating(level, anger.blockPosition())) {
                 anger.discard();
             }
-            if (anger.tickCount % 3 <= 1) {
-                List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, anger.getBoundingBox().inflate(1.3, 0.2, 1.3).move(0, -0.4, 0));
-                entities.forEach((entity) -> {
-                    if (Util.hasBlockBetween(level, entity.position(), anger.position())) {
-                        return;
-                    }
-                    if (! EntityUtil.isTeammate(anger, entity)) {
-                        entity.hurt(DamageSource.ON_FIRE, (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
-                        entity.setSecondsOnFire(6);
-                    } else if (friendlyFire) {
-                        entity.setSecondsOnFire(6);
-                    }
-                });
-                if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(anger.level, anger)) {
-                    for (int x = -2; x < 3; x ++) {
-                        for (int z = -2; z < 3; z ++) {
-                            for (int y = -2; y < 3; y ++) {
-                                int dist = Math.abs(x) + Math.abs(y) + Math.abs(z) + 1;
-                                if (dist < 6 && anger.random.nextInt(dist) == 0 && level.getBlockState(this.anger.blockPosition().offset(x, y, z)).is(BlockTags.SNOW)) {
-                                    level.setBlock(this.anger.blockPosition().offset(x, y, z), Blocks.AIR.defaultBlockState(), 3);
-                                }
+            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, anger.getBoundingBox().inflate(1.3, 0.2, 1.3).move(0, -0.4, 0));
+            entities.forEach((entity) -> {
+                if (Util.hasBlockBetween(level, entity.position(), anger.position())) {
+                    return;
+                }
+                if (! EntityUtil.isTeammate(anger, entity)) {
+                    entity.hurt(DamageSource.ON_FIRE, (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
+                    entity.setSecondsOnFire(6);
+                } else if (friendlyFire) {
+                    entity.setSecondsOnFire(6);
+                }
+            });
+            if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(anger.level, anger)) {
+                for (int x = -2; x < 3; x ++) {
+                    for (int z = -2; z < 3; z ++) {
+                        for (int y = -2; y < 3; y ++) {
+                            int dist = Math.abs(x) + Math.abs(y) + Math.abs(z) + 1;
+                            if (dist < 6 && anger.random.nextInt(dist) == 0 && level.getBlockState(this.anger.blockPosition().offset(x, y, z)).is(BlockTags.SNOW)) {
+                                level.setBlock(this.anger.blockPosition().offset(x, y, z), Blocks.AIR.defaultBlockState(), 3);
                             }
                         }
                     }

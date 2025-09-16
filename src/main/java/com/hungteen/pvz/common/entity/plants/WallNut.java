@@ -2,13 +2,13 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.api.interfaces.IAttractsEnemy;
 import com.hungteen.pvz.api.interfaces.IIronEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
@@ -41,7 +41,7 @@ import java.util.function.Predicate;
 
 import static com.hungteen.pvz.common.register.PVZDamageSource.*;
 
-public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity {
+public class WallNut extends SimplePlant implements IIronEntity {
     float storedHealth;
     float storedArmor;
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
@@ -107,8 +107,10 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
                 .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.ARMOR, 25D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20D)
-                .add(Attributes.ATTACK_DAMAGE, 50D)
-                .add(Attributes.FOLLOW_RANGE, 2D);
+                .add(Attributes.ATTACK_DAMAGE, 30D)
+                .add(Attributes.FOLLOW_RANGE, 2D)
+                .add(PVZAttributes.ENEMY_ATTRACTION.get(), 15D)
+                .add(PVZAttributes.ENEMY_ATTRACTION_LEVEL.get(), 4D);
     }
     @Override
     public List<Skill> getBasicStaticSkillList(){
@@ -126,13 +128,6 @@ public class WallNut extends SimplePlant implements IAttractsEnemy, IIronEntity 
     @Override
     public Predicate<Entity> canPush(){
         return entity -> entity.getType() == EntityType.PLAYER || ! EntityUtil.isTeammate(this, entity);
-    }
-
-    public void push(Entity entity) {
-        boolean avoid = level.isClientSide || ! EntityUtil.isTeammate(this, entity);
-        for (int i = 0; i < (avoid ? 5 : 1); i ++) {
-            super.push(entity);
-        }
     }
 
     @Override

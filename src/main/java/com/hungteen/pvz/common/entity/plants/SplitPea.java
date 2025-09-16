@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.entity.plants;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
@@ -96,7 +95,6 @@ public class SplitPea extends PeaShooter {
     public double/*cos of vectors*/ getEntityRelativeAngle(Entity entity) {
         Vec3 vec1 = getViewVector(0);
         Vec3 vec2 = entity.position().subtract(this.position()).multiply(1, 0, 1).normalize();
-        PVZMod.LOGGER.info(xRot + "(" + xRotO + ") : " + yRot + "(" + yRotO + ")\n" + getViewVector(0) + "\n" + getLookAngle());
         return vec2.x * vec1.x + vec2.z * vec1.z;
     }
     @Override

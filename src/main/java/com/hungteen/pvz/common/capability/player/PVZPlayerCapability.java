@@ -53,7 +53,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag> {
 
     private PVZPlayerCapNBT nbt = null;
-    private Player player;
+    private final Player player;
     public static final Capability<PVZPlayerCapNBT> NBT = CapabilityManager.get(new CapabilityToken<>(){});
     private final LazyOptional<PVZPlayerCapNBT> opt = LazyOptional.of(this::createNBT);
     public static int syncCount = 0;
@@ -121,7 +121,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         }
                     }
                     //max sun calculation.
-                    AttributeInstance maxSun = player.getAttribute(PVZAttributes.SUN.get());
+                    AttributeInstance maxSun = player.getAttribute(PVZAttributes.MAX_SUN.get());
                     if (! PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.dynamicSunRule)) {
                         //delete entities & blocks caused modifiers.
                         maxSun.getModifiers().forEach((modifier) -> {
@@ -195,7 +195,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         });
                     }
                     //refresh player capability sun limit.
-                    int toMax = (int) player.getAttributeValue(PVZAttributes.SUN.get());
+                    int toMax = (int) player.getAttributeValue(PVZAttributes.MAX_SUN.get());
                     int overFlow = nbt.getValue(PVZPlayerCapNBT.SUN) - toMax;
                     while (overFlow > 25) {
                         Sun.spawnSunWithEffects(player.level, 25, player.blockPosition(), 0.3F);

@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
@@ -34,7 +35,7 @@ import java.util.List;
 
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
-public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity, ICanBePlantedOn {
+public class Pumpkin extends SimplePlant implements IArmorEntity, ICanBePlantedOn {
     float storedHealth;
 
     public static final String FIRST_AID_SKILL_NAME = "skill.pvz.pumpkin.wall_nut_first_aid";
@@ -58,7 +59,9 @@ public class Pumpkin extends SimplePlant implements IAttractsEnemy, IArmorEntity
                 .add(Attributes.MAX_HEALTH, 30D)
                 .add(Attributes.ARMOR, 25D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20D)
-                .add(Attributes.FOLLOW_RANGE, 2D);
+                .add(Attributes.FOLLOW_RANGE, 2D)
+                .add(PVZAttributes.ENEMY_ATTRACTION.get(), 15D)
+                .add(PVZAttributes.ENEMY_ATTRACTION_LEVEL.get(), 4D);
     }
     @Override
     public List<Skill> getBasicStaticSkillList(){

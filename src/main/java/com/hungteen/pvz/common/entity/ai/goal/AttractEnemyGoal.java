@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.PVZConfig;
-import com.hungteen.pvz.api.interfaces.IAttractsEnemy;
+import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -10,12 +10,11 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Supplier;
 
 public class AttractEnemyGoal extends Goal {
-    public Mob entity;
+    public LivingEntity entity;
     public int countDown;
     public Supplier<Boolean> condition;
     public double range;
@@ -45,21 +44,23 @@ public class AttractEnemyGoal extends Goal {
         attractEnemies(entity);
     }
 
-    public float getBasicAttractingStrength(Entity attacker, Entity target) {
-        return target instanceof IAttractsEnemy entity ? entity.getAttractStrength(attacker) : (target instanceof Player ? 10 : 5);
+    public double getBasicAttractingStrength(Entity attacker, Entity target) {
+        return (target instanceof LivingEntity living && living.getAttribute(PVZAttributes.ENEMY_ATTRACTION.get()) != null ?
+                        living.getAttributeValue(PVZAttributes.ENEMY_ATTRACTION.get()) : 5);
     }
 
     /**Attractor in higher level absolutely attracts enemy.*/
-    public float getAttractingLevel(Entity attacker, Entity target) {
-        return target instanceof IAttractsEnemy entity ? entity.getAttractLevel(attacker) : 10;
+    public double getAttractingLevel(Entity attacker, Entity target) {
+        return (target instanceof LivingEntity living && living.getAttribute(PVZAttributes.ENEMY_ATTRACTION_LEVEL.get()) != null ?
+                living.getAttributeValue(PVZAttributes.ENEMY_ATTRACTION_LEVEL.get()) : 4);
     }
 
     /**For attractors in same level, one has more strength is more attractive.*/
-    public float getAttractingStrength(Entity attacker, Entity target) {
+    public double getAttractingStrength(Entity attacker, Entity target) {
         return getBasicAttractingStrength(attacker, target) / target.distanceTo(attacker);
     }
 
-    public void attractEnemies(Mob entity) {
+    public void attractEnemies(LivingEntity entity) {
         double range = this.range < 0 ? entity.getAttribute(Attributes.FOLLOW_RANGE).getValue() : this.range;
         entity.level.getEntities(entity, entity.getBoundingBox().inflate(range)).forEach((targetEntity) -> {
             //attracting limits about tergetEntity.
@@ -70,8 +71,8 @@ public class AttractEnemyGoal extends Goal {
             if (targetEntity instanceof Mob && ! EntityUtil.isTeammate(entity, targetEntity)) {
                 LivingEntity targetOfTarget = ((Mob) targetEntity).getTarget();
                 ///attracting limits about targetEntity's target.
-                float thisLevel = getAttractingLevel(targetEntity, entity);
-                float originalLevel = getAttractingLevel(targetEntity, targetOfTarget);
+                double thisLevel = getAttractingLevel(targetEntity, entity);
+                double originalLevel = getAttractingLevel(targetEntity, targetOfTarget);
                 if (! EntityUtil.isEntityValid(targetOfTarget) ||
                         ((originalLevel < thisLevel || (originalLevel == thisLevel && getAttractingStrength(targetEntity, targetOfTarget) < getAttractingStrength(targetEntity, entity))) &&
                                 ((! PVZConfig.PVZGameRules.getBoolean(entity.level, PVZConfig.Common.teamBattle)) || (EntityUtil.isTeammate(entity, targetOfTarget))))) {

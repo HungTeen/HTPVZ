@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.events.DamageSourceSharpEvent;
 import com.hungteen.pvz.api.interfaces.IArmorEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
@@ -93,7 +92,7 @@ public class PVZDamageSource {
     }
     /**Set the rate of damage apply on bosses and make the damage available for ender dragons. To avoid dealing too much damage that instantly kill bosses.*/
     public static DamageSource hitBossWithProportion(DamageSource source, Entity target) {
-        return hitBossWithProportion(source, target, 1 - PVZAPI.get().getPlantDamageResistance(target));
+        return hitBossWithProportion(source, target, 1 - EntityUtil.getPlantDamageResistance(target));
     }
     public static DamageSource hitBossWithProportion(DamageSource source, Entity target, float factor) {
         if (target.getType().is(Tags.EntityTypes.BOSSES) || (target instanceof PartEntity<?> part && part.getParent().getType().is(Tags.EntityTypes.BOSSES))) {

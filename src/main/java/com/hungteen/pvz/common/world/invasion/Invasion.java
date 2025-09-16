@@ -421,7 +421,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                     });
         }
         if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
-            PVZMod.LOGGER.info("invasion ended with end component " + this.invasionEvent.getName() + ".");
+            PVZMod.LOGGER.info("Invasion ended with end component " + this.invasionEvent.getName() + ".");
         }
         this.invasionEvent.setName(Component.translatable(endType, uuid.toString()));
         this.endCountDown = 200;

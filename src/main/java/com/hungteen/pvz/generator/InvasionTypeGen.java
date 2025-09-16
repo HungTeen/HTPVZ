@@ -83,8 +83,7 @@ public class InvasionTypeGen implements DataProvider {
     public Map<ResourceLocation, InvasionType> getTypes() {
         Map<ResourceLocation, InvasionType> map = new HashMap<>();
         map.put(Util.prefix("babylize"), new InvasionType(loot(),
-                conditions(
-                ),
+                conditions(),
                 entityModifiers(InvasionEntityModifiers.BABYLIZE),
                 Optional.empty(), List.of(), true, 1.5F, 1,50
         ));
@@ -96,11 +95,11 @@ public class InvasionTypeGen implements DataProvider {
                 entityModifiers(), Optional.empty(), List.of(
                 new InvasionType.EnemyType(
                         EntityBuilder.of(PVZEntities.DIGGER_ZOMBIE.get()).get(),
-                        List.of(), DOOR, 10, false, 0.4F
+                        conditions(), DOOR, 10, false, 0.4F
                 ),
                 new InvasionType.EnemyType(
                         EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get(),
-                        List.of(), DOOR, 2, false, 0.8F
+                        conditions(), DOOR, 2, false, 0.8F
                 )
         ), true, 1F, 1,10000
         ));
@@ -143,41 +142,41 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD,PVZZombie.getOverworldBanner()).get(),
-                                List.of(), ZOMBIE, 20, true, 0F
+                                conditions(), ZOMBIE, 20, true, 0F
                         )
                 ),
                 List.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).get(),
-                                List.of(), ZOMBIE, 26, false, 0
+                                conditions(), ZOMBIE, 26, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.ZOMBIE).get(),
-                                List.of(), ZOMBIE, 4, false, 0
+                                conditions(), ZOMBIE, 4, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 8, false, 0.1F
+                                conditions(), CONE, 8, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.ZOMBIE).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 2, false, 0.1F
+                                conditions(), CONE, 2, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 5, false, 0.3F
+                                conditions(), BUCKET, 5, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get()).get(),
-                                List.of(), CONE, 5, false, 0.5F
+                                conditions(), CONE, 5, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.MAINHAND, PVZItems.SCREEN_DOOR_SHIELD.get().getDefaultInstance()).get(),
-                                List.of(), DOOR, 10, false, 0.4F
+                                conditions(), DOOR, 10, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.POLE_VAULTING_ZOMBIE.get()).get(),
-                                List.of(), POLE, 20, false, 0.1F
+                                conditions(), POLE, 20, false, 0.1F
                         )
                 ),
                 false, 1, 1,100
@@ -219,49 +218,49 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD,PVZZombie.getOverworldBanner()).get(),
-                                List.of(), ZOMBIE, 20, true, 0F
+                                conditions(), ZOMBIE, 20, true, 0F
                         )
                 ),
                 List.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).get(),
-                                List.of(), ZOMBIE, 26, false, 0
+                                conditions(), ZOMBIE, 26, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.ZOMBIE).get(),
-                                List.of(), ZOMBIE, 4, false, 0
+                                conditions(), ZOMBIE, 4, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 8, false, 0.1F
+                                conditions(), CONE, 8, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.ZOMBIE).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 2, false, 0.1F
+                                conditions(), CONE, 2, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 5, false, 0.3F
+                                conditions(), BUCKET, 5, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get()).get(),
-                                List.of(), CONE, 5, false, 0.5F
+                                conditions(), CONE, 5, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.SNORKEL_ZOMBIE.get()).get(),
-                                List.of(), CONE, 15, false, 0.3F
+                                conditions(), CONE, 15, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.SLIME)
                                         .passenger(EntityBuilder.of(PVZEntities.ZOMBIE.get()))
                                         .modify(entity -> entity.putInt("Size", 2)).get(),
-                                List.of(), ZOMBIE + SLIME, 10, false, 0
+                                conditions(), ZOMBIE + SLIME, 10, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.SLIME)
                                         .passenger(EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()))
                                         .modify(entity -> entity.putInt("Size", 3)).get(),
-                                List.of(), BUCKET + SLIME, 5, true, 0.3F
+                                conditions(), BUCKET + SLIME, 5, true, 0.3F
                         )
                 ),
                 false, 1, 1,500
@@ -307,49 +306,49 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD,PVZZombie.getOverworldBanner()).get(),
-                                List.of(), ZOMBIE, 20, true, 0F
+                                conditions(), ZOMBIE, 20, true, 0F
                         )
                 ),
                 List.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).get(),
-                                List.of(), ZOMBIE, 20, false, 0
+                                conditions(), ZOMBIE, 20, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.HUSK).get(),
-                                List.of(), ZOMBIE, 30, false, 0
+                                conditions(), ZOMBIE, 30, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 10, false, 0.1F
+                                conditions(), CONE, 10, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.HUSK).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 10, false, 0.1F
+                                conditions(), CONE, 10, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.HUSK).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 10, false, 0.3F
+                                conditions(), BUCKET, 10, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.HUSK).equip(EquipmentSlot.MAINHAND, PVZItems.SCREEN_DOOR_SHIELD.get().getDefaultInstance()).get(),
-                                List.of(), DOOR, 10, false, 0.4F
+                                conditions(), DOOR, 10, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get()).get(),
-                                List.of(), CONE, 5, false, 0.5F
+                                conditions(), CONE, 5, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.POLE_VAULTING_ZOMBIE.get()).get(),
-                                List.of(), POLE, 20, false, 0.1F
+                                conditions(), POLE, 20, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.IMP.get()).get(),
-                                List.of(), IMP, 10, false, 0.2F
+                                conditions(), IMP, 10, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.GARGANTUAR.get()).get(),
-                                List.of(), GARG, 10, true, 0.5F
+                                conditions(), GARG, 10, true, 0.5F
                         )
                 ),
                 false, 1, 1,500
@@ -362,51 +361,51 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD,PVZZombie.getOverworldBanner()).get(),
-                                List.of(), ZOMBIE, 20, true, 0F
+                                conditions(), ZOMBIE, 20, true, 0F
                         )
                 ),
                 List.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).get(),
-                                List.of(), ZOMBIE, 6, false, 0
+                                conditions(), ZOMBIE, 6, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.ZOMBIE).get(),
-                                List.of(), ZOMBIE, 2, false, 0
+                                conditions(), ZOMBIE, 2, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 16, false, 0.1F
+                                conditions(), CONE, 16, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.ZOMBIE).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 4, false, 0
+                                conditions(), CONE, 4, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 24, false, 0.3F
+                                conditions(), BUCKET, 24, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.ZOMBIE).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 6, false, 0.3F
+                                conditions(), BUCKET, 6, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.MAINHAND, PVZItems.SCREEN_DOOR_SHIELD.get().getDefaultInstance()).get(),
-                                List.of(), DOOR, 30, false, 0.4F
+                                conditions(), DOOR, 30, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get())
                                         .equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance())
                                         .equip(EquipmentSlot.MAINHAND, PVZItems.SCREEN_DOOR_SHIELD.get().getDefaultInstance()).get(),
-                                List.of(), 900, 10, false, 0.5F
+                                conditions(), 900, 10, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.POLE_VAULTING_ZOMBIE.get()).get(),
-                                List.of(), POLE, 25, false, 0.1F
+                                conditions(), POLE, 25, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.SNORKEL_ZOMBIE.get()).get(),
-                                List.of(), POLE, 15, false, 0.3F
+                                conditions(), POLE, 15, false, 0.3F
                         )
                 ),
                 false, 1, 1,100
@@ -419,41 +418,41 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD,PVZZombie.getOverworldBanner()).get(),
-                                List.of(), ZOMBIE, 20, true, 0F
+                                conditions(), ZOMBIE, 20, true, 0F
                         )
                 ),
                 List.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).get(),
-                                List.of(), ZOMBIE, 20, false, 0
+                                conditions(), ZOMBIE, 20, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 15, false, 0.1F
+                                conditions(), CONE, 15, false, 0.1F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 5, false, 0.4F
+                                conditions(), BUCKET, 5, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.MAINHAND, PVZItems.SCREEN_DOOR_SHIELD.get().getDefaultInstance()).get(),
-                                List.of(), DOOR, 5, false, 0.4F
+                                conditions(), DOOR, 5, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.POLE_VAULTING_ZOMBIE.get()).get(),
-                                List.of(), POLE, 15, false, 0.3F
+                                conditions(), POLE, 15, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.SNORKEL_ZOMBIE.get()).get(),
-                                List.of(), POLE, 15, false, 0.3F
+                                conditions(), POLE, 15, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.IMP.get()).get(),
-                                List.of(), IMP, 10, false, 0.2F
+                                conditions(), IMP, 10, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.GARGANTUAR.get()).get(),
-                                List.of(), GARG, 10, true, 0.5F
+                                conditions(), GARG, 10, true, 0.5F
                         )
                 ),
                 false, 1, 1F,300
@@ -466,55 +465,55 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZZombie.getOverworldBanner()).get(),
-                                List.of(), BUCKET, 20, true, 0F
+                                conditions(), BUCKET, 20, true, 0F
                         )
                 ),
                 List.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.PEA_SHOOTER_ZOMBIE.get()).get(),
-                                List.of(), POLE, 20, false, 0
+                                conditions(), POLE, 20, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.SNOW_PEA_ZOMBIE.get()).get(),
-                                List.of(
+                                conditions(
                                         condition(new InvasionCondition.InBiomeCondition(), arg(Tags.Biomes.IS_COLD))
                                 ), CONE, 20, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get()).get(),
-                                List.of(), BUCKET, 20, false, 0
+                                conditions(), BUCKET, 20, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.PEA_SHOOTER_ZOMBIE.get())).get(),
-                                List.of(), BUCKET, 5, false, 0.3F
+                                conditions(), BUCKET, 5, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get())).get(),
-                                List.of(), GARG + CONE, 50, true, 0.5F
+                                conditions(), GARG + CONE, 50, true, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.JALAPENO_ZOMBIE.get()).get(),
-                                List.of(), DOOR, 5, true, 0.4F
+                                conditions(), DOOR, 5, true, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get()).get(),
-                                List.of(), BUCKET, 15, false, 0
+                                conditions(), BUCKET, 15, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).get(),
-                                List.of(), BUCKET, 5, false, 0
+                                conditions(), BUCKET, 5, false, 0
                         ),
                         new InvasionType.EnemyType(// for first waves
                                 EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get()).get(),
-                                List.of(), ZOMBIE, 1, false, 0
+                                conditions(), ZOMBIE, 1, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get())).get(),
-                                List.of(), GARG, 5, false, 0.3F
+                                conditions(), GARG, 5, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.TALL_NUT_ZOMBIE.get()).get(),
-                                List.of(), GARG, 10, false, 0.5F
+                                conditions(), GARG, 10, false, 0.5F
                         )
                 ),
                 false, 1, 1F,300
@@ -559,49 +558,49 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZZombie.getNetherBanner()).get(),
-                                List.of(), ZOMBIE, 20, true, 0F
+                                conditions(), ZOMBIE, 20, true, 0F
                         )
                 ),
                 List.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).get(),
-                                List.of(), ZOMBIE, 20, false, 0
+                                conditions(), ZOMBIE, 20, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.IMP.get()).get(),
-                                List.of(), ZOMBIE, 10, false, 0
+                                conditions(), ZOMBIE, 10, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 20, false, 0.2F
+                                conditions(), CONE, 20, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 5, false, 0.5F
+                                conditions(), BUCKET, 5, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.FIRE_IMP.get()).get(),
-                                List.of(), BUCKET, 10, false, 0.3F
+                                conditions(), BUCKET, 10, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get(),
-                                List.of(), CONE, 10, false, 0.3F
+                                conditions(), CONE, 10, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.LAVA_DIVER_ZOMBIE.get()).get(),
-                                List.of(), CONE, 15, false, 0.2F
+                                conditions(), CONE, 15, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.SKELETON).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), 400, 5, false, 0.4F
+                                conditions(), 400, 5, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.SKELETON).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 5, false, 0.8F
+                                conditions(), BUCKET, 5, false, 0.8F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.LAVA_GHASTLING.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(),
-                                List.of(), BUCKET, 15, true, 0.4F
+                                conditions(), BUCKET, 15, true, 0.4F
                         )
                 ),
                 false, 1, 1.2F,500
@@ -646,57 +645,57 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZZombie.getNetherBanner()).get(),
-                                List.of(), ZOMBIE, 20, true, 0F
+                                conditions(), ZOMBIE, 20, true, 0F
                         )
                 ),
                 List.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).get(),
-                                List.of(), ZOMBIE, 20, false, 0
+                                conditions(), ZOMBIE, 20, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.IMP.get()).get(),
-                                List.of(), ZOMBIE, 10, false, 0
+                                conditions(), ZOMBIE, 10, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 20, false, 0.2F
+                                conditions(), CONE, 20, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 5, false, 0.5F
+                                conditions(), BUCKET, 5, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.FIRE_IMP.get()).get(),
-                                List.of(), BUCKET, 10, false, 0.3F
+                                conditions(), BUCKET, 10, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get(),
-                                List.of(), DOOR, 5, false, 0.3F
+                                conditions(), DOOR, 5, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.POLE_VAULTING_ZOMBIE.get()).get(),
-                                List.of(), POLE, 15, false, 0.3F
+                                conditions(), POLE, 15, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.LAVA_DIVER_ZOMBIE.get()).get(),
-                                List.of(), CONE, 15, false, 0.2F
+                                conditions(), CONE, 15, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.MAGMA_CUBE)
                                         .passenger(EntityBuilder.of(PVZEntities.ZOMBIE.get()))
                                         .modify(entity -> entity.putInt("Size", 2)).get(),
-                                List.of(), ZOMBIE + SLIME, 10, false, 0
+                                conditions(), ZOMBIE + SLIME, 10, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.MAGMA_CUBE)
                                         .passenger(EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()))
                                         .modify(entity -> entity.putInt("Size", 3)).get(),
-                                List.of(), BUCKET + SLIME, 5, true, 0.5F
+                                conditions(), BUCKET + SLIME, 5, true, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.GARGANTUAR.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(),
-                                List.of(), GARG + CONE, 15, true, 0.5F
+                                conditions(), GARG + CONE, 15, true, 0.5F
                         )
                 ),
                 false, 1, 1.2F,300
@@ -710,45 +709,45 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD,PVZZombie.getNetherBanner()).get(),
-                                List.of(), ZOMBIE, 20, true, 0F
+                                conditions(), ZOMBIE, 20, true, 0F
                         )
                 ),
                 List.of(
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).get(),
-                                List.of(), ZOMBIE, 20, false, 0
+                                conditions(), ZOMBIE, 20, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.IMP.get()).get(),
-                                List.of(), ZOMBIE, 10, false, 0
+                                conditions(), ZOMBIE, 10, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), CONE, 20, false, 0.2F
+                                conditions(), CONE, 20, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(),
-                                List.of(), BUCKET, 5, false, 0.5F
+                                conditions(), BUCKET, 5, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.FIRE_IMP.get()).get(),
-                                List.of(), BUCKET, 10, false, 0.3F
+                                conditions(), BUCKET, 10, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get(),
-                                List.of(), DOOR, 5, false, 0.3F
+                                conditions(), DOOR, 5, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.POLE_VAULTING_ZOMBIE.get()).get(),
-                                List.of(), POLE, 15, false, 0.3F
+                                conditions(), POLE, 15, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.LAVA_DIVER_ZOMBIE.get()).get(),
-                                List.of(), CONE, 15, false, 0.2F
+                                conditions(), CONE, 15, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.GARGANTUAR.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(),
-                                List.of(), GARG + CONE, 15, true, 0.5F
+                                conditions(), GARG + CONE, 15, true, 0.5F
                         )
                 ),
                 false, 1, 1.2F,500
@@ -802,6 +801,12 @@ public class InvasionTypeGen implements DataProvider {
         list.addAll(Arrays.asList(args));
         return list.toArray(String[]::new);
     }
+    protected String[] arg(InvasionCondition condition, String[]... args) {
+        List<String> list = new ArrayList<>();
+        list.add(arg(condition));
+        Arrays.stream(args).forEach(arg -> list.addAll(Arrays.asList(arg)));
+        return list.toArray(String[]::new);
+    }
 
     protected List<ResourceLocation> entityModifiers() {
         return List.of();
@@ -810,7 +815,7 @@ public class InvasionTypeGen implements DataProvider {
         return Arrays.stream(modifiers).map(string -> {
             ResourceLocation location = new ResourceLocation(string);
             if (! InvasionType.invasionEntityModifiers.containsKey(location)) {
-                PVZMod.LOGGER.error("added incorrect entity modifier name in {}", location);
+                PVZMod.LOGGER.error("Added incorrect entity modifier name in {}", location);
                 throw new RuntimeException();
             }
             return location;
@@ -820,7 +825,7 @@ public class InvasionTypeGen implements DataProvider {
     protected List<ResourceLocation> entityModifiers(ResourceLocation... modifiers) {
         return Arrays.stream(modifiers).peek(location -> {
             if (! InvasionType.invasionEntityModifiers.containsKey(location)) {
-                PVZMod.LOGGER.error("added incorrect entity modifier name in {}", location);
+                PVZMod.LOGGER.error("Added incorrect entity modifier name in {}", location);
                 throw new RuntimeException();
             }
         }).toList();

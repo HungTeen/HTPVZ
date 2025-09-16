@@ -56,8 +56,8 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
         SunState sunState = this.getSunState();
         int extra = sunState == SunState.FULL ? 50 : sunState == SunState.HALF ? 25 : 0;
         int current = 0;
-        if (giveTo instanceof Player player && player.getAttribute(PVZAttributes.SUN.get()) != null) {
-            current = (int) ((LivingEntity) giveTo).getAttributeValue(PVZAttributes.SUN.get());
+        if (giveTo instanceof Player player && player.getAttribute(PVZAttributes.MAX_SUN.get()) != null) {
+            current = (int) ((LivingEntity) giveTo).getAttributeValue(PVZAttributes.MAX_SUN.get());
         } else if (giveTo instanceof ISunContainer container) {
             current = container.getCapacity();
         }

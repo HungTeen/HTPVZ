@@ -24,7 +24,7 @@ public class SpikeWeedRenderer<T extends SpikeWeed> extends MobRenderer<T, Entit
 
     public void render(T spikeWeed, float p_115456_, float p_115457_, PoseStack poseStack, MultiBufferSource buffer, int p_115460_) {
         poseStack.pushPose();
-        Vec3i vec = spikeWeed.getAttachFace().getNormal();
+        Vec3i vec = spikeWeed.getGrowDirection().getNormal();
         poseStack.translate(- 0.5 * vec.getX(), 0.5 - 0.5 * vec.getY(), - 0.5 * vec.getZ());
         poseStack.mulPose(Vector3f.ZP.rotation((float) (Math.PI * (- vec.getX() + (vec.getY() != 0 ? (vec.getY() - 1) : 0)) / 2)));
         poseStack.mulPose(Vector3f.XP.rotation((float) (Math.PI * vec.getZ() / 2)));

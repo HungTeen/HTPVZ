@@ -22,10 +22,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -80,7 +77,10 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     public Direction getGrowDirection() {
-        return getAttachFace();
+        return this.entityData.get(ATTACH_FACE);
+    }
+    private void setGrowDirection(Direction p_149789_) {
+        this.entityData.set(ATTACH_FACE, p_149789_);
     }
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
@@ -89,12 +89,6 @@ public class SpikeWeed extends SimplePlant {
     @Override
     public BlockPos getRootBlockPos() {
         return blockPosition().relative(getGrowDirection().getOpposite());
-    }
-    public Direction getAttachFace() {
-        return this.entityData.get(ATTACH_FACE);
-    }
-    private void setAttachFace(Direction p_149789_) {
-        this.entityData.set(ATTACH_FACE, p_149789_);
     }
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_33434_) {
@@ -108,7 +102,7 @@ public class SpikeWeed extends SimplePlant {
         if (this.getGrowDirection() == Direction.UP) {
             return super.makeBoundingBox();
         }
-        Direction direction = this.getAttachFace();
+        Direction direction = this.getGrowDirection();
         AABB aabb = new AABB(blockPosition());
         Vec3 offset = this.getPosition(0).subtract(blockPosition().getX(), blockPosition().getY(), blockPosition().getZ()).subtract(0.5, 0, 0.5);
         aabb = aabb.setMaxX(aabb.maxX - 1e-4 + offset.x);
@@ -166,7 +160,7 @@ public class SpikeWeed extends SimplePlant {
     @Override
     public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting && hasSkill(ON_WALL_SKILL_NAME)) {
-            setAttachFace(direction);
+            setGrowDirection(direction);
         }
         return super.customPositionSafe(event, level, pos, direction, isPlanting);
     }

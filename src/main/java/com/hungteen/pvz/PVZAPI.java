@@ -15,6 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
     @Override
@@ -54,14 +55,13 @@ public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
         PVZPlayerCapability.getPlayerData(player).ifPresent((data) -> data.setValue(PVZPlayerCapNBT.AUTO_SET_COST_AND_CD, value ? 1 : 0));
     }
     @Override
-    public Attribute getMaxSunAttribute() {
-        return PVZAttributes.SUN.get();
-    }
-
-    @Override
-    public float getPlantDamageResistance(Entity target) {
-        return target instanceof LivingEntity livingEntity && livingEntity.getAttribute(PVZAttributes.PLANT_HURT_RESISTANCE.get()) != null ?
-                (float) livingEntity.getAttribute(PVZAttributes.PLANT_HURT_RESISTANCE.get()).getValue() : 0;
+    public @Nullable Attribute getAttribute(com.hungteen.pvz.api.PVZAPI.PVZAttributes entry) {
+        return switch (entry) {
+            case MAX_SUN -> PVZAttributes.MAX_SUN.get();
+            case PLANT_HURT_RESISTANCE -> PVZAttributes.PLANT_HURT_RESISTANCE.get();
+            case LURE_ATTRACTING_ENEMIES -> PVZAttributes.ENEMY_ATTRACTION.get();
+            case LEVEL_ATTRACTING_ENEMIES -> PVZAttributes.ENEMY_ATTRACTION_LEVEL.get();
+        };
     }
     @Override
     public boolean isTeammate(Entity A, Entity B) {

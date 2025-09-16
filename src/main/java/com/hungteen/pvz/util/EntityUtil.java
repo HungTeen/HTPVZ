@@ -5,6 +5,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.CheckReteamableToOwnerEvent;
 import com.hungteen.pvz.api.events.SculkJudgmentEvent;
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
+import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
@@ -105,7 +106,10 @@ public class EntityUtil {
         MinecraftForge.EVENT_BUS.post(event);
         return event.result;
     }
-
+    public static float getPlantDamageResistance(Entity target) {
+        return target instanceof LivingEntity livingEntity && livingEntity.getAttribute(PVZAttributes.PLANT_HURT_RESISTANCE.get()) != null ?
+                (float) livingEntity.getAttribute(PVZAttributes.PLANT_HURT_RESISTANCE.get()).getValue() : 0;
+    }
 
     //Hating & Teaming
     /**Check if entities are teammates. <b>CAN ONLY</b> call on server.
@@ -119,7 +123,7 @@ public class EntityUtil {
         }
         boolean result;
         if (A == null || B == null) {
-            PVZMod.LOGGER.error(A == null ? "A" : "B" + " is null!");
+            PVZMod.LOGGER.error((A == null ? "A" : "B") + " is found null in teammate check!");
             return false;
         }
 
