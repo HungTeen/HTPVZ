@@ -8,9 +8,11 @@ public class TeammateTestingEvent extends Event {
     public final Entity A;
     public final Entity B;
     public boolean currentResult;
-    public TeammateTestingEvent(Entity A, Entity B, boolean currentResult) {
+    public final boolean forCombat;
+    public TeammateTestingEvent(Entity A, Entity B, boolean currentResult, boolean forCombat) {
         this.A = A;
         this.B = B;
         this.currentResult = currentResult;
+        this.forCombat = forCombat;
     }
 }

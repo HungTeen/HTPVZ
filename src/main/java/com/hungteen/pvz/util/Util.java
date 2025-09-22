@@ -2,11 +2,12 @@ package com.hungteen.pvz.util;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
+import com.hungteen.pvz.common.world.team.PVZTeamData;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
@@ -28,6 +29,8 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.scores.Team;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.RegistryObject;
@@ -69,7 +72,7 @@ public class Util {
     public static PVZResourceEvent.CheckResourceEvent checkPlantResourceEvent(Player player, ItemStack plantCard) {
         SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
         String resource = item.getResource(plantCard);
-        int cost = (resource.equals(PVZPlayerCapNBT.SUN)
+        int cost = (resource.equals(PVZPlayerCapStats.SUN)
                 && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
                 0 : item.getBaseCost(plantCard);
         int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
@@ -80,12 +83,23 @@ public class Util {
     public static PVZResourceEvent.CheckPlantConditionEvent checkPlantConditionEvent(Player player, ItemStack plantCard, Entity spawningEntity) {
         SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
         String resource = item.getResource(plantCard);
-        int cost = (resource.equals(PVZPlayerCapNBT.SUN)
+        int cost = (resource.equals(PVZPlayerCapStats.SUN)
                 && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
                 0 : item.getBaseCost(plantCard);
         int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
                 1 : item.getBaseCoolDown(plantCard);
         return new PVZResourceEvent.CheckPlantConditionEvent(player, plantCard, spawningEntity, resource, cost, coolDown);
+    }
+
+
+    //team tools
+    public static boolean isTeamEvil(Level level, Team team) {
+        if (level.isClientSide) {
+            return PVZTeamData.clientEvilList.contains(team.getName());
+        } else {
+            Scoreboard scoreboard = level.getScoreboard();
+            return PVZTeamData.isEvil(scoreboard, team.getName());
+        }
     }
 
 

@@ -14,6 +14,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.common.capabilities.Capability;
@@ -83,7 +84,7 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                         mob.setTarget(null);
                     }
                     //owner---------------------------------------------------------------------------------------------
-                    if (! EntityUtil.isEntityValid(cap.owner)) {
+                    if (! EntityUtil.isEntityValid(cap.owner) && cap.ownerUuid != null) {
                         Entity entity1 = ((ServerLevel) cap.entity.level).getEntity(cap.ownerUuid);
                         if (entity1 != null) {
                             cap.setOwner(entity1);
@@ -140,12 +141,20 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     //owner
+    public void setOwner(UUID uuid) {
+        this.owner = ((ServerLevel) (entity.level)).getEntity(ownerUuid);
+        if (owner instanceof Player) {
+            this.ownerUuid = uuid;
+        }
+    }
     public void setOwner(Entity entity) {
         this.owner = entity;
         if (entity == null) {
             this.ownerUuid = null;
         } else {
-            this.ownerUuid = entity.getUUID();
+            if (entity instanceof Player) {
+                this.ownerUuid = entity.getUUID();
+            }
             Scoreboard scoreboard = this.entity.getServer().getScoreboard();
             PlayerTeam team = scoreboard.getPlayersTeam(entity.getScoreboardName());
             if (team != null) {
@@ -158,6 +167,9 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
         this.owner = owner == null ? ((ServerLevel) (entity.level)).getEntity(ownerUuid) : owner;
         return owner;
     }
+    public UUID getOwnerUuid() {
+        return this.owner == null ? ownerUuid : owner.getUUID();
+    }
 
     public static Entity getOwner(Entity entity) {
         AtomicReference<Entity> entity1 = new AtomicReference<>();
@@ -167,8 +179,24 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
         return entity1.get();
     }
 
+    public static UUID getOwnerUUID(Entity entity) {
+        AtomicReference<UUID> entity1 = new AtomicReference<>();
+        entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+            entity1.set(cap.getOwnerUuid());
+        });
+        return entity1.get();
+    }
+
     public boolean hasOwner() {
         return ownerUuid != null;
+    }
+
+    public static boolean hasOwner(Entity entity) {
+        AtomicReference<Boolean> result = new AtomicReference<>();
+        entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+            result.set(cap.hasOwner());
+        });
+        return result.get();
     }
 
     //invasion
@@ -202,6 +230,8 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
         basicTag.putInt("stuck_arrow_with_a_target", stuckArrowWithATarget);
         if (owner != null) {
             basicTag.putUUID("owner", owner.getUUID());
+        } else if (ownerUuid != null) {
+            basicTag.putUUID("owner", ownerUuid);
         }
         if (! zombieEventUUIDs.isEmpty()) {
             CompoundTag zombieEventTag = new CompoundTag();
@@ -234,6 +264,9 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             this.ownerUuid = nbt.getUUID("owner");
             //TODO handle situation when player is not available when loading.
             this.owner = ((ServerLevel) (entity.level)).getEntity(ownerUuid);
+            if (! (owner instanceof Player)) {
+                this.ownerUuid = null;
+            }
         }
         if (nbt.contains("zombie_events")) {
             CompoundTag zombieEventTag = nbt.getCompound("zombie_events");

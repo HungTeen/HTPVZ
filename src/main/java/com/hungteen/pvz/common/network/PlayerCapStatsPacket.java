@@ -11,24 +11,24 @@ import java.util.function.Supplier;
 /**
  * Available sending from server to client.
  */
-public class PlayerCapPacket {
+public class PlayerCapStatsPacket {
     private final boolean type;//True for value, false for limit.
     private final int value;
     private int value2;
     private final String key;
 
-    public PlayerCapPacket(String key, int value){
+    public PlayerCapStatsPacket(String key, int value){
         this.type = true;
         this.key = key;
         this.value = value;
     }
-    public PlayerCapPacket(String key, int limitMin, int limitMax){
+    public PlayerCapStatsPacket(String key, int limitMin, int limitMax){
         this.type = false;
         this.key = key;
         this.value = limitMin;
         this.value2 = limitMax;
     }
-    public PlayerCapPacket(FriendlyByteBuf buf) {
+    public PlayerCapStatsPacket(FriendlyByteBuf buf) {
         this.type = buf.readBoolean();
         this.key = buf.readUtf();
         this.value = buf.readInt();
@@ -61,10 +61,10 @@ public class PlayerCapPacket {
     //method
     public static void sync(ServerPlayer player, String key, Boolean valueOrLimit){
         if (valueOrLimit) {
-            PVZPacketHandler.sendToClient(player, new PlayerCapPacket(key, PVZPlayerCapability.getValue(player, key)));
+            PVZPacketHandler.sendToClient(player, new PlayerCapStatsPacket(key, PVZPlayerCapability.getValue(player, key)));
         } else {
             Pair<Integer, Integer> limit = PVZPlayerCapability.getValueLimit(player, key);
-            PVZPacketHandler.sendToClient(player, new PlayerCapPacket(key, limit.getFirst(), limit.getSecond()));
+            PVZPacketHandler.sendToClient(player, new PlayerCapStatsPacket(key, limit.getFirst(), limit.getSecond()));
         }
     }
 }

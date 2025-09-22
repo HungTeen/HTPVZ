@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.world;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.item.PVZShieldItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
@@ -47,8 +47,8 @@ public class PVZWorldEvents {
     @SubscribeEvent
     public static void playerRespawnCoolDown(PlayerEvent.PlayerRespawnEvent event) {
         if (! event.getEntity().level.isClientSide && ! event.isEndConquered()) {
-            PVZPlayerCapNBT nbt = PVZPlayerCapability.getPlayerData(event.getEntity()).orElse(null);
-                if (PVZPlayerCapability.getValue(event.getEntity(), PVZPlayerCapNBT.PLANT_HAVE_CD) == 0) {
+            PVZPlayerCapStats nbt = PVZPlayerCapability.getPlayerData(event.getEntity()).orElse(null);
+                if (PVZPlayerCapability.getValue(event.getEntity(), PVZPlayerCapStats.PLANT_HAVE_CD) == 0) {
                     return;
                 }
                 ItemCooldowns cooldowns = event.getEntity().getCooldowns();

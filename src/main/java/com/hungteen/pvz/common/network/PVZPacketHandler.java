@@ -20,7 +20,7 @@ public class PVZPacketHandler {
                 .serverAcceptedVersions(s -> true)
                 .simpleChannel();
         //SERVER TO CLIENT.
-        CHANNEL.registerMessage(id ++, PlayerCapPacket.class, PlayerCapPacket::toBytes, PlayerCapPacket::new, PlayerCapPacket::handle);
+        CHANNEL.registerMessage(id ++, PlayerCapStatsPacket.class, PlayerCapStatsPacket::toBytes, PlayerCapStatsPacket::new, PlayerCapStatsPacket::handle);
         CHANNEL.registerMessage(id ++, SpawnParticlePacket.class, SpawnParticlePacket::toBytes, SpawnParticlePacket::new, SpawnParticlePacket::handle);
         CHANNEL.registerMessage(id ++, PlayerCoolDownPacket.class, PlayerCoolDownPacket::toBytes, PlayerCoolDownPacket::new, PlayerCoolDownPacket::handle);
         CHANNEL.registerMessage(id ++, PlayerContinueCoolDownPacket.class, PlayerContinueCoolDownPacket::toBytes, PlayerContinueCoolDownPacket::new, PlayerContinueCoolDownPacket::handle);
@@ -29,6 +29,7 @@ public class PVZPacketHandler {
         CHANNEL.registerMessage(id ++, ZombieEventPacket.class, ZombieEventPacket::toBytes, ZombieEventPacket::new, ZombieEventPacket::handle);
         CHANNEL.registerMessage(id ++, PlayerKnockBackPacket.class, PlayerKnockBackPacket::toBytes, PlayerKnockBackPacket::new, PlayerKnockBackPacket::handle);
         CHANNEL.registerMessage(id ++, PVZEntityCapPacket.class, PVZEntityCapPacket::toBytes, PVZEntityCapPacket::new, PVZEntityCapPacket::handle);
+        CHANNEL.registerMessage(id ++, TeamEvilnessPacket.class, TeamEvilnessPacket::toBytes, TeamEvilnessPacket::new, TeamEvilnessPacket::handle);
         //CLIENT TO SERVER.
         CHANNEL.registerMessage(id ++, PVZAddSkillPacket.class, PVZAddSkillPacket::toBytes, PVZAddSkillPacket::new, PVZAddSkillPacket::handle);
         CHANNEL.registerMessage(id ++, PVZEntityInteractPacket.class, PVZEntityInteractPacket::toBytes, PVZEntityInteractPacket::new, PVZEntityInteractPacket::handle);

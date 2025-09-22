@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
@@ -85,7 +85,7 @@ public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
         if (! player.isCreative() && ! player.isSpectator()) {
             PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, itemStack);
             MinecraftForge.EVENT_BUS.post(event);
-            return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, Objects.equals(getResource(itemStack), PVZPlayerCapNBT.SUN), false, false));
+            return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, Objects.equals(getResource(itemStack), PVZPlayerCapStats.SUN), false, false));
         }
         return Optional.empty();
     }

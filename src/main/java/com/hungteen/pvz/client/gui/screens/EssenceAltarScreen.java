@@ -5,7 +5,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.menu.EssenceAltarMenu;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -219,7 +219,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                 }
                 ClientProxy.MC.screen.renderTooltip(stack, list,
                         Optional.of(new SunImageToolTipComponent(cost, cd,
-                                ((SeedPacketItem<?>) menu.getItems().get(0).getItem()).getResource(menu.getItems().get(0)).equals(PVZPlayerCapNBT.SUN), true, true)),
+                                ((SeedPacketItem<?>) menu.getItems().get(0).getItem()).getResource(menu.getItems().get(0)).equals(PVZPlayerCapStats.SUN), true, true)),
                         mouseX, mouseY, font, ItemStack.EMPTY);
             }
         } else {

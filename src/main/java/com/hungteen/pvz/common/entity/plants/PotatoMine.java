@@ -1,10 +1,13 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.TeammateTestingEvent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -32,12 +35,14 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 import java.util.Set;
 
 import static com.hungteen.pvz.common.register.PVZDamageSource.*;
 
+@Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class PotatoMine extends SimplePlant {
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(PotatoMine.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> PREPARE_COUNT = SynchedEntityData.defineId(PotatoMine.class, EntityDataSerializers.INT);
@@ -87,8 +92,8 @@ public class PotatoMine extends SimplePlant {
     public boolean isInvisible() {
         if (this.level.isClientSide) {
             Player player = ClientProxy.getPlayer();
-            if (player != null && this.entityData.get(PREPARE_COUNT) <= 0 && ! player.isCreative() && ! player.isSpectator() && player.distanceTo(this) > 2) {
-                return (this.getTeam() != player.getTeam() && this.getTeam() != null) || super.isInvisible();
+            if (player != null && this.entityData.get(PREPARE_COUNT) <= 0 && ! player.isCreative() && ! player.isSpectator() && player.distanceToSqr(this) > 4) {
+                return EntityUtil.checkCanEntityBeAttack(this, player) || super.isInvisible();
             }
         }
         return super.isInvisible();
@@ -97,13 +102,24 @@ public class PotatoMine extends SimplePlant {
     @Override
     public boolean isInvisibleTo(Player player) {
         if (this.level.isClientSide) {
-            if (this.entityData.get(PREPARE_COUNT) <= 0 && ! player.isCreative() && ! player.isSpectator() && player.distanceTo(this) < 4) {
+            if (this.entityData.get(PREPARE_COUNT) <= 0 && ! player.isCreative() && ! player.isSpectator() && player.distanceToSqr(this) < 16) {
                 return false;
             }
         }
         return super.isInvisibleTo(player);
     }
-
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onPlantCheckTeammate(TeammateTestingEvent event) {
+        //won't be regarded as target by shooters/pults if far enough.
+        if (! event.forCombat) return;
+        if (event.A.distanceToSqr(event.B) < 16) return;
+        if (event.A instanceof PotatoMine || event.B instanceof PotatoMine) {
+            Entity potatoMine = event.A instanceof PotatoMine ? event.A : event.B;
+            if (potatoMine.getEntityData().get(PREPARE_COUNT) > 0) return;
+            Entity other = event.A == potatoMine ? event.B : event.A;
+            event.currentResult = event.currentResult || other instanceof ShooterPlant;
+        }
+    }
     private void spawnPoisonCloud() {
         AreaEffectCloud areaeffectcloud = new AreaEffectCloud(this.level, this.getX(), this.getY(), this.getZ());
         areaeffectcloud.setRadius(2F);

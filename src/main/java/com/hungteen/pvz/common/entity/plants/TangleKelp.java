@@ -53,6 +53,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWaterPlant {
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(TangleKelp.class, EntityDataSerializers.BOOLEAN);
@@ -293,9 +294,9 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
     public void saveToBucketTag(ItemStack itemStack) {
         Bucketable.saveDefaultDataToBucketTag(this, itemStack);
         CompoundTag compoundtag = itemStack.getOrCreateTag();
-        PVZEntityCapability cap = getCapability(PVZEntityCapability.CAP).orElse(null);
-        if (cap != null && cap.ownerUuid != null) {
-            compoundtag.putUUID("Owner", cap.ownerUuid);
+        UUID uuid = PVZEntityCapability.getOwnerUUID(this);
+        if (uuid != null) {
+            compoundtag.putUUID("Owner", uuid);
             compoundtag.putInt("Skill", this.getSkillVal());
         }
     }
@@ -305,7 +306,7 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
         if (tag.contains("Owner")) {
             PVZEntityCapability cap = getCapability(PVZEntityCapability.CAP).orElse(null);
             if (cap != null) {
-                cap.ownerUuid = tag.getUUID("Owner");
+                cap.setOwner(tag.getUUID("Owner"));
             }
         }
         if (tag.contains("Skill")) {

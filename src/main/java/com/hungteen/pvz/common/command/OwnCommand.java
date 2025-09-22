@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Collection;
+import java.util.UUID;
 
 public class OwnCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -58,7 +59,7 @@ public class OwnCommand {
         for (Entity entity: owned) {
             PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
             if (cap != null) {
-                cap.setOwner(null);
+                cap.setOwner((UUID) null);
                 count ++;
                 tmpEntity = entity;
             }

@@ -7,7 +7,7 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.events.PlantShoveledEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
@@ -381,7 +381,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                 itemstack.hurtAndBreak(2, player, (entity) -> entity.broadcastBreakEvent(handIn));
                 int enchantmentLevel = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SUN_SHOVEL.get(), itemstack);
                 PVZEntityCapability cap = target.getCapability(PVZEntityCapability.CAP).orElse(null);
-                if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapNBT.SUN)) {
+                if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapStats.SUN)) {
                     Sun.spawnSunsWithEffectsByAmount(target.level, target.getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
                 }
                 ((ServerLevel)target.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, target.level.getBlockState(target.getOnPos())).setPos(target.getOnPos()), target.getX(), target.getY(), target.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
@@ -504,9 +504,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
-        PVZEntityCapability cap = this.getCapability(PVZEntityCapability.CAP).orElse(null);
-        return cap == null || ! cap.hasOwner();
-        //TODO handle situation when player is not available when loading.
+        return ! PVZEntityCapability.hasOwner(this);
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
         return entityType instanceof IWaterPlant ? level.getBlockState(pos.below()).is(PVZBlockTags.PLANTABLE_DIRT) : level.getBlockState(pos).getFluidState().is(FluidTags.WATER);

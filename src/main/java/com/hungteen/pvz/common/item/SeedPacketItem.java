@@ -11,7 +11,7 @@ import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEnchantments;
@@ -194,7 +194,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
         //sun check
-        if (level.isClientSide() && getResource(player.getItemInHand(handIn)).equals(PVZPlayerCapNBT.SUN)) {
+        if (level.isClientSide() && getResource(player.getItemInHand(handIn)).equals(PVZPlayerCapStats.SUN)) {
             PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, player.getItemInHand(handIn));
             MinecraftForge.EVENT_BUS.post(event);
             if (event.cost > PVZPlayerCapability.getValue(player, event.resource)) {
@@ -441,7 +441,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         if (! player.isCreative() && ! player.isSpectator()) {
             PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, itemStack);
             MinecraftForge.EVENT_BUS.post(event);
-            return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, getResource(itemStack).equals(PVZPlayerCapNBT.SUN), false, true));
+            return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, getResource(itemStack).equals(PVZPlayerCapStats.SUN), false, true));
         }
         return Optional.empty();
     }

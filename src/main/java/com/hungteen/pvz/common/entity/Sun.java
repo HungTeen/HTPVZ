@@ -5,7 +5,7 @@ import com.hungteen.pvz.api.events.AbsorbSunEvent;
 import com.hungteen.pvz.api.interfaces.ISun;
 import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.api.interfaces.ISunContainer;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.network.SpawnParticlePacket;
 import com.hungteen.pvz.common.register.PVZEnchantments;
@@ -117,7 +117,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
         }
         final boolean[] tmp = new boolean[1];
         PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) ->
-                tmp[0] = nbt.getValue(PVZPlayerCapNBT.SUN) < nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond());
+                tmp[0] = nbt.getValue(PVZPlayerCapStats.SUN) < nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond());
         return tmp[0];
     }
 
@@ -165,10 +165,10 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
             }
             //player absorb.
             PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
-                int origin = nbt.getValue(PVZPlayerCapNBT.SUN);
+                int origin = nbt.getValue(PVZPlayerCapStats.SUN);
                 int num = getAmount();
-                nbt.addValue(PVZPlayerCapNBT.SUN, num);
-                int actual = nbt.getValue(PVZPlayerCapNBT.SUN);
+                nbt.addValue(PVZPlayerCapStats.SUN, num);
+                int actual = nbt.getValue(PVZPlayerCapStats.SUN);
                 if (actual - origin >= num || player.isCreative()) {
                     this.remove(Entity.RemovalReason.DISCARDED);
                 } else {

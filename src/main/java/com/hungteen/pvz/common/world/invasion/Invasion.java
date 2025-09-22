@@ -5,7 +5,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.EntityLifter;
 import com.hungteen.pvz.common.item.LootBagItem;
@@ -412,12 +412,12 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                             player.getRandom().nextFloat() / 3);
                 }
             }
-            player.getCapability(PVZPlayerCapability.NBT)
+            PVZPlayerCapability.getPlayerData(player)
                     .ifPresent(cap -> {
-                        cap.setValue(PVZPlayerCapNBT.INVASION_DIFFICULTY,
-                                (success ? (((int)(20 * (float) this.totalTime / this.expectedTotalTime) + cap.getValue(PVZPlayerCapNBT.INVASION_DIFFICULTY) * 4) / 5) :
-                                        (int) (cap.getValue(PVZPlayerCapNBT.INVASION_DIFFICULTY) * 0.8F)));
-                        cap.setValue(PVZPlayerCapNBT.LAST_INVASION, 0);
+                        cap.setValue(PVZPlayerCapStats.INVASION_DIFFICULTY,
+                                (success ? (((int)(20 * (float) this.totalTime / this.expectedTotalTime) + cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY) * 4) / 5) :
+                                        (int) (cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY) * 0.8F)));
+                        cap.setValue(PVZPlayerCapStats.LAST_INVASION, 0);
                     });
         }
         if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {

@@ -26,7 +26,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -270,8 +269,8 @@ public class Sprout extends Mob implements IGardenPlant {
             MariGold marigold = this.convertTo(PVZEntities.MARIGOLD.get(), true);
             if (marigold != null) {
                 final UUID[] owner = new UUID[1];
-                this.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> owner[0] = cap.ownerUuid);
-                marigold.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.ownerUuid = owner[0]);
+                this.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> owner[0] = cap.getOwnerUuid());
+                marigold.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(owner[0]));
             }
         }
         renewWaterPot();

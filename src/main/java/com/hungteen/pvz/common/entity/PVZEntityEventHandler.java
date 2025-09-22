@@ -1,12 +1,12 @@
 package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal;
 import com.hungteen.pvz.common.entity.plants.Plantern;
-import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
 import com.hungteen.pvz.common.network.DropDamagedArmorPacket;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.network.PlanternRefreshGlowPacket;
@@ -41,7 +41,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class PVZEntityEventHandler {
@@ -83,10 +82,9 @@ public class PVZEntityEventHandler {
             event.getEntity().getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
                 if (cap.containsInvasion) {
                     if (event.getSource().getEntity() instanceof ServerPlayer player) {
-                        AtomicInteger amplifier = new AtomicInteger();
-                        player.getCapability(PVZPlayerCapability.NBT).ifPresent(cap1 -> amplifier.set(cap1.getValue(PVZPlayerCapNBT.INVASION_DIFFICULTY)));
                         player.addEffect(new MobEffectInstance(PVZMobEffects.INVASION_OMEN.get(),
-                                        player.getRandom().nextInt(600) + 400, (int) Math.floor((float) amplifier.get() / 10)));
+                                player.getRandom().nextInt(600) + 400,
+                                (int) Math.floor((float) PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY) / 10)));
                     }
                 }
             });

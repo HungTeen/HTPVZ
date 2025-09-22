@@ -9,7 +9,6 @@ import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
-import com.hungteen.pvz.common.world.team.PVZTeamData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
@@ -24,7 +23,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
@@ -112,13 +110,13 @@ public class EntityUtil {
     }
 
     //Hating & Teaming
-    /**Check if entities are teammates. <b>CAN ONLY</b> call on server.
+    /**Check if entities are teammates. can call on server or client.
      * <br>I you want to check if an entity is attackable, use {@link EntityUtil#checkCanEntityBeAttack(Entity, Entity)}.*/
     public static boolean isTeammate(Entity A, Entity B) {
         if (A instanceof Projectile proj && proj.getOwner() != null) {
             return isTeammate(proj.getOwner(), B);
         }
-        if (B instanceof Projectile proj) {
+        if (B instanceof Projectile proj && proj.getOwner() != null) {
             return isTeammate(A, proj.getOwner());
         }
         boolean result;
@@ -134,9 +132,8 @@ public class EntityUtil {
 
         boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, PVZConfig.Common.teamBattle);
 
-        Scoreboard scoreboard = A.getServer().getScoreboard();
-        boolean teamAEvil = teamA != null && PVZTeamData.isEvil(scoreboard, teamA.getName());
-        boolean teamBEvil = teamB != null && PVZTeamData.isEvil(scoreboard, teamB.getName());
+        boolean teamAEvil = teamA != null && Util.isTeamEvil(A.level, teamA);
+        boolean teamBEvil = teamB != null && Util.isTeamEvil(B.level, teamB);
 
         if (teamA == teamB) {
             result = teamA != null || (AIsEnemy == BIsEnemy);
@@ -148,7 +145,7 @@ public class EntityUtil {
             return false;
         } else result = !teamAEvil && !teamBEvil;
 
-        TeammateTestingEvent event = new TeammateTestingEvent(A, B, result);
+        TeammateTestingEvent event = new TeammateTestingEvent(A, B, result, false);
         MinecraftForge.EVENT_BUS.post(event);
         return event.currentResult;
     }
@@ -156,18 +153,11 @@ public class EntityUtil {
      * check can AttackGoal continue to attack target. <b>CAN ONLY</b> call on server.
      */
     public static boolean checkCanEntityBeAttack(Entity attacker, Entity target) {
-        //TODO enable Player#canHarmPlayer().
-        if (attacker == null || target == null) {//prevent crash
-            return false;
-        }
-        if ((target instanceof Player && ! isSurvivalPlayer(target)) || ! isEntityValid(target)) {
-            //the reason not testing whether attacker is valid: there may be some situations attacking when attacker is dead, such as for bomb plants.
-            return false;
-        }
-        if (isTeammate(attacker, target)) {//enable team attack
-            return false;
-        }
-        return true;
+        if (attacker == null || target == null) return false;
+        boolean result = (!(target instanceof Player) || isSurvivalPlayer(target)) && isEntityValid(target) && ! isTeammate(attacker, target);
+        TeammateTestingEvent event = new TeammateTestingEvent(attacker, target, !result, true);
+        MinecraftForge.EVENT_BUS.post(event);
+        return ! event.currentResult;
     }
 
     public static boolean isSurvivalPlayer(Entity entity) {

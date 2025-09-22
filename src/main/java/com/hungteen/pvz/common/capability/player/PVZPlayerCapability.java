@@ -8,10 +8,12 @@ import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.PumpkinHelmetItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.PlayerContinueCoolDownPacket;
+import com.hungteen.pvz.common.network.TeamEvilnessPacket;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.common.world.invasion.InvasionTeam;
+import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
@@ -52,11 +54,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag> {
 
-    private PVZPlayerCapNBT nbt = null;
+    private PVZPlayerCapStats nbt = null;
     private final Player player;
-    public static final Capability<PVZPlayerCapNBT> NBT = CapabilityManager.get(new CapabilityToken<>(){});
-    private final LazyOptional<PVZPlayerCapNBT> opt = LazyOptional.of(this::createNBT);
+    public static final Capability<PVZPlayerCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
+    private final LazyOptional<PVZPlayerCapStats> opt = LazyOptional.of(this::createNBT);
     public static int syncCount = 0;
+    /**Pair of garden teleporting positions. The first is overworld pos, second is garden pos.*/
+    private Pair<Vec3, Vec3> gardenPos = new Pair<>(null, null);
 
     //TODO combine this class with PVZPlayerCapNBT.
 
@@ -65,9 +69,9 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         this.opt.ifPresent(cap -> cap.setPlayer(player));
     }
 
-    private PVZPlayerCapNBT createNBT(){
+    private PVZPlayerCapStats createNBT(){
         if(nbt == null){
-            nbt = new PVZPlayerCapNBT();
+            nbt = new PVZPlayerCapStats();
         }
         return nbt;
     }
@@ -75,7 +79,8 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
             //timed sync
             if (++ syncCount > 20) {
-                getPlayerData(player).ifPresent(PVZPlayerCapNBT::syncAll);
+                TeamEvilnessPacket.sync(player, ((ServerLevel) player.level));
+                getPlayerData(player).ifPresent(PVZPlayerCapStats::syncAll);
                 syncCount = 0;
             }
             //functional
@@ -97,27 +102,27 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         }
                         if (nbt.sunCountDown >= 15 / (player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
                             int limitSun = getDifficultyLimitSun(player);
-                            int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
+                            int curSun = nbt.getValue(PVZPlayerCapStats.SUN);
                             if (curSun < limitSun) {
-                                nbt.setValue(PVZPlayerCapNBT.SUN, Math.min(curSun + 5, limitSun));
+                                nbt.setValue(PVZPlayerCapStats.SUN, Math.min(curSun + 5, limitSun));
                             }
                             nbt.sunCountDown = 0;
                         }
                     } else if (player.hasEffect(MobEffects.DARKNESS) && nbt.sunCountDown >= 5 / (player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
                         int limitSun = getDifficultyLimitSun(player);
-                        int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
+                        int curSun = nbt.getValue(PVZPlayerCapStats.SUN);
                         if (curSun > limitSun) {
-                            nbt.setValue(PVZPlayerCapNBT.SUN, Math.max(curSun - 5, limitSun));
+                            nbt.setValue(PVZPlayerCapStats.SUN, Math.max(curSun - 5, limitSun));
                         }
                         nbt.sunCountDown = 0;
                     }
                     //naturally sun regain.
                     int interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallyRegainSunInterval);
                     if (interval > 0 && player.tickCount % interval == 0 && ! player.hasEffect(MobEffects.DARKNESS) && EntityUtil.isEntityPeace(player,100)) {
-                        int limitSun = nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond();
-                        int curSun = nbt.getValue(PVZPlayerCapNBT.SUN);
+                        int limitSun = nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond();
+                        int curSun = nbt.getValue(PVZPlayerCapStats.SUN);
                         if (curSun < limitSun) {
-                            nbt.addValue(PVZPlayerCapNBT.SUN, 5);
+                            nbt.addValue(PVZPlayerCapStats.SUN, 5);
                         }
                     }
                     //max sun calculation.
@@ -196,7 +201,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                     //refresh player capability sun limit.
                     int toMax = (int) player.getAttributeValue(PVZAttributes.MAX_SUN.get());
-                    int overFlow = nbt.getValue(PVZPlayerCapNBT.SUN) - toMax;
+                    int overFlow = nbt.getValue(PVZPlayerCapStats.SUN) - toMax;
                     while (overFlow > 25) {
                         Sun.spawnSunWithEffects(player.level, 25, player.blockPosition(), 0.3F);
                         overFlow -= 25;
@@ -204,7 +209,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     if (overFlow > 0) {
                         Sun.spawnSunWithEffects(player.level, overFlow, player.blockPosition(), 0.3F);
                     }
-                    nbt.setValueLimit(PVZPlayerCapNBT.SUN, 0, toMax);
+                    nbt.setValueLimit(PVZPlayerCapStats.SUN, 0, toMax);
                     //natural sun spawn
                     interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnSunInterval);
                     if (interval > 0 && player.tickCount % interval == 0 && ! player.level.getBiome(player.getOnPos()).is(PVZBiomeTags.UNABLE_SUN_FALLING)) {
@@ -233,7 +238,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 }
                 //cool down effects.
                 if (! player.level.isClientSide) {
-                    if (nbt.getValue(PVZPlayerCapNBT.PLANT_HAVE_CD) == 0) {
+                    if (nbt.getValue(PVZPlayerCapStats.PLANT_HAVE_CD) == 0) {
                         Set<Item> keyset = Set.copyOf(player.getCooldowns().cooldowns.keySet());
                         for (Item i : keyset) {
                             if (i instanceof SeedPacketItem) {
@@ -255,19 +260,19 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                 }
                 //auto set sun cost and cd.
-                if (nbt.getValue(PVZPlayerCapNBT.AUTO_SET_COST_AND_CD) == 1) {
-                    nbt.setValue(PVZPlayerCapNBT.PLANT_HAVE_COST, player.isCreative() ? 0 : 1);
-                    nbt.setValue(PVZPlayerCapNBT.PLANT_HAVE_CD, player.isCreative() ? 0 : 1);
+                if (nbt.getValue(PVZPlayerCapStats.AUTO_SET_COST_AND_CD) == 1) {
+                    nbt.setValue(PVZPlayerCapStats.PLANT_HAVE_COST, player.isCreative() ? 0 : 1);
+                    nbt.setValue(PVZPlayerCapStats.PLANT_HAVE_CD, player.isCreative() ? 0 : 1);
                 }
                 //invasion spawn
                 int interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnInvasionsInterval);
                 if (player.tickCount % 50 == 0 && interval > 0) {
-                    int lastInvasion = nbt.getValue(PVZPlayerCapNBT.LAST_INVASION);
+                    int lastInvasion = nbt.getValue(PVZPlayerCapStats.LAST_INVASION);
                     if (lastInvasion > interval && player.getRandom().nextInt(lastInvasion) > (lastInvasion * 0.9F + (float) interval / 10)) {
-                        nbt.setValue(PVZPlayerCapNBT.LAST_INVASION, interval / 2);
+                        nbt.setValue(PVZPlayerCapStats.LAST_INVASION, interval / 2);
                         InvasionTeam.spawnFor(player);
                     }
-                    nbt.addValue(PVZPlayerCapNBT.LAST_INVASION, 1);
+                    nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 1);
                 }
                 //pumpkin helmet
                 ItemStack itemStack = player.containerMenu.getCarried();
@@ -295,16 +300,14 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
 
     public static Vec3 getTeleportPos(Player player, Level destWorld) {
         AtomicReference<Vec3> vec3 = new AtomicReference<>();
-        PVZPlayerCapability.getPlayerData(player).ifPresent((data) -> {
-            vec3.set(data.getTransportPos(destWorld));
-        });
+        player.getCapability(CAP).ifPresent(cap -> vec3.set(destWorld.dimension().equals(ZenGardenTeleporter.GARDEN) ?
+                cap.gardenPos.getSecond() : cap.gardenPos.getFirst()));
         return vec3.get();
     }
 
     public static void setTeleportPos(Player player, Vec3 pos, Level destWorld) {
-        PVZPlayerCapability.getPlayerData(player).ifPresent((data) -> {
-            data.setTransportPos(destWorld, pos);
-        });
+        player.getCapability(CAP).ifPresent(cap -> cap.gardenPos = destWorld.dimension().equals(ZenGardenTeleporter.GARDEN) ?
+                new Pair<>(pos, cap.gardenPos.getSecond()) : new Pair<>(cap.gardenPos.getFirst(), pos));
     }
 
     public static int getDifficultyLimitSun(Player player) {
@@ -321,18 +324,17 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == NBT){
-            return opt.cast();
-        }
-        return LazyOptional.empty();
+        return cap == CAP ? LazyOptional.of(() -> (T) this) : LazyOptional.empty();
     }
 
-    public PVZPlayerCapNBT getPlayerData() {
+    public PVZPlayerCapStats getPlayerData() {
         return nbt;
     }
 
-    public static LazyOptional<PVZPlayerCapNBT> getPlayerData(Player player){
-        return player.getCapability(NBT);
+    public static Optional<PVZPlayerCapStats> getPlayerData(Player player) {
+        AtomicReference<PVZPlayerCapability> cap = new AtomicReference<>();
+        player.getCapability(CAP).ifPresent(cap::set);
+        return cap.get() == null ? Optional.empty() : Optional.of(cap.get().getPlayerData());
     }
 
     public static int getValue(Player player, String key){
@@ -351,16 +353,31 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.put("PVZData", getPlayerData().serializeNBT());
-        CompoundTag cdTag = new CompoundTag();
-        ItemCooldowns coolDowns = player.getCooldowns();
-        for (Item item : coolDowns.cooldowns.keySet()) {
-            ItemCooldowns.CooldownInstance instance = coolDowns.cooldowns.get(item);
-            int[] tmp = new int[2];
-            tmp[0] = instance.startTime - coolDowns.tickCount;
-            tmp[1] = instance.endTime - coolDowns.tickCount;
-            cdTag.putIntArray(ForgeRegistries.ITEMS.getKey(item).toString(), tmp);
+        {
+            CompoundTag cdTag = new CompoundTag();
+            ItemCooldowns coolDowns = player.getCooldowns();
+            for (Item item : coolDowns.cooldowns.keySet()) {
+                ItemCooldowns.CooldownInstance instance = coolDowns.cooldowns.get(item);
+                int[] tmp = new int[2];
+                tmp[0] = instance.startTime - coolDowns.tickCount;
+                tmp[1] = instance.endTime - coolDowns.tickCount;
+                cdTag.putIntArray(ForgeRegistries.ITEMS.getKey(item).toString(), tmp);
+            }
+            tag.put("CoolDowns", cdTag);
+        }{
+            CompoundTag posTag = new CompoundTag();
+            if (this.gardenPos.getFirst() != null) {
+                posTag.putDouble("overworld_x", this.gardenPos.getFirst().x);
+                posTag.putDouble("overworld_y", this.gardenPos.getFirst().y);
+                posTag.putDouble("overworld_z", this.gardenPos.getFirst().z);
+            }
+            if (this.gardenPos.getSecond() != null) {
+                posTag.putDouble("garden_x", this.gardenPos.getSecond().x);
+                posTag.putDouble("garden_y", this.gardenPos.getSecond().y);
+                posTag.putDouble("garden_z", this.gardenPos.getSecond().z);
+            }
+            tag.put("garden_pos", posTag);
         }
-        tag.put("CoolDowns", cdTag);
         return tag;
     }
 
@@ -375,6 +392,18 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 int[] tmp = cdTag.getIntArray(name);
                 coolDowns.cooldowns.put(item, new ItemCooldowns.CooldownInstance(coolDowns.tickCount + tmp[0], coolDowns.tickCount + tmp[1]));
             }
+        }
+        if (tag.contains("garden_pos")) {
+            CompoundTag posTag = tag.getCompound("garden_pos");
+            this.gardenPos = new Pair<>(tag.contains("overworld_x") ? new Vec3(
+                    posTag.getDouble("overworld_x"),
+                    posTag.getDouble("overworld_y"),
+                    posTag.getDouble("overworld_z")
+            ) : null, posTag.contains("garden_x") ? new Vec3(
+                    posTag.getDouble("garden_x"),
+                    posTag.getDouble("garden_y"),
+                    posTag.getDouble("garden_z")
+            ) : null);
         }
     }
 }

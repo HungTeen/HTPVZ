@@ -6,7 +6,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.menu.AlmanacMenu;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -351,7 +351,7 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                                 Component.translatable(skill.name + ".desc").withStyle(Style.EMPTY.withColor(0x545454))));
                         ClientProxy.MC.screen.renderTooltip(poseStack, list,
                                 Optional.of(new SunImageToolTipComponent(skill.addCostResource, skill.addCoolDown,
-                                        selected.getResource(null).equals(PVZPlayerCapNBT.SUN), true, true)),
+                                        selected.getResource(null).equals(PVZPlayerCapStats.SUN), true, true)),
                                 mouseX, mouseY, font, ItemStack.EMPTY);
                     }
                 }

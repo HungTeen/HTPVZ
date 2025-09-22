@@ -4,7 +4,7 @@ import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.plants.GatlingPea;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
@@ -72,8 +72,8 @@ public class PVZOverlayHandler {
     public static void tick(float tickTime) {
         if (PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).isPresent()) {
             double tmp = Math.pow(0.95, tickTime / 0.01);
-            int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapNBT.SUN);
-            int barLength = (int) (94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapNBT.SUN).getSecond());
+            int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapStats.SUN);
+            int barLength = (int) (94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapStats.SUN).getSecond());
             bufferSunAmount = now * (1 - tmp) + tmp * bufferSunAmount;
             bufferSunBarLength = (int) Math.min(94, (barLength * (1 - tmp) + tmp * bufferSunBarLength));
             if (bufferSunBarLength != barLength && Math.abs(bufferSunBarLength - barLength) <= 10) {
@@ -326,8 +326,8 @@ public class PVZOverlayHandler {
             gui.rightHeight += 10;
 
             int levelShow = (int) Math.round(bufferSunAmount);
-            int levelMax = PVZPlayerCapability.getValueLimit(player, PVZPlayerCapNBT.SUN).getSecond();
-            int levelActual = PVZPlayerCapability.getValue(player, PVZPlayerCapNBT.SUN);
+            int levelMax = PVZPlayerCapability.getValueLimit(player, PVZPlayerCapStats.SUN).getSecond();
+            int levelActual = PVZPlayerCapability.getValue(player, PVZPlayerCapStats.SUN);
 
             for (int i = 0; i < (Math.min((float) levelMax / 100, 10)); ++i) {
                 int x = left - i * 8 - 9;
@@ -391,7 +391,7 @@ public class PVZOverlayHandler {
         if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements() && player != null && PVZPlayerCapability.getValue(player, "plant_have_cost") != 0) {
             Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
             RenderSystem.enableBlend();
-            int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapNBT.SUN);
+            int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapStats.SUN);
             int x;
             int y = height - 32;
             int w;
@@ -593,13 +593,13 @@ public class PVZOverlayHandler {
     public static void refreshMainHandItemStack(Player player) {
         PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, player.getItemInHand(InteractionHand.MAIN_HAND));
         MinecraftForge.EVENT_BUS.post(event);
-        mainHandResourceIsSun = event.resource.equals(PVZPlayerCapNBT.SUN);
+        mainHandResourceIsSun = event.resource.equals(PVZPlayerCapStats.SUN);
         mainHandStackCost = event.cost;
     }
     public static void refreshOffHandItemStack(Player player) {
         PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, player.getItemInHand(InteractionHand.OFF_HAND));
         MinecraftForge.EVENT_BUS.post(event);
-        offHandResourceIsSun = event.resource.equals(PVZPlayerCapNBT.SUN);
+        offHandResourceIsSun = event.resource.equals(PVZPlayerCapStats.SUN);
         offHandStackCost = event.cost;
     }
 

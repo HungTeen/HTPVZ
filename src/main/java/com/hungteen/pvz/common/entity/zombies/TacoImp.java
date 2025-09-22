@@ -32,11 +32,10 @@ public class TacoImp extends Imp {
     @SubscribeEvent
     public static void onPlantCheckTeammate(TeammateTestingEvent event) {
         //won't be regarded as target by shooters/pults.
+        if (! event.forCombat) return;
         if (event.A instanceof TacoImp || event.B instanceof TacoImp) {
             Entity other = event.A instanceof TacoImp ? event.B : event.A;
-            if (! event.currentResult) {
-                event.currentResult = other instanceof ShooterPlant;
-            }
+            event.currentResult = event.currentResult || other instanceof ShooterPlant;
         }
     }
 

@@ -21,8 +21,9 @@ import java.util.*;
 @Mod.EventBusSubscriber
 public class PVZTeamData extends SavedData {
     private static final Map<Scoreboard, PVZTeamData> byScoreboard = new HashMap<>();
-
     private final Set<String> evilList = new HashSet<>();
+    /**Team evilness information is synced from server every second. Do not call in server.*/
+    public static Set<String> clientEvilList = new HashSet<>();
 
     public static void register(Scoreboard scoreboard, PVZTeamData data) {
         byScoreboard.put(scoreboard, data);

@@ -446,8 +446,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     }
     @Override
     public boolean removeWhenFarAway(double p_27598_) {
-        PVZEntityCapability cap = this.getCapability(PVZEntityCapability.CAP).orElse(null);
-        return cap == null || ! cap.hasOwner();
+        return ! PVZEntityCapability.hasOwner(this);
     }
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand handIn) {

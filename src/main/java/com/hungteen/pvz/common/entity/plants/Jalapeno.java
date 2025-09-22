@@ -75,7 +75,7 @@ public class Jalapeno extends SimplePlant {
     public static AttributeSupplier.Builder createAttributes() {
         return ShooterPlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 6D)
-                .add(Attributes.ATTACK_DAMAGE, 25.0D);
+                .add(Attributes.ATTACK_DAMAGE, 15D);
     }
     @Override
     public void tick() {
