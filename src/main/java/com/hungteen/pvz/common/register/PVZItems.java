@@ -131,7 +131,7 @@ public class PVZItems {
     public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ALMANAC = item("almanac", () -> new AlmanacItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> SHELL_STARTUP = item("shell_startup", () -> new DescriptionItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL), "tooltip.pvz.shell_startup"));
-    public static final RegistryObject<Item> POP_SMARTS_ON_A_STICK = model(Model.FishingRod).item("pop_smarts_on_a_stick", () -> new PopSmartsOnAStickItem<>((new Item.Properties()).durability(25).tab(PVZItemTabs.PVZ_FUNCTIONAL), PVZEntities.PUMPKIN_ZOMBIE.get(), 7));
+    public static final RegistryObject<Item> POP_SMARTS_ON_A_STICK = model(Model.FishingRod).item("pop_smarts_on_a_stick", () -> new PopSmartsOnAStickItem<>((new Item.Properties()).durability(15).tab(PVZItemTabs.PVZ_FUNCTIONAL), PVZEntities.PUMPKIN_ZOMBIE.get(), 7));
 
     static {
         createBannerPatterns();

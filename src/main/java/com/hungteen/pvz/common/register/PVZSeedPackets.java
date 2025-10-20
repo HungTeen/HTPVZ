@@ -112,6 +112,8 @@ public class PVZSeedPackets {
                 .note(Component.translatable("container.pvz.almanac.sleep_at_day"));
         add(PVZEntities.KERNEL_PULT).cost(100).coolDown(MEDIUM).skillList(KernelPult.staticSkillList)
                 .recipe(PVZItems.CORN, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly();
+        add(PVZEntities.DANDELION).cost(200).coolDown(MEDIUM).skillList(Dandelion.staticSkillList)
+                .recipe(Items.DANDELION, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly();
         add(PVZEntities.GOLD_BLOOM).cost(0).coolDown(VERY_SLOW).skillList(GoldBloom.staticSkillList)
                 .recipe(Items.GLOW_BERRIES, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.LUX_ESSENCE).setCreativeOnly()
                 .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"));

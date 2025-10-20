@@ -352,7 +352,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.put("PVZData", getPlayerData().serializeNBT());
+        tag.put("PVZStats", getPlayerData().serializeNBT());
         {
             CompoundTag cdTag = new CompoundTag();
             ItemCooldowns coolDowns = player.getCooldowns();
@@ -383,14 +383,18 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
 
     @Override
     public void deserializeNBT(CompoundTag tag) {
-        getPlayerData().deserializeNBT(tag.getCompound("PVZData"));
-        ItemCooldowns coolDowns = player.getCooldowns();
-        CompoundTag cdTag = tag.getCompound("CoolDowns");
-        for (String name : cdTag.getAllKeys()) {
-            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(name));
-            if (item != null) {
-                int[] tmp = cdTag.getIntArray(name);
-                coolDowns.cooldowns.put(item, new ItemCooldowns.CooldownInstance(coolDowns.tickCount + tmp[0], coolDowns.tickCount + tmp[1]));
+        if (tag.contains("PVZStats")) {
+            getPlayerData().deserializeNBT(tag.getCompound("PVZStats"));
+        }
+        if (tag.contains("CoolDowns")) {
+            ItemCooldowns coolDowns = player.getCooldowns();
+            CompoundTag cdTag = tag.getCompound("CoolDowns");
+            for (String name : cdTag.getAllKeys()) {
+                Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(name));
+                if (item != null) {
+                    int[] tmp = cdTag.getIntArray(name);
+                    coolDowns.cooldowns.put(item, new ItemCooldowns.CooldownInstance(coolDowns.tickCount + tmp[0], coolDowns.tickCount + tmp[1]));
+                }
             }
         }
         if (tag.contains("garden_pos")) {

@@ -63,7 +63,7 @@ public class PotatoMine extends SimplePlant {
             new Skill(QUICK_LOAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 50, 300)
                     .avoidSkills(STRONG_SKILL_NAME),
             new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 8, 75, 300)
-                    .avoidSkills(STRONG_SKILL_NAME, QUICK_LOAD_SKILL_NAME)
+                    .avoidSkills(STRONG_SKILL_NAME)
     );
     public PotatoMine(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -74,7 +74,7 @@ public class PotatoMine extends SimplePlant {
         if (!this.level.isClientSide) {
             this.dead = true;
             float radius = this.hasSkill(STRONG_SKILL_NAME) ? 3F : 2F;
-            level.explode(this, transferKiller(knockBack(ignoreInvTime(teamFilter(multiply(DamageSource.explosion(this).bypassArmor(), 1.25F))), 0.2F), PVZEntityCapability.getOwner(this)),
+            level.explode(this, transferKiller(knockBack(ignoreInvTime(teamFilter(multiply(DamageSource.explosion(this).bypassArmor(), this.isPoisonous() ? 0.75F : 1.25F))), 0.2F), PVZEntityCapability.getOwner(this)),
                     null, this.getX(), this.getY(), this.getZ(),
                     radius, false, Explosion.BlockInteraction.NONE);
             if (this.isPoisonous()) {

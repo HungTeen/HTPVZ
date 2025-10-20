@@ -16,6 +16,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
@@ -178,6 +179,7 @@ public class PVZDamageSource {
 
     public static DamageSource knockBackSource = null;
     private static Entity knockBackEntity = null;
+    private static Vec3 preKnockBackDeltaMovement = null;
     private static float knockBackStrength = 1;
 
     public static DamageSource ignoreInvTimeSource = null;
@@ -254,6 +256,9 @@ public class PVZDamageSource {
         }
         if (ev.getSource() == knockBackSource) {
             knockBackEntity = target;
+            if (ev.getSource().isExplosion()) {
+                preKnockBackDeltaMovement = target.getDeltaMovement();
+            }
         }
         if (ev.getSource() == ignoreInvTimeSource) {
             if (target.invulnerableTime <= (target instanceof Player ? Math.min(15, invTimeLessThan) : invTimeLessThan)) {
@@ -300,6 +305,9 @@ public class PVZDamageSource {
         if (ev.getSource() == multiplierSource) {
             ev.setAmount(ev.getAmount() * multiplier);
         }
+        if (ev.getSource() == knockBackSource) {
+
+        }
     }
     @SubscribeEvent
     public static void handleShield(ShieldBlockEvent ev) {
@@ -312,6 +320,7 @@ public class PVZDamageSource {
         if (ev.getEntity() == knockBackEntity) {
             ev.setStrength(knockBackStrength * ev.getStrength());
             knockBackEntity = null;
+            preKnockBackDeltaMovement = null;
         }
     }
     @SubscribeEvent

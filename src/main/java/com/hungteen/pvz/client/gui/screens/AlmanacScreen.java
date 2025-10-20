@@ -7,9 +7,11 @@ import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
+import com.hungteen.pvz.common.entity.plants.Dandelion;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.menu.AlmanacMenu;
 import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.platform.Lighting;
@@ -39,6 +41,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,6 +55,8 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
     private Entity fakeEntity;
     public static int tick = 0;
     private boolean switchingViewingSkills = false;
+    private int scrollTo = 0;
+    private float contentLength;
 
 
     public AlmanacScreen(AlmanacMenu menu, Inventory inventory, Component component) {
@@ -154,10 +159,11 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                 }
                 if (viewingSkills) {
                     int size = selected.getStaticSkillList().size();
-                    for (tmp = 0; tmp < size; tmp ++) {
+                    contentLength = size;
+                    for (tmp = scrollTo; tmp < scrollTo + Math.min(size, 5); tmp ++) {
                         RenderSystem.setShaderTexture(0, TEXTURE);
-                        int x = this.leftPos + 165;
-                        int y = this.topPos + 77 + tmp * 21;
+                        int x = this.leftPos + (size > 5 ? 162 : 165);
+                        int y = this.topPos + 77 + (tmp - scrollTo) * 21;
                         Skill skill = selected.getStaticSkillList().get(tmp);
                         boolean skillSelected = mouseX >= x && mouseX < x + 120 && mouseY >= y && mouseY < y + 19;
                         if (skillSelected && fakeEntity instanceof IHaveSkills iHaveSkills) {
@@ -169,6 +175,20 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                         itemStack.setCount(skill.costItem);
                         this.itemRenderer.renderAndDecorateFakeItem(itemStack, x + 17, y + 2);
                         this.itemRenderer.renderGuiItemDecorations(this.font, itemStack, x + 17, y + 1);
+                    }
+                }
+                int maxContain = viewingSkills ? 5 : 10;
+                float percent = maxContain / contentLength;
+                if (percent < 1) {
+                    final int full = 117;
+                    int start = topPos + 80 + (int) (scrollTo * full / contentLength);
+                    int end = topPos + 68 + (int) (((float) scrollTo / contentLength + percent) * full);
+                    this.blit(poseStack, this.leftPos + 287, start - 6, 201, 11, 4, 6);
+                    this.blit(poseStack, this.leftPos + 287, end, 201, 18, 4, 6);
+                    int body = end - start;
+                    while (body > 0) {
+                        this.blit(poseStack, this.leftPos + 287, end - body, 206, 11, 4, 4);
+                        body -= 4;
                     }
                 }
                 boolean renderAsNumber = PVZConfig.renderSunAsNumber() || ! selected.getResource(null).equals(PVZAPI.get().getSunResourceName());
@@ -266,9 +286,9 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
             }
             if (viewingSkills) {
                 int size = selected.getStaticSkillList().size();
-                for (int tmp = 0; tmp < size; tmp ++) {
+                for (int tmp = scrollTo; tmp < scrollTo + Math.min(size, 5); tmp ++) {
                     int x = 165;
-                    int y = 77 + tmp * 21;
+                    int y = 77 + (tmp - scrollTo) * 21;
                     Skill skill = selected.getStaticSkillList().get(tmp);
                     this.font.drawShadow(poseStack, skill.costSeed + "", x + 16 - this.font.width(skill.costSeed + ""), y + 10, 0xFFFFFF);
                     String skillName = Language.getInstance().getOrDefault(skill.name);
@@ -298,26 +318,39 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                 this.font.draw(poseStack, Component.translatable("tooltip.pvz.cool_down").append(Component.literal(" ").append(Component.translatable(key))),
                         160, 180, 0x888888);
                 float tmp = 0;
-                Style style;
+                int sep = 0;
+                List<FormattedText> stringList = new ArrayList<>();
+                int stringWidth = contentLength > 10 ? 124 : 130;
                 for (Component note : PVZSeedPackets.dataMap.get(selected).notes) {
-                    style = note.getStyle();
-                    for (FormattedText text : this.font.getSplitter().splitLines(note.getString(), 130, style)) {
-                        this.font.draw(poseStack, Component.literal(text.getString()).setStyle(style), 160, 75 + tmp * 10, 0xFFFFFF);
-                        tmp ++;
-                    }
+                    List<FormattedText> list = this.font.getSplitter().splitLines(note.getString(), stringWidth, Style.EMPTY);
+                    String style = list.get(0).getString().startsWith("§") ? list.get(0).getString().substring(0,2) : "";
+                    list.forEach(text -> stringList.add(FormattedText.of(style + text.getString())));
                 }
                 if (selected.creativeOnly) {
-                    Component note = Component.translatable("hint.pvz.creative_only").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED));
-                    style = note.getStyle();
-                    for (FormattedText text : this.font.getSplitter().splitLines(note.getString(), 130, style)) {
-                        this.font.draw(poseStack, Component.literal(text.getString()).setStyle(style), 160, 75 + tmp * 10, 0xFFFFFF);
-                        tmp ++;
-                    }
+                    Component note = Component.translatable("hint.pvz.creative_only");
+                    List<FormattedText> list = this.font.getSplitter().splitLines(note.getString(), stringWidth, Style.EMPTY);
+                    list.forEach(text -> stringList.add(FormattedText.of("§4" + text.getString())));
                 }
-                if (tmp > 0) tmp += 0.5F;
+                if (selected.getEntity() == PVZEntities.DANDELION.get()
+                        && ! ClientProxy.getLevel().getEntitiesOfClass(Dandelion.class
+                        , ClientProxy.getPlayer().getBoundingBox().inflate(3, 0, 3)
+                        , dandelion -> dandelion.getCustomName() != null && dandelion.getCustomName().getString().equals("涟清")).isEmpty()) {
+                    Component note = Component.translatable("almanac.pvz.pvz:dandelion.special");
+                    List<FormattedText> list = this.font.getSplitter().splitLines(note.getString(), stringWidth, Style.EMPTY);
+                    list.forEach(text -> stringList.add(FormattedText.of("§7" + text.getString())));
+                }
+                sep = stringList.size() - 1;
                 for (FormattedText text : this.font.getSplitter().splitLines(Component.translatable("almanac.pvz." + ForgeRegistries.ENTITY_TYPES.getKey(selected.getEntity())).getString(), 130, Style.EMPTY)) {
-                    this.font.draw(poseStack, text.getString(), 160, 75 + tmp * 10, 0xFFFFFF);
+                    stringList.addAll(this.font.getSplitter().splitLines(text.getString(), stringWidth, Style.EMPTY));
+                }
+                contentLength = stringList.size();
+                for (FormattedText text : stringList) {
+                    if (tmp >= scrollTo) {
+                        this.font.draw(poseStack, text.getString(), 160, 75 + (tmp - scrollTo) * 10, 0xFFFFFF);
+                    }
                     tmp ++;
+                    if (sep >= 0 && tmp == sep + 1) tmp += 0.5F;
+                    if (tmp >= scrollTo + 10) break;
                 }
             }
         }
@@ -365,6 +398,14 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
         super.render(stack, mouseX, mouseY, partialTicks);
         renderTooltip(stack, mouseX, mouseY);
     }
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double offset) {
+        if (mouseX - this.leftPos - 157 > 0 && mouseX - this.leftPos - 292 < 0 && mouseY - this.topPos - 77 > 0 && mouseY - this.topPos - 197 < 0) {
+            this.scrollTo -= offset;
+            this.scrollTo = Math.min(Math.max(0, (int) contentLength - (viewingSkills ? 5 : 10)), Math.max(0, scrollTo));
+        }
+        return super.mouseScrolled(mouseX, mouseX, offset);
+    }
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         double x = mouseX - this.leftPos;
         double y = mouseY - this.topPos;
@@ -390,6 +431,8 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                         this.chosenTab = tabs.get(tab);
                         this.chosenItem = 0;
                         this.viewingSkills = false;
+                        scrollTo = 0;
+                        contentLength = 0;
                         tick = 0;
                         return true;
                     }
@@ -404,6 +447,8 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                         if (items.containsKey(chosenTab) && items.get(chosenTab).size() > num) {
                             this.chosenItem = num;
                             this.viewingSkills = false;
+                            scrollTo = 0;
+                            contentLength = 0;
                             tick = 0;
                         }
                     }
@@ -412,6 +457,8 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
         }
         if (switchingViewingSkills) {
             viewingSkills = ! viewingSkills;
+            scrollTo = 0;
+            contentLength = 0;
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }

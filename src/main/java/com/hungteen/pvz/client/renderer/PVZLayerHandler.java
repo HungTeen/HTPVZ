@@ -6,6 +6,7 @@ import com.hungteen.pvz.client.model.attached.*;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
+import com.hungteen.pvz.client.model.bullet.DandelionSeedBulletModel;
 import com.hungteen.pvz.client.model.bullet.MelonBulletModel;
 import com.hungteen.pvz.client.model.bullet.StarfruitBulletModel;
 import com.hungteen.pvz.client.model.plants.*;
@@ -60,10 +61,11 @@ public class PVZLayerHandler {
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
         L(e, PVZEntities.GATLING_PEA, GatlingPeaModel::createBodyLayer);
         L(e, PVZEntities.SPROUT, SproutModel::createBodyLayer);
-        L(e, PVZEntities.LAVA_GHASTLING, LavaGhastlingModel::createBodyLayer);
+        L(e, PVZEntities.DANDELION, DandelionModel::createBodyLayer);
         L(e, "melon_bullet", MelonBulletModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "starfruit_bullet", StarfruitBulletModel::createBodyLayer);
+        L(e, "dandelion_seed_bullet", DandelionSeedBulletModel::createBodyLayer);
 
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
         L(e, "silver_sword_ornament", SilverSwordOrnamentModel::createBodyLayer);
@@ -75,6 +77,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.SNORKEL_ZOMBIE, SnorkelZombieModel::createBodyLayer);
         L(e, PVZEntities.TACO_IMP, TacoImpModel::createBodyLayer);
         L(e, PVZEntities.FIRE_IMP, FireImpModel::createBodyLayer);
+        L(e, PVZEntities.LAVA_GHASTLING, LavaGhastlingModel::createBodyLayer);
         L(e, PVZEntities.JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieModel::createBodyLayer);
         L(e, PVZEntities.DIGGER_ZOMBIE, DiggerZombieModel::createBodyLayer);
         L(e, PVZEntities.GARGANTUAR, GargantuarModel::createBodyLayer);

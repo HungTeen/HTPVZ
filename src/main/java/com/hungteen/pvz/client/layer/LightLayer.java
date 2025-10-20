@@ -16,12 +16,12 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.function.TriFunction;
 
 
-public class LightLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T,M> {
+public class LightLayer<T extends Entity, M extends EntityModel<T>> extends RenderLayer<T,M> {
 
 	protected static final RenderStateShard.ShaderStateShard RENDERTYPE_ENERGY_SWIRL_SHADER = new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeEnergySwirlShader);
 	protected static final RenderStateShard.TransparencyStateShard LIGHTNING_TRANSPARENCY = new RenderStateShard.TransparencyStateShard("lightning_transparency", () -> {
@@ -53,7 +53,7 @@ public class LightLayer<T extends LivingEntity, M extends EntityModel<T>> extend
 		this.colorFunction = colorFunction;
 	}
 
-	public static float defaultAlphaFunction(LivingEntity entity, Float partialTick, Float ageInTicks) {
+	public static float defaultAlphaFunction(Entity entity, Float partialTick, Float ageInTicks) {
 		if(entity.isInvisible()) return 0;
 		if(entity instanceof ProducerPlant producer) {
 			return producer.isPlantInGen() ? (float) Math.min(producer.getAttackTime() , Math.min(producer.getGenerateAnimLength() - producer.getAttackTime(), 4)) / 4 : 0;
@@ -62,10 +62,10 @@ public class LightLayer<T extends LivingEntity, M extends EntityModel<T>> extend
 	}
 
 	@Override
-	public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, T livingEntity,
+	public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, T entity,
 					   float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw,
 					   float headPitch) {
-		Vec3 color = this.colorFunction.apply(livingEntity, partialTicks, ageInTicks);
+		Vec3 color = this.colorFunction.apply(entity, partialTicks, ageInTicks);
 		if (color.distanceToSqr(Vec3.ZERO) > 0) {
 			poseStack.pushPose();
 			VertexConsumer iVertexBuilder = bufferIn.getBuffer(renderType(res, 0, 0));

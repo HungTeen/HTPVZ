@@ -480,6 +480,7 @@ public class PVZOverlayHandler {
                 if (player.getCooldowns().isOnCooldown(item)) {
                     String count = ((int) ((float) player.getCooldowns().cooldowns.get(item).endTime - player.getCooldowns().tickCount) / 2) + "";
                     count = (count.length() == 1 ? "0" : count.substring(0, count.length() - 1) + "") + (count.length() > 2 ? "" : "." + count.charAt(count.length() - 1));
+                    if (count.equals("0.0")) continue;
                     w = ClientProxy.MC.font.width(count);
                     stack.pushPose();
                     stack.translate(0.0D, 0.0D, 201.0F);

@@ -137,7 +137,7 @@ public class IcebergLettuce extends ShooterPlant {
             if (entities.isEmpty() && this.entity.tickCount < 100) {
                 return;
             }
-            MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 60);
+            MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 80);
             if (entity.hasSkill(RANGE_SKILL_NAME)) {
                 entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 0.25, 2),
                         (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity)));

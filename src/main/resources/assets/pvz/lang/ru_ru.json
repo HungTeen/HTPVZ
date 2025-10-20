@@ -145,7 +145,7 @@
   "config.pvz.common.show_invasion_details": "Показывать детали вторжения",
   "config.pvz.common.sun_disappear": "Исчезновение солнца",
   "config.pvz.common.team_battle": "Командный бой",
-  "container.pvz.almanac.can_only_plant_on": "§4Можно посадить только на $s",
+  "container.pvz.almanac.can_only_plant_on": "§4Можно посадить только на %s",
   "container.pvz.almanac.can_only_plant_on_water": "§4Можно посадить только на воде",
   "container.pvz.almanac.can_plant_on_dirt": "§3Можно посадить на земле",
   "container.pvz.almanac.can_plant_on_snow": "§3Можно посадить на снегу",

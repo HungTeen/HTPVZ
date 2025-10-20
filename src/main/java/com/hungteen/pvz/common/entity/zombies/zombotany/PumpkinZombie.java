@@ -14,6 +14,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.UUID;
 
 public class PumpkinZombie extends PVZZombie implements IZombotany, IArmorEntity, ICanBePlantedOn, ItemSteerable {
     private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/pumpkin/pumpkin_0.png");
@@ -35,6 +37,7 @@ public class PumpkinZombie extends PVZZombie implements IZombotany, IArmorEntity
 
     private static final EntityDataAccessor<Integer> DATA_BOOST_TIME = SynchedEntityData.defineId(PumpkinZombie.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_SADDLE_ID = SynchedEntityData.defineId(PumpkinZombie.class, EntityDataSerializers.BOOLEAN);
+    public static final UUID TARGET_ATTRIBUTE_UUID = UUID.fromString("506f5a1b-375a-b955-1ac1-4424cabdabca");
     private final ItemBasedSteering steering = new ItemBasedSteering(this.entityData, DATA_BOOST_TIME, DATA_SADDLE_ID);
 
     public PumpkinZombie(EntityType<? extends Zombie> type, Level level) {
@@ -53,12 +56,23 @@ public class PumpkinZombie extends PVZZombie implements IZombotany, IArmorEntity
         super.readAdditionalSaveData(p_29478_);
         this.steering.readAdditionalSaveData(p_29478_);
     }
+    public void tick() {
+        super.tick();
+        if (! this.getPassengers().isEmpty() && this.getFirstPassenger() instanceof Player player && (
+                player.getMainHandItem().is(PVZItems.POP_SMARTS_ON_A_STICK.get()) || player.getOffhandItem().is(PVZItems.POP_SMARTS_ON_A_STICK.get())
+                )) {
+            EntityUtil.addModifierToAttribute(this, Attributes.FOLLOW_RANGE, new AttributeModifier(TARGET_ATTRIBUTE_UUID, "riden", -0.95, AttributeModifier.Operation.MULTIPLY_BASE));
+        } else {
+            EntityUtil.removeModifierFromAttribute(this, Attributes.FOLLOW_RANGE, TARGET_ATTRIBUTE_UUID);
+        }
+    }
     @Override
     protected void addBehaviourGoals() {
         super.addBehaviourGoals();
         attackGoal = new ZombieAttackGoal(this, 1.0D, false);
         randomStrollGoal = new RandomStrollGoal(this, 1.0D);
         this.goalSelector.addGoal(1, new PickUpPassengerGoal(this));
+        this.targetSelector.addGoal(1, new PickUpPassengerGoal(this));
     }
     @Override
     public Vec3 getPlantHeadOffset() {

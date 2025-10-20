@@ -28,6 +28,7 @@ public class PVZParticles {
     public static final RegistryObject<SimpleParticleType> SUN = particle("sun");
     public static final RegistryObject<SimpleParticleType> FOG = particle("fog");
     public static final RegistryObject<SimpleParticleType> MASHED_POTATO = particle("mashed_potato");
+    public static final RegistryObject<SimpleParticleType> DANDELION = particle("dandelion");
     public static final RegistryObject<SimpleParticleType> Z = particle("z");
 
 
@@ -43,6 +44,7 @@ public class PVZParticles {
         particleMap.put(SUN, SunParticle.Provider::new);
         particleMap.put(FOG, FogParticle.Provider::new);
         particleMap.put(MASHED_POTATO, MashedPotatoParticle.Provider::new);
+        particleMap.put(DANDELION, DandelionParticle.Provider::new);
         particleMap.put(Z, ZParticle.Provider::new);
         for (RegistryObject<SimpleParticleType> key : particleMap.keySet()){
             event.register(key.get(), particleMap.get(key));

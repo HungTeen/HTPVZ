@@ -36,7 +36,7 @@ public class KernelPult extends ShooterPlant {
     public static final String BUTTER_SKILL_NAME = "skill.pvz.kernel_pult.butter_pult";
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 200, 300)
+            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 300)
     );
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {
@@ -89,11 +89,11 @@ public class KernelPult extends ShooterPlant {
 
     @Override
     public float getAttackDamage() {
-        return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue() * (getCurrentBullet() == CornTypes.BUTTER ? 2 : 1);
+        return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue() * (getCurrentBullet() == CornTypes.BUTTER ? (this.hasSkill(BUTTER_SKILL_NAME) ? 0.5F : 2) : 1);
     }
     @Override
     public int getShootCD() {
-        return this.hasSkill(BUTTER_SKILL_NAME) ? 60 : 40;
+        return this.hasSkill(BUTTER_SKILL_NAME) ? 80 : 40;
     }
     @Override
     public int shootAnimLength() {
