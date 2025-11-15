@@ -6,8 +6,13 @@ import com.hungteen.pvz.api.interfaces.IArmorEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.tags.PVZItemTags;
+import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
 import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
@@ -16,6 +21,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
@@ -271,6 +277,17 @@ public class PVZDamageSource {
     @SubscribeEvent
     public static void handleHurt(LivingHurtEvent ev) {
         LivingEntity entity = ev.getEntity();
+        //handle ZenGarden fallout
+        if (entity instanceof Player player && ev.getSource() == DamageSource.OUT_OF_WORLD
+                && entity.getLevel().dimension().location().equals(Util.prefix("zen_garden"))) {
+            MinecraftServer server = entity.getLevel().getServer();
+            ResourceKey<Level> resourcekey = player.level.dimension() == ZenGardenTeleporter.GARDEN ? Level.OVERWORLD : ZenGardenTeleporter.GARDEN;
+            ServerLevel destWorld = server.getLevel(resourcekey);
+            if (destWorld != null) {
+                player.setPortalCooldown();
+                player.changeDimension(destWorld, new ZenGardenTeleporter(destWorld));
+            }
+        }
         //handle IArmorEntity and ExtraHealthArmorItem
         if (! ev.getSource().isBypassArmor() || ev.getSource() == DamageSource.FREEZE || ev.getSource() == byPassShieldSource) {
             if (entity.getVehicle() instanceof IArmorEntity vehicle && vehicle.canRecieveDamage(ev.getSource(), ev.getAmount(), entity)) {

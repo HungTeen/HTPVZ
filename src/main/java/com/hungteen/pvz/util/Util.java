@@ -7,13 +7,14 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
-import com.hungteen.pvz.common.world.team.PVZTeamData;
+import com.hungteen.pvz.common.world.PVZSavedData;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -95,10 +96,10 @@ public class Util {
     //team tools
     public static boolean isTeamEvil(Level level, Team team) {
         if (level.isClientSide) {
-            return PVZTeamData.clientEvilList.contains(team.getName());
+            return PVZSavedData.clientEvilList.contains(team.getName());
         } else {
             Scoreboard scoreboard = level.getScoreboard();
-            return PVZTeamData.isEvil(scoreboard, team.getName());
+            return PVZSavedData.isEvil(scoreboard, team.getName());
         }
     }
 
@@ -135,6 +136,10 @@ public class Util {
     public static boolean hasBlockBetween(Level level, Vec3 pos1, Vec3 pos2) {
         BlockHitResult result = level.clip(new ClipContext(pos1, pos2, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
         return result.getType() != HitResult.Type.MISS;
+    }
+
+    public static long getServerTime(MinecraftServer server) {
+        return PVZSavedData.getServerTime(server.getScoreboard());
     }
 
     //debug tools

@@ -28,7 +28,7 @@ public class PVZFog {
     public double range;
     public double effect = 0;
     public final UUID uuid;
-    public static List<PVZFog> pvzFogs = new ArrayList<>();
+    public static Map<UUID, PVZFog> _pvzFogs = new HashMap<>();
     private static Random random = new Random();
     private static float bufferStrength = 1;
 
@@ -42,7 +42,7 @@ public class PVZFog {
         this.strength = strength;
         this.range = range;
         this.uuid = uuid;
-        pvzFogs.add(this);
+        _pvzFogs.put(uuid, this);
     }
 
     public static PVZFog addFog(ResourceLocation dimension, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
@@ -75,22 +75,21 @@ public class PVZFog {
     //static methods
     public static double getFogStrengthAt(Level level, Vec3 position) {
         double strength = 0;
-        for (PVZFog fog : pvzFogs) {
+        for (PVZFog fog : _pvzFogs.values()) {
             strength = fog.effect * Math.max(fog.getStrengthAt(level, position), strength);
         }
         return strength;
     }
 
     public static void serverFogsTick() {
-        for (PVZFog pvzFog : pvzFogs) {
+        for (PVZFog pvzFog : _pvzFogs.values()) {
             pvzFog.lifeLeft -= 0.025;
         }
     }
 
     public static void clientFogsTick(double tickTime) {
         if (! Minecraft.getInstance().isPaused()) {
-            for (int i = 0; i < pvzFogs.size(); i ++) {
-                PVZFog fog = pvzFogs.get(i);
+            for (PVZFog fog : _pvzFogs.values()) {
                 fog.lifeLeft -= tickTime / 2;
                 Player player = ClientProxy.getPlayer();
                 if (player != null) {
@@ -116,7 +115,7 @@ public class PVZFog {
                     }
                     fog.effect = Math.max(Math.min(Math.min(fog.lifeLeft, 1), fog.effect), 0);
                     if (fog.lifeLeft < 0) {
-                        pvzFogs.remove(fog);
+                        _pvzFogs.remove(fog.uuid);
                     }
                 }
             }
@@ -124,21 +123,15 @@ public class PVZFog {
     }
 
     public static PVZFog getFog(UUID uuid) {
-        PVZFog result = null;
-        for (PVZFog fog : pvzFogs) {
-            if (fog.getUuid() == uuid) {
-                result = fog;
-            }
-        };
-        return result;
+        return _pvzFogs.get(uuid);
     }
 
     public static CompoundTag serializeNBT() {
         //TODO change these to tag.gatAllTags() and implement INBTSerializable.
         CompoundTag tag = new CompoundTag();
-        tag.putInt("size", pvzFogs.size());
+        tag.putInt("size", _pvzFogs.size());
         int count = 0;
-        for (PVZFog fog : pvzFogs) {
+        for (PVZFog fog : _pvzFogs.values()) {
             CompoundTag fogTag = new CompoundTag();
             fogTag.putString("dimension", fog.dimension.toString());
             fogTag.putDouble("x", fog.position.x);
@@ -169,15 +162,18 @@ public class PVZFog {
         if (ClientProxy.getPlayer() != null) {
             double strength = getFogStrengthAt(ClientProxy.getPlayer().level, ClientProxy.getPlayer().position());
             if (ClientProxy.getPlayer().hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
-                bufferStrength = (float) (bufferStrength * 0.95 + 0.0125);
+                bufferStrength = (float) (bufferStrength * 0.98 + strength * 0.005);
+            } else if (ClientProxy.getPlayer().hasEffect(PVZMobEffects.DISTANCE_EFFECT.get())) {
+                float mul = Math.max(1, (float) (ClientProxy.getPlayer().getEffect(PVZMobEffects.DISTANCE_EFFECT.get()).getAmplifier() + 1) / 5);
+                bufferStrength = (float) (bufferStrength * 0.98 + strength * 0.02 + 0.2 * mul);
             } else {
-                bufferStrength = (float) (bufferStrength * 0.95 + 0.05);
+                bufferStrength = (float) (bufferStrength * 0.98 + strength * 0.02);
             }
-            strength = strength * bufferStrength;
-            if (strength > 0) {
+            if (bufferStrength < 1e-10) bufferStrength = 0;
+            if (bufferStrength > 0) {
                 ev.setNearPlaneDistance(0);
                 ev.setFarPlaneDistance(
-                        (float) (0.01 + 50 / (strength + 50 / ev.getFarPlaneDistance()))
+                        (float) (0.01 + 50 / (bufferStrength + 50 / ev.getFarPlaneDistance()))
                 );
             }
         }

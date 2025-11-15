@@ -1,4 +1,4 @@
-package com.hungteen.pvz.common.world.team;
+package com.hungteen.pvz.common.world;
 
 import com.hungteen.pvz.PVZMod;
 import net.minecraft.nbt.CompoundTag;
@@ -19,15 +19,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 @Mod.EventBusSubscriber
-public class PVZTeamData extends SavedData {
-    private static final Map<Scoreboard, PVZTeamData> byScoreboard = new HashMap<>();
+public class PVZSavedData extends SavedData {
+    private static final Map<Scoreboard, PVZSavedData> byScoreboard = new HashMap<>();
     private final Set<String> evilList = new HashSet<>();
+    private long serverLifetime = 0;
     /**Team evilness information is synced from server every second. Do not call in server.*/
     public static Set<String> clientEvilList = new HashSet<>();
-
-    public static void register(Scoreboard scoreboard, PVZTeamData data) {
-        byScoreboard.put(scoreboard, data);
-    }
 
     public static void tick() {
         byScoreboard.forEach((scoreBoard, data) -> {
@@ -38,11 +35,17 @@ public class PVZTeamData extends SavedData {
                     data.evilList.remove(name);
                 }
             }
+            data.serverLifetime ++;
+            data.setDirty();
         });
     }
 
+    public static long getServerTime(Scoreboard scoreboard) {
+        return byScoreboard.containsKey(scoreboard) ? byScoreboard.get(scoreboard).serverLifetime : 0;
+    }
+
     public static int setEvil(Scoreboard scoreboard, String name, boolean isEvil) {
-        PVZTeamData data = byScoreboard.get(scoreboard);
+        PVZSavedData data = byScoreboard.get(scoreboard);
         if (data != null) {
             data.setDirty();
             if (isEvil) {
@@ -64,7 +67,7 @@ public class PVZTeamData extends SavedData {
     }
 
     public static boolean isEvil(Scoreboard scoreboard, String name) {
-        PVZTeamData data = byScoreboard.get(scoreboard);
+        PVZSavedData data = byScoreboard.get(scoreboard);
         if (data != null) {
             return data.evilList.contains(name);
         }
@@ -77,35 +80,37 @@ public class PVZTeamData extends SavedData {
         LevelAccessor accessor = event.getLevel();
         if (accessor instanceof ServerLevel level && level.dimension() == Level.OVERWORLD) {
             DimensionDataStorage dimensiondatastorage = level.getDataStorage();
-            PVZTeamData data = dimensiondatastorage.computeIfAbsent(PVZTeamData::load, PVZTeamData::create, "pvz.team_data");
+            PVZSavedData data = dimensiondatastorage.computeIfAbsent(PVZSavedData::load, PVZSavedData::create, "pvz.team_data");
             Scoreboard scoreboard = level.getServer().getScoreboard();
-            register(scoreboard, data);
+            if (! byScoreboard.containsKey(scoreboard)) {
+                byScoreboard.put(scoreboard, data);
+            }
         }
     }
 
     @Override
     public @NotNull CompoundTag save(CompoundTag save) {
-        CompoundTag tag = new CompoundTag();
         ListTag evil = new ListTag();
         this.evilList.forEach(name -> evil.add(StringTag.valueOf(name)));
-        tag.put("evil", evil);
+        save.put("evil", evil);
 
-        save.put("data", tag);
+        save.putLong("server_time", this.serverLifetime);
+
         return save;
     }
 
-    public static PVZTeamData create() {
-        PVZTeamData data = new PVZTeamData();
+    public static PVZSavedData create() {
+        PVZSavedData data = new PVZSavedData();
         return data;
     }
-    public static PVZTeamData load(CompoundTag save) {
-        PVZTeamData data = new PVZTeamData();
-        if (save.contains("data")) {
-            CompoundTag tag = save.getCompound("data");
-            ListTag evil = tag.getList("evil", Tag.TAG_STRING);
+    public static PVZSavedData load(CompoundTag save) {
+        PVZSavedData data = new PVZSavedData();
+        if (save.contains("evil")) {
+            ListTag evil = save.getList("evil", Tag.TAG_STRING);
             evil.forEach(name -> data.evilList.add(name.getAsString()));
-        } else {
-            PVZMod.LOGGER.error("PVZTeamData is not found when loading!");
+        }
+        if (save.contains("server_time")) {
+            data.serverLifetime = save.getLong("server_time");
         }
         return data;
     }

@@ -95,9 +95,9 @@ public class DandelionModel<T extends Dandelion> extends HierarchicalModel<T> {
 
 		PartDefinition flower = head.addOrReplaceChild("flower", CubeListBuilder.create(), PartPose.offset(0.0F, -3.0F, 0.0F));
 
-		PartDefinition inner = flower.addOrReplaceChild("inner", CubeListBuilder.create().texOffs(48, 0).addBox(-4.0F, -8.0F, -4.0F, 9.0F, 8.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offset(-0.5F, 3.0F, -0.5F));
+		PartDefinition inner = flower.addOrReplaceChild("inner", CubeListBuilder.create().texOffs(84, 17).addBox(5.0F, 0.0F, 5.0F, -9.0F, -8.0F, -9.0F, new CubeDeformation(0.0F)), PartPose.offset(-0.5F, 3.0F, -0.5F));
 
-		PartDefinition outer = inner.addOrReplaceChild("outer", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -11.0F, -5.0F, 12.0F, 11.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offset(0.5F, 1.0F, -0.5F));
+		PartDefinition outer = inner.addOrReplaceChild("outer", CubeListBuilder.create().texOffs(48, 24).addBox(6.0F, 0.0F, 6.0F, -12.0F, -11.0F, -12.0F, new CubeDeformation(0.0F)), PartPose.offset(0.5F, 1.0F, -0.5F));
 
 		PartDefinition feather = outer.addOrReplaceChild("feather", CubeListBuilder.create().texOffs(0, 58).addBox(-9.0F, -13.0F, 0.0F, 18.0F, 17.0F, 0.0F, new CubeDeformation(0.0F))
 				.texOffs(0, 23).addBox(0.0F, -13.0F, -9.0F, 0.0F, 17.0F, 18.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -2.0F, 1.0F));
@@ -105,7 +105,7 @@ public class DandelionModel<T extends Dandelion> extends HierarchicalModel<T> {
 		PartDefinition cube_r4 = feather.addOrReplaceChild("cube_r4", CubeListBuilder.create().texOffs(36, 23).addBox(0.0F, -13.0F, -9.0F, 0.0F, 17.0F, 18.0F, new CubeDeformation(0.0F))
 				.texOffs(36, 58).addBox(-9.0F, -13.0F, 0.0F, 18.0F, 17.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -0.7854F, 0.0F));
 
-		PartDefinition ring = head.addOrReplaceChild("ring", CubeListBuilder.create().texOffs(67, 0).addBox(-4.0F, -10.0F, -4.0F, 8.0F, 0.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -3.0F, 0.0F));
+		PartDefinition ring = head.addOrReplaceChild("ring", CubeListBuilder.create().texOffs(88, 41).addBox(-4.0F, -10.0F, -4.0F, 8.0F, 0.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -3.0F, 0.0F));
 
 		PartDefinition bone = head.addOrReplaceChild("bone", CubeListBuilder.create(), PartPose.offset(0.0F, -2.0F, 0.0F));
 

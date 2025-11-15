@@ -7,6 +7,7 @@ import com.hungteen.pvz.common.entity.FallenStar;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.PumpkinHelmetItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PlayerContinueCoolDownPacket;
 import com.hungteen.pvz.common.network.TeamEvilnessPacket;
 import com.hungteen.pvz.common.register.PVZAttributes;
@@ -24,9 +25,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
@@ -52,6 +55,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator.ISLAND_DISTANCE;
+
 public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag> {
 
     private PVZPlayerCapStats nbt = null;
@@ -61,6 +66,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     public static int syncCount = 0;
     /**Pair of garden teleporting positions. The first is overworld pos, second is garden pos.*/
     private Pair<Vec3, Vec3> gardenPos = new Pair<>(null, null);
+    static Vec3 playerPos = null;
 
     //TODO combine this class with PVZPlayerCapNBT.
 
@@ -92,6 +98,18 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         String name = player.getScoreboardName();
                         if (playerTeam != null) {
                             player.getServer().getScoreboard().addPlayerToTeam(name, playerTeam);
+                        }
+                    }
+                    //garden border
+                    if (PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.gardenBorder) && player.level.dimension().location().equals(Util.prefix("zen_garden"))) {
+                        Vec3 gardenCenter = player.position();
+                        gardenCenter = new Vec3(gardenCenter.x - Math.round(((float) (gardenCenter.x / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16
+                                , gardenCenter.y
+                                , gardenCenter.z - Math.round(((float) (gardenCenter.z / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16);
+                        int distSqr = (int) (gardenCenter.x * gardenCenter.x + gardenCenter.z * gardenCenter.z);
+                        if (distSqr >= 160000) {
+                            int strength = (distSqr - 160000) / 40000;
+                            player.addEffect(new MobEffectInstance(PVZMobEffects.DISTANCE_EFFECT.get(), 50, strength));
                         }
                     }
                     //sun related mob effects.
@@ -237,27 +255,25 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                 }
                 //cool down effects.
-                if (! player.level.isClientSide) {
-                    if (nbt.getValue(PVZPlayerCapStats.PLANT_HAVE_CD) == 0) {
-                        Set<Item> keyset = Set.copyOf(player.getCooldowns().cooldowns.keySet());
-                        for (Item i : keyset) {
-                            if (i instanceof SeedPacketItem) {
-                                player.getCooldowns().removeCooldown(i);
-                            }
+                if (nbt.getValue(PVZPlayerCapStats.PLANT_HAVE_CD) == 0) {
+                    Set<Item> keyset = Set.copyOf(player.getCooldowns().cooldowns.keySet());
+                    for (Item i : keyset) {
+                        if (i instanceof SeedPacketItem) {
+                            player.getCooldowns().removeCooldown(i);
                         }
                     }
-                    if (player.hasEffect(PVZMobEffects.EXCITEMENT.get())) {
-                        Util.coolDownItems(player, (1 + player.getEffect(PVZMobEffects.EXCITEMENT.get()).getAmplifier()) * 3);
-                    }
-                    if (player.tickCount % 20 == 19) {
-                        Map<Item, ItemCooldowns.CooldownInstance> coolDowns = player.getCooldowns().cooldowns;
-                        int cur = player.getCooldowns().tickCount;
-                        coolDowns.keySet().forEach(item -> {
-                            ItemCooldowns.CooldownInstance instance = coolDowns.get(item);
-                            PlayerContinueCoolDownPacket.sync(player, item,
-                                    instance.startTime - cur, instance.endTime - cur);
-                        });
-                    }
+                }
+                if (player.hasEffect(PVZMobEffects.EXCITEMENT.get())) {
+                    Util.coolDownItems(player, (1 + player.getEffect(PVZMobEffects.EXCITEMENT.get()).getAmplifier()) * 3);
+                }
+                if (player.tickCount % 20 == 19) {
+                    Map<Item, ItemCooldowns.CooldownInstance> coolDowns = player.getCooldowns().cooldowns;
+                    int cur = player.getCooldowns().tickCount;
+                    coolDowns.keySet().forEach(item -> {
+                        ItemCooldowns.CooldownInstance instance = coolDowns.get(item);
+                        PlayerContinueCoolDownPacket.sync(player, item,
+                                instance.startTime - cur, instance.endTime - cur);
+                    });
                 }
                 //auto set sun cost and cd.
                 if (nbt.getValue(PVZPlayerCapStats.AUTO_SET_COST_AND_CD) == 1) {
@@ -282,6 +298,48 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 }
             });
         }
+    }
+    public static void clientTick(TickEvent.ClientTickEvent ev) {
+        if (ClientProxy.MC.level == null) {
+            return;
+        }
+        ClientProxy.MC.level.getEntities().getAll().forEach(entity -> {
+            entity.getCapability(CAP).ifPresent((cap) -> {
+                //garden border
+                Player player = ClientProxy.getPlayer();
+                if (player != null) {
+                    if (player.level.dimension().location().equals(Util.prefix("zen_garden")) && player.hasEffect(PVZMobEffects.DISTANCE_EFFECT.get())) {
+                        Vec3 cenVec = player.position();
+                        if (playerPos != null && cenVec.distanceToSqr(playerPos) < 4) {
+                            cenVec = new Vec3(cenVec.x - Math.round(((float) (cenVec.x / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16
+                                    , cenVec.y
+                                    , cenVec.z - Math.round(((float) (cenVec.z / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16)
+                                    .multiply(1, 0, 1);
+                            Vec3 posVec = player.position().subtract(playerPos).multiply(1, 0, 1);
+                            Vec3 movVec = player.getDeltaMovement().multiply(1, 0, 1);
+                            Vec3 posMod = posVec.add(cenVec);
+                            Vec3 movMod = movVec.add(cenVec);
+                            double dist = cenVec.length();
+                            double tmp = posMod.length();
+                            posMod = posMod.normalize().multiply(tmp - dist, 0, tmp - dist);
+                            tmp = movMod.length();
+                            movMod = movMod.normalize().multiply(tmp - dist, 0, tmp - dist);
+                            tmp = Math.min(1, (player.getEffect(PVZMobEffects.DISTANCE_EFFECT.get()).getAmplifier() + 1) / 5);
+                            //player's position is far from center, so regard the mod vector has the same angle as cenVec do.
+                            if (cenVec.x * posMod.x + cenVec.z * posMod.z > 0) {
+                                player.move(MoverType.SELF, posMod.multiply(- tmp, 0, - tmp));
+                            }
+                            if (cenVec.x * movMod.x + cenVec.z * movMod.z > 0) {
+                                player.setDeltaMovement(player.getDeltaMovement().subtract(movMod.multiply(tmp, 0, tmp)));
+                            }
+                        }
+                        playerPos = player.position();
+                    } else {
+                        playerPos = null;
+                    }
+                }
+            });
+        });
     }
 
     private static AttributeModifier getBlockModifier(BlockPos pos, IMaxSunExpander sunExpander, Player player) {

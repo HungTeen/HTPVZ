@@ -135,7 +135,7 @@ public class InvasionTypeGen implements DataProvider {
                                                 .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.water")))
                         )
                 ),
-                conditions(
+                conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO),
@@ -210,7 +210,7 @@ public class InvasionTypeGen implements DataProvider {
                                                 .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.water")))
                         )
                 ),
-                conditions(
+                conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
                         condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS))
                 ),
@@ -298,7 +298,7 @@ public class InvasionTypeGen implements DataProvider {
                                                 .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.common")))
                         )
                 ),
-                conditions(
+                conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
                         condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.IS_BADLANDS), arg(BiomeTags.HAS_DESERT_PYRAMID))
                 ),
@@ -354,7 +354,7 @@ public class InvasionTypeGen implements DataProvider {
                 false, 1, 1,500
         ));
         map.put(Util.prefix("overworld_more_weight_thick_zombie"), new InvasionType(loot("pvz:invasion/overworld_common"),
-                conditions(
+                conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO),
@@ -411,7 +411,7 @@ public class InvasionTypeGen implements DataProvider {
                 false, 1, 1,100
         ));
         map.put(Util.prefix("overworld_with_gargantuar"), new InvasionType(loot("pvz:invasion/overworld_common"),
-                conditions(
+                conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO),
@@ -458,7 +458,7 @@ public class InvasionTypeGen implements DataProvider {
                 false, 1, 1F,300
         ));
         map.put(Util.prefix("overworld_zombotany"), new InvasionType(loot("pvz:invasion/overworld_common"),
-                conditions(
+                conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_end")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES),
@@ -550,7 +550,7 @@ public class InvasionTypeGen implements DataProvider {
                                                 .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.nether_aggressive")))
                         )
                 ),
-                conditions(
+                conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether"),
                         condition(new InvasionCondition.InBiomeCondition(), "minecraft:soul_sand_valley")
                 ),
@@ -637,7 +637,7 @@ public class InvasionTypeGen implements DataProvider {
                                         .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(15)
                                                 .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.nether_defensive")))
                         )),
-                conditions(
+                conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether"),
                         condition(new InvasionCondition.Not(), arg(new InvasionCondition.InBiomeCondition(), "minecraft:basalt_deltas"))
                 ),
@@ -702,7 +702,7 @@ public class InvasionTypeGen implements DataProvider {
         ));
         map.put(Util.prefix("nether_basic"), new InvasionType(
                 loot("pvz:invasion/nether_basic"),
-                conditions(
+                conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether")
                 ),
                 entityModifiers(InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES, InvasionEntityModifiers.WITH_TACO, InvasionEntityModifiers.WITH_FOG),
@@ -766,6 +766,13 @@ public class InvasionTypeGen implements DataProvider {
     @SafeVarargs
     protected final List<Pair<ResourceLocation, List<String>>> conditions(Pair<ResourceLocation, List<String>>... conditions) {
         return List.of(conditions);
+    }
+    @SafeVarargs
+    protected final List<Pair<ResourceLocation, List<String>>> conditionsB(Pair<ResourceLocation, List<String>>... conditions) {
+        Pair<ResourceLocation, List<String>>[] modified = Arrays.copyOf(conditions, conditions.length + 1);
+        modified[conditions.length] = condition(new InvasionCondition.AroundEntitiesCostCondition());
+        return List.of(modified);
+
     }
 
     protected Pair<ResourceLocation, List<String>> condition(InvasionCondition condition, String... arguments) {

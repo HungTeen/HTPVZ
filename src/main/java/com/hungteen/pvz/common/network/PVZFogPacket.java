@@ -38,7 +38,7 @@ public class PVZFogPacket {
             this.strength = value;
         } else if (type == ModifyType.RANGE) {
             this.range = value;
-        } else {
+        } else if (type != ModifyType.REMOVE) {
             this.modifyType = ModifyType.ERROR;
         }
     }

@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.creatures;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
@@ -8,6 +9,7 @@ import com.hungteen.pvz.common.event.SproutTransformEvent;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -39,12 +41,12 @@ public class Sprout extends Mob implements IGardenPlant {
     @OnlyIn(Dist.CLIENT)
     public LivingEntity plant;
     public Map<String, Integer> transformChance = new HashMap<>();
-    private static final int SPROUT_GROW_TIME = 2000;
     private static final EntityDataAccessor<Boolean> IS_MARIGOLD = SynchedEntityData.defineId(Sprout.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> REQUIRES_WATER = SynchedEntityData.defineId(Sprout.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> GROW_ENDED = SynchedEntityData.defineId(Sprout.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> GROW_LEVEL = SynchedEntityData.defineId(Sprout.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> GROW_TIME = SynchedEntityData.defineId(Sprout.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<String> PLANT_NAME = SynchedEntityData.defineId(Sprout.class, EntityDataSerializers.STRING);
+    public long growEndTime = -1;
     public Sprout(EntityType<? extends Mob> p_21368_, Level p_21369_) {
         super(p_21368_, p_21369_);
         this.entityData.set(DATA_POSE, Pose.DIGGING);
@@ -61,9 +63,9 @@ public class Sprout extends Mob implements IGardenPlant {
         super.defineSynchedData();
         this.entityData.define(IS_MARIGOLD, false);
         this.entityData.define(REQUIRES_WATER, true);
+        this.entityData.define(GROW_ENDED, false);
         this.entityData.define(GROW_LEVEL, 0);
         this.entityData.define(PLANT_NAME, "");
-        this.entityData.define(GROW_TIME, 200);
     }
 
     @Override
@@ -96,7 +98,7 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public boolean isRequiringWater() {
-        return this.entityData.get(REQUIRES_WATER) && this.getRemainingGrowTick() <= 0 && this.getGrowLevel() < 2;
+        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < 2;
     }
     @Override
     public void setRequiringFertilizer(boolean bool) {
@@ -104,7 +106,13 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public boolean isRequiringFertilizer() {
-        return (! this.entityData.get(REQUIRES_WATER)) && this.getRemainingGrowTick() <= 0 && this.getGrowLevel() < 2;
+        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < 2;
+    }
+    protected boolean isRequiring() {
+        return this.entityData.get(GROW_ENDED);
+    }
+    protected void setRequiring(boolean bool) {
+        this.entityData.set(GROW_ENDED, bool);
     }
     @Override
     public int getGrowLevel() {
@@ -121,20 +129,19 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public int getRemainingGrowTick() {
-        return this.entityData.get(GROW_TIME);
+        return (this.level.isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - Util.getServerTime(this.level.getServer()));
     }
     @Override
     public void setRemainingGrowTick(int time) {
-        this.entityData.set(GROW_TIME, time);
+        this.growEndTime = this.level.isClientSide ? -1L : Util.getServerTime(this.level.getServer()) + time;
     }
 
     @Override
     public void tick() {
         super.tick();
         if (! level.isClientSide) {
-            int growTime = this.getRemainingGrowTick();
-            if (growTime > 0) {
-                this.setRemainingGrowTick(growTime - 1);
+            if (this.getRemainingGrowTick() <= 0) {
+                setRequiring(true);
             }
             if (this.tickCount % 10 == 0 && ! level.getBlockState(this.getOnPos()).is(PVZBlockTags.GARDEN_FLOWER_POT)) {
                 this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
@@ -200,8 +207,9 @@ public class Sprout extends Mob implements IGardenPlant {
     public InteractionResult onWatered(Player player, ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringWater()) {
-            this.entityData.set(GROW_TIME, random.nextInt(150 + random.nextInt(50)));
-            this.setRequiringWater(random.nextInt(2) == 0);
+            this.setRemainingGrowTick(100 + random.nextInt(100));
+            this.setRequiringWater(random.nextInt(5) < 2);
+            this.setRequiring(false);
             return InteractionResult.CONSUME;
         } else {
             return InteractionResult.FAIL;
@@ -215,8 +223,9 @@ public class Sprout extends Mob implements IGardenPlant {
                 this.transformPlant();
             }
             setGrowLevel(this.getGrowLevel() + 1);
-            this.entityData.set(GROW_TIME, SPROUT_GROW_TIME);
+            this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.sproutGrowTime));
             this.setRequiringWater(true);
+            this.setRequiring(false);
             return InteractionResult.CONSUME;
         } else {
             return InteractionResult.FAIL;
@@ -284,7 +293,7 @@ public class Sprout extends Mob implements IGardenPlant {
         tag.putBoolean("isMarigold", this.isMarigold());
         tag.putBoolean("requiresWater", this.isRequiringWater());
         tag.putInt("growLevel", this.getGrowLevel());
-        tag.putInt("growTime", this.getRemainingGrowTick());
+        tag.putLong("growEndTime", this.growEndTime);
         if (! this.entityData.get(PLANT_NAME).equals("")) {
             tag.putString("plantName", this.entityData.get(PLANT_NAME));
         } else {
@@ -302,7 +311,7 @@ public class Sprout extends Mob implements IGardenPlant {
         this.setMarigold(tag.getBoolean("isMarigold"));
         this.setGrowLevel(tag.getInt("growLevel"));
         this.setRequiringWater(tag.getBoolean("requiresWater"));
-        this.setRemainingGrowTick(tag.getInt("growTime"));
+        this.growEndTime = tag.getLong("growEndTime");
         if (tag.contains("transformChance")) {
             CompoundTag map = (CompoundTag) tag.get("transformChance");
             for (String name : map.getAllKeys()) {

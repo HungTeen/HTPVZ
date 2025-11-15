@@ -66,7 +66,7 @@ public class LightLayer<T extends Entity, M extends EntityModel<T>> extends Rend
 					   float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw,
 					   float headPitch) {
 		Vec3 color = this.colorFunction.apply(entity, partialTicks, ageInTicks);
-		if (color.distanceToSqr(Vec3.ZERO) > 0) {
+		if (color.lengthSqr() > 0) {
 			poseStack.pushPose();
 			VertexConsumer iVertexBuilder = bufferIn.getBuffer(renderType(res, 0, 0));
 			getParentModel().renderToBuffer(poseStack, iVertexBuilder, packedLightIn, OverlayTexture.NO_OVERLAY,

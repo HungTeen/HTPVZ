@@ -17,7 +17,7 @@ import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.world.PVZFog;
-import com.hungteen.pvz.common.world.team.PVZTeamData;
+import com.hungteen.pvz.common.world.PVZSavedData;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
@@ -204,7 +204,7 @@ public class PVZMod
             if (scoreboard.getPlayerTeam(ENEMY_TEAM) == null) {
                 PlayerTeam playerteam = scoreboard.addPlayerTeam(ENEMY_TEAM);
                 playerteam.setDisplayName(Component.translatable(ENEMY_TEAM));
-                PVZTeamData.setEvil(ev.getServer().getScoreboard(), ENEMY_TEAM, true);
+                PVZSavedData.setEvil(ev.getServer().getScoreboard(), ENEMY_TEAM, true);
             }
             if (scoreboard.getPlayerTeam(FRIENDLY_TEAM) == null) {
                 PlayerTeam playerteam = scoreboard.addPlayerTeam(FRIENDLY_TEAM);
@@ -216,7 +216,7 @@ public class PVZMod
             PVZFogCapability.tick(ev);
             PVZZombieEventCapability.tick(ev);
             //scoreboard tick
-            PVZTeamData.tick();
+            PVZSavedData.tick();
             //server stress releasing
             ServerStressReleaseGoals.averageTickTime = Math.round(ev.getServer().getAverageTickTime());
         }
@@ -243,6 +243,7 @@ public class PVZMod
             }
             //caps tick
             PVZEntityCapability.clientTick(ev);
+            PVZPlayerCapability.clientTick(ev);
         }
     }
 

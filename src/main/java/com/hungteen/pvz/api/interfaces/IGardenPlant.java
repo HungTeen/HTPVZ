@@ -24,7 +24,8 @@ public interface IGardenPlant {
     boolean isRequiringFertilizer();
     void setRequiringWater(boolean bool);
     void setRequiringFertilizer(boolean bool);
-
+    /**Only available on server.*/
     int getRemainingGrowTick();
+    /**Only available on server.*/
     void setRemainingGrowTick(int tick);
 }

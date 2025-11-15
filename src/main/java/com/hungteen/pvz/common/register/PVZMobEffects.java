@@ -92,6 +92,12 @@ public class PVZMobEffects {
     public static final RegistryObject<net.minecraft.world.effect.MobEffect> INVASION_OMEN = effect("invasion_omen", () ->
             new InvasionOmenEffect(MobEffectCategory.HARMFUL, 0x2d4a3e)).build();
 
+    public static final UUID DISTANCE_EFFECT_UUID = UUID.fromString("b2fd9a45-5679-7850-25c3-b684eb4b0e52");
+    public static final RegistryObject<net.minecraft.world.effect.MobEffect> DISTANCE_EFFECT = effect("distance_effect", () ->
+            new MobEffect(MobEffectCategory.HARMFUL, 0xffffff))
+            .build();
+
+
     /**To use this effect, use {@link PVZMobEffects#hypnotizeWithTeam(LivingEntity, String, int)} for conveinence.*/
     public static final UUID HYPNOTIZED_EFFECT_UUID = UUID.fromString("8ee427fa-6f9d-2aa5-6d52-76b37472bfc1");
     public static final RegistryObject<net.minecraft.world.effect.MobEffect> HYPNOTISED = effect("hypnotized", () ->
@@ -267,7 +273,7 @@ public class PVZMobEffects {
             if (! entity.level.isClientSide && entity != removed && entity instanceof Player) {
                 List<InvasionType> types = InvasionType.generateTypes(entity);
                 if (entity instanceof ServerPlayer player) {
-                    if ((types.isEmpty() || ! Invasion.canHappenInvasion(entity))) {
+                    if ((types.isEmpty() || types.stream().allMatch(type -> type.isAvailable(entity, types)))) {
                         player.displayClientMessage(Component.translatable("hint.pvz.invasion.no_available_invasion"), true);
                     } else {
                         entity.level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {

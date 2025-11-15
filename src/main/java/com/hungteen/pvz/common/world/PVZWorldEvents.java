@@ -47,11 +47,10 @@ public class PVZWorldEvents {
     @SubscribeEvent
     public static void playerRespawnCoolDown(PlayerEvent.PlayerRespawnEvent event) {
         if (! event.getEntity().level.isClientSide && ! event.isEndConquered()) {
-            PVZPlayerCapStats nbt = PVZPlayerCapability.getPlayerData(event.getEntity()).orElse(null);
-                if (PVZPlayerCapability.getValue(event.getEntity(), PVZPlayerCapStats.PLANT_HAVE_CD) == 0) {
-                    return;
-                }
-                ItemCooldowns cooldowns = event.getEntity().getCooldowns();
+            if (PVZPlayerCapability.getValue(event.getEntity(), PVZPlayerCapStats.PLANT_HAVE_CD) == 0) {
+                return;
+            }
+            ItemCooldowns cooldowns = event.getEntity().getCooldowns();
             for (Item item : PVZSeedPackets.dataMap.keySet()) {
                 if (item instanceof SeedPacketItem<?> item1) {
                     cooldowns.addCooldown(item, item1.getBaseCoolDown(null));

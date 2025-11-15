@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.command;
 
-import com.hungteen.pvz.common.world.team.PVZTeamData;
+import com.hungteen.pvz.common.world.PVZSavedData;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -27,7 +27,7 @@ public class TeamSetEvilCommand {
 
     public static int setTeamEvil(CommandSourceStack source, PlayerTeam team, boolean isEvil) {
         ServerLevel level = source.getLevel();
-        int result = PVZTeamData.setEvil(level.getScoreboard(), team.getName(), isEvil);
+        int result = PVZSavedData.setEvil(level.getScoreboard(), team.getName(), isEvil);
         if (result == 1) {
             source.sendSuccess(Component.translatable(isEvil ? "commands.pvz.team.add_evil" : "commands.pvz.team.remove_evil", team.getDisplayName()), true);
         } else {

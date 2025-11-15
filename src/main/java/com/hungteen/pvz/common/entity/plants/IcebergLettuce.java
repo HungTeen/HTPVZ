@@ -132,20 +132,27 @@ public class IcebergLettuce extends ShooterPlant {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(0.6, 0.2, 0.6),
-                    (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity) && ! ((LivingEntity) entity).hasEffect(PVZMobEffects.FREEZE.get())));
+            List<LivingEntity> entities = entity.level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(0.6, 0.2, 0.6),
+                    (entity) -> (EntityUtil.checkCanEntityBeAttack(this.entity, entity) && ! entity.hasEffect(PVZMobEffects.FREEZE.get())));
             if (entities.isEmpty() && this.entity.tickCount < 100) {
                 return;
             }
             MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 80);
             if (entity.hasSkill(RANGE_SKILL_NAME)) {
-                entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 0.25, 2),
+                entities = entity.level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(2, 0.25, 2),
                         (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity)));
-                entities.forEach((entity) -> ((LivingEntity) entity).addEffect(instance));
+                entities.forEach((entity) -> entity.addEffect(instance));
             } else {
-                if (! entities.isEmpty()) {
-                    ((LivingEntity) entities.get(0)).addEffect(instance);
+                LivingEntity target = entities.get(0);
+                double targetDistance = target.position().distanceToSqr(entity.position());
+                for (LivingEntity i : entities) {
+                    double tmp = i.position().distanceToSqr(entity.position());
+                    if (i.position().distanceToSqr(entity.position()) < targetDistance) {
+                        target = i;
+                        targetDistance = tmp;
+                    }
                 }
+                target.addEffect(instance);
             }
             ((ServerLevel) entity.level).sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + 0.2, entity.getZ(), entity.hasSkill(RANGE_SKILL_NAME) ? 60 : 20, 0.0D, 0.0D, 0.0D, entity.hasSkill(RANGE_SKILL_NAME) ? 0.2F : 0.1F);
             entity.discard();

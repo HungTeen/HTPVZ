@@ -5,7 +5,10 @@ import com.hungteen.pvz.common.register.PVZBiomes;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZParticles;
 import com.mojang.serialization.Codec;
-import net.minecraft.core.*;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.QuartPos;
+import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.features.CaveFeatures;
@@ -28,11 +31,10 @@ import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.placement.*;
 
 import java.util.List;
-import java.util.Random;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator.ISLAND_DISTANCE;
 import static net.minecraft.data.worldgen.placement.VegetationPlacements.treePlacement;
 
 /**Temporary work. will be replaced somewhen.*/
@@ -46,7 +48,6 @@ public class ZenGardenBiomeSource extends BiomeSource {
     private final Holder<Biome> river;
     private final Holder<Biome> island;
     private final Registry<Biome> biomeRegistry;
-    private final Vec3i riverCircle;
     public static final Holder<PlacedFeature> GARDEN_CLAY = PlacementUtils.register("pvz:garden_clay", CaveFeatures.LUSH_CAVES_CLAY,
             CountPlacement.of(8), InSquarePlacement.spread(),
             PlacementUtils.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT, EnvironmentScanPlacement.scanningFor(
@@ -69,10 +70,6 @@ public class ZenGardenBiomeSource extends BiomeSource {
         mushroom = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_MUSHROOM.getKey());
         river = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_RIVER.getKey());
         island = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_ISLAND.getKey());
-        Random random = new Random(735629912);//TODO change this.
-        riverCircle = new Vec3i((random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1),
-                random.nextInt(30) + 100,
-                (random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1));
     }
 
     private static List<Holder<Biome>> getStartBiomes(Registry<Biome> registry) {
@@ -94,17 +91,19 @@ public class ZenGardenBiomeSource extends BiomeSource {
         int x = QuartPos.toBlock(ix);
         int y = QuartPos.toBlock(iy);
         int z = QuartPos.toBlock(iz);
-        if (x * x + z * z >= 30000) {
+        x = x - Math.round(((float) (x / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16;
+        z = z - Math.round(((float) (z / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16;
+        if (x * x + z * z >= 25000) {
             return this.end;
         } else if (y < 65) {
             return this.island;
         } else if (y > 190) {
         return this.mushroom;
         } else {
-            if (isOnRiver(x, z)) {
-                return this.river;
-            }
-             else if (y < 140) {
+//            if (isOnRiver(x, z)) {
+//                return this.river;
+//            } else
+                if (y < 140) {
                 return this.plain;
             } else {
                 return this.mushroom;
@@ -112,28 +111,19 @@ public class ZenGardenBiomeSource extends BiomeSource {
         }
     }
 
-    private boolean isOnRiver(int x, int z) {
-        int depth = 8 - Math.abs((int) Math.pow((x - riverCircle.getX()) * (x - riverCircle.getX())
-                + (z - riverCircle.getZ()) * (z - riverCircle.getZ()), 0.5) - riverCircle.getY());
-        return depth > 0;
-    }
-
-
     //biomes
 
     public static Biome gardenPlains() {
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
         mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(PVZEntities.MOOBLOOM.get(), 50, 3, 4));
-        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.PEA_SHOOTER.get(), 10, 2, 3));
-        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.SUN_FLOWER.get(), 20, 4, 6));
-        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.WALL_NUT.get(), 40, 4, 6));
-        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.TALL_NUT.get(), 1, 1, 1));
         mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.VELOCI_RADISH.get(), 80, 5, 8));
         BiomeGenerationSettings.Builder biomeGenBuilder = new BiomeGenerationSettings.Builder();
         addNutTrees(biomeGenBuilder);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUNFLOWER);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.FLOWER_MEADOW);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_PLAIN);
+        BiomeDefaultFeatures.addWaterTrees(biomeGenBuilder);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_WATERLILY);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_ROOTED_AZALEA_TREE);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CLASSIC_VINES);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.GLOW_LICHEN);
@@ -142,7 +132,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
         biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_DIRT);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134,
+        return PVZBiomes.biome(Biome.Precipitation.NONE, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134,
                 0.8F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
                 new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
@@ -158,7 +148,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
         biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_DIRT);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x7575df, 0xad7ee6, 0x47bbc5, 0x053134,
+        return PVZBiomes.biome(Biome.Precipitation.NONE, 0x7575df, 0xad7ee6, 0x47bbc5, 0x053134,
                 0.8F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
                 new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
@@ -172,7 +162,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
         BiomeDefaultFeatures.addDefaultUndergroundVariety(biomeGenBuilder);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, OrePlacements.ORE_CLAY);
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
-        return PVZBiomes.biome(Biome.Precipitation.RAIN, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134,
+        return PVZBiomes.biome(Biome.Precipitation.NONE, 0x67c6a6, 0x93ced5, 0x47bbc5, 0x053134,
                 0.8F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
                 new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }

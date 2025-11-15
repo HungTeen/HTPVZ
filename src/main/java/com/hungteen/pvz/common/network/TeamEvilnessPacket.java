@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.network;
 
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.world.team.PVZTeamData;
+import com.hungteen.pvz.common.world.PVZSavedData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +35,7 @@ public class TeamEvilnessPacket {
         this.evilSet.clear();
         Collection<PlayerTeam> teams = level.getScoreboard().getPlayerTeams();
         teams.forEach(team -> {
-            if (PVZTeamData.isEvil(level.getScoreboard(), team.getName())) {
+            if (PVZSavedData.isEvil(level.getScoreboard(), team.getName())) {
                 this.evilSet.add(team.getName());
             }
         });
@@ -45,7 +45,7 @@ public class TeamEvilnessPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).ifPresent(nbt -> {
-            PVZTeamData.clientEvilList = this.evilSet;
+            PVZSavedData.clientEvilList = this.evilSet;
         }));
         ctx.get().setPacketHandled(true);
     }

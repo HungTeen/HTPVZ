@@ -141,21 +141,6 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         }
     }
 
-    /**Determines whether an invasion can happen.*/
-    public static boolean canHappenInvasion(LivingEntity target) {
-        if (target instanceof Player player && player.isCreative()) {
-            return true;
-        }
-        List<Entity> entities = target.level.getEntities(target, target.getBoundingBox().inflate(10));
-        int obs = 0;
-        for (Entity entity : entities){
-            if (EntityUtil.isTeammate(entity, target)) {
-                obs += 1;
-            }
-        }
-        return obs < 15;
-    }
-
     /**Generate waves. Attention that the waves generated here may not be the ones actually starts in the game. With the invasion going these values are dynamically adjusted.*/
     public int generateWaves() {
         float lengthFactor = 1;

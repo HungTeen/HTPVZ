@@ -51,7 +51,7 @@ public class InvasionTeam {
     /**@return Whether this team has ended spawning.*/
     public boolean tick() {
         this.seeker.tick();
-        if (! Invasion.canHappenInvasion(target) || this.invasionTypes.isEmpty()) {
+        if (this.invasionTypes.isEmpty() || this.invasionTypes.stream().allMatch(type -> type.isAvailable(target, invasionTypes))) {
             return true;
         }
         if (! seeker.availablePositions.isEmpty()) {

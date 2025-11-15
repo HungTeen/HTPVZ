@@ -70,7 +70,9 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
     public final AnimationState attackAnimationState = new AnimationState();
+    public final AnimationState disAppearAnimationState = new AnimationState();
     protected boolean firstUnsafeSituationMercy = true;
+    protected boolean isDisappearing = false;
     protected static final EntityDataAccessor<Integer> POSE = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
@@ -116,6 +118,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Root", getEntityData().get(ROOT));
+        tag.putBoolean("IsDisappearing", isDisappearing);
         saveSkills(tag);
         tag.putInt("TickCount", tickCount);
 
@@ -134,6 +137,9 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         readSkills(tag);
         if (tag.contains("Root")) {
             this.getEntityData().set(ROOT, tag.getBoolean("Root"));
+        }
+        if (tag.contains("IsDisappearing")) {
+            this.isDisappearing = tag.getBoolean("IsDisappearing");
         }
         if (tag.contains("TickCount")) {
             this.tickCount = tag.getInt("TickCount");
@@ -171,9 +177,16 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
             if (entityData.get(POSE) == 1) {
                 this.moveAnimationState.start(this.tickCount);
                 this.attackAnimationState.stop();
+                this.idleAnimationState.stop();
+            } else if (entityData.get(POSE) == -1) {
+                this.disAppearAnimationState.start(this.tickCount);
+                this.moveAnimationState.stop();
+                this.attackAnimationState.stop();
+                this.idleAnimationState.stop();
             } else if (entityData.get(POSE) == 2) {
                 this.attackAnimationState.start(this.tickCount);
                 this.moveAnimationState.stop();
+                this.idleAnimationState.stop();
             } else {
                 this.idleAnimationState.start(this.tickCount);
                 this.moveAnimationState.stop();
@@ -278,6 +291,9 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
 
     @Override
     public void tick() {
+        if (!this.level.isClientSide && this.tickCount > 2400 && this.random.nextInt(15) == 0) {
+            this.disappear();
+        }
         // skill
         if (hasSkill(this, STRONG_SKILL_NAME)) {
             if (! level.isClientSide) {
@@ -316,16 +332,23 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         if (entityData.get(POSE) == 0) {
             animationChangeable = animationTick == 24;
             animationTick = animationTick == 24 ? 0 : animationTick;
+        } else if (entityData.get(POSE) == -1) {
+            if (animationTick == 16) {
+                this.discard();
+            }
         } else {
             animationChangeable = animationTick == 20;
             animationTick = animationTick == 20 ? 0 : animationTick;
         }
         if (animationChangeable) {
-            entityData.set(POSE, isPathFinding() ? 1 : 0);
+            entityData.set(POSE, isDisappearing ? -1 : isPathFinding() ? 1 : 0);
         }
         super.tick();
     }
 
+    public void disappear() {
+        this.isDisappearing = true;
+    }
     public boolean onBeingShoveled(Player player, InteractionHand handIn) {
         return SimplePlant.onBeingShoveled(player, handIn, this);
     }

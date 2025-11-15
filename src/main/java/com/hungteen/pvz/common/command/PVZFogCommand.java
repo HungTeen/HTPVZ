@@ -13,7 +13,7 @@ import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class PVZFogCommand {
@@ -40,15 +40,15 @@ public class PVZFogCommand {
                                 .then(Commands.literal("pos").then(Commands.argument("value", Vec3Argument.vec3()).executes(
                                         (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), Vec3Argument.getVec3(command, "value"))))))
                                 .then(Commands.literal("seconds").then(Commands.argument("value", IntegerArgumentType.integer()).executes(
-                                        (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), 2, IntegerArgumentType.getInteger(command, "value"))))))
+                                        (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), PVZFogPacket.ModifyType.LIFE_TIME, IntegerArgumentType.getInteger(command, "value"))))))
                                 .then(Commands.literal("strength").then(Commands.argument("value", IntegerArgumentType.integer()).executes(
-                                        (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), 3, IntegerArgumentType.getInteger(command, "value"))))))
+                                        (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), PVZFogPacket.ModifyType.STRENGTH, IntegerArgumentType.getInteger(command, "value"))))))
                         ))
                 .then(Commands.literal("remove")
                         .then(Commands.argument("uuid", UuidArgument.uuid()).executes(
-                                (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), 7, 0))))
+                                (command -> modifyFog(command.getSource(), UuidArgument.getUuid(command, "uuid"), PVZFogPacket.ModifyType.REMOVE, 0))))
                         .then(Commands.literal("all").executes(
-                                (command -> removaAllFogs(command.getSource()))
+                                (command -> removeAllFogs(command.getSource()))
                         )));
         dispatcher.register(builder);
     }
@@ -74,8 +74,8 @@ public class PVZFogCommand {
             return 0;
         }
     }
-    private static int modifyFog(CommandSourceStack source, UUID uuid, int modifyType, int value) {
-        if (PVZFogPacket.modifyFog(uuid, PVZFogPacket.ModifyType.fromValue(modifyType), value)) {
+    private static int modifyFog(CommandSourceStack source, UUID uuid, PVZFogPacket.ModifyType modifyType, int value) {
+        if (PVZFogPacket.modifyFog(uuid, modifyType, value)) {
             source.sendSuccess(Component.translatable("commands.pvz.fog.modify", "["+ uuid +"]"), true);
             return 1;
         } else {
@@ -84,14 +84,13 @@ public class PVZFogCommand {
         }
     }
 
-    private static int removaAllFogs(CommandSourceStack source) {
-        int num = PVZFog.pvzFogs.size();
-        List<PVZFog> fogs = List.copyOf(PVZFog.pvzFogs);
-        fogs.forEach(fog -> modifyFog(source, fog.uuid, 7, 0));
+    private static int removeAllFogs(CommandSourceStack source) {
+        int num = PVZFog._pvzFogs.size();
+        Set<PVZFog> fogs = Set.copyOf(PVZFog._pvzFogs.values());
+        fogs.forEach(fog -> modifyFog(source, fog.uuid, PVZFogPacket.ModifyType.REMOVE, 0));
         UUID uuid;
         if (num == 1) {
-            uuid = fogs.get(0).uuid;
-            source.sendSuccess(Component.translatable("commands.pvz.fog.modify", "["+ uuid +"]"), true);
+            uuid = fogs.iterator().next().uuid;
         } else {
             source.sendSuccess(Component.translatable("commands.pvz.fog.remove_all", num), true);
         }

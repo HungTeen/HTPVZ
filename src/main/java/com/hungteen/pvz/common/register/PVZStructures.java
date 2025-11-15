@@ -51,7 +51,7 @@ public class PVZStructures {
             biomes(PVZBiomeTags.HAS_GREEN_HOUSE), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.NONE
     ), GREEN_HOUSE_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
     public static final RegistryObject<StructureSet> GREEN_HOUSE_SET = STRUCTURE_SETS.register("green_house", () ->
-            new StructureSet(GREEN_HOUSE.getHolder().get(), new RandomSpreadStructurePlacement(13, 10, RandomSpreadType.LINEAR, 125627497)));
+            new StructureSet(GREEN_HOUSE.getHolder().get(), new RandomSpreadStructurePlacement(8, 7, RandomSpreadType.LINEAR, 125627497)));
 
     //garden_shelves
     public static final RegistryObject<StructureTemplatePool> GARDEN_SHELVES_POOL = TEMPLATE_POOLS.register("garden_shelves", () -> new StructureTemplatePool(Util.prefix("green_house"),
@@ -66,7 +66,7 @@ public class PVZStructures {
             biomes(PVZBiomeTags.HAS_GARDEN_SHELVES), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.NONE
     ), GARDEN_SHELVES_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
     public static final RegistryObject<StructureSet> GARDEN_SHELVES_SET = STRUCTURE_SETS.register("garden_shelves", () ->
-            new StructureSet(GARDEN_SHELVES.getHolder().get(), new RandomSpreadStructurePlacement(4, 3, RandomSpreadType.LINEAR, 113382974)));
+            new StructureSet(GARDEN_SHELVES.getHolder().get(), new RandomSpreadStructurePlacement(4, 2, RandomSpreadType.LINEAR, 113382974)));
 
     //garden_portal
     public static final RegistryObject<StructureTemplatePool> GARDEN_PORTAL_POOL = TEMPLATE_POOLS.register("garden_portal", () -> new StructureTemplatePool(Util.prefix("garden_portal"),
@@ -77,7 +77,7 @@ public class PVZStructures {
             biomes(PVZBiomeTags.HAS_GARDEN_PORTAL), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.NONE
     ), GARDEN_PORTAL_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
     public static final RegistryObject<StructureSet> GARDEN_PORTAL_SET = STRUCTURE_SETS.register("garden_portal", () ->
-            new StructureSet(GARDEN_PORTAL.getHolder().get(), new RandomSpreadStructurePlacement(12, 10, RandomSpreadType.LINEAR, 105325493)));
+            new StructureSet(GARDEN_PORTAL.getHolder().get(), new RandomSpreadStructurePlacement(6, 5, RandomSpreadType.LINEAR, 105325493)));
 
     //sacrificial_venue
     public static final RegistryObject<StructurePieceType> SACRIFICIAL_VENUE_PIECE = STRUCTURE_PIECE_TYPES.register("sacrificial_venue", () -> StructurePieceType.setTemplatePieceId(SacrificialVenueStructurePiece::new, "PVZSV"));

@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.world.zen_garden;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZStructures;
@@ -14,13 +15,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.portal.PortalForcer;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Random;
 import java.util.function.Function;
 
 public class ZenGardenTeleporter extends PortalForcer {
@@ -40,11 +41,17 @@ public class ZenGardenTeleporter extends PortalForcer {
                 vec3 = null;
             }
             if (vec3 == null) {
+                Random random = new Random(PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.gardenForEveryOne)
+                        ? player.getUUID().getLeastSignificantBits()
+                        : player.getTeam() == null ? 0 : player.getTeam().hashCode()
+                        );
                 if (destWorld.dimension().location().equals(Util.prefix("zen_garden"))) {
                     HolderSet<Structure> holderSet = (destWorld.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY)
                             .getHolder(PVZStructures.GARDEN_PORTAL.getKey())).map(HolderSet::direct).get();
                     Pair<BlockPos, Holder<Structure>> pair = destWorld.getChunkSource().getGenerator()
-                            .findNearestMapStructure(destWorld, holderSet, new BlockPos(0, 85, 0), 100, false);
+                            .findNearestMapStructure(destWorld, holderSet,
+                                    new BlockPos((random.nextFloat() - 0.5) * 1440000, 85, (random.nextFloat() - 0.5) * 1440000)
+                                    , 100, false);
                     int height = 84;//avoid players from teleporting directly onto sky islands
                     //TODO better methods?
                     if (pair != null) {

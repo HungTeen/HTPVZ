@@ -1,11 +1,13 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -35,16 +37,17 @@ import java.util.Set;
 public class MariGold extends SimplePlant implements IGardenPlant {
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState produceAnimationState = new AnimationState();
-    private static final int MARIGOLD_GROW_TIME = 1250;
-    public static final EntityDataAccessor<Integer> GROW_TIME = SynchedEntityData.defineId(MariGold.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> REQUIRES_WATER = SynchedEntityData.defineId(MariGold.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> GROW_LEVEL = SynchedEntityData.defineId(MariGold.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> GROW_ENDED = SynchedEntityData.defineId(MariGold.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> IS_PRODUCING = SynchedEntityData.defineId(MariGold.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.defineId(MariGold.class, EntityDataSerializers.INT);
+    public long growEndTime = -1;
 
     public MariGold(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
         this.entityData.set(DATA_POSE, Pose.DIGGING);
+        this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.marigoldGrowTime));
     }
 
     //interaction
@@ -72,8 +75,9 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     public InteractionResult onWatered(Player player, ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringWater()) {
-            this.entityData.set(GROW_TIME, random.nextInt(80) + 150);
-            this.setRequiringWater(random.nextInt(2) == 0);
+            this.setRemainingGrowTick(100 + random.nextInt(100));
+            this.setRequiringWater(random.nextInt(5) < 2);
+            this.setRequiring(false);
             return InteractionResult.CONSUME;
         } else {
             return InteractionResult.FAIL;
@@ -86,7 +90,8 @@ public class MariGold extends SimplePlant implements IGardenPlant {
             this.entityData.set(IS_PRODUCING, true);
             setGrowLevel(this.getGrowLevel() + 1);
             this.setRequiringWater(true);
-            this.entityData.set(GROW_TIME, MARIGOLD_GROW_TIME);
+            this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.marigoldGrowTime));
+            this.setRequiring(false);
             return InteractionResult.CONSUME;
         } else {
             return InteractionResult.FAIL;
@@ -96,9 +101,9 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     public void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(GROW_LEVEL, 0);
-        this.entityData.define(GROW_TIME, MARIGOLD_GROW_TIME);
         this.entityData.define(IS_PRODUCING, false);
         this.entityData.define(REQUIRES_WATER, true);
+        this.entityData.define(GROW_ENDED, false);
         this.entityData.define(COLOR, DyeColor.values()[this.random.nextInt(16)].getTextColor());
     }
 
@@ -151,7 +156,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     @Override
     public boolean isRequiringWater() {
-        return this.entityData.get(REQUIRES_WATER) && this.getRemainingGrowTick() <= 0 && this.getGrowLevel() < 3;
+        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < 3;
     }
     @Override
     public void setRequiringFertilizer(boolean bool) {
@@ -159,15 +164,22 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     @Override
     public boolean isRequiringFertilizer() {
-        return (! this.entityData.get(REQUIRES_WATER)) && this.getRemainingGrowTick() <= 0 && this.getGrowLevel() < 3;
+        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < 3;
+    }
+    protected boolean isRequiring() {
+        return this.entityData.get(GROW_ENDED);
+    }
+    protected void setRequiring(boolean bool) {
+        this.entityData.set(GROW_ENDED, bool);
     }
     @Override
     public int getRemainingGrowTick() {
-        return this.entityData.get(GROW_TIME);
+        if (! this.level.isClientSide) PVZMod.LOGGER.info(this.growEndTime + " : " + Util.getServerTime(this.level.getServer()) + " : " + (this.growEndTime - Util.getServerTime(this.level.getServer())));
+        return (this.level.isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - Util.getServerTime(this.level.getServer()));
     }
     @Override
     public void setRemainingGrowTick(int time) {
-        this.entityData.set(GROW_TIME, time);
+        this.growEndTime = this.level.isClientSide ? -1L : Util.getServerTime(this.level.getServer()) + time;
     }
     public int getColor() {
         return this.entityData.get(COLOR);
@@ -218,7 +230,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("growLevel", this.getGrowLevel());
-        tag.putInt("growTime", this.getRemainingGrowTick());
+        tag.putLong("growEndTime", this.growEndTime);
         tag.putBoolean("requiresWater", this.isRequiringWater());
         tag.putInt("color", this.entityData.get(COLOR));
     }
@@ -228,7 +240,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         super.addAdditionalSaveData(tag);
         this.setGrowLevel(tag.getInt("growLevel"));
         this.setRequiringWater(tag.getBoolean("requiresWater"));
-        this.setRemainingGrowTick(tag.getInt("growTime"));
+        this.growEndTime = tag.getLong("growEndTime");
         this.entityData.set(COLOR, tag.getInt("color"));
     }
     @Override
@@ -252,20 +264,25 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         }
         @Override
         public boolean canUse() {
-            if (mariGold.getRemainingGrowTick() > 0) {
-                mariGold.setRemainingGrowTick(mariGold.getRemainingGrowTick() - 1);
+            if (mariGold.getRemainingGrowTick() <= 0) {
+                setRequiring(true);
             }
             return mariGold.entityData.get(IS_PRODUCING);
         }
-
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+        @Override
         public void tick() {
-            int time = MARIGOLD_GROW_TIME - mariGold.getRemainingGrowTick();
-            if (time > 20) {
+            int time = PVZConfig.PVZGameRules.getInt(mariGold.level, PVZConfig.Common.marigoldGrowTime) - mariGold.getRemainingGrowTick();
+            if (time > 40) {
                 mariGold.getEntityData().set(IS_PRODUCING, false);
                 if (mariGold.getGrowLevel() >= 3) {
                     mariGold.discard();
                 }
-            } else if (time == 8 || time == 10 || time == 12 || ((time == 9 || time == 11) && random.nextBoolean())) {
+            } else if (time == 8 || time == 10 || time == 12
+                    || ((time == 9 || time == 11 || time == 13 || time == 15) && random.nextBoolean() && mariGold.getGrowLevel() < 3)) {
                 mariGold.produce();
             }
         }

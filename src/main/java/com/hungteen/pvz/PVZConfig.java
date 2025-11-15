@@ -78,10 +78,14 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> joinDefaultTeam;
         public static ForgeConfigSpec.ConfigValue<Boolean> plantNeedsDurability;
         public static ForgeConfigSpec.ConfigValue<Boolean> dyeMarigold;
+        public static ForgeConfigSpec.ConfigValue<Boolean> gardenBorder;
+        public static ForgeConfigSpec.ConfigValue<Boolean> gardenForEveryOne;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnInvasionsInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnFallenStarInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallyRegainSunInterval;
+        public static ForgeConfigSpec.ConfigValue<Integer> marigoldGrowTime;
+        public static ForgeConfigSpec.ConfigValue<Integer> sproutGrowTime;
         public Common(ForgeConfigSpec.Builder builder) {
             builder.comment("All these configs are the default values of pvz game rules and are only effective in server.")
                     .comment("In the game you can also modify them separately for each world with /gamerule command and the rules are started with \"pvz:\".")
@@ -130,6 +134,14 @@ public class PVZConfig {
                             .translation("config.pvz.common.join_default_team")
                             .comment("if on, players without a team will automatically join a default player team of pvz mod, to prevent sweeping damage from hurting plants."),
                     "joinDefaultTeam", true);
+            gardenForEveryOne = add(builder
+                            .translation("config.pvz.common.garden_for_everyone")
+                            .comment("if on, pvz mod transports everyone in the same server to separated zen garden island. or players in a team will share the same zen garden."),
+                    "gardenForEveryone", false);
+            gardenBorder = add(builder
+                            .translation("config.pvz.common.garden_border")
+                            .comment("if on, pvz mod prevents players from leaving the island it is on."),
+                    "gardenBorder", true);
             naturallySpawnInvasionsInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_invasions_interval")
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
@@ -146,6 +158,14 @@ public class PVZConfig {
                             .translation("config.pvz.common.naturally_regain_sun_interval")
                             .comment("players regain sun naturally at this interval. set to 0 to turn off natural sun regain."),
                     "naturallyRegainSunInterval", 60, 0, 10000);
+            marigoldGrowTime = add(builder
+                            .translation("config.pvz.common.marigold_grow_time")
+                            .comment("ticks marigolds should stay in after being fertilized before they grow to next level."),
+                    "marigoldGrowTime", 12000, 100, 1000000);
+            sproutGrowTime = add(builder
+                            .translation("config.pvz.common.sprout_grow_time")
+                            .comment("ticks sprouts should stay in after being fertilized before they grow to next level."),
+                    "sproutGrowTime", 24000, 100, 1000000);
             builder.pop();
         }
 
