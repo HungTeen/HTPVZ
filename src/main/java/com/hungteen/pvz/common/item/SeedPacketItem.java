@@ -30,7 +30,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -242,13 +241,9 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             //CanPlaceOn test
             if (itemStack.getOrCreateTag().contains("CanPlaceOn")) {
                 ListTag list = itemStack.getTag().getList("CanPlaceOn", Tag.TAG_STRING);
-                for (Tag s : list) {
-                    if (s instanceof StringTag stringTag) {
-                        Block block = level.getBlockState(pos).getBlock();
-                        if (! ForgeRegistries.BLOCKS.getKey(block).equals(new ResourceLocation(stringTag.getAsString()))) {
-                            return Component.translatable("hint.pvz.plant.cant_plant_on", entity.getName(), block.getName());
-                        }
-                    }
+                Block block = level.getBlockState(pos).getBlock();
+                if (list.stream().noneMatch(tag -> ForgeRegistries.BLOCKS.getKey(block).toString().equals(tag.getAsString()))) {
+                    return Component.translatable("hint.pvz.plant.cant_plant_on", entity.getName(), block.getName());
                 }
             }
             //enchantment.
@@ -261,7 +256,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 cap.setOwner(player);
             }
             //handle skills.
-            if (canBoost() && entity instanceof IHaveSkills) {
+            if (entity instanceof IHaveSkills) {
                 ((IHaveSkills) entity).setSkillVal(entity, getSkillVal(itemStack));
             }
             //check sun and position.
@@ -344,7 +339,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 entity.getEntityData().set(((IPlant) entity).root(), false);
             }
             //handle skills.
-            if (item.canBoost() && entity instanceof IHaveSkills) {
+            if (entity instanceof IHaveSkills) {
                 ((IHaveSkills) entity).setSkillVal(entity, item.getSkillVal(itemStack));
             }
             //check sun and position.

@@ -297,8 +297,8 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<ButterBullet>> BUTTER = collision(0.5F, 0.5F).entity("butter", ButterBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<MelonBullet>> MELON = collision(0.8F, 0.8F).entity("melon", MelonBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<DandelionSeedBullet>> DANDELION_SEED = collision(0.4F, 0.4F).entity("dandelion_seed", DandelionSeedBullet::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<SeedArrow>> SEED_ARROW = collision(0.2F, 0.2F).entity("seed_arrow", SeedArrow::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<ArrowWithATarget>> ARROW_WITH_A_TARGET = collision(0.2F, 0.2F).entity("arrow_with_a_target", ArrowWithATarget::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<SeedArrow>> SEED_ARROW = collision(0.2F, 0.2F).tag(EntityTypeTags.ARROWS).entity("seed_arrow", SeedArrow::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<ArrowWithATarget>> ARROW_WITH_A_TARGET = collision(0.2F, 0.2F).tag(EntityTypeTags.ARROWS).entity("arrow_with_a_target", ArrowWithATarget::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<Hook>> HOOK = collision(0.2F, 0.2F).entity("hook", Hook::new, MobCategory.MISC);
 
     //client

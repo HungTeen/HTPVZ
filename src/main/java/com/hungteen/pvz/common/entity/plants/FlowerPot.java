@@ -108,6 +108,11 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
 
     @Override
     public MutableComponent customPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
         BlockState state = level.getBlockState(pos);
         if (isPlanting && (state.isAir() || state.getBlock() instanceof LiquidBlock)) {
             return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), state.getBlock().getName());

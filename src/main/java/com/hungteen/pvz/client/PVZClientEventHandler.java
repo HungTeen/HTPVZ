@@ -4,6 +4,7 @@ import com.hungteen.pvz.client.layer.ButterHeadLayer;
 import com.hungteen.pvz.client.layer.EntityFrozenLayer;
 import com.hungteen.pvz.client.layer.EntityHypnotizedLayer;
 import com.hungteen.pvz.client.layer.StuckArrowWithATargetLayer;
+import com.hungteen.pvz.common.item.ChiliChanItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -33,7 +35,7 @@ import java.util.Objects;
 public class PVZClientEventHandler {
 
     @SubscribeEvent
-    public static void addLayers(@SuppressWarnings("rawtypes") EntityRenderersEvent.AddLayers ev){
+    public static void addLayers(@SuppressWarnings("rawtypes") EntityRenderersEvent.AddLayers ev) {
         try {
             //get private field.
             Field field = EntityRenderersEvent.AddLayers.class.getDeclaredField("renderers");
@@ -89,5 +91,11 @@ public class PVZClientEventHandler {
         ev.register(new ModelResourceLocation("pvz:pumpkin_helmet_equipped_0#inventory"));
         ev.register(new ModelResourceLocation("pvz:pumpkin_helmet_equipped_1#inventory"));
         ev.register(new ModelResourceLocation("pvz:pumpkin_helmet_equipped_2#inventory"));
+        ev.register(new ModelResourceLocation("pvz:hot_sauce#inventory"));
+    }
+
+    @SubscribeEvent
+    public static void registerResourceListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(new ChiliChanItem.EasterEggListener());
     }
 }

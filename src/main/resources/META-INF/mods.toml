@@ -4,7 +4,7 @@ loaderVersion="[43,)"
 license="All rights reserved"
 [[mods]]
 modId="pvz"
-version="0.1 alpha 4"
+version="0.1 alpha 4 pvp test"
 displayName="HungTeen's Plants vs. Zombies 2"
 logoFile="logo.png"
 credits=""

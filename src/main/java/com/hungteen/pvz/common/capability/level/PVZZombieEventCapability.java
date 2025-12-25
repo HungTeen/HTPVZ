@@ -6,6 +6,8 @@ import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
@@ -93,19 +95,26 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
 
     @Override
     public CompoundTag serializeNBT() {
-        CompoundTag tag = new CompoundTag();
+        ListTag events = new ListTag();
         for (ZombieEvent i : this.events) {
-            tag.put(i.uuid.toString(), i.serializeNBT());
+            events.add(i.serializeNBT());
         }
+        CompoundTag tag = new CompoundTag();
+        tag.put("events", events);
         return tag;
     }
 
     @Override
     public void deserializeNBT(CompoundTag tag) {
-        for (String i /*UUID string*/ : tag.getAllKeys()) {
-            ZombieEvent event = PVZZombieEvents.fromTag(level, UUID.fromString(i), tag.getCompound(i));
-            if (event != null) {
-                this.addEvent(event);
+        if (tag.contains("events")) {
+            ListTag events = tag.getList("events", Tag.TAG_COMPOUND);
+            for (Tag ev : events) {
+                if (ev instanceof CompoundTag eventTag) {
+                    ZombieEvent event = PVZZombieEvents.fromTag(level, eventTag.getUUID("uuid"), eventTag);
+                    if (event != null) {
+                        this.addEvent(event);
+                    }
+                }
             }
         }
     }

@@ -181,7 +181,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     @Override
     public void tick() {
         if (this.getPose() == Pose.SWIMMING) {
-            EntityUtil.addModifierToAttribute(this, Attributes.MOVEMENT_SPEED, new AttributeModifier(SPEED_MODIFIER_UUID, "pose_addon", 0.4, AttributeModifier.Operation.ADDITION));
+            EntityUtil.addModifierToAttribute(this, Attributes.MOVEMENT_SPEED, new AttributeModifier(SPEED_MODIFIER_UUID, "pose_addon", 0.6, AttributeModifier.Operation.ADDITION));
         } else {
             EntityUtil.removeModifierFromAttribute(this, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER_UUID);
         }

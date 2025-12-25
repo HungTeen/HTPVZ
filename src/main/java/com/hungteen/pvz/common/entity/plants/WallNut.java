@@ -25,12 +25,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -133,8 +135,25 @@ public class WallNut extends SimplePlant implements IIronEntity {
     @Override
     //to prevent entities from going through wall nuts.
     protected void pushEntities() {
-        for (int i = 0; i < 4; i ++) {
-            super.pushEntities();
+        List<Entity> list = this.level.getEntities(this, this.getBoundingBox(), EntitySelector.pushableBy(this).and(this.canPush()));
+        if (!list.isEmpty()) {
+            int i = this.level.getGameRules().getInt(GameRules.RULE_MAX_ENTITY_CRAMMING);
+            if (i > 0 && list.size() > i - 1 && this.random.nextInt(4) == 0) {
+                int j = 0;
+                for (Entity entity : list) {
+                    if (!entity.isPassenger()) {
+                        ++j;
+                    }
+                }
+                if (j > i - 1) {
+                    this.hurt(DamageSource.CRAMMING, 6.0F);
+                }
+            }
+            for (Entity entity : list) {
+                if (! EntityUtil.isTeammate(this, entity)) {
+                    this.doPush(entity);
+                }
+            }
         }
     }
 

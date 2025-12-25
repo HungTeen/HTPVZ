@@ -320,7 +320,7 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                 float tmp = 0;
                 int sep = 0;
                 List<FormattedText> stringList = new ArrayList<>();
-                int stringWidth = contentLength > 10 ? 124 : 130;
+                int stringWidth = contentLength > 10 ? 126 : 130;
                 for (Component note : PVZSeedPackets.dataMap.get(selected).notes) {
                     List<FormattedText> list = this.font.getSplitter().splitLines(note.getString(), stringWidth, Style.EMPTY);
                     String style = list.get(0).getString().startsWith("§") ? list.get(0).getString().substring(0,2) : "";

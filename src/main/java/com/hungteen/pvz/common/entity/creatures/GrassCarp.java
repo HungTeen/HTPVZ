@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -47,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.hungteen.pvz.common.network.SpawnParticlePacket.particle;
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
 import static net.minecraft.world.level.biome.Biomes.LUSH_CAVES;
@@ -148,8 +148,12 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
         //holding item particle.
         if (!getItemBySlot(EquipmentSlot.MAINHAND).isEmpty() && nextCheckLeft < 400) {
             if (random.nextInt(400) > nextCheckLeft) {
-                particle(this.level, ParticleTypes.COMPOSTER, this.position().add(random.nextFloat() * 1.5 - 0.75, random.nextFloat() * 1.5, random.nextFloat() * 1.5 - 0.75));
-                particle(this.level, ParticleTypes.COMPOSTER, this.position().add(random.nextFloat() * 1.5 - 0.75, random.nextFloat() * 1.5, random.nextFloat() * 1.5 - 0.75));
+                ((ServerLevel) level).sendParticles(ParticleTypes.COMPOSTER,
+                        position().x, position().y + 0.75, position().z,
+                        1, 0.75, 0.75, 0.75, 0);
+                ((ServerLevel) level).sendParticles(ParticleTypes.COMPOSTER,
+                        position().x, position().y + 0.75, position().z,
+                        1, 0.75, 0.75, 0.75, 0);
             }
         }
         if (--this.nextCheckLeft <= 0) {
@@ -197,7 +201,9 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
                     for (int h = -1; h <= 2; ++h) {
                         if (checkBlock(this.blockPosition().offset(x, h, y))) {
                             for (int j = 0; j < 5; j++) {
-                                particle(this.level, ParticleTypes.COMPOSTER, new Vec3(pos.getX() + x + random.nextFloat(), pos.getY() + h + 1.2, pos.getZ() + y + random.nextFloat()));
+                                ((ServerLevel) level).sendParticles(ParticleTypes.COMPOSTER,
+                                        pos.getX() + x, pos.getY() + h + 1.2, pos.getZ() + y,
+                                        1, 0.5, 0, 0.5, 0);
                             }
                         }
                     }

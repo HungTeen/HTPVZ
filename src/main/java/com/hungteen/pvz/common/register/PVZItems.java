@@ -237,7 +237,7 @@ public class PVZItems {
             }
             seedMap.put(data,
                     tag(PVZItemTags.SEEDS).item(name + "_seed", () -> new SeedItem(
-                            new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.resource, data.cost, data.coolDown, data.creativeOnly
+                            new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly
                     )));
         };
     }

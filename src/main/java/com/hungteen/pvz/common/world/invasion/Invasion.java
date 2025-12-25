@@ -626,8 +626,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         }
         if (result == null) {
             seekPositionHardness += 12;
-        }
-        if (result != null && entity instanceof LivingEntity living) {
+        } else if (entity instanceof LivingEntity living) {
             if (level.getNearestEntity(level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(8),
                             entity1 -> EntityUtil.checkCanEntityBeAttack(entity, entity1)), TargetingConditions.forCombat(), living,
                     result.x, result.y, result.z) != null) {
@@ -667,8 +666,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag tag = super.serializeNBT();
+    public CompoundTag addAdditionalSaveData(CompoundTag tag) {
         if (! this.types.isEmpty()) {
             ListTag types = new ListTag();
             for (InvasionType type : this.types) {
@@ -699,8 +697,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     }
 
     @Override
-    public void deserializeNBT(CompoundTag tag) {
-        super.deserializeNBT(tag);
+    public void readAdditionalSaveData(CompoundTag tag) {
         if (! this.level.isClientSide) {
             if (tag.contains("invasion_types")) {
                 this.types = new ArrayList<>();

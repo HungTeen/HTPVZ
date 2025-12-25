@@ -30,7 +30,7 @@ public class PVZFog {
     public final UUID uuid;
     public static Map<UUID, PVZFog> _pvzFogs = new HashMap<>();
     private static Random random = new Random();
-    private static float bufferStrength = 1;
+    private static double bufferStrength = 1e-10;
 
     private PVZFog(Level level, Vec3 position, int lifeTime, double strength, double range) {
         this(level.dimension().location(), position, lifeTime, strength, range, UUID.randomUUID());

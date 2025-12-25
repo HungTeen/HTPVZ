@@ -109,6 +109,7 @@ public class PVZSeedPackets {
         add(PVZEntities.HYPNO_SHROOM).cost(75).coolDown(SLOW).skillList(HypnoShroom.staticSkillList)
                 .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly()
                 .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"))
+                .note(Component.translatable("container.pvz.almanac.can_sculkificate"))
                 .note(Component.translatable("container.pvz.almanac.sleep_at_day"));
         add(PVZEntities.KERNEL_PULT).cost(100).coolDown(MEDIUM).skillList(KernelPult.staticSkillList)
                 .recipe(PVZItems.CORN, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly();

@@ -27,6 +27,7 @@ public class ClientProxy extends CommonProxy {
         modBus.addListener(PVZClientEventHandler::addLayers);
         modBus.addListener(PVZClientEventHandler::registerExtraModels);
         forgeBus.addListener(PVZClientEventHandler::renderPumpkinHelmet);
+        modBus.addListener(PVZClientEventHandler::registerResourceListeners);
     }
 
 }

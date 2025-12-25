@@ -77,6 +77,10 @@ public class Anger extends FlyingMob {
                         - movement.y * 0.25 + random.nextFloat() * 0.15,
                         - movement.z * 0.25 + random.nextFloat() * 0.15 - 0.075);
             }
+        } else {
+            if (level.getBlockState(this.blockPosition()).isSuffocating(level, blockPosition())) {
+                discard();
+            }
         }
     }
 

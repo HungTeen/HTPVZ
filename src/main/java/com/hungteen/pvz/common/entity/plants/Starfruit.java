@@ -5,8 +5,11 @@ import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.common.entity.bullet.StarfruitBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -16,9 +19,14 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class Starfruit extends ShooterPlant {
+    public static final String SATELLITE_SKILL = "skill.pvz.starfruit.satellite";
+    public static final UUID ATTRIBUTE_MODIFIER_UUID = UUID.fromString("f6ebe0aa-8c4d-737c-cabf-12418e4d00f6");
+
     public static List<Skill> staticSkillList = List.of(
+            new Skill(SATELLITE_SKILL, PVZItems.VENTUS_ESSENCE, 32, 8, 125, 0)
     );
 
     public Starfruit(EntityType<? extends Mob> type, Level worldIn) {
@@ -36,11 +44,23 @@ public class Starfruit extends ShooterPlant {
 
     @Override
     protected StarfruitBullet createBullet() {
-        return new StarfruitBullet(this.level, this);
+        StarfruitBullet bullet = new StarfruitBullet(this.level, this);
+        if (this.hasSkill(SATELLITE_SKILL)) {
+            bullet.skill = true;
+        }
+        return bullet;
     }
+
     @Override
     public Set<Integer> shootTimes() {
         return Set.of(9);
+    }
+    @Override
+    public void tick() {
+        if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.FOLLOW_RANGE, ATTRIBUTE_MODIFIER_UUID)) {
+            EntityUtil.addModifierToAttribute(this, Attributes.FOLLOW_RANGE, new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", -0.5, AttributeModifier.Operation.MULTIPLY_BASE));
+        }
+        super.tick();
     }
     @Override
     public float getAttackDamage() {

@@ -28,7 +28,8 @@ public class BaseBullet extends Projectile {
 	protected float gravity = 0.1F;
 	protected float size = 1F;// need sync?
 	protected float knockBackStrengh = 0F;
-	protected String damageName = "pvz.shot";
+	protected String shootDamageName = "pvz.shot";
+	protected String hitDamageName = "pvz.shot";
 
 	public BaseBullet(EntityType<? extends Projectile> type, Level worldIn, LivingEntity shooter) {
 		super(type, worldIn);
@@ -195,11 +196,7 @@ public class BaseBullet extends Projectile {
 		knockBackStrengh = strength;
 	}
 	public String getDamageName() {
-		return damageName;
-	}
-	public BaseBullet setDamageName(String name) {
-		this.damageName = name;
-		return this;
+		return this.gravity == 0 || this.isNoGravity() ? shootDamageName : hitDamageName;
 	}
 
 	public float getAttackDamage() {

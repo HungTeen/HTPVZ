@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlantShovelable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -22,11 +23,17 @@ public class SeedDispensaryItem extends Item implements IPlantShovelable {
     }
 
     @Override
-    public void onPlantShoveled(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {
-        ItemStack itemStack1 = target.getPickResult();
-        if (itemStack1 != null && !itemStack1.isEmpty()) {
-            player.getInventory().add(itemStack1);
-            itemStack.shrink(1);
+    public void onPlantShoveled(ItemStack seedDispensary, Player player, LivingEntity target, InteractionHand hand) {
+        ItemStack itemStack = target.getPickResult();
+        if (itemStack != null && !itemStack.isEmpty()) {
+            if (itemStack.getItem() instanceof SeedPacketItem<?>) {
+                if (target instanceof IHaveSkills iHaveSkills) {
+                    iHaveSkills.saveSkills(itemStack.getOrCreateTag());
+                }
+            }
+            itemStack.getOrCreateTag().putBoolean("ToolGenerated", true);
+            player.getInventory().add(itemStack);
+            seedDispensary.shrink(1);
         }
     }
 

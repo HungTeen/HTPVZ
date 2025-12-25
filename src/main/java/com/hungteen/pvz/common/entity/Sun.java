@@ -7,7 +7,6 @@ import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.api.interfaces.ISunContainer;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.network.SpawnParticlePacket;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZParticles;
@@ -18,6 +17,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -72,9 +72,9 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
                 new Vec3((level.getRandom().nextFloat() - 0.5) * maxSpeed,
                         level.getRandom().nextFloat() * 0.1 + 0.6 * maxSpeed,
                         (level.getRandom().nextFloat() - 0.5) * maxSpeed));
-        for (int j = 10; j <= amount; j += 10){
-            SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(pos).add(0, 1, 0));
-        }
+        ((ServerLevel) level).sendParticles(PVZParticles.SUN.get(),
+                pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5,
+                amount / 10, 0, 0, 0, 0.1);
         return sun;
     }
 
@@ -186,8 +186,10 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     public void onAbsorb(ISun sun) {
         if (sun instanceof Entity) {
             setAmount(getAmount() + sun.getAmount());
-            SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(getOnPos()).add(0, 1, 0));
-            SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(getOnPos()).add(0, 1, 0));
+            float width = ((Entity) sun).getBbWidth() / 2;
+            ((ServerLevel) level).sendParticles(PVZParticles.SUN.get(),
+                    sun.position().x + width, sun.position().y + width, sun.position().z + width,
+                    sun.getAmount() / 20, width, width, width, 0.1);
             ((Entity) sun).remove(Entity.RemovalReason.DISCARDED);
         }
     }
@@ -261,7 +263,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
         }
         //being attracted.
         if (this.attractingPlayer != null) {
-            if (distanceToSqr(attractingPlayer) < 0.8F){
+            if (! level.isClientSide && distanceToSqr(attractingPlayer) < 0.8F){
                 onAbsorbedBy(attractingPlayer);
             }
             Vec3 vec3 = this.attractingPlayer.position().subtract(this.position());
@@ -271,7 +273,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
                 this.setDeltaMovement(this.getDeltaMovement().add(vec3.normalize().scale(d1 * d1 * 0.3D)));
             }
         } else if (this.attractedBy != null) {
-            if (distanceToSqr(attractedBy.position()) < 0.8F){
+            if (! level.isClientSide && distanceToSqr(attractedBy.position()) < 0.8F){
                 onAbsorbedBy(attractedBy);
             }
             Vec3 vec3 = this.attractedBy.position().subtract(this.position());

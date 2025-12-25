@@ -22,10 +22,10 @@ import java.util.*;
 public class PVZSavedData extends SavedData {
     private static final Map<Scoreboard, PVZSavedData> byScoreboard = new HashMap<>();
     private final Set<String> evilList = new HashSet<>();
-    private long serverLifetime = 0;
+    private long serverLifetime = 0; //TODO scheduleCommand里面有原版的游戏时间引用？能换吗？
     /**Team evilness information is synced from server every second. Do not call in server.*/
     public static Set<String> clientEvilList = new HashSet<>();
-
+    public static boolean isTeamBattleOn;
     public static void tick() {
         byScoreboard.forEach((scoreBoard, data) -> {
             Set<String> evilList = Set.copyOf(data.evilList);

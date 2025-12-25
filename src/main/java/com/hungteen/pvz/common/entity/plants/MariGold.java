@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZConfig;
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.common.entity.SimplePlant;
@@ -115,22 +114,20 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
 
     public void produce() {
-        ItemEntity itementity;
-        if (this.getGrowLevel() < 3) {
-            itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), this.getRandomIngot().getDefaultInstance());
-        } else {
-            itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), PVZItems.JEWEL.get().getDefaultInstance());
-        }
+        ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), this.getRandomIngot().getDefaultInstance());
         BlockPos pos = blockPosition();
         itementity.setPos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
         level.addFreshEntity(itementity);
     }
 
     private Item getRandomIngot() {
-         if (random.nextFloat() < getIronChance()) {
-            return Items.IRON_INGOT;
+        if (this.getGrowLevel() < 3) {
+            if (random.nextFloat() < getIronChance()) {
+                return Items.IRON_INGOT;
+            }
+            return Items.GOLD_INGOT;
         }
-        return Items.GOLD_INGOT;
+        return PVZItems.JEWEL.get();
     }
 
 
@@ -174,7 +171,6 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     @Override
     public int getRemainingGrowTick() {
-        if (! this.level.isClientSide) PVZMod.LOGGER.info(this.growEndTime + " : " + Util.getServerTime(this.level.getServer()) + " : " + (this.growEndTime - Util.getServerTime(this.level.getServer())));
         return (this.level.isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - Util.getServerTime(this.level.getServer()));
     }
     @Override

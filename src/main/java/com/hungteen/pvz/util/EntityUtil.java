@@ -1,6 +1,5 @@
 package com.hungteen.pvz.util;
 
-import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.CheckReteamableToOwnerEvent;
 import com.hungteen.pvz.api.events.SculkJudgmentEvent;
@@ -130,7 +129,7 @@ public class EntityUtil {
         boolean AIsEnemy = (! A.getType().is(PVZEntityTags.FRIENDLY)) && (A instanceof Enemy || A.getType().is(PVZEntityTags.ENEMY) || A.getType().is(Tags.EntityTypes.BOSSES));
         boolean BIsEnemy = (! B.getType().is(PVZEntityTags.FRIENDLY)) && (B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY) || B.getType().is(Tags.EntityTypes.BOSSES));
 
-        boolean teamBattle = PVZConfig.PVZGameRules.getBoolean(A.level, PVZConfig.Common.teamBattle);
+        boolean teamBattle = Util.isTeamBattleOn(A.level);
 
         boolean teamAEvil = teamA != null && Util.isTeamEvil(A.level, teamA);
         boolean teamBEvil = teamB != null && Util.isTeamEvil(B.level, teamB);
@@ -142,8 +141,8 @@ public class EntityUtil {
         } else if (teamB == null) {
             result = teamAEvil == BIsEnemy;
         } else if (teamBattle) {
-            return false;
-        } else result = !teamAEvil && !teamBEvil;
+            result = false;
+        } else result = teamAEvil == teamBEvil;
 
         TeammateTestingEvent event = new TeammateTestingEvent(A, B, result, false);
         MinecraftForge.EVENT_BUS.post(event);

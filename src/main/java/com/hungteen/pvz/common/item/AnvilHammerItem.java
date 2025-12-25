@@ -27,6 +27,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.ForgeMod;
 
 import java.util.List;
 import java.util.UUID;
@@ -113,6 +114,7 @@ public class AnvilHammerItem extends SwordItem {
             ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
             super.getAttributeModifiers(slot, stack).forEach(builder::put);
             builder.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(modifierUuid, "anvil_hammer", -0.4, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            builder.put(ForgeMod.ATTACK_RANGE.get(), new AttributeModifier(modifierUuid, "anvil_hammer", 1, AttributeModifier.Operation.ADDITION));
             return builder.build();
         }
         return super.getAttributeModifiers(slot, stack);

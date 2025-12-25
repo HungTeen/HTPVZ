@@ -1,5 +1,6 @@
 package com.hungteen.pvz.util;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
@@ -100,6 +101,15 @@ public class Util {
         } else {
             Scoreboard scoreboard = level.getScoreboard();
             return PVZSavedData.isEvil(scoreboard, team.getName());
+        }
+    }
+
+    public static boolean isTeamBattleOn(Level level) {
+        if (level.isClientSide) {
+            return PVZSavedData.isTeamBattleOn;
+        } else {
+            Scoreboard scoreboard = level.getScoreboard();
+            return PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.teamBattle);
         }
     }
 

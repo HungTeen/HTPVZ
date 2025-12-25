@@ -100,9 +100,9 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
 
 
     @Override
-    public CompoundTag serializeNBT() {
+    public final CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.putBoolean("removal", false);//Do not rewrite this.
+        tag.putUUID("uuid", this.uuid);
         tag.putString("event_type", PVZAPI.get().getZombieEventType(this).toString());
         if (target != null) {
             tag.putUUID("target", this.target.getUUID());
@@ -116,11 +116,16 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
         }
         tag.putInt("range", range);
         tag.putBoolean("removed", removed);
+        tag.put("data", this.addAdditionalSaveData(new CompoundTag()));
+        return tag;
+    }
+
+    public CompoundTag addAdditionalSaveData(CompoundTag tag) {
         return tag;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag tag) {
+    public final void deserializeNBT(CompoundTag tag) {
         if (tag.contains("target")) {
             this.targetUUID = tag.getUUID("target");
         }
@@ -129,5 +134,9 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
         }
         this.range = tag.getInt("range");
         this.removed = tag.getBoolean("removed");
+        this.readAdditionalSaveData(tag.getCompound("data"));
+    }
+
+    public void readAdditionalSaveData(CompoundTag tag) {
     }
 }

@@ -24,7 +24,7 @@ public class PeaShooter extends ShooterPlant {
     public static String FIRE_SKILL_NAME = "skill.pvz.pea_shooter.fire_shooter";
     public static List<Skill> staticSkillList = List.of(
             new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 100, 0),
-            new Skill(SNIPER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 4, 12, 150, 800).avoidSkills(PUNCH_SKILL_NAME), //for pvp.
+            new Skill(SNIPER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 4, 12, 150, 940).avoidSkills(PUNCH_SKILL_NAME), //for pvp.
             new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0).avoidSkills(PUNCH_SKILL_NAME, SNIPER_SKILL_NAME)
     );
 
@@ -51,8 +51,9 @@ public class PeaShooter extends ShooterPlant {
         return bullet;
     }
     @Override
-    public void baseTick() {
-        if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_KNOCKBACK, ATTRIBUTE_MODIFIER_UUID)) {
+    public void tick() {
+        if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_KNOCKBACK, ATTRIBUTE_MODIFIER_UUID)
+                && ! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_DAMAGE, ATTRIBUTE_MODIFIER_UUID)) {
             if (this.hasSkill(PUNCH_SKILL_NAME)) {
                 this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.8, AttributeModifier.Operation.ADDITION));
             } else if (this.hasSkill(SNIPER_SKILL_NAME)) {
@@ -63,7 +64,7 @@ public class PeaShooter extends ShooterPlant {
                 this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.5, AttributeModifier.Operation.MULTIPLY_BASE));
             }
         }
-        super.baseTick();
+        super.tick();
     }
 
     public float getAttackDamage() {

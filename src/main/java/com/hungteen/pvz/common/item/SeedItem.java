@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
@@ -22,11 +23,14 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
+public class SeedItem<T extends Entity> extends SeedPacketItem<T> {
 
     public static List<SeedPacketItem<?>> seedItem = new ArrayList<>();
     public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown, boolean creativeOnly) {
-        super(p_41383_, entitySupplier, List.of(), resource, cost, coolDown, creativeOnly);
+        this(p_41383_, entitySupplier, List.of(), resource, cost, coolDown, creativeOnly);
+    }
+    public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, List<Skill> skillList, String resource, int cost, int coolDown, boolean creativeOnly) {
+        super(p_41383_, entitySupplier, skillList, resource, cost, coolDown, creativeOnly);
         if (this.getClass() == SeedItem.class) seedItem.add(this);
     }
 

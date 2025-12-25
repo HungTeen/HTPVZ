@@ -2,10 +2,15 @@ package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemModelShaper;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -19,7 +24,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.ForgeItemModelShaper;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class ChiliChanItem extends ShovelItem {
@@ -71,9 +78,22 @@ public class ChiliChanItem extends ShovelItem {
         return super.hurtEnemy(itemStack, target, user);
     }
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn){
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn) {
         tooltip.add(Component.translatable("tooltip.pvz.chili_chan").withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)));
         super.appendHoverText(stack, level, tooltip, flagIn);
+    }
+
+    public static class EasterEggListener implements ResourceManagerReloadListener {
+        @Override
+        @OnlyIn(Dist.CLIENT)
+        public void onResourceManagerReload(ResourceManager p_10758_) {
+            Calendar calendar = Calendar.getInstance();
+            if (calendar.get(Calendar.MONTH) + 1 == 4 && calendar.get(Calendar.DATE) <= 2) {
+                ItemModelShaper shaper = Minecraft.getInstance().getItemRenderer().getItemModelShaper();
+                if (shaper instanceof ForgeItemModelShaper forgeItemModelShaper) {
+                    forgeItemModelShaper.register(PVZItems.CHILI_CHAN.get(), new ModelResourceLocation("pvz:hot_sauce#inventory"));
+                }
+            }
+        }
     }
 }

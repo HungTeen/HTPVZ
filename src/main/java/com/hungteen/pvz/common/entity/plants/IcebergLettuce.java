@@ -142,7 +142,7 @@ public class IcebergLettuce extends ShooterPlant {
                 entities = entity.level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(2, 0.25, 2),
                         (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity)));
                 entities.forEach((entity) -> entity.addEffect(instance));
-            } else {
+            } else if (! entities.isEmpty()) {
                 LivingEntity target = entities.get(0);
                 double targetDistance = target.position().distanceToSqr(entity.position());
                 for (LivingEntity i : entities) {

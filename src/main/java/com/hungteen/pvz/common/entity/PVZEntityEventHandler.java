@@ -88,6 +88,13 @@ public class PVZEntityEventHandler {
                     }
                 }
             });
+            //player lose sun.TODO adapt keep inventory game rule
+            if (event.getEntity() instanceof Player player) {
+                int fall = PVZPlayerCapability.getValue(player, PVZPlayerCapStats.SUN) - 50;
+                if (fall > 0) {
+                    Sun.spawnSunsWithEffectsByAmount(player.level, player.getOnPos().above(), fall, 0, 0.4F);
+                }
+            }
         }
     }
 

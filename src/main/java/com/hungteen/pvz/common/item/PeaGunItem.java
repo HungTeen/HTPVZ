@@ -96,7 +96,7 @@ public class PeaGunItem extends ProjectileWeaponItem {
                 projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.0F + punch * 1.5F, 1.0F);
                 level.addFreshEntity(projectile);
                 player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), player.getAbilities().instabuild ? 3 :
-                        Math.max(0, 30 - Math.min(10, EnchantmentHelper.getTagEnchantmentLevel(Enchantments.QUICK_CHARGE, player.getItemInHand(hand)) * 4)));
+                        30 - Math.min(27, EnchantmentHelper.getTagEnchantmentLevel(Enchantments.QUICK_CHARGE, player.getItemInHand(hand)) * 4));
                 player.getItemInHand(hand).hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
             }
             return InteractionResultHolder.consume(player.getItemInHand(hand));

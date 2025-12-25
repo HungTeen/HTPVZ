@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.network;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.world.PVZSavedData;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,13 +19,16 @@ import java.util.function.Supplier;
  */
 public class TeamEvilnessPacket {
     private final ServerLevel level;
+    private final boolean teamBattle;
     private final Set<String> evilSet;
     public TeamEvilnessPacket(ServerLevel level) {
         this.level = level;
+        this.teamBattle = false;
         this.evilSet = new HashSet<>();
     }
     public TeamEvilnessPacket(FriendlyByteBuf buf) {
         this.level = null;
+        this.teamBattle = buf.readBoolean();
         this.evilSet = new HashSet<>();
         int size = buf.readInt();
         for (int i = 0; i < size; i ++) {
@@ -33,6 +37,7 @@ public class TeamEvilnessPacket {
     }
     public void toBytes(FriendlyByteBuf buf) {
         this.evilSet.clear();
+        buf.writeBoolean(PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.teamBattle));
         Collection<PlayerTeam> teams = level.getScoreboard().getPlayerTeams();
         teams.forEach(team -> {
             if (PVZSavedData.isEvil(level.getScoreboard(), team.getName())) {
@@ -45,6 +50,7 @@ public class TeamEvilnessPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).ifPresent(nbt -> {
+            PVZSavedData.isTeamBattleOn = this.teamBattle;
             PVZSavedData.clientEvilList = this.evilSet;
         }));
         ctx.get().setPacketHandled(true);

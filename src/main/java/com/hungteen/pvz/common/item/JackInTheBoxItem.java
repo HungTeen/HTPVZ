@@ -1,10 +1,11 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.PVZConfig;
-import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fml.DistExecutor;
 
 import java.util.Collection;
 
@@ -33,12 +35,21 @@ public class JackInTheBoxItem extends Item {
         }
     }
     public void explode(Level level, Entity user, ItemStack itemStack) {
+        CompoundTag tag = itemStack.getOrCreateTag();
+        int strength;
+        if (tag.contains("strength")) {
+            strength = tag.getInt("strength");
+        } else {
+            strength = 3;
+        }
         if (EntityUtil.isEntityValid(user) && ! level.isClientSide) {
             Explosion.BlockInteraction explosion$blockinteraction = destructive &&
                     net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(level, user) && PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.jackInTheBoxGriefing) ?
                             Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
-            level.explode(null, user.getX(), user.getY(), user.getZ(), 3, explosion$blockinteraction);
-            spawnLingeringCloud(user);
+            level.explode(null, user.getX(), user.getY(), user.getZ(), strength, explosion$blockinteraction);
+            if (! user.isAlive()) {
+                spawnLingeringCloud(user);
+            }
             if (! (user instanceof Player player) || ! player.getAbilities().instabuild) {
                 itemStack.shrink(1);
             }
@@ -70,9 +81,8 @@ public class JackInTheBoxItem extends Item {
     }
 
     public UseAnim getUseAnimation(ItemStack itemStack) {
-        Player player = ClientProxy.getPlayer();
-        return ClientProxy.MC.options.getCameraType().isFirstPerson() && (player != null && player.isUsingItem() && player.getUseItem() == itemStack) ?
-                super.getUseAnimation(itemStack) : UseAnim.BOW;
+        return DistExecutor.unsafeRunForDist(() -> () -> Minecraft.getInstance().options.getCameraType().isFirstPerson() ? UseAnim.NONE : UseAnim.BOW
+                , () -> () -> UseAnim.BOW);
     }
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         player.startUsingItem(hand);

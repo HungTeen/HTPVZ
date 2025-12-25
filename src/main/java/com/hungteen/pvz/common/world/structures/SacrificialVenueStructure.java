@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.world.structures;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZStructures;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -28,7 +27,7 @@ public class SacrificialVenueStructure extends Structure {
         BlockPos worldPos = context.chunkPos().getWorldPosition();
         BlockPos pos = new BlockPos(worldPos.getX(), 31, worldPos.getZ());
         boolean summonable = heightAvailable(context, pos);
-        PVZMod.LOGGER.info("attempting to generate structure at " + pos + " and " + (summonable ? "succeeded" : "failed"));
+//        PVZMod.LOGGER.info("attempting to generate structure at " + pos + " and " + (summonable ? "succeeded" : "failed"));
         return summonable ? Optional.of(new Structure.GenerationStub(pos, structurePiecesBuilder -> structurePiecesBuilder.addPiece(
 //                new IglooPieces.IglooPiece(context.structureTemplateManager(), new ResourceLocation("igloo/bottom"),
 //                        context.chunkPos().getWorldPosition(), Rotation.NONE, 0)

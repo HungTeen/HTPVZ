@@ -358,14 +358,15 @@ public class PVZDamageSource {
     public static void handleDeath(LivingDeathEvent event) {
         DamageSource source = event.getSource();
         if (source == transferEntitySource && EntityUtil.isEntityValid(transferredEntity)) {
-            if (transferredEntity instanceof Player player) {
-                event.getEntity().setLastHurtByPlayer(player);
-            }
-            if (source instanceof IndirectEntityDamageSource source1) {
-                source1.owner = transferredEntity;
-            } else if (source instanceof EntityDamageSource source1) {
-                source1.entity = transferredEntity;
-            }
+//            if (transferredEntity instanceof Player player) {
+//                event.getEntity().setLastHurtByPlayer(player);
+//            }
+//            if (source instanceof IndirectEntityDamageSource source1) {
+//                source1.owner = transferredEntity;
+//            } else if (source instanceof EntityDamageSource source1) {
+//                source1.entity = transferredEntity;
+//            }
+            //TODO solve the problem that
         }
     }
 
