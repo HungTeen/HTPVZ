@@ -55,7 +55,6 @@ public class DirtModel<T extends Entity> extends EntityModel<T> {
 	@Override
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		float width = entity.getBbWidth() * 8;
-		dirt.visible = ! entity.level.getBlockState(entity.getOnPos()).isAir();
 		if (dirt.visible) {
 			ne.x = -width + 5;
 			ne.z = -width + 5;

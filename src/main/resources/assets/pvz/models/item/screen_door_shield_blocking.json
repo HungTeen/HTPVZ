@@ -1,0 +1,23 @@
+{
+	"parent": "pvz:item/screen_door_shield",
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [45, -45, 0],
+			"translation": [5.5, -6.5, 0.5]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [45, 135, 0],
+			"translation": [6, -6.5, 0.25]
+		},
+		"firstperson_righthand": {
+			"rotation": [15, -8, 0],
+			"translation": [-5, -3.5, 1.5],
+			"scale": [0.8, 0.8, 0.8]
+		},
+		"firstperson_lefthand": {
+			"rotation": [15, 175, 0],
+			"translation": [-5, -4.5, 1.5],
+			"scale": [0.8, 0.8, 0.8]
+		}
+	}
+}

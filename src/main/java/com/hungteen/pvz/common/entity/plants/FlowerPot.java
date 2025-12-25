@@ -1,34 +1,42 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     public AnimationState idleAnimationState = new AnimationState();
+    public static final String  FIRE_RESISTANCE_SKILL_NAME = "skill.pvz.flower_pot.refractory_ceramics";
+    public static final String  FREE_SKILL_NAME = "skill.pvz.flower_pot.free_seat";
+    public static final String  PORTABLE_SKILL_NAME = "skill.pvz.flower_pot.portable_pot";
+    public static final String  CHINAWARE_SKILL_NAME = "skill.pvz.flower_pot.chinaware";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.flower_pot.refractory_ceramics", PVZItems.IGNIS_ESSENCE, 8, 6, 0, 0),
-            new Skill("skill.pvz.flower_pot.free_seat", PVZItems.LUX_ESSENCE, 8, 4, -25, 140).avoidSkills(0, 3),
-            new Skill("skill.pvz.flower_pot.chinaware", PVZItems.ORIGIN_ESSENCE, 8, 16, 0, 0),
-            new Skill("skill.pvz.flower_pot.portable_pot", PVZItems.TERRA_ESSENCE, 4, 4, 75, 440)
+            new Skill(FIRE_RESISTANCE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 6, 75, 140),
+            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 4, -25, 140)
+                    .avoidSkills(FIRE_RESISTANCE_SKILL_NAME, CHINAWARE_SKILL_NAME),
+            new Skill(PORTABLE_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 4, 25, 440),
+            new Skill(CHINAWARE_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 16, 0, 0)
     );
 
     public FlowerPot(EntityType<? extends Mob> entityType, Level level) {
@@ -42,12 +50,8 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     }
 
     //entity settings
-    public static AttributeSupplier.Builder createAttributes() {
-        return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D);
-    }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
@@ -61,14 +65,14 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     }
     @Override
     public void tick() {
+        this.shouldAlign = false;
         super.tick();
         if (this.isVehicle() && this.idleAnimationState.isStarted()) {
             this.idleAnimationState.stop();
-        } else if (! this.isVehicle() && ! this.idleAnimationState.isStarted()){
+        } else if (! this.isVehicle() && ! this.idleAnimationState.isStarted()) {
             this.idleAnimationState.start(this.tickCount);
         }
-        if (this.isVehicle() && this.hasSkill(this, "skill.pvz.flower_pot.refractory_ceramics")) {
-            this.fireImmune();
+        if (this.isVehicle() && this.hasSkill(this, FIRE_RESISTANCE_SKILL_NAME)) {
             this.getPassengers().forEach((Entity::clearFire));
             this.getPassengers().forEach((entity -> {
                 if (entity instanceof LivingEntity e) {
@@ -77,10 +81,10 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
             }));
         }
     }
-
-    public boolean fireImmune() {
-        return super.fireImmune() || this.hasSkill(this, "skill.pvz.flower_pot.refractory_ceramics");
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
     }
+
     @Override
     protected void registerGoals() {
         super.registerGoals();
@@ -98,10 +102,28 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
         return (getVehicle() instanceof Minecart ? 0.27 : getVehicle() instanceof Boat ? 0.2 : 0) + super.getMyRidingOffset();
     }
     @Override
-    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public boolean rideableUnderWater() {
+        return true;
+    }
+
+    @Override
+    public MutableComponent customPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
+        if (isPlanting && event != null) {
+            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
+            }
+        }
+        BlockState state = level.getBlockState(pos);
+        if (isPlanting && (state.isAir() || state.getBlock() instanceof LiquidBlock)) {
+            return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), state.getBlock().getName());
+        }
+        return null;
+    }
+    @Override
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
-        } else if (hasSkill("skill.pvz.flower_pot.portable_pot") && (target instanceof Minecart || target instanceof Boat)) {
+        } else if (hasSkill(PORTABLE_SKILL_NAME) && (target instanceof Minecart || target instanceof Boat)) {
             if (isPlanting) {
                 if (!target.isVehicle()) {
                     if (event != null) {

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "pvz:origin_essence"
+    },
+    "0": {
+      "item": "minecraft:chorus_fruit"
+    },
+    "1": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "2": {
+      "item": "pvz:alaya_resin"
+    }
+  },
+  "pattern": [
+    " 0 ",
+    "1#1",
+    " 2 "
+  ],
+  "result": {
+    "item": "pvz:chorus_fruit_seed_packet"
+  }
+}

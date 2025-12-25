@@ -1,16 +1,20 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.common.block.EntityLightBlock;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.common.event.PVZResourceEvent;
-import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -18,16 +22,13 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.IFluidBlock;
@@ -37,9 +38,11 @@ import java.util.Set;
 
 public class SpikeWeed extends SimplePlant {
     protected static final EntityDataAccessor<Direction> ATTACH_FACE = SynchedEntityData.defineId(SpikeWeed.class, EntityDataSerializers.DIRECTION);
+    public static final String ON_WALL_SKILL_NAME = "skill.pvz.spike_weed.viscous_pseudoroots";
+    public static final String POISONOUS_SKILL_NAME = "skill.pvz.spike_weed.poison_attenna";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.spike_weed.viscous_pseudoroots", PVZItems.TERRA_ESSENCE, 6, 4, 0, 0),
-            new Skill("skill.pvz.spike_weed.poison_attenna", PVZItems.ORIGIN_ESSENCE, 6, 4, 100, 0)
+            new Skill(ON_WALL_SKILL_NAME, PVZItems.TERRA_ESSENCE, 6, 4, 0, 0),
+            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 4, 100, 0)
     );
 
     public SpikeWeed(EntityType<? extends Mob> entityType, Level level) {
@@ -48,8 +51,10 @@ public class SpikeWeed extends SimplePlant {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
-                .add(Attributes.ATTACK_DAMAGE, 2D);
+                .add(Attributes.ATTACK_DAMAGE, 3D);
+    }
+
+    public void setupPresentationAnim() {
     }
     @Override
     protected void registerGoals() {
@@ -58,7 +63,7 @@ public class SpikeWeed extends SimplePlant {
         this.goalSelector.addGoal(2, new AxisLookAroundGoal(this));
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
     @Override
@@ -72,7 +77,10 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     public Direction getGrowDirection() {
-        return getAttachFace();
+        return this.entityData.get(ATTACH_FACE);
+    }
+    private void setGrowDirection(Direction p_149789_) {
+        this.entityData.set(ATTACH_FACE, p_149789_);
     }
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
@@ -80,13 +88,7 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     public BlockPos getRootBlockPos() {
-        return getOnPos().above().relative(getGrowDirection().getOpposite());
-    }
-    public Direction getAttachFace() {
-        return this.entityData.get(ATTACH_FACE);
-    }
-    private void setAttachFace(Direction p_149789_) {
-        this.entityData.set(ATTACH_FACE, p_149789_);
+        return blockPosition().relative(getGrowDirection().getOpposite());
     }
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_33434_) {
@@ -97,7 +99,10 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     protected AABB makeBoundingBox() {
-        Direction direction = this.getAttachFace();
+        if (this.getGrowDirection() == Direction.UP) {
+            return super.makeBoundingBox();
+        }
+        Direction direction = this.getGrowDirection();
         AABB aabb = new AABB(blockPosition());
         Vec3 offset = this.getPosition(0).subtract(blockPosition().getX(), blockPosition().getY(), blockPosition().getZ()).subtract(0.5, 0, 0.5);
         aabb = aabb.setMaxX(aabb.maxX - 1e-4 + offset.x);
@@ -117,19 +122,50 @@ public class SpikeWeed extends SimplePlant {
         return aabb;
     }
     @Override
-    public void baseTick() {
-        super.baseTick();
-        setNoGravity(! level.getBlockState(this.getRootBlockPos()).isAir() && ! (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock));
-    }
-    @Override
-    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
-        if (isPlanting && hasSkill("skill.pvz.spike_weed.viscous_pseudoroots")) {
-            setAttachFace(direction);
+    public void tick() {
+        setNoGravity(
+                ! (this.entityData.get(ATTACH_FACE) == Direction.UP) &&
+                ! level.getBlockState(this.getRootBlockPos()).isAir() &&
+                ! (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock));
+        if (! this.isNoGravity()) {
+            this.entityData.set(ATTACH_FACE, Direction.UP);
         }
-        return super.isPositionSafe(event, level, pos, direction, isPlanting);
+        super.tick();
+        BlockPos pos = blockPosition();
+        if (level.isClientSide()) {
+            return ;
+        } else if (level.getBlockState(pos).isAir()) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.LEVEL, 6), 2);
+        } else if (level.getBlockState(pos).is(Blocks.WATER)) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, 6), 2);
+        }
+        if (level.getBlockState(pos).is(PVZBlocks.ENTITY_LIGHT.get())) {
+            level.setBlock(pos, level.getBlockState(pos)
+                    .setValue(EntityLightBlock.HAS_SOURCE, true), 2);
+        }
     }
     @Override
-    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putString("attach_direction", this.entityData.get(ATTACH_FACE).getName());
+    }
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag){
+        super.readAdditionalSaveData(tag);
+        Direction direction = Direction.byName(tag.getString("attach_direction"));
+        this.entityData.set(ATTACH_FACE, direction == null ? Direction.UP : direction);
+    }
+    @Override
+    public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+        if (isPlanting && hasSkill(ON_WALL_SKILL_NAME)) {
+            setGrowDirection(direction);
+        }
+        return super.customPositionSafe(event, level, pos, direction, isPlanting);
+    }
+    @Override
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
@@ -137,7 +173,7 @@ public class SpikeWeed extends SimplePlant {
     }
     public static class SpikeWeedAttackGoal extends Goal {
         SimplePlant entity;
-        int attackCoolDown = 3;
+        int attackCoolDown = 5;
         public SpikeWeedAttackGoal(SimplePlant entity) {
             this.entity = entity;
         }
@@ -149,15 +185,15 @@ public class SpikeWeed extends SimplePlant {
 
         @Override
         public void tick() {
-            attackCoolDown = 3;
+            attackCoolDown = 5;
             Vec3i direction = entity.getGrowDirection().getNormal();
             List<Entity> list = entity.level.getEntities(entity,
                     entity.getBoundingBox().inflate(0.1 * Math.abs(direction.getX()), 0.1 * Math.abs(direction.getY()), 0.1 * Math.abs(direction.getZ())),
                     (entity1) -> EntityUtil.checkCanEntityBeAttack(entity, entity1));
             list.forEach((entity1 -> {
-                entity1.hurt(PVZDamageSource.SPIKE_WEED, (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
-                if (entity1 instanceof LivingEntity && entity.hasSkill("skill.pvz.spike_weed.poison_attenna")) {
-                    ((LivingEntity) entity1).addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 10));
+                entity1.hurt(PVZDamageSource.spikeWeedHurt(entity, entity1), (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
+                if (entity1 instanceof LivingEntity && entity.hasSkill(POISONOUS_SKILL_NAME)) {
+                    ((LivingEntity) entity1).addEffect(new MobEffectInstance(PVZMobEffects.PHYTOTOXIN.get(), 60));
                 }
             }));
         }

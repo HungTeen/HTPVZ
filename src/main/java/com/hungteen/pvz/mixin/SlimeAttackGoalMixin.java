@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-//TODO activate this and delete limit of chomper tracking slime.
+//TODO This mixin is not in use. Activate this and delete limit of chomper tracking slime.
 @Mixin(Slime.SlimeAttackGoal.class)
 public abstract class SlimeAttackGoalMixin extends Goal {
 

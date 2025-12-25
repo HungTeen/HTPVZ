@@ -7,33 +7,59 @@ import com.hungteen.pvz.common.entity.bullet.ButterBullet;
 import com.hungteen.pvz.common.entity.bullet.CornBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
-import java.util.Set;
 
 public class KernelPult extends ShooterPlant {
     public static final EntityDataAccessor<Integer> CURRENT_BULLET = SynchedEntityData.defineId(KernelPult.class, EntityDataSerializers.INT);
-    private static final int BUTTER_CHANCE = 3;
-    protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
+    private static final int BUTTER_CHANCE = 5;
+    protected static final double SHOOT_OFFSET = 0.3D;//pea position offset
+
+    public static final String BUTTER_SKILL_NAME = "skill.pvz.kernel_pult.butter_pult";
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.kernel_pult.butter_pult", PVZItems.ORIGIN_ESSENCE, 8, 8, 200, 300),
-            new Skill("skill.pvz.kernel_pult.butter_trap", PVZItems.AQUA_ESSENCE, 8, 8, 50, 0).avoidSkills(0)
+            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 300)
     );
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
     }
+
+    public InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        ItemStack itemstack = player.getItemInHand(handIn);
+        if (itemstack.is(Items.GLASS_BOTTLE) && this.getCurrentBullet() == CornTypes.BUTTER) {
+//            player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F); TODO add sound.
+            if (! this.level.isClientSide) {
+                ItemStack itemstack1 = PotionUtils.setPotion(Items.POTION.getDefaultInstance(), PVZMobEffects.potionMap.get("butter").get());
+                ItemStack itemstack2 = ItemUtils.createFilledResult(itemstack, player, itemstack1, false);
+                player.setItemInHand(handIn, itemstack2);
+                this.setCurrentBullet(CornTypes.KERNEL);
+            }
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        } else {
+            return super.mobInteract(player, handIn);
+        }
+    }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
     @Override
@@ -56,9 +82,6 @@ public class KernelPult extends ShooterPlant {
     protected BaseBullet createBullet() {
         if(this.getCurrentBullet() == CornTypes.BUTTER) {
             ButterBullet bullet = new ButterBullet(level, this);
-            if (this.hasSkill("skill.pvz.kernel_pult.butter_trap")) {
-                bullet.setButterSkill(ButterBullet.ButterSkill.POTION);
-            }
             return bullet;
         }
         return new CornBullet(level, this);
@@ -66,15 +89,11 @@ public class KernelPult extends ShooterPlant {
 
     @Override
     public float getAttackDamage() {
-        return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue() * (getCurrentBullet() == CornTypes.BUTTER ? 2 : 1);
-    }
-    @Override
-    public Set<Integer> shootTimes() {
-        return Set.of(10);
+        return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue() * (getCurrentBullet() == CornTypes.BUTTER ? (this.hasSkill(BUTTER_SKILL_NAME) ? 0.5F : 2) : 1);
     }
     @Override
     public int getShootCD() {
-        return 40;
+        return this.hasSkill(BUTTER_SKILL_NAME) ? 80 : 40;
     }
     @Override
     public int shootAnimLength() {
@@ -85,13 +104,13 @@ public class KernelPult extends ShooterPlant {
         Entity target = this.getTarget();
         if (target != null) {
             double distance = target.distanceTo(this);
-            return (float) (Math.max(0.5 * distance / 12, 0.05));
+            return (float) (Math.max(0.5 * distance / 12, 0.1));
         }
         return 0.5F;
     }
 
     protected void changeBullet() {
-        if (hasSkill("skill.pvz.kernel_pult.butter_pult")) {
+        if (hasSkill(BUTTER_SKILL_NAME)) {
             setCurrentBullet(CornTypes.BUTTER);
             return;
         }
@@ -120,7 +139,6 @@ public class KernelPult extends ShooterPlant {
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
                 .add(Attributes.ATTACK_DAMAGE, 3D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);

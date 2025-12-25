@@ -26,7 +26,6 @@ public class EssenceAltarBlockEntity extends BlockEntity implements Nameable {
         if (this.hasCustomName()) {
             tag.putString("CustomName", Component.Serializer.toJson(this.name));
         }
-
     }
 
     public void load(CompoundTag tag) {
@@ -34,7 +33,6 @@ public class EssenceAltarBlockEntity extends BlockEntity implements Nameable {
         if (tag.contains("CustomName", 8)) {
             this.name = Component.Serializer.fromJson(tag.getString("CustomName"));
         }
-
     }
 
     public void setCustomName(@javax.annotation.Nullable Component component) {

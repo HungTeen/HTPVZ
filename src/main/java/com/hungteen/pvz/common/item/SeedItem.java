@@ -1,12 +1,14 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
-import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -14,19 +16,43 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
+public class SeedItem<T extends Entity> extends SeedPacketItem<T> {
+
+    public static List<SeedPacketItem<?>> seedItem = new ArrayList<>();
     public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown, boolean creativeOnly) {
-        super(p_41383_, entitySupplier, List.of(), resource, cost, coolDown, creativeOnly);
+        this(p_41383_, entitySupplier, List.of(), resource, cost, coolDown, creativeOnly);
+    }
+    public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, List<Skill> skillList, String resource, int cost, int coolDown, boolean creativeOnly) {
+        super(p_41383_, entitySupplier, skillList, resource, cost, coolDown, creativeOnly);
+        if (this.getClass() == SeedItem.class) seedItem.add(this);
     }
 
+    //methods
+    public static SeedPacketItem getSeed(EntityType<?> entityType) {
+        AtomicReference<SeedPacketItem> packetItem = new AtomicReference<>();
+        seedItem.forEach(item -> {
+            if (item.getEntity().equals(entityType)) {
+                packetItem.set(item);
+            }});
+        return packetItem.get();
+    }
+
+
+    //definitions
     @Override
     public Component getName(ItemStack itemStack) {
-        return Component.translatable("item.pvz.seed", Component.translatable(entitySupplier.get().getDescriptionId()));
+        Component original = Component.translatable(this.getDescriptionId(itemStack));
+        if (original.getContents() instanceof TranslatableContents contents && original.getString().equals(contents.getKey())) {
+            return Component.translatable("item.pvz.seed", Component.translatable(entitySupplier.get().getDescriptionId()));
+        }
+        return original;
     }
 
     @Override
@@ -61,9 +87,9 @@ public class SeedItem<T extends Entity> extends SeedPacketItem<T>{
     public Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
         Player player = !(ClientProxy.MC.getCameraEntity() instanceof Player) ? null : ClientProxy.getPlayer();
         if (! player.isCreative() && ! player.isSpectator()) {
-            PVZResourceEvent.CheckResourceEvent event = new PVZResourceEvent.CheckResourceEvent(player, itemStack);
+            PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, itemStack);
             MinecraftForge.EVENT_BUS.post(event);
-            return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, Objects.equals(getResource(itemStack), PVZPlayerCapNBT.SUN), false, false));
+            return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, Objects.equals(getResource(itemStack), PVZPlayerCapStats.SUN), false, false));
         }
         return Optional.empty();
     }

@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.model;
 
-import com.hungteen.pvz.common.entity.MooBloom;
+import com.hungteen.pvz.common.entity.creatures.MooBloom;
 import net.minecraft.client.model.QuadrupedModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;

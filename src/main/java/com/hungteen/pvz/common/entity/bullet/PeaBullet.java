@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.register.OtherRegisters;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -8,24 +9,24 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class PeaBullet extends BaseBullet {
     public int changeCoolDown = 0;
+    public boolean neverMelt = false;
+    public boolean ignoreShield = false;
     protected static final EntityDataAccessor<PeaType> TYPE = SynchedEntityData.defineId(PeaBullet.class, OtherRegisters.peaTypeDataSerializer);
 
     public PeaBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);
-        this.noPhysics = true;
-        this.damageName = "pea";
     }
 
     public PeaBullet(Level worldIn, LivingEntity peaShooter, PeaType type) {
@@ -33,17 +34,18 @@ public class PeaBullet extends BaseBullet {
         setOwner(peaShooter);
         setPeaType(type);
         this.knockBackStrengh = (float) peaShooter.getAttribute(Attributes.ATTACK_KNOCKBACK).getValue();
-        this.damageName = "pea";
+    }
+
+    @Override
+    public boolean fireImmune() {
+        return this.neverMelt || super.fireImmune();
     }
     @Override
     public void tick() {
         super.tick();
-//        if (getPeaType() == PeaType.Fire || level.getBlockState(this.blockPosition()).is(Blocks.FIRE) || level.getBlockState(this.blockPosition()).is(Blocks.SOUL_FIRE)) {
-//            setSecondsOnFire(1);
-//        }
         //change type
         if (changeCoolDown <= 0) {
-            if (level.getBlockState(this.blockPosition()).is(Blocks.WATER) || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
+            if (this.isInWater() || level.getBlockState(this.blockPosition()).is(Blocks.POWDER_SNOW)) {
                 if (getPeaType() == PeaType.Fire) {
                     setPeaType(PeaType.Common);
                     this.changeCoolDown = 5;
@@ -53,7 +55,7 @@ public class PeaBullet extends BaseBullet {
                     setPeaType(PeaType.Common);
                     this.changeCoolDown = 5;
                 }
-            } else if (level.getBlockState(this.blockPosition()).is(Blocks.LAVA)) {
+            } else if (this.isInLava()) {
                 setPeaType(this.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common : PeaBullet.PeaType.Fire);
                 this.changeCoolDown = 5;
             }
@@ -64,11 +66,11 @@ public class PeaBullet extends BaseBullet {
         if (level.isClientSide) {
             Vec3 movement = getDeltaMovement();
             if (movement.distanceToSqr(Vec3.ZERO) >= 3) {
-                for (int i = 5; i < 10; i ++) {
-                    level.addParticle(ParticleTypes.CLOUD,
-                            getX() - movement.x / 5 * i + this.random.nextFloat() / 5,
-                            getY() - movement.y / 5 * i + this.random.nextFloat() / 5,
-                            getZ() - movement.z / 5 * i + this.random.nextFloat() / 5,
+                for (int i = 0; i < 10; i ++) {
+                    level.addParticle(ParticleTypes.POOF,
+                            getX() - movement.x / 10 * i + this.random.nextFloat() / 5,
+                            getY() - movement.y / 10 * i + this.random.nextFloat() / 5,
+                            getZ() - movement.z / 10 * i + this.random.nextFloat() / 5,
                             0, 0, 0);
                 }
             }
@@ -83,29 +85,44 @@ public class PeaBullet extends BaseBullet {
 
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
-        if (getPeaType() == PeaType.Common) {
-            for (int i = 0; i < 5; i ++) {
-                level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.PEA.get())),
-                        getX(), getY(), getZ(),
-                        - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
-                        - movement.y * 0.25 + random.nextFloat() * 0.25,
-                        - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
+        switch (getPeaType()) {
+            case Common -> {
+                for (int i = 0; i < 5; i ++) {
+                    level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(PVZItems.PEA.get())),
+                            getX(), getY(), getZ(),
+                            - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
+                            - movement.y * 0.25 + random.nextFloat() * 0.25,
+                            - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
+                }
             }
-        } else if (getPeaType() == PeaType.Ice) {
-            for (int i = 0; i < 5; i ++) {
-                level.addParticle(ParticleTypes.ITEM_SNOWBALL,
-                        getX(), getY(), getZ(),
-                        - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
-                        - movement.y * 0.25 + random.nextFloat() * 0.25,
-                        - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
+            case Ice -> {
+                for (int i = 0; i < 5; i ++) {
+                    level.addParticle(ParticleTypes.ITEM_SNOWBALL,
+                            getX(), getY(), getZ(),
+                            - movement.x * 0.25 + random.nextFloat() * 0.25 - 0.125,
+                            - movement.y * 0.25 + random.nextFloat() * 0.25,
+                            - movement.z * 0.25 + random.nextFloat() * 0.25 - 0.125);
+                }
             }
-        } else if (getPeaType() == PeaType.Fire) {
-            for (int i = 0; i < 3; i ++) {
-                level.addParticle(ParticleTypes.LAVA,
-                        getX(), getY(), getZ(),
-                        - movement.x * 0.25 + random.nextFloat() * 0.15 - 0.075,
-                        - movement.y * 0.25 + random.nextFloat() * 0.15,
-                        - movement.z * 0.25 + random.nextFloat() * 0.15 - 0.075);
+            case Fire -> {
+                for (int i = 0; i < 3; i ++) {
+                    level.addParticle(ParticleTypes.LAVA,
+                            getX(), getY(), getZ(),
+                            - movement.x * 0.25 + random.nextFloat() * 0.15 - 0.075,
+                            - movement.y * 0.25 + random.nextFloat() * 0.15,
+                            - movement.z * 0.25 + random.nextFloat() * 0.15 - 0.075);
+                }
+            }
+            case SoulFire -> {
+                for (int i = 0; i < 3; i ++) {
+                    level.addParticle(ParticleTypes.SCULK_SOUL,
+                            getX() + random.nextFloat() * 0.5 - 0.25,
+                            getY() + random.nextFloat() * 0.5 - 0.25,
+                            getZ() + random.nextFloat() * 0.5 - 0.25,
+                            - movement.x * 0.05 + random.nextFloat() * 0.1 - 0.05,
+                            - movement.y * 0.15 + random.nextFloat() * 0.25,
+                            - movement.z * 0.05 + random.nextFloat() * 0.1 - 0.05);
+                }
             }
         }
     }
@@ -113,6 +130,8 @@ public class PeaBullet extends BaseBullet {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("pea_type", getPeaType().ordinal());
+        tag.putBoolean("never_melt", this.neverMelt);
+        tag.putBoolean("ignore_armor", this.ignoreShield);
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
@@ -120,29 +139,44 @@ public class PeaBullet extends BaseBullet {
         if (tag.contains("pea_type")) {
             setPeaType(PeaType.values()[tag.getInt("pea_type")]);
         }
+        if (tag.contains("never_melt")) {
+            this.neverMelt = tag.getBoolean("never_melt");
+        }
+        if (tag.contains("ignore_armor")) {
+            this.ignoreShield = tag.getBoolean("ignore_armor");
+        }
     }
     @Override
-    protected void onHitEntity(EntityHitResult result) {
-        super.onHitEntity(result);
+    protected boolean dealDamageTo(Entity target) {
+        boolean hurt;
+        hurt = super.dealDamageTo(target);
+        if (! hurt) {
+            return false;
+        }
         if (getPeaType() == PeaType.Fire) {
-            if (! result.getEntity().fireImmune()) {
-                result.getEntity().setSecondsOnFire(5);
+            if (! target.fireImmune() && target.getRemainingFireTicks() < 40) {
+                target.setSecondsOnFire(3);
+            }
+        } else
+        if (getPeaType() == PeaType.SoulFire) {
+            if (! target.fireImmune() && target.getRemainingFireTicks() < 40) {
+                target.setSecondsOnFire(4);
             }
         } else if (getPeaType() == PeaType.Ice) {
-            result.getEntity().clearFire();
-            if (result.getEntity().canFreeze()) {
-                result.getEntity().setTicksFrozen(400);
+            target.clearFire();
+            if (target.canFreeze() && target.getTicksFrozen() < 400) {
+                target.setTicksFrozen(400);
             }
         }
+        return true;
     }
-    @Override
-    protected void onHit(HitResult result) {
-        if (level.isClientSide && result.getType() != HitResult.Type.MISS) {
-            splashParticle();
+    protected DamageSource getDamageSource(Entity target) {
+        DamageSource source = super.getDamageSource(target);
+        if (ignoreShield) {
+            PVZDamageSource.bypassShield(source);
         }
-        super.onHit(result);
+        return source;
     }
-
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();

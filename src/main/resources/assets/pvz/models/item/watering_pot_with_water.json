@@ -1,0 +1,4 @@
+{
+  "parent": "pvz:block/watering_pot",
+  "gui_light": "front"
+}

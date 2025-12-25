@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "minecraft:iron_ingot"
+    },
+    "0": {
+      "item": "pvz:origin_essence"
+    }
+  },
+  "pattern": [
+    "#0#",
+    " # "
+  ],
+  "result": {
+    "item": "pvz:watering_pot"
+  }
+}

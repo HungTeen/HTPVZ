@@ -1,38 +1,44 @@
 package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.events.AbsorbSunEvent;
 import com.hungteen.pvz.api.interfaces.ISun;
 import com.hungteen.pvz.api.interfaces.ISunAbsorber;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.api.interfaces.ISunContainer;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.network.SpawnParticlePacket;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZParticles;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Map;
 
-public class Sun extends Entity implements ISunAbsorber, ISun {
+public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     public static final float SUN_FALL_SPEED = 0.03F;
     public static final int DEFAULT_AMOUNT = 50;
     public static final int MAX_LIVE_TICK = 500;
     public LivingEntity controller = null;
     public Vec3 ColorBase = new Vec3(255,230,15);
     public Vec3 ColorChange = new Vec3(0,25,15);
-    private Entity attractedBy;
+    private ISunAbsorber attractedBy;
+    private Player attractingPlayer = null;
     private static final EntityDataAccessor<Integer> AMOUNT = SynchedEntityData.defineId(Sun.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> LIVE_TICK = SynchedEntityData.defineId(Sun.class, EntityDataSerializers.INT);
 
@@ -66,9 +72,9 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
                 new Vec3((level.getRandom().nextFloat() - 0.5) * maxSpeed,
                         level.getRandom().nextFloat() * 0.1 + 0.6 * maxSpeed,
                         (level.getRandom().nextFloat() - 0.5) * maxSpeed));
-        for (int j = 10; j <= amount; j += 10){
-            SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(pos).add(0, 1, 0));
-        }
+        ((ServerLevel) level).sendParticles(PVZParticles.SUN.get(),
+                pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5,
+                amount / 10, 0, 0, 0, 0.1);
         return sun;
     }
 
@@ -90,24 +96,67 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
         this.entityData.set(LIVE_TICK, value);
     }
 
+    //ISun
     @Override
-    public boolean canAttractThis(Entity entity) {
-        if (entity instanceof Player) {
-            final boolean[] tmp = new boolean[1];
-            PVZPlayerCapability.getPlayerData((Player) entity).ifPresent((nbt) -> tmp[0] = nbt.getValue(PVZPlayerCapNBT.SUN) < nbt.getValueLimit(PVZPlayerCapNBT.SUN).getSecond());
-            return tmp[0];
-        } else if ((!(attractedBy instanceof Player) || distanceToSqr(attractedBy) > 16) && entity instanceof ISunAbsorber) {
-            return ((ISunAbsorber) entity).canAbsorb(this);
+    public boolean canAttractThis(ISunAbsorber absorber) {
+        if (this.tickCount < 20) {
+            return false;
+        }
+        if (attractedBy != null && attractingPlayer != null) {
+            if (distanceToSqr(attractedBy.position()) > 16 && distanceToSqr(attractingPlayer) > 36) {
+                return absorber.canAbsorb(this);
+            }
+        }
+        return absorber.canAbsorb(this);
+    }
+
+    @Override
+    public boolean canAttractThis(Player player) {
+        if (player.isCreative()) {
+            return true;
+        }
+        final boolean[] tmp = new boolean[1];
+        PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) ->
+                tmp[0] = nbt.getValue(PVZPlayerCapStats.SUN) < nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond());
+        return tmp[0];
+    }
+
+    @Override
+    public Object getAttractor() {
+        return this.attractingPlayer == null ? this.attractedBy : this.attractingPlayer;
+    }
+
+    @Override
+    public boolean setAttractor(Object attractor) {
+        if (attractor instanceof Player player) {
+            this.attractingPlayer = player;
+            return true;
+        } else if (attractor instanceof ISunAbsorber absorber){
+            this.attractedBy = absorber;
+            return true;
         }
         return false;
     }
 
     @Override
-    public void onAbsorbedBy(Entity entity) {
-        if (entity instanceof Player) {
+    public void onAbsorbedBy(ISunAbsorber absorber) {
+        AbsorbSunEvent event = new AbsorbSunEvent.ISunAbsorber(this, absorber, AbsorbSunEvent.Phase.Start);
+        MinecraftForge.EVENT_BUS.post(event);
+        if (! event.isCanceled()) {
+            absorber.onAbsorb(this);
+            event = new AbsorbSunEvent.ISunAbsorber(this, absorber, AbsorbSunEvent.Phase.End);
+            MinecraftForge.EVENT_BUS.post(event);
+        }
+    }
+
+    @Override
+    public void onAbsorbedBy(Player player) {
+        AbsorbSunEvent event = new AbsorbSunEvent.Player(this, player, AbsorbSunEvent.Phase.Start);
+        MinecraftForge.EVENT_BUS.post(event);
+        if (! event.isCanceled()) {
             //sun mending enchantment.
             if (getAmount() >= 50) {
-                Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), (Player) entity, ItemStack::isDamaged);
+                Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
                 if (entry != null) {
                     ItemStack itemStack = entry.getValue();
                     setAmount(getAmount() - 25);
@@ -115,13 +164,21 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
                 }
             }
             //player absorb.
-            PVZPlayerCapability.getPlayerData((Player) entity).ifPresent((nbt) -> {
-                nbt.addValue(PVZPlayerCapNBT.SUN, getAmount());
-                this.remove(Entity.RemovalReason.DISCARDED);
+            PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
+                int origin = nbt.getValue(PVZPlayerCapStats.SUN);
+                int num = getAmount();
+                nbt.addValue(PVZPlayerCapStats.SUN, num);
+                int actual = nbt.getValue(PVZPlayerCapStats.SUN);
+                if (actual - origin >= num || player.isCreative()) {
+                    this.remove(Entity.RemovalReason.DISCARDED);
+                } else {
+                    this.setAmount(num - actual + origin);
+                }
             });
-        } else if (entity instanceof ISunAbsorber) {
-            ((ISunAbsorber) entity).onAbsorb(this);
+            event = new AbsorbSunEvent.Player(this, player, AbsorbSunEvent.Phase.End);
+            MinecraftForge.EVENT_BUS.post(event);
         }
+        //TODO add a event here.
     }
 
     //ISunAbsorber
@@ -129,33 +186,31 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
     public void onAbsorb(ISun sun) {
         if (sun instanceof Entity) {
             setAmount(getAmount() + sun.getAmount());
-            SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(getOnPos()).add(0, 1, 0));
-            SpawnParticlePacket.particle(level, PVZParticles.SUN.get(), Vec3.atCenterOf(getOnPos()).add(0, 1, 0));
+            float width = ((Entity) sun).getBbWidth() / 2;
+            ((ServerLevel) level).sendParticles(PVZParticles.SUN.get(),
+                    sun.position().x + width, sun.position().y + width, sun.position().z + width,
+                    sun.getAmount() / 20, width, width, width, 0.1);
             ((Entity) sun).remove(Entity.RemovalReason.DISCARDED);
         }
     }
 
     @Override
     public boolean canAbsorb(ISun sun){
-        if (sun instanceof Entity sun1) {
+        if (sun instanceof Sun sun1) {
             return getAmount() < 250 && sun.getAmount() < 250 && sun1.getId() < getId() && distanceToSqr(sun1) < 4;
         } else {
             return false;
         }
     }
-    @Override
-    public int getContainingSun(){
-        return getAmount();
-    }//TODO add to api.
 
-
+    //basic
     @Override
     public void baseTick() {
         super.baseTick();
 
         //about sun disappear.
         if(! level.isClientSide) {
-            if (PVZConfig.PVZGameRules.getBoolean(level, "sunDisappear")) {
+            if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.sunDisappear)) {
                 this.setLiveTick(this.getLiveTick() + 1);
                 if (this.getLiveTick() >= this.getMaxLiveTick()) {
                     this.remove(Entity.RemovalReason.DISCARDED);
@@ -177,20 +232,51 @@ public class Sun extends Entity implements ISunAbsorber, ISun {
             this.setDeltaMovement(new Vec3(0, 0, 0));
         }
         //choose attractor.
-        if (! level.isClientSide && (this.tickCount+this.getId()) % ((this.attractedBy != null) ? 250 : 50) == 0 || (this.attractedBy != null && this.attractedBy.distanceToSqr(this) > 64.0D)) {
+        if ((this.tickCount+this.getId()) % ((this.attractedBy != null && this.attractingPlayer != null) ? 250 : 50) == 0 ||
+                ((this.attractedBy != null && this.distanceToSqr(this.attractedBy.position()) > 64.0D) ||
+                        (this.attractingPlayer != null && this.distanceToSqr(this.attractingPlayer) > 64.0D)) ||
+                (attractedBy instanceof Entity entity && ! EntityUtil.isEntityValid(entity)) ||
+                (attractedBy instanceof BlockEntity bEntity && bEntity.isRemoved()) ||
+                (attractedBy == null && ! EntityUtil.isEntityValid(attractingPlayer))) {
             this.attractedBy = null;
-            level.getEntities(this, this.getBoundingBox().inflate(6)).forEach((targetEntity) -> {
-                if ((this.attractedBy == null || distanceToSqr(targetEntity) < distanceToSqr(attractedBy)) && canAttractThis(targetEntity)) {
-                    this.attractedBy = targetEntity;
+            this.attractingPlayer = level.getNearestPlayer(this.getX(), this.getY(), getZ(), 6,
+                    EntitySelector.NO_SPECTATORS.and((player) -> player instanceof Player && canAttractThis((Player) player)));
+            if (attractingPlayer == null) {
+                level.getEntities(this, this.getBoundingBox().inflate(6)).forEach((targetEntity) -> {
+                    if ((this.attractedBy == null || distanceToSqr(targetEntity) < distanceToSqr(attractedBy.position()))) {
+                        if ((targetEntity != this && targetEntity instanceof ISunAbsorber absorber && canAttractThis(absorber))) {
+                            this.attractedBy = absorber;
+                        }
+                    }
+                });
+                for (int x = -6; x < 6; x ++) {
+                    for (int y = -6; y < 6; y ++) {
+                        for (int z = -6; z < 6; z ++) {
+                            BlockPos pos = this.getOnPos().offset(x, y, z);
+                            if (level.getBlockEntity(pos) instanceof ISunAbsorber absorber) {
+                                this.attractedBy = absorber;
+                            }
+                        }
+                    }
                 }
-            });
+            }
         }
         //being attracted.
-        if (this.attractedBy != null) {
-            if (!level.isClientSide() && distanceToSqr(attractedBy) < 0.8F){
+        if (this.attractingPlayer != null) {
+            if (! level.isClientSide && distanceToSqr(attractingPlayer) < 0.8F){
+                onAbsorbedBy(attractingPlayer);
+            }
+            Vec3 vec3 = this.attractingPlayer.position().subtract(this.position());
+            double d0 = vec3.lengthSqr();
+            if (d0 < 25.0D) {
+                double d1 = 1.0D - Math.sqrt(d0) / 5.0D;
+                this.setDeltaMovement(this.getDeltaMovement().add(vec3.normalize().scale(d1 * d1 * 0.3D)));
+            }
+        } else if (this.attractedBy != null) {
+            if (! level.isClientSide && distanceToSqr(attractedBy.position()) < 0.8F){
                 onAbsorbedBy(attractedBy);
             }
-            Vec3 vec3 = new Vec3(this.attractedBy.getX() - this.getX(), this.attractedBy.getY() + (double)this.attractedBy.getEyeHeight() / 2.0D - this.getY(), this.attractedBy.getZ() - this.getZ());
+            Vec3 vec3 = this.attractedBy.position().subtract(this.position());
             double d0 = vec3.lengthSqr();
             if (d0 < 25.0D) {
                 double d1 = 1.0D - Math.sqrt(d0) / 5.0D;

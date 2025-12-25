@@ -1,24 +1,21 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
-import com.hungteen.pvz.api.interfaces.ICanGroupUp;
-import com.hungteen.pvz.api.interfaces.IHaveSkills;
-import com.hungteen.pvz.api.interfaces.IPlant;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.api.interfaces.*;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.INeedSafeSituation;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
-import com.hungteen.pvz.common.event.PVZResourceEvent;
+import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -30,29 +27,31 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.BushBlock;
-import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.fluids.IFluidBlock;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+import static com.hungteen.pvz.common.entity.SimplePlant.tryShovel;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
 public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, INeedSafeSituation, IHaveSkills {
@@ -60,15 +59,20 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     private static final UUID HEALTH_MODIFIER_UUID = UUID.fromString("45e5f868-f733-423f-81b0-b3df87d3f266");
     private int animationTick = 0;
     private boolean animationChangeable = false;
+
+    public static final String STRONG_SKILL_NAME = "skill.pvz.veloci_radish.veloci_nip";
+    public static final String GROUP_SKILL_NAME = "skill.pvz.veloci_radish.clever_girls";
+
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.veloci_radish.veloci_nip", PVZItems.ORIGIN_ESSENCE, 8, 4, 75, 440).avoidSkills(1),
-            new Skill("skill.pvz.veloci_radish.clever_girls", PVZItems.LUX_ESSENCE, 8, 4, 150, 440).avoidSkills(0)
+            new Skill(STRONG_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 4, 25, 440),
+            new Skill(GROUP_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 4, 100, 440).avoidSkills(STRONG_SKILL_NAME)
     );
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
     public final AnimationState attackAnimationState = new AnimationState();
-    public boolean skillBoosted = false;
-    private int situationHurtCount = 0;
+    public final AnimationState disAppearAnimationState = new AnimationState();
+    protected boolean firstUnsafeSituationMercy = true;
+    protected boolean isDisappearing = false;
     protected static final EntityDataAccessor<Integer> POSE = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> ROOT = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> SKILL = SynchedEntityData.defineId(VelociRadish.class, EntityDataSerializers.INT);
@@ -76,6 +80,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         super(entityType, level);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 4.0F);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -98,32 +103,43 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new AvoidTargetGoal(this,
-                (entity -> entity instanceof Mob mob && mob.getTarget() == this && getTarget() == mob),
-                4.0F, 1.0D, 1.0D));
+                (entity -> entity instanceof Mob mob && mob.getTarget() == this &&
+                        (this.getAttribute(Attributes.ATTACK_DAMAGE).getModifier(ATTACK_MODIFIER_UUID) == null)),
+                6.0F, 1.0D, 1.0D));
         this.goalSelector.addGoal(2, new TurnipAttackGoal(this, 1, true));
         this.goalSelector.addGoal(3, new FollowGroupLeaderGoal(this));
         this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.goalSelector.addGoal(1, new TurnipShareTargetGoal(this));
+        this.goalSelector.addGoal(1, new GroupShareEnemyGoal(this));
         this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this));
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Root", getEntityData().get(ROOT));
-        tag.putInt("Skill", getSkillVal(this));
+        tag.putBoolean("IsDisappearing", isDisappearing);
+        saveSkills(tag);
         tag.putInt("TickCount", tickCount);
 
     }
     @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        if (tryShovel(player, handIn, this)) {
+            return level.isClientSide ? InteractionResult.CONSUME : InteractionResult.SUCCESS;
+        } else {
+            return super.mobInteract(player, handIn);
+        }
+    }
+    @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
-        if (tag.contains("Skill")) {
-            setSkillVal(this, tag.getInt("Skill"));
-        }
+        readSkills(tag);
         if (tag.contains("Root")) {
             this.getEntityData().set(ROOT, tag.getBoolean("Root"));
+        }
+        if (tag.contains("IsDisappearing")) {
+            this.isDisappearing = tag.getBoolean("IsDisappearing");
         }
         if (tag.contains("TickCount")) {
             this.tickCount = tag.getInt("TickCount");
@@ -142,7 +158,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
 
     //skills
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
     @Override
@@ -161,9 +177,16 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
             if (entityData.get(POSE) == 1) {
                 this.moveAnimationState.start(this.tickCount);
                 this.attackAnimationState.stop();
+                this.idleAnimationState.stop();
+            } else if (entityData.get(POSE) == -1) {
+                this.disAppearAnimationState.start(this.tickCount);
+                this.moveAnimationState.stop();
+                this.attackAnimationState.stop();
+                this.idleAnimationState.stop();
             } else if (entityData.get(POSE) == 2) {
                 this.attackAnimationState.start(this.tickCount);
                 this.moveAnimationState.stop();
+                this.idleAnimationState.stop();
             } else {
                 this.idleAnimationState.start(this.tickCount);
                 this.moveAnimationState.stop();
@@ -173,17 +196,29 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         super.onSyncedDataUpdated(p_219422_);
     }
 
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
     //overrides
     @Override
-    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+    public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+        //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
-        if ((level.getBlockState(pos).getBlock() instanceof BushBlock || level.getBlockState(pos).getBlock() instanceof MultifaceBlock) && direction != null) {
+        //position adjustment.
+            //1. for replaceable plants and multi-face block like vine and glow lichen.
+        if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
+            //2. when clicked on sides of blocks, plant on relative plants.
+        Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        direction = getGrowDirection();
+        offset = direction == null ? Vec3i.ZERO : direction.getNormal();
+        //collision check.
         AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
         if (BlockPos.betweenClosedStream(aabb).anyMatch((p_201942_) -> {
             BlockState blockstate = this.level.getBlockState(p_201942_);
@@ -191,17 +226,21 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         })) {
             return Component.translatable("hint.pvz.plant.no_enough_place");
         }
+        //root block available check.
         if (! this.getEntityData().get(root()) || ! level.getBlockState(pos).isAir()) {
+            BlockState state = level.getBlockState(pos);
             if (isPlanting) {
-                if (! level.getBlockState(pos).getFluidState().isEmpty()) {
-                    return Component.translatable("hint.pvz.plant.cant_plant_in_water", this.getName());
+                //check
+                if (state.getCollisionShape(level, pos).isEmpty()) {
+                    return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), level.getBlockState(pos).getBlock().getName());
                 }
+                //final plant.
                 this.moveTo(
-                        pos.getX() + 0.5,
-                        pos.getY() + (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ?
+                        pos.getX() + 0.5 + offset.getX(),
+                        pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
                                 (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
-                                level.getBlockState(pos).getCollisionShape(level, pos).bounds().maxY),
-                        pos.getZ() + 0.5);
+                                state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
+                        pos.getZ() + 0.5 + offset.getZ());
                 ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
             }
             return null;
@@ -214,23 +253,29 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     }
 
     @Override
-    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+        //resource check.
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
+        //target unavailable.
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
         }
+        //target is ICanBePlantedOn.
         if (target instanceof ICanBePlantedOn && ((ICanBePlantedOn) target).canHold(this, isPlanting)) {
-            if (PVZOwnedCapability.isTeammate(this, target)) {
-                if (!canMountEntity(this, target, this.getVehicle() == target)) {
-                    return Component.translatable("hint.pvz.plant.no_enough_place", this.getName());
-                }
+            if (EntityUtil.isTeammate(this, target)) {
                 if (isPlanting) {
-                    this.moveTo(target.getX(), target.getY() + target.getPassengersRidingOffset(), target.getZ(), target.getYRot(), 0.0F);
-                    ((ServerLevel)this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()), this.getX(), this.getY(), this.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
+                    if (canMountEntity(this, target, true)) {
+                        this.moveTo(target.getX(), target.getY() + target.getPassengersRidingOffset(), target.getZ(), target.getYRot(), 0.0F);
+                        return null;
+                    } else {
+                        return target.getFirstPassenger() != null ?
+                                customVehicleSafe(event, target.getFirstPassenger(), true) :
+                                Component.translatable("hint.pvz.plant.no_enough_place");
+                    }
                 }
                 return null;
             }
@@ -246,22 +291,25 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
 
     @Override
     public void tick() {
+        if (!this.level.isClientSide && this.tickCount > 2400 && this.random.nextInt(15) == 0) {
+            this.disappear();
+        }
         // skill
-        if (hasSkill(this, "skill.pvz.veloci_radish.veloci_nip")) {
-            if (!level.isClientSide) {
+        if (hasSkill(this, STRONG_SKILL_NAME)) {
+            if (! level.isClientSide) {
                 setGlowingTag(tickCount < 200 && (tickCount <= 100 || tickCount % 10 < 5));
-                if (!skillBoosted) {
-                    skillBoosted = true;
+                if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER_UUID)) {
                     this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTACK_MODIFIER_UUID, "skill bonus", 26, AttributeModifier.Operation.ADDITION));
-                    this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 8, AttributeModifier.Operation.ADDITION));
+                    this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 14, AttributeModifier.Operation.ADDITION));
+                    this.heal(20);
                 } else if (tickCount > 200) {
-                    this.removeSkill(this, getSkillFromName("skill.pvz.veloci_radish.veloci_nip"));
+                    this.removeSkill(this, getSkillFromName(STRONG_SKILL_NAME));
                     this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(ATTACK_MODIFIER_UUID);
                     this.getAttribute(Attributes.MAX_HEALTH).removeModifier(HEALTH_MODIFIER_UUID);
                 }
             }
-        } else if (hasSkill(this, "skill.pvz.veloci_radish.clever_girls")) {
-            if (!level.isClientSide) {
+        } else if (hasSkill(this, GROUP_SKILL_NAME)) {
+            if (! level.isClientSide) {
                 for (int i = 0; i < 3; i ++) {
                     VelociRadish turnip = PVZEntities.VELOCI_RADISH.get().create(level);
                     turnip.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
@@ -269,42 +317,38 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                     if (hasCustomName()) {
                         turnip.setCustomName(this.getCustomName());
                     }
-                    PVZOwnedCapability cap = turnip.getCapability(PVZOwnedCapability.CAP).orElse(null);
-                    PVZOwnedCapability thisCap = getCapability(PVZOwnedCapability.CAP).orElse(null);
-                    cap.setOwner(thisCap.getOwner());
+                    PVZEntityCapability cap = turnip.getCapability(PVZEntityCapability.CAP).orElse(null);
+                    cap.setOwner(PVZEntityCapability.getOwner(this));
                     turnip.startFollowing(this);
                 }
-                this.removeSkill(this, getSkillFromName("skill.pvz.veloci_radish.clever_girls"));
+                this.removeSkill(this, getSkillFromName(GROUP_SKILL_NAME));
                 this.setDeltaMovement(this.getDeltaMovement().add(0.1, 0 ,0));
             }
         }
         //check plant situation damage.
-        if (! level.isClientSide) {
-            if (isPositionSafe(null, this.level, this.getOnPos(), Direction.UP,false) != null && isVehicleSafe(null, getVehicle(), false) != null &&
-                    this.getAttribute(Attributes.MAX_HEALTH) != null) {
-                if (++ situationHurtCount > 100) {
-                    this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.4 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
-                    situationHurtCount = 0;
-                }
-            } else {
-                situationHurtCount = 0;
-            }
-        }
+        firstUnsafeSituationMercy = SimplePlant.testPlantSafe(this, firstUnsafeSituationMercy);
         //animation
         animationTick ++;
         if (entityData.get(POSE) == 0) {
             animationChangeable = animationTick == 24;
             animationTick = animationTick == 24 ? 0 : animationTick;
+        } else if (entityData.get(POSE) == -1) {
+            if (animationTick == 16) {
+                this.discard();
+            }
         } else {
             animationChangeable = animationTick == 20;
             animationTick = animationTick == 20 ? 0 : animationTick;
         }
         if (animationChangeable) {
-            entityData.set(POSE, isPathFinding() ? 1 : 0);
+            entityData.set(POSE, isDisappearing ? -1 : isPathFinding() ? 1 : 0);
         }
         super.tick();
     }
 
+    public void disappear() {
+        this.isDisappearing = true;
+    }
     public boolean onBeingShoveled(Player player, InteractionHand handIn) {
         return SimplePlant.onBeingShoveled(player, handIn, this);
     }
@@ -315,11 +359,6 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     @Override
     public boolean canBeLeashed(Player p_21418_) {
         return true;
-    }
-    @Override
-    public boolean removeWhenFarAway(double p_27598_) {
-        PVZOwnedCapability cap = this.getCapability(PVZOwnedCapability.CAP).orElse(null);
-        return cap.getOwner() == null;
     }
 
     //ICanGroupUp
@@ -362,6 +401,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 this.mob.getEntityData().set(POSE, 2);
             }
             if (((VelociRadish) this.mob).animationTick == 5 && this.mob.getEntityData().get(POSE) == 2) {
+                //TODO remake the relationship of attack and animation
                 this.mob.swing(InteractionHand.MAIN_HAND);
                 this.mob.doHurtTarget(entity);
             }
@@ -369,31 +409,6 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         @Override
         protected double getAttackReachSqr(LivingEntity p_25556_) {
             return this.mob.getBbWidth() * this.mob.getBbWidth() * 8.0F + p_25556_.getBbWidth() * p_25556_.getBbWidth();
-        }
-    }
-    private static class TurnipShareTargetGoal extends Goal{
-        VelociRadish turnip;
-        int count = 5;
-        public TurnipShareTargetGoal(VelociRadish turnip) {
-            this.turnip = turnip;
-        }
-
-        @Override
-        public boolean canUse() {
-            return (EntityUtil.isEntityValid((Entity) turnip.getLeader()) && EntityUtil.checkCanEntityBeAttack(turnip, turnip.getTarget()));
-        }
-
-        @Override
-        public void tick(){
-            if (-- count == 0) {
-                count = 5;
-                for (VelociRadish entity : turnip.level.getEntitiesOfClass(VelociRadish.class, this.turnip.getBoundingBox().inflate(2),
-                        (target) -> PVZOwnedCapability.isTeammate(this.turnip, target))) {
-                    if ((turnip.getLeader() == entity.getLeader() || turnip.getLeader() == entity) && ! EntityUtil.checkCanEntityBeAttack(entity, entity.getTarget())) {
-                        entity.setTarget(turnip.getTarget());
-                    }
-                }
-            }
         }
     }
 }

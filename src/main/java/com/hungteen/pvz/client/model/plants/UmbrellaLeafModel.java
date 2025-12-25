@@ -3,7 +3,6 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.4
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.SunFlowerAnimation;
 import com.hungteen.pvz.client.model.plants.animation.UmbrellaLeafAnimation;
 import com.hungteen.pvz.common.entity.plants.UmbrellaLeaf;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -19,22 +18,24 @@ public class UmbrellaLeafModel<T extends UmbrellaLeaf> extends HierarchicalModel
 
 	public UmbrellaLeafModel(ModelPart root) {
 		this.total = root.getChild("total");
-		this.flower = total.getChild("leaves").getChild("flower");
+		this.flower = total.getChild("head").getChild("leaves").getChild("flower");
 	}
 
 	public static LayerDefinition createBodyLayer() {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -12.5F, -1.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(0.0F))
-		.texOffs(0, 49).addBox(-3.0F, -11.0F, -3.0F, 6.0F, 11.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-		PartDefinition eyes_closed = total.addOrReplaceChild("eyes_closed", CubeListBuilder.create().texOffs(18, 0).addBox(-3.0F, -11.0F, -3.0F, 6.0F, 11.0F, 6.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition head = total.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -12.5F, -1.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 49).addBox(-3.0F, -11.0F, -3.0F, 6.0F, 11.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition leaves = total.addOrReplaceChild("leaves", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition eyes_closed = head.addOrReplaceChild("eyes_closed", CubeListBuilder.create().texOffs(18, 0).addBox(-3.0F, -11.0F, -3.0F, 6.0F, 11.0F, 6.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+		PartDefinition leaves = head.addOrReplaceChild("leaves", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition flower = leaves.addOrReplaceChild("flower", CubeListBuilder.create().texOffs(-7, 4).addBox(-3.5F, -0.15F, -3.5F, 7.0F, 0.0F, 7.0F, new CubeDeformation(0.0F))
-		.texOffs(-7, 11).addBox(-3.5F, -0.01F, -3.5F, 7.0F, 0.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -12.9F, 0.0F));
+				.texOffs(-7, 11).addBox(-3.5F, -0.01F, -3.5F, 7.0F, 0.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -12.9F, 0.0F));
 
 		PartDefinition open = leaves.addOrReplaceChild("open", CubeListBuilder.create(), PartPose.offset(0.0F, -12.0F, 0.0F));
 
@@ -57,6 +58,7 @@ public class UmbrellaLeafModel<T extends UmbrellaLeaf> extends HierarchicalModel
 		PartDefinition sw = closed.addOrReplaceChild("sw", CubeListBuilder.create().texOffs(0, 35).addBox(-1.0F, -0.25F, -1.0F, 8.0F, 6.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -12.0F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 256, 256);
+
 	}
 
 	@Override
@@ -64,7 +66,8 @@ public class UmbrellaLeafModel<T extends UmbrellaLeaf> extends HierarchicalModel
 		flower.visible = ! umbrellaLeaf.hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf");
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		this.animate(umbrellaLeaf.idleAnimationState, UmbrellaLeafAnimation.idle, ageInTicks);
-		this.animate(umbrellaLeaf.openAnimationState, UmbrellaLeafAnimation.open, ageInTicks);
+		this.animate(umbrellaLeaf.openAnimationState, umbrellaLeaf.hasSkill(UmbrellaLeaf.BOUNCE_SKILL_NAME) ?
+				UmbrellaLeafAnimation.open_expanded : UmbrellaLeafAnimation.open, ageInTicks);
 	}
 
 	@Override

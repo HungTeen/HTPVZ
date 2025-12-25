@@ -23,9 +23,9 @@ public class FlowerPotModel<T extends FlowerPot> extends HierarchicalModel<T> {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create().texOffs(0, 17).addBox(-12.0F, -3.0F, 4.0F, 8.0F, 3.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(8.0F, 24.0F, -8.0F));
+		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create().texOffs(0, 17).addBox(-12.0F, -3.0F, 4.0F, 8.0F, 3.0F, 8.0F, new CubeDeformation(0.01F)), PartPose.offset(8.0F, 24.0F, -8.0F));
 
-		PartDefinition up = total.addOrReplaceChild("up", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -7.5F, -6.0F, 12.0F, 5.0F, 12.0F, new CubeDeformation(0.01F))
+		PartDefinition up = total.addOrReplaceChild("up", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -7.5F, -6.0F, 12.0F, 5.0F, 12.0F, new CubeDeformation(0.02F))
 		.texOffs(24, 17).addBox(-3.0F, -7.5F, -3.0F, 6.0F, 1.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(-8.0F, 0.0F, 8.0F));
 
 		PartDefinition leave1 = up.addOrReplaceChild("leave1", CubeListBuilder.create(), PartPose.offset(4.0F, -8.5F, -3.5F));

@@ -1,11 +1,11 @@
 package com.hungteen.pvz.client.gui.screens;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapNBT;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.menu.EssenceAltarMenu;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -32,6 +32,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -79,13 +80,13 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         stack.pushPose();
         blit(stack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         if (! this.getMenu().slots.get(0).hasItem()) {
-            blit(stack, this.leftPos + 25, this.topPos + 19, 177, 36, 16, 16);
+            blit(stack, this.leftPos + 25, this.topPos + 17, 235, 16, 16, 16);
         }
         if (! this.getMenu().slots.get(1).hasItem()) {
-            blit(stack, this.leftPos + 16, this.topPos + 54, 178, 16, 16, 16);
+            blit(stack, this.leftPos + 15, this.topPos + 54, 215, 0, 16, 16);
         }
         if (! this.getMenu().slots.get(2).hasItem()) {
-            blit(stack, this.leftPos + 35, this.topPos + 54, 197, 16, 16, 16);
+            blit(stack, this.leftPos + 35, this.topPos + 54, 235, 0, 16, 16);
         }
         int scrollTop = this.topPos + 14;
         int scrollBottom = scrollTop + 57 - 15;
@@ -107,7 +108,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         stack.translate(-0.01F, 1.75F, -1F);
         stack.mulPose(Vector3f.YP.rotationDegrees(-90F));
         stack.mulPose(Vector3f.XP.rotationDegrees(180.0F));
-        this.model.setupAnim(EssenceAltarRenderer.time * (this.getMenu().slots.get(0).hasItem() ? 1 : 0));
+        this.model.setupAnim(PVZMod.clientTime * (this.getMenu().slots.get(0).hasItem() ? 1 : 0));
         MultiBufferSource.BufferSource multibuffersource$buffersource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         VertexConsumer vertexconsumer = multibuffersource$buffersource.getBuffer(this.model.renderType(BLOCK_TEXTURE));
         this.model.renderToBuffer(stack, vertexconsumer, 0xf000f0, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
@@ -118,10 +119,21 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         Lighting.setupFor3DItems();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         //render buttons.
+        boolean notMoreThanThree = skills.size() <= 3;
         if (this.getMenu().slots.get(0).hasItem() && this.getMenu().slots.get(0).getItem().getItem() instanceof SeedPacketItem<?>) {
-            if (skills.size() > 0) {
+            if (! skills.isEmpty()) {
                 int x = leftPos + 60;
                 int y = topPos;
+                if (notMoreThanThree) {
+                    RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                    RenderSystem.setShaderTexture(0, TEXTURE);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    this.blit(stack, x - 1, y + 13, 92, 166, 109, 1);
+                    this.blit(stack, x - 1, y + 71, 92, 167, 109, 1);
+                    for (int i = 0; i < 3; i ++) {
+                        this.blit(stack, x, y + 14 + 19 * i, 92, 187, 108, 19);
+                    }
+                }
                 for(int i = 0; i < 3 && i + shownFirstSkill < skills.size(); ++ i) {
                     this.setBlitOffset(0);
                     RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -132,11 +144,11 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                     //handle skill name rendering.
                     String skillName = Language.getInstance().getOrDefault(skills.get(i + shownFirstSkill).name);
                     int j = 0;
-                    while (font.width(skillName.substring(j)) > 54 && j < Math.floor((nameRollTime - 4))) {
+                    while (font.width(skillName.substring(j)) > (notMoreThanThree ? 70 : 54) && j < Math.floor((nameRollTime - 4))) {
                         j ++;
                     }
                     skillName = skillName.substring(j);
-                    while (font.width(skillName) > 54) {
+                    while (font.width(skillName) > (notMoreThanThree ? 70 : 54)) {
                         skillName = skillName.substring(0, skillName.length() - 1);
                     }
                     int color;
@@ -144,25 +156,25 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                         //available.
                         int mouseRelativeX = mouseX - x;
                         int mouseRelativeY = mouseY - (y + 14 + 19 * i);
-                        if (mouseRelativeX >= 0 && mouseRelativeY >= 0 && mouseRelativeX < 92 && mouseRelativeY < 19) {
-                            this.blit(stack, x, y + 14 + 19 * i, 0, 204, 92, 19);
+                        if (mouseRelativeX >= 0 && mouseRelativeY >= 0 && mouseRelativeX < (notMoreThanThree ? 108 : 92) && mouseRelativeY < 19) {
+                            this.blit(stack, x, y + 14 + 19 * i, notMoreThanThree ? 92 : 0, 204 + (notMoreThanThree ? 2 : 0), (notMoreThanThree ? 108 : 92), 19);
                             color = 0xffff80;
                         } else {
-                            this.blit(stack, x, y + 14 + 19 * i, 0, 166, 92, 19);
+                            this.blit(stack, x, y + 14 + 19 * i, notMoreThanThree ? 92 : 0, 166 + (notMoreThanThree ? 2 : 0), (notMoreThanThree ? 108 : 92), 19);
                             color = 0x544c3b;
                         }
                         this.blit(stack, x + 1, y + 15 + 19 * i, 16 * i, 223, 16, 16);
                         this.font.draw(stack, skillName, x + 39, y + 20 + 19 * i, color);
                     } else {
                         //not available.
-                        this.blit(stack, x, y + 14 + 19 * i, 0, 185, 92, 19);
+                        this.blit(stack, x, y + 14 + 19 * i, notMoreThanThree ? 92 : 0, 185 + (notMoreThanThree ? 2 : 0), (notMoreThanThree ? 108 : 92), 19);
                         this.blit(stack, x + 1, y + 15 + 19 * i, 16 * i, 239, 16, 16);
                         color = 0x211d17;
                         this.font.draw(stack, skillName, x + 39, y + 20 + 19 * i, color);
                     }
                     color = 0xffffff;
                     RenderSystem.setShaderTexture(0, TEXTURE);
-                    this.blit(stack, x + 2, y + 18 + 19 * i, 94, 168, 11, 10);
+                    this.blit(stack, x + 2, y + 18 + 19 * i, 223, 17, 11, 10);
                     ItemStack itemStack =  new ItemStack(skills.get(i + shownFirstSkill).item.get());
                     itemStack.setCount(costItem);
                     this.itemRenderer.renderAndDecorateFakeItem(itemStack, x + 17, y + 15 + 19 * i);
@@ -176,32 +188,42 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks){
         super.render(stack, mouseX, mouseY, partialTicks);
+        renderTooltip(stack, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderTooltip(@NotNull PoseStack stack, int mouseX, int mouseY) {
         int top = this.topPos + 14;
         int bottom = top + 57;
-        if (mouseX > leftPos + 60 && mouseX < leftPos + 152 && mouseY > top && mouseY <= bottom) {
+        boolean notMoreThanThree = skills.size() <= 3;
+        if (mouseX > leftPos + 60 && mouseX < leftPos + (notMoreThanThree ? 166 : 152) && mouseY > top && mouseY <= bottom) {
             if (skills.size() > (mouseY - top) / 19 + shownFirstSkill) {
                 int cost = skills.get((mouseY - top) / 19 + shownFirstSkill).addCostResource;
                 int cd = skills.get((mouseY - top) / 19 + shownFirstSkill).addCoolDown;
                 List<Component> list = new java.util.ArrayList<>(List.of(
                         Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_AQUA)),
-                        Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name + ".disc").withStyle(Style.EMPTY.withColor(0x545454))));
+                        Component.translatable(skills.get((mouseY - top) / 19 + shownFirstSkill).name + ".desc").withStyle(Style.EMPTY.withColor(0x545454))));
                 if (menu.getItems().get(0).getItem() instanceof SeedPacketItem<?> seedPacket) {
-                    if (seedPacket.hasSkill(menu.getItems().get(0), (mouseY - top) / 19 + shownFirstSkill)){
+                    if (seedPacket.hasSkill(menu.getItems().get(0), (mouseY - top) / 19 + shownFirstSkill)) {
                         list.add(Component.translatable("tooltip.pvz.already_attached").withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
                     } else {
                         Skill skill = seedPacket.getNotCompatibleWith(menu.getItems().get(0), skills.get((mouseY - top) / 19 + shownFirstSkill));
                         if (skill != null) {
                             list.add(Component.translatable("tooltip.pvz.not_compatible", Component.translatable(skill.name)).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
                         }
+                        skill = seedPacket.getStillRequire(menu.getItems().get(0), skills.get((mouseY - top) / 19 + shownFirstSkill));
+                        if (skill != null) {
+                            list.add(Component.translatable("tooltip.pvz.still_require", Component.translatable(skill.name)).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_RED)));
+                        }
                     }
                 }
                 ClientProxy.MC.screen.renderTooltip(stack, list,
                         Optional.of(new SunImageToolTipComponent(cost, cd,
-                                ((SeedPacketItem<?>) menu.getItems().get(0).getItem()).getResource(menu.getItems().get(0)).equals(PVZPlayerCapNBT.SUN), true, true)),
+                                ((SeedPacketItem<?>) menu.getItems().get(0).getItem()).getResource(menu.getItems().get(0)).equals(PVZPlayerCapStats.SUN), true, true)),
                         mouseX, mouseY, font, ItemStack.EMPTY);
             }
         } else {
-            this.renderTooltip(stack, mouseX, mouseY);
+            super.renderTooltip(stack, mouseX, mouseY);
         }
     }
 
@@ -238,9 +260,10 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
         int bottom = top + 57;
         int allowedMax = skills.size() - 3;
         float current = shownFirstSkill / (float) allowedMax * (bottom - 15 - top);
+        boolean notMoreThanThree = skills.size() <= 3;
         if (skills.size() >= 4 && mouseX > (double)(leftPos + 156) && mouseX < (double)(leftPos + 168) && mouseY > (double) top + current && mouseY <= (double)(top + current + 15)) {
             this.isDragging = true;
-        } else if (mouseX > leftPos + 60 && mouseX < leftPos + 152 && mouseY > top && mouseY <= bottom) {
+        } else if (mouseX > leftPos + 60 && mouseX < leftPos + (notMoreThanThree ? 166 : 152) && mouseY > top && mouseY <= bottom) {
             if (skills.size() > (mouseY - top) / 19 + shownFirstSkill) {
                 PVZAddSkillPacket.addSkill((int) floor((mouseY - top) / 19) + shownFirstSkill);
             }

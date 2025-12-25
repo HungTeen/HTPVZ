@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -8,26 +9,31 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.phys.AABB;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 
 public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingEntity> {
 
-    protected final Predicate<Entity> predicate;
+    protected Predicate<Entity> predicate;
     protected double range;
-    protected List<Entity> targetCandidates = new ArrayList<>();
 
-    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, double range) {
-        super(mobIn, LivingEntity.class, true);
+    /**@param range set to -1 to fit follow range attribute. See {@link DisperseEnemyTargetGoal#getFollowDistance()}.*/
+    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, boolean mustSee, double range) {
+        super(mobIn, LivingEntity.class, mustSee);
         this.predicate = predicate;
         this.range = range;
     }
+    public DisperseEnemyTargetGoal(Mob mobIn, Predicate<Entity> predicate, double range) {
+        this(mobIn, predicate, true, range);
+    }
     public DisperseEnemyTargetGoal(Mob mobIn) {
-        this(mobIn, (entity)-> EntityUtil.checkCanEntityBeAttack(mobIn, entity), -1);
+        this(mobIn, getDefaultPredicate(mobIn), -1);
+    }
+
+    public static Predicate<Entity> getDefaultPredicate(Mob mobIn) {
+        return (entity) -> EntityUtil.checkCanEntityBeAttack(mobIn, entity) && entity != mobIn &&
+                ! Util.hasBlockBetween(mobIn.level, mobIn.position().add(0, mobIn.getEyeHeight(), 0), entity.position().add(0, entity.getBbHeight() / 2, 0));
     }
     protected double getFollowDistance() {
         return range < 0 ? this.mob.getAttributeValue(Attributes.FOLLOW_RANGE) : range;
@@ -43,35 +49,32 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
         }
         return flag;
     }
+    @Override
+    public boolean canContinueToUse() {
+        if (EntityUtil.isEntityValid(target)) {
+            if (! this.predicate.test(target)) {
+                target = null;
+                this.mob.setTarget(null);
+                return false;
+            }
+        }
+        return super.canContinueToUse();
+    }
 
     protected AABB getTargetSearchArea(double p_26069_) {
         return this.mob.getBoundingBox().inflate(p_26069_, 12.0D, p_26069_);
     }
     @Override
     protected void findTarget() {
-        //from candidates
-        if (! targetCandidates.isEmpty()) {
-            Set<Entity> removeList = new HashSet<>();
-            for (Entity entity : targetCandidates) {
-                if (entity instanceof LivingEntity entity1 && predicate.test(entity1) &&
-                        entity1.position().distanceTo(this.mob.position()) <= this.getFollowDistance() && EntityUtil.checkCanEntityBeAttack(mob, entity1)) {
-                    this.target = entity1;
-                    return;
-                } else {
-                    removeList.add(entity);
-                }
-            }
-            for (Entity entity : removeList) {
-                targetCandidates.remove(entity);
-            }
-        }
         //search for target
         this.target = this.mob.level.getNearestEntity(this.mob.level.getEntitiesOfClass(LivingEntity.class, this.getTargetSearchArea(this.getFollowDistance()),
                 this.predicate), this.targetConditions, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
         if (target != null) {
-            targetCandidates = this.mob.level.getEntities(target, target.getBoundingBox().inflate(4), (entity) -> entity instanceof LivingEntity && this.predicate.test(entity));
-            targetCandidates.add(target);
-            this.target = (LivingEntity) targetCandidates.get(mob.getRandom().nextInt(targetCandidates.size()));
+            double dist = this.mob.distanceTo(target);
+            List<Entity> list = this.mob.level.getEntities(target, target.getBoundingBox().inflate(dist / 4),
+                    (entity) -> entity instanceof LivingEntity && this.predicate.test(entity));
+            list.add(target);
+            this.target = (LivingEntity) list.get(mob.getRandom().nextInt(list.size()));
         }
     }
 }

@@ -1,15 +1,12 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
-import com.hungteen.pvz.common.event.PVZResourceEvent;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -28,9 +25,11 @@ import java.util.List;
 import java.util.Set;
 
 public class IcebergLettuce extends ShooterPlant {
+    public static final String SHOOTER_SKILL_NAME = "skill.pvz.iceberg_lettuce.lettuce_shooter";
+    public static final String RANGE_SKILL_NAME = "skill.pvz.iceberg_lettuce.ice_storm";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.iceberg_lettuce.lettuce_shooter", PVZItems.VENTUS_ESSENCE, 8, 4, 50, 0),
-            new Skill("skill.pvz.iceberg_lettuce.ice_storm", PVZItems.GELUM_ESSENCE, 8, 4, 50, 300)
+            new Skill(SHOOTER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 0, 120),
+            new Skill(RANGE_SKILL_NAME, PVZItems.GELUM_ESSENCE, 8, 4, 50, 120)
     );
 
     public IcebergLettuce(EntityType<? extends Mob> entityType, Level level) {
@@ -42,23 +41,30 @@ public class IcebergLettuce extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return ShooterPlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 2D)
-                .add(Attributes.FOLLOW_RANGE, 6D);
+                .add(Attributes.FOLLOW_RANGE, 8D);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
-        return Set.of(PVZBlockTags.PLANTABLE_DIRT, BlockTags.SNOW);
+        return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.UNPLANTABLE_DIRT, BlockTags.SNOW, BlockTags.ICE, PVZBlockTags.PLANTABLE_STONE);
     }
     @Override
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new IcebergLettuceFreezeGoal(this));
     }
-
+    @Override
+    public boolean isInvulnerableTo(DamageSource source) {
+        return source == DamageSource.FREEZE || super.isInvulnerableTo(source);
+    }
+    @Override
+    public boolean canFreeze() {
+        return false;
+    }
     @Override
     protected Projectile createBullet() {
         return new Snowball(this.level, this);
@@ -70,17 +76,17 @@ public class IcebergLettuce extends ShooterPlant {
     }
     @Override
     public void die(DamageSource damageSource) {
-        if (! damageSource.isMagic() && ! PVZOwnedCapability.isTeammate(this, damageSource.getEntity())) {
+        if (! damageSource.isMagic() && damageSource.getEntity() != null && ! EntityUtil.isTeammate(this, damageSource.getEntity())) {
             if (damageSource.getEntity() instanceof LivingEntity target && damageSource.getDirectEntity() == damageSource.getEntity()) {
-                MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 120);
-                if (this.hasSkill("skill.pvz.iceberg_lettuce.ice_storm")) {
+                MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 40);
+                if (this.hasSkill(RANGE_SKILL_NAME)) {
                     List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(2, 0.25, 2),
-                            (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(entity, this)));
+                            (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity)));
                     entities.forEach((entity) -> ((LivingEntity) entity).addEffect(instance));
                 } else {
                     target.addEffect(instance);
                 }
-                ((ServerLevel) this.level).sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 0.2, this.getZ(), this.hasSkill("skill.pvz.iceberg_lettuce.ice_storm") ? 60 : 20, 0.0D, 0.0D, 0.0D, this.hasSkill("skill.pvz.iceberg_lettuce.ice_storm") ? 0.2F : 0.1F);
+                ((ServerLevel) this.level).sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 0.2, this.getZ(), this.hasSkill(RANGE_SKILL_NAME) ? 60 : 20, 0.0D, 0.0D, 0.0D, this.hasSkill(RANGE_SKILL_NAME) ? 0.2F : 0.1F);
                 this.discard();
             }
         }
@@ -102,7 +108,7 @@ public class IcebergLettuce extends ShooterPlant {
     }
     @Override
     public boolean canShoot() {
-        return super.canShoot() && this.hasSkill("skill.pvz.iceberg_lettuce.lettuce_shooter");
+        return super.canShoot() && this.hasSkill(SHOOTER_SKILL_NAME);
     }
 
     @Override
@@ -111,7 +117,7 @@ public class IcebergLettuce extends ShooterPlant {
     }
     @Override
     public double getMaxShootAngleTangent() {
-        return Double.POSITIVE_INFINITY;
+        return 1;
     }
 
     private static class IcebergLettuceFreezeGoal extends Goal {
@@ -126,22 +132,29 @@ public class IcebergLettuce extends ShooterPlant {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(0.4, 0.2, 0.4),
-                    (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(entity, this.entity) && ! ((LivingEntity) entity).hasEffect(PVZMobEffects.FREEZE.get())));
-            if (entities.isEmpty() && this.entity.tickCount < 300) {
+            List<LivingEntity> entities = entity.level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(0.6, 0.2, 0.6),
+                    (entity) -> (EntityUtil.checkCanEntityBeAttack(this.entity, entity) && ! entity.hasEffect(PVZMobEffects.FREEZE.get())));
+            if (entities.isEmpty() && this.entity.tickCount < 100) {
                 return;
             }
-            MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 120);
-            if (entity.hasSkill("skill.pvz.iceberg_lettuce.ice_storm")) {
-                entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 0.25, 2),
-                        (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(entity, this.entity)));
-                entities.forEach((entity) -> ((LivingEntity) entity).addEffect(instance));
-            } else {
-                if (! entities.isEmpty()) {
-                    ((LivingEntity) entities.get(0)).addEffect(instance);
+            MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 80);
+            if (entity.hasSkill(RANGE_SKILL_NAME)) {
+                entities = entity.level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(2, 0.25, 2),
+                        (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity)));
+                entities.forEach((entity) -> entity.addEffect(instance));
+            } else if (! entities.isEmpty()) {
+                LivingEntity target = entities.get(0);
+                double targetDistance = target.position().distanceToSqr(entity.position());
+                for (LivingEntity i : entities) {
+                    double tmp = i.position().distanceToSqr(entity.position());
+                    if (i.position().distanceToSqr(entity.position()) < targetDistance) {
+                        target = i;
+                        targetDistance = tmp;
+                    }
                 }
+                target.addEffect(instance);
             }
-            ((ServerLevel) entity.level).sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + 0.2, entity.getZ(), entity.hasSkill("skill.pvz.iceberg_lettuce.ice_storm") ? 60 : 20, 0.0D, 0.0D, 0.0D, entity.hasSkill("skill.pvz.iceberg_lettuce.ice_storm") ? 0.2F : 0.1F);
+            ((ServerLevel) entity.level).sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + 0.2, entity.getZ(), entity.hasSkill(RANGE_SKILL_NAME) ? 60 : 20, 0.0D, 0.0D, 0.0D, entity.hasSkill(RANGE_SKILL_NAME) ? 0.2F : 0.1F);
             entity.discard();
         }
     }

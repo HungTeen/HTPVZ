@@ -12,6 +12,7 @@ public class PVZBlockTags {
     public static final TagKey<Block> SCULK = pvzTag("sculk");
     public static final TagKey<Block> PLANTABLE_STONE = pvzTag("plantable_stone");
     public static final TagKey<Block> WISDOM_TREE_REPLACEABLE = pvzTag("wisdom_tree_replaceable");
+    public static final TagKey<Block> GARDEN_FLOWER_POT = pvzTag("garden_flower_pot");
 
     //definition
 

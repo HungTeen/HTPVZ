@@ -3,7 +3,7 @@
   "is_essence": true,
   "cost_ingredient": true,
   "ingredient": {
-    "tag": "minecraft:leaves"
+    "item": "pvz:fallen_star"
   },
   "fuel": {
     "item": "pvz:origin_essence"

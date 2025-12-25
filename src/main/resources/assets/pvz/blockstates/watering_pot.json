@@ -1,0 +1,94 @@
+{
+  "variants": {
+    "facing=east,water=0": {
+      "model": "pvz:block/watering_pot_no_water",
+      "y": 90
+    },
+    "facing=north,water=0": {
+      "model": "pvz:block/watering_pot_no_water"
+    },
+    "facing=south,water=0": {
+      "model": "pvz:block/watering_pot_no_water",
+      "y": 180
+    },
+    "facing=west,water=0": {
+      "model": "pvz:block/watering_pot_no_water",
+      "y": 270
+    },
+    "facing=east,water=1": {
+      "model": "pvz:block/watering_pot",
+      "y": 90
+    },
+    "facing=north,water=1": {
+      "model": "pvz:block/watering_pot"
+    },
+    "facing=south,water=1": {
+      "model": "pvz:block/watering_pot",
+      "y": 180
+    },
+    "facing=west,water=1": {
+      "model": "pvz:block/watering_pot",
+      "y": 270
+    },
+    "facing=east,water=2": {
+      "model": "pvz:block/watering_pot",
+      "y": 90
+    },
+    "facing=north,water=2": {
+      "model": "pvz:block/watering_pot"
+    },
+    "facing=south,water=2": {
+      "model": "pvz:block/watering_pot",
+      "y": 180
+    },
+    "facing=west,water=2": {
+      "model": "pvz:block/watering_pot",
+      "y": 270
+    },
+    "facing=east,water=3": {
+      "model": "pvz:block/watering_pot",
+      "y": 90
+    },
+    "facing=north,water=3": {
+      "model": "pvz:block/watering_pot"
+    },
+    "facing=south,water=3": {
+      "model": "pvz:block/watering_pot",
+      "y": 180
+    },
+    "facing=west,water=3": {
+      "model": "pvz:block/watering_pot",
+      "y": 270
+    },
+    "facing=east,water=4": {
+      "model": "pvz:block/watering_pot",
+      "y": 90
+    },
+    "facing=north,water=4": {
+      "model": "pvz:block/watering_pot"
+    },
+    "facing=south,water=4": {
+      "model": "pvz:block/watering_pot",
+      "y": 180
+    },
+    "facing=west,water=4": {
+      "model": "pvz:block/watering_pot",
+      "y": 270
+    },
+    "facing=east,water=5": {
+      "model": "pvz:block/watering_pot",
+      "y": 90
+    },
+    "facing=north,water=5": {
+      "model": "pvz:block/watering_pot"
+    },
+    "facing=south,water=5": {
+      "model": "pvz:block/watering_pot",
+      "y": 180
+    },
+    "facing=west,water=5": {
+      "model": "pvz:block/watering_pot",
+      "y": 270
+    }
+  }
+}

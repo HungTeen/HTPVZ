@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "pvz:corn"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "item": "pvz:corn_kernels"
+  }
+}

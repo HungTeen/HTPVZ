@@ -1,12 +1,13 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.api.interfaces.ICanGroupUp;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.datafixers.DataFixUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -21,6 +22,7 @@ public class FollowGroupLeaderGoal extends Goal {
     public FollowGroupLeaderGoal(ICanGroupUp mob) {
         this.mob = mob;
         this.nextStartTick = this.nextStartTick(mob);
+        this.setFlags(EnumSet.of(Flag.MOVE));
     }
 
     protected int nextStartTick(ICanGroupUp mob) {
@@ -40,11 +42,12 @@ public class FollowGroupLeaderGoal extends Goal {
                 this.nextStartTick = this.nextStartTick(this.mob);
                 double range = ((ICanGroupUp) mob).getGroupRangeSqr();
                 Predicate<Entity> Leaderpredicate = (target) ->
-                        PVZOwnedCapability.isTeammate(mob, target) && target instanceof ICanGroupUp &&
-                                ICanGroupUp.canBeFollowed(target) || ! ((ICanGroupUp) target).isFollower();
+                        EntityUtil.isTeammate(mob, target) && target instanceof ICanGroupUp &&
+                                ICanGroupUp.canBeFollowed((Entity & ICanGroupUp) target) || ! ((ICanGroupUp) target).isFollower();
                 List<? extends LivingEntity> list = mob.level.getEntitiesOfClass(mob.getClass(),
                         mob.getBoundingBox().inflate(range, range, range), Leaderpredicate);
-                ICanGroupUp entity = (ICanGroupUp) DataFixUtils.orElse(list.stream().filter(ICanGroupUp::canBeFollowed).findAny(), this.mob);
+                ICanGroupUp entity = (Entity & ICanGroupUp) DataFixUtils
+                        .orElse(list.stream().filter(entity1 -> ICanGroupUp.canBeFollowed((Entity & ICanGroupUp) entity1)).findAny(), this.mob);
                 entity.addFollowers(
                         (Stream<? extends ICanGroupUp>) list.stream().filter((target) -> target instanceof ICanGroupUp && ! ((ICanGroupUp) target).isFollower()));
                 return this.mob.isFollower();

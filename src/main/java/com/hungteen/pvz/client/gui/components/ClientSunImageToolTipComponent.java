@@ -32,8 +32,8 @@ public class ClientSunImageToolTipComponent implements ClientTooltipComponent {
         cost = component.cost;
         renderAsNumber = PVZConfig.renderSunAsNumber() || ! component.isCostSun;
         sunText = (component.isAddition && cost == 0) ? "" : (Language.getInstance().getOrDefault("tooltip.pvz.cost") +
-                (component.isAddition ? (cost >= 0 ? ": +" : ": ") : " ") +
-                (renderAsNumber ? "" + (component.isAddition ? Math.abs(cost) : cost) : (cost >= 0 ? "" : "-")));
+                (component.isAddition && cost >= 0 ? " +" : " ") +
+                (renderAsNumber ? "" + cost : (cost >= 0 ? "" : "-")));
         cd = component.cd;
         if (component.hasCd && ! (component.isAddition && cd == 0)) {
             cdText = Language.getInstance().getOrDefault("tooltip.pvz.cool_down") +
@@ -49,7 +49,7 @@ public class ClientSunImageToolTipComponent implements ClientTooltipComponent {
 
     @Override
     public int getWidth(Font font) {
-        return font.width(sunText) + (int) (renderAsNumber ? 0 : (cost > 500 ? 5 : 8) * Math.ceil(Math.abs((float) cost / 100))) + font.width(cdText) + 10;
+        return font.width(sunText) + (int) (renderAsNumber ? 0 : (cost > 500 ? 5 : 8) * Math.ceil(Math.abs((float) cost / 100))) + font.width(cdText) + (sunText.isEmpty() ? 0 : 10);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class ClientSunImageToolTipComponent implements ClientTooltipComponent {
         String key;
         if (cd <= PVZSeedPackets.FAST) {
             key = "tooltip.pvz.fast";
-        } else if (cd <= PVZSeedPackets.MIDDLE) {
+        } else if (cd <= PVZSeedPackets.MEDIUM) {
             key = "tooltip.pvz.middle";
         } else if (cd <= PVZSeedPackets.SLOW) {
             key = "tooltip.pvz.slow";

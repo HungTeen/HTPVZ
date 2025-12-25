@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.item;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -28,6 +30,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -58,9 +61,7 @@ public class ModifiedSpawnEggItem extends ForgeSpawnEggItem {
                     return InteractionResultHolder.pass(itemstack);
                 } else {
 
-
                     entityModifier.accept(entity); //pvz added.
-
 
                     if (!p_43226_.getAbilities().instabuild) {
                         itemstack.shrink(1);
@@ -86,12 +87,21 @@ public class ModifiedSpawnEggItem extends ForgeSpawnEggItem {
             BlockState blockstate = level.getBlockState(blockpos);
             if (blockstate.is(Blocks.SPAWNER)) {
 
-                //TODO handle nbt when interacting with Spawner.
                 BlockEntity blockentity = level.getBlockEntity(blockpos);
                 if (blockentity instanceof SpawnerBlockEntity) {
                     BaseSpawner basespawner = ((SpawnerBlockEntity)blockentity).getSpawner();
                     EntityType<?> entitytype1 = this.getType(itemstack.getTag());
                     basespawner.setEntityId(entitytype1);
+
+                    EntityType<?> entitytype = this.getType(itemstack.getTag());
+                    Entity entity = entitytype.create(level);
+                    entityModifier.accept(entity); //pvz added.
+                    CompoundTag tag = new CompoundTag();
+                    entity.save(tag);
+                    tag.remove("Pos");
+                    basespawner.setNextSpawnData(level, blockpos, new SpawnData(tag,Optional.empty()));
+                    entity.discard();
+
                     blockentity.setChanged();
                     level.sendBlockUpdated(blockpos, blockstate, blockstate, 3);
                     level.gameEvent(p_43223_.getPlayer(), GameEvent.BLOCK_CHANGE, blockpos);

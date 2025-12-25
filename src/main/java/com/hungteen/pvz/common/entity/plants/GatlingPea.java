@@ -1,13 +1,13 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.api.interfaces.IAdvancedPlant;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
-import com.hungteen.pvz.common.event.PVZResourceEvent;
-import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
@@ -31,15 +31,13 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.SpyglassItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Set;
 
-public class GatlingPea extends Repeater implements PlayerRideableJumping, IEntityPacketHandler {
+public class GatlingPea extends Repeater implements PlayerRideableJumping, IEntityPacketHandler, IAdvancedPlant {
 
     public AnimationState controlledAnimationState = new AnimationState();
     private boolean playerFire = false;
@@ -47,23 +45,22 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     protected static final EntityDataAccessor<Integer> OVERHEATING = SynchedEntityData.defineId(GatlingPea.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Boolean> FUSING = SynchedEntityData.defineId(GatlingPea.class, EntityDataSerializers.BOOLEAN);
 
+    public static final String LOW_BUDGET_SKILL_NAME = "skill.pvz.gatling_pea.low_budget_configuration";
+    public static final String RAPID_DEPLOYMENT_SKILL_NAME = "skill.pvz.plant.rapid_deployment";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.pea_shooter.punch", PVZItems.VENTUS_ESSENCE, 8, 4, 150, 0),
-            new Skill("skill.pvz.gatling_pea.low_budget_configuration", PVZItems.LUX_ESSENCE, 8, 4, -250, -1000),
-            new Skill("skill.pvz.pea_shooter.fire_shooter", PVZItems.IGNIS_ESSENCE, 4, 4, 150, 0).avoidSkills(0)
+            new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 150, 0),
+            new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, -800),
+            new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(LOW_BUDGET_SKILL_NAME),
+            new Skill(RAPID_DEPLOYMENT_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 16, 4, 150, 0)
     );
     public GatlingPea(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
-    public static AttributeSupplier.Builder createAttributes() {
-        return Repeater.createAttributes()
-                .add(Attributes.ATTACK_DAMAGE, 5D);
-    }
     @Override
     protected void registerGoals() {
         super.registerGoals();
@@ -86,6 +83,13 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         entityData.set(OVERHEATING, value);
     }
 
+    public boolean getFusing() {
+        return entityData.get(FUSING);
+    }
+    public void setFusing(boolean value) {
+        entityData.set(FUSING, value);
+    }
+
     @Override
     public boolean canShoot() {
         return ! entityData.get(FUSING);
@@ -93,7 +97,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     @Override
     public void shootBullet() {
         this.performShoot(SHOOT_OFFSET, 0, 0, true,
-                this.getOverheat() > MAX_OVERHEAT * 0.67 ? (this.getOverheat() - MAX_OVERHEAT * 0.67) / 50 : 0);
+                this.getOverheat() > MAX_OVERHEAT * 0.67 ? (this.getOverheat() - MAX_OVERHEAT * 0.67) / 25 : 0);
         this.setOverheat(this.getOverheat() + 12 * (this.getFirstPassenger() instanceof Player player && player.isCreative() ? 0 : 1));
         if (getOverheat() > MAX_OVERHEAT && ! this.entityData.get(FUSING)) {
             this.entityData.set(FUSING, true);
@@ -106,15 +110,15 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                 Set.of(8, 10, 12, 14);
     }
 
-    public float getAttackDamage() {
-        return (float) (this.getFirstPassenger() instanceof Player ? 0.4 : 1) * super.getAttackDamage();
+    public static AttributeSupplier.Builder createAttributes() {
+        return PeaShooter.createAttributes()
+                .add(Attributes.ATTACK_KNOCKBACK, 0.3D);
     }
 
     @Override
     public void baseTick() {
-        if (!skillBoosted && this.hasSkill("skill.pvz.pea_shooter.punch")) {
-            skillBoosted = true;
-            this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(KNOCKBACK_MODIFIER_UUID, "skill bonus", 0.25, AttributeModifier.Operation.ADDITION));
+        if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_KNOCKBACK, ATTRIBUTE_MODIFIER_UUID)) {
+            this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.25, AttributeModifier.Operation.ADDITION));
         }
         super.baseTick();
         if (level.isClientSide && random.nextInt(3) == 0 && this.getOverheat() > MAX_OVERHEAT * 0.67 || this.entityData.get(FUSING)) {
@@ -139,7 +143,10 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                 } else {
                     this.getFirstPassenger().xRot += random.nextFloat() - 0.5;
                 }
-                this.getFirstPassenger().yRot -= (random.nextFloat() * 1 - 0.4) * (usingSpyGlass ? 0.2 : 1);
+                this.getFirstPassenger().yRot -= (random.nextFloat() * 1 - 0.5) * (usingSpyGlass ? 0.2 : 1);
+            }
+            if (this.getFirstPassenger() != null) {
+                this.setYBodyRot(this.getYRot());
             }
         }
     }
@@ -161,8 +168,9 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
 
     @Override
-    public Vec3 getShootAngle(Entity target) {
-        return this.getFirstPassenger() instanceof Player ? this.getLookAngle().normalize() : super.getShootAngle(target);
+    public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
+        return this.getFirstPassenger() instanceof Player player ? player.getViewVector(0).normalize() :
+                super.getShootAngle(target, forwardOffset, rightOffset, heightOffset);
     }
 
     @Override
@@ -199,34 +207,44 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
 
     @Override
-    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (level.isClientSide && getPassengers().isEmpty() && (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty() || player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof SpyglassItem)
-                && ! (player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof ShovelItem)) {
-            sendPVZPacketToServer();
+    protected InteractionResult mobInteract(Player player, InteractionHand handIn) {
+        if (getPassengers().isEmpty() && ! player.isShiftKeyDown() && ! this.hasSkill(LOW_BUDGET_SKILL_NAME)) {
+            if (level.isClientSide) {
+                sendPVZPacketToServer();
+            }
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
+        } else {
+            return super.mobInteract(player, handIn);
         }
-        return super.mobInteract(player, hand);
     }
     @Override
-    public MutableComponent isPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
+    public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting) {
+            if (hasSkill(RAPID_DEPLOYMENT_SKILL_NAME) || (event != null && event.getEntity() != null && event.getEntity().isCreative())) {
+                return super.customPositionSafe(event, level, pos, direction, true);
+            }
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());
         }
-        return super.isPositionSafe(event, level, pos, direction, false);
+        return super.customPositionSafe(event, level, pos, direction, false);
     }
     @Override
-    public MutableComponent isVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
+    public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (isPlanting && event != null) {
             if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
         if (isPlanting) {
+            if (hasSkill(RAPID_DEPLOYMENT_SKILL_NAME)) {
+                return super.customVehicleSafe(event, target, true);
+            }
             if (target.getType() == PVZEntities.REPEATER.get()) {
                 GatlingPea gatlingPea = ((Mob) target).convertTo(PVZEntities.GATLING_PEA.get(), true);
                 if (gatlingPea != null) {
                     gatlingPea.setSkillVal(this.getSkillVal());
                     if (event != null) {
-                        target.getCapability(PVZOwnedCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                        event.spawningEntity = gatlingPea;
+                        gatlingPea.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
                     }
                     if (this.hasCustomName()) {
                         gatlingPea.setCustomName(this.getCustomName());
@@ -237,15 +255,16 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
             }
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());
         }
-        return super.isVehicleSafe(event, target, false);
+        //when not is planting.
+        return super.customVehicleSafe(event, target, false);
     }
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Fusing", entityData.get(FUSING));
         tag.putInt("Overheating", entityData.get(OVERHEATING));
-
     }
+
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
@@ -271,7 +290,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
     @Override
     public void positionRider(Entity entity) {
-        entity.setPos(this.getPosition(0).add(this.getLookAngle().normalize().scale(-0.5)));
+        entity.setPos(this.getPosition(0).add(this.getViewVector(0).normalize().scale(-0.5)));
     }
 
     @Override
@@ -299,8 +318,8 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
 
     @Override
     public void handlePVZPacket(ServerPlayer player, int val) {
-        if (! hasSkill("skill.pvz.gatling_pea.low_budget_configuration")) {
-            if (PVZOwnedCapability.isTeammate(this, player)) {
+        if (! hasSkill(LOW_BUDGET_SKILL_NAME)) {
+            if (EntityUtil.isTeammate(this, player)) {
                 player.moveTo(getX(), getY(), getZ(), getYRot(), 0.0F);
                 player.startRiding(this);
                 this.setTarget(null);

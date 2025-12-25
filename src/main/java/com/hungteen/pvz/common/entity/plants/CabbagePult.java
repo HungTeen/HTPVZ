@@ -4,7 +4,10 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
-import net.minecraft.world.entity.*;
+import com.hungteen.pvz.common.register.PVZItems;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
@@ -15,14 +18,16 @@ import java.util.Set;
 public class CabbagePult extends ShooterPlant {
 
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
+    public static final String SPEED_SKILL_NAME = "skill.pvz.cabbage_pult.deft_hand";
     public static List<Skill> staticSkillList = List.of(
+            new Skill(SPEED_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 0)
     );
 
     public CabbagePult(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
@@ -50,14 +55,14 @@ public class CabbagePult extends ShooterPlant {
     }
     @Override
     public int getShootCD() {
-        return 40;
+        return this.hasSkill(SPEED_SKILL_NAME) ? 20 : 40;
     }
     @Override
     public float getBulletSpeed() {
         Entity target = this.getTarget();
         if (target != null) {
             double distance = target.distanceTo(this);
-            return (float) (Math.max(0.5 * distance / 12, 0.05));
+            return (float) (Math.max(0.5 * distance / 12, 0.1));
         }
         return 0.5F;
     }
@@ -65,9 +70,8 @@ public class CabbagePult extends ShooterPlant {
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 7D)
+                .add(Attributes.ATTACK_DAMAGE, 5D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

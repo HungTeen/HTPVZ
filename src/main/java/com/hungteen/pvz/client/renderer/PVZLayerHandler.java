@@ -1,11 +1,16 @@
 package com.hungteen.pvz.client.renderer;
 
+import com.hungteen.pvz.client.model.SilverSwordOrnamentModel;
+import com.hungteen.pvz.client.model.SproutModel;
 import com.hungteen.pvz.client.model.attached.*;
 import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
 import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
+import com.hungteen.pvz.client.model.bullet.DandelionSeedBulletModel;
 import com.hungteen.pvz.client.model.bullet.MelonBulletModel;
+import com.hungteen.pvz.client.model.bullet.StarfruitBulletModel;
 import com.hungteen.pvz.client.model.plants.*;
+import com.hungteen.pvz.client.model.zombie.*;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.client.model.geom.LayerDefinitions;
@@ -42,6 +47,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.POTATO_MINE, PotatoMineModel::createBodyLayer);
         L(e, PVZEntities.SNOW_PEA, SnowPeaModel::createBodyLayer);
         L(e, PVZEntities.CHOMPER, ChomperModel::createBodyLayer);
+        L(e, PVZEntities.HYPNO_SHROOM, HypnoShroomModel::createBodyLayer);
         L(e, PVZEntities.TANGLE_KELP, TangleKelpModel::createBodyLayer);
         L(e, PVZEntities.JALAPENO, JalapenoModel::createBodyLayer);
         L(e, PVZEntities.GOLD_BLOOM, GoldBloomModel::createBodyLayer);
@@ -53,15 +59,32 @@ public class PVZLayerHandler {
         L(e, PVZEntities.PUMPKIN, PumpkinModel::createBodyLayer);
         L(e, PVZEntities.FLOWER_POT, FlowerPotModel::createBodyLayer);
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
+        L(e, PVZEntities.GATLING_PEA, GatlingPeaModel::createBodyLayer);
+        L(e, PVZEntities.SPROUT, SproutModel::createBodyLayer);
+        L(e, PVZEntities.DANDELION, DandelionModel::createBodyLayer);
         L(e, "melon_bullet", MelonBulletModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
+        L(e, "starfruit_bullet", StarfruitBulletModel::createBodyLayer);
+        L(e, "dandelion_seed_bullet", DandelionSeedBulletModel::createBodyLayer);
+
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
+        L(e, "silver_sword_ornament", SilverSwordOrnamentModel::createBodyLayer);
         L(e, "dirt", DirtModel::createBodyLayer);
         L(e, "butter_head", ButterHeadModel::createBodyLayer);
         L(e, "butter_bottom", ButterBottomModel::createBodyLayer);
         L(e, "ice", FrozenModel::createBodyLayer);
+        L(e, PVZEntities.POLE_VAULTING_ZOMBIE, PoleVaultingZombieModel::createBodyLayer);
+        L(e, PVZEntities.SNORKEL_ZOMBIE, SnorkelZombieModel::createBodyLayer);
+        L(e, PVZEntities.TACO_IMP, TacoImpModel::createBodyLayer);
+        L(e, PVZEntities.FIRE_IMP, FireImpModel::createBodyLayer);
+        L(e, PVZEntities.LAVA_GHASTLING, LavaGhastlingModel::createBodyLayer);
+        L(e, PVZEntities.JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieModel::createBodyLayer);
+        L(e, PVZEntities.DIGGER_ZOMBIE, DiggerZombieModel::createBodyLayer);
+        L(e, PVZEntities.GARGANTUAR, GargantuarModel::createBodyLayer);
         L(e, PVZItems.CONE_HELMET, () -> ConeHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
         L(e, PVZItems.BUCKET_HELMET, () -> BucketHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
+        L(e, PVZItems.PUMPKIN_HELMET, () -> PumpkinHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
+        L(e, PVZItems.DUCK_LIFEBUOY, () -> DuckLifebuoyModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
 
         //simple rendered entities
         for (EntityType<? extends Entity> entity: PVZEntities.simpleRenderedMap.keySet()){

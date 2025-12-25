@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "0": {
+      "item": "minecraft:bone_meal"
+    },
+    "1": {
+      "item": "pvz:origin_essence"
+    }
+  },
+  "pattern": [
+    " 0 ",
+    "010",
+    " 0 "
+  ],
+  "result": {
+    "item": "pvz:fertilizer",
+    "count": 2
+  }
+}

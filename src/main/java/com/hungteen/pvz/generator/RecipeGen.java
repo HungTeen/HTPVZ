@@ -5,6 +5,7 @@ import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZBlocks.WoodSet;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.generator.tag.ItemTagGen;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -50,6 +51,7 @@ public class RecipeGen extends RecipeProvider {
             buttonBuilder(wood(i, WoodSet.Button), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             doorBuilder(wood(i, WoodSet.Door), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             trapdoorBuilder(wood(i, WoodSet.Trapdoor), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
+            signBuilder(wood(i, WoodSet.Sign), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
         }
         //boats
         PVZItems.boatItemMap.forEach((pair, itemObj) -> {
@@ -103,7 +105,7 @@ public class RecipeGen extends RecipeProvider {
                             .pattern("BCB")
                             .pattern("BBB")
                             .define('B', PVZItems.seedMap.get(data).get())
-                            .define('C', data.getBackCard().get())
+                            .define('C', data.basePacketSupplier.get())
                             .unlockedBy("has_origin", has(packet))
                             .save(c, prefix("seed_packets/fusion/" + name(itemObj)));
                 }

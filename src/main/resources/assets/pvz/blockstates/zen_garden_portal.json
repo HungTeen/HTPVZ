@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "pvz:block/zen_garden_portal",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "pvz:block/zen_garden_portal"
+    },
+    "facing=south": {
+      "model": "pvz:block/zen_garden_portal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "pvz:block/zen_garden_portal",
+      "y": 270
+    }
+  }
+}

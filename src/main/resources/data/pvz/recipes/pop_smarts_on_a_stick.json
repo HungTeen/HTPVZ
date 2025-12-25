@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "$": {
+      "item": "minecraft:fishing_rod"
+    },
+    "&": {
+      "item": "pvz:pop_smarts"
+    }
+  },
+  "pattern": [
+    "$ ",
+    " &"
+  ],
+  "result": {
+    "item": "pvz:pop_smarts_on_a_stick"
+  }
+}

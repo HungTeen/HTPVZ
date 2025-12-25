@@ -59,6 +59,7 @@ public class VelociTurnipModel<T extends VelociRadish> extends HierarchicalModel
 		this.animate(entity.idleAnimationState, VelociTurnipAnimation.idle, ageInTicks);
 		this.animate(entity.moveAnimationState, VelociTurnipAnimation.move, ageInTicks);
 		this.animate(entity.attackAnimationState, VelociTurnipAnimation.attack, ageInTicks);
+		this.animate(entity.disAppearAnimationState, VelociTurnipAnimation.disappear, ageInTicks);
 	}
 
 	@Override

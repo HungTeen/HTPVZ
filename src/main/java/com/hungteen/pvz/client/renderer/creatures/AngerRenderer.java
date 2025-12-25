@@ -1,7 +1,7 @@
 package com.hungteen.pvz.client.renderer.creatures;
 
 import com.hungteen.pvz.client.model.AngerModel;
-import com.hungteen.pvz.common.entity.Anger;
+import com.hungteen.pvz.common.entity.creatures.Anger;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

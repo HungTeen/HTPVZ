@@ -1,13 +1,22 @@
 {
   "variants": {
-    "type=bottom": {
+    "type=bottom,water=false": {
       "model": "pvz:block/garden_flower_pot"
     },
-    "type=double": {
+    "type=double,water=false": {
       "model": "pvz:block/garden_flower_pots"
     },
-    "type=top": {
+    "type=top,water=false": {
       "model": "pvz:block/garden_flower_pot_top"
+    },
+    "type=bottom,water=true": {
+      "model": "pvz:block/garden_flower_pot_water"
+    },
+    "type=double,water=true": {
+      "model": "pvz:block/garden_flower_pots_water"
+    },
+    "type=top,water=true": {
+      "model": "pvz:block/garden_flower_pot_top_water"
     }
   }
 }

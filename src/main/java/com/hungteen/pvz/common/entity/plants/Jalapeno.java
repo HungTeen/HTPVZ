@@ -1,16 +1,14 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
-import com.hungteen.pvz.common.entity.Anger;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.entity.creatures.Anger;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -18,49 +16,55 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 
 import java.util.List;
-import java.util.Set;
 
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
+import static com.hungteen.pvz.common.register.PVZDamageSource.transferKiller;
 
+/**For damaging related logic, see {@link Anger}.*/
 public class Jalapeno extends SimplePlant {
-    public AnimationState idleAnimationState = new AnimationState();
+    public AnimationState explodeAnimationState = new AnimationState();
+    public static final String TRACK_SKILL_NAME = "skill.pvz.jalapeno.tracking_fire";
+    public static final String NO_FRIENDLY_FIRE_SKILL_NAME = "skill.pvz.jalapeno.precise_strike";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.jalapeno.tracking_fire", PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0),
-            new Skill("skill.pvz.jalapeno.precise_strike", PVZItems.IGNIS_ESSENCE, 4, 4, 100, 0)
+            new Skill(TRACK_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 200, 0),
+            new Skill(NO_FRIENDLY_FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 50, 0)
     );
 
     public Jalapeno(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
-        this.idleAnimationState.start(this.tickCount);
         this.entityData.set(root(), false);
+        this.explodeAnimationState.start(this.tickCount);
     }
+    public void setupPresentationAnim() {
+        this.explodeAnimationState.stop();
+    }
+
     @Override
     public boolean fireImmune() {
         return true;
     }
     public void explode() {
-        level.explode(this, teamFilter(DamageSource.explosion(this).bypassArmor()), null, this.getX(), this.getY() + 1, this.getZ(),
+        level.explode(this, transferKiller(teamFilter(DamageSource.explosion(this).bypassArmor()), PVZEntityCapability.getOwner(this)), null, this.getX(), this.getY() + 1, this.getZ(),
                 1F, false, Explosion.BlockInteraction.NONE);
         if (! level.isClientSide) {
             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {
                 Anger anger = new Anger(level);
-                if (this.hasSkill("skill.pvz.jalapeno.precise_strike")) {
-                    anger.preciseStrike = true;
+                if (this.hasSkill(NO_FRIENDLY_FIRE_SKILL_NAME)) {
+                    anger.friendlyFire = false;
                 }
                 anger.setPos(this.position().add(0, 1, 0));
-                anger.getCapability(PVZOwnedCapability.CAP).orElse(null).setOwner(this);
+                anger.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
                 anger.yRot = direction.toYRot();
                 level.addFreshEntity(anger);
-                if (this.hasSkill("skill.pvz.jalapeno.tracking_fire")) {
+                if (this.hasSkill(TRACK_SKILL_NAME)) {
                     anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) / 3);
-                    anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
                     anger.maxLife = 150;
                 } else {
                     anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE));
                     anger.targetSelector.disableControlFlag(Goal.Flag.TARGET);
+                    anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(1F);
                 }
             }
         }
@@ -70,18 +74,26 @@ public class Jalapeno extends SimplePlant {
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return ShooterPlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
                 .add(Attributes.FOLLOW_RANGE, 6D)
-                .add(Attributes.ATTACK_DAMAGE, 25.0D);
+                .add(Attributes.ATTACK_DAMAGE, 15D);
     }
     @Override
-    public void baseTick() {
-        super.baseTick();
-        level.addParticle(ParticleTypes.LAVA, getX(), getY(), getZ(),
-                random.nextFloat() * 0.15 - 0.075, random.nextFloat() * 0.15, random.nextFloat() * 0.15 - 0.075);
+    public void tick() {
+        super.tick();
+        if (level.isClientSide) {
+            level.addParticle(ParticleTypes.LAVA, getX(), getY(), getZ(),
+                    random.nextFloat() * 0.15 - 0.075, random.nextFloat() * 0.15, random.nextFloat() * 0.15 - 0.075);
+        }
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public void die(DamageSource damageSource) {
+        if (! damageSource.isMagic() && ! EntityUtil.isTeammate(this, damageSource.getEntity())) {
+            this.explode();
+        }
+        super.die(damageSource);
+    }
+    @Override
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 

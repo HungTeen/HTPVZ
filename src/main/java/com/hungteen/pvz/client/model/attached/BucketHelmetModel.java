@@ -19,7 +19,7 @@ public class BucketHelmetModel<T extends LivingEntity> extends HumanoidModel<T> 
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
 		final PartDefinition head = partdefinition.getChild("head");
-		PartDefinition total = head.addOrReplaceChild("total", CubeListBuilder.create().texOffs(0, 39).addBox(-4.5F, -2.0F, -4.5F, 9.0F, 8.0F, 9.0F, new CubeDeformation(0.0F))
+		PartDefinition total = head.addOrReplaceChild("bucket_helmet", CubeListBuilder.create().texOffs(0, 39).addBox(-4.5F, -2.0F, -4.5F, 9.0F, 8.0F, 9.0F, new CubeDeformation(0.0F))
 				.texOffs(32, 48).addBox(-4.0F, -10.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -7.0F, 0.0F));
 
 		PartDefinition break_point_r1 = total.addOrReplaceChild("break_point_r1", CubeListBuilder.create().texOffs(29, 34).addBox(-4.0F, -9.5F, -3.562F, 8.0F, 6.0F, 8.0F, new CubeDeformation(0.01F)), PartPose.offsetAndRotation(0.005F, 0.045F, 0.0512F, 0.1309F, 0.0F, 0.0F));

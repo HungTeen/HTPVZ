@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "$": {
+      "item": "minecraft:crossbow"
+    },
+    "&": {
+      "item": "minecraft:vine"
+    },
+    "%": {
+      "item": "pvz:alaya_resin"
+    }
+  },
+  "pattern": [
+    "&%&",
+    " $ ",
+    " & "
+  ],
+  "result": {
+    "item": "pvz:seed_crossbow"
+  }
+}

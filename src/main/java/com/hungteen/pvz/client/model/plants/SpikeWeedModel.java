@@ -7,13 +7,14 @@ import com.hungteen.pvz.common.entity.plants.SpikeWeed;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 
-public class SpikeWeedModel<T extends SpikeWeed> extends EntityModel<T> {
+public class SpikeWeedModel<T extends SpikeWeed> extends HierarchicalModel<T> {
 	private final ModelPart total;
 
 	public SpikeWeedModel(ModelPart root) {
@@ -43,5 +44,10 @@ public class SpikeWeedModel<T extends SpikeWeed> extends EntityModel<T> {
 	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		total.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+	}
+
+	@Override
+	public ModelPart root() {
+		return total;
 	}
 }

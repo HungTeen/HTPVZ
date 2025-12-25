@@ -1,0 +1,6 @@
+{
+	"parent": "pvz:item/pumpkin_helmet_equipped_0",
+	"textures": {
+		"0": "pvz:entity/plants/pumpkin/pumpkin_1"
+	}
+}

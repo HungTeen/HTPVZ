@@ -21,6 +21,6 @@ public class SimpleMobRenderer<T extends Mob> extends MobRenderer<T, EntityModel
                 /*shadowSize*/ (float) PVZEntities.simpleRenderedMap.get(entityType).get(2));
     }
     public ResourceLocation getTextureLocation(Mob mob) {
-        return PVZEntities.simpleTextureLocationMap.get(mob.getType());
+        return PVZEntities.simpleTextureLocationMap.get(mob.getType()).apply(mob);
     }
 }

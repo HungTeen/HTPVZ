@@ -14,19 +14,29 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 
+import java.util.List;
+
 public class PlanternModel<T extends Plantern> extends HierarchicalModel<T> {
 	private final ModelPart total;
+	private final ModelPart stick1;
+	private final ModelPart stick2;
+	private final ModelPart stick3;
+	private final ModelPart stick4;
+	private final ModelPart stick5;
+	private final ModelPart stick6;
 	private final ModelPart eyesOpen;
 	private final ModelPart eyesClosed;
 
 	public PlanternModel(ModelPart root) {
 		this.total = root.getChild("total");
-		eyesOpen = total.getChild("stick1").getChild("stick2").getChild("stick3").
-				getChild("stick4").getChild("stick5").getChild("stick6").
-				getChild("head").getChild("eyes_open");
-		eyesClosed = total.getChild("stick1").getChild("stick2").getChild("stick3").
-				getChild("stick4").getChild("stick5").getChild("stick6").
-				getChild("head").getChild("eyes_closed");
+		stick1 = total.getChild("stick1");
+		stick2 = stick1.getChild("stick2");
+		stick3 = stick2.getChild("stick3");
+		stick4 = stick3.getChild("stick4");
+		stick5 = stick4.getChild("stick5");
+		stick6 = stick5.getChild("stick6");
+		eyesOpen = stick6.getChild("head").getChild("eyes_open");
+		eyesClosed = stick6.getChild("head").getChild("eyes_closed");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -39,15 +49,23 @@ public class PlanternModel<T extends Plantern> extends HierarchicalModel<T> {
 				.texOffs(0, 0).addBox(0.0F, -3.0F, -5.0F, 0.0F, 3.0F, 10.0F, new CubeDeformation(0.0F))
 				.texOffs(89, 12).addBox(-2.0F, -6.0F, -2.0F, 4.0F, 6.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition stick1 = total.addOrReplaceChild("stick1", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition stick1 = total.addOrReplaceChild("stick1", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition stick2 = stick1.addOrReplaceChild("stick2", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition cube_r1 = stick1.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(105, 13).addBox(-2.0F, -6.0F, -2.0F, 4.0F, 9.0F, 4.0F, new CubeDeformation(-0.01F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
-		PartDefinition stick3 = stick2.addOrReplaceChild("stick3", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition stick2 = stick1.addOrReplaceChild("stick2", CubeListBuilder.create().texOffs(105, 13).addBox(-2.0F, -6.0F, -2.0F, 4.0F, 9.0F, 4.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition stick4 = stick3.addOrReplaceChild("stick4", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition stick3 = stick2.addOrReplaceChild("stick3", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition stick5 = stick4.addOrReplaceChild("stick5", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition cube_r2 = stick3.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 3.1416F, 0.0F));
+
+		PartDefinition stick4 = stick3.addOrReplaceChild("stick4", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+		PartDefinition cube_r3 = stick4.addOrReplaceChild("cube_r3", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 1.5708F, 0.0F));
+
+		PartDefinition stick5 = stick4.addOrReplaceChild("stick5", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+		PartDefinition cube_r4 = stick5.addOrReplaceChild("cube_r4", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
 		PartDefinition stick6 = stick5.addOrReplaceChild("stick6", CubeListBuilder.create().texOffs(106, 1).addBox(-1.5F, -9.0F, -1.5F, 3.0F, 9.0F, 3.0F, new CubeDeformation(-0.01F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
@@ -84,6 +102,13 @@ public class PlanternModel<T extends Plantern> extends HierarchicalModel<T> {
 		float f = ageInTicks - (float) plantern.tickCount;
 		eyesOpen.visible = plantern.tickCount % 100 >= 3;
 		eyesClosed.visible = ! eyesOpen.visible;
+		double height = plantern.getBbHeight() - 2;
+		if (height > 0) {
+			for (ModelPart i : List.of(stick1, stick2, stick3, stick4, stick5, stick6)) {
+					i.y -= height * 16 / 6;
+			}
+			stick3.y = Math.max(stick3.y, - 6);
+		}
 		this.animate(plantern.idleAnimationState, PlanternAnimation.idle, ageInTicks);
 	}
 

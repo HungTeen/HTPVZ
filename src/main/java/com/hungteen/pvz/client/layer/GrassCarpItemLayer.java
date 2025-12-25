@@ -1,9 +1,9 @@
 package com.hungteen.pvz.client.layer;
 
 import com.hungteen.pvz.client.model.GrassCarpModel;
-import com.hungteen.pvz.common.entity.GrassCarp;
+import com.hungteen.pvz.common.entity.creatures.GrassCarp;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -22,7 +22,7 @@ public class GrassCarpItemLayer<T extends GrassCarp> extends RenderLayer<T, Gras
         poseStack.translate(0, 0.75, 0);
 
         ItemStack itemstack = grassCarp.getMainHandItem();
-        Minecraft.getInstance().getItemRenderer().renderStatic(
+        ClientProxy.MC.getItemRenderer().renderStatic(
                 grassCarp, itemstack, ItemTransforms.TransformType.GROUND, false,
                 poseStack, bufferSource, grassCarp.level, p_116899_, OverlayTexture.NO_OVERLAY,
                 grassCarp.getId() + ItemTransforms.TransformType.GROUND.ordinal());

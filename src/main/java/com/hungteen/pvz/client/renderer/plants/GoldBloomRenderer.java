@@ -1,11 +1,9 @@
 package com.hungteen.pvz.client.renderer.plants;
 
-import com.hungteen.pvz.client.layer.fullskin.LightLayer;
+import com.hungteen.pvz.client.layer.LightLayer;
 import com.hungteen.pvz.client.model.plants.GoldBloomModel;
-import com.hungteen.pvz.client.model.plants.JalapenoModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.GoldBloom;
-import com.hungteen.pvz.common.entity.plants.Jalapeno;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;

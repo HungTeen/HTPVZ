@@ -2,6 +2,8 @@ package com.hungteen.pvz.common.entity.plants.base;
 
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
+import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -15,6 +17,8 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.dimension.DimensionType;
 
 public abstract class ProducerPlant extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
@@ -57,6 +61,10 @@ public abstract class ProducerPlant extends SimplePlant {
         super.onSyncedDataUpdated(p_219422_);
     }
 
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
+    }
+
     //sun produce related.
     /**
      * sun produce plant gen sun
@@ -85,8 +93,20 @@ public abstract class ProducerPlant extends SimplePlant {
      * is producer going to gen, use for render sunflower sun layer.
      */
     public boolean isPlantInGen() {
-        return this.getAttackTime() <= 10 ;
+        return this.getAttackTime() <= getGenerateAnimLength();
     }
+
+    public int getGenerateAnimLength() {
+        return 10;
+    }
+
+    public SunState getSunState() {
+        int light = level.getBrightness(LightLayer.SKY, this.blockPosition()) - level.getSkyDarken();
+        DimensionType dimensionType = this.level.dimensionType();
+        return (light > 12 || this.hasEffect(PVZMobEffects.BRIGHTNESS.get()) || dimensionType.ambientLight() >= 0.08)
+                ? SunState.FULL : (light > 9 ? SunState.HALF : SunState.NONE);
+    }
+
 
     static class ProducerGenGoal extends Goal {
 
@@ -105,7 +125,6 @@ public abstract class ProducerPlant extends SimplePlant {
         public boolean canContinueToUse() {
             return true;
         }
-
         @Override
         public void stop() {
         }
@@ -115,14 +134,18 @@ public abstract class ProducerPlant extends SimplePlant {
             if (!this.producer.isEffectiveAi()) {
                 return;
             }
+            this.producer.setAttackTime(Math.min(this.producer.getGenCD(), this.producer.getAttackTime()));
             final int time = this.producer.getAttackTime();
             if (time <= 1) {
                 this.producer.genSomething();
                 this.producer.setAttackTime(this.producer.getGenCD());
-            } else {
+            } else if (! producer.level.getBiome(producer.blockPosition()).is(PVZBiomeTags.UNABLE_SUN_PRODUCTION)){
                 this.producer.setAttackTime(Math.max(0, time - 1));
             }
             producer.entityData.set(POSE, this.producer.getGenCD() - time < 10 || time < 10);
         }
+    }
+    public enum SunState {
+        FULL, HALF, NONE
     }
 }

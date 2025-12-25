@@ -24,7 +24,7 @@ public class EssenceFurnaceMenu extends RecipeBookMenu<Container>{
     private final ContainerData containerData;
 
     public EssenceFurnaceMenu(Inventory inventory, int id, BlockPos pos) {
-        this(inventory, id, new SimpleContainerData(2), ContainerLevelAccess.create(ClientProxy.MC.level, pos));
+        this(inventory, id, new SimpleContainerData(2), ContainerLevelAccess.create(ClientProxy.getLevel(), pos));
     }
 
     public EssenceFurnaceMenu(Inventory inventory, int id, ContainerData containerData, ContainerLevelAccess access) {

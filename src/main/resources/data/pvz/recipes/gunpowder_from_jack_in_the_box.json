@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "pvz:jack_in_the_box"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "item": "minecraft:gunpowder"
+  }
+}

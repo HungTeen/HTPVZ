@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_origin": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:origin_essence"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_origin"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "pvz:essence_furnace",
+      "pvz:flower_seed_packet",
+      "pvz:nether_wart_seed_packet",
+      "pvz:chorus_fruit_seed_packet",
+      "pvz:watering_pot",
+      "pvz:nut_sapling",
+      "pvz:oak_sapling",
+      "pvz:origin_block"
+    ]
+  }
+}

@@ -26,7 +26,7 @@ public class PeaBulletRenderer extends CommonBulletRenderer<PeaBullet>{
 
     @Override
     protected int getBlockLightLevel(PeaBullet bullet, BlockPos pos) {
-        return bullet.getPeaType() == PeaBullet.PeaType.Fire ? 15 : super.getBlockLightLevel(bullet, pos);
+        return bullet.getPeaType() == PeaBullet.PeaType.Fire || bullet.getPeaType() == PeaBullet.PeaType.SoulFire ? 15 : super.getBlockLightLevel(bullet, pos);
     }
     @Override
     public ResourceLocation getTextureLocation(PeaBullet bullet) {

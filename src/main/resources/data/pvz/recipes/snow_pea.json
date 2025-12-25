@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "pvz:gelum_essence"
+    },
+    {
+      "item": "pvz:pea"
+    },
+    {
+      "item": "pvz:pea"
+    },
+    {
+      "item": "pvz:pea"
+    },
+    {
+      "item": "pvz:pea"
+    }
+  ],
+  "result": {
+    "item": "pvz:snow_pea",
+    "count": 4
+  }
+}

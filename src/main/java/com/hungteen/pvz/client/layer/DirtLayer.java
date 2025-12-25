@@ -3,6 +3,7 @@ package com.hungteen.pvz.client.layer;
 import com.hungteen.pvz.client.model.attached.DirtModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -23,13 +24,21 @@ public class DirtLayer<T extends LivingEntity> extends RenderLayer<T, DirtModel<
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int p_117351_, T entity, float entityYaw, float partialTicks, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
-        final ResourceLocation blockRes = ClientProxy.MC.getBlockRenderer().getBlockModelShaper().getTexture(entity.level.getBlockState(entity.blockPosition().below()), entity.level, entity.blockPosition().below()).getName();
+        if (EntityUtil.isLeavingGround(entity) && ! entity.isPassenger()) {
+            return;
+        }
+        if (entity.isInvisibleTo(ClientProxy.getPlayer())) {
+            return;
+        }
+        ResourceLocation blockRes = ClientProxy.MC.getBlockRenderer().getBlockModelShaper().getTexture(entity.level.getBlockState(entity.getOnPos()), entity.level, entity.getOnPos()).getName();
+        if (blockRes.equals(new ResourceLocation("missingno"))) {
+            blockRes = new ResourceLocation("block/dirt");
+        }
         final ResourceLocation textureRes = new ResourceLocation(blockRes.getNamespace(), "textures/" + blockRes.getPath() + ".png");
-        VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(textureRes));
+        VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.entityTranslucentCull(textureRes));
         this.model.setupAnim(entity, 0, 0, entity.tickCount + partialTicks, 0, 0);
-        this.model.renderToBuffer(poseStack, vertexconsumer, p_117351_, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F, 1.0F);
-
+        this.model.renderToBuffer(poseStack, vertexconsumer, p_117351_, OverlayTexture.NO_OVERLAY, 1F, 1F, 1F,
+                entity.isInvisible() ? (entity.isInvisibleTo(ClientProxy.getPlayer()) ? 0 : 0.3f) : 1);
     }
-
 
 }

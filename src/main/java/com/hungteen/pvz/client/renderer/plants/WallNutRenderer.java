@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
 import static com.hungteen.pvz.common.entity.plants.WallNut.EXPLODE_COUNT;
 
@@ -25,7 +26,7 @@ public class WallNutRenderer<T extends WallNut> extends MobRenderer<T, EntityMod
 
     public WallNutRenderer(EntityRendererProvider.Context context) {
         super(context, new WallNutModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("wall_nut:main"))), 0.6F);
-        this.addLayer(new WallNutColorLayer(this, context.getModelSet()));
+        this.addLayer(new WallNutColorLayer(this));
         this.addLayer(new WallNutArmorLayer(this, context.getModelSet()));
     }
 
@@ -47,7 +48,7 @@ public class WallNutRenderer<T extends WallNut> extends MobRenderer<T, EntityMod
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T wallNut) {
+    public ResourceLocation getTextureLocation(@NotNull T wallNut) {
         float healthPercent = wallNut.getHealth()/wallNut.getMaxHealth();
         return healthPercent > 0.67 ? STATE0 : (healthPercent > 0.33 ? STATE1 : STATE2);
     }

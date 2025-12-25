@@ -1,6 +1,7 @@
 package com.hungteen.pvz.client.layer;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.client.ClientUtil;
 import com.hungteen.pvz.client.model.attached.ButterBottomModel;
 import com.hungteen.pvz.client.model.attached.ButterHeadModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
@@ -9,10 +10,7 @@ import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.HeadedModel;
-import net.minecraft.client.model.HierarchicalModel;
-import net.minecraft.client.model.QuadrupedModel;
+import net.minecraft.client.model.*;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -42,25 +40,37 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
         poseStack.pushPose();
         if (entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
             if (PVZConfig.renderButterOnHead()) {
+                if (model.young && model instanceof AgeableListModel<T> model1) {
+                    poseStack.pushPose();
+                    ClientUtil.translateAgeable(poseStack, model1);
+                }
                 main = butterHeadModel.root();
                 vertexConsumer = bufferSource.getBuffer(model.renderType(Util.prefix("textures/models/butter/butter_head.png")));
                 //omg why cant they all be the Hierarchical ones?
-                if (model instanceof HierarchicalModel<?> && hasHead(((HierarchicalModel<?>) model).root())) {
-                    renderHead(((HierarchicalModel<?>) model).root(), main, poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
+                if (model instanceof HierarchicalModel<?> model1) {
+                    if (ClientUtil.hasHead((model1.root()))) {
+                        ClientUtil.renderOnHead(model1.root(), main, poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
+                    } else {
+                        poseStack.translate(0, 1 - ClientUtil.getBoneHeight(model1.root()) / 16, 0);//TODO why should +1 ?
+                        main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
+                    }
                 } else if (model instanceof HeadedModel model1) {
                     ModelPart head = model1.getHead();
                     head.translateAndRotate(poseStack);
-                    poseStack.translate(0, -getBoneHeight(head) / 16, 0);
+                    poseStack.translate(0, -ClientUtil.getBoneHeight(head) / 16, 0);
                     main.compile(poseStack.last(), vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                     main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
-                } else if (model instanceof QuadrupedModel model1) {
+                } else if (model instanceof QuadrupedModel<?> model1) {
                     model1.head.translateAndRotate(poseStack);
-                    poseStack.translate(0, -getBoneHeight(model1.head) / 16, 0);
+                    poseStack.translate(0, -ClientUtil.getBoneHeight(model1.head) / 16, 0);
                     main.compile(poseStack.last(), vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                     main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
                 } else {
                     poseStack.translate(0, 1.5 - entity.getBbHeight(), 0);
                     main.render(poseStack, vertexConsumer, packedLight, packedOverlay, 1, 1, 1, 1);
+                }
+                if (model.young && model instanceof AgeableListModel<T> model1) {
+                    poseStack.popPose();
                 }
             } else if (entity.isAlive()){
                 main = butterBottomModel.root();
@@ -71,46 +81,4 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
         poseStack.popPose();
     }
 
-
-    public boolean hasHead(ModelPart root) {
-        for (String name: root.children.keySet()) {
-            if (name.contains("head")) {
-                return true;
-            }
-        }
-        for (ModelPart part: root.children.values()) {
-            if (hasHead(part)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void renderHead(ModelPart root, ModelPart main, PoseStack stack,
-                           VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        stack.pushPose();
-        root.translateAndRotate(stack);
-        for (String name: root.children.keySet()) {
-            if (name.contains("head")) {
-                stack.pushPose();
-                root.getChild(name).translateAndRotate(stack);
-                stack.translate(0, - getBoneHeight(root.getChild(name)) / 16 - 0.125, 0);
-                main.compile(stack.last(), vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-                main.render(stack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-                stack.popPose();
-            }
-        }
-        for (ModelPart part: root.children.values()) {
-            renderHead(part, main, stack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-        }
-        stack.popPose();
-    }
-
-    private float getBoneHeight(ModelPart part) {
-        float result = 0;
-        for (ModelPart.Cube cube : part.cubes) {
-            result = Math.max(Math.max(cube.maxY, cube.maxY - cube.minY), result);
-        }
-        return result;
-    }
 }

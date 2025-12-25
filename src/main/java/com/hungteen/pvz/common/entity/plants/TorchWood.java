@@ -1,15 +1,17 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.block.PlanternLightBlock;
-import com.hungteen.pvz.common.capability.owned.PVZOwnedCapability;
+import com.hungteen.pvz.common.block.EntityLightBlock;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -27,9 +29,11 @@ import java.util.function.Predicate;
 
 public class TorchWood extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
+    public static final String SOUL_SKILL_NAME = "skill.pvz.torch_wood.soul_torch";
+    public static final String ARMOR_SKILL_NAME = "skill.pvz.torch_wood.tough_bark";
     public static List<Skill> staticSkillList = List.of(
-            new Skill("skill.pvz.torch_wood.soul_torch", PVZItems.IGNIS_ESSENCE, 8, 4, 50, 0),
-            new Skill("skill.pvz.torch_wood.tough_bark", PVZItems.TERRA_ESSENCE, 8, 4, 50, 0)
+            new Skill(SOUL_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 4, 50, 0),
+            new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 4, 50, 0)
     );
 
     public TorchWood(EntityType<? extends Mob> entityType, Level level) {
@@ -37,21 +41,21 @@ public class TorchWood extends SimplePlant {
     }
 
     public boolean isSoulFire() {
-        return hasSkill("skill.pvz.torch_wood.soul_torch") && level.getBlockState(getOnPos()).is(BlockTags.SOUL_SPEED_BLOCKS);
+        return hasSkill(SOUL_SKILL_NAME) && level.getBlockState(getOnPos()).is(BlockTags.SOUL_FIRE_BASE_BLOCKS);
     }
     public boolean canBurn() {
-        return true;
+        return ! this.isInWater() && ! this.isInPowderSnow;
     }
 
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 8D)
+                .add(Attributes.MAX_HEALTH, 30D)
                 .add(Attributes.ARMOR, 0D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
-    public List<Skill> getStaticSkillList(){
+    public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
 
@@ -65,30 +69,34 @@ public class TorchWood extends SimplePlant {
         if (level.isClientSide && ! this.idleAnimationState.isStarted()) {
             this.idleAnimationState.start(this.tickCount);
         }
-        if (level.isClientSide() && random.nextBoolean()) {
+        if (level.isClientSide() && random.nextBoolean() && this.canBurn()) {
             level.addParticle(ParticleTypes.LARGE_SMOKE,
                     getX() - 0.5 + this.random.nextFloat(),
                     getY() + 0.8 + this.random.nextFloat() / 5,
                     getZ() - 0.5 + this.random.nextFloat(),
                     0, 0, 0);
         }
-        if (hasSkill(this, "skill.pvz.torch_wood.tough_bark")) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(15D);
-            this.getAttribute(Attributes.ARMOR).setBaseValue(20D);
+        if (hasSkill(this, ARMOR_SKILL_NAME)) {
+            this.getAttribute(Attributes.ARMOR).setBaseValue(30D);
+            this.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(20D);
         }
+        BlockPos pos = getOnPos().above().above();
         if (level.isClientSide() || ! this.canBurn()) {
             return ;
-        } else if (level.getBlockState(getOnPos().above().above()).isAir()) {
-            level.setBlock(getOnPos().above().above(),
-                    PVZBlocks.PLANTERN_LIGHT.get().defaultBlockState(), 2);
-        } else if (level.getBlockState(getOnPos().above().above()).is(Blocks.WATER)) {
-            level.setBlock(getOnPos().above().above(),
-                    PVZBlocks.PLANTERN_LIGHT.get().defaultBlockState().setValue(PlanternLightBlock.WATERLOGGED, true), 2);
+        } else if (level.getBlockState(pos).isAir()) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 12 : 15), 2);
+        } else if (level.getBlockState(pos).is(Blocks.WATER)) {
+            level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                    .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, 15), 2);
         }
-        if (level.getBlockState(getOnPos().above().above()).is(PVZBlocks.PLANTERN_LIGHT.get())) {
-            level.setBlock(getOnPos().above().above(),
-                    level.getBlockState(getOnPos().above().above()).setValue(PlanternLightBlock.HAS_SOURCE, true), 2);
+        if (level.getBlockState(pos).is(PVZBlocks.ENTITY_LIGHT.get())) {
+            level.setBlock(pos, level.getBlockState(pos)
+                    .setValue(EntityLightBlock.HAS_SOURCE, true), 2);
         }
+    }
+    public void setupPresentationAnim() {
+        this.idleAnimationState.start(this.tickCount);
     }
     @Override
     public boolean canBeCollidedWith() {
@@ -98,7 +106,10 @@ public class TorchWood extends SimplePlant {
     public boolean fireImmune() {
         return true;
     }
-
+    @Override
+    public boolean canFreeze() {
+        return false;
+    }
     @Override
     protected void registerGoals() {
         super.registerGoals();
@@ -123,18 +134,25 @@ public class TorchWood extends SimplePlant {
         }
         @Override
         public void tick() {
-            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(2, 0.5, 2).move(0, 1, 0),
-                    (entity) -> (entity instanceof PeaBullet && PVZOwnedCapability.isTeammate(entity, this.entity)));
+            List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(1.5, 1.5, 1.5).move(0, 1, 0),
+                    (entity) -> (EntityUtil.isTeammate(entity, this.entity)));
             entities.forEach((entity) -> {
                 if (entity instanceof PeaBullet pea && pea.changeCoolDown <= 0) {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {
                         return;
                     } else if (pea.getPeaType() == PeaBullet.PeaType.Common) {
-                        pea.setAttackDamage(pea.getAttackDamage() * (this.entity.isSoulFire() ? 2 : 1));
+                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 8F : 4F));
                     }
-                    pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :
-                            this.entity.isSoulFire() ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);
-                    pea.changeCoolDown = 5;
+                    if (! pea.fireImmune()) {
+                        pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :
+                                this.entity.isSoulFire() ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);
+                        pea.changeCoolDown = 5;
+                    }
+                } else if (entity instanceof LivingEntity living && living.getTicksFrozen() > living.getTicksRequiredToFreeze()) {
+                    living.setTicksFrozen(living.getTicksRequiredToFreeze());
+                    if (living.hasEffect(PVZMobEffects.FREEZE.get())) {
+                        living.removeEffect(PVZMobEffects.FREEZE.get());
+                    }
                 }
             });
         }

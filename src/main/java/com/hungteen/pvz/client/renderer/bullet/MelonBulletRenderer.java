@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 public class MelonBulletRenderer <T extends MelonBullet> extends EntityRenderer<T> {
 
     private final MelonBulletModel<MelonBullet> model;
-    private final ResourceLocation TEXTURE = Util.prefix("textures/entity/bullet/melon_bullet.png");
+    private final ResourceLocation TEXTURE = Util.prefix("textures/entity/bullet/melon.png");
 
     public MelonBulletRenderer(EntityRendererProvider.Context context) {
         super(context);

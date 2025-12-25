@@ -96,7 +96,8 @@ public class GoldBloomModel<T extends GoldBloom> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T goldBloom, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(goldBloom.idleAnimationState, GoldBloomAnimation.explode, ageInTicks);
+		this.animate(goldBloom.explodeAnimationState, GoldBloomAnimation.explode, ageInTicks);
+		this.animate(goldBloom.idleAnimationState, GoldBloomAnimation.idle, ageInTicks);
 	}
 
 	@Override
