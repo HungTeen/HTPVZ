@@ -251,9 +251,11 @@ public class PVZMod
     public static void registerCommands(RegisterCommandsEvent ev) {
         CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
         CoolDownCommand.register(dispatcher, ev.getBuildContext());
+        InvasionCommand.register(dispatcher);
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);
         PVZFogCommand.register(dispatcher);
         TeamSetEvilCommand.register(dispatcher);
+        ZombieEventDataCommand.register(dispatcher);
     }
 }

@@ -159,7 +159,7 @@ public interface InvasionCondition {
             }
             List<Entity> entities = target.level.getEntities(target, target.getBoundingBox().inflate(20));
             AtomicInteger totalCost = new AtomicInteger();
-            entities.stream().forEach(entity -> entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap ->
+            entities.forEach(entity -> entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap ->
                     totalCost.addAndGet(cap.resource.equals(resource) ? cap.cost : 0)));
             return totalCost.get() < cost;
         }

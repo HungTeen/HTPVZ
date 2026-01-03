@@ -35,6 +35,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
@@ -300,6 +301,7 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<SeedArrow>> SEED_ARROW = collision(0.2F, 0.2F).tag(EntityTypeTags.ARROWS).entity("seed_arrow", SeedArrow::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<ArrowWithATarget>> ARROW_WITH_A_TARGET = collision(0.2F, 0.2F).tag(EntityTypeTags.ARROWS).entity("arrow_with_a_target", ArrowWithATarget::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<Hook>> HOOK = collision(0.2F, 0.2F).entity("hook", Hook::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<ThrownFogInBottle>> FOG_IN_BOTTLE = collision(0.25F, 0.25F).entity("fog_in_bottle", ThrownFogInBottle::new, MobCategory.MISC);
 
     //client
     /** For simply rendered entities (accepts only Mob!), auto render at {@link PVZEntities#simpleRenderHandler()}.
@@ -347,6 +349,7 @@ public class PVZEntities {
         r(e, FLOWER_POT, FlowerPotRenderer::new);
         r(e, GATLING_PEA, GatlingPeaRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
+        r(e, FOG_IN_BOTTLE, ctx -> new ThrownItemRenderer(ctx, 1, false));
         r(e, STARFRUIT_BULLET, StarfruitBulletRenderer::new);
         r(e, CABBAGE, CabbageBulletRenderer::new);
         r(e, CORN, CornBulletRenderer::new);

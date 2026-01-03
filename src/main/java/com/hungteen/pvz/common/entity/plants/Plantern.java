@@ -122,20 +122,24 @@ public class Plantern extends SimplePlant {
 
         @Override
         public boolean canUse() {
-            if (waitTick ++ > 20) {
+            if (waitTick ++ > 10) {
                 waitTick = 0;
-                List<LivingEntity> list = entity.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
-                        new AABB(entity.getX() - 8, entity.getY() - 3, entity.getZ() - 8,
-                                entity.getX() + 8, entity.getY() + 3, entity.getZ() + 8),
-                        (player) -> EntityUtil.isTeammate(player, entity));
-                list.forEach((player -> player.addEffect(new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 100, 0, false, false), this.entity)));
-                List<LivingEntity> list2 = entity.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
-                        new AABB(entity.getX() - 8, entity.getY() - 3, entity.getZ() - 8,
-                                entity.getX() + 8, entity.getY() + 3, entity.getZ() + 8),
-                        (entity) -> ! EntityUtil.isTeammate(entity, this.entity) && entity.hasEffect(MobEffects.INVISIBILITY));
-                list2.forEach((entity -> entity.removeEffect(MobEffects.INVISIBILITY)));
+                return true;
             }
             return false;
+        }
+        @Override
+        public void tick() {
+            List<LivingEntity> list = entity.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
+                    new AABB(entity.getX() - 8, entity.getY() - 3, entity.getZ() - 8,
+                            entity.getX() + 8, entity.getY() + 3, entity.getZ() + 8),
+                    (player) -> EntityUtil.isTeammate(player, entity));
+            list.forEach((player -> player.addEffect(new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 30, 0, false, false), this.entity)));
+            List<LivingEntity> list2 = entity.level.getEntities(EntityTypeTest.forClass(LivingEntity.class),
+                    new AABB(entity.getX() - 8, entity.getY() - 3, entity.getZ() - 8,
+                            entity.getX() + 8, entity.getY() + 3, entity.getZ() + 8),
+                    (entity) -> ! EntityUtil.isTeammate(entity, this.entity) && entity.hasEffect(MobEffects.INVISIBILITY));
+            list2.forEach((entity -> entity.removeEffect(MobEffects.INVISIBILITY)));
         }
     }
     public static class PlanternSearchEnemyGoal extends Goal {

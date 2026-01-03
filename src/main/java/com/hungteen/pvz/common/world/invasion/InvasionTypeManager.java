@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.world.DataSkillManager;
+import com.hungteen.pvz.util.Util;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -15,7 +16,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class InvasionTypeManager extends SimpleJsonResourceReloadListener {
@@ -27,6 +30,7 @@ public class InvasionTypeManager extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> jsonMap, ResourceManager manager, ProfilerFiller filler) {
         Map<ResourceLocation, InvasionType> map = new HashMap<>();
+        map.put(Util.prefix("empty"), new InvasionType(Optional.empty(), List.of(), List.of(), Optional.empty(), List.of(), false, 1, 1, 1));
         jsonMap.forEach((location, json) -> InvasionType.CODEC.parse(JsonOps.INSTANCE, json)
                 .resultOrPartial(errorMsg -> PVZMod.LOGGER.error("Could not decode InvasionType with json id {} - error: {}", location, errorMsg))
                 .ifPresent(invasionType -> map.put(location, invasionType)));

@@ -107,7 +107,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         super(level, uuid, tag);
         this.deserializeNBT(tag);
         if (level instanceof ServerLevel serverLevel) {
-            invasionEvent = new ServerBossEvent(Component.translatable("event.pvz.invasion",
+            invasionEvent = new ServerBossEvent(Component.translatable("zombie_event.pvz.invasion",
                     uuid.toString() /*to let client identify which invasion it is, provide one extra argument than needed which is the uuid of the event.*/),
                     BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
             this.pathSeeker = new PathSeeker(serverLevel);
@@ -134,7 +134,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         this.totalTime = 0;
         this.invasionLevel = 5;
         if (level instanceof ServerLevel serverLevel) {
-            invasionEvent = new ServerBossEvent(Component.translatable("event.pvz.invasion",
+            invasionEvent = new ServerBossEvent(Component.translatable("zombie_event.pvz.invasion",
                     uuid.toString()),
                     BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
             this.pathSeeker = new PathSeeker(serverLevel);
@@ -208,17 +208,17 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             }
             if (! this.isEnded()) {
                 if (target != null && target.isDeadOrDying()) {
-                    this.end(Vec3.atCenterOf(this.position), "event.pvz.invasion.end.fail", false);
+                    this.end(Vec3.atCenterOf(this.position), "zombie_event.pvz.invasion.end.fail", false);
                     return;
                 }
                 if (this.level.getDifficulty() == Difficulty.PEACEFUL) {
-                    this.end(Vec3.atCenterOf(this.position), "event.pvz.invasion.end.peace", false);
+                    this.end(Vec3.atCenterOf(this.position), "zombie_event.pvz.invasion.end.peace", false);
                     return;
                 }
                 if (target != null &&
                         target.blockPosition().distSqr(this.position) > this.range * this.range * 10 &&
                         getPlayerFleeWill() - getPlayerActivation() > 1000) {
-                    this.end(Vec3.atCenterOf(this.position), "event.pvz.invasion.end.escape", false);
+                    this.end(Vec3.atCenterOf(this.position), "zombie_event.pvz.invasion.end.escape", false);
                     return;
                 }
             }
@@ -346,7 +346,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         super.removeMember(member);
         this.lastRemoveTime = totalTime;
         if (this.members.isEmpty() && this.currentWave >= this.waves.size() - 1 && this.currentWaveThreat > this.getCurrentWave().threat) {
-            end(member.position().add(0, member.getEyeHeight(), 0), "event.pvz.invasion.end.win", true);
+            end(member.position().add(0, member.getEyeHeight(), 0), "zombie_event.pvz.invasion.end.win", true);
         }
     }
 
@@ -444,7 +444,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 player.displayClientMessage(Component.translatable("hint.pvz.invasion.big_wave").withStyle(Style.EMPTY.withColor(0xFF2222)), true);
             }
         } else if (this.members.isEmpty()) {
-            end(Vec3.atCenterOf(this.position).add(0, 1, 0), "event.pvz.invasion.end.win", true);
+            end(Vec3.atCenterOf(this.position).add(0, 1, 0), "zombie_event.pvz.invasion.end.win", true);
             PVZMod.LOGGER.warn("Invasion " + this.uuid + " has done all waves but is still trying to continue.");
             this.remove();
         } else {
@@ -724,13 +724,27 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 this.waves.add(new Wave(waves.getCompound(i)));
             }
         }
-        this.currentWave = tag.getInt("current_wave");
-        this.currentWaveThreat = tag.getInt("current_wave_threat");
-        this.currentWaveTime = tag.getInt("current_wave_time");
-        this.totalTime = tag.getInt("total_time");
-        this.endCountDown = tag.getInt("end_time");
-        this.expectedTotalTime = tag.getInt("expected_total_time");
-        this.invasionLevel = tag.getInt("invasion_level");
+        if (tag.contains("current_wave")) {
+            this.currentWave = tag.getInt("current_wave");
+        }
+        if (tag.contains("current_wave_threat")) {
+            this.currentWaveThreat = tag.getInt("current_wave_threat");
+        }
+        if (tag.contains("current_wave_time")) {
+            this.currentWaveTime = tag.getInt("current_wave_time");
+        }
+        if (tag.contains("total_time")) {
+            this.totalTime = tag.getInt("total_time");
+        }
+        if (tag.contains("end_time")) {
+            this.endCountDown = tag.getInt("end_time");
+        }
+        if (tag.contains("expected_total_time")) {
+            this.expectedTotalTime = tag.getInt("expected_total_time");
+        }
+        if (tag.contains("invasion_level")) {
+            this.invasionLevel = tag.getInt("invasion_level");
+        }
     }
 
     public static class Wave implements INBTSerializable<CompoundTag> {
@@ -764,11 +778,21 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
 
         @Override
         public void deserializeNBT(CompoundTag tag) {
-            isBigWave = tag.getBoolean("is_big_wave");
-            threat = tag.getInt("threat");
-            minimumWaitTime = tag.getInt("minimum_wait_time");
-            maximumWaitTime = tag.getInt("maximum_wait_time");
-            isGivenUp = tag.getBoolean("is_given_up");
+            if (tag.contains("is_big_wave")) {
+                isBigWave = tag.getBoolean("is_big_wave");
+            }
+            if (tag.contains("threat")) {
+                threat = tag.getInt("threat");
+            }
+            if (tag.contains("minimum_wait_time")) {
+                minimumWaitTime = tag.getInt("minimum_wait_time");
+            }
+            if (tag.contains("maximum_wait_time")) {
+                maximumWaitTime = tag.getInt("maximum_wait_time");
+            }
+            if (tag.contains("is_given_up")) {
+                isGivenUp = tag.getBoolean("is_given_up");
+            }
         }
     }
 

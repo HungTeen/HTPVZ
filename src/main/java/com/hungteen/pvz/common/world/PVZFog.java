@@ -6,6 +6,7 @@ import com.hungteen.pvz.common.network.PVZFogPacket;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.register.PVZParticles;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -76,7 +77,7 @@ public class PVZFog {
     public static double getFogStrengthAt(Level level, Vec3 position) {
         double strength = 0;
         for (PVZFog fog : _pvzFogs.values()) {
-            strength = fog.effect * Math.max(fog.getStrengthAt(level, position), strength);
+            strength = Math.max(fog.effect * fog.getStrengthAt(level, position), strength);
         }
         return strength;
     }
@@ -89,7 +90,7 @@ public class PVZFog {
 
     public static void clientFogsTick(double tickTime) {
         if (! Minecraft.getInstance().isPaused()) {
-            for (PVZFog fog : _pvzFogs.values()) {
+            for (PVZFog fog : Set.copyOf(_pvzFogs.values())) {
                 fog.lifeLeft -= tickTime / 2;
                 Player player = ClientProxy.getPlayer();
                 if (player != null) {
@@ -158,7 +159,6 @@ public class PVZFog {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void handleFogs(ViewportEvent.RenderFog ev) {
-        ev.setCanceled(true);
         if (ClientProxy.getPlayer() != null) {
             double strength = getFogStrengthAt(ClientProxy.getPlayer().level, ClientProxy.getPlayer().position());
             if (ClientProxy.getPlayer().hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
@@ -169,12 +169,13 @@ public class PVZFog {
             } else {
                 bufferStrength = (float) (bufferStrength * 0.98 + strength * 0.02);
             }
-            if (bufferStrength < 1e-10) bufferStrength = 0;
+            if (bufferStrength < 1e-8) bufferStrength = 0;
             if (bufferStrength > 0) {
-                ev.setNearPlaneDistance(0);
-                ev.setFarPlaneDistance(
-                        (float) (0.01 + 50 / (bufferStrength + 50 / ev.getFarPlaneDistance()))
-                );
+                ev.setCanceled(true);
+                float far = ev.getFarPlaneDistance();
+                float near = ev.getNearPlaneDistance();
+                ev.setFarPlaneDistance(Math.min(ev.getFarPlaneDistance(), (float) (0.01 + 50 / (bufferStrength + 49 / ev.getFarPlaneDistance()))));
+                if (ev.getMode() == FogRenderer.FogMode.FOG_TERRAIN) ev.setNearPlaneDistance(ev.getFarPlaneDistance() * near / far - ev.getFarPlaneDistance() * (far - ev.getFarPlaneDistance()) / far);
             }
         }
     }

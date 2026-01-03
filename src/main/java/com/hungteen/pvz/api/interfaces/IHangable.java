@@ -16,10 +16,8 @@ public interface IHangable {
 
     boolean isHanging();
     default void setHangingPosition(@Nullable BlockPos pos) {
-        return;
     }
     default void setHangingEntity(@Nullable Entity entity) {
-        return;
     }
     default @Nullable BlockPos getHangingPosition() {
         return null;
