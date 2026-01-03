@@ -81,7 +81,7 @@ public class FallenStar extends ItemEntity {
         //particle
         if (level.isClientSide && random.nextBoolean()) {
             long light = level.getDayTime();
-            if ((light - 1000) % 24000 > 12000) {
+            if ((light - 1000) % 24000 > 10000) {
                 if (random.nextBoolean()) {
                     level.addParticle(ParticleTypes.FIREWORK, this.position().x + random.nextFloat() - 0.5, this.position().y + random.nextFloat(), this.position().z + random.nextFloat() - 0.5, 0, 0, 0);
                 }

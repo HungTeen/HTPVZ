@@ -1,8 +1,12 @@
 package com.hungteen.pvz.api;
 
 import com.hungteen.pvz.api.events.ZombieEventEvent;
+import com.hungteen.pvz.common.register.PVZZombieEvents;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -98,12 +102,19 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
         this.members.remove(member);
     }
 
+    public ResourceLocation getType() {
+        return PVZAPI.get().getZombieEventType(this);
+    }
+
+    public Component getDisplayName() {
+        return Component.translatable(Util.makeDescriptionId("zombie_event", PVZZombieEvents.REGISTRY.get().getKey(this.getClass())));
+    }
 
     @Override
     public final CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putUUID("uuid", this.uuid);
-        tag.putString("event_type", PVZAPI.get().getZombieEventType(this).toString());
+        tag.putString("event_type", getType().toString());
         if (target != null) {
             tag.putUUID("target", this.target.getUUID());
         } else if (targetUUID != null) {

@@ -195,7 +195,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         entities.addAll(refreshEntities);
                         entities.forEach((entity) -> {
                             if (entity instanceof IMaxSunExpander) {
-                                if (! maxSun.modifierById.keySet().stream().anyMatch(uuid1 -> uuid1.equals(entity.getUUID()))) {
+                                if (maxSun.modifierById.keySet().stream().noneMatch(uuid1 -> uuid1.equals(entity.getUUID()))) {
                                     maxSun.addTransientModifier(getEntityModifier(entity, player));
                                 }
                             }
