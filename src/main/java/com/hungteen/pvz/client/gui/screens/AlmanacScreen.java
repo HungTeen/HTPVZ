@@ -278,11 +278,15 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
         Map<Item, List<Item>> items = creative ? PVZSeedPackets.sortedCreative : PVZSeedPackets.sortedSurvival;
         if (items.get(chosenTab).get(chosenItem) instanceof SeedPacketItem<?> selected) {
             boolean renderAsNumber = PVZConfig.renderSunAsNumber() || ! selected.getResource(null).equals(PVZAPI.get().getSunResourceName());
+            int cost = selected.getBaseCost(null);
             if (renderAsNumber) {
-                this.font.draw(poseStack, selected.getBaseCost(null) + "",
-                        171 + (selected.getResource(null).equals(PVZAPI.get().getSunResourceName()) ? 0 : 10), 61, 0);
-                this.font.draw(poseStack, selected.getBaseCost(null) + "",
-                        170 + (selected.getResource(null).equals(PVZAPI.get().getSunResourceName()) ? 0 : 10), 60, 0xFFFFFF);
+                int offset = (selected.getResource(null).equals(PVZAPI.get().getSunResourceName()) ? 0 : 10) + 170;
+                this.font.draw(poseStack, cost + (selected.extraCost ? "+" : ""), 1 + offset, 61, 0);
+                this.font.draw(poseStack, cost + (selected.extraCost ? "+" : ""), offset, 60, 0xFFFFFF);
+            } else if (selected.extraCost) {
+                int offset = (selected.getResource(null).equals(PVZAPI.get().getSunResourceName()) ? 0 : 10) + (int) Math.ceil(cost * 0.08f) + 175;
+                this.font.draw(poseStack, "+", 1 + offset, 61, 0);
+                this.font.draw(poseStack, "+", offset, 60, 0xFFFFFF);
             }
             if (viewingSkills) {
                 int size = selected.getStaticSkillList().size();
@@ -383,8 +387,9 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                                 Component.translatable(skill.name).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_AQUA)),
                                 Component.translatable(skill.name + ".desc").withStyle(Style.EMPTY.withColor(0x545454))));
                         ClientProxy.MC.screen.renderTooltip(poseStack, list,
-                                Optional.of(new SunImageToolTipComponent(skill.addCostResource, skill.addCoolDown,
-                                        selected.getResource(null).equals(PVZPlayerCapStats.SUN), true, true)),
+                                Optional.of(new SunImageToolTipComponent(skill.addCostResource, skill.addCoolDown
+                                        , selected.getResource(null).equals(PVZPlayerCapStats.SUN)
+                                        , true, true, false)),
                                 mouseX, mouseY, font, ItemStack.EMPTY);
                     }
                 }

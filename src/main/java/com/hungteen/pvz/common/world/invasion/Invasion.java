@@ -151,9 +151,11 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
 
         final int bigWaveNum = Math.max(1, random.nextInt((int) ((float) totalLength / 6000 + Math.max(0, (this.invasionLevel) / 3) + 1)));
         int length = 0;
+        float k = (float) PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.invasionDifficultyFactorK) / 1000;
+        int b = PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.invasionDifficultyFactorB);
         while (length < totalLength) {
-            int threat = (int) (Math.pow((100 + length * 0.4), 1.05) * (0.8 + random.nextFloat() * 0.4));
-            int waveLength = 200 * threat / (100 + length / (8 - 2 * length / totalLength));
+            int threat = (int) (Math.pow((b + length * k), 1.05) * (0.8 + random.nextFloat() * k));
+            int waveLength = 200 * threat / (b + length / (8 - 2 * length / totalLength));
             Difficulty difficulty = ((ServerLevel) level).getServer().getWorldData().getDifficulty();
             switch (difficulty) {
                 case PEACEFUL -> threat = 0;
@@ -199,10 +201,10 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             super.tick(ev);
             return;
         }
-        if (tickCount % 20 == 0) {
+        if (tickCount % 5 == 0) {
             //ending invasion.
             if (this.waves.isEmpty()) {
-                PVZMod.LOGGER.warn("Find an invasion with no waves! Removing it.");
+                PVZMod.LOGGER.warn("Found an invasion with no waves! Removing it.");
                 this.remove();
                 return;
             }
@@ -273,23 +275,25 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                     }
                 }
                 //director system.
-                List<Entity> teammates = level.getEntities(target,
-                        AABB.ofSize(Vec3.atCenterOf(this.position), this.range * 2, this.range, this.range * 2),
-                        entity -> ! (entity instanceof Projectile) && EntityUtil.isTeammate(target, entity));
-                targetTeammateCount = teammates.size();
-                maxTargetTeammateCount = Math.max(targetTeammateCount, maxTargetTeammateCount);
-                if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
-                    String info = getInfo();
-                    PVZMod.LOGGER.info(info);
-                    if (target instanceof ServerPlayer player && EntityUtil.isEntityValid(player)) {
-                        player.sendSystemMessage(Component.literal(info));
+                if (tickCount % 20 == 0) {
+                    List<Entity> teammates = level.getEntities(target,
+                            AABB.ofSize(Vec3.atCenterOf(this.position), this.range * 2, this.range, this.range * 2),
+                            entity -> ! (entity instanceof Projectile) && EntityUtil.isTeammate(target, entity));
+                    targetTeammateCount = teammates.size();
+                    maxTargetTeammateCount = Math.max(targetTeammateCount, maxTargetTeammateCount);
+                    if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
+                        String info = getInfo();
+                        PVZMod.LOGGER.info(info);
+                        if (target instanceof ServerPlayer player && EntityUtil.isEntityValid(player)) {
+                            player.sendSystemMessage(Component.literal(info));
+                        }
                     }
-                }
-                this.storedTargetPos = this.target.position();
-                Set<Integer> killCount = Set.copyOf(this.killCount);
-                for (int i : killCount) {
-                    if (this.totalTime - i > 400) {
-                        this.killCount.remove(i);
+                    this.storedTargetPos = this.target.position();
+                    Set<Integer> killCount = Set.copyOf(this.killCount);
+                    for (int i : killCount) {
+                        if (this.totalTime - i > 400) {
+                            this.killCount.remove(i);
+                        }
                     }
                 }
             }
@@ -309,6 +313,10 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     }
 
     //director system
+    public boolean directorEnabled() {
+        return this.types.stream().noneMatch(InvasionType::disableDirector);
+    }
+
     /**Returns a relative value of the ability player and plants damage zombies.*/
     public int getPlayerAttack() {
         Wave wave = this.getCurrentWave();
@@ -431,15 +439,17 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             this.currentWaveThreat = 0;
             this.currentWaveSummoned = 0;
             //director.
-            if (getPlayerHurt() > 60) {
-                this.getCurrentWave().threat *= (60F / getPlayerHurt());
-                this.getCurrentWave().maximumWaitTime += getPlayerHurt() * 1.5;
-            } else if (getPlayerAttack() > 200) {
-                this.getCurrentWave().threat *= Math.min(2, (float) getPlayerAttack() / 800);
-                this.getCurrentWave().minimumWaitTime -= getPlayerAttack() / 5;
-                this.getCurrentWave().maximumWaitTime -= getPlayerAttack() / 5;
+            if (directorEnabled()) {
+                if (getPlayerHurt() > 60) {
+                    this.getCurrentWave().threat *= (60F / getPlayerHurt());
+                    this.getCurrentWave().maximumWaitTime += getPlayerHurt() * 1.5;
+                } else if (getPlayerAttack() > 200) {
+                    this.getCurrentWave().threat *= Math.min(2, (float) getPlayerAttack() / 800);
+                    this.getCurrentWave().minimumWaitTime -= getPlayerAttack() / 5;
+                    this.getCurrentWave().maximumWaitTime -= getPlayerAttack() / 5;
+                }
+                this.getCurrentWave().threat = Math.max(0, this.getCurrentWave().threat);
             }
-            this.getCurrentWave().threat = Math.max(0, this.getCurrentWave().threat);
             if (this.target instanceof Player player && this.getCurrentWave().isBigWave) {
                 player.displayClientMessage(Component.translatable("hint.pvz.invasion.big_wave").withStyle(Style.EMPTY.withColor(0xFF2222)), true);
             }
@@ -638,11 +648,11 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     }
 
     public String getInfo() {
-        return ("\ninvasion " + this.uuid.toString().substring(24) +
+        String result = "\ninvasion " + this.uuid.toString().substring(24) +
                 "\n LV " + invasionLevel + " WAVE " + (this.currentWave + 1) + "/" + this.waves.size() + " POS_SEKR " + pathSeeker.availablePositions.size() +
                 "\n TIME wave " + this.currentWaveTime / 20 + " exp. " + this.getCurrentWave().minimumWaitTime / 20 + "~" + this.getCurrentWave().maximumWaitTime / 20 + " total " + this.totalTime / 20 + " exp. " + expectedTotalTime / 20 +
-                "\n THREAT curr " + this.currentWaveThreat + "(" + this.currentWaveSummoned+ ") alive " + this.getLivingMembersThreat() + "("+ this.members.size() + ") total "+ this.getCurrentWave().threat +
-                "\n DIR_SYS: " +
+                "\n THREAT curr " + this.currentWaveThreat + "(" + this.currentWaveSummoned+ ") alive " + this.getLivingMembersThreat() + "("+ this.members.size() + ") total "+ this.getCurrentWave().threat;
+        return (result + (directorEnabled() ? "\n DIR_SYS: " +
                 "\n  ATK " + getPlayerAttack() + " : " + Math.max(-100, ((float) (this.getCurrentWave().threat - this.currentWaveThreat) / this.getCurrentWave().threat) * this.getCurrentWave().threat) + " " +
                 (Math.max(0, Math.min(this.getCurrentWave().maximumWaitTime / 2, this.getCurrentWave().minimumWaitTime * 2) - this.currentWaveTime) + 1) +
                 "\n  HRT " + getPlayerHurt() + " : " + this.members.size() * 2 + " " +
@@ -654,7 +664,8 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 Math.max(0, (this.totalTime - (int) (10000 * this.getMainType().length() * ((this.invasionLevel) * 0.1 + 0.5) + 100)) / (getPlayerActivation() + 1)) +
                 "\n  ACT " + getPlayerActivation() + " : " + (getPlayerActivation() - (this.storedTargetPos == null ? 0 : (int) target.position().distanceToSqr(this.storedTargetPos) * 2)) + " " +
                 (this.storedTargetPos == null ? 0 : (int) target.position().distanceToSqr(this.storedTargetPos) * 2)
-        );
+                : ""
+        ));
     }
 
     //overrides

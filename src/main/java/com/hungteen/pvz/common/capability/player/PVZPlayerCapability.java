@@ -9,7 +9,7 @@ import com.hungteen.pvz.common.item.PumpkinHelmetItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PlayerContinueCoolDownPacket;
-import com.hungteen.pvz.common.network.TeamEvilnessPacket;
+import com.hungteen.pvz.common.network.ServerInfoPacket;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
@@ -62,17 +62,20 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     private PVZPlayerCapStats nbt = null;
     private final Player player;
     public static final Capability<PVZPlayerCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
-    private final LazyOptional<PVZPlayerCapStats> opt = LazyOptional.of(this::createNBT);
     public static int syncCount = 0;
-    /**Pair of garden teleporting positions. The first is overworld pos, second is garden pos.*/
+    /**Pair of garden teleporting positions. The first is overworld pos, the second is garden pos.*/
     private Pair<Vec3, Vec3> gardenPos = new Pair<>(null, null);
+
+    //client variables
     static Vec3 playerPos = null;
+    public static int advancedPlantsExtraCostRange = 30;
 
     //TODO combine this class with PVZPlayerCapNBT.
 
     public PVZPlayerCapability(Player player) {
         this.player = player;
-        this.opt.ifPresent(cap -> cap.setPlayer(player));
+        LazyOptional<PVZPlayerCapStats> opt = LazyOptional.of(this::createNBT);
+        opt.ifPresent(cap -> cap.setPlayer(player));
     }
 
     private PVZPlayerCapStats createNBT(){
@@ -81,11 +84,11 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         }
         return nbt;
     }
-    public static void tick(TickEvent.ServerTickEvent ev) {
+    public static void tick(TickEvent.@NotNull ServerTickEvent ev) {
         for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
             //timed sync
             if (++ syncCount > 20) {
-                TeamEvilnessPacket.sync(player, ((ServerLevel) player.level));
+                ServerInfoPacket.sync(player, ((ServerLevel) player.level));
                 getPlayerData(player).ifPresent(PVZPlayerCapStats::syncAll);
                 syncCount = 0;
             }

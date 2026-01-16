@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.entity.zombies;
 
-import com.google.common.collect.ImmutableMap;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,15 +31,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public class DiggerZombie extends PVZZombie implements VibrationListener.VibrationListenerConfig {
     public boolean renderHat = true;
     private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
-    public static final EntityDimensions STANDING_DIMENSIONS = EntityDimensions.scalable(0.6F, 1.8F);
-    private static final Map<Pose, EntityDimensions> POSES = ImmutableMap.<Pose, EntityDimensions>builder().put(Pose.STANDING, STANDING_DIMENSIONS).put(Pose.SLEEPING, SLEEPING_DIMENSIONS).put(Pose.FALL_FLYING, EntityDimensions.scalable(0.6F, 0.8F)).put(Pose.SWIMMING, EntityDimensions.scalable(0.6F, 0.8F)).put(Pose.SPIN_ATTACK, EntityDimensions.scalable(0.6F, 0.8F)).put(Pose.CROUCHING, EntityDimensions.scalable(0.6F, 1.5F)).put(Pose.DYING, EntityDimensions.fixed(0.2F, 0.2F)).build();
     private final UUID TRACKING_MODIFIER = UUID.fromString("c5321b12-712e-7474-5b37-f162e6b49f56");
     public DiggerZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
@@ -67,9 +63,6 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
         return spawnGroupData;
     }
 
-    public EntityDimensions getDimensions(Pose p_36166_) {
-        return POSES.getOrDefault(p_36166_, STANDING_DIMENSIONS);
-    }
     @Override
     public void tick() {
         super.tick();
@@ -84,7 +77,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                 attribute.removeModifier(TRACKING_MODIFIER);
             }
         } else if (this.getPose() == Pose.SWIMMING) {
-            for (int i = 0; i < 15; i ++) {
+            for (int i = 0; i < 5; i ++) {
                 this.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, this.level.getBlockState(this.getOnPos())).setPos(this.getOnPos()),
                         this.getX() + (this.random.nextDouble() - 0.5D) - this.getDeltaMovement().x / 2,
                         this.getY() + this.getBbHeight() + 0.6D,
@@ -137,10 +130,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                     case DIGGING -> {
                         if (! EntityUtil.isLeavingGround(zombie)) {
                             Vec3 delta = zombie.getDeltaMovement();
-                            if (delta.y > -0.2) {
-                                delta = delta.multiply(1, 0, 1).add(0, -0.2, 0);
-                            }
-                            zombie.setDeltaMovement(delta);
+                            zombie.setDeltaMovement(delta.x, Math.min(-0.2, delta.y), delta.z);
                             BlockState blockState = zombie.level.getBlockState(new BlockPos(zombie.position().add(0, zombie.getBbHeight(), 0)));
                             if (! blockState.getCollisionShape(zombie.level, new BlockPos(zombie.position().add(0, zombie.getBbHeight(), 0))).isEmpty()) {
                                 zombie.setDeltaMovement(zombie.getDeltaMovement().multiply(1, 0, 1));
@@ -154,6 +144,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                         }
                     }
                     case SWIMMING -> {
+                        zombie.lookAt(zombie.getTarget(), 10, 10);
                         double maxY = zombie.getTarget().getY();
                         double y = (int) (zombie.getY() + zombie.getBbHeight());
                         BlockPos pos = zombie.blockPosition();
@@ -168,7 +159,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
                                 break;
                             }
                         }
-                        y = Math.min(maxY, y) - zombie.getBbHeight() - 0.6F - zombie.getY();
+                        y = Math.min(maxY, y) - zombie.getBbHeight() - (zombie.isBaby() ? 0 : 0.6) - zombie.getY();
                         Vec3 delta = zombie.getDeltaMovement();
                         delta = delta.multiply(1, 0, 1).add(0, Math.signum(y) * 0.03, 0);
                         zombie.setDeltaMovement(delta);

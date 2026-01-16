@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
@@ -167,6 +168,9 @@ public class BaseBullet extends Projectile {
 	}
 	protected boolean dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
+		if (target instanceof Shulker shulker && shulker.isClosed()) {
+			return false;
+		}
 		//default normal damage.
 		boolean hurt = target.hurt(getDamageSource(target), damage);
 		this.discard();

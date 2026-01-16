@@ -21,7 +21,7 @@ import java.util.*;
  * @param isAddition Whether this type is additional invasion type. Additional invasion types can't be selected single, while only one non-additional types con be selected.
  * @param conditions See {@link InvasionCondition}.**/
 public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLocation, List<String>>> conditions, List<ResourceLocation> entityModifiers,
-                           Optional<EnemyType> flagEnemy, List<EnemyType> enemies, boolean isAddition, float threatFactor, float length, int weight) {
+                           Optional<EnemyType> flagEnemy, List<EnemyType> enemies, boolean isAddition, boolean disableDirector, float threatFactor, float length, int weight) {
     public static Codec<InvasionType> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             ResourceLocation.CODEC.optionalFieldOf("loot").forGetter(InvasionType::loot),
             Codec.compoundList(ResourceLocation.CODEC, Codec.STRING.listOf()).optionalFieldOf("conditions", List.of()).forGetter(InvasionType::conditions),
@@ -29,6 +29,7 @@ public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLo
             EnemyType.CODEC.optionalFieldOf("flag_enemy").forGetter(InvasionType::flagEnemy),
             EnemyType.CODEC.listOf().optionalFieldOf("enemies", List.of()).forGetter(InvasionType::enemies),
             Codec.BOOL.optionalFieldOf("is_addition", false).forGetter(InvasionType::isAddition),
+            Codec.BOOL.optionalFieldOf("disable_director", false).forGetter(InvasionType::disableDirector),
             Codec.FLOAT.optionalFieldOf("threat_factor", 1F).forGetter(InvasionType::threatFactor),
             Codec.FLOAT.optionalFieldOf("length", 1F).forGetter(InvasionType::length),
             Codec.INT.optionalFieldOf("weight", 100).forGetter(InvasionType::weight)
@@ -39,6 +40,10 @@ public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLo
 
     public static final Map<ResourceLocation, TriPredicate<Invasion, Entity, Integer>> invasionEntityModifiers = RegisterInvasionEntityModifiersEvent.get();
 
+    public InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLocation, List<String>>> conditions, List<ResourceLocation> entityModifiers,
+                               Optional<EnemyType> flagEnemy, List<EnemyType> enemies, boolean isAddition, float threatFactor, float length, int weight) {
+        this(loot, conditions, entityModifiers, flagEnemy, enemies, isAddition, false, threatFactor, length, weight);
+    }
 
     //Methods
 
@@ -114,15 +119,24 @@ public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLo
     }
 
     //enemy type
-    public record EnemyType(CompoundTag entityData, @Nullable List<Pair<ResourceLocation, List<String>>> conditions, int threat, int weight, boolean isElite, float startFrom) {
+    public record EnemyType(CompoundTag entityData, @Nullable List<Pair<ResourceLocation, List<String>>> conditions, int threat, int weight, boolean isElite, float startFrom, float endAt) {
         public static final Codec<EnemyType> CODEC = RecordCodecBuilder.create(builder -> builder.group(
                 CompoundTag.CODEC.fieldOf("entity").forGetter(EnemyType::entityData),
                 Codec.compoundList(ResourceLocation.CODEC, Codec.STRING.listOf()).optionalFieldOf("conditions", List.of()).forGetter(EnemyType::conditions),
                 Codec.INT.fieldOf("threat").forGetter(EnemyType::threat),
                 Codec.INT.optionalFieldOf("weight", 10).forGetter(EnemyType::weight),
                 Codec.BOOL.optionalFieldOf("is_elite", false).forGetter(EnemyType::isElite),
-                Codec.FLOAT.optionalFieldOf("start_from", 0F).forGetter(EnemyType::startFrom)
+                Codec.FLOAT.optionalFieldOf("start_from", 0F).forGetter(EnemyType::startFrom),
+                Codec.FLOAT.optionalFieldOf("end_at", 1F).forGetter(EnemyType::endAt)
             ).apply(builder, EnemyType::new)
         );
+
+        public EnemyType(CompoundTag entityData, @Nullable List<Pair<ResourceLocation, List<String>>> conditions, int threat, int weight, boolean isElite, float startFrom) {
+            this(entityData, conditions, threat, weight, isElite, startFrom, 1F);
+        }
+
+        public EnemyType(CompoundTag entityData, int threat, int weight, boolean isElite, float startFrom) {
+            this(entityData, List.of(), threat, weight, isElite, startFrom);
+        }
     }
 }

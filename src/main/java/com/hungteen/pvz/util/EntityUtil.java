@@ -120,7 +120,7 @@ public class EntityUtil {
         }
         boolean result;
         if (A == null || B == null) {
-            PVZMod.LOGGER.error((A == null ? "A" : "B") + " is found null in teammate check!");
+            PVZMod.LOGGER.error("{} is found null in teammate check!", A == null ? "A" : "B");
             return false;
         }
 

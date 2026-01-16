@@ -10,7 +10,6 @@ import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.*;
-import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
 import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.CommonProxy;
@@ -63,6 +62,7 @@ public class PVZMod
     public static String FRIENDLY_TEAM = "team.pvz.friendly_team";
     public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
     public static float clientTime = 0;
+    public static int serverAverageTickTime = 0;
 
     public PVZMod() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -218,7 +218,7 @@ public class PVZMod
             //scoreboard tick
             PVZSavedData.tick();
             //server stress releasing
-            ServerStressReleaseGoals.averageTickTime = Math.round(ev.getServer().getAverageTickTime());
+            serverAverageTickTime = Math.round(ev.getServer().getAverageTickTime());
         }
     }
 

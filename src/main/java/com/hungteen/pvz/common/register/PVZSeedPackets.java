@@ -99,7 +99,7 @@ public class PVZSeedPackets {
         add(PVZEntities.MELON_PULT).cost(450).coolDown(SLOW).skillList(MelonPult.staticSkillList)
                 .recipe(Items.MELON, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         //the end
-        add(PVZEntities.GATLING_PEA).cost(375).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
+        add(PVZEntities.GATLING_PEA).advanced().cost(400).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET)
                 .note(Component.translatable("container.pvz.almanac.can_only_plant_on", Component.translatable("entity.pvz.repeater").withStyle(ChatFormatting.RED)));
         //abyss
@@ -165,7 +165,6 @@ public class PVZSeedPackets {
         public boolean noAutoRecipe = false;
         public RecipeSeedPacketData(Supplier<EntityType<T>> entitySupplier) {
             super(entitySupplier);
-            this.entitySupplier = entitySupplier;
         }
         public RecipeSeedPacketData<T> resource(String resource) {
             this.resource = resource;
@@ -177,6 +176,10 @@ public class PVZSeedPackets {
         }
         public RecipeSeedPacketData<T> coolDown(int coolDown) {
             this.coolDown = coolDown;
+            return this;
+        }
+        public RecipeSeedPacketData<T> advanced() {
+            super.advanced();
             return this;
         }
         public RecipeSeedPacketData<T> skillList(List<Skill> list) {

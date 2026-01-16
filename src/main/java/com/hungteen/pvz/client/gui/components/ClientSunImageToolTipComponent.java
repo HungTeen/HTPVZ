@@ -23,13 +23,16 @@ import java.awt.*;
 @OnlyIn(Dist.CLIENT)
 public class ClientSunImageToolTipComponent implements ClientTooltipComponent {
     int cost;
+    boolean hasExtraCost;
     int cd;
     boolean renderAsNumber;
     String sunText;
     String cdText;
+    static String EXTRA_COST_SIGNAL = "+";
     private static final ResourceLocation ICON_TEXTURE = Util.prefix("textures/gui/overlay/icons.png");
     public ClientSunImageToolTipComponent(SunImageToolTipComponent component) {
         cost = component.cost;
+        hasExtraCost = component.hasExtraCost;
         renderAsNumber = PVZConfig.renderSunAsNumber() || ! component.isCostSun;
         sunText = (component.isAddition && cost == 0) ? "" : (Language.getInstance().getOrDefault("tooltip.pvz.cost") +
                 (component.isAddition && cost >= 0 ? " +" : " ") +
@@ -49,13 +52,20 @@ public class ClientSunImageToolTipComponent implements ClientTooltipComponent {
 
     @Override
     public int getWidth(Font font) {
-        return font.width(sunText) + (int) (renderAsNumber ? 0 : (cost > 500 ? 5 : 8) * Math.ceil(Math.abs((float) cost / 100))) + font.width(cdText) + (sunText.isEmpty() ? 0 : 10);
+        return font.width(sunText)
+                + (int) (renderAsNumber ? 0 : (cost > 500 ? 5 : 9) * Math.ceil(Math.abs((float) cost / 100)))
+                + (hasExtraCost ? font.width(EXTRA_COST_SIGNAL) : 0)
+                + font.width(cdText) + (sunText.isEmpty() ? 0 : 10);
     }
 
     @Override
     public void renderText(Font font, int x, int y, Matrix4f matrix4f, MultiBufferSource.BufferSource buffer) {
         font.drawInBatch(sunText, x, y, Color.GRAY.getRGB(), true, matrix4f, buffer, false, 0, 15728880, true);
         font.drawInBatch(sunText, x, y, Color.GRAY.getRGB(), true, matrix4f, buffer, false, 0, 15728880, false);
+        if (hasExtraCost) {
+            font.drawInBatch(EXTRA_COST_SIGNAL, x + font.width(sunText) + (int) (renderAsNumber ? 0 : ((cost > 500 ? 4 : 1) + (cost > 500 ? 5 : 9) * Math.ceil(Math.abs((float) cost / 100)))), y
+                    , Color.GRAY.getRGB(), true, matrix4f, buffer, false, 0, 15728880, true);
+        }
         font.drawInBatch(cdText, x + getWidth(font) - font.width(cdText), y, Color.GRAY.getRGB(), true, matrix4f, buffer, false, 0, 15728880, true);
         font.drawInBatch(cdText, x + getWidth(font) - font.width(cdText), y, Color.GRAY.getRGB(), true, matrix4f, buffer, false, 0, 15728880, false);
     }

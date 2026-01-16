@@ -35,6 +35,10 @@ public class SunRenderer extends EntityRenderer<Sun> {
 		return Math.min(super.getBlockLightLevel(p_114606_, p_114607_) + 7, 15);
 	}
 
+	protected int getSkyLightLevel(Sun p_114606_, BlockPos p_114607_) {
+		return Math.min(super.getSkyLightLevel(p_114606_, p_114607_) + 7, 15);
+	}
+
 	@Override
 	public void render(Sun sun, float p_114600_, float partialTicks, PoseStack stack, MultiBufferSource bufferSource, int p_114604_) {
 		//TODO matrix not big enough. Fix that.

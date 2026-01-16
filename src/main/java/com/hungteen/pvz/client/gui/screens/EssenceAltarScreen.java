@@ -218,8 +218,9 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                     }
                 }
                 ClientProxy.MC.screen.renderTooltip(stack, list,
-                        Optional.of(new SunImageToolTipComponent(cost, cd,
-                                ((SeedPacketItem<?>) menu.getItems().get(0).getItem()).getResource(menu.getItems().get(0)).equals(PVZPlayerCapStats.SUN), true, true)),
+                        Optional.of(new SunImageToolTipComponent(cost, cd
+                                , ((SeedPacketItem<?>) menu.getItems().get(0).getItem()).getResource(menu.getItems().get(0)).equals(PVZPlayerCapStats.SUN)
+                                , true, true, false)),
                         mouseX, mouseY, font, ItemStack.EMPTY);
             }
         } else {

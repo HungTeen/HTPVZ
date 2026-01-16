@@ -269,6 +269,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         super.baseTick();
         //check plant situation damage.
         firstUnsafeSituationMercy = testPlantSafe(this, firstUnsafeSituationMercy);
+        testDisappear(this);
         //about aligning blocks.
         if (! this.isOnGround() || this.getDeltaMovement().distanceToSqr(new Vec3(0, 0, 0)) > 0.05) {
             shouldAlign = true;
@@ -296,7 +297,21 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
         //TODO relative codes. add particle when plant is dying.
     }
-
+    /**For IPlants not extending SimplePlant, manually use this in {@link Entity#baseTick() baseTick()}.*/
+    public static void testDisappear(Mob mob) {
+        //disappear
+        if (mob instanceof IPlant plant && mob.isEffectiveAi() && ! mob.level.isClientSide
+                && plant.getDisappearTicks() > 0 && PVZConfig.PVZGameRules.getBoolean(mob.level, PVZConfig.Common.plantDisappear)) {
+            if (mob.tickCount > plant.getDisappearTicks() && mob.tickCount % 300 == 0) {
+                int plantCount = mob.level.getEntities(mob, mob.getBoundingBox().inflate(PVZMod.serverAverageTickTime), entity -> EntityUtil.isTeammate(mob, entity)).size();
+                int playerCount = mob.level.getEntitiesOfClass(Player.class, mob.getBoundingBox().inflate((double) PVZMod.serverAverageTickTime / 2)).size();
+                int enemyCount = mob.level.getEntities(mob, mob.getBoundingBox().inflate(Math.max(16, (double) 2500 / PVZMod.serverAverageTickTime)), entity -> EntityUtil.checkCanEntityBeAttack(mob, entity)).size();
+                if (enemyCount < 10 && playerCount == 0 && plantCount > 20 * plant.getDisappearTicks() / mob.tickCount - 1) {
+                    mob.discard();
+                }
+            }
+        }
+    }
     /**
      * control if this plant can push another entity.*/
     public Predicate<Entity> canPush() {

@@ -22,7 +22,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -42,8 +45,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.ai.navigation.WallClimberNavigation;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -63,6 +66,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -71,6 +75,7 @@ import java.util.function.Predicate;
 
 import static com.hungteen.pvz.common.entity.SimplePlant.tryShovel;
 
+@Mod.EventBusSubscriber
 public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanAttack, VibrationListener.VibrationListenerConfig {
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState digAnimationState = new AnimationState();
@@ -120,14 +125,53 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         return 150;
     }
 
-    protected BlockPos getOriginalPos() {
+    public BlockPos getRootBlockPos() {
         return originalPos;
     }
-    protected void setOriginalPos(BlockPos pos) {
+    protected void setRootBlockPos(BlockPos pos) {
         this.originalPos = pos;
     }
-    public BlockPos getRootBlockPos() {
-        return this.getOriginalPos();
+    public BlockPos findNearbyRootablePos() {
+        if (isPositionSafe(null, level, blockPosition().below(), Direction.UP, false) == null) {
+            return blockPosition().below();
+        }
+        BlockPos blockPos;
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                blockPos = blockPosition().offset(x, 0, z);
+                if (isPositionSafe(null, level, blockPosition().offset(x, 0, z), Direction.UP, false) == null) {
+                    return blockPos.below();
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, 1, z), Direction.UP, false) == null) {
+                    return blockPos;
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, 2, z), Direction.UP, false) == null) {
+                    return blockPos.above();
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, -1, z), Direction.UP, false) == null) {
+                    return blockPos.below().below();
+                }
+            }
+        }
+        for (int x = -2; x <= 2; x++) {
+            for (int z = -2; z <= 2; z++) {
+                if (Math.abs(x) < 2 && Math.abs(z) < 2) continue;
+                blockPos = blockPosition().offset(x, 0, z);
+                if (isPositionSafe(null, level, blockPosition().offset(x, 0, z), Direction.UP, false) == null) {
+                    return blockPos.below();
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, -1, z), Direction.UP, false) == null) {
+                    return blockPos.below().below();
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, 1, z), Direction.UP, false) == null) {
+                    return blockPos;
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, 2, z), Direction.UP, false) == null) {
+                    return blockPos.above();
+                }
+            }
+        }
+        return blockPosition().below();
     }
 
     //entity settings
@@ -135,7 +179,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.MOVEMENT_SPEED, 0D)
-                .add(Attributes.FOLLOW_RANGE, 24D);
+                .add(Attributes.FOLLOW_RANGE, 32D);
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
         return true;
@@ -175,39 +219,43 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         animTick ++;
         //check plant situation damage.
         firstUnsafeSituationMercy = SimplePlant.testPlantSafe(this, firstUnsafeSituationMercy);
+        SimplePlant.testDisappear(this);
         //TODO relative codes. add particle when plant is dying.
     }
 
     @Override
     public void tick() {
         if (this.getPose() == Pose.SWIMMING) {
-            EntityUtil.addModifierToAttribute(this, Attributes.MOVEMENT_SPEED, new AttributeModifier(SPEED_MODIFIER_UUID, "pose_addon", 0.6, AttributeModifier.Operation.ADDITION));
+            EntityUtil.addModifierToAttribute(this, Attributes.MOVEMENT_SPEED, new AttributeModifier(SPEED_MODIFIER_UUID, "pose_addon", 0.4, AttributeModifier.Operation.ADDITION));
         } else {
             EntityUtil.removeModifierFromAttribute(this, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER_UUID);
         }
+
         if (this.storedPosition == null) {
             this.storedPosition = this.position();
-            this.setOriginalPos(new BlockPos((int) (storedPosition.x > 0 ? storedPosition.x : storedPosition.x - 1),
+            this.setRootBlockPos(new BlockPos((int) (storedPosition.x > 0 ? storedPosition.x : storedPosition.x - 1),
                     (int) storedPosition.y - 1,
                     (int) (storedPosition.z > 0 ? storedPosition.z : storedPosition.z - 1)));
         }
-        if (this.getPose() == Pose.SWIMMING && ((this.position().distanceTo(this.storedPosition) < 0.1 && this.tickCount % 10 == 0) || super.isInWall())) {
-            this.noPhysics = true;
-            this.setNoGravity(true);
-            if (level.getBlockState(this.blockPosition()).isSuffocating(level, this.blockPosition())) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0, 0.05, 0));
-            }
-            super.tick();
-            this.setNoGravity(false);
-            this.noPhysics = false;
+        if (this.getPose() == Pose.SWIMMING && ((this.position().distanceTo(this.storedPosition) < 0.1 && this.tickCount % 10 == 0))) {
             this.storedPosition = this.position();
-        } else {
-            super.tick();
         }
-        if (level instanceof ServerLevel serverlevel) {
+
+        super.tick();
+        if (level instanceof ServerLevel serverlevel && this.isEffectiveAi()) {
             this.dynamicGameEventListener.getListener().tick(serverlevel);
             if (getTarget() != null) {
                 this.setYBodyRot(this.getYRot());
+            }
+            if (this.getPose() == Pose.SWIMMING && this.getDeltaMovement().y < 0.25) {
+                AABB aabb = this.getBoundingBox().inflate(0.2, 0, 0.2);
+                if (BlockPos.betweenClosedStream(aabb).anyMatch((pos1) -> {
+                    BlockState blockstate = this.level.getBlockState(pos1);
+                    return !blockstate.isAir() && blockstate.isSuffocating(this.level, pos1) &&
+                            Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, pos1).move(pos1.getX(), pos1.getY(), pos1.getZ()), Shapes.create(aabb), BooleanOp.AND);
+                })) {
+                    this.setDeltaMovement(this.getDeltaMovement().add(0, 0.12, 0));
+                }
             }
         }
     }
@@ -298,7 +346,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         saveSkills(tag);
         tag.putInt("PlantAttackTime", getAttackTime());
         tag.putInt("Pose", getEntityData().get(DATA_POSE).ordinal());
-        tag.putLong("OriginalPos", this.getOriginalPos().asLong());
+        tag.putLong("RootPos", this.getRootBlockPos().asLong());
         VibrationListener.codec(this).encodeStart(NbtOps.INSTANCE, this.dynamicGameEventListener.getListener()).resultOrPartial(PVZMod.LOGGER::error).ifPresent((p_219418_) -> {
             tag.put("listener", p_219418_);
         });
@@ -320,8 +368,8 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         if (tag.contains("Pose")) {
             this.getEntityData().set(DATA_POSE, Pose.values()[tag.getInt("Pose")]);
         }
-        if (tag.contains("OriginalPos")) {
-            setOriginalPos(BlockPos.of(tag.getLong("OriginalPos")));
+        if (tag.contains("RootPos")) {
+            setRootBlockPos(BlockPos.of(tag.getLong("RootPos")));
         }
         if (tag.contains("listener")) {
             VibrationListener.codec(this).parse(new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("listener"))).resultOrPartial(PVZMod.LOGGER::error)
@@ -393,7 +441,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     }
     @Override
     protected PathNavigation createNavigation(Level level) {
-        return new GroundPathNavigation(this, level);
+        return new WallClimberNavigation(this, level);
     }
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
@@ -404,9 +452,11 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         return SimplePlant.shouldHaveCoincideDmg(this, level, position);
     }
     //bb and pushing
-    @Override
-    public AABB makeBoundingBox() {
-        return this.getPose() == Pose.SWIMMING ? super.makeBoundingBox().inflate(-0.2,-0.8, -0.2).move(0, -0.8, 0) : super.makeBoundingBox();
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onRefreshDimensions(net.minecraftforge.event.entity.EntityEvent.Size ev) {
+        if (ev.getEntity() instanceof Chomper chomper && chomper.getPose() == Pose.SWIMMING) {
+            ev.setNewSize(ev.getOldSize().scale(0.5F, 0.2F));
+        }
     }
     @Override
     protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
@@ -573,7 +623,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                             }
                         }
                     } else if (chomper.animTick > 79) {
-                        chomper.setPose(chomper.blockPosition().below().equals(chomper.getOriginalPos()) ?
+                        chomper.setPose(chomper.blockPosition().below().equals(chomper.getRootBlockPos()) ?
                                 (chomper.getAttackTime() <= 0 ? Pose.STANDING : Pose.CROUCHING) : Pose.DIGGING);
                         if (chomper.getPose() == Pose.CROUCHING) {
                             chomper.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 350, 3));
@@ -618,26 +668,28 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     LivingEntity target = chomper.getTarget();
                     PathNavigation navigation = chomper.getNavigation();
                     if (! EntityUtil.isEntityValid(target) || target.getVehicle() instanceof Chomper || chomper.getAttackTime() != 0) {
-                        BlockPos pos = chomper.getOriginalPos().above();
+                        BlockPos pos = chomper.getRootBlockPos().above();
                         boolean homeSafe = chomper.isPositionSafe(null, chomper.level, pos.below(), Direction.UP, false) == null;
-                        if (chomper.blockPosition().distSqr(pos) < 3 || ! homeSafe) {
+                        if (chomper.blockPosition().distSqr(pos) < 4 || ! homeSafe) {
                             if (! homeSafe) {
-                                chomper.setOriginalPos(this.chomper.blockPosition().below());
+                                chomper.setRootBlockPos(chomper.findNearbyRootablePos());
                             }
                             chomper.setPose(Pose.EMERGING);
-                            navigation.stop();
                             chomper.alignBlocks();
-                            chomper.moveTo(chomper.position().x, chomper.getOriginalPos().getY() + 1, chomper.position().z);
+                            pos = chomper.getRootBlockPos().above();
+                            chomper.moveTo(Vec3.atBottomCenterOf(pos));
+                            navigation.stop();
                             chomper.setDeltaMovement(Vec3.ZERO);
                         } else if (navigation.isDone()) {
-                            navigation.moveTo(navigation.createPath(pos, 0), 1);
-                            if (navigation.getPath() == null ||
-                                    (navigation.getPath().getEndNode() != null && navigation.getPath().getEndNode().asBlockPos().distSqr(chomper.getOriginalPos()) >= 2)) {
-                                chomper.setOriginalPos(this.chomper.blockPosition().below());
+                            Path path = navigation.createPath(pos, 0);
+                            navigation.moveTo(path, 1);
+                            Vec3i vec = chomper.blockPosition().offset(pos.multiply(-1));
+                            if (navigation.isDone() && chomper.tickCount % 50 < 2 && Math.max(Math.max(vec.getX() * vec.getX(), vec.getY() * vec.getY()), vec.getZ() * vec.getZ()) > 9) {
+                                chomper.setRootBlockPos(chomper.findNearbyRootablePos());
                             }
                         }
                     } else if (navigation.isDone()) {
-                        navigation.moveTo(navigation.createPath(target, 0), 1);
+                        navigation.moveTo(target, 1);
                         if (navigation.getPath() == null) {
                             chomper.setTarget(null);
                         }

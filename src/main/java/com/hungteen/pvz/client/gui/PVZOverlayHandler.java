@@ -57,6 +57,7 @@ import static net.minecraft.util.Mth.ceil;
 public class PVZOverlayHandler {
     private static double bufferSunAmount = 0;
     private static int bufferSunBarLength = 0;
+    private static int refreshCount = 0;
     private static final Random random = new Random();
     public static float notEnoughHint = 0;
     private static ItemStack storedMainHandItemStack = null;
@@ -70,6 +71,7 @@ public class PVZOverlayHandler {
     private static Set<ZombieEventBarInformation> invasionBars = new HashSet<>();
 
     public static void tick(float tickTime) {
+        refreshCount = refreshCount >= 10 ? 0 : ++ refreshCount;
         if (PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).isPresent()) {
             double tmp = Math.pow(0.95, tickTime / 0.01);
             int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapStats.SUN);
@@ -84,14 +86,14 @@ public class PVZOverlayHandler {
             }
         }
         boolean needCost = getCameraPlayer() != null && (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1) != storedHaveCost;
-        ItemStack itemStack = getCameraPlayer() == null ? null : getCameraPlayer().getItemInHand(InteractionHand.MAIN_HAND);
-        if ((itemStack != storedMainHandItemStack || needCost) && itemStack != null && itemStack.getItem() instanceof SeedPacketItem<?>) {
+        ItemStack itemStack = getCameraPlayer() == null ? ItemStack.EMPTY : getCameraPlayer().getItemInHand(InteractionHand.MAIN_HAND);
+        if ((itemStack != storedMainHandItemStack || needCost || refreshCount == 0) && ! itemStack.isEmpty() && itemStack.getItem() instanceof SeedPacketItem<?>) {
             refreshMainHandItemStack(getCameraPlayer());
             storedHaveCost = (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1);
         }
         storedMainHandItemStack = itemStack;
-        itemStack = getCameraPlayer() == null ? null : getCameraPlayer().getItemInHand(InteractionHand.OFF_HAND);
-        if ((itemStack != storedOffHandItemStack || needCost) && itemStack != null && itemStack.getItem() instanceof SeedPacketItem<?>) {
+        itemStack = getCameraPlayer() == null ? ItemStack.EMPTY : getCameraPlayer().getItemInHand(InteractionHand.OFF_HAND);
+        if ((itemStack != storedOffHandItemStack || needCost || refreshCount == 0) && ! itemStack.isEmpty() && itemStack.getItem() instanceof SeedPacketItem<?>) {
             refreshOffHandItemStack(getCameraPlayer());
             storedHaveCost = (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1);
         }

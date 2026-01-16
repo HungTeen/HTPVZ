@@ -1,11 +1,9 @@
 package com.hungteen.pvz.client.layer;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.bullet.ArrowWithATarget;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -73,17 +71,19 @@ public class StuckArrowWithATargetLayer <T extends LivingEntity, M extends Entit
                     poseStack.popPose();
                     return;
                 }
-                ModelPart.Cube modelpart$cube = modelpart.getRandomCube(random);
                 float f = random.nextFloat();
                 float f1 = random.nextFloat();
                 float f2 = random.nextFloat();
-                float f3 = Mth.lerp(f, modelpart$cube.minX, modelpart$cube.maxX) / 16.0F;
-                float f4 = Mth.lerp(f1, modelpart$cube.minY, modelpart$cube.maxY) / 16.0F;
-                float f5 = Mth.lerp(f2, modelpart$cube.minZ, modelpart$cube.maxZ) / 16.0F;
-                poseStack.translate(f3, f4, f5);
-                f = -1.0F * (f * 2.0F - 1.0F);
-                f1 = -1.0F * (f1 * 2.0F - 1.0F);
-                f2 = -1.0F * (f2 * 2.0F - 1.0F);
+                if (! modelpart.cubes.isEmpty()) {
+                    ModelPart.Cube modelpart$cube = modelpart.getRandomCube(random);
+                    float f3 = Mth.lerp(f, modelpart$cube.minX, modelpart$cube.maxX) / 16.0F;
+                    float f4 = Mth.lerp(f1, modelpart$cube.minY, modelpart$cube.maxY) / 16.0F;
+                    float f5 = Mth.lerp(f2, modelpart$cube.minZ, modelpart$cube.maxZ) / 16.0F;
+                    poseStack.translate(f3, f4, f5);
+                    f = -1.0F * (f * 2.0F - 1.0F);
+                    f1 = -1.0F * (f1 * 2.0F - 1.0F);
+                    f2 = -1.0F * (f2 * 2.0F - 1.0F);
+                }
                 this.renderStuckItem(poseStack, bufferSource, p_117351_, entity, f, f1, f2, p_117355_);
                 poseStack.popPose();
             }

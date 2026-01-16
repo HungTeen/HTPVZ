@@ -80,7 +80,10 @@ public class PeaShooter extends ShooterPlant {
     public float getBulletSpeed() {
         return (this.hasSkill(this, SNIPER_SKILL_NAME) ? 5F : 1F) * super.getBulletSpeed();
     }
-
+    @Override
+    public int getDisappearTicks() {
+        return this.hasSkill(SNIPER_SKILL_NAME) ? 2100000000 : 12000;
+    }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)

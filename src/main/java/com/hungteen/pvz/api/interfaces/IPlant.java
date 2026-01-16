@@ -79,6 +79,10 @@ public interface IPlant extends INeedSafeSituation, IHaveSkills {
         return list;
     }
     List<Skill> getBasicStaticSkillList();
+    /**minimum ticks the plant will live before it can be removed naturally. set it to a number less than 0 to disable natural disappearance for the plant.*/
+    default int getDisappearTicks() {
+        return 12000;
+    }
 
     default MutableComponent isPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {
         PVZPlantConditionMatchingEvent.OnBlock preCondition = new PVZPlantConditionMatchingEvent.OnBlock(

@@ -43,7 +43,7 @@ public class RegisterSeedPacketsEvent extends Event {
     }
 
     public static class SeedPacketData<T extends LivingEntity> {
-        public Supplier<EntityType<T>> entitySupplier;
+        public final Supplier<EntityType<T>> entitySupplier;
         public Supplier<Item> basePacketSupplier;
         public List<Skill> skillList = List.of();
         public List<Component> notes = new ArrayList<>();
@@ -51,9 +51,11 @@ public class RegisterSeedPacketsEvent extends Event {
         public int coolDown = 10;
         public String resource = PVZAPI.get().getSunResourceName();
         public boolean creativeOnly;
+        public boolean advanced;
 
         public SeedPacketData(Supplier<EntityType<T>> entitySupplier){
             this.entitySupplier = entitySupplier;
+            this.advanced = false;
         }
 
         public SeedPacketData(Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown) {
@@ -64,6 +66,10 @@ public class RegisterSeedPacketsEvent extends Event {
         }
         public SeedPacketData<T> setCreativeOnly(){
             creativeOnly = true;
+            return this;
+        }
+        public SeedPacketData<T> advanced(){
+            advanced = true;
             return this;
         }
         public SeedPacketData<T> packet(Supplier<Item> packet) {

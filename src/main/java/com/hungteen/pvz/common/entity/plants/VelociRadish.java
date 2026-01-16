@@ -327,6 +327,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         }
         //check plant situation damage.
         firstUnsafeSituationMercy = SimplePlant.testPlantSafe(this, firstUnsafeSituationMercy);
+        SimplePlant.testDisappear(this);
         //animation
         animationTick ++;
         if (entityData.get(POSE) == 0) {

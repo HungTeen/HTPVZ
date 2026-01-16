@@ -33,11 +33,19 @@ public class DiggerZombieRenderer<T extends DiggerZombie, M extends DiggerZombie
             poseStack.mulPose(Vector3f.XP.rotationDegrees(-f4 * 0.5F));
         }
     }
+
     @Override
-    protected int getBlockLightLevel(T p_114606_, BlockPos p_114607_) {
-        return Math.max(super.getBlockLightLevel(p_114606_, p_114607_),
-                Math.max(super.getBlockLightLevel(p_114606_, p_114607_.above()),
-                        super.getBlockLightLevel(p_114606_, p_114607_.above().above())));
+    protected int getSkyLightLevel(T zombie, BlockPos pos) {
+        return Math.max(super.getSkyLightLevel(zombie, pos),
+                Math.max(super.getSkyLightLevel(zombie, pos.above()),
+                        super.getSkyLightLevel(zombie, pos.above().above())));
+    }
+
+    @Override
+    protected int getBlockLightLevel(T zombie, BlockPos pos) {
+        return Math.max(super.getBlockLightLevel(zombie, pos),
+                Math.max(super.getBlockLightLevel(zombie, pos.above()),
+                        super.getBlockLightLevel(zombie, pos.above().above())));
     }
     @Override
     public void render(T zombie, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {

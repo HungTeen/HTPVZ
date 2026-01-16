@@ -30,6 +30,7 @@ public class Imp extends PVZZombie {
         this.setBaby(true);
         return spawnGroupData;
     }
+
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);

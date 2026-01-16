@@ -121,13 +121,19 @@ public class SpikeWeed extends SimplePlant {
         }
         return aabb;
     }
+
+    public Vec3 getDeltaMovement() {
+        boolean bool = ! this.hasSkill(ON_WALL_SKILL_NAME)
+                || level.getBlockState(this.getRootBlockPos()).isAir()
+                || (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock);
+        return bool ? super.getDeltaMovement() : Vec3.ZERO;
+    }
     @Override
     public void tick() {
-        setNoGravity(
-                ! (this.entityData.get(ATTACH_FACE) == Direction.UP) &&
-                ! level.getBlockState(this.getRootBlockPos()).isAir() &&
-                ! (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock));
-        if (! this.isNoGravity()) {
+        if ((this.entityData.get(ATTACH_FACE) != Direction.UP)
+                && (level.getBlockState(this.getRootBlockPos()).isAir()
+                        || ! this.hasSkill(ON_WALL_SKILL_NAME)
+                        || (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock))) {
             this.entityData.set(ATTACH_FACE, Direction.UP);
         }
         super.tick();

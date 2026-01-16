@@ -15,7 +15,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -70,13 +69,21 @@ public class Util {
 
 
     //planting tools
-    /**in order to put event into api, the rapid way to create the events are defined here.*/
+    public static int getSeedPacketExtraCostRange(Player player) {
+        if (player.level instanceof ServerLevel serverLevel) {
+            return PVZConfig.PVZGameRules.getInt(serverLevel, PVZConfig.Common.advancedPlantExtraCostRange);
+        } else {
+            return PVZPlayerCapability.advancedPlantsExtraCostRange;
+        }
+    }
+
+    /**in order to put event into api, the rapid methods to create the events are defined here.*/
     public static PVZResourceEvent.CheckResourceEvent checkPlantResourceEvent(Player player, ItemStack plantCard) {
         SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
         String resource = item.getResource(plantCard);
         int cost = (resource.equals(PVZPlayerCapStats.SUN)
                 && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
-                0 : item.getBaseCost(plantCard);
+                0 : item.getBaseCost(plantCard) + item.getTotalExtraCost(player);
         int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
                 1 : item.getBaseCoolDown(plantCard);
         return new PVZResourceEvent.CheckResourceEvent(player, plantCard, resource, cost, coolDown);
@@ -87,7 +94,7 @@ public class Util {
         String resource = item.getResource(plantCard);
         int cost = (resource.equals(PVZPlayerCapStats.SUN)
                 && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
-                0 : item.getBaseCost(plantCard);
+                0 : item.getBaseCost(plantCard) + item.getTotalExtraCost(player);
         int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
                 1 : item.getBaseCoolDown(plantCard);
         return new PVZResourceEvent.CheckPlantConditionEvent(player, plantCard, spawningEntity, resource, cost, coolDown);
@@ -146,10 +153,6 @@ public class Util {
     public static boolean hasBlockBetween(Level level, Vec3 pos1, Vec3 pos2) {
         BlockHitResult result = level.clip(new ClipContext(pos1, pos2, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
         return result.getType() != HitResult.Type.MISS;
-    }
-
-    public static long getServerTime(MinecraftServer server) {
-        return PVZSavedData.getServerTime(server.getScoreboard());
     }
 
     //debug tools

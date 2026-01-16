@@ -22,7 +22,6 @@ import java.util.*;
 public class PVZSavedData extends SavedData {
     private static final Map<Scoreboard, PVZSavedData> byScoreboard = new HashMap<>();
     private final Set<String> evilList = new HashSet<>();
-    private long serverLifetime = 0; //TODO scheduleCommand里面有原版的游戏时间引用？能换吗？
     /**Team evilness information is synced from server every second. Do not call in server.*/
     public static Set<String> clientEvilList = new HashSet<>();
     public static boolean isTeamBattleOn;
@@ -35,13 +34,8 @@ public class PVZSavedData extends SavedData {
                     data.evilList.remove(name);
                 }
             }
-            data.serverLifetime ++;
             data.setDirty();
         });
-    }
-
-    public static long getServerTime(Scoreboard scoreboard) {
-        return byScoreboard.containsKey(scoreboard) ? byScoreboard.get(scoreboard).serverLifetime : 0;
     }
 
     public static int setEvil(Scoreboard scoreboard, String name, boolean isEvil) {
@@ -94,8 +88,6 @@ public class PVZSavedData extends SavedData {
         this.evilList.forEach(name -> evil.add(StringTag.valueOf(name)));
         save.put("evil", evil);
 
-        save.putLong("server_time", this.serverLifetime);
-
         return save;
     }
 
@@ -108,9 +100,6 @@ public class PVZSavedData extends SavedData {
         if (save.contains("evil")) {
             ListTag evil = save.getList("evil", Tag.TAG_STRING);
             evil.forEach(name -> data.evilList.add(name.getAsString()));
-        }
-        if (save.contains("server_time")) {
-            data.serverLifetime = save.getLong("server_time");
         }
         return data;
     }

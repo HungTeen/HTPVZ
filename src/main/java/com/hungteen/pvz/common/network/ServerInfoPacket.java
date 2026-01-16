@@ -17,18 +17,21 @@ import java.util.function.Supplier;
 /**
  * Available sending from server to client.
  */
-public class TeamEvilnessPacket {
+public class ServerInfoPacket {
     private final ServerLevel level;
     private final boolean teamBattle;
+    private final int advancedPlantExtraCost;
     private final Set<String> evilSet;
-    public TeamEvilnessPacket(ServerLevel level) {
+    public ServerInfoPacket(ServerLevel level) {
         this.level = level;
-        this.teamBattle = false;
+        this.teamBattle = PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.teamBattle);
+        this.advancedPlantExtraCost = PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.advancedPlantExtraCostRange);
         this.evilSet = new HashSet<>();
     }
-    public TeamEvilnessPacket(FriendlyByteBuf buf) {
+    public ServerInfoPacket(FriendlyByteBuf buf) {
         this.level = null;
         this.teamBattle = buf.readBoolean();
+        this.advancedPlantExtraCost = buf.readInt();
         this.evilSet = new HashSet<>();
         int size = buf.readInt();
         for (int i = 0; i < size; i ++) {
@@ -37,7 +40,8 @@ public class TeamEvilnessPacket {
     }
     public void toBytes(FriendlyByteBuf buf) {
         this.evilSet.clear();
-        buf.writeBoolean(PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.teamBattle));
+        buf.writeBoolean(teamBattle);
+        buf.writeInt(advancedPlantExtraCost);
         Collection<PlayerTeam> teams = level.getScoreboard().getPlayerTeams();
         teams.forEach(team -> {
             if (PVZSavedData.isEvil(level.getScoreboard(), team.getName())) {
@@ -59,6 +63,6 @@ public class TeamEvilnessPacket {
 
     //method
     public static void sync(ServerPlayer player, ServerLevel level){
-        PVZPacketHandler.sendToClient(player, new TeamEvilnessPacket(level));
+        PVZPacketHandler.sendToClient(player, new ServerInfoPacket(level));
     }
 }

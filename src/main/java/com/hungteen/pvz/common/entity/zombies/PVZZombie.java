@@ -105,9 +105,9 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
         if (data instanceof Zombie.ZombieGroupData zombie$zombiegroupdata) {
             zombie$zombiegroupdata.canSpawnJockey = false;
             zombie$zombiegroupdata.isBaby = false;
+            return super.finalizeSpawn(level, difficulty, spawnType, zombie$zombiegroupdata, tag);
         }
-        SpawnGroupData spawnGroupData = super.finalizeSpawn(level, difficulty, spawnType, data, tag);
-        return spawnGroupData;
+        return super.finalizeSpawn(level, difficulty, spawnType, data, tag);
     }
 
     public static boolean checkSpawnRules(EntityType<PVZZombie> p_219014_, ServerLevelAccessor p_219015_, MobSpawnType p_219016_, BlockPos p_219017_, RandomSource p_219018_) {

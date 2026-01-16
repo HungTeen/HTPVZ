@@ -116,7 +116,8 @@ public class PVZEntities {
             .collision(0.4F, 0.4F).entity("anger", Anger::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F)
             .entity("sprout", Sprout::new, MobCategory.CREATURE);
-    public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).noSummon()
+            .entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
 
     //client
     public static final RegistryObject<EntityType<ModelPartEntity>> MODEL_PART = collision(0.2F, 0.2F).noSummon()

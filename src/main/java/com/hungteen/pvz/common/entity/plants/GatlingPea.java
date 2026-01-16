@@ -2,7 +2,6 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.api.interfaces.IAdvancedPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
@@ -37,7 +36,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Set;
 
-public class GatlingPea extends Repeater implements PlayerRideableJumping, IEntityPacketHandler, IAdvancedPlant {
+public class GatlingPea extends Repeater implements PlayerRideableJumping, IEntityPacketHandler {
 
     public AnimationState controlledAnimationState = new AnimationState();
     private boolean playerFire = false;

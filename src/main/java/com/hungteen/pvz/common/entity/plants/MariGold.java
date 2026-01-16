@@ -6,7 +6,6 @@ import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -171,11 +170,11 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     @Override
     public int getRemainingGrowTick() {
-        return (this.level.isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - Util.getServerTime(this.level.getServer()));
+        return (this.getLevel().isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - this.getLevel().getGameTime());
     }
     @Override
     public void setRemainingGrowTick(int time) {
-        this.growEndTime = this.level.isClientSide ? -1L : Util.getServerTime(this.level.getServer()) + time;
+        this.growEndTime = this.getLevel().isClientSide ? -1L : this.getLevel().getGameTime() + time;
     }
     public int getColor() {
         return this.entityData.get(COLOR);

@@ -16,6 +16,7 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
+import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -55,11 +56,13 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -74,8 +77,9 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     private final int coolDown;
     private final List<Skill> skillList;
     public final boolean creativeOnly;
+    public final boolean extraCost;
 
-    public SeedPacketItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, List<Skill> skillList, String resource, int cost, int coolDown, boolean creativeOnly) {
+    public SeedPacketItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, List<Skill> skillList, String resource, int cost, int coolDown, boolean creativeOnly, boolean extraCost) {
         super(p_41383_);
         this.entitySupplier = entitySupplier;
         this.skillList = skillList;
@@ -83,6 +87,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         this.cost = cost;
         this.coolDown = coolDown;
         this.creativeOnly = creativeOnly;
+        this.extraCost = extraCost;
         if (this.getClass() == SeedPacketItem.class) seedPacketItemList.add(this);
     }
 
@@ -99,6 +104,22 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             return itemStack.getTag().contains("Cost") ? itemStack.getTag().getInt("Cost") : cost;
         }
         return cost;
+    }
+
+    public int getTotalExtraCost(Player player) {
+        AtomicInteger result = new AtomicInteger();
+        int range = Util.getSeedPacketExtraCostRange(player);
+        if (range >= 0) {
+            player.level.getEntities((Entity) null
+                            , player.getBoundingBox().inflate(range)
+                            , entity1 -> (entity1.getType() == getEntity() && extraCost && EntityUtil.isTeammate(player, entity1)))
+                    .forEach(entity1 -> result.addAndGet(getExtraCost(player, (T) entity1)));
+        }
+        return result.get();
+    }
+
+    public int getExtraCost(Player player, T entity) {
+        return 50;
     }
 
     /** This method returns the original cool down of the itemStack, not including the effects of enchantments and buffs. To get the accurate number, use {@link PVZResourceEvent.CheckResourceEvent}.
@@ -430,15 +451,15 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
+    public Optional<TooltipComponent> getTooltipImage(@NotNull ItemStack itemStack) {
         Player player = !(ClientProxy.MC.getCameraEntity() instanceof Player) ? null : ClientProxy.getPlayer();
-        if (! player.isCreative() && ! player.isSpectator()) {
+        if (player != null && !player.isCreative() && !player.isSpectator()) {
             PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, itemStack);
             MinecraftForge.EVENT_BUS.post(event);
-            return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, getResource(itemStack).equals(PVZPlayerCapStats.SUN), false, true));
+            boolean hasExtraCost = this.extraCost && Util.getSeedPacketExtraCostRange(player) >= 0; //TODO let tooltip show whether it has advanced plant extra cost.
+            return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, getResource(itemStack).equals(PVZPlayerCapStats.SUN)
+                    , false, true, hasExtraCost));
         }
         return Optional.empty();
     }
-
 }

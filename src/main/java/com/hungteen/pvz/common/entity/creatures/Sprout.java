@@ -9,7 +9,6 @@ import com.hungteen.pvz.common.event.SproutTransformEvent;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -129,11 +128,11 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public int getRemainingGrowTick() {
-        return (this.level.isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - Util.getServerTime(this.level.getServer()));
+        return (this.getLevel().isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - this.getLevel().getGameTime());
     }
     @Override
     public void setRemainingGrowTick(int time) {
-        this.growEndTime = this.level.isClientSide ? -1L : Util.getServerTime(this.level.getServer()) + time;
+        this.growEndTime = this.getLevel().isClientSide ? -1L : this.getLevel().getGameTime() + time;
     }
 
     @Override
