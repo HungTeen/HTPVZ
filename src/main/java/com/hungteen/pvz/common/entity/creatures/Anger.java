@@ -35,7 +35,7 @@ public class Anger extends FlyingMob {
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 2.0D)
-                .add(Attributes.FLYING_SPEED, 0.6F)
+                .add(Attributes.FLYING_SPEED, 0.3F)
                 .add(Attributes.ATTACK_DAMAGE, 1D);
     }
     @Override

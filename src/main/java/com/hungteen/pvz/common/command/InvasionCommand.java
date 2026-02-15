@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.command;
 
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
+import com.hungteen.pvz.common.register.PVZZombieEvents;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.common.world.invasion.InvasionType;
 import com.hungteen.pvz.util.Util;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class InvasionCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -34,6 +36,8 @@ public class InvasionCommand {
                                                 , EntityArgument.getEntity(c, "target")
                                                 , UuidArgument.getUuid(c, "uuid")))))))
                 .then(Commands.literal("remove")
+                        .then(Commands.literal("all")
+                                .executes(c -> removeAllInvasion(c.getSource())))
                         .then(Commands.argument("uuid", UuidArgument.uuid())
                                 .executes(c -> removeInvasion(c.getSource(), UuidArgument.getUuid(c, "uuid"))))));
     }
@@ -62,7 +66,31 @@ public class InvasionCommand {
                 result.set(true);
             }
         });
-        source.sendSuccess(Component.translatable("commands.pvz.invasion.remove", uuid), true);
-        return result.get() ? 1 : 0;
+        if (result.get()) {
+            source.sendSuccess(Component.translatable("commands.pvz.invasion.remove", uuid), true);
+            return 1;
+        } else {
+            source.sendFailure(Component.translatable("commands.pvz.invasion.not_found"));
+            return 0;
+        }
+    }
+
+    public static int removeAllInvasion(CommandSourceStack source) {
+        AtomicInteger result = new AtomicInteger();
+        source.getLevel().getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
+            cap.getEvents().forEach(event -> {
+                if (event.getType().equals(PVZZombieEvents.INVASION.getId())) {
+                    event.remove();
+                    result.incrementAndGet();
+                }
+            });
+        });
+        if (result.get() > 0) {
+            source.sendSuccess(Component.translatable("commands.pvz.invasion.remove_all", result.get()), true);
+            return result.get();
+        } else {
+            source.sendFailure(Component.translatable("commands.pvz.invasion.not_found"));
+            return 0;
+        }
     }
 }

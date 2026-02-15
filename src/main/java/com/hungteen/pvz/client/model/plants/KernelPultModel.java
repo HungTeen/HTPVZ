@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.model.plants;
 
-import com.hungteen.pvz.client.model.plants.animation.KernelPultAnimation;
+import com.hungteen.pvz.client.model.plants.animation.KernelPultModelAnimation;
 import com.hungteen.pvz.common.entity.plants.KernelPult;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -105,8 +105,8 @@ public class KernelPultModel<T extends KernelPult> extends HierarchicalModel<T> 
     public void setupAnim(T kernelPult, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.total.getAllParts().forEach(ModelPart::resetPose);
         float f = ageInTicks - (float) kernelPult.tickCount;
-        this.animate(kernelPult.idleAnimationState, KernelPultAnimation.idle, ageInTicks);
-        this.animate(kernelPult.shootAnimationState, KernelPultAnimation.shoot, ageInTicks);
+        this.animate(kernelPult.idleAnimationState, KernelPultModelAnimation.idle, ageInTicks);
+        this.animate(kernelPult.shootAnimationState, KernelPultModelAnimation.shoot, ageInTicks);
         this.kernel.visible = kernelPult.getCurrentBullet() == KernelPult.CornTypes.KERNEL;
         this.butter.visible = kernelPult.getCurrentBullet() == KernelPult.CornTypes.BUTTER;
 

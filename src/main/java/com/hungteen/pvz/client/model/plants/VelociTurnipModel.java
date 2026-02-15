@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.VelociTurnipAnimation;
+import com.hungteen.pvz.client.model.plants.animation.VelociTurnipModelAnimation;
 import com.hungteen.pvz.common.entity.plants.VelociRadish;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -56,10 +56,10 @@ public class VelociTurnipModel<T extends VelociRadish> extends HierarchicalModel
 	@Override
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(entity.idleAnimationState, VelociTurnipAnimation.idle, ageInTicks);
-		this.animate(entity.moveAnimationState, VelociTurnipAnimation.move, ageInTicks);
-		this.animate(entity.attackAnimationState, VelociTurnipAnimation.attack, ageInTicks);
-		this.animate(entity.disAppearAnimationState, VelociTurnipAnimation.disappear, ageInTicks);
+		this.animate(entity.idleAnimationState, VelociTurnipModelAnimation.idle, ageInTicks);
+		this.animate(entity.moveAnimationState, VelociTurnipModelAnimation.move, ageInTicks);
+		this.animate(entity.attackAnimationState, VelociTurnipModelAnimation.attack, ageInTicks);
+		this.animate(entity.disAppearAnimationState, VelociTurnipModelAnimation.disappear, ageInTicks);
 	}
 
 	@Override

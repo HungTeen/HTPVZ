@@ -153,8 +153,8 @@ public class EntityUtil {
      */
     public static boolean checkCanEntityBeAttack(Entity attacker, Entity target) {
         if (attacker == null || target == null) return false;
-        boolean result = (!(target instanceof Player) || isSurvivalPlayer(target)) && isEntityValid(target) && ! isTeammate(attacker, target);
-        TeammateTestingEvent event = new TeammateTestingEvent(attacker, target, !result, true);
+        boolean result = ((! (target instanceof Player)) || isSurvivalPlayer(target)) && isEntityValid(target) && ! isTeammate(attacker, target);
+        TeammateTestingEvent event = new TeammateTestingEvent(attacker, target, ! result, true);
         MinecraftForge.EVENT_BUS.post(event);
         return ! event.currentResult;
     }

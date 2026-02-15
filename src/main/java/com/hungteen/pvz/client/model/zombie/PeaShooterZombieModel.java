@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.model.zombie;
 
-import com.hungteen.pvz.client.model.plants.animation.PeaShooterAnimation;
+import com.hungteen.pvz.client.model.plants.animation.PeaShooterModelAnimation;
 import com.hungteen.pvz.common.entity.zombies.zombotany.PeaShooterZombie;
 import net.minecraft.client.model.geom.ModelPart;
 
@@ -20,8 +20,8 @@ public class PeaShooterZombieModel<T extends PeaShooterZombie> extends Zombotany
             }
             this.attachedHead.getAllParts().forEach(ModelPart::resetPose);
             super.setupAnim(zombie, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-            this.animate(zombie.idleAnimationState, PeaShooterAnimation.idle, ageInTicks);
-            this.animate(zombie.shootAnimationState, PeaShooterAnimation.shoot, ageInTicks);
+            this.animate(zombie.idleAnimationState, PeaShooterModelAnimation.idle, ageInTicks);
+            this.animate(zombie.shootAnimationState, PeaShooterModelAnimation.shoot, ageInTicks);
             return;
         }
         super.setupAnim(zombie, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);

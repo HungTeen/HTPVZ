@@ -1,12 +1,13 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -362,7 +363,7 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
                 } else if (tangleKelp.tickCount % 40 < 2) {
                     Entity target = tangleKelp.getFirstPassenger();
                     target.hurt(PVZDamageSource.transferKiller(new DamageSource("tangle_kelp").bypassArmor(), PVZEntityCapability.getOwner(tangleKelp)),
-                            (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                            (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(tangleKelp.level));
                     tangleKelp.hurt(new DamageSource("tangle_kelp").bypassArmor(), 0.5f);
                 }
             }

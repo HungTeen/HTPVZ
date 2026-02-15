@@ -57,6 +57,7 @@ public class PVZFogCommand {
     private static int addFog(CommandSourceStack source, Vec3 pos, int seconds, double strength, double range) {
         return addFog(source, pos, seconds, strength, range, UUID.randomUUID());
     }
+
     private static int addFog(CommandSourceStack source, Vec3 pos, int seconds, double strength, double range, UUID uuid) {
         if (PVZFogPacket.fog(source.getLevel(), pos, seconds, strength, range, uuid)) {
             source.sendSuccess(Component.translatable("commands.pvz.fog.add", "["+ uuid +"]"), true);
@@ -66,6 +67,7 @@ public class PVZFogCommand {
             return 0;
         }
     }
+
     private static int modifyFog(CommandSourceStack source, UUID uuid, Vec3 pos) {
         if (PVZFogPacket.modifyFog(uuid, pos)) {
             source.sendSuccess(Component.translatable("commands.pvz.fog.modify", "["+ uuid +"]"), true);
@@ -75,6 +77,7 @@ public class PVZFogCommand {
             return 0;
         }
     }
+
     private static int modifyFog(CommandSourceStack source, UUID uuid, PVZFogPacket.ModifyType modifyType, int value) {
         if (PVZFogPacket.modifyFog(uuid, modifyType, value)) {
             source.sendSuccess(Component.translatable("commands.pvz.fog.modify", "["+ uuid +"]"), true);
@@ -86,15 +89,10 @@ public class PVZFogCommand {
     }
 
     private static int removeAllFogs(CommandSourceStack source) {
-        int num = PVZFog._pvzFogs.size();
-        Set<PVZFog> fogs = Set.copyOf(PVZFog._pvzFogs.values());
+        int num = PVZFog.pvzFogs.size();
+        Set<PVZFog> fogs = Set.copyOf(PVZFog.pvzFogs.values());
         fogs.forEach(fog -> modifyFog(source, fog.uuid, PVZFogPacket.ModifyType.REMOVE, 0));
-        UUID uuid;
-        if (num == 1) {
-            uuid = fogs.iterator().next().uuid;
-        } else {
-            source.sendSuccess(Component.translatable("commands.pvz.fog.remove_all", num), true);
-        }
+        source.sendSuccess(Component.translatable("commands.pvz.fog.remove_all", num), true);
         return num;
     }
 }

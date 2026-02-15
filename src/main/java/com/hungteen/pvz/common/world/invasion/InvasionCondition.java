@@ -137,6 +137,7 @@ public interface InvasionCondition {
             return 0;
         }
     }
+
     class AroundEntitiesCostCondition implements InvasionCondition {
         @Override
         public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {

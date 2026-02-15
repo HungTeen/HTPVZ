@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.common.register.PVZStats;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.stats.Stats;
@@ -54,6 +55,7 @@ public class SeedItem<T extends Entity> extends SeedPacketItem<T> {
     @Override
     protected void used(ItemStack itemstack, Player player) {
         player.awardStat(Stats.ITEM_USED.get(itemstack.getItem()));
+        player.awardStat(PVZStats.PLANT);
         if (!player.getAbilities().instabuild) {
             itemstack.shrink(1);
         }

@@ -3,9 +3,8 @@ package com.hungteen.pvz.client.model.zombie;// Made with Blockbench 4.10.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.zombie.animation.GargantuarAnimation;
+import com.hungteen.pvz.client.model.zombie.animation.GargantuarModelAnimation;
 import com.hungteen.pvz.common.entity.zombies.Gargantuar;
-import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.ArmedModel;
@@ -144,9 +143,9 @@ public class GargantuarModel<T extends Gargantuar> extends HierarchicalModel<T> 
 		this.leftLeg.zRot = 0.0F;
 
 		//keyFrame animations.
-		this.animate(gargantuar.attackAnimationState, GargantuarAnimation.attack, ageInTicks);
-		this.animate(gargantuar.throwAnimationState, GargantuarAnimation.throwing, ageInTicks);
-		this.animate(gargantuar.idleAnimationState, GargantuarAnimation.idle, ageInTicks);
+		this.animate(gargantuar.attackAnimationState, GargantuarModelAnimation.attack, ageInTicks);
+		this.animate(gargantuar.throwAnimationState, GargantuarModelAnimation.throwing, ageInTicks);
+		this.animate(gargantuar.idleAnimationState, GargantuarModelAnimation.idle, ageInTicks);
 
 		//baby
 		if (young) {

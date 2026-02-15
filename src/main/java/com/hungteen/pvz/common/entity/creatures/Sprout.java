@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.events.GardenPlantGrowUpEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
@@ -218,10 +219,14 @@ public class Sprout extends Mob implements IGardenPlant {
     public InteractionResult onFertilized(Player player, ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringFertilizer()) {
-            if (this.getGrowLevel() == 0) {
+            GardenPlantGrowUpEvent event = new GardenPlantGrowUpEvent(this, this.getGrowLevel() == 0);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.shouldApplyEffects) {
                 this.transformPlant();
             }
-            setGrowLevel(this.getGrowLevel() + 1);
+            if (! event.isCanceled()) {
+                setGrowLevel(this.getGrowLevel() + 1);
+            }
             this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.sproutGrowTime));
             this.setRequiringWater(true);
             this.setRequiring(false);
@@ -248,26 +253,27 @@ public class Sprout extends Mob implements IGardenPlant {
         }
     }
     private void transformPlant() {
-        String result = "";
-        if (this.entityData.get(PLANT_NAME).equals("")) {
-            int allChance = 1;
-            for (int i: transformChance.values()) {
-                allChance += i;
-            }
-            int chosen = random.nextInt(allChance);
-            for (String name: transformChance.keySet()) {
-                chosen -= transformChance.get(name) > 0 ? transformChance.get(name) : 0;
-                if (chosen <= 0) {
-                    result = name;
-                    break;
+        String result = this.entityData.get(PLANT_NAME);
+        if (result.isEmpty()) {
+            if (this.isMarigold()) {
+                result = "pvz:marigold";
+            } else {
+                int allChance = 1;
+                for (int i: transformChance.values()) {
+                    allChance += i;
+                }
+                int chosen = random.nextInt(allChance);
+                for (String name: transformChance.keySet()) {
+                    chosen -= transformChance.get(name) > 0 ? transformChance.get(name) : 0;
+                    if (chosen <= 0) {
+                        result = name;
+                        break;
+                    }
+                }
+                if (result.equals("")) {
+                    result = "pvz:marigold";
                 }
             }
-            if (result.equals("")) {
-                result = "pvz:marigold";
-            }
-        }
-        if (this.isMarigold()) {
-            result = "pvz:marigold";
         }
         SproutTransformEvent event = new SproutTransformEvent(this, result);
         MinecraftForge.EVENT_BUS.post(event);

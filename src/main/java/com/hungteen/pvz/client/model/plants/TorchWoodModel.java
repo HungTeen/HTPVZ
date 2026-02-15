@@ -3,8 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.4
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.MelonPultAnimation;
-import com.hungteen.pvz.client.model.plants.animation.TorchWoodAnimation;
+import com.hungteen.pvz.client.model.plants.animation.TorchWoodModelAnimation;
 import com.hungteen.pvz.common.entity.plants.TorchWood;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -39,7 +38,7 @@ public class TorchWoodModel<T extends TorchWood> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(entity.idleAnimationState, TorchWoodAnimation.animation, ageInTicks);
+		this.animate(entity.idleAnimationState, TorchWoodModelAnimation.animation, ageInTicks);
 	}
 
 	@Override

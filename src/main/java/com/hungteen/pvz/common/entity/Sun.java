@@ -10,6 +10,7 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZParticles;
+import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -173,6 +174,12 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
                     this.remove(Entity.RemovalReason.DISCARDED);
                 } else {
                     this.setAmount(num - actual + origin);
+                }
+                if (! player.isCreative()) {
+                    player.awardStat(PVZStats.COLLECT_SUN_VALUE, actual - origin);
+                }
+                if (actual - origin > 0) {
+                    player.awardStat(PVZStats.COLLECT_SUN);
                 }
             });
             event = new AbsorbSunEvent.Player(this, player, AbsorbSunEvent.Phase.End);

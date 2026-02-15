@@ -1,16 +1,18 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.creatures.Anger;
-import com.hungteen.pvz.common.entity.SimplePlant;
-import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -48,6 +50,7 @@ public class Jalapeno extends SimplePlant {
     public boolean fireImmune() {
         return true;
     }
+
     public void explode() {
         level.explode(this, transferKiller(teamFilter(DamageSource.explosion(this).bypassArmor()), PVZEntityCapability.getOwner(this)), null, this.getX(), this.getY() + 1, this.getZ(),
                 1F, false, Explosion.BlockInteraction.NONE);
@@ -60,10 +63,11 @@ public class Jalapeno extends SimplePlant {
                 anger.setPos(this.position().add(0, 1, 0));
                 anger.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
                 anger.yRot = direction.toYRot();
-                anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(this.level));
                 level.addFreshEntity(anger);
                 if (this.hasSkill(TRACK_SKILL_NAME)) {
                     anger.maxLife = 150;
+                    anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
                 } else {
                     anger.targetSelector.disableControlFlag(Goal.Flag.TARGET);
                     anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(1F);
@@ -75,7 +79,7 @@ public class Jalapeno extends SimplePlant {
 
     //entity settings
     public static AttributeSupplier.Builder createAttributes() {
-        return ShooterPlant.createAttributes()
+        return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 6D)
                 .add(Attributes.ATTACK_DAMAGE, 25D);
     }

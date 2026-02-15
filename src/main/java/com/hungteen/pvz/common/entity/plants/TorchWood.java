@@ -1,8 +1,9 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.block.EntityLightBlock;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
@@ -141,7 +142,7 @@ public class TorchWood extends SimplePlant {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {
                         return;
                     } else if (pea.getPeaType() == PeaBullet.PeaType.Common) {
-                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 8F : 4F));
+                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 8F : 4F) * PVZAPI.get().getPlantDamageDatum(pea.level));
                     }
                     if (! pea.fireImmune()) {
                         pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :

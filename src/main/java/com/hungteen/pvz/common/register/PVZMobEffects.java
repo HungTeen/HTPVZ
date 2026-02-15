@@ -277,6 +277,7 @@ public class PVZMobEffects {
                     if ((types.isEmpty() || ! types.stream().allMatch(type -> type.isAvailable(entity, types)))) {
                         player.displayClientMessage(Component.translatable("hint.pvz.invasion.no_available_invasion"), true);
                     } else {
+                        player.awardStat(PVZStats.INVASIONS);
                         entity.level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
                             cap.addEvent(new Invasion(entity.level, types, entity, entity.blockPosition(), Math.min(11, Math.max(1, amplifier))));
                         });

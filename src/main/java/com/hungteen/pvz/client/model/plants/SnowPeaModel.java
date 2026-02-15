@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.SnowPeaAnimation;
+import com.hungteen.pvz.client.model.plants.animation.SnowPeaModelAnimation;
 import com.hungteen.pvz.common.entity.plants.SnowPea;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -72,8 +72,8 @@ public class SnowPeaModel<T extends SnowPea> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T snowPea, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(snowPea.idleAnimationState, SnowPeaAnimation.idle, ageInTicks);
-		this.animate(snowPea.shootAnimationState, SnowPeaAnimation.shoot, ageInTicks);
+		this.animate(snowPea.idleAnimationState, SnowPeaModelAnimation.idle, ageInTicks);
+		this.animate(snowPea.shootAnimationState, SnowPeaModelAnimation.shoot, ageInTicks);
 	}
 
 	@Override

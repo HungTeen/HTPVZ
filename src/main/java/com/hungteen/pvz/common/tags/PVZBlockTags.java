@@ -13,6 +13,8 @@ public class PVZBlockTags {
     public static final TagKey<Block> PLANTABLE_STONE = pvzTag("plantable_stone");
     public static final TagKey<Block> WISDOM_TREE_REPLACEABLE = pvzTag("wisdom_tree_replaceable");
     public static final TagKey<Block> GARDEN_FLOWER_POT = pvzTag("garden_flower_pot");
+    public static final TagKey<Block> SNAIL_SPAWNABLE_ON = pvzTag("snail_spawnable_on");
+    public static final TagKey<Block> FUNGICICOLIDAE_SPAWNABLE_ON = pvzTag("fungicicolidae_spawnable_on");
 
     //definition
 

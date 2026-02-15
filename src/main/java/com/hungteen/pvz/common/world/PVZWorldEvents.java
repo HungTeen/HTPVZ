@@ -7,11 +7,10 @@ import com.hungteen.pvz.common.item.PVZShieldItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZMobEffects;
-import com.hungteen.pvz.common.register.PVZSeedPackets;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -51,9 +50,14 @@ public class PVZWorldEvents {
                 return;
             }
             ItemCooldowns cooldowns = event.getEntity().getCooldowns();
-            for (Item item : PVZSeedPackets.dataMap.keySet()) {
-                if (item instanceof SeedPacketItem<?> item1) {
-                    cooldowns.addCooldown(item, item1.getBaseCoolDown(null));
+            for (ItemStack item : event.getEntity().getInventory().items) {
+                if (item.getItem() instanceof SeedPacketItem<?> item1) {
+                    cooldowns.addCooldown(item.getItem(), item1.getBaseCoolDown(null));
+                }
+            }
+            for (ItemStack item : event.getEntity().getInventory().offhand) {
+                if (item.getItem() instanceof SeedPacketItem<?> item1) {
+                    cooldowns.addCooldown(item.getItem(), item1.getBaseCoolDown(null));
                 }
             }
         }

@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.GatlingPeaAnimation;
+import com.hungteen.pvz.client.model.plants.animation.GatlingPeaModelAnimation;
 import com.hungteen.pvz.common.entity.plants.GatlingPea;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -62,9 +62,9 @@ public class GatlingPeaModel<T extends GatlingPea> extends HierarchicalModel<T> 
 	@Override
 	public void setupAnim(T peaShooter, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(peaShooter.idleAnimationState, GatlingPeaAnimation.idle, ageInTicks);
-		this.animate(peaShooter.shootAnimationState, GatlingPeaAnimation.shoot, ageInTicks);
-		this.animate(peaShooter.controlledAnimationState, GatlingPeaAnimation.controlled_shoot, ageInTicks);
+		this.animate(peaShooter.idleAnimationState, GatlingPeaModelAnimation.idle, ageInTicks);
+		this.animate(peaShooter.shootAnimationState, GatlingPeaModelAnimation.shoot, ageInTicks);
+		this.animate(peaShooter.controlledAnimationState, GatlingPeaModelAnimation.controlled_shoot, ageInTicks);
 	}
 
 	@Override

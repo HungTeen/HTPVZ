@@ -5,14 +5,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
+import javax.annotation.Nullable;
+
 /**Can only be LivingEntity.*/
 public interface IGardenPlant {
 
     /**This determines GardenFlowerPotBlock or other possible garden flower pots is water pot.*/
     BooleanProperty WATER = BooleanProperty.create("water");
 
-    InteractionResult onWatered(Player player, ItemStack stack);
-    InteractionResult onFertilized(Player player, ItemStack stack);
+    InteractionResult onWatered(@Nullable Player player, ItemStack stack);
+    InteractionResult onFertilized(@Nullable Player player, ItemStack stack);
 
     /**@return  The max level the garden plant can reach.*/
     int getMaxLevel();

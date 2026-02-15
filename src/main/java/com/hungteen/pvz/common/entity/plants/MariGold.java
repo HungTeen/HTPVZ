@@ -1,9 +1,10 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.events.GardenPlantGrowUpEvent;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.BlockPos;
@@ -29,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Set;
 
@@ -85,8 +87,14 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     public InteractionResult onFertilized(Player player, ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringFertilizer()) {
-            this.entityData.set(IS_PRODUCING, true);
-            setGrowLevel(this.getGrowLevel() + 1);
+            GardenPlantGrowUpEvent event = new GardenPlantGrowUpEvent(this, true);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.shouldApplyEffects) {
+                this.entityData.set(IS_PRODUCING, true);
+            }
+            if (! event.isCanceled()) {
+                setGrowLevel(this.getGrowLevel() + 1);
+            }
             this.setRequiringWater(true);
             this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.marigoldGrowTime));
             this.setRequiring(false);

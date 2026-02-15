@@ -168,11 +168,13 @@ public class BaseBullet extends Projectile {
 	}
 	protected boolean dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
-		if (target instanceof Shulker shulker && shulker.isClosed()) {
+		final DamageSource damageSource = getDamageSource(target);
+		if (target instanceof Shulker shulker && shulker.isClosed()
+				&& ! (damageSource.isBypassArmor() || damageSource.isExplosion() || PVZDamageSource.isBypassShield(damageSource))) {
 			return false;
 		}
 		//default normal damage.
-		boolean hurt = target.hurt(getDamageSource(target), damage);
+		boolean hurt = target.hurt(damageSource, damage);
 		this.discard();
 		return hurt;
 	}

@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.entity.plants.base;
 
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
@@ -138,7 +138,7 @@ public abstract class ProducerPlant extends SimplePlant {
             final int time = this.producer.getAttackTime();
             if (time <= 1) {
                 this.producer.genSomething();
-                this.producer.setAttackTime(this.producer.getGenCD());
+                this.producer.setAttackTime((int) (this.producer.getGenCD() * PVZAPI.get().getSunProductionDatum(this.producer.level)));
             } else if (! producer.level.getBiome(producer.blockPosition()).is(PVZBiomeTags.UNABLE_SUN_PRODUCTION)){
                 this.producer.setAttackTime(Math.max(0, time - 1));
             }

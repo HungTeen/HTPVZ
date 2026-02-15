@@ -98,6 +98,7 @@ public class PVZMod
         PVZLootModifiers.LOOT_MODIFIERS.register(modBus);
 
         PVZZombieEvents.ZOMBIE_EVENTS.register(modBus);
+        PVZStats.STATS.register(modBus);
         OtherRegisters.modBusRegister(modBus);
         modBus.addListener(PVZConfig.PVZGameRules::init);
 

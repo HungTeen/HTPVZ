@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -82,7 +82,7 @@ public class PeaShooter extends ShooterPlant {
     }
     @Override
     public int getDisappearTicks() {
-        return this.hasSkill(SNIPER_SKILL_NAME) ? 2100000000 : 12000;
+        return this.hasSkill(SNIPER_SKILL_NAME) ? 2100000000 : super.getDisappearTicks();
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()

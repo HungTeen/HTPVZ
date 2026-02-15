@@ -3,7 +3,7 @@ package com.hungteen.pvz.api.interfaces;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZPlantConditionMatchingEvent;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.BlockPos;
@@ -36,7 +36,7 @@ public interface IPlant extends INeedSafeSituation, IHaveSkills {
 
     /**These two methods are direction and blockPos used for testing whether this situation is safe,
      * especially for wall-attaching plants like {@link com.hungteen.pvz.common.entity.plants.SpikeWeed SpikeWeed}.
-     * @see com.hungteen.pvz.common.entity.SimplePlant#baseTick() SimplePlant#baseTick() */
+     * @see com.hungteen.pvz.common.entity.plants.base.SimplePlant#baseTick() SimplePlant#baseTick() */
     @Nullable
     default Direction getGrowDirection() {
         return Direction.UP;
@@ -48,9 +48,9 @@ public interface IPlant extends INeedSafeSituation, IHaveSkills {
     /**Contorlling if this plant can occupy space so other plants can't plant on.*/
     boolean takesCoincideDmg();
 
-    /**Called in {@link com.hungteen.pvz.common.entity.SimplePlant#mobInteract(Player, InteractionHand)}  SimplePlant#handleShovel(EntityInteract)} .<br>
+    /**Called in {@link com.hungteen.pvz.common.entity.plants.base.SimplePlant#mobInteract(Player, InteractionHand)}  SimplePlant#handleShovel(EntityInteract)} .<br>
      Is effective for all IPlant.<br>
-     For plants not extending SimplePlant, can use {@link com.hungteen.pvz.common.entity.SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity) SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity)}.*/
+     For plants not extending SimplePlant, can use {@link SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity) SimplePlant#onBeingShoveled(Player, InteractionHand, LivingEntity)}.*/
     boolean onBeingShoveled(Player player, InteractionHand handIn);
 
     /**Whether garden flower pot should be water pot when a sprout transformed into this plant in Zen Garden.*/
@@ -81,7 +81,7 @@ public interface IPlant extends INeedSafeSituation, IHaveSkills {
     List<Skill> getBasicStaticSkillList();
     /**minimum ticks the plant will live before it can be removed naturally. set it to a number less than 0 to disable natural disappearance for the plant.*/
     default int getDisappearTicks() {
-        return 12000;
+        return 30000;
     }
 
     default MutableComponent isPositionSafe(@Nullable PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, @Nullable Direction direction, boolean isPlanting) {

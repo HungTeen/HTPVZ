@@ -5,7 +5,7 @@ package com.hungteen.pvz.client.model.plants;
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.PlanternAnimation;
+import com.hungteen.pvz.client.model.plants.animation.PlanternModelAnimation;
 import com.hungteen.pvz.common.entity.plants.Plantern;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -109,7 +109,7 @@ public class PlanternModel<T extends Plantern> extends HierarchicalModel<T> {
 			}
 			stick3.y = Math.max(stick3.y, - 6);
 		}
-		this.animate(plantern.idleAnimationState, PlanternAnimation.idle, ageInTicks);
+		this.animate(plantern.idleAnimationState, PlanternModelAnimation.idle, ageInTicks);
 	}
 
 	@Override

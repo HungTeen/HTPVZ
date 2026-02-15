@@ -1,7 +1,8 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.common.entity.bullet.StarfruitBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
@@ -94,7 +95,7 @@ public class Starfruit extends ShooterPlant {
                 bullet.shoot(Math.cos(angle), 0.04, Math.sin(angle), speed, (float) randomAngle);
                 bullet.setOwner(this);
                 if (bullet instanceof BaseBullet bullet1) {
-                    bullet1.setAttackDamage(this.getAttackDamage());
+                    bullet1.setAttackDamage(this.getAttackDamage() * PVZAPI.get().getPlantDamageDatum(this.level));
                 }
                 this.level.addFreshEntity(bullet);
             }

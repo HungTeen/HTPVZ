@@ -2,10 +2,13 @@ package com.hungteen.pvz.api.interfaces;
 
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.RangedAttackMob;
 
 /**IShooter contains pvz shooters and pults.*/
-public interface IShooter {
-	//TODO extend RangedAttackMob
+public interface IShooter extends RangedAttackMob {
+
+	void performRangedAttack(LivingEntity target, float p_33318_);
 
 	/**
 	 * shoot bullet to attack

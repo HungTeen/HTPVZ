@@ -61,6 +61,8 @@ public class BlockTagGen extends BlockTagsProvider {
         this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTags(BlockTags.MOSS_REPLACEABLE, BlockTags.REPLACEABLE_PLANTS, BlockTags.LEAVES);
         this.tag(PVZBlockTags.SCULK).add(Blocks.SCULK, Blocks.SCULK_CATALYST, Blocks.SCULK_VEIN, Blocks.SCULK_SENSOR, Blocks.SCULK_SHRIEKER);
         this.tag(BlockTags.DIRT).add(PVZBlocks.ORIGIN_ORE.get());
+        this.tag(PVZBlockTags.SNAIL_SPAWNABLE_ON).addTags(BlockTags.ANIMALS_SPAWNABLE_ON).add(Blocks.MOSS_BLOCK);
+        this.tag(PVZBlockTags.FUNGICICOLIDAE_SPAWNABLE_ON).add(Blocks.MYCELIUM);
     }
 
     public static final List<TagKey<Block>> LOGS = new ArrayList<>();

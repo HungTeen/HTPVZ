@@ -17,6 +17,9 @@ public class PVZItemTags {
     public static final TagKey<Item> ENTITY_DAMAGEABLE_SHIELDS = pvzTag("entity_damageable_shields");
     public static final TagKey<Item> SEED_PACKETS = pvzTag("seed_packets");
     public static final TagKey<Item> SEEDS = pvzTag("seeds");
+    public static final TagKey<Item> SNAILS_CAN_PICK_UP = pvzTag("snails_can_pick_up");
+    public static final TagKey<Item> WATERING_POTS = pvzTag("watering_pots");
+    public static final TagKey<Item> SPROUT_FERTILIZERS = pvzTag("sprout_fertilizers");
 
 
     //definition

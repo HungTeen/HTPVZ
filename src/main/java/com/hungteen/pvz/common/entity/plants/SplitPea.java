@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
@@ -191,7 +192,7 @@ public class SplitPea extends PeaShooter {
             }
             bullet.setOwner(this);
             if (bullet instanceof BaseBullet bullet1) {
-                bullet1.setAttackDamage(this.getAttackDamage());
+                bullet1.setAttackDamage(this.getAttackDamage() * PVZAPI.get().getPlantDamageDatum(this.level));
             }
             this.level.addFreshEntity(bullet);
             return bullet;

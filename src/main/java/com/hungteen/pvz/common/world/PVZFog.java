@@ -29,7 +29,7 @@ public class PVZFog {
     public double range;
     public double effect = 0;
     public final UUID uuid;
-    public static Map<UUID, PVZFog> _pvzFogs = new HashMap<>();
+    public static Map<UUID, PVZFog> pvzFogs = new HashMap<>();
     private static Random random = new Random();
     private static double bufferStrength = 1e-10;
 
@@ -43,7 +43,7 @@ public class PVZFog {
         this.strength = strength;
         this.range = range;
         this.uuid = uuid;
-        _pvzFogs.put(uuid, this);
+        pvzFogs.put(uuid, this);
     }
 
     public static PVZFog addFog(ResourceLocation dimension, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
@@ -66,7 +66,8 @@ public class PVZFog {
         }
         return Math.max(
                 (range - this.position.multiply(1, range > 5 ? range / 5 : 1, 1)
-                .distanceTo(position.multiply(1, range > 5 ? range / 5 : 1, 1))) / range * 5 * 0.5 + 0.5, 0) * strength;
+                .distanceTo(position.multiply(1, range > 5 ? range / 5 : 1, 1))) / range * 5 * 0.5 + 0.5
+                , 0) * strength;
     }
 
     public UUID getUuid() {
@@ -76,21 +77,21 @@ public class PVZFog {
     //static methods
     public static double getFogStrengthAt(Level level, Vec3 position) {
         double strength = 0;
-        for (PVZFog fog : _pvzFogs.values()) {
+        for (PVZFog fog : pvzFogs.values()) {
             strength = Math.max(fog.effect * fog.getStrengthAt(level, position), strength);
         }
         return strength;
     }
 
     public static void serverFogsTick() {
-        for (PVZFog pvzFog : _pvzFogs.values()) {
+        for (PVZFog pvzFog : pvzFogs.values()) {
             pvzFog.lifeLeft -= 0.025;
         }
     }
 
     public static void clientFogsTick(double tickTime) {
         if (! Minecraft.getInstance().isPaused()) {
-            for (PVZFog fog : Set.copyOf(_pvzFogs.values())) {
+            for (PVZFog fog : Set.copyOf(pvzFogs.values())) {
                 fog.lifeLeft -= tickTime / 2;
                 Player player = ClientProxy.getPlayer();
                 if (player != null) {
@@ -116,7 +117,7 @@ public class PVZFog {
                     }
                     fog.effect = Math.max(Math.min(Math.min(fog.lifeLeft, 1), fog.effect), 0);
                     if (fog.lifeLeft < 0) {
-                        _pvzFogs.remove(fog.uuid);
+                        pvzFogs.remove(fog.uuid);
                     }
                 }
             }
@@ -124,15 +125,15 @@ public class PVZFog {
     }
 
     public static PVZFog getFog(UUID uuid) {
-        return _pvzFogs.get(uuid);
+        return pvzFogs.get(uuid);
     }
 
     public static CompoundTag serializeNBT() {
         //TODO change these to tag.gatAllTags() and implement INBTSerializable.
         CompoundTag tag = new CompoundTag();
-        tag.putInt("size", _pvzFogs.size());
+        tag.putInt("size", pvzFogs.size());
         int count = 0;
-        for (PVZFog fog : _pvzFogs.values()) {
+        for (PVZFog fog : pvzFogs.values()) {
             CompoundTag fogTag = new CompoundTag();
             fogTag.putString("dimension", fog.dimension.toString());
             fogTag.putDouble("x", fog.position.x);

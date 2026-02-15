@@ -4,7 +4,8 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.creatures.Snail;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -123,7 +124,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
     public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (target == null) {
             return Component.translatable("hint.pvz.plant.entity_not_present");
-        } else if (hasSkill(PORTABLE_SKILL_NAME) && (target instanceof Minecart || target instanceof Boat)) {
+        } else if (hasSkill(PORTABLE_SKILL_NAME) && (target instanceof Minecart || target instanceof Boat || (target instanceof Snail snail && snail.isTame()))) {
             if (isPlanting) {
                 if (!target.isVehicle()) {
                     if (event != null) {

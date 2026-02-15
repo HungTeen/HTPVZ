@@ -38,9 +38,11 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
     public boolean renderHat = true;
     private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
     private final UUID TRACKING_MODIFIER = UUID.fromString("c5321b12-712e-7474-5b37-f162e6b49f56");
-    public DiggerZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
-        super(p_34271_, p_34272_);
-        this.jumpControl = new DiggerZombieJumpControl(this);
+    public DiggerZombie(EntityType<? extends Zombie> p_34271_, Level level) {
+        super(p_34271_, level);
+        if (! level.isClientSide) {
+            this.jumpControl = new DiggerZombieJumpControl(this);
+        }
         this.dynamicGameEventListener = new DynamicGameEventListener<>(new VibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 24, this, (VibrationListener.ReceivingEvent)null, 0.0F, 0));
     }
     public static AttributeSupplier.Builder createAttributes() {

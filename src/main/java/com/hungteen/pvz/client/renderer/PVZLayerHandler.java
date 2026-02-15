@@ -1,10 +1,7 @@
 package com.hungteen.pvz.client.renderer;
 
-import com.hungteen.pvz.client.model.SilverSwordOrnamentModel;
-import com.hungteen.pvz.client.model.SproutModel;
+import com.hungteen.pvz.client.model.*;
 import com.hungteen.pvz.client.model.attached.*;
-import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
-import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
 import com.hungteen.pvz.client.model.bullet.DandelionSeedBulletModel;
 import com.hungteen.pvz.client.model.bullet.MelonBulletModel;
@@ -41,6 +38,8 @@ public class PVZLayerHandler {
         PVZEntities.simpleRenderHandler();
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
+        L(e, PVZEntities.SNAIL, SnailModel::createBodyLayer);
+        L(e, PVZEntities.SNAIL, SnailModel::createBodyLayer);
         L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, "armor", WallNutArmorModel::createBodyLayer);
@@ -88,7 +87,7 @@ public class PVZLayerHandler {
 
         //simple rendered entities
         for (EntityType<? extends Entity> entity: PVZEntities.simpleRenderedMap.keySet()){
-            L(e, name(entity), (Supplier<LayerDefinition>) PVZEntities.simpleRenderedMap.get(entity).get(1));
+            L(e, name(entity), PVZEntities.simpleRenderedMap.get(entity).b);
         }
     }
 

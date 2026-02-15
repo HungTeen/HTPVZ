@@ -16,9 +16,9 @@ import static com.hungteen.pvz.util.Util.name;
 
 public class SimpleMobRenderer<T extends Mob> extends MobRenderer<T, EntityModel<T>> {
     public SimpleMobRenderer(EntityRendererProvider.Context context, EntityType<T> entityType) {
-        super(context, /*model*/((Function<ModelPart,EntityModel<T>>) PVZEntities.simpleRenderedMap.get(entityType).get(0))
+        super(context, /*model*/((Function<ModelPart,EntityModel<T>>) PVZEntities.simpleRenderedMap.get(entityType).a)
                 .apply(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get(name(entityType)+":main"))),
-                /*shadowSize*/ (float) PVZEntities.simpleRenderedMap.get(entityType).get(2));
+                /*shadowSize*/ PVZEntities.simpleRenderedMap.get(entityType).c);
     }
     public ResourceLocation getTextureLocation(Mob mob) {
         return PVZEntities.simpleTextureLocationMap.get(mob.getType()).apply(mob);

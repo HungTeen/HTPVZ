@@ -67,10 +67,8 @@ public class DandelionSeedBullet extends BaseBullet {
     }
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        if (!this.level.isClientSide()) {
-            explode(result.getEntity().position());
-        }
     }
+
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
@@ -81,8 +79,8 @@ public class DandelionSeedBullet extends BaseBullet {
     }
     protected DamageSource getDamageSource(Entity target) {
         return transferKiller(
-                knockBack(ignoreInvTime(teamFilter(multiply(
-                        PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()).setExplosion().damageHelmet(), 0.5F))), 0F)
+                knockBack(ignoreInvTime(teamFilter(
+                        PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()).setExplosion().damageHelmet())), 0F)
                 , PVZEntityCapability.getOwner(this));
     }
     public void explode(Vec3 pos) {
@@ -116,7 +114,7 @@ public class DandelionSeedBullet extends BaseBullet {
                         double d14 = Explosion.getSeenPercent(pos, entity);
                         double d10 = (1 - d12) * d14;
                         entity.hurt(this.getDamageSource(entity), (float) ((int) ((d10 * d10 + d10) / 2.0D * 7.0D * (double) scale + 1.0D)));
-                        if (! entity.isAlive() && entity instanceof LivingEntity living) {
+                        if (entity instanceof LivingEntity living && living.isDeadOrDying()) {
                             living.getActiveEffects().forEach(instance -> {
                                 if (! instances.containsKey(instance.getEffect())) {
                                     instances.put(instance.getEffect(), instance);

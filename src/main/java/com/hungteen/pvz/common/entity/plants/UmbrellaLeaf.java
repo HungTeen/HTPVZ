@@ -4,7 +4,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IHangable;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -12,8 +12,6 @@ import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -38,7 +36,6 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState openAnimationState = new AnimationState();
-    protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(UmbrellaLeaf.class, EntityDataSerializers.BOOLEAN);
     public static final String FREE_SKILL_NAME = "skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf";
     public static final String BOUNCE_SKILL_NAME = "skill.pvz.umbrella_leaf.bounce_bounds_bonus";
     public static List<Skill> staticSkillList = List.of(
@@ -53,7 +50,6 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(POSE, false);
     }
 
     /** for players, another method in client side is used. See {@link #tick()}. */
@@ -65,30 +61,31 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
     }
 
-    public boolean canBounce(Entity entity, boolean isClient) {
+    public boolean canBounce(Entity target, boolean isClient) {
+        if (target == this) return false;
         AttributeInstance instance = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if (instance != null && instance.getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
             return false;
         }
-        if (entity.getType().is(Tags.EntityTypes.BOSSES) || ! this.isAlive()) {
+        if (target.getType().is(Tags.EntityTypes.BOSSES) || ! this.isAlive()) {
             return false;
         }
-        if (entity.getDeltaMovement().length() < 0.5 || entity.getDeltaMovement().subtract(this.getDeltaMovement()).length() < 0.5) {
+        if (target.getDeltaMovement().length() < 0.5 || target.getDeltaMovement().subtract(this.getDeltaMovement()).length() < 0.5) {
             return false;
         }
-        if (Util.hasBlockBetween(this.level, this.position(), entity.position())) {
+        if (Util.hasBlockBetween(this.level, this.position(), target.position())) {
             return false;
         }
         if (isClient) {
-            return entity == ClientProxy.getPlayer() && ! entity.isShiftKeyDown();
+            return ! target.isShiftKeyDown();
         }
-        Vec3 vec31 = entity.getDeltaMovement();
-        Vec3 vec32 = this.position().subtract(entity.position());
+        Vec3 vec31 = target.getDeltaMovement();
+        Vec3 vec32 = this.position().subtract(target.position());
         if (vec31.x * vec32.x + vec31.y * vec32.y + vec31.z * vec32.z < 0) {
             return false;
         }
-        return ((entity instanceof LivingEntity && ! (entity instanceof Player)) || EntityUtil.checkCanEntityBeAttack(entity, this)
-                || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this)));
+        return ((target instanceof LivingEntity && ! (target instanceof Player)) || EntityUtil.checkCanEntityBeAttack(target, this)
+                || (target instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) target).getOwner(), this)));
     }
 
     @Override
@@ -100,7 +97,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         if (level.isClientSide) {
             float width = hasSkill(BOUNCE_SKILL_NAME) ? 3 : 1F;
             List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(width, 1.5, width).move(0, 0.5, 0),
-                    (entity) -> canBounce(entity, true));
+                    (entity) -> entity == ClientProxy.getPlayer() && canBounce(entity, true));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
@@ -118,11 +115,12 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_219422_) {
-        if (POSE.equals(p_219422_)) {
-            if (entityData.get(POSE)) {
+        if (ATTACK_TIME.equals(p_219422_)) {
+            if (entityData.get(ATTACK_TIME) == 30) {
+                this.openAnimationState.stop();
                 this.idleAnimationState.stop();
                 this.openAnimationState.start(this.tickCount);
-            } else {
+            } else if (entityData.get(ATTACK_TIME) < 20 && ! this.idleAnimationState.isStarted()) {
                 this.openAnimationState.stop();
                 this.idleAnimationState.start(this.tickCount);
             }
@@ -145,7 +143,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     @Override
     public void handlePVZPacket(ServerPlayer player, int val) {
-        if (this.getAttackTime() <= 20) {
+        if (this.getAttackTime() <= 24) {
             setAttackTime(30);
         }
         player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 5, 0, false, false));
@@ -164,7 +162,6 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             if (entity.getAttackTime() < 0) {
                 entity.setAttackTime(19);
             }
-            entity.getEntityData().set(POSE, entity.getAttackTime() > 20);
             if (entity.getAttackTime() == 25 && entity.hasSkill(FREE_SKILL_NAME)) {
                 entity.discard();
             }
@@ -176,7 +173,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            float width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 6 : 4F;
+            float width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 6 : 2.5F;
             List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(width, 2.5, width),
                     (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {
@@ -192,6 +189,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
                     Vec3 vec3 = entity1.getDeltaMovement().multiply(1, 0, 1).normalize();
                     entity1.setYRot((float) (vec3.z == 0 ? (vec3.x > 0 ? - Math.PI / 2 : Math.PI) : Math.atan(- vec3.x / vec3.z) + (vec3.z < 0 ? Math.PI : 0)) * 57.3F);
                     if (entity1 instanceof Projectile) {
+                        entity1.hasImpulse = true; //to let server sync entity motions.
                         ((Projectile) entity1).setOwner(entity);
                         if (entity1 instanceof AbstractHurtingProjectile projectile) {
                             vec3 = entity.getDeltaMovement().normalize();

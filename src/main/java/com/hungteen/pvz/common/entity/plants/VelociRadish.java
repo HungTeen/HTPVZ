@@ -5,11 +5,11 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
@@ -51,7 +51,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-import static com.hungteen.pvz.common.entity.SimplePlant.tryShovel;
+import static com.hungteen.pvz.common.entity.plants.base.SimplePlant.tryShovel;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
 public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, INeedSafeSituation, IHaveSkills {
@@ -295,8 +295,8 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
             this.disappear();
         }
         // skill
-        if (hasSkill(this, STRONG_SKILL_NAME)) {
-            if (! level.isClientSide) {
+        if (! level.isClientSide) {
+            if (hasSkill(this, STRONG_SKILL_NAME)) {
                 setGlowingTag(tickCount < 200 && (tickCount <= 100 || tickCount % 10 < 5));
                 if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER_UUID)) {
                     this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTACK_MODIFIER_UUID, "skill bonus", 26, AttributeModifier.Operation.ADDITION));
@@ -307,9 +307,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                     this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(ATTACK_MODIFIER_UUID);
                     this.getAttribute(Attributes.MAX_HEALTH).removeModifier(HEALTH_MODIFIER_UUID);
                 }
-            }
-        } else if (hasSkill(this, GROUP_SKILL_NAME)) {
-            if (! level.isClientSide) {
+            } else if (hasSkill(this, GROUP_SKILL_NAME)) {
                 for (int i = 0; i < 3; i ++) {
                     VelociRadish turnip = PVZEntities.VELOCI_RADISH.get().create(level);
                     turnip.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
@@ -361,7 +359,6 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public boolean canBeLeashed(Player p_21418_) {
         return true;
     }
-
     //ICanGroupUp
     ICanGroupUp leader = null;
     int schoolSize = 1;

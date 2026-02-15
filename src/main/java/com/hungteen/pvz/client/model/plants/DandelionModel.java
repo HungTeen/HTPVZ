@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.12.6
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.DandelionAnimation;
+import com.hungteen.pvz.client.model.plants.animation.DandelionModelAnimation;
 import com.hungteen.pvz.common.entity.plants.Dandelion;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -141,8 +141,8 @@ public class DandelionModel<T extends Dandelion> extends HierarchicalModel<T> {
 		boolean special = dandelion.getCustomName() != null && dandelion.getCustomName().getString().equals("涟清");
 		this.ring.visible = special;
 		this.decoration.visible = special;
-		this.animate(dandelion.idleAnimationState, DandelionAnimation.idle, ageInTicks);
-		this.animate(dandelion.shootAnimationState, DandelionAnimation.shoot, ageInTicks);
+		this.animate(dandelion.idleAnimationState, DandelionModelAnimation.idle, ageInTicks);
+		this.animate(dandelion.shootAnimationState, DandelionModelAnimation.shoot, ageInTicks);
 	}
 
 	@Override

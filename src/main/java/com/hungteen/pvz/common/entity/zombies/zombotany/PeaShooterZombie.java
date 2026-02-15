@@ -173,6 +173,12 @@ public class PeaShooterZombie extends PVZZombie implements IZombotany, IShooter 
     }
 
     @Override
+    public void performRangedAttack(LivingEntity target, float p_33318_) {
+        this.setTarget(target);
+        this.setAttackTime(shootAnimLength());
+    }
+
+    @Override
     public void shootBullet() {
         this.performShoot(SHOOT_OFFSET, 0, 0.4F, true, 0);
     }
@@ -204,14 +210,6 @@ public class PeaShooterZombie extends PVZZombie implements IZombotany, IShooter 
     @Override
     public ResourceLocation getPlantTextureLocation() {
         return TEXTURE;
-    }
-
-    public AnimationState getAnimationState(String name) {
-        return switch (name) {
-            case "idle" -> this.idleAnimationState;
-            case "shoot" -> this.shootAnimationState;
-            default -> null;
-        };
     }
 
     public Set<Integer> shootTimes() {

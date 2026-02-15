@@ -109,7 +109,7 @@ public class FireImp extends Imp {
                     anger.setDeltaMovement(this.zombie.getDeltaMovement());
                     anger.yRot = this.zombie.yRot;
                     anger.xRot = this.zombie.xRot;
-                    anger.maxLife = 150;
+                    anger.maxLife = 100;
                     zombie.level.addFreshEntity(anger);
                     Scoreboard scoreboard = zombie.level.getScoreboard();
                     PlayerTeam team = scoreboard.getPlayersTeam(zombie.getScoreboardName());

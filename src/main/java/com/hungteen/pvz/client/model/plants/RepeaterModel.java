@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.2
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.RepeaterAnimation;
+import com.hungteen.pvz.client.model.plants.animation.RepeaterModelAnimation;
 import com.hungteen.pvz.common.entity.plants.Repeater;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -75,8 +75,8 @@ public class RepeaterModel<T extends Repeater> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T peaShooter, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(peaShooter.idleAnimationState, RepeaterAnimation.idle, ageInTicks);
-		this.animate(peaShooter.shootAnimationState, RepeaterAnimation.shoot, ageInTicks);
+		this.animate(peaShooter.idleAnimationState, RepeaterModelAnimation.idle, ageInTicks);
+		this.animate(peaShooter.shootAnimationState, RepeaterModelAnimation.shoot, ageInTicks);
 	}
 
 	@Override

@@ -1,10 +1,11 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.block.GardenFlowerPotBlock;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.creatures.Sprout;
+import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.ChatFormatting;
@@ -30,7 +31,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
@@ -48,7 +48,8 @@ public class SproutItem extends Item {
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         if (level.isClientSide) {
-            if (! level.dimension().location().equals(Util.prefix("zen_garden"))) {
+            if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.gardenOnlySprouts)
+                    && ! level.dimension().location().equals(Util.prefix("zen_garden"))) {
                 if (context.getPlayer() != null) {
                     context.getPlayer().displayClientMessage(Component.translatable("hint.pvz.sprout.must_in_zen_garden"), true);
                 }
@@ -56,7 +57,8 @@ public class SproutItem extends Item {
             }
             return InteractionResult.SUCCESS;
         }
-        if (! level.dimension().location().equals(Util.prefix("zen_garden"))) {
+        if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.gardenOnlySprouts)
+                && ! level.dimension().location().equals(Util.prefix("zen_garden"))) {
             return super.useOn(context);
         }
         if (context.getPlayer() != null) {

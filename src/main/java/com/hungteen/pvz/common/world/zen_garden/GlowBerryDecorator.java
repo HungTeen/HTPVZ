@@ -21,10 +21,10 @@ public class GlowBerryDecorator extends TreeDecorator {
     public void place(TreeDecorator.Context context) {
         RandomSource randomsource = context.random();
         context.logs().forEach((p_226075_) -> {
-            if (randomsource.nextInt(3) > 0) {
+            if (randomsource.nextInt(3) <= 0) {
                 BlockPos blockPos = p_226075_.below();
                 if (context.isAir(blockPos)) {
-                    if (randomsource.nextInt(3) > 1){
+                    if (randomsource.nextInt(3) <= 1){
                         context.setBlock(blockPos, Blocks.CAVE_VINES.defaultBlockState().setValue(BERRIES, Boolean.valueOf(true)));
                     } else {
                         context.setBlock(blockPos, Blocks.CAVE_VINES.defaultBlockState());

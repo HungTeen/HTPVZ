@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.model.plants;
 
-import com.hungteen.pvz.client.model.plants.animation.PeaShooterAnimation;
+import com.hungteen.pvz.client.model.plants.animation.PeaShooterModelAnimation;
 import com.hungteen.pvz.common.entity.plants.PeaShooter;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -74,8 +74,8 @@ public class PeaShooterModel<T extends PeaShooter> extends HierarchicalModel<T> 
         this.total.getAllParts().forEach(ModelPart::resetPose);
         this.barrel.visible = flag;
         this.glass.visible = flag;
-        this.animate(peaShooter.idleAnimationState, PeaShooterAnimation.idle, ageInTicks);
-        this.animate(peaShooter.shootAnimationState, PeaShooterAnimation.shoot, ageInTicks);
+        this.animate(peaShooter.idleAnimationState, PeaShooterModelAnimation.idle, ageInTicks);
+        this.animate(peaShooter.shootAnimationState, PeaShooterModelAnimation.shoot, ageInTicks);
         this.body.xRot -= flag ? 0.25 : 0;
         this.head.xRot += flag ? 0.25 : 0;
     }

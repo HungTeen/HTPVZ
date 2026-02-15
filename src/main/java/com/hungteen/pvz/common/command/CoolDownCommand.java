@@ -123,8 +123,7 @@ public class CoolDownCommand {
         }
         coolDowns.addCooldown(item, count);
         if (total > count) {
-            ItemCooldowns.CooldownInstance instance = coolDowns.cooldowns.get(item);
-            coolDowns.cooldowns.put(item, new ItemCooldowns.CooldownInstance(instance.startTime + count - total, instance.endTime));
+            coolDowns.cooldowns.computeIfPresent(item, (item1, instance) -> new ItemCooldowns.CooldownInstance(instance.startTime + count - total, instance.endTime));
             PlayerContinueCoolDownPacket.sync(player, item,
                     count - total, count);
         }

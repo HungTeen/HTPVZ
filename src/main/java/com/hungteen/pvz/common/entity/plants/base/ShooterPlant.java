@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity.plants.base;
 
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.interfaces.IShooter;
-import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
@@ -83,7 +83,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 		}
 		bullet.setOwner(this);
 		if (bullet instanceof BaseBullet bullet1) {
-			bullet1.setAttackDamage(this.getAttackDamage());
+			bullet1.setAttackDamage(this.getAttackDamage() * PVZAPI.get().getPlantDamageDatum(this.level));
 		}
 		this.level.addFreshEntity(bullet);
 		return bullet;
@@ -203,6 +203,12 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 	@Override
 	public abstract int getShootCD();
+
+	@Override
+	public void performRangedAttack(LivingEntity target, float p_33318_) {
+		this.setTarget(target);
+		this.setAttackTime(shootAnimLength());
+	}
 
 	public Set<Integer> shootTimes() {
 		return Set.of(10);

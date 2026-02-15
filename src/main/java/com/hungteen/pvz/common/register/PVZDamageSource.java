@@ -124,6 +124,9 @@ public class PVZDamageSource {
         byPassShieldSource = source;
         return source;
     }
+    public static boolean isBypassShield(DamageSource source) {
+        return source == byPassShieldSource;
+    }
     /**Ignore invaluable time.*/
     public static DamageSource ignoreInvTime(DamageSource source) {
         return ignoreInvTime(source, 20);
@@ -289,7 +292,7 @@ public class PVZDamageSource {
             }
         }
         //handle IArmorEntity and ExtraHealthArmorItem
-        if (! ev.getSource().isBypassArmor() || ev.getSource() == DamageSource.FREEZE || ev.getSource() == byPassShieldSource) {
+        if (! ev.getSource().isBypassArmor() || ev.getSource() == DamageSource.FREEZE || isBypassShield(ev.getSource())) {
             if (entity.getVehicle() instanceof IArmorEntity vehicle && vehicle.canRecieveDamage(ev.getSource(), ev.getAmount(), entity)) {
                 ShieldBlockEvent blockEvent = ForgeHooks.onShieldBlock(entity, ev.getSource(), ev.getAmount());
                 if (! blockEvent.isCanceled()) {
@@ -328,7 +331,7 @@ public class PVZDamageSource {
     }
     @SubscribeEvent
     public static void handleShield(ShieldBlockEvent ev) {
-        if (ev.getDamageSource() == byPassShieldSource) {
+        if (isBypassShield(ev.getDamageSource())) {
             ev.setCanceled(true);
         }
     }

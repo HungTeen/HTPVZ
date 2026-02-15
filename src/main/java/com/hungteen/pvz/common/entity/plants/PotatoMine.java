@@ -1,10 +1,11 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
@@ -74,7 +75,15 @@ public class PotatoMine extends SimplePlant {
         if (!this.level.isClientSide) {
             this.dead = true;
             float radius = this.hasSkill(STRONG_SKILL_NAME) ? 3F : 2F;
-            level.explode(this, transferKiller(knockBack(ignoreInvTime(teamFilter(multiply(DamageSource.explosion(this).bypassArmor(), this.isPoisonous() ? 0.75F : 1.25F))), 0.2F), PVZEntityCapability.getOwner(this)),
+            level.explode(this, transferKiller(
+                    knockBack(
+                            ignoreInvTime(
+                                    teamFilter(
+                                            multiply(
+                                                    DamageSource.explosion(this).bypassArmor()
+                                                    , (this.isPoisonous() ? 0.75F : 1.25F) * PVZAPI.get().getPlantDamageDatum(this.level))))
+                            , 0.2F)
+                    , PVZEntityCapability.getOwner(this)),
                     null, this.getX(), this.getY(), this.getZ(),
                     radius, false, Explosion.BlockInteraction.NONE);
             if (this.isPoisonous()) {

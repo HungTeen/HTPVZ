@@ -15,15 +15,11 @@ import java.util.function.Supplier;
 /**
  * Available sending from server to client. Used only for Planterns sync glowing data. Because team is not available in client this need to be synced from ths server.
  */
-public class PlanternRefreshGlowPacket {
-    public final Set<UUID> set;
-    public PlanternRefreshGlowPacket(Set<UUID> set){
-        this.set = set;
-    }
+public record PlanternRefreshGlowPacket(Set<UUID> set) {
     public PlanternRefreshGlowPacket(FriendlyByteBuf buf) {
+        this(new HashSet<>());
         short length = buf.readShort();
-        set = new HashSet<>();
-        for (short i = 0; i < length; i ++) {
+        for (short i = 0; i < length; i++) {
             set.add(buf.readUUID());
         }
     }

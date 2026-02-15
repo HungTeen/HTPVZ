@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -63,6 +64,7 @@ public class LootBagItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack lootBag = player.getItemInHand(hand);
+        player.awardStat(Stats.ITEM_USED.get(lootBag.getItem()));
         if (level instanceof ServerLevel serverLevel) {
             List<ItemStack> itemStacks = this.getLoot(lootBag, serverLevel, player, player.position());
             if (itemStacks.isEmpty()) {

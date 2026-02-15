@@ -1,11 +1,12 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IIronEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZAttributes;
@@ -154,6 +155,14 @@ public class WallNut extends SimplePlant implements IIronEntity {
                     this.doPush(entity);
                 }
             }
+        }
+    }
+
+    @Override
+    protected void doPush(Entity entity) {
+        entity.push(this);
+        for (int i = 0; i < 3; i ++) {
+            push(entity);
         }
     }
 
@@ -319,7 +328,7 @@ public class WallNut extends SimplePlant implements IIronEntity {
                     wallNut.explode();
                 } else {
                     entities.forEach((entity -> {
-                        entity.hurt(PVZDamageSource.wallNutCollide(this.wallNut, entity), (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                        entity.hurt(PVZDamageSource.wallNutCollide(this.wallNut, entity), (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(wallNut.level));
                         damageCooldown = 5;
                         wallNut.hurt(PVZDamageSource.wallNutCollide(this.wallNut, entity), 15);
                     }));

@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.model.zombie;
 
-import com.hungteen.pvz.client.model.plants.animation.JalapenoAnimation;
+import com.hungteen.pvz.client.model.plants.animation.JalapenoModelAnimation;
 import com.hungteen.pvz.common.entity.zombies.zombotany.JalapenoZombie;
 import net.minecraft.client.model.geom.ModelPart;
 
@@ -18,7 +18,7 @@ public class JalapenoZombieModel<T extends JalapenoZombie> extends ZombotanyMode
                 inner.x = (float) (zombie.getRandom().nextFloat() * 0.5 - 0.25);
                 inner.z = (float) (zombie.getRandom().nextFloat() * 0.5 - 0.25);
             }
-            this.animate(zombie.explodeAnimationState, JalapenoAnimation.explode, ageInTicks);
+            this.animate(zombie.explodeAnimationState, JalapenoModelAnimation.explode, ageInTicks);
         }
         super.setupAnim(zombie, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
     }

@@ -128,7 +128,13 @@ public class EntityLootGen extends EntityLoot {
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.02F, 0.02F)))
                 .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.POTATO))
-                        .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.01F, 0.01F)));
+                        .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.01F, 0.01F)))
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(PVZItems.CHOCOLATE.get()))
+                        .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.01F, 0.01F)))
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(PVZItems.JEWEL.get()))
+                        .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.005F, 0.005F)));
     }
 
     protected Iterable<EntityType<?>> getKnownEntities() {
@@ -141,7 +147,7 @@ public class EntityLootGen extends EntityLoot {
         return list;
     }
 
-    private void outPut(EntityType<?> entityType){
-        PVZMod.LOGGER.info("Gen Entity Loot Table: " + entityType);
+    private void outPut(Object content) {
+        PVZMod.LOGGER.info("Gen Entity Loot Table: " + content);
     }
 }

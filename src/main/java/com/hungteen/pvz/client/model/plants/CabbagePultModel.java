@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.CabbagePultAnimation;
+import com.hungteen.pvz.client.model.plants.animation.CabbagePultModelAnimation;
 import com.hungteen.pvz.common.entity.plants.CabbagePult;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -49,8 +49,8 @@ public class CabbagePultModel<T extends CabbagePult> extends HierarchicalModel<T
 	@Override
 	public void setupAnim(T cabbagePult, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(cabbagePult.idleAnimationState, CabbagePultAnimation.idle, ageInTicks);
-		this.animate(cabbagePult.shootAnimationState, CabbagePultAnimation.shoot, ageInTicks);
+		this.animate(cabbagePult.idleAnimationState, CabbagePultModelAnimation.idle, ageInTicks);
+		this.animate(cabbagePult.shootAnimationState, CabbagePultModelAnimation.shoot, ageInTicks);
 	}
 
 	@Override

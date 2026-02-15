@@ -38,7 +38,7 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     public int cost = 0;
     //owner
     private Entity owner = null;
-    public UUID ownerUuid = null;
+    private UUID ownerUuid = null;
     //invasion
     public Set<UUID> zombieEventUUIDs = new HashSet<>();
     public short tickCount = 0;
@@ -142,10 +142,10 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
 
     //owner
     public void setOwner(UUID uuid) {
-        this.owner = ((ServerLevel) (entity.level)).getEntity(ownerUuid);
         if (owner instanceof Player) {
             this.ownerUuid = uuid;
         }
+        this.owner = ((ServerLevel) (entity.level)).getEntity(uuid);
     }
     public void setOwner(Entity entity) {
         this.owner = entity;

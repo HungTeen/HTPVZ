@@ -15,6 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
@@ -54,6 +55,15 @@ public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
     public void setAutoSetCostAndCD(Player player, boolean value) {
         PVZPlayerCapability.getPlayerData(player).ifPresent((data) -> data.setValue(PVZPlayerCapStats.AUTO_SET_COST_AND_CD, value ? 1 : 0));
     }
+    @Override
+    public float getPlantDamageDatum(Level level) {
+        return (float) PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.plantDamageDatum) / 20;
+    }
+    @Override
+    public float getSunProductionDatum(Level level) {
+        return (float) PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.sunProductionDatum) / 20;
+    }
+
     @Override
     public @Nullable Attribute getAttribute(com.hungteen.pvz.api.PVZAPI.PVZAttributes entry) {
         return switch (entry) {

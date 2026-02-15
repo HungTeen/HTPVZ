@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.4
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.MelonPultAnimation;
+import com.hungteen.pvz.client.model.plants.animation.MelonPultModelAnimation;
 import com.hungteen.pvz.common.entity.plants.MelonPult;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -67,8 +67,8 @@ public class MelonPultModel<T extends MelonPult> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T melonPult, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(melonPult.idleAnimationState, MelonPultAnimation.idle, ageInTicks);
-		this.animate(melonPult.shootAnimationState, MelonPultAnimation.shoot, ageInTicks);
+		this.animate(melonPult.idleAnimationState, MelonPultModelAnimation.idle, ageInTicks);
+		this.animate(melonPult.shootAnimationState, MelonPultModelAnimation.shoot, ageInTicks);
 	}
 
 	@Override
