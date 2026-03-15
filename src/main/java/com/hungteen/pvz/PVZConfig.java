@@ -81,6 +81,8 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> gardenBorder;
         public static ForgeConfigSpec.ConfigValue<Boolean> gardenForEveryOne;
         public static ForgeConfigSpec.ConfigValue<Boolean> gardenOnlySprouts;
+        public static ForgeConfigSpec.ConfigValue<Boolean> marigoldsRequires;
+        public static ForgeConfigSpec.ConfigValue<Boolean> sproutsRequires;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnInvasionsInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnFallenStarInterval;
@@ -90,6 +92,7 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Integer> invasionDifficultyFactorK;
         public static ForgeConfigSpec.ConfigValue<Integer> invasionDifficultyFactorB;
         public static ForgeConfigSpec.ConfigValue<Integer> advancedPlantExtraCostRange;
+        public static ForgeConfigSpec.ConfigValue<Integer> darknessDecreaseSunThreshold;
         public static ForgeConfigSpec.ConfigValue<Integer> plantDamageDatum;
         public static ForgeConfigSpec.ConfigValue<Integer> sunProductionDatum;
         public static ForgeConfigSpec.ConfigValue<Integer> plantDisappearDatum;
@@ -153,6 +156,14 @@ public class PVZConfig {
                             .translation("config.pvz.common.garden_only_sprouts")
                             .comment("when on, sprouts can only be planted in the Zen Garden."),
                     "gardenOnlySprouts", true);
+            marigoldsRequires = add(builder
+                            .translation("config.pvz.common.marigolds_requires")
+                            .comment("when off, marigolds can grow up without needing water or fertilizer."),
+                    "marigoldsRequires", true);
+            sproutsRequires = add(builder
+                            .translation("config.pvz.common.sprouts_requires")
+                            .comment("when off, sprouts can grow up without needing water or fertilizer."),
+                    "sproutsRequires", true);
             naturallySpawnInvasionsInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_invasions_interval")
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
@@ -189,6 +200,10 @@ public class PVZConfig {
                             .translation("config.pvz.common.advanced_plant_extra_cost_range")
                             .comment("when planting advanced plants, plants of the same type in this range will be included for calculation of extra cost. set to -1 to disable extra sun cost."),
                     "advancedPlantExtraCostRange", 30, -1, 500);
+            darknessDecreaseSunThreshold = add(builder
+                            .translation("config.pvz.common.darkness_decrease_sun_threshold")
+                            .comment("when player have darkness effect, sun of the player will naturally decrease until below this value. set to -1 to use the value based on difficulty."),
+                    "darknessDecreaseSunThreshold", -1, -1, 3000);
             plantDamageDatum = add(builder
                             .translation("config.pvz.common.plant_damage_datum")
                             .comment("gives a damage multiplier for pvz plants. the value should be the health of a common zombie."),
@@ -221,6 +236,7 @@ public class PVZConfig {
         //overlay settings
 
         public static ForgeConfigSpec.BooleanValue renderPVZTypeInvasionBar;
+        public static ForgeConfigSpec.BooleanValue renderPVZTypePennyGUI;
         public static ForgeConfigSpec.BooleanValue renderSunAsNumber;
         public static ForgeConfigSpec.IntValue renderSunBarX;
         public static ForgeConfigSpec.IntValue renderSunBarY;;
@@ -264,6 +280,10 @@ public class PVZConfig {
                     .translation("config.pvz.client.render_pvz_type_invasion_bar")
                     .comment("turn on to display invasion progress in the lower right corner of the screen with a zombie head.")
                     .define("renderPVZTypeInvasionBar", false);
+            renderPVZTypePennyGUI = builder
+                    .translation("config.pvz.client.render_pvz_type_penny_gui")
+                    .comment("turn on to display pvz style Penny store gui instead of vanilla style.")
+                    .define("renderPVZTypePennyGUI", true);
             builder.pop();
             builder.comment("Settings about models").push("Model Settings");
             //model settings

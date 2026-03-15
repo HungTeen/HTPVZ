@@ -74,6 +74,7 @@ public class WateringPotItem extends BlockItem {
             return context.getLevel().isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         }
     }
+
     @Override
     public @NotNull InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {
         if (itemStack.getMaxDamage() - itemStack.getDamageValue() >= 1) {
@@ -84,11 +85,17 @@ public class WateringPotItem extends BlockItem {
         }
     }
 
+    @Override
+    public void onCraftedBy(ItemStack itemStack, Level level, Player player) {
+        super.onCraftedBy(itemStack, level, player);
+        itemStack.setDamageValue(this.getMaxDamage(itemStack));
+    }
+
     public InteractionResult water(LivingEntity target, @Nullable Player player, ItemStack itemStack) {
         if (target instanceof IGardenPlant plant) {
             plant.onWatered(player, itemStack);
         }
-        if (! target.level.isClientSide) {
+        if (! target.level.isClientSide && itemStack.getMaxDamage() >= itemStack.getDamageValue()) {
             itemStack.hurt(1, target.getRandom(), (ServerPlayer) player);
             ((ServerLevel) target.level).sendParticles(ParticleTypes.DRIPPING_WATER,
                     target.getX(), target.getY() + target.getBbHeight(), target.getZ(),

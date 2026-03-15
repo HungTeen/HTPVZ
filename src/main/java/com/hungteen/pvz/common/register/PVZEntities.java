@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
+import com.hungteen.pvz.client.model.PennyModel;
 import com.hungteen.pvz.client.model.SnailModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.model.zombie.*;
@@ -19,6 +20,7 @@ import com.hungteen.pvz.client.renderer.zombies.*;
 import com.hungteen.pvz.common.entity.*;
 import com.hungteen.pvz.common.entity.bullet.*;
 import com.hungteen.pvz.common.entity.creatures.*;
+import com.hungteen.pvz.common.entity.npcs.Penny;
 import com.hungteen.pvz.common.entity.plants.*;
 import com.hungteen.pvz.common.entity.zombies.*;
 import com.hungteen.pvz.common.entity.zombies.zombotany.*;
@@ -115,18 +117,20 @@ public class PVZEntities {
             .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.AXOLOTLS);
     public static final RegistryObject<EntityType<Snail>> SNAIL = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Snail::checkSnailSpawnRules)
-            .spawnEgg(0xb69246, 0xdad9b3).attribute(Snail::createAttributes)
+            .spawnEgg(0xa56f4a, 0xdad9b3).attribute(Snail::createAttributes)
             .collision(0.75F, 0.75F).entity("snail", Snail::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Snail>> WALL_NAIL = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Snail::checkSnailSpawnRules)
             .spawnEgg(0xcda65d, 0xdad9b3).attribute(Snail::createAttributes)
             .collision(0.75F, 0.75F).entity("wall_nail", Snail::new, MobCategory.CREATURE);
-    public static final RegistryObject<EntityType<Snail>> FUNGICOCILIDAE = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Snail::checkSnailSpawnRules)
+    public static final RegistryObject<EntityType<Snail>> FUNGICICOLIDAE = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Snail::checkSnailSpawnRules)
             .spawnEgg(0xaa9395, 0xe5d3b5).attribute(Snail::createAttributes)
             .collision(0.75F, 0.75F).entity("fungicicolidae", Snail::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Anger>> ANGER = spawnEgg(0xff2f3b, 0xfff45b).attribute(Anger::createAttributes)
             .collision(0.4F, 0.4F).entity("anger", Anger::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F)
             .entity("sprout", Sprout::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<Penny>> PENNY = spawnEgg(0xff2f3b, 0xfff45b).attribute(Penny::createAttributes)
+            .collision(3f, 3f).entity("penny", Penny::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).noSummon()
             .entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
 
@@ -359,6 +363,7 @@ public class PVZEntities {
         rS(UMBRELLA_LEAF, UmbrellaLeafModel::new, UmbrellaLeafModel::createBodyLayer, 0.5F, "textures/entity/plants/umbrella_leaf/umbrella_leaf.png");
         rS(MELON_PULT, MelonPultModel::new, MelonPultModel::createBodyLayer, 0.5F, "textures/entity/plants/melon_pult/melon_pult.png");
         rS(ICEBERG_LETTUCE, IcebergLettuceModel::new, IcebergLettuceModel::createBodyLayer, 0F, "textures/entity/plants/iceberg_lettuce/iceberg_lettuce.png");
+        rS(PENNY, PennyModel::new, PennyModel::createBodyLayer, 1.5F);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -369,7 +374,7 @@ public class PVZEntities {
         r(e, GRASSCARP, GrassCarpRenderer::new);
         r(e, SNAIL, c -> new SnailRenderer(c, SnailModel.Type.snail));
         r(e, WALL_NAIL, c -> new SnailRenderer(c, SnailModel.Type.wall_nail));
-        r(e, FUNGICOCILIDAE, c -> new SnailRenderer(c, SnailModel.Type.fungicocilidae));
+        r(e, FUNGICICOLIDAE, c -> new SnailRenderer(c, SnailModel.Type.fungicocilidae));
         r(e, ANGER, AngerRenderer::new);
         r(e, WALL_NUT, WallNutRenderer::new);
         r(e, PUMPKIN, PumpkinRenderer::new);

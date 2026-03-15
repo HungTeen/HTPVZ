@@ -237,6 +237,10 @@ public class GhastRiderBoss extends FireImp {
                         if (state.getBlock().defaultDestroyTime() < 2F || state.getBlock() instanceof LiquidBlock) {
                             zombie.level.setBlock(this.zombie.getOnPos().offset(x, -1, z), PVZBlocks.FLOATING_SOUL_SOIL.get().defaultBlockState(), 3);
                         }
+                        state = zombie.level.getBlockState(this.zombie.getOnPos());
+                        if (state.getBlock().defaultDestroyTime() < 2F || state.getBlock() instanceof LiquidBlock) {
+                            zombie.level.setBlock(this.zombie.getOnPos(), PVZBlocks.FLOATING_SOUL_SOIL.get().defaultBlockState(), 3);
+                        }
                     }
                 }
             }
@@ -475,8 +479,9 @@ public class GhastRiderBoss extends FireImp {
                     anger.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this.zombie));
                     anger.yRot = this.zombie.yRot;
                     anger.xRot = this.zombie.xRot;
-                    anger.maxLife = 150;
+                    anger.maxLife = 120;
                     zombie.level.addFreshEntity(anger);
+                    anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
                     Scoreboard scoreboard = zombie.level.getScoreboard();
                     PlayerTeam team = scoreboard.getPlayersTeam(zombie.getScoreboardName());
                     PlayerTeam team1 = scoreboard.getPlayerTeam(PVZMod.ENEMY_TEAM);

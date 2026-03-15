@@ -215,15 +215,15 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
                 } else if (itemstack.isEmpty()) {
                     ItemStack item = this.getItemInHand(InteractionHand.MAIN_HAND);
                     BehaviorUtils.throwItem(this, item, player.position());
+                    this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                     for (int i = 0; i < this.getInventory().getContainerSize(); i ++) {
                         if (this.getInventory().getItem(i) == item) {
                             this.getInventory().setItem(i, ItemStack.EMPTY);
-                            this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                             break;
                         }
                     }
                 }
-            } else if (isFood(itemstack)) {
+            } else if (this.getPose() == Pose.STANDING && isFood(itemstack)) {
                 if (!player.getAbilities().instabuild) {
                     itemstack.shrink(1);
                 }
@@ -242,6 +242,11 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
 
             return super.mobInteract(player, p_30413_);
         }
+    }
+
+    @Override
+    public boolean canFallInLove() {
+        return false;
     }
 
     public void retreatIntoShell() {
@@ -401,6 +406,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
                     for (int i = 0; i < this.snail.getInventory().getContainerSize(); i ++) {
                         if (this.snail.getInventory().getItem(i) == itemStack) {
                             BehaviorUtils.throwItem(this.snail, itemStack, target.position());
+                            this.snail.navigation.stop();
                             this.snail.getInventory().setItem(i, ItemStack.EMPTY);
                             this.snail.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                             break;

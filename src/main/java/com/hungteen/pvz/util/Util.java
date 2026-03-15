@@ -17,6 +17,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -154,6 +155,24 @@ public class Util {
         BlockHitResult result = level.clip(new ClipContext(pos1, pos2, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
         return result.getType() != HitResult.Type.MISS;
     }
+
+    /**Available in server only.*/
+    public static int getDarknessSunThreshold(Player player) {
+        int gameRuleValue = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.darknessDecreaseSunThreshold);
+        if (gameRuleValue >= 0) {
+            return gameRuleValue;
+        }
+        Difficulty difficulty = player.getServer().getWorldData().getDifficulty();
+        int limitSun;
+        switch (difficulty) {
+            case PEACEFUL -> limitSun = 300;
+            case EASY -> limitSun = 200;
+            case HARD -> limitSun = 50;
+            default -> limitSun = 100;//normal difficulty or other possible situations.
+        }
+        return limitSun;
+    }
+
 
     //debug tools
     public static void showPathEnd(Mob mob) {

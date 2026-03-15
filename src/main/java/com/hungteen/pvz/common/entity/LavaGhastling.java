@@ -73,7 +73,6 @@ public class LavaGhastling extends Ghast {
                 this.ghast.yBodyRot = this.ghast.getYRot();
             } else {
                 LivingEntity livingentity = this.ghast.getTarget();
-                double d0 = 64.0D;
                 if (livingentity.distanceToSqr(this.ghast) < 4096.0D) {
                     double d1 = livingentity.getX() - this.ghast.getX();
                     double d2 = livingentity.getZ() - this.ghast.getZ();

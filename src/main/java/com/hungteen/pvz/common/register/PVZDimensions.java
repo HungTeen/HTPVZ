@@ -4,8 +4,11 @@ import com.hungteen.pvz.common.world.zen_garden.ZenGardenBiomeSource;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 
 public class PVZDimensions {
+
+    public static final ResourceLocation ZEN_GARDEN = Util.prefix("zen_garden");
 
     public static void register() {
         Registry.register(Registry.CHUNK_GENERATOR, Util.prefix("zen_garden_chunk_gen"), ZenGardenChunkGenerator.CODEC);

@@ -101,7 +101,7 @@ public class SnailModel<T extends Snail> extends HierarchicalModel<T> implements
         this.total.translateAndRotate(poseStack);
         this.neck.translateAndRotate(poseStack);
         this.head.translateAndRotate(poseStack);
-        poseStack.translate(0.0625, -0.6, -0.1);
+        poseStack.translate(0, -0.6, -0.1);
     }
 
     @Override

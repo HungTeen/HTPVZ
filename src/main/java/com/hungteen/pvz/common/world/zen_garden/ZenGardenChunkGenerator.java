@@ -80,21 +80,28 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
         return structureSets;
     }
 
+    /**
+     * @param chunkX needn't be int.
+     * @param chunkZ needn't be int.*/
+    public static Vec3i getMainIslandPos(double chunkX, double chunkZ) {
+        return new Vec3i(
+                Math.round(chunkX / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16
+                , 80
+                , Math.round(chunkZ / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16);
+    }
+
     @Override
     public void buildSurface(WorldGenRegion region, StructureManager featureManager, RandomState randomState, ChunkAccess chunk) {
         ChunkPos chunkPos = chunk.getPos();
         Pair<Integer, Integer> yRegion;
-        Vec3i mainIslandPos = new Vec3i(
-                Math.round(((float) chunkPos.x) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16
-                , 80
-                , Math.round(((float) chunkPos.z) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16);
+        Vec3i mainIslandPos = getMainIslandPos(chunkPos.x, chunkPos.z);
         Random random = new Random(randomState.legacyLevelSeed() - (long) mainIslandPos.getX() * mainIslandPos.getZ());
 
         Vec3i riverCircle = new Vec3i(mainIslandPos.getX() + (random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1),
-                random.nextInt(30) + 60,
-                (mainIslandPos.getZ() + random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1));
+                random.nextInt(30) + 60,// radius
+                mainIslandPos.getZ() + (random.nextInt(10) + 15) * (random.nextBoolean() ? 1 : -1));
         List<Vec3i> floatIslands = new ArrayList<>();
-        double angle = random.nextFloat() * 6.28;
+        double angle = random.nextFloat() * 2.5 + 3.14;
         floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
                 150, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
         angle = random.nextFloat() * 2.5 + 3.14;
@@ -103,7 +110,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
         angle = random.nextFloat() * 2.5;
         floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
                 175, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
-        angle = random.nextFloat() * 6.28;
+        angle = random.nextFloat() * 2.5;
         floatIslands.add(new Vec3i(riverCircle.getX() + riverCircle.getY() * Math.sin(angle),
                 200, riverCircle.getZ() + riverCircle.getY() * Math.cos(angle)));
         for (int x = 0; x < 16; x ++) {
@@ -226,11 +233,7 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     // Make sure this is correctly implemented so that structures and features can use this.
     @Override
     public int getBaseHeight(int x, int z, Heightmap.Types types, LevelHeightAccessor accessor, RandomState randomState) {
-        Vec3i mainIslandPos = new Vec3i(
-                Math.round(((float) (x / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16,
-                80,
-                Math.round(((float) (z / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16
-        );
+        Vec3i mainIslandPos = getMainIslandPos(x / 16, z / 16);
         Pair<Integer, Integer> pair = getBlockHeight(new ChunkPos(x / 16, z / 16), x % 16, z % 16, mainIslandPos, randomState, 100, 60);
         return pair.getSecond() > pair.getFirst() ? pair.getSecond() + 1 : 257;
     }

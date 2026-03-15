@@ -3,7 +3,6 @@ package com.hungteen.pvz.common.network;
 import com.hungteen.pvz.common.world.PVZFog;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -20,7 +19,7 @@ public class PVZFogPacket {
     private ModifyType modifyType;
 
     //to client
-    private PVZFogPacket(ResourceLocation level, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
+    public PVZFogPacket(ResourceLocation level, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
         this.dimension = level;
         this.position = position;
         this.lifeTime = lifeTime;
@@ -29,7 +28,7 @@ public class PVZFogPacket {
         this.uuid = uuid;
         this.modifyType = ModifyType.NEW;
     }
-    private PVZFogPacket(ModifyType type, double value, UUID uuid){
+    public PVZFogPacket(ModifyType type, double value, UUID uuid){
         this.uuid = uuid;
         this.modifyType = type;
         if (type == ModifyType.LIFE_TIME) {
@@ -43,20 +42,20 @@ public class PVZFogPacket {
         }
     }
 
-    private PVZFogPacket(Vec3 vec3, UUID uuid) {
+    public PVZFogPacket(Vec3 vec3, UUID uuid) {
         this.uuid = uuid;
         this.position = vec3;
         this.modifyType = ModifyType.POSITION;
     }
 
     //to server
-    private PVZFogPacket(UUID uuid) {
+    public PVZFogPacket(UUID uuid) {
         this.uuid = uuid;
         this.modifyType = ModifyType.REQUIRE_FOG;
     }
 
     public PVZFogPacket(FriendlyByteBuf buf) {
-        this.modifyType = ModifyType.fromValue(buf.readInt());
+        this.modifyType = ModifyType.fromValue(buf.readChar());
         this.uuid = buf.readUUID();
         if (modifyType == ModifyType.NEW) {
             this.dimension = new ResourceLocation(buf.readUtf());
@@ -76,7 +75,7 @@ public class PVZFogPacket {
     }
 
     public void toBytes(FriendlyByteBuf buf) {
-        buf.writeInt(modifyType.value);
+        buf.writeChar(modifyType.getValue());
         buf.writeUUID(uuid);
         if (modifyType == ModifyType.NEW) {
             buf.writeUtf(dimension.toString());
@@ -103,7 +102,7 @@ public class PVZFogPacket {
         ctx.get().enqueueWork(() -> {
             if (modifyType == ModifyType.NEW) {
                 //in client
-                PVZFog.addFog(dimension, position, lifeTime, strength, range, uuid);
+                PVZFog.addFogSided(dimension, position, lifeTime, strength, range, uuid);
             } else if (modifyType == ModifyType.REQUIRE_FOG) {
                 //in server
                 PVZFog fog = PVZFog.getFog(uuid);
@@ -116,22 +115,24 @@ public class PVZFogPacket {
                         case RANGE -> fog.range = this.range;
                         case POSITION -> fog.position = this.position;
                         case LIFE_TIME -> fog.lifeLeft = this.lifeTime;
-                        case REMOVE -> fog.lifeLeft = 0;
+                        case REMOVE -> fog.lifeLeft = -1;
                     }
                 } else {
-                    requireFog(uuid);
+                    PVZFog.requireFog(uuid);
                 }
             }
         });
         ctx.get().setPacketHandled(true);
     }
+
     public enum ModifyType {
         NEW(0), RANGE(1), LIFE_TIME(2), STRENGTH(3), POSITION(4), ERROR(5), REQUIRE_FOG(6), REMOVE(7);
-        final int value;
+        private final char value;
 
         ModifyType(int value) {
-            this.value = value;
+            this.value = (char) value;
         }
+
         public static ModifyType fromValue(int value) {
             for (ModifyType type: ModifyType.values()) {
                 if (type.value == value) {
@@ -140,40 +141,9 @@ public class PVZFogPacket {
             }
             return null;
         }
-    }
 
-    //methods
-        //server to client
-    public static boolean fog(Level level, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
-        return fog(level.dimension().location(), position, lifeTime, strength, range, uuid);
-    }
-    public static boolean fog(ResourceLocation dimension, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
-        if (PVZFog.getFog(uuid) == null) {
-            PVZFog.addFog(dimension, position, lifeTime, strength, range, uuid);
-            PVZPacketHandler.sendToPlayers(new PVZFogPacket(dimension, position, lifeTime, strength, range, uuid));
-            return true;
-        } else {
-            return false;
+        public int getValue() {
+            return value;
         }
-    }
-    public static boolean modifyFog(UUID uuid, ModifyType type, double value) {
-        if (PVZFog.getFog(uuid) != null) {
-            PVZPacketHandler.sendToPlayers(new PVZFogPacket(type, value, uuid));
-            return true;
-        } else {
-            return false;
-        }
-    }
-    public static boolean modifyFog(UUID uuid, Vec3 position) {
-        if (PVZFog.getFog(uuid) != null) {
-            PVZPacketHandler.sendToPlayers(new PVZFogPacket(position, uuid));
-            return true;
-        } else {
-            return false;
-        }
-    }
-        //client to server
-    public static void requireFog(UUID uuid) {
-        PVZPacketHandler.sendToServer(new PVZFogPacket(uuid));
     }
 }

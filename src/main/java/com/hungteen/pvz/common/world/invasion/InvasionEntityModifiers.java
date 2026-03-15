@@ -72,7 +72,7 @@ public class InvasionEntityModifiers {
         }
         PVZFog fog = PVZFog.getFog(invasion.uuid);
         if (fog == null) {
-            PVZFog.addFog(invasion.level.dimension().location(), Vec3.atCenterOf(invasion.position), 100, ((double) invasion.invasionLevel / 5 + 1), invasion.range, invasion.uuid);
+            PVZFog.addFogSided(invasion.level.dimension().location(), Vec3.atCenterOf(invasion.position), 100, ((double) invasion.invasionLevel / 5 + 1), invasion.range, invasion.uuid);
         } else {
             fog.lifeLeft = 100;
             fog.position = Vec3.atCenterOf(invasion.position);

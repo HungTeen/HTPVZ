@@ -59,7 +59,7 @@ public class PVZFogCommand {
     }
 
     private static int addFog(CommandSourceStack source, Vec3 pos, int seconds, double strength, double range, UUID uuid) {
-        if (PVZFogPacket.fog(source.getLevel(), pos, seconds, strength, range, uuid)) {
+        if (PVZFog.addFog(source.getLevel(), pos, seconds, strength, range, uuid)) {
             source.sendSuccess(Component.translatable("commands.pvz.fog.add", "["+ uuid +"]"), true);
             return 1;
         } else {
@@ -69,7 +69,7 @@ public class PVZFogCommand {
     }
 
     private static int modifyFog(CommandSourceStack source, UUID uuid, Vec3 pos) {
-        if (PVZFogPacket.modifyFog(uuid, pos)) {
+        if (PVZFog.modifyFogPosition(uuid, pos)) {
             source.sendSuccess(Component.translatable("commands.pvz.fog.modify", "["+ uuid +"]"), true);
             return 1;
         } else {
@@ -79,7 +79,7 @@ public class PVZFogCommand {
     }
 
     private static int modifyFog(CommandSourceStack source, UUID uuid, PVZFogPacket.ModifyType modifyType, int value) {
-        if (PVZFogPacket.modifyFog(uuid, modifyType, value)) {
+        if (PVZFog.modifyFogFeatures(uuid, modifyType, value)) {
             source.sendSuccess(Component.translatable("commands.pvz.fog.modify", "["+ uuid +"]"), true);
             return 1;
         } else {

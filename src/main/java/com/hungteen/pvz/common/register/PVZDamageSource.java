@@ -8,7 +8,6 @@ import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
 import com.hungteen.pvz.util.EntityUtil;
-import com.hungteen.pvz.util.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -282,7 +281,7 @@ public class PVZDamageSource {
         LivingEntity entity = ev.getEntity();
         //handle ZenGarden fallout
         if (entity instanceof Player player && ev.getSource() == DamageSource.OUT_OF_WORLD
-                && entity.getLevel().dimension().location().equals(Util.prefix("zen_garden"))) {
+                && entity.getLevel().dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
             MinecraftServer server = entity.getLevel().getServer();
             ResourceKey<Level> resourcekey = player.level.dimension() == ZenGardenTeleporter.GARDEN ? Level.OVERWORLD : ZenGardenTeleporter.GARDEN;
             ServerLevel destWorld = server.getLevel(resourcekey);

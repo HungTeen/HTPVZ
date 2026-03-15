@@ -26,6 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.Difficulty;
@@ -656,9 +657,8 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             } else if (target != null) {
                 Vec3i pos = this.pathSeeker.availablePositions.stream().findFirst().get();
                 this.pathSeeker.availablePositions.remove(pos);
-                seekPositionHardness += 5;
                 double dist = pos.distSqr(target.blockPosition());
-                if (dist > 100 && dist < 574) {
+                if (dist > 100 && dist < 574 && ! level.getBlockState(new BlockPos(pos)).is(BlockTags.LEAVES)) {
                     double horizontalDistSqr = (pos.getX() - target.getX()) * (pos.getX() - target.getX()) + (pos.getZ() - target.getZ()) * (pos.getZ() - target.getZ());
                     double verticalDist = pos.getY() - target.getY();
                     if (verticalDist > 0 || verticalDist * verticalDist < 1.5 * horizontalDistSqr) {

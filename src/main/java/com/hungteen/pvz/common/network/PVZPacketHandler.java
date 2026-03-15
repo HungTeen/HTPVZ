@@ -29,6 +29,7 @@ public class PVZPacketHandler {
         CHANNEL.registerMessage(id ++, PlayerKnockBackPacket.class, PlayerKnockBackPacket::toBytes, PlayerKnockBackPacket::new, PlayerKnockBackPacket::handle);
         CHANNEL.registerMessage(id ++, PVZEntityCapPacket.class, PVZEntityCapPacket::toBytes, PVZEntityCapPacket::new, PVZEntityCapPacket::handle);
         CHANNEL.registerMessage(id ++, ServerInfoPacket.class, ServerInfoPacket::toBytes, ServerInfoPacket::new, ServerInfoPacket::handle);
+        CHANNEL.registerMessage(id ++, PennyOffersPacket.class, PennyOffersPacket::toBytes, PennyOffersPacket::new, PennyOffersPacket::handle);
         //CLIENT TO SERVER.
         CHANNEL.registerMessage(id ++, PVZAddSkillPacket.class, PVZAddSkillPacket::toBytes, PVZAddSkillPacket::new, PVZAddSkillPacket::handle);
         CHANNEL.registerMessage(id ++, PVZEntityInteractPacket.class, PVZEntityInteractPacket::toBytes, PVZEntityInteractPacket::new, PVZEntityInteractPacket::handle);

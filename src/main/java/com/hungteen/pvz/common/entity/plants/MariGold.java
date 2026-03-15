@@ -4,8 +4,10 @@ import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.events.GardenPlantGrowUpEvent;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -282,6 +284,10 @@ public class MariGold extends SimplePlant implements IGardenPlant {
             if (time > 40) {
                 mariGold.getEntityData().set(IS_PRODUCING, false);
                 if (mariGold.getGrowLevel() >= 3) {
+                    mariGold.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+                        Entity owner = cap.getOwner();
+                        if (owner instanceof Player player) player.awardStat(PVZStats.HARVEST_MARIGOLDS);
+                    });
                     mariGold.discard();
                 }
             } else if (time == 8 || time == 10 || time == 12

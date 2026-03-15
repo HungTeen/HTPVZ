@@ -16,6 +16,9 @@ public class PVZStats {
     public static final ResourceLocation INVASIONS = makeStat("invasions");
     public static final ResourceLocation INVASIONS_WON = makeStat("invasions_won");
     public static final ResourceLocation PLANT = makeStat("plant");
+    public static final ResourceLocation PLANT_SPROUTS = makeStat("plant_sprouts");
+    public static final ResourceLocation HARVEST_SPROUTS = makeStat("harvest_sprouts");
+    public static final ResourceLocation HARVEST_MARIGOLDS = makeStat("harvest_marigolds");
     public static final ResourceLocation SHOVEL_PLANT = makeStat("shovel_plant");
 
     private static ResourceLocation makeStat(String name) {

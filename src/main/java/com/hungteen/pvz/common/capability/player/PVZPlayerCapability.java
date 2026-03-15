@@ -5,15 +5,16 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
 import com.hungteen.pvz.common.entity.FallenStar;
 import com.hungteen.pvz.common.entity.Sun;
+import com.hungteen.pvz.common.entity.npcs.Penny;
 import com.hungteen.pvz.common.item.PumpkinHelmetItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PlayerContinueCoolDownPacket;
 import com.hungteen.pvz.common.network.ServerInfoPacket;
-import com.hungteen.pvz.common.register.PVZAttributes;
-import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.common.world.invasion.InvasionTeam;
+import com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
@@ -21,23 +22,23 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySelector;
-import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
@@ -54,8 +55,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator.ISLAND_DISTANCE;
 
 public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag> {
 
@@ -106,9 +105,8 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     //garden border
                     if (PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.gardenBorder) && player.level.dimension().location().equals(Util.prefix("zen_garden"))) {
                         Vec3 gardenCenter = player.position();
-                        gardenCenter = new Vec3(gardenCenter.x - Math.round(((float) (gardenCenter.x / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16
-                                , gardenCenter.y
-                                , gardenCenter.z - Math.round(((float) (gardenCenter.z / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16);
+                        gardenCenter = gardenCenter.subtract(Vec3.atCenterOf(
+                                ZenGardenChunkGenerator.getMainIslandPos(gardenCenter.x / 16, gardenCenter.z / 16)));
                         int distSqr = (int) (gardenCenter.x * gardenCenter.x + gardenCenter.z * gardenCenter.z);
                         if (distSqr >= 160000) {
                             int strength = (distSqr - 160000) / 40000;
@@ -122,18 +120,18 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                             player.removeEffect(MobEffects.DARKNESS);
                         }
                         if (nbt.sunCountDown >= 15 / (player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
-                            int limitSun = getDifficultyLimitSun(player);
+                            int limitSun = Util.getDarknessSunThreshold(player);
                             int curSun = nbt.getValue(PVZPlayerCapStats.SUN);
                             if (curSun < limitSun) {
-                                nbt.setValue(PVZPlayerCapStats.SUN, Math.min(curSun + 5, limitSun));
+                                nbt.addValue(PVZPlayerCapStats.SUN, 5);
                             }
                             nbt.sunCountDown = 0;
                         }
                     } else if (player.hasEffect(MobEffects.DARKNESS) && nbt.sunCountDown >= 5 / (player.getEffect(MobEffects.DARKNESS).getAmplifier() + 1)) {
-                        int limitSun = getDifficultyLimitSun(player);
+                        int limitSun = Util.getDarknessSunThreshold(player);
                         int curSun = nbt.getValue(PVZPlayerCapStats.SUN);
                         if (curSun > limitSun) {
-                            nbt.setValue(PVZPlayerCapStats.SUN, Math.max(curSun - 5, limitSun));
+                            nbt.addValue(PVZPlayerCapStats.SUN, -5);
                         }
                         nbt.sunCountDown = 0;
                     }
@@ -293,6 +291,17 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     }
                     nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 1);
                 }
+                //penny spawn
+                if (player.level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
+                    int gameTime = Math.toIntExact(player.level.getGameTime() % 50000);
+                    if (gameTime > 500 && gameTime < 24000) {
+                        if (nbt.getValue(PVZPlayerCapStats.SUMMONED_PENNY) == 0 && spawnPenny(player)) {
+                            nbt.setValue(PVZPlayerCapStats.SUMMONED_PENNY, 1);
+                        }
+                    } else if (gameTime < 49000) {
+                        nbt.setValue(PVZPlayerCapStats.SUMMONED_PENNY, 0);
+                    }
+                }
                 //pumpkin helmet
                 ItemStack itemStack = player.containerMenu.getCarried();
                 if (itemStack.getItem() instanceof PumpkinHelmetItem pumpkinHelmet) {
@@ -302,6 +311,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
             });
         }
     }
+
     public static void clientTick(TickEvent.ClientTickEvent ev) {
         if (ClientProxy.MC.level == null) {
             return;
@@ -314,10 +324,8 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     if (player.level.dimension().location().equals(Util.prefix("zen_garden")) && player.hasEffect(PVZMobEffects.DISTANCE_EFFECT.get())) {
                         Vec3 cenVec = player.position();
                         if (playerPos != null && cenVec.distanceToSqr(playerPos) < 4) {
-                            cenVec = new Vec3(cenVec.x - Math.round(((float) (cenVec.x / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16
-                                    , cenVec.y
-                                    , cenVec.z - Math.round(((float) (cenVec.z / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16)
-                                    .multiply(1, 0, 1);
+                            cenVec = cenVec.subtract(Vec3.atCenterOf(
+                                    ZenGardenChunkGenerator.getMainIslandPos(cenVec.x / 16, cenVec.z / 16)));
                             Vec3 posVec = player.position().subtract(playerPos).multiply(1, 0, 1);
                             Vec3 movVec = player.getDeltaMovement().multiply(1, 0, 1);
                             Vec3 posMod = posVec.add(cenVec);
@@ -359,6 +367,74 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         return new AttributeModifier(entity.getUUID(), "extra_max_sun", ((IMaxSunExpander) entity).extraMaxSun(entity.getOnPos(), player), AttributeModifier.Operation.ADDITION);
     }
 
+    private static boolean spawnPenny(ServerPlayer player) {
+        if (player.getRandom().nextInt(10) == 0) {
+            Penny oldPenny = player.level.getNearestEntity(Penny.class, TargetingConditions.DEFAULT
+                    , player, player.getX(), player.getY(), player.getZ()
+                    , player.getBoundingBox().inflate(128));
+            if (oldPenny != null) {
+                return false;
+            }
+            BlockPos blockpos = player.blockPosition();
+            PoiManager poimanager = ((ServerLevel) player.level).getPoiManager();
+            Optional<BlockPos> optional = poimanager.find((p_219713_) -> p_219713_.is(PoiTypes.MEETING), (p_219711_) -> true, blockpos, 48, PoiManager.Occupancy.ANY);
+            BlockPos blockpos1 = optional.orElse(blockpos);
+            BlockPos blockpos2 = findSpawnPositionNear(blockpos1, 48, player);
+            if (blockpos2 != null && hasEnoughSpace(player.level, blockpos2)) {
+                oldPenny = player.level.getNearestEntity(Penny.class, TargetingConditions.DEFAULT
+                        , player, blockpos2.getX(), blockpos2.getY(), blockpos2.getZ()
+                        , player.getBoundingBox().inflate(72));
+                if (oldPenny != null) {
+                    return false;
+                }
+                Penny penny = PVZEntities.PENNY.get().spawn((ServerLevel) player.level
+                        , null, null, null, blockpos2, MobSpawnType.EVENT, false, false);
+                if (penny != null) {
+                    penny.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200));
+                    player.displayClientMessage(Component.translatable("hint.pvz.penny"), true);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    @Nullable
+    private static BlockPos findSpawnPositionNear(BlockPos p_35930_, int p_35931_, ServerPlayer player) {
+        BlockPos blockpos = null;
+        for(int i = 0; i < 10; ++i) {
+            int j = p_35930_.getX() + player.getRandom().nextInt(p_35931_ * 2) - p_35931_;
+            int k = p_35930_.getZ() + player.getRandom().nextInt(p_35931_ * 2) - p_35931_;
+            int l = player.level.getHeight(Heightmap.Types.WORLD_SURFACE, j, k);
+            BlockPos blockpos1;
+            if (l > 100) {
+                l = 100;
+                while (l > 75) {
+                    l --;
+                    blockpos1 = new BlockPos(j, l, k);
+                    if (! player.level.getBlockState(blockpos1).isAir()) {
+                        break;
+                    }
+                }
+            }
+            blockpos1 = new BlockPos(j, l, k);
+            if (NaturalSpawner.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND, player.level, blockpos1, EntityType.WANDERING_TRADER)) {
+                blockpos = blockpos1;
+                break;
+            }
+        }
+        return blockpos;
+    }
+    private static boolean hasEnoughSpace(BlockGetter p_35926_, BlockPos p_35927_) {
+        for(BlockPos blockpos : BlockPos.betweenClosed(p_35927_, p_35927_.offset(3, 3, 3))) {
+            if (!p_35926_.getBlockState(blockpos).getCollisionShape(p_35926_, blockpos).isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
     public static Vec3 getTeleportPos(Player player, Level destWorld) {
         AtomicReference<Vec3> vec3 = new AtomicReference<>();
         player.getCapability(CAP).ifPresent(cap -> vec3.set(destWorld.dimension().equals(ZenGardenTeleporter.GARDEN) ?
@@ -367,20 +443,15 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     public static void setTeleportPos(Player player, Vec3 pos, Level destWorld) {
-        player.getCapability(CAP).ifPresent(cap -> cap.gardenPos = destWorld.dimension().equals(ZenGardenTeleporter.GARDEN) ?
-                new Pair<>(pos, cap.gardenPos.getSecond()) : new Pair<>(cap.gardenPos.getFirst(), pos));
-    }
-
-    public static int getDifficultyLimitSun(Player player) {
-        Difficulty difficulty = player.getServer().getWorldData().getDifficulty();
-        int limitSun;
-        switch (difficulty) {
-            case PEACEFUL -> limitSun = 300;
-            case EASY -> limitSun = 200;
-            case HARD -> limitSun = 50;
-            default -> limitSun = 100;//normal difficulty or other possible situations.
-        }
-        return limitSun;
+        player.getCapability(CAP).ifPresent(cap -> {
+            if (destWorld.dimension().equals(ZenGardenTeleporter.GARDEN)) {
+                cap.gardenPos = new Pair<>(pos, cap.gardenPos.getSecond());
+            } else {
+                if (cap.gardenPos.getSecond() == null || cap.gardenPos.getSecond().distanceToSqr(pos) <= 1048576) {
+                    cap.gardenPos = new Pair<>(cap.gardenPos.getFirst(), pos);
+                }
+            }
+        });
     }
 
     @Override

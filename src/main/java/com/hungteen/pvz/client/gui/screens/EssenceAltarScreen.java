@@ -187,6 +187,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
 
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks){
+        this.renderBackground(stack);
         super.render(stack, mouseX, mouseY, partialTicks);
         renderTooltip(stack, mouseX, mouseY);
     }

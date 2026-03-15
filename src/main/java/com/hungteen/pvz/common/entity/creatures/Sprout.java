@@ -9,6 +9,7 @@ import com.hungteen.pvz.common.entity.plants.MariGold;
 import com.hungteen.pvz.common.event.SproutTransformEvent;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -178,6 +179,7 @@ public class Sprout extends Mob implements IGardenPlant {
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (getGrowLevel() >= 2 && this.getRemainingGrowTick() <= 0) {
             produce();
+            player.awardStat(PVZStats.HARVEST_SPROUTS);
             this.discard();
             return InteractionResult.CONSUME;
         }

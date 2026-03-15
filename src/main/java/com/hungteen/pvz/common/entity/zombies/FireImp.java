@@ -9,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
@@ -109,8 +110,9 @@ public class FireImp extends Imp {
                     anger.setDeltaMovement(this.zombie.getDeltaMovement());
                     anger.yRot = this.zombie.yRot;
                     anger.xRot = this.zombie.xRot;
-                    anger.maxLife = 100;
+                    anger.maxLife = 90;
                     zombie.level.addFreshEntity(anger);
+                    anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
                     Scoreboard scoreboard = zombie.level.getScoreboard();
                     PlayerTeam team = scoreboard.getPlayersTeam(zombie.getScoreboardName());
                     PlayerTeam team1 = scoreboard.getPlayerTeam(PVZMod.ENEMY_TEAM);

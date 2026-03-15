@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.block;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
-import com.hungteen.pvz.util.Util;
+import com.hungteen.pvz.common.register.PVZDimensions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
@@ -43,7 +43,7 @@ public class GardenFlowerPotBlock extends SlabBlock {
     public void animateTick(BlockState blockState, Level level, BlockPos blockPos, RandomSource random) {
         if ((long)level.random.nextInt(30) <= level.getGameTime() % 30L
                 && (! PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.gardenOnlySprouts)
-                        || level.dimension().location().equals(Util.prefix("zen_garden")))) {
+                        || level.dimension().location().equals(PVZDimensions.ZEN_GARDEN))) {
             level.addParticle(ParticleTypes.COMPOSTER.getType(), blockPos.getX() + random.nextFloat(), blockPos.getY() + random.nextFloat(), blockPos.getZ() + random.nextFloat(), 0, 0, 0);
         }
     }

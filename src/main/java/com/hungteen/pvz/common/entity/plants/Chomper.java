@@ -180,6 +180,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.MOVEMENT_SPEED, 0D)
+                .add(Attributes.ATTACK_DAMAGE, 40D)
                 .add(Attributes.FOLLOW_RANGE, 32D);
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
@@ -480,7 +481,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     }
                 }
                 if (j > i - 1) {
-                    this.hurt(DamageSource.CRAMMING, 6 * PVZAPI.get().getPlantDamageDatum(this.level));
+                    this.hurt(DamageSource.CRAMMING, 6);
                 }
             }
             for (Entity entity : list) {
@@ -607,7 +608,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) &&
                                 chomper.distanceToSqr(target.position()) <= (chomper.getPose() == Pose.SPIN_ATTACK ? 16 : 6) && ! target.getType().is(Tags.EntityTypes.BOSSES)) {
                             target.startRiding(chomper);
-                            target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper, target), 2F), 5F * PVZAPI.get().getPlantDamageDatum(chomper.level));
+                            target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper, target), 2F), (float) (chomper.getAttributeValue(Attributes.ATTACK_DAMAGE) / 8 * PVZAPI.get().getPlantDamageDatum(chomper.level)));
                             if (target.getBbWidth() > 1.25 || target instanceof Slime /*to prevent a vanilla bug*/) {
                                 target.stopRiding();
                             }
@@ -616,7 +617,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                         Entity rider = chomper.getFirstPassenger();
                         if (rider != null) {
                             chomper.setAttackTime(chomper.getAttackCD());
-                            rider.hurt(PVZDamageSource.chomperHurt(chomper, rider).bypassArmor(), 40 * PVZAPI.get().getPlantDamageDatum(chomper.level));
+                            rider.hurt(PVZDamageSource.chomperHurt(chomper, rider).bypassArmor(), (float) (chomper.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(chomper.level)));
                             if (rider.isAlive()) {
                                 rider.stopRiding();
                             } else {

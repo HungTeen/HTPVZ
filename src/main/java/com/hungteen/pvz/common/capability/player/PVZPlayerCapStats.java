@@ -23,6 +23,7 @@ public class PVZPlayerCapStats {
     public static final String PLANT_HAVE_CD = "plant_have_cd";
     public static final String INVASION_DIFFICULTY = "invasion_difficulty";
     public static final String LAST_INVASION = "last_invasion";
+    public static final String SUMMONED_PENNY = "summoned_penny";
 
     //sun effect count
     public int sunCountDown = 0;
@@ -41,6 +42,7 @@ public class PVZPlayerCapStats {
         setValue(AUTO_SET_COST_AND_CD, 1, 0, 1);//naturally always 1. if 1, "plant_cost_sun" and "plant_have_cd" of this player will change with gamemode.
         setValue(PLANT_HAVE_COST, 1, 0, 1);//naturally creative:0, survival:1.
         setValue(PLANT_HAVE_CD, 1, 0, 1);//naturally creative:0, survival:1.
+        setValue(SUMMONED_PENNY, 0, 0, 1);//if the player has summoned Penny recently.
         setValue(INVASION_DIFFICULTY, 0, 0, 100);//invasion difficulty.
         setValue(LAST_INVASION, 0, 0, 1000);//time since last invasion occurred on this player.
         //resource

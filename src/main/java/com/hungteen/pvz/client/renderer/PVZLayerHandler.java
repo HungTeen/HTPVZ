@@ -39,7 +39,6 @@ public class PVZLayerHandler {
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
         L(e, PVZEntities.SNAIL, SnailModel::createBodyLayer);
-        L(e, PVZEntities.SNAIL, SnailModel::createBodyLayer);
         L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, "armor", WallNutArmorModel::createBodyLayer);
@@ -76,7 +75,6 @@ public class PVZLayerHandler {
         L(e, PVZEntities.SNORKEL_ZOMBIE, SnorkelZombieModel::createBodyLayer);
         L(e, PVZEntities.TACO_IMP, TacoImpModel::createBodyLayer);
         L(e, PVZEntities.FIRE_IMP, FireImpModel::createBodyLayer);
-        L(e, PVZEntities.LAVA_GHASTLING, LavaGhastlingModel::createBodyLayer);
         L(e, PVZEntities.JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieModel::createBodyLayer);
         L(e, PVZEntities.DIGGER_ZOMBIE, DiggerZombieModel::createBodyLayer);
         L(e, PVZEntities.GARGANTUAR, GargantuarModel::createBodyLayer);

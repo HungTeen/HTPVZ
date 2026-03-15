@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.world.zen_garden;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.register.PVZDimensions;
 import com.hungteen.pvz.common.register.PVZStructures;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
@@ -45,7 +46,7 @@ public class ZenGardenTeleporter extends PortalForcer {
                         ? player.getUUID().getLeastSignificantBits()
                         : player.getTeam() == null ? 0 : player.getTeam().hashCode()
                         );
-                if (destWorld.dimension().location().equals(Util.prefix("zen_garden"))) {
+                if (destWorld.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
                     HolderSet<Structure> holderSet = (destWorld.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY)
                             .getHolder(PVZStructures.GARDEN_PORTAL.getKey())).map(HolderSet::direct).get();
                     Pair<BlockPos, Holder<Structure>> pair = destWorld.getChunkSource().getGenerator()

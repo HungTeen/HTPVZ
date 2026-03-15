@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.world;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZFogPacket;
+import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.register.PVZParticles;
 import net.minecraft.client.Minecraft;
@@ -46,20 +47,6 @@ public class PVZFog {
         pvzFogs.put(uuid, this);
     }
 
-    public static PVZFog addFog(ResourceLocation dimension, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
-        PVZFog fog = getFog(uuid);
-        if (fog != null) {
-            fog.dimension = dimension;
-            fog.position = position;
-            fog.lifeLeft = lifeTime;
-            fog.strength = strength;
-            fog.range = range;
-        } else {
-            fog = new PVZFog(dimension, position, lifeTime, strength, range, uuid);
-        }
-        return fog;
-    }
-
     public double getStrengthAt(Level level, Vec3 position) {
         if (! level.dimension().location().equals(this.dimension)) {
             return 0;
@@ -84,8 +71,11 @@ public class PVZFog {
     }
 
     public static void serverFogsTick() {
-        for (PVZFog pvzFog : pvzFogs.values()) {
-            pvzFog.lifeLeft -= 0.025;
+        for (PVZFog fog : Set.copyOf(pvzFogs.values())) {
+            fog.lifeLeft -= 0.025;
+            if (fog.lifeLeft < 0) {
+                pvzFogs.remove(fog.uuid);
+            }
         }
     }
 
@@ -151,7 +141,7 @@ public class PVZFog {
         int size = nbt.getInt("size");
         for (int i = 0; i < size; i ++) {
             CompoundTag fogTag = (CompoundTag) nbt.get("fog_" + i);
-            PVZFogPacket.fog(new ResourceLocation(fogTag.getString("dimension")),
+            addFog(new ResourceLocation(fogTag.getString("dimension")),
                     new Vec3(fogTag.getDouble("x"), fogTag.getDouble("y"), fogTag.getDouble("z")),
                     fogTag.getDouble("timeLeft"), fogTag.getDouble("strength"), fogTag.getDouble("range"),
                     fogTag.getUUID("uuid"));
@@ -179,5 +169,66 @@ public class PVZFog {
                 if (ev.getMode() == FogRenderer.FogMode.FOG_TERRAIN) ev.setNearPlaneDistance(ev.getFarPlaneDistance() * near / far - ev.getFarPlaneDistance() * (far - ev.getFarPlaneDistance()) / far);
             }
         }
+    }
+
+    //server to client
+    public static boolean addFog(Level level, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
+        return addFog(level.dimension().location(), position, lifeTime, strength, range, uuid);
+    }
+
+    public static boolean addFog(ResourceLocation dimension, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
+        if (getFog(uuid) == null) {
+            addFogSided(dimension, position, lifeTime, strength, range, uuid);
+            PVZPacketHandler.sendToPlayers(new PVZFogPacket(dimension, position, lifeTime, strength, range, uuid));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static PVZFog addFogSided(ResourceLocation dimension, Vec3 position, double lifeTime, double strength, double range, UUID uuid) {
+        PVZFog fog = getFog(uuid);
+        if (fog != null) {
+            fog.dimension = dimension;
+            fog.position = position;
+            fog.lifeLeft = lifeTime;
+            fog.strength = strength;
+            fog.range = range;
+        } else {
+            fog = new PVZFog(dimension, position, lifeTime, strength, range, uuid);
+        }
+        return fog;
+    }
+
+    public static boolean modifyFogFeatures(UUID uuid, PVZFogPacket.ModifyType type, double value) {
+        PVZFog fog = getFog(uuid);
+        if (fog != null) {
+            switch (type) {
+                case LIFE_TIME -> fog.lifeLeft = value;
+                case STRENGTH -> fog.strength = value;
+                case RANGE -> fog.range = value;
+                case REMOVE -> fog.lifeLeft = -1;
+            }
+            PVZPacketHandler.sendToPlayers(new PVZFogPacket(type, value, uuid));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean modifyFogPosition(UUID uuid, Vec3 position) {
+        PVZFog fog = getFog(uuid);
+        if (fog != null) {
+            fog.position = position;
+            PVZPacketHandler.sendToPlayers(new PVZFogPacket(position, uuid));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //client to server
+    public static void requireFog(UUID uuid) {
+        PVZPacketHandler.sendToServer(new PVZFogPacket(uuid));
     }
 }
