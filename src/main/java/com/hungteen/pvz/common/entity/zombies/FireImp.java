@@ -38,7 +38,7 @@ public class FireImp extends Imp {
     @Override
     protected void addBehaviourGoals() {
         super.addBehaviourGoals();
-        fireImpShootGoal = new FireImpShootGoal(this);
+        fireImpShootGoal = new FireImpSummonGoal(this);
         this.goalSelector.addGoal(1, fireImpShootGoal);
         this.goalSelector.addGoal(1, new AvoidEntityGoal<>(this, LivingEntity.class, (entity) -> entity instanceof IPlant,
                 10, 1, 1.2D, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test));
@@ -66,20 +66,36 @@ public class FireImp extends Imp {
         super.readAdditionalSaveData(tag);
         this.tickCount = tag.getInt("skill_cooldown");
     }
-    public static class FireImpShootGoal extends Goal {
+    public static class FireImpSummonGoal extends Goal {
         public final Mob zombie;
-        public FireImpShootGoal(Mob zombie) {
+        public int angerLife = 90;
+        public int spellInterval = 300;
+        public int summonInterval = 60;
+        public int summonTimes = 2;
+        public FireImpSummonGoal(Mob zombie) {
             this.zombie = zombie;
             this.setFlags(EnumSet.of(Flag.MOVE));
         }
         @Override
         public boolean canUse() {
-            return (zombie.tickCount % 300 < 180 || (zombie.tickCount % 300 < 220 && zombie.getPose() == Pose.CROAKING))
+            return zombie.tickCount % spellInterval <= 1
+                    && zombie.getPose() == Pose.STANDING
                     && EntityUtil.isEntityValid(zombie.getTarget())
                     && zombie.level.getEntities(this.zombie,
                             zombie.getBoundingBox().inflate(4, 2, 4),
                             entity -> EntityUtil.checkCanEntityBeAttack(zombie, entity)).isEmpty();
         }
+
+        @Override
+        public boolean canContinueToUse() {
+            return zombie.tickCount % spellInterval < summonInterval * (summonTimes + 0.5)
+                    && zombie.getPose() == Pose.CROAKING
+                    && EntityUtil.isEntityValid(zombie.getTarget())
+                    && zombie.level.getEntities(this.zombie,
+                    zombie.getBoundingBox().inflate(4, 2, 4),
+                    entity -> EntityUtil.checkCanEntityBeAttack(zombie, entity)).isEmpty();
+        }
+
         @Override
         public void stop() {
             super.stop();
@@ -99,10 +115,9 @@ public class FireImp extends Imp {
         public void tick() {
             if (zombie.getTicksFrozen() <= 0 && zombie.getPose() == Pose.CROAKING) {
                 zombie.getNavigation().stop();
-                if (EntityUtil.isEntityValid(zombie.getTarget())) {
-                    zombie.lookAt(zombie.getTarget(), 10, 10);
-                }
-                if (zombie.tickCount % 60 <= 1 && zombie.tickCount % 300 > 50) {
+                if (! EntityUtil.isEntityValid(zombie.getTarget())) return;
+                zombie.lookAt(zombie.getTarget(), 10, 10);
+                if (zombie.tickCount % summonInterval <= 1 && zombie.tickCount % spellInterval > summonInterval - 10) {
                     Anger anger = new Anger(zombie.level);
                     anger.setPos(this.zombie.position().add(0, 1.6F, 0));
                     anger.setTarget(zombie.getTarget());
@@ -110,7 +125,7 @@ public class FireImp extends Imp {
                     anger.setDeltaMovement(this.zombie.getDeltaMovement());
                     anger.yRot = this.zombie.yRot;
                     anger.xRot = this.zombie.xRot;
-                    anger.maxLife = 90;
+                    anger.maxLife = angerLife;
                     zombie.level.addFreshEntity(anger);
                     anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
                     Scoreboard scoreboard = zombie.level.getScoreboard();

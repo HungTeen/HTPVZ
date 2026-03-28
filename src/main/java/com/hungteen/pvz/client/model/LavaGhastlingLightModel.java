@@ -1,0 +1,53 @@
+package com.hungteen.pvz.client.model;
+
+import net.minecraft.client.model.HierarchicalModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+
+public class LavaGhastlingLightModel<T extends Entity> extends HierarchicalModel<T> {
+    private final ModelPart root;
+    private final ModelPart[] tentacles = new ModelPart[9];
+
+    public LavaGhastlingLightModel(ModelPart p_170570_) {
+        this.root = p_170570_;
+
+        for(int i = 0; i < this.tentacles.length; ++i) {
+            this.tentacles[i] = p_170570_.getChild(createTentacleName(i));
+        }
+
+    }
+
+    private static String createTentacleName(int p_170573_) {
+        return "tentacle" + p_170573_;
+    }
+
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition meshdefinition = new MeshDefinition();
+        PartDefinition partdefinition = meshdefinition.getRoot();
+        partdefinition.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(8F, 8F, 8F, -16.0F, -16.0F, -16.0F, new CubeDeformation(-0.5F)), PartPose.offset(0.0F, 17.6F, 0.0F));
+        RandomSource randomsource = RandomSource.create(1660L);
+
+        for(int i = 0; i < 9; ++i) {
+            float f = (((float)(i % 3) - (float)(i / 3 % 2) * 0.5F + 0.25F) / 2.0F * 2.0F - 1.0F) * 5.0F;
+            float f1 = ((float)(i / 3) / 2.0F * 2.0F - 1.0F) * 5.0F;
+            int j = randomsource.nextInt(7) + 8;
+            partdefinition.addOrReplaceChild(createTentacleName(i), CubeListBuilder.create().texOffs(8, 30).addBox(1F, j, 1F, -2.0F, (float)-j, -2.0F, new CubeDeformation(-0.5F)), PartPose.offset(f, 24.6F, f1));
+        }
+
+        return LayerDefinition.create(meshdefinition, 64, 32);
+    }
+
+    public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        for(int i = 0; i < this.tentacles.length; ++i) {
+            this.tentacles[i].xRot = 0.2F * Mth.sin(ageInTicks * 0.3F + (float)i) + 0.4F;
+        }
+    }
+
+    public ModelPart root() {
+        return this.root;
+    }
+}

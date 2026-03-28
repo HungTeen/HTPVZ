@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.renderer.zombies;
 
-import com.hungteen.pvz.client.layer.GhastRiderLightLayer;
+import com.hungteen.pvz.client.layer.VanillaLightLayer;
 import com.hungteen.pvz.client.model.zombie.FireImpModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.zombies.FireImp;
@@ -24,7 +24,7 @@ public class GhastRiderRenderer<T extends FireImp, M extends FireImpModel<T>> ex
     static int jointNum;
     public GhastRiderRenderer(EntityRendererProvider.Context context) {
         super(context, (M) new FireImpModel<T>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("fire_imp:main"))));
-        this.addLayer(new GhastRiderLightLayer<>(this));
+        this.addLayer(new VanillaLightLayer<>(this, Util.prefix("textures/entity/zombie/imp/ghast_rider_light.png")));
     }
 
     @Override

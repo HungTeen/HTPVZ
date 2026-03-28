@@ -39,6 +39,9 @@ public class PVZLayerHandler {
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
         L(e, PVZEntities.SNAIL, SnailModel::createBodyLayer);
+        L(e, "lava_ghastling_light", LavaGhastlingLightModel::createBodyLayer);
+
+
         L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, "armor", WallNutArmorModel::createBodyLayer);
@@ -58,8 +61,8 @@ public class PVZLayerHandler {
         L(e, PVZEntities.FLOWER_POT, FlowerPotModel::createBodyLayer);
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
         L(e, PVZEntities.GATLING_PEA, GatlingPeaModel::createBodyLayer);
-        L(e, PVZEntities.SPROUT, SproutModel::createBodyLayer);
         L(e, PVZEntities.DANDELION, DandelionModel::createBodyLayer);
+        L(e, PVZEntities.SPROUT, SproutModel::createBodyLayer);
         L(e, "melon_bullet", MelonBulletModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "starfruit_bullet", StarfruitBulletModel::createBodyLayer);
@@ -71,6 +74,7 @@ public class PVZLayerHandler {
         L(e, "butter_head", ButterHeadModel::createBodyLayer);
         L(e, "butter_bottom", ButterBottomModel::createBodyLayer);
         L(e, "ice", FrozenModel::createBodyLayer);
+
         L(e, PVZEntities.POLE_VAULTING_ZOMBIE, PoleVaultingZombieModel::createBodyLayer);
         L(e, PVZEntities.SNORKEL_ZOMBIE, SnorkelZombieModel::createBodyLayer);
         L(e, PVZEntities.TACO_IMP, TacoImpModel::createBodyLayer);

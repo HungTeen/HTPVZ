@@ -25,11 +25,12 @@ import java.util.EnumSet;
 import java.util.UUID;
 
 public class LavaGhastling extends Ghast {
-    static UUID RIDEN_BY_BOSS_MODIFIER_UUID = UUID.fromString("33ffd765-acbb-d867-840b-2726daa6c655");
+    public static UUID RIDEN_BY_BOSS_MODIFIER_UUID = UUID.fromString("33ffd765-acbb-d867-840b-2726daa6c655");
     public LavaGhastling(EntityType<? extends Ghast> p_32725_, Level p_32726_) {
         super(p_32725_, p_32726_);
     }
     protected void registerGoals() {
+        this.goalSelector.addGoal(0, new RidenByBossArmorGoal(this));
         this.goalSelector.addGoal(5, new EvilGhastlingRandomFloatAroundGoal(this));
         this.goalSelector.addGoal(7, new GhastLookGoal(this));
         this.goalSelector.addGoal(7, new EvilGhastlingShootFireballGoal(this));
@@ -39,7 +40,7 @@ public class LavaGhastling extends Ghast {
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0D)
-                .add(Attributes.FOLLOW_RANGE, 64.0D);
+                .add(Attributes.FOLLOW_RANGE, 40.0D);
     }
 
     protected float getStandingEyeHeight(Pose p_32741_, EntityDimensions p_32742_) {
@@ -122,9 +123,9 @@ public class LavaGhastling extends Ghast {
 
                     if (this.chargeTime == 20) {
                         Vec3 vec3 = this.ghast.getViewVector(1.0F);
-                        double d2 = livingentity.getX() - (this.ghast.getX() + vec3.x * 4.0D) + ghast.getRandom().nextFloat() * 10 - 5;
+                        double d2 = livingentity.getX() - (this.ghast.getX() + vec3.x * 4.0D) + (ghast.isVehicle() ? ghast.getRandom().nextFloat() * 8 - 4 : 0);
                         double d3 = livingentity.getY(0.5D) - (0.5D + this.ghast.getY(0.5D));
-                        double d4 = livingentity.getZ() - (this.ghast.getZ() + vec3.z * 4.0D) + ghast.getRandom().nextFloat() * 10 - 5;
+                        double d4 = livingentity.getZ() - (this.ghast.getZ() + vec3.z * 4.0D) + (ghast.isVehicle() ? ghast.getRandom().nextFloat() * 8 - 4 : 0);
                         if (!this.ghast.isSilent()) {
                             level.levelEvent(null, 1016, this.ghast.blockPosition(), 0);
                         }
