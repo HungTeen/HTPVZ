@@ -10,6 +10,8 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -24,7 +26,10 @@ import java.util.List;
 import java.util.Random;
 
 public class InvasionEntityModifiers {
-    private static Pair<CompoundTag, Integer> TACO = Pair.of(InvasionTypeGen.EntityBuilder.of(PVZEntities.TACO_IMP.get()).get(), 0);
+    private static Pair<CompoundTag, Integer> TACO = Pair.of(InvasionTypeGen.EntityBuilder
+            .of(PVZEntities.TACO_IMP.get())
+            .effect(new MobEffectInstance(MobEffects.GLOWING, 400))
+            .get(), 0);
     private static final Random random = new Random();
     public static final ResourceLocation BABYLIZE = Util.prefix("babylize");
     public static final ResourceLocation ADD_LIFEBUOY = Util.prefix("add_lifebuoy");

@@ -1,0 +1,199 @@
+{
+  "parent": "pvz:flower_seed_packet",
+  "display": {
+    "frame": "challenge",
+    "title": {
+      "translate": "advancements.pvz.overworld_plants.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.overworld_plants.description"
+    },
+    "icon": {
+      "item": "pvz:flower_seed_packet"
+      }
+    },
+  "criteria": {
+    "has_pea_shooter": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:pea_shooter_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_sun_flower": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:sun_flower_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_wall_nut": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:wall_nut_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_potato_mine": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:potato_mine_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_snow_pea": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:snow_pea_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_lily_pad": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:lily_pad_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_tangle_kelp": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:tangle_kelp_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_split_pea": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:split_pea_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_cabbage_pult": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:cabbage_pult_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_flower_pot": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:flower_pot_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_veloci_radish": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:veloci_radish_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_iceberg_lettuce": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:iceberg_lettuce_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_pea_shooter"
+    ],
+    [
+      "has_sun_flower"
+    ],
+    [
+      "has_wall_nut"
+    ],
+    [
+      "has_potato_mine"
+    ],
+    [
+      "has_snow_pea"
+    ],
+    [
+      "has_lily_pad"
+    ],
+    [
+      "has_tangle_kelp"
+    ],
+    [
+      "has_split_pea"
+    ],
+    [
+      "has_cabbage_pult"
+    ],
+    [
+      "has_flower_pot"
+    ],
+    [
+      "has_veloci_radish"
+    ],
+    [
+      "has_iceberg_lettuce"
+    ]
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "parent": "pvz:nether_wart_seed_packet",
+  "display": {
+    "frame": "challenge",
+    "title": {
+      "translate": "advancements.pvz.nether_plants.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.nether_plants.description"
+    },
+    "icon": {
+      "item": "pvz:nether_wart_seed_packet"
+      }
+    },
+  "criteria": {
+    "has_repeater": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:repeater_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_jalapeno": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:jalapeno_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_spike_weed": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:spike_weed_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_torch_wood": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:torch_wood_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_tall_nut": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:tall_nut_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_plantern": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:plantern_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_starfruit": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:starfruit_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_pumpkin": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:pumpkin_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_umbrella_leaf": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:umbrella_leaf_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_melon_pult": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:melon_pult_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_repeater"
+    ],
+    [
+      "has_jalapeno"
+    ],
+    [
+      "has_spike_weed"
+    ],
+    [
+      "has_torch_wood"
+    ],
+    [
+      "has_tall_nut"
+    ],
+    [
+      "has_plantern"
+    ],
+    [
+      "has_starfruit"
+    ],
+    [
+      "has_pumpkin"
+    ],
+    [
+      "has_melon_pult"
+    ],
+    [
+      "has_umbrella_leaf"
+    ]
+  ]
+}

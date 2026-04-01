@@ -1,0 +1,33 @@
+{
+  "parent": "pvz:plants_vs_zombies",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.watering_pot.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.watering_pot.description"
+    },
+    "icon": {
+      "item": "pvz:watering_pot"
+      }
+    },
+  "criteria": {
+    "has_origin": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:watering_pot"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_origin"
+    ]
+  ]
+}

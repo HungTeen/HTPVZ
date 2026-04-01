@@ -3,6 +3,8 @@ package com.hungteen.pvz.common.world.invasion;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.event.RegisterInvasionConditionsEvent;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.advancements.Advancement;
@@ -127,6 +129,34 @@ public interface InvasionCondition {
         }
     }
 
+    class InvasionDifficultyGreaterThanCondition implements InvasionCondition {
+        @Override
+        public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
+            try {
+                if (! allProvidedArgs.isEmpty()) {
+                    Integer.parseInt(allProvidedArgs.get(0));
+                    return 1;
+                }
+            } catch (Exception ignored) {
+            }
+            return 0;
+        }
+        @Override
+        public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
+            int value = 0;
+            try {
+                if (! arguments.isEmpty()) {
+                    value = Integer.parseInt(arguments.get(0));
+                }
+            } catch (Exception ignored) {
+            }
+            if (target instanceof Player player) {
+                return player.isCreative() ? true : value >= PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY);
+            }
+            return false;
+        }
+    }
+
     class IsUndergroundCondition implements InvasionCondition {
         @Override
         public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
@@ -166,7 +196,16 @@ public interface InvasionCondition {
         }
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
-            return 0;
+            try {
+                if (allProvidedArgs.isEmpty()) {
+                    return 0;
+                } else {
+                    Integer.parseInt(allProvidedArgs.get(0));
+                    return 1;
+                }
+            } catch (Exception ignored) {
+                return 2;
+            }
         }
     }
 

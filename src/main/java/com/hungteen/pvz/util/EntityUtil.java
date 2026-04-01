@@ -109,6 +109,18 @@ public class EntityUtil {
     }
 
     //Hating & Teaming
+    public static boolean isEntityEvil(Entity entity) {
+        if (entity instanceof Projectile proj && proj.getOwner() != null) {
+            return isEntityEvil(proj.getOwner());
+        }
+        if (entity == null) {
+            PVZMod.LOGGER.error("entity is found null in evil check!");
+            return false;
+        }
+        return entity.getTeam() == null ? (! entity.getType().is(PVZEntityTags.FRIENDLY))
+                && (entity instanceof Enemy || entity.getType().is(PVZEntityTags.ENEMY) || entity.getType().is(Tags.EntityTypes.BOSSES))
+                : Util.isTeamEvil(entity.level, entity.getTeam());
+    }
     /**Check if entities are teammates. can call on server or client.
      * <br>I you want to check if an entity is attackable, use {@link EntityUtil#checkCanEntityBeAttack(Entity, Entity)}.*/
     public static boolean isTeammate(Entity A, Entity B) {

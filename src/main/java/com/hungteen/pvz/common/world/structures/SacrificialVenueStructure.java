@@ -23,6 +23,7 @@ public class SacrificialVenueStructure extends Structure {
     public SacrificialVenueStructure(StructureSettings settings) {
         super(settings);
     }
+    @Override
     public Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
         BlockPos worldPos = context.chunkPos().getWorldPosition();
         BlockPos pos = new BlockPos(worldPos.getX(), 31, worldPos.getZ());

@@ -180,12 +180,11 @@ public class BaseBullet extends Projectile {
 	}
 
 	protected DamageSource getDamageSource(Entity target) {
-		DamageSource source = PVZDamageSource.transferKiller(
-				PVZDamageSource.ignoreInvTime(
+		DamageSource source = PVZDamageSource.ignoreInvTime(
 						PVZDamageSource.hitBossWithProportion(
 								PVZDamageSource.knockBack(
 										PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
-				, getKnockBackStrength()), target)), PVZEntityCapability.getOwner(this));
+				, getKnockBackStrength()), target));
 		if (! this.isNoGravity()) {
 			source.damageHelmet();
 		}

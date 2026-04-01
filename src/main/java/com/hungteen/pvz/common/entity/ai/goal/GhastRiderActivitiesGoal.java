@@ -1,14 +1,23 @@
-package com.hungteen.pvz.common.entity.zombies;
+package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.LavaGhastling;
 import com.hungteen.pvz.common.entity.creatures.Anger;
+import com.hungteen.pvz.common.entity.zombies.FireImp;
+import com.hungteen.pvz.common.entity.zombies.GhastRiderBoss;
+import com.hungteen.pvz.common.entity.zombies.Imp;
+import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.*;
@@ -18,7 +27,6 @@ import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
-import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
@@ -48,15 +56,18 @@ public class GhastRiderActivitiesGoal extends Goal {
     private boolean angerOn;
     private int lastSummonTick;
     private int unmountedTick;
-    private int crossCooldown;
+    private int frozenTick;
     private int panicTick;
+    private int crossCooldown;
     private int tpCooldown;
-    private Set<BlockPos> summonPoses;
+    private final Set<BlockPos> summonPoses;
 
-    static UUID CROSS_FIRE_ATTRIBUTE_MODIFIER = UUID.fromString("71edaec2-2470-078a-7362-fbb577ca68fc");
-    static int CROSS_COOL_DOWN = 2000;
-    static int TP_COOL_DOWN = 200;
-    static int SUMMON_COOL_DOWN_BASE = 150;
+    static final UUID CROSS_FIRE_ATTRIBUTE_MODIFIER = UUID.fromString("71edaec2-2470-078a-7362-fbb577ca68fc");
+    static final int CROSS_COOL_DOWN = 600;
+    static final int TP_COOL_DOWN = 200;
+    static final int REMOUNT_COOL_DOWN = 100;
+    static final int SUMMON_COOL_DOWN_BASE = 60;
+    static final int FROZEN_THRESHOLD = 350;
 
 
     public GhastRiderActivitiesGoal(GhastRiderBoss zombie) {
@@ -69,28 +80,32 @@ public class GhastRiderActivitiesGoal extends Goal {
         this.lavaOn = false;
         this.avoidOn = false;
         this.angerOn = false;
-        this.summonPoses = Set.of();
-        lastSummonTick = 0;
+        this.summonPoses = new HashSet<>();
+        lastSummonTick = 100;
         unmountedTick = 0;
+        frozenTick = 0;
         panicTick = 0;
-        crossCooldown = 2000;
+        crossCooldown = CROSS_COOL_DOWN;
         tpCooldown = TP_COOL_DOWN;
     }
 
     @Override
     public void tick() {
+        double healthRate = zombie.getHealth() / zombie.getMaxHealth();
         if (crossCooldown > 0) crossCooldown --;
         if (tpCooldown > 0) tpCooldown --;
+        frozenTick = zombie.getTicksFrozen() > 0 ? ++ frozenTick : 0;
         if (! EntityUtil.isEntityValid(zombie.getTarget())) {
             if (tpCooldown <= 0) {
                 switchOffWalkingGoals();
                 tpTo(getCenter(), true);
             }
-            if (zombie.tickCount % 20 < 1 && atCenter()) {
+            if (zombie.tickCount % 20 == 0 && atCenter()) {
                 zombie.heal(2);
             }
-            //TODO 破坏构成平台的灵浮土
-            crossCooldown = 2000;
+            BlockPos pos = getRandomBlockPosOnPlatform();
+            //TODO 破坏灵浮土
+            crossCooldown = CROSS_COOL_DOWN;
             tpCooldown = TP_COOL_DOWN;
             lastSummonTick = 0;
             panicTick = 0;
@@ -100,7 +115,7 @@ public class GhastRiderActivitiesGoal extends Goal {
             unmountedTick = 0;
             switchOffWalkingGoals();
             //controlling ghast
-            if (zombie.tickCount % 50 <= 1
+            if (zombie.tickCount % 50 == 0
                     && zombie.getVehicle() instanceof LavaGhastling lavaGhastling) {
                 RandomSource randomsource = lavaGhastling.getRandom();
                 Vec3 pos = zombie.homePos != null ? Vec3.atCenterOf(zombie.homePos) : lavaGhastling.position();
@@ -109,13 +124,12 @@ public class GhastRiderActivitiesGoal extends Goal {
                 double d2 = pos.z + (double)((randomsource.nextFloat() * 2.0F - 1.0F) * 16.0F);
                 lavaGhastling.getMoveControl().setWantedPosition(d0, d1, d2, 1.0D);
             }
-            angerOn = handleGoal(this.summonAngerGoal, angerOn);
         } else {
             if (zombie.getHangingEntity() instanceof LavaGhastling lavaGhastling) {
-                this.tpCooldown = 400;
+                this.tpCooldown = TP_COOL_DOWN * 2;
                 if (crossCooldown <= 0) {
                     this.zombie.setHangingEntity(null);
-                } else if (this.zombie.getTicksFrozen() <= 350) {
+                } else if (this.zombie.getTicksFrozen() <= FROZEN_THRESHOLD) {
                     this.zombie.setRopeLengthSqr(zombie.getRopeLengthSqr() * 0.8 - 1);
                     if (lavaGhastling.position().distanceTo(this.zombie.position()) < 2) {
                         zombie.startRiding(lavaGhastling);
@@ -123,8 +137,13 @@ public class GhastRiderActivitiesGoal extends Goal {
                     }
                 }
             } else {
+                if (unmountedTick == 1) {
+                    this.lastSummonTick = 0;
+                }
                 //trying to ride ghast
-                if (unmountedTick >= 300 && crossCooldown > 0 && this.zombie.getTicksFrozen() <= 350) {
+                if (unmountedTick >= REMOUNT_COOL_DOWN * (healthRate > 0.5 ? 2 : 1)
+                        && crossCooldown > 0 && ! this.zombie.hasEffect(PVZMobEffects.FREEZE.get())
+                        && zombie.getPose() == Pose.STANDING) {
                     List<LavaGhastling> ghasts = this.zombie.level.getEntities(EntityTypeTest.forClass(LavaGhastling.class),
                             zombie.getBoundingBox().inflate(15, 15, 15),
                             ghast -> ! ghast.isVehicle() && ! ghast.isPassenger() && EntityUtil.isTeammate(zombie, ghast)
@@ -137,13 +156,6 @@ public class GhastRiderActivitiesGoal extends Goal {
                 }
             }
             unmountedTick ++;
-            //moving
-            panicOn = handleGoal(this.panicGoal, panicOn);
-            avoidOn = panicOn ? switchGoal(this.avoidGoal, avoidOn, false)
-                    : handleGoal(this.avoidGoal, avoidOn);
-            panicTick = (panicOn || avoidOn) ? ++ panicTick : 0;
-            lavaOn = panicOn || avoidOn ? switchGoal(this.lavaGoal, lavaOn, false)
-                    : handleGoal(this.lavaGoal, lavaOn);
             //lava healing
             if (zombie.level.getBlockState(this.zombie.getOnPos()).getBlock() == Blocks.LAVA) {
                 zombie.heal(1.5F);
@@ -168,21 +180,31 @@ public class GhastRiderActivitiesGoal extends Goal {
             }
         }
         //tp to center
-        if (tpCooldown <= 0 && panicTick > 100) {
+        if (tpCooldown <= 0
+                    && (panicTick > 100
+                    || zombie.blockPosition().distSqr(zombie.homePos) > (zombieHasVehicle() ? 800 : 225)
+                    || frozenTick > 600)
+                || zombie.isInWall()) {
             panicTick = 0;
-            switchOffWalkingGoals();
+            zombie.removeEffect(PVZMobEffects.FREEZE.get());
+            zombie.setTicksFrozen(0);
             tpTo(getCenter(), true);
         }
         //summoning
-        angerOn = switchGoal(this.summonAngerGoal, angerOn, false);
+        if (zombie.isPassenger()) {
+            if (zombie.tickCount % 2 == 0) angerOn = handleGoal(this.summonAngerGoal, angerOn);
+        } else {
+            angerOn = switchGoal(this.summonAngerGoal, angerOn, false);
+        }
         if (lastSummonTick >= 0) lastSummonTick ++;
-        if (! angerOn && zombie.getHangingEntity() == null) {
+        if (! angerOn) {
             if (zombie.getPose() == Pose.CROAKING) {
-                if (summonPoses.isEmpty()) { // cross summon
+                switchOffWalkingGoals();
+                if (summonPoses.isEmpty()) { //cross summon tick
                     if (crossCooldown > 0) crossCooldown = 0;
                     crossCooldown --;
-                    if (crossCooldown < -80 && (- crossCooldown) % 10 <= 1) {
-                        if (zombie.getTicksFrozen() <= 350 && crossCooldown > - 120) {
+                    if (crossCooldown < - 60 && (- crossCooldown) % 20 == 0) {
+                        if (zombie.getTicksFrozen() <= FROZEN_THRESHOLD && crossCooldown > - 150) {
                             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {
                                 Anger anger = new Anger(zombie.level);
                                 anger.setPos(zombie.position().add(0, 2, 0));
@@ -195,18 +217,18 @@ public class GhastRiderActivitiesGoal extends Goal {
                                 zombie.level.addFreshEntity(anger);
                             }
                         }
-                        if (crossCooldown < -140) {
+                        if (crossCooldown < -170 || frozenTick > 60) {
                             zombie.setPose(Pose.STANDING);
                                 crossCooldown = CROSS_COOL_DOWN;
                             EntityUtil.removeModifierFromAttribute(zombie, Attributes.KNOCKBACK_RESISTANCE, CROSS_FIRE_ATTRIBUTE_MODIFIER);
                         }
                     }
-                } else { //basic summon
-                    if (zombie.getTicksFrozen() >= 350) {
+                } else { //basic summon tick
+                    if (zombie.getTicksFrozen() >= FROZEN_THRESHOLD || lastSummonTick > 0) {
                         zombie.setPose(Pose.STANDING);
-                        lastSummonTick = 0;
-                    } else if (lastSummonTick <= 100) {
-                        for (BlockPos pos: summonPoses) {
+                        lastSummonTick = getSummonTickInterval() - 60;
+                    } else if (lastSummonTick > -60) {
+                        for (BlockPos pos : summonPoses) {
                             ((ServerLevel) zombie.level).sendParticles(ParticleTypes.LAVA,
                                     pos.getX(), pos.getY() + 1, pos.getZ(),
                                     1, 0.5D, 0.0D, 0.5D, 0.0D);
@@ -214,13 +236,13 @@ public class GhastRiderActivitiesGoal extends Goal {
                         lastSummonTick --;
                     } else {
                         if (! summonPoses.isEmpty()) {
-                            float healthRate = zombie.getHealth() / zombie.getMaxHealth();
                             List<Entity> list = zombie.level.getEntities(EntityTypeTest.forClass(Entity.class),
                                     new AABB(zombie.homePos.offset(-30, -6, -30),
                                             zombie.homePos.offset(30, 15, 30)),
                                     entity -> true);
                             int fireImpCount = 0;
-                            int lavaGhastlingCount = 0;
+                            int ghastCount = 0;
+                            int diverCount = 0;
                             int tacoCount = 0;
                             int enemyCount = 0;
                             for (Entity entity : list) {
@@ -228,28 +250,30 @@ public class GhastRiderActivitiesGoal extends Goal {
                                     EntityType<?> type = entity.getType();
                                     if (type == PVZEntities.TACO_IMP.get()) tacoCount ++;
                                     if (type == PVZEntities.FIRE_IMP.get()) fireImpCount ++;
-                                    if (type == PVZEntities.LAVA_GHASTLING.get()) lavaGhastlingCount ++;
+                                    if (type == PVZEntities.LAVA_GHASTLING.get()) ghastCount ++;
+                                    if (type == PVZEntities.LAVA_DIVER_ZOMBIE.get()) diverCount ++;
                                 } else if (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(zombie, entity)) {
                                     enemyCount ++;
                                 }
                             }
-                            boolean isAnnoyed = healthRate < 0.9 || enemyCount > 12;
+                            boolean isAnnoyed = healthRate < 0.9 || enemyCount > 8;
+                            boolean phase2 = healthRate < 0.5;
                             EntityType<? extends Entity> entityType = null;
-                            if (! this.zombie.isPassenger() && ! this.zombie.isHanging()
-                                    && isAnnoyed && lavaGhastlingCount == 0) {
+                            if (isAnnoyed && ! zombieHasVehicle() && ghastCount == 0) {
                                 entityType = PVZEntities.LAVA_GHASTLING.get();
+                            } else if (! isAnnoyed && ! zombieHasVehicle() && tacoCount == 0) {
+                                entityType = zombie.getRandom().nextBoolean() ? PVZEntities.IMP.get() : PVZEntities.TACO_IMP.get();
                             } else {
                                 Map<EntityType<? extends Entity>, Integer> map = new HashMap<>();
-                                map.put(PVZEntities.IMP.get(), healthRate < 0.66 ? 8 : 3);
-                                if (isAnnoyed && lavaGhastlingCount < 3) {
-                                    map.put(PVZEntities.LAVA_GHASTLING.get(), healthRate > 0.66 ? 1 : (healthRate < 0.33 ? 5 : 3));
+                                map.put(PVZEntities.IMP.get(), phase2 ? 3 : 4);
+                                if (fireImpCount + summonPoses.size() < 6) {
+                                    map.put(PVZEntities.FIRE_IMP.get(), 1);
                                 }
-                                if (healthRate > 0.66) {
-                                    if (enemyCount < 8) {
-                                        map.put(PVZEntities.TACO_IMP.get(), tacoCount == 0 ? (isAnnoyed ? 8 : 4) : 1);
-                                    }
-                                } else if (fireImpCount < 3) {
-                                    map.put(PVZEntities.FIRE_IMP.get(), healthRate < 0.33 ? 2 : 1);
+                                if (phase2 && ghastCount <= 1) {
+                                    map.put(PVZEntities.LAVA_GHASTLING.get(), 1);
+                                }
+                                if (phase2 && diverCount + summonPoses.size() <= 3) {
+                                    map.put(PVZEntities.LAVA_DIVER_ZOMBIE.get(), 1);
                                 }
                                 AtomicInteger choice = new AtomicInteger();
                                 map.values().forEach(choice::addAndGet);
@@ -258,27 +282,36 @@ public class GhastRiderActivitiesGoal extends Goal {
                                     int i1 = choice.addAndGet(- map.get(typeToChoose));
                                     if (i1 < 0) {
                                         entityType = typeToChoose;
+                                        break;
                                     }
                                 }
                             }
                             if (entityType != null) {
+                                int summonNum = 0;
                                 for (BlockPos pos : summonPoses) {
+                                    if (ghastCount + summonNum >= 5 && entityType == PVZEntities.LAVA_GHASTLING.get()) {
+                                        break;
+                                    }
+                                    summonNum ++;
                                     Entity entity = entityType.create(zombie.level);
-                                    entity.setPos(Vec3.atCenterOf(pos));
+                                    tpTo(entity, pos, false);
                                     entity.setDeltaMovement(0, 0.5, 0);
-                                    if (entity instanceof Zombie zombie1 && healthRate < 0.66 && zombie.getRandom().nextFloat() < 0.33) {
-                                        zombie1.setItemSlot(EquipmentSlot.HEAD, Items.GOLDEN_HELMET.getDefaultInstance());
-                                        if (healthRate < 0.33 && zombie.getRandom().nextFloat() < 0.5) {
-                                            zombie1.setItemSlot(EquipmentSlot.CHEST, Items.GOLDEN_CHESTPLATE.getDefaultInstance());
-                                            zombie1.setItemSlot(EquipmentSlot.FEET, Items.GOLDEN_BOOTS.getDefaultInstance());
-                                            zombie1.setItemSlot(EquipmentSlot.MAINHAND, Items.GOLDEN_SWORD.getDefaultInstance());
+                                    if (entity instanceof PVZZombie zombie1 && ! zombie1.isBaby()) {
+                                        zombie1.setBaby(true);
+                                    }
+                                    if (entityType == PVZEntities.IMP.get() && entity instanceof Imp zombie1
+                                            && phase2 && zombie.getRandom().nextFloat() < 0.3) {
+                                        zombie1.setItemSlot(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance());
+                                        zombie1.setItemSlot(EquipmentSlot.FEET, Items.GOLDEN_BOOTS.getDefaultInstance());
+                                        if (zombie.getRandom().nextFloat() < 0.3) {
+                                            zombie1.setItemSlot(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance());
                                         }
                                     }
                                     for (int x = -1; x < 2; x ++) {
                                         for (int z = -1; z < 2; z ++) {
-                                            BlockState state = zombie.level.getBlockState(pos.offset(x, -1, z));
+                                            BlockState state = zombie.level.getBlockState(pos.offset(x, -2, z));
                                             if (state.getBlock().defaultDestroyTime() < 2F || state.getBlock() instanceof LiquidBlock) {
-                                                zombie.level.setBlock(pos.offset(x, -1, z), PVZBlocks.FLOATING_SOUL_SOIL.get().defaultBlockState(), 3);
+                                                zombie.level.setBlock(pos.offset(x, -2, z), PVZBlocks.FLOATING_SOUL_SOIL.get().defaultBlockState(), 3);
                                             }
                                         }
                                     }
@@ -292,35 +325,55 @@ public class GhastRiderActivitiesGoal extends Goal {
                         lastSummonTick = 0;
                     }
                 }
-            } else {//start summoning
-                float healthRate = zombie.getHealth() / zombie.getMaxHealth();
-                if (crossCooldown <= 0 && tpCooldown <= 0 && healthRate < 0.9) {//cross summon
+            } else {
+                //moving
+                if (! zombie.isPassenger()) {
+                    if (healthRate > 0.9) {
+                        panicOn = switchGoal(this.panicGoal, panicOn, false);
+                    } else {
+                        panicOn = handleGoal(this.panicGoal, panicOn);
+                    }
+                    avoidOn = panicOn ? switchGoal(this.avoidGoal, avoidOn, false)
+                            : handleGoal(this.avoidGoal, avoidOn);
+                    panicTick = (panicOn || avoidOn) ? ++ panicTick : 0;
+                    lavaOn = panicOn || avoidOn ? switchGoal(this.lavaGoal, lavaOn, false)
+                            : handleGoal(this.lavaGoal, lavaOn);
+                }
+                //start summoning
+                if (lastSummonTick < 0) lastSummonTick = 0;
+                if (crossCooldown <= 0 && tpCooldown <= 0 && healthRate < 0.9) {//cross summon start
                     tpTo(getCenter(), true);
                     zombie.setPose(Pose.CROAKING);
                     EntityUtil.addModifierToAttribute(zombie, Attributes.KNOCKBACK_RESISTANCE,
                             new AttributeModifier(CROSS_FIRE_ATTRIBUTE_MODIFIER, "skill_bonus", 1, AttributeModifier.Operation.ADDITION));
                     crossCooldown --;
-                } else if (lastSummonTick >= 150 * (zombieHasVehicle() ? 1 : (healthRate < 0.9 ? 2 : 3))) {//basic summon
+                } else if (lastSummonTick >= getSummonTickInterval()) {//basic summon start
                     zombie.setPose(Pose.CROAKING);
-                    int summonNum = healthRate > 0.9 ? 1 : ((zombie.isPassenger() ? 0 : 1) + (healthRate > 0.5 ? 2 : 3));
+                    int summonNum = healthRate > 0.9 ? 1 : ((zombie.isPassenger() ? 0 : 2) + (healthRate > 0.5 ? 1 : 2));
+                    summonPoses.clear();
                     for (int i = 0; i < summonNum; i ++) {
                         summonPoses.add(getRandomBlockPosOnPlatform());
                     }
+                    lastSummonTick = -1;
                 }
             }
         }
     }
 
+    public int getSummonTickInterval() {
+        return SUMMON_COOL_DOWN_BASE * (zombieHasVehicle() ? 1 : (zombie.getHealth() / zombie.getMaxHealth() < 0.9 ? 3 : 5));
+    }
     public boolean zombieHasVehicle() {
         return zombie.isPassenger() || zombie.getHangingEntity() != null;
     }
 
     public void tpTo(BlockPos pos, boolean exact) {
-        zombie.setPose(Pose.STANDING);
+        tpTo(zombie, pos, exact);
         tpCooldown = TP_COOL_DOWN;
-        if (zombie.isPassenger()) {
-            zombie.dismountTo(zombie.getX(), zombie.getY(), zombie.getZ());
-        }
+    }
+    public void tpTo(Entity zombie, BlockPos pos, boolean exact) {
+        zombie.setPose(Pose.STANDING);
+        zombie.stopRiding();
         zombie.teleportTo(pos.getX(), pos.getY(), pos.getZ());
         if (zombie.isInWall()) {
             int offSetTime = 0;
@@ -348,17 +401,20 @@ public class GhastRiderActivitiesGoal extends Goal {
             if (! end) {
                 tpTo(getRandomBlockPosOnPlatform(), false);
             }
-            zombie.getJumpControl().jump();
+            if (zombie instanceof Mob mob) {
+                mob.getNavigation().stop();
+                mob.getJumpControl().jump();
+            }
         }
     }
     public @NotNull BlockPos getRandomBlockPosOnPlatform() {
         double randomAngle = zombie.getRandom().nextDouble() * 2 * Math.PI;
         double randomLength = zombie.getRandom().nextDouble() * 8 + 7;
-        return this.zombie.homePos.offset(Math.sin(randomAngle) * randomLength, 0, Math.cos(randomAngle) * randomLength);
+        return this.zombie.homePos.offset(Math.sin(randomAngle) * randomLength, 1, Math.cos(randomAngle) * randomLength);
     }
 
     public BlockPos getCenter() {
-        return zombie.homePos;
+        return zombie.homePos.above();
     }
 
     public boolean atCenter() {
@@ -373,6 +429,38 @@ public class GhastRiderActivitiesGoal extends Goal {
     @Override
     public boolean requiresUpdateEveryTick() {
         return true;
+    }
+    public void save(CompoundTag tag) {
+        tag.putInt("LastSummonTick", lastSummonTick);
+        tag.putInt("UnmountedTick", unmountedTick);
+        tag.putInt("FrozenTick", frozenTick);
+        tag.putInt("PanicTick", panicTick);
+        tag.putInt("CrossCooldown", crossCooldown);
+        tag.putInt("TpCooldown", tpCooldown);
+        ListTag summonPosTag = new ListTag();
+        summonPoses.forEach(pos -> {
+            CompoundTag posTag = new CompoundTag();
+            posTag.putInt("x", pos.getX());
+            posTag.putInt("y", pos.getY());
+            posTag.putInt("z", pos.getZ());
+            summonPosTag.add(posTag);
+        });
+        tag.put("SummonPoses", summonPosTag);
+    }
+    public void read(CompoundTag tag) {
+        lastSummonTick = tag.getInt("LastSummonTick");
+        unmountedTick = tag.getInt("UnmountedTick");
+        frozenTick = tag.getInt("FrozenTick");
+        panicTick = tag.getInt("PanicTick");
+        crossCooldown = tag.getInt("CrossCooldown");
+        tpCooldown = tag.getInt("TpCooldown");
+        ListTag summonPosTag = tag.getList("SummonPoses", Tag.TAG_COMPOUND);
+        summonPoses.clear();
+        summonPosTag.forEach(posTag -> {
+            if (posTag instanceof CompoundTag cTag) {
+                summonPoses.add(new BlockPos(cTag.getInt("x"), cTag.getInt("y"), cTag.getInt("z")));
+            }
+        });
     }
 
     public boolean switchGoal(Goal goal, boolean currentOn, boolean on) {
@@ -453,7 +541,7 @@ public class GhastRiderActivitiesGoal extends Goal {
             super(zombie);
             this.summonTimes = 4;
             this.angerLife = 120;
-            this.spellInterval = 450;
+            this.spellInterval = 300;
         }
         @Override
         public boolean canUse() {

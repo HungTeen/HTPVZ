@@ -28,7 +28,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
-import static com.hungteen.pvz.common.register.PVZDamageSource.transferKiller;
 
 /**
  * 火爆辣椒僵尸 - 接近玩家时会爆炸，向四个方向发射怒妖
@@ -93,7 +92,7 @@ public class JalapenoZombie extends PVZZombie implements IZombotany {
     }
 
     public void explode() {
-        level.explode(this, transferKiller(teamFilter(DamageSource.explosion(this).bypassArmor()), PVZEntityCapability.getOwner(this)), null, this.getX(), this.getY() + 1.5, this.getZ(),
+        level.explode(this, teamFilter(DamageSource.explosion(this).bypassArmor()), null, this.getX(), this.getY() + 1.5, this.getZ(),
                 1F, false, Explosion.BlockInteraction.NONE);
         if (!level.isClientSide) {
             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {

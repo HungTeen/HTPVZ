@@ -9,6 +9,7 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.EntityLifter;
 import com.hungteen.pvz.common.item.LootBagItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZStats;
@@ -66,6 +67,7 @@ import java.util.function.Function;
 public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTag> {
     public static final String INVASION_THREAT = "pvz.invasion_threat";
     private static final Random random = new Random();
+    public boolean trackable;
     /**Invasion types. The first one (types[0]) is the main type. */
     public List<InvasionType> types;
     /**Hardness of incasion.*/
@@ -92,6 +94,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     private float seekPositionHardness = 0;
 
     //director system
+    private int fleeCount = 0;
     private Vec3 storedTargetPos = null;
     private int storedTargetTeammateCount = 1;
     private int targetTeammateCount = 0;
@@ -122,6 +125,10 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
         this(level, uuid, types);
         this.target = target;
         this.targetUUID = target.getUUID();
+        if (target instanceof ServerPlayer player) {
+            player.awardStat(PVZStats.INVASIONS);
+            PVZCriteriaTriggers.INVASION.trigger(player);
+        }
         this.position = pos;
         this.invasionLevel = invasionLevel;
         this.expectedTotalTime = this.generateWaves();
@@ -129,6 +136,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
 
     public Invasion(Level level, UUID uuid, List<InvasionType> types) {
         super(level, uuid);
+        this.trackable = true;
         this.types = types;
         this.currentWave = 0;
         this.currentWaveTime = 0;
@@ -219,11 +227,14 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                     this.end(Vec3.atCenterOf(this.position), "zombie_event.pvz.invasion.end.peace", false);
                     return;
                 }
-                if (target != null &&
-                        target.blockPosition().distSqr(this.position) > this.range * this.range * 10
-                        && (getPlayerFleeWill() - getPlayerActivation()) > (getPlayerAlive() < 10 ? 1000 : 3000)) {
-                    this.end(Vec3.atCenterOf(this.position), "zombie_event.pvz.invasion.end.escape", false);
-                    return;
+                if (target != null
+                        && (getPlayerFleeWill() - getPlayerActivation()) > (getPlayerAlive() < 10 ? 2500 : 5000)) {
+                    if (++ fleeCount > 20) {
+                        this.end(Vec3.atCenterOf(this.position), "zombie_event.pvz.invasion.end.escape", false);
+                        return;
+                    }
+                } else {
+                    fleeCount = 0;
                 }
             }
             //handle progress bar.
@@ -258,7 +269,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             }
             if (target != null) {
                 //tracking target
-                if (this.target.blockPosition().distSqr(this.position) > 64 && tickCount % 40 == 0) {
+                if (trackable && this.target.blockPosition().distSqr(this.position) > 64 && tickCount % 40 == 0) {
                     this.position = this.position.offset(new Vec3i(
                             Math.min(Math.max(-1, target.getX() - this.position.getX()), 1),
                             Math.min(Math.max(-1, target.getY() - this.position.getY()), 1),
@@ -329,13 +340,15 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     }
     /**Return a relative value of the will player flee from the invasion.*/
     public int getPlayerFleeWill() {
-        AtomicInteger rayResult = new AtomicInteger();
-        for (int x = -1; x < 2; x ++) {
-            for (int z = -1; z < 2; z ++) {
-                Vec3 destination = Vec3.atCenterOf(position).add((double)x * 2, x == 0 && z == 0 ? 4 : random.nextInt(4), (double)z * 2);
-                if (level.clip(new ClipContext(Vec3.atCenterOf(position), destination, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null))
-                        .getType() == HitResult.Type.BLOCK) {
-                    rayResult.addAndGet(1);
+        AtomicInteger rayResult = new AtomicInteger(0);
+        if (target instanceof Player player) {
+            for (int x = -1; x < 2; x ++) {
+                for (int z = -1; z < 2; z ++) {
+                    Vec3 destination = Vec3.atCenterOf(player.blockPosition()).add((double)x * 2, x == 0 && z == 0 ? 4 : random.nextInt(4), (double)z * 2);
+                    if (level.clip(new ClipContext(Vec3.atCenterOf(player.blockPosition()), destination, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null))
+                            .getType() == HitResult.Type.BLOCK) {
+                        rayResult.addAndGet(1);
+                    }
                 }
             }
         }
@@ -389,7 +402,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                         + (int) (1.5 * currentWave * targetTeammateCount / waves.size()) + " "
                         + (int) ((double) (100 * targetTeammateCount) / (4 + storedTargetTeammateCount) / (getCurrentWave().isBigWave ? 1.2 : 0.8)) + " "
                         + (int) ((double) (100 * targetTeammateCost) / (200 + storedTargetTeammateCost) / (getCurrentWave().isBigWave ? 1.2 : 0.8)) +
-                "\n  FLE " + fle + " - " + (1000 * waves.size() / (1 + currentWave) / (1 + targetTeammateCount)) + " "
+                "\n  FLE " + fle + "("+ fleeCount + ") - " + (1000 * waves.size() / (1 + currentWave) / (1 + targetTeammateCount)) + " "
                         + far + " "
                         + (fle - (1000 * waves.size() / (1 + currentWave) / (1 + targetTeammateCount)) - far) + " " +
                 "\n  ACT " + getPlayerActivation() + " - " + currentWave * targetTeammateCount * 3 / waves.size() / 10 + " "
@@ -462,9 +475,9 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             }
             PVZPlayerCapability.getPlayerData(player)
                     .ifPresent(cap -> {
-                        cap.setValue(PVZPlayerCapStats.INVASION_DIFFICULTY,
-                                (success ? (((int)(20 * (float) this.totalTime / this.expectedTotalTime) + cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY) * 4) / 5) :
-                                        (int) (cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY) * 0.8F)));
+                        cap.setValue(PVZPlayerCapStats.INVASION_DIFFICULTY, (success ?
+                                (int)(((float) this.totalTime / this.expectedTotalTime + threatFactor * 2 + 7) / 10) * cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY) :
+                                (cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY) - 10)));
                         cap.setValue(PVZPlayerCapStats.LAST_INVASION, 0);
                     });
         }
@@ -740,6 +753,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             }
             tag.put("invasion_types", types);
         }
+        tag.putBoolean("trackable", trackable);
         tag.putInt("total_time", totalTime);
         tag.putInt("end_time", endCountDown);
         tag.putInt("expected_total_time", expectedTotalTime);
@@ -761,16 +775,16 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     public void readAdditionalSaveData(CompoundTag tag) {
         if (! this.level.isClientSide) {
             if (tag.contains("invasion_types")) {
-                this.types = new ArrayList<>();
+                this.types.clear();
                 ListTag types = ((ListTag) tag.get("invasion_types"));
-                for (int i = 0; i < (types != null ? types.size() : 0); i ++) {
-                    InvasionType type = InvasionType.getInvasionType(new ResourceLocation(types.getString(i)));
+                types.forEach(typeName ->  {
+                    InvasionType type = InvasionType.getInvasionType(new ResourceLocation(typeName.getAsString()));
                     if (type == null) {
-                        PVZMod.LOGGER.warn("Trying to load an invasion type with name" + new ResourceLocation(types.getString(i)) + " which is unavailable.");
+                        PVZMod.LOGGER.warn("Trying to load an invasion type with name" + new ResourceLocation(typeName.getAsString()) + " which is unavailable.");
                     } else {
                         this.types.add(type);
                     }
-                }
+                });
             }
             if (this.types.isEmpty() || this.getMainType().isAddition()) {
                 PVZMod.LOGGER.warn("Trying to load an invasion which contains no main invasion type.");
@@ -784,6 +798,9 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             for (int i = 0; i < (waves != null ? waves.size() : 0); i ++) {
                 this.waves.add(new Wave(waves.getCompound(i)));
             }
+        }
+        if (tag.contains("trackable")) {
+            this.trackable = tag.getBoolean("trackable");
         }
         if (tag.contains("current_wave")) {
             this.currentWave = tag.getInt("current_wave");

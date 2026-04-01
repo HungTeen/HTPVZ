@@ -1,0 +1,39 @@
+{
+  "parent": "pvz:pumpkin_on_head",
+  "hidden": true,
+  "display": {
+    "frame": "challenge",
+    "title": {
+      "translate": "advancements.pvz.ride_pumpkin_zombie.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.ride_pumpkin_zombie.description"
+    },
+    "icon": {
+      "item": "pvz:pop_smarts_on_a_stick"
+    }
+  },
+  "criteria": {
+    "ride_on_pumpkin": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "vehicle": {
+                "type": "pvz:pumpkin_zombie"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:started_riding"
+    }
+  },
+  "requirements": [
+    [
+      "ride_on_pumpkin"
+    ]
+  ]
+}

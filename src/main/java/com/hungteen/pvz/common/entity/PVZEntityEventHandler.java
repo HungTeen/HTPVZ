@@ -13,15 +13,14 @@ import com.hungteen.pvz.common.network.PlanternRefreshGlowPacket;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.EntitySelector;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.entity.player.Player;
@@ -81,10 +80,12 @@ public class PVZEntityEventHandler {
             //occur invasion.
             event.getEntity().getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
                 if (cap.containsInvasion) {
-                    if (event.getSource().getEntity() instanceof ServerPlayer player) {
+                    Entity source = event.getSource() instanceof IndirectEntityDamageSource source1 ? source1.owner : event.getSource().getEntity();
+                    Player player = source instanceof ServerPlayer player1 ? player1
+                            : (PVZEntityCapability.getOwner(source) instanceof ServerPlayer player1 ? player1 : null);
+                    if (player != null) {
                         player.addEffect(new MobEffectInstance(PVZMobEffects.INVASION_OMEN.get(),
-                                player.getRandom().nextInt(600) + 400,
-                                (int) Math.floor((float) PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY) / 10)));
+                                player.getRandom().nextInt(600) + 400, Util.getInvasionLevel(player)));
                     }
                 }
             });

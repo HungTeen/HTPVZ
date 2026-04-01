@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.zombies;
 
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.entity.LavaGhastling;
+import com.hungteen.pvz.common.entity.ai.goal.GhastRiderActivitiesGoal;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -13,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -26,6 +28,7 @@ import javax.annotation.Nullable;
 
 public class GhastRiderBoss extends FireImp {
     public BlockPos homePos = null;
+    protected GhastRiderActivitiesGoal bossGoal;
     private final ServerBossEvent bossEvent = (ServerBossEvent)(new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS)).setDarkenScreen(false);
 
     public GhastRiderBoss(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
@@ -44,12 +47,15 @@ public class GhastRiderBoss extends FireImp {
     @Override
     protected void addBehaviourGoals() {
         super.addBehaviourGoals();
-        this.goalSelector.removeGoal(fireImpShootGoal);
+        this.goalSelector.removeGoal(fireImpSummonGoal);
         this.goalSelector.removeGoal(randomStrollGoal);
         this.goalSelector.removeGoal(attackGoal);
         this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 32.0F, 1));
-        this.goalSelector.addGoal(1, new GhastRiderActivitiesGoal(this));
+        this.bossGoal = new GhastRiderActivitiesGoal(this);
+        this.goalSelector.addGoal(1, bossGoal);
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class,
+                true, (entity) -> EntityUtil.checkCanEntityBeAttack(this, entity)));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class,
                 true, (entity) -> entity instanceof IPlant && EntityUtil.checkCanEntityBeAttack(this, entity)));
     }
 
@@ -74,6 +80,9 @@ public class GhastRiderBoss extends FireImp {
             posTag.putInt("z", this.homePos.getZ());
             tag.put("HomePos", posTag);
         }
+        CompoundTag AITag = new CompoundTag();
+        this.bossGoal.save(AITag);
+        tag.put("AIMemories", AITag);
     }
 
     public void readAdditionalSaveData(CompoundTag tag) {
@@ -83,7 +92,11 @@ public class GhastRiderBoss extends FireImp {
             try {
                 this.homePos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
             } catch (Exception ignored) {
+                this.homePos = this.blockPosition();
             }
+        }
+        if (tag.contains("AIMemories")) {
+            this.bossGoal.read(tag.getCompound("AIMemories"));
         }
         if (this.hasCustomName()) {
             this.bossEvent.setName(this.getDisplayName());

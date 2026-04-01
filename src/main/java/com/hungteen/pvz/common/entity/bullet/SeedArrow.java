@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
@@ -9,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -76,6 +78,8 @@ public class SeedArrow <T extends Entity> extends Arrow {
                 }
                 if (plantResult != null) {
                     player.displayClientMessage(plantResult, true);
+                } else if (player instanceof ServerPlayer serverPlayer) {
+                    PVZCriteriaTriggers.SEED_CROSSBOW_PLANT.trigger(serverPlayer);
                 }
                 this.discard();
             }
@@ -93,6 +97,9 @@ public class SeedArrow <T extends Entity> extends Arrow {
                     player.displayClientMessage(plantResult, true);
                     this.setOwner(null);
                 } else {
+                    if (player instanceof ServerPlayer serverPlayer) {
+                        PVZCriteriaTriggers.SEED_CROSSBOW_PLANT.trigger(serverPlayer);
+                    }
                     this.discard();
                 }
             }

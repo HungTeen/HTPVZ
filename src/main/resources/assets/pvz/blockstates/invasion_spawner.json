@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "triggered=false": {
+      "model": "pvz:block/invasion_spawner"
+    },
+    "triggered=true": {
+      "model": "pvz:block/invasion_spawner_1"
+    }
+  }
+}

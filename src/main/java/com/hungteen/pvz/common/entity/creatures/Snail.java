@@ -172,7 +172,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
             this.setPose(tag.getBoolean("Sleeping") ? Pose.DIGGING : Pose.STANDING);
         }
         if (tag.contains("Inventory")) {
-            this.inventory.fromTag(tag.getList("Inventory", 10));
+            this.inventory.fromTag(tag.getList("Inventory", CompoundTag.TAG_COMPOUND));
         }
     }
 
@@ -202,8 +202,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
             if (this.isTame()) {
                 if (this.getPose() != Pose.STANDING) {
                     this.emergeFromShell();
-                }
-                if (this.isFood(itemstack) && ! this.hasEffect(MobEffects.MOVEMENT_SPEED)) {
+                } else if (this.isFood(itemstack) && ! this.hasEffect(MobEffects.MOVEMENT_SPEED)) {
                     this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 3000, 5));
                     this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 100));
                     if (!player.getAbilities().instabuild) {

@@ -1,0 +1,34 @@
+{
+  "parent": "pvz:plants_vs_zombies",
+  "display": {
+    "frame": "challenge",
+    "title": {
+      "translate": "advancements.pvz.catch_grass_carp.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.catch_grass_carp.description"
+    },
+    "icon": {
+      "item": "pvz:grass_carp_bucket"
+      }
+    },
+  "criteria": {
+    "has_item": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:grass_carp_bucket"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_item"
+    ]
+  ]
+}

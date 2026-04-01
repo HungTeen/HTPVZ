@@ -14,6 +14,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -136,10 +137,11 @@ public class Anger extends FlyingMob {
                     return;
                 }
                 if (! EntityUtil.isTeammate(anger, entity)) {
-                    entity.hurt(DamageSource.ON_FIRE, (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
-                    entity.setSecondsOnFire(6);
+                    float damage = (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+                    entity.hurt(DamageSource.ON_FIRE, damage);
+                    entity.setSecondsOnFire(entity instanceof Player ? 2 : (int) damage);
                 } else if (friendlyFire) {
-                    entity.setSecondsOnFire(6);
+                    entity.setSecondsOnFire(2);
                 }
             });
             if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(anger.level, anger)) {

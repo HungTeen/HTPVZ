@@ -1,0 +1,26 @@
+{
+  "parent": "pvz:flower_seed_packet",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.spudow.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.spudow.description"
+    },
+    "icon": {
+      "item": "pvz:potato_mine_seed_packet"
+      }
+    },
+  "criteria": {
+    "spudow": {
+      "conditions": {
+      },
+      "trigger": "pvz:spudow"
+    }
+  },
+  "requirements": [
+    [
+      "spudow"
+    ]
+  ]
+}

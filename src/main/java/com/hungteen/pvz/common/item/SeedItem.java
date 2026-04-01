@@ -17,19 +17,19 @@ import java.util.function.Supplier;
 
 public class SeedItem<T extends Entity> extends SeedPacketItem<T> {
 
-    public static List<SeedPacketItem<?>> seedItem = new ArrayList<>();
+    public static List<SeedPacketItem<?>> seedItems = new ArrayList<>();
     public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown, boolean creativeOnly, boolean extraCost) {
         this(p_41383_, entitySupplier, List.of(), resource, cost, coolDown, creativeOnly, extraCost);
     }
     public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, List<Skill> skillList, String resource, int cost, int coolDown, boolean creativeOnly, boolean extraCost) {
         super(p_41383_, entitySupplier, skillList, resource, cost, coolDown, creativeOnly, extraCost);
-        if (this.getClass() == SeedItem.class) seedItem.add(this);
+        if (this.getClass() == SeedItem.class) seedItems.add(this);
     }
 
     //methods
     public static SeedPacketItem getSeed(EntityType<?> entityType) {
         AtomicReference<SeedPacketItem> packetItem = new AtomicReference<>();
-        seedItem.forEach(item -> {
+        seedItems.forEach(item -> {
             if (item.getEntity().equals(entityType)) {
                 packetItem.set(item);
             }});

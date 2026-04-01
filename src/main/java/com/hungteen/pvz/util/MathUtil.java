@@ -1,7 +1,11 @@
 package com.hungteen.pvz.util;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.UUID;
 
 public class MathUtil {
     public static double horizontalDistSqrOf(Vec3 vec3) {
@@ -16,5 +20,15 @@ public class MathUtil {
     }
     public static double horizontalDistSqrBetween(Vec3i from, Vec3i to) {
         return (from.getX() - to.getX()) * (from.getX() - to.getX()) + (from.getZ() - to.getZ()) * (from.getZ() - to.getZ());
+    }
+
+    public static BlockPos posFromUuid(UUID uuid) {
+        int[] arr = UUIDUtil.uuidToIntArray(uuid);
+        return new BlockPos(arr[1], arr[2], arr[3]);
+    }
+    public static UUID posToUuid(BlockPos pos, int prefix) {
+        //using a positive number to avoid errors.
+        int[] arr = {prefix, pos.getX(), pos.getY(), pos.getZ()};
+        return UUIDUtil.uuidFromIntArray(arr);
     }
 }

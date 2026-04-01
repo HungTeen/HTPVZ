@@ -23,6 +23,7 @@ public class RegisterInvasionConditionsEvent extends Event {
                 .put(Util.prefix("has_item"), new InvasionCondition.HasItemCondition())
                 .put(Util.prefix("in_dimension"), new InvasionCondition.InDimensionCondition())
                 .put(Util.prefix("in_biome"), new InvasionCondition.InBiomeCondition())
+                .put(Util.prefix("invasion_difficulty_greater_than"), new InvasionCondition.InvasionDifficultyGreaterThanCondition())
                 .put(Util.prefix("around_entities_cost"), new InvasionCondition.AroundEntitiesCostCondition());
     }
 }

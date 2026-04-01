@@ -61,11 +61,15 @@ public class EntityLootGen extends EntityLoot {
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
                             .add(LootItem.lootTableItem(PVZItems.GOLDEN_TACO.get())))
             );
+            this.add(PVZEntities.GARGANTUAR.get(), basicZombieLootTable());
             this.add(PVZEntities.GHAST_RIDER.get(), LootTable.lootTable()
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
                             .add(LootItem.lootTableItem(PVZItems.PEPPER.get())))
             );
-            this.add(PVZEntities.GARGANTUAR.get(), basicZombieLootTable());
+            this.add(PVZEntities.ENDER_ZOMBOSS.get(), LootTable.lootTable()
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                            .add(LootItem.lootTableItem(PVZItems.SPATIOTEMPORAL_UNIT.get())))
+            );
             this.add(PVZEntities.LAVA_DIVER_ZOMBIE.get(), basicZombieLootTable());
             this.add(PVZEntities.LAVA_GHASTLING.get(), LootTable.lootTable()
                     .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))

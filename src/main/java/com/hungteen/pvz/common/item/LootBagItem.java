@@ -5,10 +5,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -21,6 +19,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 public class LootBagItem extends Item {
@@ -28,30 +28,38 @@ public class LootBagItem extends Item {
         super(p_41383_);
     }
 
-    public static ItemStack modify(ItemStack itemStack, ResourceLocation location, int number) {
+    public static ItemStack modify(ItemStack itemStack, ResourceLocation location, int size) {
         if (itemStack.getItem() instanceof LootBagItem) {
             itemStack.getOrCreateTag().putString("loot_table", location.toString());
-            itemStack.getOrCreateTag().putInt("size", number);
+            itemStack.getOrCreateTag().putInt("size", size);
         }
         return itemStack;
     }
 
 
-    public List<ItemStack> getLoot(ItemStack itemStack, ServerLevel level, Entity user, Vec3 position) {
+    public List<ItemStack> getLoots(ItemStack itemStack, ServerLevel level, Entity user, Vec3 position) {
         CompoundTag tag = itemStack.getOrCreateTag();
         int size = tag.contains("size") ? tag.getInt("size") : 1;
-        Container container = new SimpleContainer(size);
         LootTable lootTable = tag.contains("loot_table") ?
                 level.getServer().getLootTables().get(new ResourceLocation(tag.getString("loot_table"))) : LootTable.EMPTY;
         if (user != null) {
             LootContext.Builder builder = (new LootContext.Builder(level))
                     .withParameter(LootContextParams.ORIGIN, position)
                     .withParameter(LootContextParams.THIS_ENTITY, user);
-            lootTable.fill(container, builder.create(LootContextParamSets.SELECTOR));
-            //TODO fix bag of reporting "Tried to over-fill a container".
+            LootContext context = builder.create(LootContextParamSets.SELECTOR);
             List<ItemStack> itemStacks = new ArrayList<>();
-            for (int i = 0; i < size; i ++) {
-                ItemStack loot = container.getItem(i);
+            Iterator<ItemStack> tmpLoots = new HashSet<>(lootTable.getRandomItems(context)).iterator();
+            if (! tmpLoots.hasNext()) {
+                return itemStacks;
+            }
+            while (itemStacks.size() < size) {
+                if (! tmpLoots.hasNext()) {
+                    tmpLoots =  new HashSet<>(lootTable.getRandomItems(context)).iterator();
+                    if (! tmpLoots.hasNext()) {
+                        break;
+                    }
+                }
+                ItemStack loot = tmpLoots.next();
                 if (! loot.isEmpty()) {
                     itemStacks.add(loot);
                 }
@@ -66,7 +74,7 @@ public class LootBagItem extends Item {
         ItemStack lootBag = player.getItemInHand(hand);
         player.awardStat(Stats.ITEM_USED.get(lootBag.getItem()));
         if (level instanceof ServerLevel serverLevel) {
-            List<ItemStack> itemStacks = this.getLoot(lootBag, serverLevel, player, player.position());
+            List<ItemStack> itemStacks = this.getLoots(lootBag, serverLevel, player, player.position());
             if (itemStacks.isEmpty()) {
                 player.displayClientMessage(Component.translatable("hint.pvz.loot_bag_empty"), true);
             } else {

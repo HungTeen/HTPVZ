@@ -7,6 +7,7 @@ import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.plants.MariGold;
 import com.hungteen.pvz.common.event.SproutTransformEvent;
+import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZStats;
@@ -18,6 +19,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
@@ -179,8 +181,11 @@ public class Sprout extends Mob implements IGardenPlant {
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (getGrowLevel() >= 2 && this.getRemainingGrowTick() <= 0) {
             produce();
-            player.awardStat(PVZStats.HARVEST_SPROUTS);
             this.discard();
+            if (player instanceof ServerPlayer serverPlayer) {
+                player.awardStat(PVZStats.HARVEST_SPROUTS);
+                PVZCriteriaTriggers.HARVEST_SPROUT.trigger(serverPlayer);
+            }
             return InteractionResult.CONSUME;
         }
         return super.mobInteract(player, hand);

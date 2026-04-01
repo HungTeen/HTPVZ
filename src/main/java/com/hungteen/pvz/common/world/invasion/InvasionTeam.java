@@ -40,8 +40,8 @@ public class InvasionTeam {
 
     public static void spawnFor(ServerPlayer player) {
         PathSeeker seeker = new PathSeeker((ServerLevel) player.level);
-        seeker.minDistance = 576;
-        seeker.maxDistance = 1024;
+        seeker.minDistanceSqr = 576;
+        seeker.maxDistanceSqr = 1024;
         InvasionTeam team = new InvasionTeam(seeker, player);
         team.seeker.center = player.blockPosition();
         team.seeker.targetPos = player.blockPosition();

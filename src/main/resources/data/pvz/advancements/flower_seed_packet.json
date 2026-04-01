@@ -1,0 +1,33 @@
+{
+  "parent": "pvz:plants_vs_zombies",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.flower_seed_packet.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.flower_seed_packet.description"
+    },
+    "icon": {
+      "item": "pvz:flower_seed_packet"
+      }
+    },
+  "criteria": {
+    "has_origin": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:flower_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_origin"
+    ]
+  ]
+}

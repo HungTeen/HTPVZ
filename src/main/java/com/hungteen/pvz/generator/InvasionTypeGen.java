@@ -107,25 +107,26 @@ public class InvasionTypeGen implements DataProvider {
                 loot("pvz:invasion/overworld_common",
                         LootTable.lootTable().withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(4.0F, 8.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PEA_SHOOTER.get())).setWeight(15))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.WALL_NUT.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(2F, 4F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PEA_SHOOTER.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.WALL_NUT.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(3.0F, 6.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.CABBAGE_PULT.get())).setWeight(15))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.VELOCI_RADISH.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SPLIT_PEA.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.VELOCI_RADISH.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 3.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SPLIT_PEA.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(1F, 3F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SNOW_PEA.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 10.0F))))
-                                        .add(LootItem.lootTableItem(Items.POTATO).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
-                                        .add(LootItem.lootTableItem(Items.CARROT).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
-                                        .add(LootItem.lootTableItem(Items.IRON_INGOT).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 10F))))
+                                        .add(LootItem.lootTableItem(Items.POTATO).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
+                                        .add(LootItem.lootTableItem(Items.CARROT).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
+                                        .add(LootItem.lootTableItem(Items.IRON_INGOT).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1))
@@ -176,24 +177,25 @@ public class InvasionTypeGen implements DataProvider {
                 loot("pvz:invasion/overworld_swamp",
                         LootTable.lootTable().withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(4.0F, 8.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.LILY_PAD.get())).setWeight(15))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TANGLE_KELP.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(2F, 4F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.LILY_PAD.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.FLOWER_POT.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(3.0F, 6.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PEA_SHOOTER.get())).setWeight(10))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.LILY_PAD.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(2F, 4F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SPLIT_PEA.get())).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TANGLE_KELP.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 3.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TANGLE_KELP.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(1F, 3F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TANGLE_KELP.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(Items.BROWN_MUSHROOM).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 12.0F))))
-                                        .add(LootItem.lootTableItem(Items.RED_MUSHROOM).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 12.0F))))
-                                        .add(LootItem.lootTableItem(Items.CLAY_BALL).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(6.0F, 16.0F))))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(Items.BROWN_MUSHROOM).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(3F, 12F))))
+                                        .add(LootItem.lootTableItem(Items.RED_MUSHROOM).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(3F, 12F))))
+                                        .add(LootItem.lootTableItem(Items.CLAY_BALL).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(6F, 16F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1))
@@ -250,28 +252,29 @@ public class InvasionTypeGen implements DataProvider {
                 loot("pvz:invasion/overworld_desert",
                         LootTable.lootTable().withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(4.0F, 8.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(15))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.WALL_NUT.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(2F, 4F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.WALL_NUT.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.CABBAGE_PULT.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(3.0F, 6.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(10))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.FLOWER_POT.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.CABBAGE_PULT.get())).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.FLOWER_POT.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 3.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.CABBAGE_PULT.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(1F, 3F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SPLIT_PEA.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(Items.DEAD_BUSH).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 6.0F))))
-                                        .add(LootItem.lootTableItem(Items.ROTTEN_FLESH).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 16.0F))))
-                                        .add(LootItem.lootTableItem(Items.IRON_INGOT).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(Items.DEAD_BUSH).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 6F))))
+                                        .add(LootItem.lootTableItem(Items.ROTTEN_FLESH).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 16F))))
+                                        .add(LootItem.lootTableItem(Items.IRON_INGOT).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 5.0F))))
+                                        .setRolls(UniformGenerator.between(0F, 2F))
+                                        .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 5F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1))
@@ -464,24 +467,25 @@ public class InvasionTypeGen implements DataProvider {
                 loot("pvz:invasion/nether_basic",
                         LootTable.lootTable().withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(4.0F, 8.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TORCH_WOOD.get())).setWeight(15))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(2F, 4F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TORCH_WOOD.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.REPEATER.get())).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(3.0F, 6.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.REPEATER.get())).setWeight(10))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SPIKE_WEED.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.JALAPENO.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SPIKE_WEED.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(Items.GHAST_TEAR).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
-                                        .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 10.0F))))
-                                        .add(LootItem.lootTableItem(Items.GOLD_INGOT).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(Items.GHAST_TEAR).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
+                                        .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 10F))))
+                                        .add(LootItem.lootTableItem(Items.GOLD_INGOT).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1))
@@ -537,28 +541,29 @@ public class InvasionTypeGen implements DataProvider {
                 loot("pvz:invasion/nether_magma",
                         LootTable.lootTable().withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(4.0F, 8.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TALL_NUT.get())).setWeight(15))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PLANTERN.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(2F, 4F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TALL_NUT.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PLANTERN.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(3.0F, 6.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PLANTERN.get())).setWeight(10))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TORCH_WOOD.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PLANTERN.get())).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TORCH_WOOD.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(Items.MAGMA_CREAM).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 10.0F))))
-                                        .add(LootItem.lootTableItem(Items.GOLD_INGOT).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 5.0F))))
-                                        .add(LootItem.lootTableItem(PVZItems.FLAME_PEA.get()).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 16.0F))))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
+                                        .add(LootItem.lootTableItem(Items.MAGMA_CREAM).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 10F))))
+                                        .add(LootItem.lootTableItem(Items.GOLD_INGOT).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 5F))))
+                                        .add(LootItem.lootTableItem(PVZItems.FLAME_PEA.get()).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 16F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(0.0F, 2.0F))
-                                        .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F))))
+                                        .setRolls(UniformGenerator.between(0F, 2F))
+                                        .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(0F, 2F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1))
@@ -767,11 +772,6 @@ public class InvasionTypeGen implements DataProvider {
             builder.putString("id", ForgeRegistries.ENTITY_TYPES.getKey(type).toString());
             return builder;
         }
-        public static <E extends Entity> EntityBuilder<E> withTag(EntityType<E> type) {
-            EntityBuilder<E> builder = new EntityBuilder<>();
-            builder.putString("id", ForgeRegistries.ENTITY_TYPES.getKey(type).toString());
-            return builder;
-        }
 
         public EntityBuilder<E> equip(EquipmentSlot slot, ItemStack item) {
             String type = slot.getType() == EquipmentSlot.Type.ARMOR ? "ArmorItems" : "HandItems";
@@ -804,9 +804,11 @@ public class InvasionTypeGen implements DataProvider {
             ((ListTag) this.get("Passengers")).add(passenger.get());
             return this;
         }
-        @Deprecated
         public EntityBuilder<E> effect(MobEffectInstance effect) {
-            //TODO unfinished yet.
+            if (! this.contains("ActiveEffects")) {
+                this.put("ActiveEffects", new ListTag());
+            }
+            ((ListTag) this.get("ActiveEffects")).add(effect.save(new CompoundTag()));
             return this;
         }
         public EntityBuilder<E> modify(Consumer<CompoundTag> consumer) {

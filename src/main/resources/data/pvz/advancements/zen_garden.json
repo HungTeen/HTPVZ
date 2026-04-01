@@ -1,0 +1,27 @@
+{
+  "parent": "pvz:watering_pot",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.zen_garden.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.zen_garden.description"
+    },
+    "icon": {
+      "item": "pvz:zen_garden_portal"
+    }
+  },
+  "criteria": {
+    "entered_garden": {
+      "conditions": {
+        "to": "pvz:zen_garden"
+      },
+      "trigger": "minecraft:changed_dimension"
+    }
+  },
+  "requirements": [
+    [
+      "entered_garden"
+    ]
+  ]
+}

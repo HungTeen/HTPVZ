@@ -22,7 +22,7 @@ import net.minecraft.world.scores.Scoreboard;
 import java.util.EnumSet;
 
 public class FireImp extends Imp {
-    protected Goal fireImpShootGoal;
+    protected Goal fireImpSummonGoal;
     public FireImp(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 0.0F);
@@ -38,8 +38,8 @@ public class FireImp extends Imp {
     @Override
     protected void addBehaviourGoals() {
         super.addBehaviourGoals();
-        fireImpShootGoal = new FireImpSummonGoal(this);
-        this.goalSelector.addGoal(1, fireImpShootGoal);
+        fireImpSummonGoal = new FireImpSummonGoal(this);
+        this.goalSelector.addGoal(1, fireImpSummonGoal);
         this.goalSelector.addGoal(1, new AvoidEntityGoal<>(this, LivingEntity.class, (entity) -> entity instanceof IPlant,
                 10, 1, 1.2D, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test));
     }
@@ -128,6 +128,7 @@ public class FireImp extends Imp {
                     anger.maxLife = angerLife;
                     zombie.level.addFreshEntity(anger);
                     anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
+                    anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(zombie.getAttributeValue(Attributes.ATTACK_DAMAGE));
                     Scoreboard scoreboard = zombie.level.getScoreboard();
                     PlayerTeam team = scoreboard.getPlayersTeam(zombie.getScoreboardName());
                     PlayerTeam team1 = scoreboard.getPlayerTeam(PVZMod.ENEMY_TEAM);

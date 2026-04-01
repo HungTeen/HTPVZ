@@ -1,0 +1,33 @@
+{
+  "parent": "pvz:flower_seed_packet",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.catch_tangle_kelp.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.catch_tangle_kelp.description"
+    },
+    "icon": {
+      "item": "pvz:tangle_kelp_bucket"
+      }
+    },
+  "criteria": {
+    "has_item": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:tangle_kelp_bucket"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_item"
+    ]
+  ]
+}

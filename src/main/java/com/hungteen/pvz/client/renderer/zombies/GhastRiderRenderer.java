@@ -21,10 +21,13 @@ import net.minecraft.world.phys.Vec3;
 
 public class GhastRiderRenderer<T extends FireImp, M extends FireImpModel<T>> extends AbstractPVZZombieRenderer<T, M> {
     private static final ResourceLocation TEXTURE = Util.prefix("textures/entity/zombie/imp/ghast_rider.png");
+    private static final ResourceLocation LIGHT_0 = Util.prefix("textures/entity/zombie/imp/ghast_rider_light_0.png");
+    private static final ResourceLocation LIGHT_1 = Util.prefix("textures/entity/zombie/imp/ghast_rider_light_1.png");
     static int jointNum;
     public GhastRiderRenderer(EntityRendererProvider.Context context) {
         super(context, (M) new FireImpModel<T>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("fire_imp:main"))));
-        this.addLayer(new VanillaLightLayer<>(this, Util.prefix("textures/entity/zombie/imp/ghast_rider_light.png")));
+        this.addLayer(new VanillaLightLayer<>(this, LIGHT_0, zombie -> zombie.getHealth() / zombie.getMaxHealth() >= 0.5));
+        this.addLayer(new VanillaLightLayer<>(this, LIGHT_1, zombie -> zombie.getHealth() / zombie.getMaxHealth() < 0.5));
     }
 
     @Override

@@ -1,0 +1,27 @@
+{
+  "parent": "pvz:flower_seed_packet",
+  "display": {
+    "frame": "challenge",
+    "title": {
+      "translate": "advancements.pvz.strike.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.strike.description"
+    },
+    "icon": {
+      "item": "pvz:wall_nut_seed_packet"
+      }
+    },
+  "criteria": {
+    "spudow": {
+      "conditions": {
+      },
+      "trigger": "pvz:strike"
+    }
+  },
+  "requirements": [
+    [
+      "spudow"
+    ]
+  ]
+}

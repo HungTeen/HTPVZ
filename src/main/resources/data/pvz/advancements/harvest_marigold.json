@@ -1,0 +1,26 @@
+{
+  "parent": "pvz:harvest_sprout",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.harvest_marigold.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.harvest_marigold.description"
+    },
+    "icon": {
+      "item": "pvz:marigold_sprout"
+      }
+    },
+  "criteria": {
+    "harvest_marigold": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold"
+    }
+  },
+  "requirements": [
+    [
+      "harvest_marigold"
+    ]
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "parent": "pvz:nether_wart_seed_packet",
+  "display": {
+    "frame": "goal",
+    "title": {
+      "translate": "advancements.pvz.kill_ghast_rider.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.kill_ghast_rider.description"
+    },
+    "icon": {
+      "item": "pvz:pepper"
+    }
+  },
+  "criteria": {
+    "kill_ghast_rider": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "pvz:ghast_rider"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:player_killed_entity"
+    }
+  },
+  "requirements": [
+    [
+      "kill_ghast_rider"
+    ]
+  ]
+}

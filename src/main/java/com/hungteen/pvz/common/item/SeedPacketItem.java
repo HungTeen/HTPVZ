@@ -71,6 +71,7 @@ import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkills{
+    /**Contains all kinds of SeedPacketItem.*/
     public static List<SeedPacketItem<?>> seedPacketItemList = new ArrayList<>();
 
     //entitySupplier is unchangeable. the rest three can be adjusted with command.
@@ -91,7 +92,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         this.coolDown = coolDown;
         this.creativeOnly = creativeOnly;
         this.extraCost = extraCost;
-        if (this.getClass() == SeedPacketItem.class) seedPacketItemList.add(this);
+        seedPacketItemList.add(this);
     }
 
 
@@ -152,7 +153,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     public static SeedPacketItem getSeedPacket(EntityType<?> entityType) {
         AtomicReference<SeedPacketItem> packetItem = new AtomicReference<>();
         SeedPacketItem.seedPacketItemList.forEach(item -> {
-            if (item.getEntity().equals(entityType)) {
+            if (item.getEntity().equals(entityType) && item.getClass() == SeedPacketItem.class) {
                 packetItem.set(item);
             }});
         return packetItem.get();

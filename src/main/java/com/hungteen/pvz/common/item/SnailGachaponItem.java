@@ -1,9 +1,11 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -12,11 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 
@@ -37,19 +35,6 @@ public class SnailGachaponItem extends Item {
             Direction direction = context.getClickedFace();
             Player player = context.getPlayer();
             BlockState blockstate = level.getBlockState(blockpos);
-            if (blockstate.is(Blocks.SPAWNER)) {
-                BlockEntity blockentity = level.getBlockEntity(blockpos);
-                if (blockentity instanceof SpawnerBlockEntity) {
-                    BaseSpawner basespawner = ((SpawnerBlockEntity)blockentity).getSpawner();
-                    EntityType<?> entitytype1 = this.getType(player != null ? player.getRandom() : null);
-                    basespawner.setEntityId(entitytype1);
-                    blockentity.setChanged();
-                    level.sendBlockUpdated(blockpos, blockstate, blockstate, 3);
-                    level.gameEvent(context.getPlayer(), GameEvent.BLOCK_CHANGE, blockpos);
-                    itemstack.shrink(1);
-                    return InteractionResult.CONSUME;
-                }
-            }
 
             BlockPos blockpos1;
             if (blockstate.getCollisionShape(level, blockpos).isEmpty()) {
@@ -59,6 +44,9 @@ public class SnailGachaponItem extends Item {
             }
 
             EntityType<?> entitytype = this.getType(player != null ? player.getRandom() : null);
+            if (player instanceof ServerPlayer player1) {
+                PVZCriteriaTriggers.SNAIL.trigger(player1);
+            }
             if (entitytype.spawn((ServerLevel)level, itemstack, context.getPlayer(), blockpos1, MobSpawnType.SPAWN_EGG, true, !Objects.equals(blockpos, blockpos1) && direction == Direction.UP) != null) {
                 itemstack.shrink(1);
                 level.gameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, blockpos);
@@ -72,10 +60,10 @@ public class SnailGachaponItem extends Item {
         if (random == null) {
             return PVZEntities.WALL_NAIL.get();
         }
-        int result = random.nextInt(100);
+        int result = random.nextInt(50);
         if (result == 0) {
             return PVZEntities.SNAIL.get();
-        } else if (result < 70) {
+        } else if (result < 35) {
             return PVZEntities.WALL_NAIL.get();
         } else {
             return PVZEntities.FUNGICICOLIDAE.get();

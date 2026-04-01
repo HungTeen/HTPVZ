@@ -32,6 +32,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ShulkerRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
@@ -121,7 +122,7 @@ public class PVZEntities {
             .collision(0.75F, 0.75F).entity("snail", Snail::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Snail>> WALL_NAIL = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Snail::checkSnailSpawnRules)
             .spawnEgg(0xcda65d, 0xdad9b3).attribute(Snail::createAttributes)
-            .collision(0.75F, 0.75F).entity("wall_nail", Snail::new, MobCategory.CREATURE);
+            .collision(0.75F, 0.75F).entity("wallnail", Snail::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Snail>> FUNGICICOLIDAE = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Snail::checkSnailSpawnRules)
             .spawnEgg(0xaa9395, 0xe5d3b5).attribute(Snail::createAttributes)
             .collision(0.75F, 0.75F).entity("fungicicolidae", Snail::new, MobCategory.CREATURE);
@@ -129,7 +130,7 @@ public class PVZEntities {
             .collision(0.4F, 0.4F).entity("anger", Anger::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F)
             .entity("sprout", Sprout::new, MobCategory.CREATURE);
-    public static final RegistryObject<EntityType<Penny>> PENNY = spawnEgg(0xff2f3b, 0xfff45b).attribute(Penny::createAttributes)
+    public static final RegistryObject<EntityType<Penny>> PENNY = spawnEgg(0x737b85, 0xe24220).attribute(Penny::createAttributes)
             .collision(3f, 3f).entity("penny", Penny::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).noSummon()
             .entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
@@ -239,7 +240,7 @@ public class PVZEntities {
             .spawnEgg(0xffe300, 0xa03232)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SnorkelZombie::checkSpawnRules)
             .entity("snorkel_zombie", SnorkelZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<JackInABoxZombie>> JACK_IN_A_BOX_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
+    public static final RegistryObject<EntityType<JackInABoxZombie>> JACK_IN_A_BOX_ZOMBIE = attribute(JackInABoxZombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
             .spawnEgg(0xddd4d4, 0xcc4646)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .entity("jack_in_a_box_zombie", JackInABoxZombie::new, MobCategory.MONSTER);
@@ -278,15 +279,15 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<PeaShooterZombie>> PEA_SHOOTER_ZOMBIE = attribute(PeaShooterZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0x90b030)
             .entity("pea_shooter_zombie", PeaShooterZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<SnowPeaZombie>> SNOW_PEA_ZOMBIE = attribute(PeaShooterZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+    public static final RegistryObject<EntityType<SnowPeaZombie>> SNOW_PEA_ZOMBIE = attribute(SnowPeaZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0x4bcecf)
             .entity("snow_pea_zombie", SnowPeaZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<JalapenoZombie>> JALAPENO_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
+    public static final RegistryObject<EntityType<JalapenoZombie>> JALAPENO_ZOMBIE = attribute(JalapenoZombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
             .spawnEgg(0x799587, 0xff472a)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .fireImmuine()
             .entity("jalapeno_zombie", JalapenoZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<GatlingPeaZombie>> GATLING_PEA_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+    public static final RegistryObject<EntityType<GatlingPeaZombie>> GATLING_PEA_ZOMBIE = attribute(GatlingPeaZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0x475d67)
             .entity("gatling_pea_zombie", GatlingPeaZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<WallNutZombie>> WALL_NUT_ZOMBIE = attribute(WallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
@@ -295,16 +296,18 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<TallNutZombie>> TALL_NUT_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0xcda65d)
             .entity("tall_nut_zombie", TallNutZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<PumpkinZombie>> PUMPKIN_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+    public static final RegistryObject<EntityType<PumpkinZombie>> PUMPKIN_ZOMBIE = attribute(PumpkinZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0xdd854c)
             .entity("pumpkin_zombie", PumpkinZombie::new, MobCategory.MONSTER);
 
 
     //bosses
-    public static final RegistryObject<EntityType<GhastRiderBoss>> GHAST_RIDER = attribute(GhastRiderBoss::createAttributes).tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES)
-            .fireImmuine()
-//            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, FireImp::checkSpawnRules)
+    public static final RegistryObject<EntityType<GhastRiderBoss>> GHAST_RIDER = attribute(GhastRiderBoss::createAttributes)
+            .tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES).fireImmuine()
             .entity("ghast_rider", GhastRiderBoss::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<EnderZomboss>> ENDER_ZOMBOSS = attribute(EnderZomboss::createAttributes)
+            .tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES).fireImmuine()
+            .entity("ender_zomboss", EnderZomboss::new, MobCategory.MONSTER);
 
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F)
@@ -413,9 +416,10 @@ public class PVZEntities {
         r(e, IMP, ImpRenderer::new);
         r(e, FIRE_IMP, FireImpRenderer::new);
         r(e, TACO_IMP, TacoImpRenderer::new);
-        r(e, GHAST_RIDER, GhastRiderRenderer::new);
         r(e, GARGANTUAR, GargantuarRenderer::new);
         r(e, LAVA_GHASTLING, LavaGhastlingRenderer::new);
+        r(e, GHAST_RIDER, GhastRiderRenderer::new);
+        r(e, ENDER_ZOMBOSS, ShulkerRenderer::new);
         r(e, SPROUT, SproutRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);

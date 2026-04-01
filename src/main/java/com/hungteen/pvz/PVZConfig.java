@@ -86,6 +86,7 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnInvasionsInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnFallenStarInterval;
+        public static ForgeConfigSpec.ConfigValue<Integer> invasionSpawnerCoolDown;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallyRegainSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> marigoldGrowTime;
         public static ForgeConfigSpec.ConfigValue<Integer> sproutGrowTime;
@@ -167,7 +168,7 @@ public class PVZConfig {
             naturallySpawnInvasionsInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_invasions_interval")
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
-                    "naturallySpawnInvasionsInterval", 300, 0, 10000);
+                    "naturallySpawnInvasionsInterval", 18000, 0, 1000000);
             naturallySpawnSunInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_sun_interval")
                             .comment("sun naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural sun spawn."),
@@ -180,6 +181,10 @@ public class PVZConfig {
                             .translation("config.pvz.common.naturally_regain_sun_interval")
                             .comment("players regain sun naturally at this interval. set to 0 to turn off natural sun regain."),
                     "naturallyRegainSunInterval", 60, 0, 10000);
+            invasionSpawnerCoolDown = add(builder
+                            .translation("config.pvz.common.invasion_spawner_cool_down")
+                            .comment("cool down of invasion spawner for a single player."),
+                    "invasionSpawnerCoolDown", 48000, 0, 1000000);
             marigoldGrowTime = add(builder
                             .translation("config.pvz.common.marigold_grow_time")
                             .comment("ticks marigolds should stay in after being fertilized before they grow to next level."),

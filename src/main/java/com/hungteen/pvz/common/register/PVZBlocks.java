@@ -99,9 +99,14 @@ public class PVZBlocks {
     public static final RegistryObject<Block> ESSENCE_FURNACE = tag(BlockTags.NEEDS_STONE_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).blockEntity("essence_furnace").block("essence_furnace", () -> new EssenceFurnaceBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).lightLevel(litBlockEmission(13))));
     public static final RegistryObject<Block> GARDEN_FLOWER_POT = tag(BlockTags.MINEABLE_WITH_PICKAXE, PVZBlockTags.GARDEN_FLOWER_POT).model(Model.Modeled).itemModel(PVZItems.Model.Block).block("garden_flower_pot", () -> new GardenFlowerPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0.5F)));
     public static final RegistryObject<Block> WATERING_POT = model(Model.Modeled).noItem().block("watering_pot", () -> new WateringPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F)));
-    public static final RegistryObject<Block> ZEN_GARDEN_PORTAL = model(Model.Modeled).noItem(/*registered separatedly with item to make it stack to 1.*/).block("zen_garden_portal", () -> new ZenGardenPortalBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F).lightLevel(i-> 12)));
+    public static final RegistryObject<Block> ZEN_GARDEN_PORTAL = model(Model.Modeled).noItem(/*registered separatedly.*/).block("zen_garden_portal", () -> new ZenGardenPortalBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F).lightLevel(i-> 12)));
     public static final RegistryObject<Block> FLOATING_SOUL_SOIL = loot(false).model(Model.Simple).tag(BlockTags.SOUL_FIRE_BASE_BLOCKS, BlockTags.MINEABLE_WITH_SHOVEL).block("floating_soul_soil", () -> new FloatingSoulSoilBlock(BlockBehaviour.Properties.copy(Blocks.SOUL_SOIL).strength(0.5F).explosionResistance(0).lightLevel(i -> 8)));
-    public static final RegistryObject<Block> SILVER_SWORD_ORNAMENT = model(Model.Modeled).renderType("cutout").itemModel(PVZItems.Model.Simple).blockEntity("silver_sword_ornament").block("silver_sword_ornament", () -> new SilverSwordOrnamentBlock(BlockBehaviour.Properties.copy(Blocks.OAK_FENCE)));
+    public static final RegistryObject<Block> SILVER_SWORD_ORNAMENT = model(Model.Modeled).renderType("cutout").itemModel(PVZItems.Model.Simple)
+            .tag(BlockTags.MINEABLE_WITH_AXE).blockEntity("silver_sword_ornament")
+            .block("silver_sword_ornament", () -> new SilverSwordOrnamentBlock(BlockBehaviour.Properties.copy(Blocks.OAK_FENCE)));
+    public static final RegistryObject<Block> INVASION_SPAWNER = loot(false).model(Model.Modeled)
+            .tag(BlockTags.FEATURES_CANNOT_REPLACE, BlockTags.MINEABLE_WITH_PICKAXE).blockEntity("invasion_spawner")
+            .block("invasion_spawner", () -> new InvasionSpawnerBlock(BlockBehaviour.Properties.copy(Blocks.SPAWNER)));
     //NO_TAB
     public static final RegistryObject<Block> ENTITY_LIGHT = loot(false).model(Model.Modeled).blockEntity("entity_light").noItem().block("entity_light", () -> new EntityLightBlock(BlockBehaviour.Properties.of(Material.AIR)
             .strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> i.getValue(EntityLightBlock.LEVEL))));
@@ -110,6 +115,13 @@ public class PVZBlocks {
     public static final RegistryObject<Block> PEA = tag(BlockTags.CROPS).model(Model.Modeled).renderType("cutout").noItem().block("pea", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)) {
         private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{Block.box(2.0D, 0.0D, 2.0D, 14.0D, 2.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 4.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 6.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 8.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 10.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 12.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 14.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D)};
         @Override public ItemLike getBaseSeedId() {return PVZItems.PEA.get();}
+        public VoxelShape getShape(BlockState p_52297_, BlockGetter p_52298_, BlockPos p_52299_, CollisionContext p_52300_) {
+            return SHAPE_BY_AGE[p_52297_.getValue(this.getAgeProperty())];
+        }
+    });
+    public static final RegistryObject<Block> PEPPER = tag(BlockTags.CROPS).model(Model.Modeled).renderType("cutout").noItem().block("pepper", () -> new CropBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)) {
+        private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{Block.box(2.0D, 0.0D, 2.0D, 14.0D, 2.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 4.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 6.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 8.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 10.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 12.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 14.0D, 14.0D), Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D)};
+        @Override public ItemLike getBaseSeedId() {return PVZItems.PEPPER.get();}
         public VoxelShape getShape(BlockState p_52297_, BlockGetter p_52298_, BlockPos p_52299_, CollisionContext p_52300_) {
             return SHAPE_BY_AGE[p_52297_.getValue(this.getAgeProperty())];
         }

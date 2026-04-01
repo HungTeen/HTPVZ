@@ -153,6 +153,7 @@ public class PVZMod
 
         //network
         PVZPacketHandler.init();
+        PVZCriteriaTriggers.init();
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

@@ -65,7 +65,7 @@ public class PVZItems {
     public static final RegistryObject<Item> FLAME_PEA = composter(0.3F).item("flame_pea");
     public static final RegistryObject<Item> NUT = composter(0.3F).item("nut");
     public static final RegistryObject<Item> STARFRUIT = item("starfruit");
-    public static final RegistryObject<Item> PEPPER = composter(0.3F).item("pepper", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_MISC).rarity(Rarity.RARE).fireResistant()));
+    public static final RegistryObject<Item> PEPPER = composter(0.3F).item("pepper", () -> new BlockItem(PVZBlocks.PEPPER.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC).rarity(Rarity.RARE).fireResistant()));
     public static final RegistryObject<Item> FALLEN_STAR = item("fallen_star");
     public static final RegistryObject<Item> CABBAGE_SEED = composter(0.3F).item("cabbage_seeds", () -> new BlockItem(PVZBlocks.CABBAGE_SEEDS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> CORN_KERNELS = composter(0.3F).item("corn_kernels", () -> new BlockItem(PVZBlocks.CORN_KERNELS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));

@@ -6,6 +6,7 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
+import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
@@ -16,6 +17,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -286,7 +288,10 @@ public class MariGold extends SimplePlant implements IGardenPlant {
                 if (mariGold.getGrowLevel() >= 3) {
                     mariGold.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
                         Entity owner = cap.getOwner();
-                        if (owner instanceof Player player) player.awardStat(PVZStats.HARVEST_MARIGOLDS);
+                        if (owner instanceof ServerPlayer serverPlayer) {
+                            serverPlayer.awardStat(PVZStats.HARVEST_MARIGOLDS);
+                            PVZCriteriaTriggers.HARVEST_MARIGOLD.trigger(serverPlayer);
+                        }
                     });
                     mariGold.discard();
                 }

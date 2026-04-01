@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.block;
 
 import com.hungteen.pvz.common.block.entity.EntityLightBlockEntity;
-import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.item.SeedItem;
 import com.hungteen.pvz.common.register.PVZBlockEntities;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.core.BlockPos;
@@ -59,12 +59,12 @@ public class EntityLightBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @Override
     public ItemStack getCloneItemStack(BlockGetter p_153664_, BlockPos p_153665_, BlockState p_153666_) {
-        AtomicReference<Item> packetItem = new AtomicReference<>();
-        SeedPacketItem.seedPacketItemList.forEach(item -> {
+        AtomicReference<Item> seedItem = new AtomicReference<>();
+        SeedItem.seedItems.forEach(item -> {
             if (item.getEntity().equals(PVZEntities.PLANTERN.get())) {
-                packetItem.set(item);
+                seedItem.set(item);
             }});
-        return packetItem.get().getDefaultInstance();
+        return seedItem.get().getDefaultInstance();
     }
 
     //from LightBlock

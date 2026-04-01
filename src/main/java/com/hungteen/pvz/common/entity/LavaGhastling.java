@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.entity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.zombies.GhastRiderBoss;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -40,7 +41,7 @@ public class LavaGhastling extends Ghast {
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0D)
-                .add(Attributes.FOLLOW_RANGE, 40.0D);
+                .add(Attributes.FOLLOW_RANGE, 20.0D);
     }
 
     protected float getStandingEyeHeight(Pose p_32741_, EntityDimensions p_32742_) {
@@ -179,11 +180,14 @@ public class LavaGhastling extends Ghast {
             if (! movecontrol.hasWanted()) {
                 return true;
             } else {
+                if (ghast.tickCount % 60 > 1) {
+                    return false;
+                }
                 double d0 = movecontrol.getWantedX() - this.ghast.getX();
                 double d1 = movecontrol.getWantedY() - this.ghast.getY();
                 double d2 = movecontrol.getWantedZ() - this.ghast.getZ();
                 double d3 = d0 * d0 + d1 * d1 + d2 * d2;
-                return d3 < 1.0D || d3 > 3600.0D;
+                return d3 < 1.0D || d3 > 3600D;
             }
         }
 
@@ -198,9 +202,13 @@ public class LavaGhastling extends Ghast {
                 ghastRider = g;
             }
             Vec3 pos = ghastRider != null && ghastRider.homePos != null ? Vec3.atCenterOf(ghastRider.homePos) : this.ghast.position();
-            double d0 = pos.x + (double)((randomsource.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double d1 = pos.y + (double)((randomsource.nextFloat() * 2.0F - 1F) * 16.0F); //goes up more.
-            double d2 = pos.z + (double)((randomsource.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double d0 = pos.x + (double)((randomsource.nextFloat() * 2.0F - 1F) * 12F);
+            double d1 = pos.y + (double)((randomsource.nextFloat() * 2.0F - 1F) * 12F);
+            double d2 = pos.z + (double)((randomsource.nextFloat() * 2.0F - 1F) * 12F);
+            BlockPos tmp = new BlockPos(d0, d1, d2);
+            if (ghast.level.getBlockState(tmp).isSuffocating(ghast.level, tmp)) {
+                d1 --;
+            }
             this.ghast.getMoveControl().setWantedPosition(d0, d1, d2, 1.0D);
         }
     }

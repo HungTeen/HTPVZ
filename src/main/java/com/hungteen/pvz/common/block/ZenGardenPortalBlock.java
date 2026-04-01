@@ -84,10 +84,10 @@ public class ZenGardenPortalBlock extends HorizontalDirectionalBlock implements 
             int j = p_221797_.nextInt(2) * 2 - 1;
             if (!p_221795_.getBlockState(p_221796_.west()).is(this) && !p_221795_.getBlockState(p_221796_.east()).is(this)) {
                 d0 = (double)p_221796_.getX() + 0.5D + 0.25D * (double)j;
-                d3 = (double)(p_221797_.nextFloat() * 2.0F * (float)j);
+                d3 = p_221797_.nextFloat() * 2.0F * (float)j;
             } else {
                 d2 = (double)p_221796_.getZ() + 0.5D + 0.25D * (double)j;
-                d5 = (double)(p_221797_.nextFloat() * 2.0F * (float)j);
+                d5 = p_221797_.nextFloat() * 2.0F * (float)j;
             }
 
             p_221795_.addParticle(ParticleTypes.PORTAL, d0, d1, d2, d3, d4, d5);

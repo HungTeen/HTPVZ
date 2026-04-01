@@ -1,0 +1,26 @@
+{
+  "parent": "pvz:zen_garden",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.harvest_sprout.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.harvest_sprout.description"
+    },
+    "icon": {
+      "item": "pvz:sprout"
+      }
+    },
+  "criteria": {
+    "harvest_sprout": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_sprout"
+    }
+  },
+  "requirements": [
+    [
+      "harvest_sprout"
+    ]
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "parent": "pvz:zen_garden",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.essence_altar.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.essence_altar.description"
+    },
+    "icon": {
+      "item": "pvz:essence_altar"
+      }
+    },
+  "criteria": {
+    "has_item": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:essence_altar"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_item"
+    ]
+  ]
+}

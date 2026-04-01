@@ -27,6 +27,7 @@ public class PVZBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, PVZMod.MODID);
     public static final RegistryObject<BlockEntityType<PVZSignBlockEntity>> SIGN = bEntity("pvz_sign", PVZSignBlockEntity::new);
     public static final RegistryObject<BlockEntityType<EssenceAltarBlockEntity>> ESSENCE_ALTAR = bEntity("essence_altar", EssenceAltarBlockEntity::new);
+    public static final RegistryObject<BlockEntityType<InvasionSpawnerBlockEntity>> INVASION_SPAWNER = bEntity("invasion_spawner", InvasionSpawnerBlockEntity::new);
     public static final RegistryObject<BlockEntityType<EssenceFurnaceBlockEntity>> ESSENCE_FURNACE = bEntity("essence_furnace", EssenceFurnaceBlockEntity::new);
     public static final RegistryObject<BlockEntityType<EntityLightBlockEntity>> ENTITY_LIGHT = bEntity("entity_light", EntityLightBlockEntity::new);
     public static final RegistryObject<BlockEntityType<SilverSwordOrnamentBlockEntity>> SILVER_SWORD_SCULPTURE = bEntity("silver_sword_ornament", SilverSwordOrnamentBlockEntity::new);
@@ -51,7 +52,7 @@ public class PVZBlockEntities {
     }
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public static void registerRenderer(EntityRenderersEvent.RegisterRenderers e){
+    public static void registerRenderer(EntityRenderersEvent.RegisterRenderers e) {
         r(e, SIGN, SignRenderer::new);
         r(e, ESSENCE_ALTAR, EssenceAltarRenderer::new);
         r(e, SILVER_SWORD_SCULPTURE, SilverSwordOrnamentRenderer::new);

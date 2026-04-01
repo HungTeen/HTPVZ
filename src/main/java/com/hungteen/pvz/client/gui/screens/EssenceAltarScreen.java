@@ -69,12 +69,14 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                 this.skills = item.getStaticSkillList();
             }
         }
+        if (skills.size() <= 3) {
+            shownFirstSkill = 0;
+        }
         shownFirstSkill = min(shownFirstSkill, skills.size());
     }
 
     @Override
     protected void renderBg(PoseStack stack, float partialTicks, int mouseX, int mouseY) {
-        this.renderBackground(stack);
         Lighting.setupForFlatItems();
         RenderSystem.setShaderTexture(0, TEXTURE);
         stack.pushPose();

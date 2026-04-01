@@ -1,0 +1,27 @@
+{
+  "parent": "pvz:nether_wart_seed_packet",
+  "hidden": true,
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.repeater.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.repeater.description"
+    },
+    "icon": {
+      "item": "pvz:repeater_seed_packet"
+      }
+    },
+  "criteria": {
+    "repeater": {
+      "conditions": {
+      },
+      "trigger": "pvz:repeater"
+    }
+  },
+  "requirements": [
+    [
+      "repeater"
+    ]
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "parent": "pvz:first_plant",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.seed_crossbow.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.seed_crossbow.description"
+    },
+    "icon": {
+      "item": "pvz:seed_crossbow"
+      }
+    },
+  "criteria": {
+    "seed_crossbow_plant": {
+      "conditions": {
+      },
+      "trigger": "pvz:seed_crossbow_plant"
+    }
+  },
+  "requirements": [
+    [
+      "seed_crossbow_plant"
+    ]
+  ]
+}

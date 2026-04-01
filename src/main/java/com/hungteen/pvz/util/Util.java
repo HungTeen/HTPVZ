@@ -155,7 +155,9 @@ public class Util {
         BlockHitResult result = level.clip(new ClipContext(pos1, pos2, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
         return result.getType() != HitResult.Type.MISS;
     }
-
+    public static int getInvasionLevel(Player player) {
+        return Math.min(11, Math.max(1, (int) Math.floor((float) PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY) / 10)));
+    }
     /**Available in server only.*/
     public static int getDarknessSunThreshold(Player player) {
         int gameRuleValue = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.darknessDecreaseSunThreshold);

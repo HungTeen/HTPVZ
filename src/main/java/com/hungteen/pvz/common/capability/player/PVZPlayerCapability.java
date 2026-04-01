@@ -17,6 +17,7 @@ import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
 import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.util.MathUtil;
 import com.hungteen.pvz.util.Util;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
@@ -166,12 +167,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                             Entity entity = ((ServerLevel) player.level).getEntity(modifier.getId());
                             if (! EntityUtil.isEntityValid(entity)) {
                                 if (modifier.getId().toString().startsWith("a975c974-")) {
-                                    String string = modifier.getId().toString();
-                                    //stored a positive number to avoid errors.
-                                    int x = Integer.parseInt(string.substring(9, 13) + string.substring(14, 18), 16) - 30000000;
-                                    int y = Integer.parseInt(string.substring(19, 23) + string.substring(24, 28), 16) - 128;
-                                    int z = Integer.parseInt(string.substring(28), 16) - 30000000;
-                                    BlockPos pos = new BlockPos(x, y, z);
+                                    BlockPos pos = MathUtil.posFromUuid(modifier.getId());
                                     if (pos.distSqr(player.getOnPos()) > 400) {
                                         maxSun.removeModifier(modifier.getId());
                                     } else if (player.level.getBlockState(pos).getBlock() instanceof IMaxSunExpander maxSunExpander && maxSunExpander.requireRefreshExtraMaxSun()) {
@@ -283,13 +279,13 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 }
                 //invasion spawn
                 int interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnInvasionsInterval);
-                if (player.tickCount % 50 == 0 && interval > 0) {
+                if (player.tickCount % 100 == 0 && interval > 0) {
                     int lastInvasion = nbt.getValue(PVZPlayerCapStats.LAST_INVASION);
-                    if (lastInvasion > interval && player.getRandom().nextInt(lastInvasion) > (lastInvasion * 0.9F + (float) interval / 10)) {
+                    if (lastInvasion > interval && player.getRandom().nextInt(lastInvasion) > (float) (lastInvasion / 2 + interval / 2)) {
                         nbt.setValue(PVZPlayerCapStats.LAST_INVASION, interval / 2);
                         InvasionTeam.spawnFor(player);
                     }
-                    nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 1);
+                    nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 100);
                 }
                 //penny spawn
                 if (player.level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
@@ -355,12 +351,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
 
     private static AttributeModifier getBlockModifier(BlockPos pos, IMaxSunExpander sunExpander, Player player) {
         return new AttributeModifier(
-                //get uuid from position. using a positive number to avoid errors.
-                UUID.fromString("a975c974-" +
-                        Integer.toHexString(pos.getX() + 30000000).substring(0, 4) + "-" + Integer.toHexString(pos.getX() + 30000000).substring(4, 8) +
-                        "-" + Integer.toHexString(pos.getY() + 128).substring(0, 4) + "-" + Integer.toHexString(pos.getY() + 128).substring(4, 8) +
-                        Integer.toHexString(pos.getZ() + 30000000))
-                , "extra_max_sun", sunExpander.extraMaxSun(pos, player), AttributeModifier.Operation.ADDITION);
+                MathUtil.posToUuid(pos, 0xa975c974), "extra_max_sun", sunExpander.extraMaxSun(pos, player), AttributeModifier.Operation.ADDITION);
     }
 
     private static AttributeModifier getEntityModifier(Entity entity, Player player) {

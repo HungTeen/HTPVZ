@@ -3,8 +3,8 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.creatures.Anger;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
-import static com.hungteen.pvz.common.register.PVZDamageSource.transferKiller;
 
 /**For damaging related logic, see {@link Anger}.*/
 public class Jalapeno extends SimplePlant {
@@ -52,7 +51,7 @@ public class Jalapeno extends SimplePlant {
     }
 
     public void explode() {
-        level.explode(this, transferKiller(teamFilter(DamageSource.explosion(this).bypassArmor()), PVZEntityCapability.getOwner(this)), null, this.getX(), this.getY() + 1, this.getZ(),
+        level.explode(this, teamFilter(DamageSource.explosion(this).bypassArmor()), null, this.getX(), this.getY() + 1, this.getZ(),
                 1F, false, Explosion.BlockInteraction.NONE);
         if (! level.isClientSide) {
             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {
@@ -63,8 +62,8 @@ public class Jalapeno extends SimplePlant {
                 anger.setPos(this.position().add(0, 1, 0));
                 anger.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
                 anger.yRot = direction.toYRot();
-                anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(this.level));
                 level.addFreshEntity(anger);
+                anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(this.level));
                 if (this.hasSkill(TRACK_SKILL_NAME)) {
                     anger.maxLife = 150;
                     anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
@@ -86,7 +85,7 @@ public class Jalapeno extends SimplePlant {
     @Override
     public void tick() {
         super.tick();
-        if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_DAMAGE, SKILL_BOOST_UUID)) {
+        if (EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_DAMAGE, SKILL_BOOST_UUID)) {
             EntityUtil.addModifierToAttribute(this, Attributes.ATTACK_DAMAGE, new AttributeModifier(SKILL_BOOST_UUID, "skill_boost", -16, AttributeModifier.Operation.ADDITION));
         }
         if (level.isClientSide) {

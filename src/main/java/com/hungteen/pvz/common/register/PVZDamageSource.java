@@ -59,20 +59,24 @@ public class PVZDamageSource {
         return hitBossWithProportion(knockBack(new OwnedDamageSource("nut_collide", source), 2F), target);
     }
     public static DamageSource chomperHurt(LivingEntity source, Entity target) {
-        return hitBossWithProportion(transferKiller(teamFilter(setSharp(owned("eaten", source))), PVZEntityCapability.getOwner(source)), target);
+        return hitBossWithProportion(teamFilter(setSharp(ownedDamageSource("eaten", source))), target);
     }
     public static DamageSource spikeWeedHurt(LivingEntity source, Entity target) {
-        return hitBossWithProportion(transferKiller(setSharp(new DamageSource("spike_weed")), PVZEntityCapability.getOwner(source)), target);
+        return hitBossWithProportion(transferKiller(setSharp(ownedDamageSource("spike_weed", null)), source), target);
     }
     public static DamageSource gargantuarCrash(LivingEntity source) {
         return setNotEating(new EntityDamageSource("crush", source));
     }
-    public static DamageSource owned(String name, LivingEntity source) {
+    public static DamageSource tangleKelpHurt(LivingEntity source, Entity target) {
+        return hitBossWithProportion(transferKiller(ownedDamageSource("tangle_kelp", null), source), target);
+    }
+
+    public static DamageSource ownedDamageSource(String name, LivingEntity source) {
         return new OwnedDamageSource(name, source);
     }
 
     public static DamageSource owned(LivingEntity source) {
-        return owned("", source);
+        return ownedDamageSource("", source);
     }
 
     //damageSource decorators
@@ -143,7 +147,11 @@ public class PVZDamageSource {
     }
     /**Set the damage source sharp, so it can break wheels and balloons.*/
     public static DamageSource setSharp(DamageSource source) {
-        sharpSource = source;
+        if (source instanceof EntityDamageSource source1) {
+            source1.setThorns();
+        } else {
+            sharpSource = source;
+        }
         return source;
     }
     public static boolean isSharp(DamageSource source, Entity target) {
@@ -360,15 +368,15 @@ public class PVZDamageSource {
     public static void handleDeath(LivingDeathEvent event) {
         DamageSource source = event.getSource();
         if (source == transferEntitySource && EntityUtil.isEntityValid(transferredEntity)) {
-//            if (transferredEntity instanceof Player player) {
-//                event.getEntity().setLastHurtByPlayer(player);
-//            }
-//            if (source instanceof IndirectEntityDamageSource source1) {
-//                source1.owner = transferredEntity;
-//            } else if (source instanceof EntityDamageSource source1) {
-//                source1.entity = transferredEntity;
-//            }
-            //TODO solve the problem that
+            if (transferredEntity instanceof Player player) {
+                event.getEntity().setLastHurtByPlayer(player);
+            }
+            if (source instanceof IndirectEntityDamageSource source1) {
+                source1.owner = transferredEntity;
+            } else if (source instanceof EntityDamageSource source1) {
+                source1.entity = transferredEntity;
+            }
+            //TODO solve the problem that killer get mixed.
         }
     }
 

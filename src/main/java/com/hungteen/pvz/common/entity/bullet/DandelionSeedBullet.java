@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.entity.bullet;
 
-import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZParticles;
@@ -78,10 +77,8 @@ public class DandelionSeedBullet extends BaseBullet {
         explode(this.position());
     }
     protected DamageSource getDamageSource(Entity target) {
-        return transferKiller(
-                knockBack(ignoreInvTime(teamFilter(
-                        PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()).setExplosion().damageHelmet())), 0F)
-                , PVZEntityCapability.getOwner(this));
+        return knockBack(ignoreInvTime(teamFilter(
+                        PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()).setExplosion().damageHelmet())), 0F);
     }
     public void explode(Vec3 pos) {
         this.level.gameEvent(this, GameEvent.EXPLODE, pos);
