@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
+import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,7 +40,9 @@ public class Repeater extends PeaShooter {
         if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_KNOCKBACK, ATTRIBUTE_MODIFIER_UUID)) {
             this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.4, AttributeModifier.Operation.ADDITION));
         }
-        if (PVZEntityCapability.getOwner(this) instanceof ServerPlayer player && level.getBlockState(blockPosition()).is(Blocks.REDSTONE_WIRE)) {
+        if (this.getType() == PVZEntities.REPEATER.get()
+                && ! level.isClientSide && PVZEntityCapability.getOwner(this) instanceof ServerPlayer player
+                && level.getBlockState(blockPosition()).is(Blocks.REDSTONE_WIRE)) {
             PVZCriteriaTriggers.REPEATER.trigger(player);
         }
         super.baseTick();

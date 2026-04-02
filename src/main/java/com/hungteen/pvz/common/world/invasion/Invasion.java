@@ -372,6 +372,9 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 cdNum.addAndGet(1);
             });
         }
+        if (all.get() == 0) {
+            all.addAndGet(1);
+        }
         cdNum.set(cdNum.get() == 0 ? 1 :cdNum.get());
         return (int) (target == null || storedTargetPos == null ? 20 : target.position().distanceToSqr(storedTargetPos) / 4)
                 + 16 * cdPer.get() / all.get()

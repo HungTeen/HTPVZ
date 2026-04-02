@@ -5,6 +5,7 @@ import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.common.item.SeedItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZMenus;
 import net.minecraft.server.level.ServerPlayer;
@@ -109,9 +110,6 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
     public boolean clickMenuButton(Player player, int skillID) {
         if (slots.get(0).hasItem() && slots.get(0).getItem().getItem() instanceof SeedPacketItem<?> item) {
             if (item.canBoost() && item.getStaticSkillList().size() > 0) {
-//                if (item.getStaticSkillList().size() <= skillID) {
-//                    PVZMod.LOGGER.info("Chosen skill of "+ player.getName().getString() +" not exists.");
-//                }
                 Skill skill = item.getStaticSkillList().get(skillID);
                 int costSeedPacket = skill.costSeed;
                 int costItem = skill.costItem;
@@ -125,10 +123,8 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
                         }
                     }
                     ((IHaveSkills) slots.get(0).getItem().getItem()).addSkill(slots.get(0).getItem(), skillID);
+                    if (player instanceof ServerPlayer player1) PVZCriteriaTriggers.ESSENCE_ALTAR.trigger(player1);
                     return true;
-//                } else {
-//                    PVZMod.LOGGER.info(player.getName().getString() +" not match the condition of attaching skill.");
-//                    return false;
                 }
             }
         }

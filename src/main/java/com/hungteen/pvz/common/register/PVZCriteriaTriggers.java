@@ -15,6 +15,7 @@ public class PVZCriteriaTriggers {
     public static final PlayerTrigger REPEATER = trigger(new PlayerTrigger(Util.prefix("repeater")));
     public static final PlayerTrigger STRIKE = trigger(new PlayerTrigger(Util.prefix("strike")));
     public static final PlayerTrigger SNAIL = trigger(new PlayerTrigger(Util.prefix("snail")));
+    public static final PlayerTrigger ESSENCE_ALTAR = trigger(new PlayerTrigger(Util.prefix("essence_altar")));
 
     public static void init() {
     }
