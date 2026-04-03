@@ -46,6 +46,8 @@ public class RecipeGen extends RecipeProvider {
             woodFromLogs(c, wood(i, WoodSet.Wood), wood(i, WoodSet.Log));
             woodFromLogs(c, wood(i, WoodSet.StWood), wood(i, WoodSet.StLog));
             pressurePlate(c, wood(i, WoodSet.Plate), wood(i, WoodSet.Plank));
+            slabBuilder(wood(i, WoodSet.Slab), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
+            stairBuilder(wood(i, WoodSet.Stairs), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             fenceBuilder(wood(i, WoodSet.Fence), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             fenceGateBuilder(wood(i, WoodSet.Gate), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             buttonBuilder(wood(i, WoodSet.Button), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);

@@ -184,7 +184,7 @@ public class PVZConfig {
             invasionSpawnerCoolDown = add(builder
                             .translation("config.pvz.common.invasion_spawner_cool_down")
                             .comment("cool down of invasion spawner for a single player."),
-                    "invasionSpawnerCoolDown", 48000, 0, 1000000);
+                    "invasionSpawnerCoolDown", 72000, 0, 1000000);
             marigoldGrowTime = add(builder
                             .translation("config.pvz.common.marigold_grow_time")
                             .comment("ticks marigolds should stay in after being fertilized before they grow to next level."),

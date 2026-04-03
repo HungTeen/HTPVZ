@@ -73,7 +73,7 @@ public class InvasionEntityModifiers {
     }
     public static boolean withFog(@Nullable Invasion invasion, Entity entity, int threat) {
         if (invasion == null) {
-            return false;
+            return true;
         }
         PVZFog fog = PVZFog.getFog(invasion.uuid);
         if (fog == null) {
@@ -86,7 +86,7 @@ public class InvasionEntityModifiers {
     }
     public static boolean withTaco(@Nullable Invasion invasion, Entity entity, int threat) {
         if (invasion == null || ! EntityUtil.isEntityValid(invasion.target)) {
-            return false;
+            return true;
         }
         if (invasion.currentWave > invasion.waves.size() / 3 && invasion.getCurrentWave().isBigWave &&
                 threat > 100 && random.nextInt(invasion.getCurrentWave().threat) < threat) {

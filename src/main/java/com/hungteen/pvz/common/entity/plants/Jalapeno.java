@@ -60,7 +60,11 @@ public class Jalapeno extends SimplePlant {
                     anger.friendlyFire = false;
                 }
                 anger.setPos(this.position().add(0, 1, 0));
-                anger.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
+                this.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+                    if (cap.getOwner() != null) {
+                        anger.getCapability(PVZEntityCapability.CAP).ifPresent(angerCap -> angerCap.setOwner(cap.getOwner()));
+                    }
+                });
                 anger.yRot = direction.toYRot();
                 level.addFreshEntity(anger);
                 anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(this.level));

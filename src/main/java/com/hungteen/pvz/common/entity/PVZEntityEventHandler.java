@@ -82,10 +82,10 @@ public class PVZEntityEventHandler {
                 if (cap.containsInvasion) {
                     Entity source = event.getSource() instanceof IndirectEntityDamageSource source1 ? source1.owner : event.getSource().getEntity();
                     Player player = source instanceof ServerPlayer player1 ? player1
-                            : (PVZEntityCapability.getOwner(source) instanceof ServerPlayer player1 ? player1 : null);
+                            : (source != null && (PVZEntityCapability.getOwner(source) instanceof ServerPlayer player1) ? player1 : null);
                     if (player != null) {
                         player.addEffect(new MobEffectInstance(PVZMobEffects.INVASION_OMEN.get(),
-                                player.getRandom().nextInt(600) + 400, Util.getInvasionLevel(player)));
+                                player.getRandom().nextInt(600) + 400, Util.getInvasionLevel(player) - 1));
                     }
                 }
             });

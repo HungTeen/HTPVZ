@@ -6,16 +6,12 @@ import com.hungteen.pvz.common.register.PVZBlockEntities;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -30,8 +26,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 public class EntityLightBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -59,12 +53,8 @@ public class EntityLightBlock extends BaseEntityBlock implements SimpleWaterlogg
 
     @Override
     public ItemStack getCloneItemStack(BlockGetter p_153664_, BlockPos p_153665_, BlockState p_153666_) {
-        AtomicReference<Item> seedItem = new AtomicReference<>();
-        SeedItem.seedItems.forEach(item -> {
-            if (item.getEntity().equals(PVZEntities.PLANTERN.get())) {
-                seedItem.set(item);
-            }});
-        return seedItem.get().getDefaultInstance();
+        SeedItem<?> item = SeedItem.getSeed(PVZEntities.PLANTERN.get());
+        return item != null ? item.getDefaultInstance() : Blocks.LIGHT.asItem().getDefaultInstance();
     }
 
     //from LightBlock

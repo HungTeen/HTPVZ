@@ -83,8 +83,8 @@ public class DandelionSeedBullet extends BaseBullet {
     public void explode(Vec3 pos) {
         this.level.gameEvent(this, GameEvent.EXPLODE, pos);
         AreaEffectCloud areaeffectcloud = new AreaEffectCloud(this.level, pos.x, pos.y, pos.z);
-        areaeffectcloud.setRadius(1.5F);
-        areaeffectcloud.setDuration(60);
+        areaeffectcloud.setRadius(2.5F);
+        areaeffectcloud.setDuration(120);
         areaeffectcloud.setWaitTime(0);
         areaeffectcloud.setOwner(EntityUtil.isEntityValid(this.getOwner()) && this.getOwner() instanceof LivingEntity living ? living : null);
         Explosion tmpExplosion = new Explosion(this.level, this, pos.x, pos.y, pos.z, 1.5F);

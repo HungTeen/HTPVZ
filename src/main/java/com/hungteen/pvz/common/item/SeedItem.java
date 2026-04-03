@@ -12,12 +12,11 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class SeedItem<T extends Entity> extends SeedPacketItem<T> {
 
-    public static List<SeedPacketItem<?>> seedItems = new ArrayList<>();
+    public static List<SeedItem<?>> seedItems = new ArrayList<>();
     public SeedItem(Properties p_41383_, Supplier<EntityType<T>> entitySupplier, String resource, int cost, int coolDown, boolean creativeOnly, boolean extraCost) {
         this(p_41383_, entitySupplier, List.of(), resource, cost, coolDown, creativeOnly, extraCost);
     }
@@ -27,13 +26,13 @@ public class SeedItem<T extends Entity> extends SeedPacketItem<T> {
     }
 
     //methods
-    public static SeedPacketItem getSeed(EntityType<?> entityType) {
-        AtomicReference<SeedPacketItem> packetItem = new AtomicReference<>();
-        seedItems.forEach(item -> {
+    public static SeedItem<?> getSeed(EntityType<?> entityType) {
+        for (SeedItem<?> item : seedItems) {
             if (item.getEntity().equals(entityType)) {
-                packetItem.set(item);
-            }});
-        return packetItem.get();
+                return item;
+            }
+        }
+        return null;
     }
 
 

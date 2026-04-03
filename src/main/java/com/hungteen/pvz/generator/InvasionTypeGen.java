@@ -122,6 +122,10 @@ public class InvasionTypeGen implements DataProvider {
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SNOW_PEA.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1))
+                                        .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
+                        ).withPool(
+                                LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 2F))
                                         .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 10F))))
                                         .add(LootItem.lootTableItem(Items.POTATO).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
@@ -190,6 +194,10 @@ public class InvasionTypeGen implements DataProvider {
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 3F))
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TANGLE_KELP.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
+                        ).withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1))
+                                        .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 2F))
@@ -265,6 +273,10 @@ public class InvasionTypeGen implements DataProvider {
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 3F))
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SPLIT_PEA.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
+                        ).withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1))
+                                        .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 2F))
@@ -482,6 +494,10 @@ public class InvasionTypeGen implements DataProvider {
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1))
+                                        .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
+                        ).withPool(
+                                LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 2F))
                                         .add(LootItem.lootTableItem(Items.GHAST_TEAR).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                                         .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 10F))))
@@ -554,6 +570,10 @@ public class InvasionTypeGen implements DataProvider {
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 2F))
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
+                        ).withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1))
+                                        .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 2F))

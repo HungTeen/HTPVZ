@@ -52,7 +52,7 @@ public class Sprout extends Mob implements IGardenPlant {
     public long growEndTime = -1;
     public Sprout(EntityType<? extends Mob> p_21368_, Level p_21369_) {
         super(p_21368_, p_21369_);
-        this.entityData.set(DATA_POSE, Pose.DIGGING);
+        this.entityData.set(DATA_POSE, Pose.DIGGING);//used to set bounding box
     }
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
@@ -101,7 +101,7 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public boolean isRequiringWater() {
-        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < 2;
+        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < this.getMaxLevel();
     }
     @Override
     public void setRequiringFertilizer(boolean bool) {
@@ -109,7 +109,7 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public boolean isRequiringFertilizer() {
-        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < 2;
+        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < this.getMaxLevel();
     }
     protected boolean isRequiring() {
         return this.entityData.get(GROW_ENDED);
@@ -123,7 +123,7 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public int getMaxLevel() {
-        return 2;
+        return 3;
     }
     @Override
     public void setGrowLevel(int level) {
@@ -162,7 +162,7 @@ public class Sprout extends Mob implements IGardenPlant {
                         }
                     }
                 }
-            } else if (getGrowLevel() >= 2 && this.getRemainingGrowTick() <= 0 ) {
+            } else if (getGrowLevel() >= this.getMaxLevel()) {
                 this.level.addParticle(ParticleTypes.ELECTRIC_SPARK,
                         getX() + random.nextFloat() * 0.8 - 0.4, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.4,
                         0, random.nextFloat(), 0);
@@ -179,7 +179,7 @@ public class Sprout extends Mob implements IGardenPlant {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (getGrowLevel() >= 2 && this.getRemainingGrowTick() <= 0) {
+        if (! level.isClientSide && getGrowLevel() >= this.getMaxLevel()) {
             produce();
             this.discard();
             if (player instanceof ServerPlayer serverPlayer) {
@@ -249,7 +249,7 @@ public class Sprout extends Mob implements IGardenPlant {
             Entity entity = type.create(level);
             if (entity != null) {
                 ItemStack stack = entity.getPickResult();
-                int num = this.random.nextInt(2) + 2;
+                int num = this.random.nextInt(3) + 5;
                 for (int i = 0; i < num; i ++) {
                     ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), stack);
                     BlockPos pos = blockPosition();

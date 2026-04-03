@@ -44,7 +44,7 @@ public class SnailGachaponItem extends Item {
             }
 
             EntityType<?> entitytype = this.getType(player != null ? player.getRandom() : null);
-            if (player instanceof ServerPlayer player1) {
+            if (player instanceof ServerPlayer player1 && entitytype == PVZEntities.SNAIL.get()) {
                 PVZCriteriaTriggers.SNAIL.trigger(player1);
             }
             if (entitytype.spawn((ServerLevel)level, itemstack, context.getPlayer(), blockpos1, MobSpawnType.SPAWN_EGG, true, !Objects.equals(blockpos, blockpos1) && direction == Direction.UP) != null) {

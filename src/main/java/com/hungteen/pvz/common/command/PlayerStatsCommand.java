@@ -53,8 +53,8 @@ public class PlayerStatsCommand {
     }
 
     public static int addPlayerStats(CommandSourceStack source, ServerPlayer player, String name, int num) {
-        AtomicInteger before = new AtomicInteger();
-        AtomicInteger after = new AtomicInteger();
+        AtomicInteger before = new AtomicInteger(0);
+        AtomicInteger after = new AtomicInteger(0);
         PVZPlayerCapability.getPlayerData(player).ifPresent(((nbt) -> {
             before.set(nbt.getValue(name));
             nbt.addValue(name, num);
@@ -65,7 +65,7 @@ public class PlayerStatsCommand {
     }
 
     public static int queryPlayerStats(CommandSourceStack source, ServerPlayer player, String name, boolean valueOrLimit) {
-        AtomicInteger num = new AtomicInteger();
+        AtomicInteger num = new AtomicInteger(0);
         if (valueOrLimit) {
             PVZPlayerCapability.getPlayerData(player).ifPresent(((nbt) -> {
                 num.set(nbt.getValue(name));

@@ -32,6 +32,7 @@ public class ZenGardenTeleporter extends PortalForcer {
         super(p_77650_);
     }
 
+    @Override
     @Nullable
     public PortalInfo getPortalInfo(Entity entity, ServerLevel destWorld, Function<ServerLevel, PortalInfo> defaultPortalInfo)
     {
@@ -42,11 +43,11 @@ public class ZenGardenTeleporter extends PortalForcer {
                 vec3 = null;
             }
             if (vec3 == null) {
-                Random random = new Random(PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.gardenForEveryOne)
-                        ? player.getUUID().getLeastSignificantBits()
-                        : player.getTeam() == null ? 0 : player.getTeam().hashCode()
-                        );
                 if (destWorld.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
+                    Random random = new Random(PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.gardenForEveryOne)
+                            ? player.getUUID().getLeastSignificantBits()
+                            : player.getTeam() == null ? 0 : player.getTeam().hashCode()
+                    );
                     HolderSet<Structure> holderSet = (destWorld.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY)
                             .getHolder(PVZStructures.GARDEN_PORTAL.getKey())).map(HolderSet::direct).get();
                     Pair<BlockPos, Holder<Structure>> pair = destWorld.getChunkSource().getGenerator()
@@ -62,7 +63,7 @@ public class ZenGardenTeleporter extends PortalForcer {
                     }
                 } else {
                     BlockPos pos = player.getRespawnPosition();
-                    if (pos == null) {
+                    if (pos == null || player.getRespawnDimension().equals(GARDEN)) {
                         pos = level.getSharedSpawnPos();
                     }
                     vec3 = Vec3.atBottomCenterOf(pos);

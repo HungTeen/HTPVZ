@@ -29,8 +29,7 @@ public class StuckArrowWithATargetLayer <T extends LivingEntity, M extends Entit
     }
 
     public int numStuck(T entity) {
-        AtomicInteger result = new AtomicInteger();
-        result.set(0);
+        AtomicInteger result = new AtomicInteger(0);
         entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> result.set(cap.getStuckArrowWithATarget()));
         return result.get();
     }

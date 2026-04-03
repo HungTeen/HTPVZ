@@ -3,8 +3,8 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.block.EntityLightBlock;
-import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -22,7 +22,10 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -47,7 +50,6 @@ public class SpikeWeed extends SimplePlant {
 
     public SpikeWeed(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
-        this.setNoGravity(true);
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
@@ -122,8 +124,10 @@ public class SpikeWeed extends SimplePlant {
         return aabb;
     }
 
+    @Override
     public Vec3 getDeltaMovement() {
-        boolean bool = ! this.hasSkill(ON_WALL_SKILL_NAME)
+        boolean bool = this.entityData.get(ATTACH_FACE) == Direction.UP
+                || ! this.hasSkill(ON_WALL_SKILL_NAME)
                 || level.getBlockState(this.getRootBlockPos()).isAir()
                 || (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock);
         return bool ? super.getDeltaMovement() : Vec3.ZERO;

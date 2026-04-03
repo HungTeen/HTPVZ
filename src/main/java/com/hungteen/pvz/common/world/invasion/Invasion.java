@@ -239,7 +239,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             }
             //handle progress bar.
             List<ServerPlayer> players = ((ServerLevel) level).getPlayers(player -> player.distanceToSqr(Vec3.atCenterOf(this.position)) < (this.range + 15) * (this.range + 15));
-            Collection<ServerPlayer> players1 = this.invasionEvent.getPlayers();
+            Collection<ServerPlayer> players1 = Set.copyOf(this.invasionEvent.getPlayers());
             for (ServerPlayer player : players1) {
                 if (! players.contains(player)) {
                     this.invasionEvent.removePlayer(player);

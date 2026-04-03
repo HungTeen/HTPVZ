@@ -40,7 +40,7 @@ public class ButterBullet extends BaseBullet {
     protected boolean dealDamageTo(Entity target) {
         boolean hurt = super.dealDamageTo(target);
         if (!this.level.isClientSide() && hurt) {
-            if (target instanceof LivingEntity living) living.addEffect(new MobEffectInstance(PVZMobEffects.BUTTER.get(),200,1));
+            if (target instanceof LivingEntity living) living.addEffect(new MobEffectInstance(PVZMobEffects.BUTTER.get(),120,1));
         }
         return hurt;
     }

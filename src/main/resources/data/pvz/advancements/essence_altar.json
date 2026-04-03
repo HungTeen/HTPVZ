@@ -12,22 +12,15 @@
       }
     },
   "criteria": {
-    "has_item": {
+    "attach_skill": {
       "conditions": {
-        "items": [
-          {
-            "items": [
-              "pvz:essence_altar"
-            ]
-          }
-        ]
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "pvz:essence_altar"
     }
   },
   "requirements": [
     [
-      "has_item"
+      "attach_skill"
     ]
   ]
 }

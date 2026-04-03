@@ -1,7 +1,7 @@
 {
   "parent": "pvz:pumpkin_on_head",
-  "hidden": true,
   "display": {
+    "hidden": true,
     "frame": "challenge",
     "title": {
       "translate": "advancements.pvz.ride_pumpkin_zombie.title"

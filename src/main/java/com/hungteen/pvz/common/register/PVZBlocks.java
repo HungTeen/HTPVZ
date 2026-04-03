@@ -44,7 +44,7 @@ public class PVZBlocks {
     //init
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PVZMod.MODID);
     private static CreativeModeTab storedTab = PVZ_BLOCKS;
-    private static Supplier<Block> storedSup = () -> new Block(BlockBehaviour.Properties.of(Material.STONE));
+    private static Supplier<Block> storedSup = () -> new Block(BlockBehaviour.Properties.copy(Blocks.STONE));
     private static final PVZBlocks reflector = new PVZBlocks();
     public static List<WoodType> woodTypeList = new ArrayList<>();
     @Deprecated // will be cleared after register.
@@ -222,7 +222,7 @@ public class PVZBlocks {
             flame = 0;
         }
         //register
-        set.put(WoodSet.Plank, tag(BlockTags.PLANKS).tag(tags).flammable(flame*5, flame*20).block(name+"_planks"));
+        set.put(WoodSet.Plank, tag(BlockTags.PLANKS).tag(tags).flammable(flame*5, flame*20).block(name+"_planks", () -> new Block(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS))));
         set.put(WoodSet.Sapling, tag(BlockTags.SAPLINGS).composter(0.3F).tag(tags).model(Model.Cross).renderType("cutout").itemModel(PVZItems.Model.Simple, res(name+"_sapling")).block(name+"_sapling", () -> new SaplingBlock(treeGrower, BlockBehaviour.Properties.copy(Blocks.OAK_SAPLING))));
         set.put(WoodSet.PottedSapling, tag(BlockTags.FLOWER_POTS).flowerPot().model(Model.Potted, res(name + "_sapling")).renderType("cutout").noItem().block("potted_"+name+"_sapling", () -> new FlowerPotBlock(() -> (FlowerPotBlock) Blocks.FLOWER_POT, set.get(WoodSet.Sapling), BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noOcclusion())));
         set.put(WoodSet.Leaves, tag(BlockTags.LEAVES).composter(0.3F).tag(tags).renderType("cutout").flammable(flame*5, flame*60).loot(false).block(name+"_leaves", () -> new LeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES))));

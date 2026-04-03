@@ -11,7 +11,10 @@ import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PlayerContinueCoolDownPacket;
 import com.hungteen.pvz.common.network.ServerInfoPacket;
-import com.hungteen.pvz.common.register.*;
+import com.hungteen.pvz.common.register.PVZAttributes;
+import com.hungteen.pvz.common.register.PVZDimensions;
+import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator;
@@ -24,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -49,6 +53,8 @@ import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -57,6 +63,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag> {
 
     private PVZPlayerCapStats nbt = null;
@@ -285,7 +292,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         nbt.setValue(PVZPlayerCapStats.LAST_INVASION, interval / 2);
                         InvasionTeam.spawnFor(player);
                     }
-                    nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 100);
+                    nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 1);
                 }
                 //penny spawn
                 if (player.level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
@@ -347,6 +354,23 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 }
             });
         });
+    }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.Clone event) {
+        if (event.isWasDeath()) {
+            Player oldPlayer = event.getOriginal();
+            Player newPlayer = event.getEntity();
+            oldPlayer.reviveCaps();
+            LazyOptional<PVZPlayerCapability> oldCap = oldPlayer.getCapability(CAP);
+            LazyOptional<PVZPlayerCapability> newCap = newPlayer.getCapability(CAP);
+            oldCap.ifPresent(o -> newCap.ifPresent( n -> {
+                n.deserializeNBT(o.serializeNBT());
+                if (! newPlayer.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+                    n.nbt.setValue(PVZPlayerCapStats.SUN, 50);
+                }
+            }));
+        }
     }
 
     private static AttributeModifier getBlockModifier(BlockPos pos, IMaxSunExpander sunExpander, Player player) {
@@ -433,11 +457,11 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         return vec3.get();
     }
 
-    public static void setTeleportPos(Player player, Vec3 pos, Level destWorld) {
+    public static void setTeleportPos(Player player, Vec3 pos, ResourceKey<Level> currentWorldKey) {
         player.getCapability(CAP).ifPresent(cap -> {
-            if (destWorld.dimension().equals(ZenGardenTeleporter.GARDEN)) {
+            if (currentWorldKey.equals(Level.OVERWORLD)) {
                 cap.gardenPos = new Pair<>(pos, cap.gardenPos.getSecond());
-            } else {
+            } else if (currentWorldKey.equals(ZenGardenTeleporter.GARDEN)) {
                 if (cap.gardenPos.getSecond() == null || cap.gardenPos.getSecond().distanceToSqr(pos) <= 1048576) {
                     cap.gardenPos = new Pair<>(cap.gardenPos.getFirst(), pos);
                 }
@@ -461,13 +485,13 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     public static int getValue(Player player, String key){
-        AtomicInteger value = new AtomicInteger();
+        AtomicInteger value = new AtomicInteger(0);
         PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> value.set(nbt.getValue(key)));
         return value.get();
     }
 
     public static Pair<Integer, Integer> getValueLimit(Player player, String key){
-        AtomicReference<Pair<Integer, Integer>> value = new AtomicReference<>();
+        AtomicReference<Pair<Integer, Integer>> value = new AtomicReference<>(Pair.of(0, 0));
         PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> value.set(nbt.getValueLimit(key)));
         return value.get();
     }

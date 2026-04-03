@@ -30,7 +30,7 @@ import java.util.List;
 
 public class KernelPult extends ShooterPlant {
     public static final EntityDataAccessor<Integer> CURRENT_BULLET = SynchedEntityData.defineId(KernelPult.class, EntityDataSerializers.INT);
-    private static final int BUTTER_CHANCE = 5;
+    private static final int BUTTER_CHANCE = 3;
     protected static final double SHOOT_OFFSET = 0.3D;//pea position offset
 
     public static final String BUTTER_SKILL_NAME = "skill.pvz.kernel_pult.butter_pult";
@@ -140,7 +140,7 @@ public class KernelPult extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 3D)
+                .add(Attributes.ATTACK_DAMAGE, 2D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
     public enum CornTypes{

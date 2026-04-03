@@ -2,6 +2,7 @@
   "parent": "pvz:plants_vs_zombies",
   "display": {
     "frame": "challenge",
+    "hidden": true,
     "title": {
       "translate": "advancements.pvz.catch_grass_carp.title"
     },

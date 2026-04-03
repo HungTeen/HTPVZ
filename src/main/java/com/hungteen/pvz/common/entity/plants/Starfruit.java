@@ -47,7 +47,7 @@ public class Starfruit extends ShooterPlant {
     protected StarfruitBullet createBullet() {
         StarfruitBullet bullet = new StarfruitBullet(this.level, this);
         if (this.hasSkill(SATELLITE_SKILL)) {
-            bullet.skill = true;
+            bullet.getEntityData().set(StarfruitBullet.SKILL, true);
         }
         return bullet;
     }

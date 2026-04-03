@@ -179,7 +179,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
-        if (data == DATA_POSE) {
+        if (data.equals(DATA_POSE)) {
             if (this.getPose() == Pose.STANDING) {
                 outAnimationState.start(this.tickCount);
                 inAnimationState.stop();

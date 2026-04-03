@@ -76,7 +76,7 @@ public class InvasionCommand {
     }
 
     public static int removeAllInvasion(CommandSourceStack source) {
-        AtomicInteger result = new AtomicInteger();
+        AtomicInteger result = new AtomicInteger(0);
         source.getLevel().getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
             cap.getEvents().forEach(event -> {
                 if (event.getType().equals(PVZZombieEvents.INVASION.getId())) {

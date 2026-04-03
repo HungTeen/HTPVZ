@@ -1,7 +1,7 @@
 {
   "parent": "pvz:nether_wart_seed_packet",
-  "hidden": true,
   "display": {
+    "hidden": true,
     "title": {
       "translate": "advancements.pvz.repeater.title"
     },

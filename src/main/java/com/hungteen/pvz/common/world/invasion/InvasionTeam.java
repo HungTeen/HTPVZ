@@ -21,7 +21,6 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.common.util.TriPredicate;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 public class InvasionTeam {
@@ -51,7 +50,7 @@ public class InvasionTeam {
     /**@return Whether this team has ended spawning.*/
     public boolean tick() {
         this.seeker.tick();
-        if (this.invasionTypes.isEmpty() || this.invasionTypes.stream().allMatch(type -> type.isAvailable(target, invasionTypes))) {
+        if (this.invasionTypes.isEmpty() || ! this.invasionTypes.stream().allMatch(type -> type.isAvailable(target, invasionTypes))) {
             return true;
         }
         if (! seeker.availablePositions.isEmpty()) {
@@ -66,15 +65,17 @@ public class InvasionTeam {
                     if (verticalDist > 0 || verticalDist * verticalDist < 1.5 * horizontalDistSqr) {
                         if (! invasionTypes.isEmpty()) {
                             Vec3 vec3 = Vec3.atBottomCenterOf(pos);
-                            AtomicBoolean result = new AtomicBoolean();
-                            result.set(false);
                             final int size = random.nextInt(4);
                             List<CompoundTag> tags = new ArrayList<>();
                             Optional<InvasionType.EnemyType> leader = invasionTypes.get(0).flagEnemy();
                             List<InvasionType.EnemyType> types = invasionTypes.get(0).enemies();
-                            for (int i = 0; i < size; i ++) {
-                                tags.add(types.get(random.nextInt(types.size())).entityData());
+                            types = types.stream().filter(t -> t.startFrom() < 0.2 && ! t.isElite()).toList();
+                            if (! types.isEmpty()) {
+                                for (int i = 0; i < size; i ++) {
+                                    tags.add(types.get(random.nextInt(types.size())).entityData());
+                                }
                             }
+                            if (leader.isEmpty() && types.isEmpty()) return true;
                             Entity entity;
                             if (leader.isPresent()) {
                                 entity = summonEntity(leader.get().entityData().copy(), target.level, vec3);
@@ -85,7 +86,7 @@ public class InvasionTeam {
                             if (entity != null) {
                                 entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.containsInvasion = true);
                             }
-                            tags.forEach(tag -> summonEntity(tags.get(0), target.level, vec3));
+                            tags.forEach(tag -> summonEntity(tag, target.level, vec3));
                             return true;
                         }
                     }

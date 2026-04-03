@@ -275,7 +275,7 @@ public class GhastRiderActivitiesGoal extends Goal {
                                 if (phase2 && diverCount + summonPoses.size() <= 3) {
                                     map.put(PVZEntities.LAVA_DIVER_ZOMBIE.get(), 1);
                                 }
-                                AtomicInteger choice = new AtomicInteger();
+                                AtomicInteger choice = new AtomicInteger(0);
                                 map.values().forEach(choice::addAndGet);
                                 choice.set(zombie.getRandom().nextInt(choice.get()));
                                 for (EntityType<? extends Entity> typeToChoose : map.keySet()) {
@@ -371,20 +371,25 @@ public class GhastRiderActivitiesGoal extends Goal {
         tpTo(zombie, pos, exact);
         tpCooldown = TP_COOL_DOWN;
     }
+
     public void tpTo(Entity zombie, BlockPos pos, boolean exact) {
+        tpTo(zombie, pos, exact, 0);
+    }
+
+    public void tpTo(Entity zombie, BlockPos pos, boolean exact, int offset) {
         zombie.setPose(Pose.STANDING);
         zombie.stopRiding();
         zombie.teleportTo(pos.getX(), pos.getY(), pos.getZ());
         if (zombie.isInWall()) {
-            int offSetTime = 0;
             if (exact) {
                 zombie.level.explode(zombie
                         , pos.getX(), pos.getY(), pos.getZ()
                         , 3, Explosion.BlockInteraction.BREAK);
             }
-            boolean end = false;
-            while (! exact && zombie.isInWall() && offSetTime < 4) {
-                offSetTime ++;
+            int yOffSetTime = 0;
+            boolean end = ! zombie.isInWall() || offset >= 3;
+            while (! exact && zombie.isInWall() && yOffSetTime < 4) {
+                yOffSetTime ++;
                 for (int i = -1; i < 2; i ++) {
                     for (int j = -1; j < 2; j ++) {
                         var offseted = zombie.blockPosition().offset(i, 0, j);
@@ -399,7 +404,7 @@ public class GhastRiderActivitiesGoal extends Goal {
                 }
             }
             if (! end) {
-                tpTo(getRandomBlockPosOnPlatform(), false);
+                tpTo(zombie, getRandomBlockPosOnPlatform(), true, ++ offset);
             }
             if (zombie instanceof Mob mob) {
                 mob.getNavigation().stop();

@@ -9,9 +9,8 @@ import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
@@ -288,14 +287,15 @@ public class PVZDamageSource {
     public static void handleHurt(LivingHurtEvent ev) {
         LivingEntity entity = ev.getEntity();
         //handle ZenGarden fallout
-        if (entity instanceof Player player && ev.getSource() == DamageSource.OUT_OF_WORLD
+        if (entity instanceof ServerPlayer player && ev.getSource() == DamageSource.OUT_OF_WORLD
                 && entity.getLevel().dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
-            MinecraftServer server = entity.getLevel().getServer();
-            ResourceKey<Level> resourcekey = player.level.dimension() == ZenGardenTeleporter.GARDEN ? Level.OVERWORLD : ZenGardenTeleporter.GARDEN;
-            ServerLevel destWorld = server.getLevel(resourcekey);
+            ServerLevel destWorld = entity.getLevel().getServer().getLevel(
+                    player.getRespawnDimension().equals(ZenGardenTeleporter.GARDEN) ? Level.OVERWORLD : player.getRespawnDimension());
             if (destWorld != null) {
+                ev.setCanceled(true);
                 player.setPortalCooldown();
                 player.changeDimension(destWorld, new ZenGardenTeleporter(destWorld));
+                return;
             }
         }
         //handle IArmorEntity and ExtraHealthArmorItem

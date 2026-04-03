@@ -66,7 +66,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
@@ -150,13 +149,13 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         return true;
     }
 
-    public static SeedPacketItem getSeedPacket(EntityType<?> entityType) {
-        AtomicReference<SeedPacketItem> packetItem = new AtomicReference<>();
-        SeedPacketItem.seedPacketItemList.forEach(item -> {
-            if (item.getEntity().equals(entityType) && item.getClass() == SeedPacketItem.class) {
-                packetItem.set(item);
-            }});
-        return packetItem.get();
+    public static SeedPacketItem<?> getSeedPacket(EntityType<?> entityType) {
+        for (SeedPacketItem<?> item : seedPacketItemList) {
+            if (item.getEntity().equals(entityType)) {
+                return item;
+            }
+        }
+        return null;
     }
 
 

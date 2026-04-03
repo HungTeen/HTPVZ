@@ -52,15 +52,15 @@ public class SproutItem extends Item {
         if (level.isClientSide) {
             if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.gardenOnlySprouts)
                     && ! level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
-                if (context.getPlayer() != null) {
-                    context.getPlayer().displayClientMessage(Component.translatable("hint.pvz.sprout.must_in_zen_garden"), true);
-                }
                 return super.useOn(context);
             }
             return InteractionResult.SUCCESS;
         }
         if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.gardenOnlySprouts)
                 && ! level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
+            if (context.getPlayer() != null) {
+                context.getPlayer().displayClientMessage(Component.translatable("hint.pvz.sprout.must_in_zen_garden"), true);
+            }
             return super.useOn(context);
         }
         if (context.getPlayer() instanceof ServerPlayer player) {

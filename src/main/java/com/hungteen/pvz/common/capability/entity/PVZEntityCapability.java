@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag> {
@@ -192,10 +193,8 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     public static boolean hasOwner(Entity entity) {
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
-            result.set(cap.hasOwner());
-        });
+        AtomicBoolean result = new AtomicBoolean(true);
+        entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> result.set(cap.hasOwner()));
         return result.get();
     }
 

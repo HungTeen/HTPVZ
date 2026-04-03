@@ -98,7 +98,11 @@ public class JalapenoZombie extends PVZZombie implements IZombotany {
             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {
                 Anger anger = new Anger(level);
                 anger.setPos(this.position().add(0, 1, 0));
-                anger.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
+                this.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+                    if (cap.getOwner() != null) {
+                        anger.getCapability(PVZEntityCapability.CAP).ifPresent(angerCap -> angerCap.setOwner(cap.getOwner()));
+                    }
+                });
                 anger.yRot = direction.toYRot();
                 level.addFreshEntity(anger);
                 anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 4);

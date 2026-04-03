@@ -132,7 +132,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
 
     private Item getRandomIngot() {
-        if (this.getGrowLevel() < 3) {
+        if (this.getGrowLevel() < this.getMaxLevel()) {
             if (random.nextFloat() < getIronChance()) {
                 return Items.IRON_INGOT;
             }
@@ -164,7 +164,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     @Override
     public boolean isRequiringWater() {
-        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < 3;
+        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < this.getMaxLevel();
     }
     @Override
     public void setRequiringFertilizer(boolean bool) {
@@ -172,7 +172,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     @Override
     public boolean isRequiringFertilizer() {
-        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < 3;
+        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < this.getMaxLevel();
     }
     protected boolean isRequiring() {
         return this.entityData.get(GROW_ENDED);
@@ -285,7 +285,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
             int time = PVZConfig.PVZGameRules.getInt(mariGold.level, PVZConfig.Common.marigoldGrowTime) - mariGold.getRemainingGrowTick();
             if (time > 40) {
                 mariGold.getEntityData().set(IS_PRODUCING, false);
-                if (mariGold.getGrowLevel() >= 3) {
+                if (mariGold.getGrowLevel() >= mariGold.getMaxLevel()) {
                     mariGold.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
                         Entity owner = cap.getOwner();
                         if (owner instanceof ServerPlayer serverPlayer) {
@@ -296,7 +296,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
                     mariGold.discard();
                 }
             } else if (time == 8 || time == 10 || time == 12
-                    || ((time == 9 || time == 11 || time == 13 || time == 15) && random.nextBoolean() && mariGold.getGrowLevel() < 3)) {
+                    || ((time == 9 || time == 11 || time == 13 || time == 15) && random.nextBoolean() && mariGold.getGrowLevel() < mariGold.getMaxLevel())) {
                 mariGold.produce();
             }
         }

@@ -14,6 +14,8 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class LootWithinZombieEventCondition implements LootItemCondition {
     final ResourceLocation eventType;
     public LootWithinZombieEventCondition(ResourceLocation eventType) {
@@ -27,12 +29,14 @@ public class LootWithinZombieEventCondition implements LootItemCondition {
     @Override
     public boolean test(LootContext lootContext) {
         Entity entity = lootContext.getParamOrNull(LootContextParams.THIS_ENTITY);
-        final boolean[] result = new boolean[1];
+        if (entity == null) return false;
+        AtomicBoolean result = new AtomicBoolean(false);
         PVZZombieEventCapability levelCap = PVZZombieEventCapability.fromLevel(entity.level);
-        entity.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> result[0] = cap.isInZombieEvent() &&
+        if (levelCap == null) return false;
+        entity.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> result.set(cap.isInZombieEvent() &&
                 cap.zombieEventUUIDs.stream().anyMatch(uuid -> levelCap.hasEvent(uuid)
-                        && PVZAPI.get().getZombieEventType(levelCap.getEvent(uuid)).equals(eventType)));
-        return result[0];
+                        && PVZAPI.get().getZombieEventType(levelCap.getEvent(uuid)).equals(eventType))));
+        return result.get();
     }
 
 
