@@ -72,10 +72,11 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     public static int syncCount = 0;
     /**Pair of garden teleporting positions. The first is overworld pos, the second is garden pos.*/
     private Pair<Vec3, Vec3> gardenPos = new Pair<>(null, null);
+    public boolean isTeamBattleOn = false;
+    public int advancedPlantsExtraCostRange = 30;
 
     //client variables
     static Vec3 playerPos = null;
-    public static int advancedPlantsExtraCostRange = 30;
 
     //TODO combine this class with PVZPlayerCapNBT.
 
@@ -94,10 +95,13 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     public static void tick(TickEvent.@NotNull ServerTickEvent ev) {
         for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
             //timed sync
-            if (++ syncCount > 20) {
+            if (++ syncCount % 10 == 0) {
                 ServerInfoPacket.sync(player, ((ServerLevel) player.level));
-                getPlayerData(player).ifPresent(PVZPlayerCapStats::syncAll);
-                syncCount = 0;
+                boolean syncAll = syncCount >= 100;
+                getPlayerData(player).ifPresent(data -> data.sync(syncCount == 100));
+                if (syncAll) {
+                    syncCount = 0;
+                }
             }
             //functional
             getPlayerData(player).ifPresent((nbt) -> {
@@ -271,13 +275,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     Util.coolDownItems(player, (1 + player.getEffect(PVZMobEffects.EXCITEMENT.get()).getAmplifier()) * 3);
                 }
                 if (player.tickCount % 20 == 19) {
-                    Map<Item, ItemCooldowns.CooldownInstance> coolDowns = player.getCooldowns().cooldowns;
-                    int cur = player.getCooldowns().tickCount;
-                    coolDowns.keySet().forEach(item -> {
-                        ItemCooldowns.CooldownInstance instance = coolDowns.get(item);
-                        PlayerContinueCoolDownPacket.sync(player, item,
-                                instance.startTime - cur, instance.endTime - cur);
-                    });
+                    PlayerContinueCoolDownPacket.sync(player);
                 }
                 //auto set sun cost and cd.
                 if (nbt.getValue(PVZPlayerCapStats.AUTO_SET_COST_AND_CD) == 1) {
@@ -285,11 +283,16 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     nbt.setValue(PVZPlayerCapStats.PLANT_HAVE_CD, player.isCreative() ? 0 : 1);
                 }
                 //invasion spawn
-                int interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnInvasionsInterval);
+                int interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnInvasionsInterval) / 100;
                 if (player.tickCount % 100 == 0 && interval > 0) {
                     int lastInvasion = nbt.getValue(PVZPlayerCapStats.LAST_INVASION);
                     if (lastInvasion > interval && player.getRandom().nextInt(lastInvasion) > (float) (lastInvasion / 2 + interval / 2)) {
                         nbt.setValue(PVZPlayerCapStats.LAST_INVASION, interval / 2);
+                        player.level.getEntitiesOfClass(Player.class
+                                , player.getBoundingBox().inflate(12, 8, 12)
+                                , e -> e != player && EntityUtil.isTeammate(e, player)).forEach(player1 -> PVZPlayerCapability.getPlayerData(player1)
+                                        .ifPresent(nbt1 -> nbt1.setValue(PVZPlayerCapStats.LAST_INVASION
+                                                , Math.min(nbt1.getValue(PVZPlayerCapStats.LAST_INVASION), interval / 2))));
                         InvasionTeam.spawnFor(player);
                     }
                     nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 1);

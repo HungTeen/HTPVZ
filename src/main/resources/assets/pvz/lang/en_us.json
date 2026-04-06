@@ -390,6 +390,7 @@
   "hint.pvz.plant.no_enough_place": "No enough space",
   "hint.pvz.plant.no_enough_resource": "%s is not enough",
   "hint.pvz.plant.on_cool_down": "%s is still on cool down",
+  "hint.pvz.plant.player_cant_plant": "Can't plant now",
   "hint.pvz.plant.pumpkin.not_broken": "Can only plant on broken Pumpkins",
   "hint.pvz.plant.wall_nut.not_broken": "Can only plant on broken Wall Nuts",
   "hint.pvz.sprout.must_in_zen_garden": "Can only plant in Garden Flower Pots in Zen Garden",

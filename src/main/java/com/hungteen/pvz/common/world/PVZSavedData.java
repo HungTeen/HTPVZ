@@ -24,7 +24,7 @@ public class PVZSavedData extends SavedData {
     private final Set<String> evilList = new HashSet<>();
     /**Team evilness information is synced from server every second. Do not call in server.*/
     public static Set<String> clientEvilList = new HashSet<>();
-    public static boolean isTeamBattleOn;
+
     public static void tick() {
         byScoreboard.forEach((scoreBoard, data) -> {
             Set<String> evilList = Set.copyOf(data.evilList);
@@ -32,10 +32,15 @@ public class PVZSavedData extends SavedData {
             for (String name : evilList) {
                 if (! names.contains(name)) {
                     data.evilList.remove(name);
+                    data.setDirty();
                 }
             }
-            data.setDirty();
         });
+    }
+
+    public static boolean isDirty(Scoreboard scoreboard) {
+        PVZSavedData data = byScoreboard.get(scoreboard);
+        return data != null && data.isDirty();
     }
 
     public static int setEvil(Scoreboard scoreboard, String name, boolean isEvil) {

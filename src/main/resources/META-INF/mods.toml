@@ -1,14 +1,14 @@
 
 modLoader="javafml"
 loaderVersion="[43,)"
-license="All rights reserved"
+license="GPL v3"
 [[mods]]
 modId="pvz"
-version="0.1-beta1-fix2"
+version="0.1-beta1-fix3"
 displayName="HungTeen's Plants vs. Zombies 2"
 logoFile="logo.png"
 credits=""
-authors="Hung_Teen, GrassCarp_草鱼, Susen36, 一只姥暀八, BF_Meow, 慕铁0607（日语翻译)，Geru13565651（俄语翻译）, MagnetShroomV63（俄语翻译）"
+authors="Pang_Teen, GrassCarp_草鱼, Susen36, 一只姥暀八, BF_Meow, 慕铁0607（日语翻译)，Geru13565651（俄语翻译）, MagnetShroomV63（俄语翻译）"
 description='''A mod that bring pvz to Minecraft!'''
 
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.

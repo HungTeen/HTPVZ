@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.command;
 import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
+import com.hungteen.pvz.common.network.ZombieEventPacket;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -45,6 +46,7 @@ public class ZombieEventDataAccessor implements DataAccessor {
     public void setData(CompoundTag tag) throws CommandSyntaxException {
         tag.putString("event_type", PVZAPI.get().getZombieEventType(this.event).toString());
         this.event.deserializeNBT(tag);
+        ZombieEventPacket.toClient(event);
     }
 
     public CompoundTag getData() {

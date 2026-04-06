@@ -168,7 +168,7 @@ public class PVZConfig {
             naturallySpawnInvasionsInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_invasions_interval")
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
-                    "naturallySpawnInvasionsInterval", 18000, 0, 1000000);
+                    "naturallySpawnInvasionsInterval", 24000, 0, 1000000);
             naturallySpawnSunInterval = add(builder
                             .translation("config.pvz.common.naturally_spawn_sun_interval")
                             .comment("sun naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural sun spawn."),

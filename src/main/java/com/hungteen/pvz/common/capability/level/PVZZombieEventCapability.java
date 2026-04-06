@@ -71,10 +71,8 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
     }
 
     public static void tick(TickEvent.ServerTickEvent ev) {
-        if (tickCount >= 20) {
+        if (++ tickCount >= 100) {
             tickCount = 0;
-        } else {
-            tickCount ++;
         }
         ev.getServer().getAllLevels().forEach(level -> level.getCapability(CAP).ifPresent(cap -> {
             if (tickCount == 0) {

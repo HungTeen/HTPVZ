@@ -68,7 +68,7 @@ public class RegisterSeedPacketsEvent extends Event {
             creativeOnly = true;
             return this;
         }
-        public SeedPacketData<T> advanced(){
+        public SeedPacketData<T> advanced() {
             advanced = true;
             return this;
         }

@@ -31,7 +31,7 @@ public class PVZFog {
     public double effect = 0;
     public final UUID uuid;
     public static Map<UUID, PVZFog> pvzFogs = new HashMap<>();
-    private static Random random = new Random();
+    private static final Random random = new Random();
     private static double bufferStrength = 1e-10;
 
     private PVZFog(Level level, Vec3 position, int lifeTime, double strength, double range) {

@@ -53,7 +53,7 @@ public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLo
         int allWeight = 0;
         List<InvasionType> toChoose = new ArrayList<>();
         for (InvasionType invasionType : invasionTypes.values()) {
-            if (! invasionType.isAddition && invasionType.isAvailable(target, types)) {
+            if (! invasionType.isAddition && invasionType.isAvailable(target, types) && invasionType.weight > 0) {
                 toChoose.add(invasionType);
                 allWeight += invasionType.weight;
             }

@@ -6,15 +6,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.*;
 
 //TODO handle situation when player is not available.
+
+/**It's ok to add values here. Don't to let the limit larger than 32767 unless it's used only in the server.*/
 public class PVZPlayerCapStats {
     public Player player;
     private Map<String, Integer> dataMap = new HashMap<>();
     private Map<String, Pair<Integer, Integer>> dataLimitMap = new HashMap<>();
+    private List<String> dirtyList = new ArrayList<>();
+    private List<String> syncableList = new ArrayList<>();
 
     public static final String SUN = "pvz.sun";
     public static final String CAN_PLANT = "can_plant";
@@ -38,20 +40,21 @@ public class PVZPlayerCapStats {
 
     public void initBasicValues() {
         //basic
-        setValue(CAN_PLANT, 1, 0, 1);//naturally always 1. if 0, player can't plant.
-        setValue(AUTO_SET_COST_AND_CD, 1, 0, 1);//naturally always 1. if 1, "plant_cost_sun" and "plant_have_cd" of this player will change with gamemode.
-        setValue(PLANT_HAVE_COST, 1, 0, 1);//naturally creative:0, survival:1.
-        setValue(PLANT_HAVE_CD, 1, 0, 1);//naturally creative:0, survival:1.
-        setValue(SUMMONED_PENNY, 0, 0, 1);//if the player has summoned Penny recently.
-        setValue(INVASION_DIFFICULTY, 0, 0, 100);//invasion difficulty.
-        setValue(LAST_INVASION, 0, 0, 1000);//time since last invasion occurred on this player.
+        initValue(CAN_PLANT, 1, 0, 1);//naturally always 1. if 0, player can't plant.
+        initValueNoSync(AUTO_SET_COST_AND_CD, 1, 0, 1);//naturally always 1. if 1, "plant_cost_sun" and "plant_have_cd" of this player will change with gamemode.
+        initValue(PLANT_HAVE_COST, 1, 0, 1);//naturally creative:0, survival:1.
+        initValue(PLANT_HAVE_CD, 1, 0, 1);//naturally creative:0, survival:1.
+        initValueNoSync(SUMMONED_PENNY, 0, 0, 1);//if the player has summoned Penny recently.
+        initValueNoSync(INVASION_DIFFICULTY, 0, 0, 100);//invasion difficulty.
+        initValueNoSync(LAST_INVASION, 0, 0, 1000);//time since last invasion occurred on this player.
         //resource
-        setValue(SUN, 50, 0, 200);
+        initValue(SUN, 50, 0, 200);
     }
 
     //values
     public void setValue(String key, Integer value) {
         Pair<Integer, Integer> limit = getValueLimit(key);
+        var currValue = dataMap.get(key);
         if (limit != null) {
             if (value > limit.getSecond()) {
                 value = limit.getSecond();
@@ -59,15 +62,20 @@ public class PVZPlayerCapStats {
                 value = limit.getFirst();
             }
         }
-        dataMap.put(key, value);
-        if (player instanceof ServerPlayer){
-            PlayerCapStatsPacket.sync((ServerPlayer) player, key, true);
+        if (currValue == null || ! currValue.equals(value)) {
+            dataMap.put(key, value);
+            if (syncableList.contains(key)) dirtyList.add(key);
         }
     }
 
-    public void setValue(String key, Integer value, Integer minLimit, Integer maxLimit) {
-        setValue(key, value);
-        setValueLimit(key, minLimit, maxLimit);
+    public void initValue(String key, Integer value, Integer minLimit, Integer maxLimit) {
+        initValueNoSync(key, value, minLimit, maxLimit);
+        syncableList.add(key);
+    }
+
+    public void initValueNoSync(String key, Integer value, Integer minLimit, Integer maxLimit) {
+        dataMap.put(key, value);
+        dataLimitMap.put(key, Pair.of(minLimit, maxLimit));
     }
 
     public Integer getValue(String key) {
@@ -87,15 +95,17 @@ public class PVZPlayerCapStats {
     }
 
     public void setValueLimit(String key, Integer min, Integer max) {
-        dataLimitMap.put(key, Pair.of(min, max));
-        int value = getValue(key);
-        if (value > max) {
-            setValue(key, max);
-        } else if (value < min) {
-            setValue(key, min);
-        }
-        if (player instanceof ServerPlayer){
-            PlayerCapStatsPacket.sync((ServerPlayer) player, key, false);
+        var currValue = dataLimitMap.get(key);
+        Pair<Integer, Integer> pair = Pair.of(min, max);
+        if (currValue == null || ! currValue.equals(pair)) {
+            dataLimitMap.put(key, pair);
+            int value = getValue(key);
+            if (value > max) {
+                setValue(key, max);
+            } else if (value < min) {
+                setValue(key, min);
+            }
+            if (syncableList.contains(key)) dirtyList.add(key);
         }
     }
 
@@ -106,6 +116,18 @@ public class PVZPlayerCapStats {
 
     public Pair<Integer, Integer> getValueLimit(String key) {
         return dataLimitMap.get(key);
+    }
+
+    public List<String> getDirtyList() {
+        return this.dirtyList;
+    }
+
+    public Set<String> getKeySet() {
+        return this.dataMap.keySet();
+    }
+
+    public void cleanDirt() {
+        this.dirtyList.clear();
     }
 
 
@@ -162,23 +184,10 @@ public class PVZPlayerCapStats {
             }
         }
     }
-
-    public static void cloneData(Player oldPlayer, Player newPlayer) {
-        if (oldPlayer != null && newPlayer != null){
-            AtomicReference<CompoundTag> tmp = null;
-            PVZPlayerCapability.getPlayerData(oldPlayer).ifPresent(nbt -> tmp.set(nbt.serializeNBT()));
-            PVZPlayerCapability.getPlayerData(newPlayer).ifPresent(nbt -> nbt.deserializeNBT(tmp.get()));
-        }
-    }
-
-    public void syncAll(){
-        if (player instanceof ServerPlayer) {
-            for (String key : dataMap.keySet()) {
-                PlayerCapStatsPacket.sync((ServerPlayer) player, key, true);
-            }
-            for (String key : dataLimitMap.keySet()){
-                PlayerCapStatsPacket.sync((ServerPlayer) player, key, false);
-            }
+    public void sync(boolean syncAll) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            PlayerCapStatsPacket.sync(serverPlayer, this, syncAll);
+            cleanDirt();
         }
     }
 

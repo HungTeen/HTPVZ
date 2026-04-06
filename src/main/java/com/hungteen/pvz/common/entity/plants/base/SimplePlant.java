@@ -463,6 +463,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         tag.putInt("WiltCountDown", getEntityData().get(WILT_COUNTDOWN));
         saveSkills(tag);
         tag.putInt("PlantAttackTime", getAttackTime());
+        tag.putInt("TickCount", tickCount);
 
     }
     @Override
@@ -480,6 +481,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
         if (tag.contains("HasCoincideDmg")) {
             this.getEntityData().set(TAKES_COINCIDE_DMG, tag.getBoolean("HasCoincideDmg"));
+        }
+        if (tag.contains("TickCount")) {
+            this.tickCount = tag.getInt("TickCount");
         }
     }
 

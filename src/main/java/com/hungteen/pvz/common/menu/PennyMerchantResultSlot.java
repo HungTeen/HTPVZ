@@ -55,7 +55,7 @@ public class PennyMerchantResultSlot extends Slot {
                 Container tmpContainer = new SimpleContainer(1);
                 int aMatch = player.getInventory().clearOrCountMatchingItems(i -> i.getItem() == offer.getCostA().getItem(), 0, tmpContainer) - offer.getCostA().getCount();
                 int bMatch = offer.getCostB().isEmpty() ? 1 : player.getInventory().clearOrCountMatchingItems(i -> i.getItem() == offer.getCostB().getItem(), 0, tmpContainer) - offer.getCostB().getCount();
-                if (aMatch > 0 && bMatch > 0) {
+                if (aMatch >= 0 && bMatch >= 0) {
                     return true;
                 }
             }

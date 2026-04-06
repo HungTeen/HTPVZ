@@ -218,6 +218,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
      */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand handIn) {
+        if (PVZPlayerCapability.getValue(player, PVZPlayerCapStats.CAN_PLANT) == 0) return super.use(level, player, handIn);
         //sun check
         if (level.isClientSide() && getResource(player.getItemInHand(handIn)).equals(PVZPlayerCapStats.SUN)) {
             PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, player.getItemInHand(handIn));
@@ -256,6 +257,8 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     public MutableComponent plantOnBlock(Player player, ItemStack itemStack, Level level, BlockPos pos, Direction direction) {
+        if (PVZPlayerCapability.getValue(player, PVZPlayerCapStats.CAN_PLANT) == 0)
+            return Component.translatable("hint.pvz.plant.player_cant_plant");
         if (itemStack.getItem() instanceof SeedPacketItem<?> item && !player.getCooldowns().isOnCooldown(this)) {
             //check entity.
             Entity entity = getEntity().create((ServerLevel) level, null,
@@ -351,6 +354,8 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     public MutableComponent plantOnEntity(Player player, ItemStack itemStack, Level level, Entity target) {
+        if (PVZPlayerCapability.getValue(player, PVZPlayerCapStats.CAN_PLANT) == 0)
+            return Component.translatable("hint.pvz.plant.player_cant_plant");
         if (! level.isClientSide && itemStack.getItem() instanceof SeedPacketItem<?> item && !player.getCooldowns().isOnCooldown(item)) {
             //check entity.
             Entity entity = item.getEntity().create((ServerLevel) level, null,

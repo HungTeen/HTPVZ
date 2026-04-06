@@ -56,6 +56,7 @@ public class PVZEntityCapPacket {
     public static void sync(UUID uuid, PVZEntityCapability cap) {
         if (cap.isDirty) {
             PVZPacketHandler.sendToPlayers(new PVZEntityCapPacket(uuid, cap));
+            cap.isDirty = false;
         }
     }
 }

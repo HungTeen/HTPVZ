@@ -74,7 +74,8 @@ public class Util {
         if (player.level instanceof ServerLevel serverLevel) {
             return PVZConfig.PVZGameRules.getInt(serverLevel, PVZConfig.Common.advancedPlantExtraCostRange);
         } else {
-            return PVZPlayerCapability.advancedPlantsExtraCostRange;
+            PVZPlayerCapability cap = player.getCapability(PVZPlayerCapability.CAP).orElse(null);
+            return cap == null ? 30 : cap.advancedPlantsExtraCostRange;
         }
     }
 
@@ -114,7 +115,10 @@ public class Util {
 
     public static boolean isTeamBattleOn(Level level) {
         if (level.isClientSide) {
-            return PVZSavedData.isTeamBattleOn;
+            Player player = ClientProxy.getPlayer();
+            if (player == null) return false;
+            PVZPlayerCapability cap = player.getCapability(PVZPlayerCapability.CAP).orElse(null);
+            return cap == null ? false : cap.isTeamBattleOn;
         } else {
             Scoreboard scoreboard = level.getScoreboard();
             return PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.teamBattle);

@@ -124,6 +124,7 @@ public class EntityUtil {
     /**Check if entities are teammates. can call on server or client.
      * <br>I you want to check if an entity is attackable, use {@link EntityUtil#checkCanEntityBeAttack(Entity, Entity)}.*/
     public static boolean isTeammate(Entity A, Entity B) {
+        if (A != null && A == B) return true;
         if (A instanceof Projectile proj && proj.getOwner() != null) {
             return isTeammate(proj.getOwner(), B);
         }

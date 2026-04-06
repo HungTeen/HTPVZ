@@ -58,24 +58,24 @@ public class PVZDamageSource {
         return hitBossWithProportion(knockBack(new OwnedDamageSource("nut_collide", source), 2F), target);
     }
     public static DamageSource chomperHurt(LivingEntity source, Entity target) {
-        return hitBossWithProportion(teamFilter(setSharp(ownedDamageSource("eaten", source))), target);
+        return hitBossWithProportion(teamFilter(setSharp(owned("eaten", source))), target);
     }
     public static DamageSource spikeWeedHurt(LivingEntity source, Entity target) {
-        return hitBossWithProportion(transferKiller(setSharp(ownedDamageSource("spike_weed", null)), source), target);
+        return hitBossWithProportion(setSharp(anoOwned("spike_weed", source)), target);
     }
     public static DamageSource gargantuarCrash(LivingEntity source) {
         return setNotEating(new EntityDamageSource("crush", source));
     }
     public static DamageSource tangleKelpHurt(LivingEntity source, Entity target) {
-        return hitBossWithProportion(transferKiller(ownedDamageSource("tangle_kelp", null), source), target);
+        return hitBossWithProportion(anoOwned("tangle_kelp", source), target);
     }
 
-    public static DamageSource ownedDamageSource(String name, LivingEntity source) {
+    public static DamageSource owned(String name, LivingEntity source) {
         return new OwnedDamageSource(name, source);
     }
 
-    public static DamageSource owned(LivingEntity source) {
-        return ownedDamageSource("", source);
+    public static DamageSource anoOwned(String name, LivingEntity source) {
+        return new AnonymousOwnedDamageSource(name, source);
     }
 
     //damageSource decorators
@@ -394,6 +394,27 @@ public class PVZDamageSource {
                 Entity owner = PVZEntityCapability.getOwner(livingentity);
                 return EntityUtil.isEntityValid(owner) ?
                         Component.translatable(s, killed.getDisplayName(), livingentity.getDisplayName(), owner.getDisplayName()) : super.getLocalizedDeathMessage(killed);
+            } else {
+                return super.getLocalizedDeathMessage(killed);
+            }
+        }
+    }
+
+    public static class AnonymousOwnedDamageSource extends DamageSource {
+        public Entity entity;
+
+        public AnonymousOwnedDamageSource(String p_19394_, Entity p_19395_) {
+            super(p_19394_);
+            this.entity = p_19395_;
+        }
+
+        @Override
+        public Component getLocalizedDeathMessage(LivingEntity killed) {
+            if (entity != null) {
+                String s = "death.attack" + (this.msgId.isEmpty() ? "" : "." + msgId) + ".owned";
+                Entity owner = PVZEntityCapability.getOwner(entity);
+                return EntityUtil.isEntityValid(owner) ?
+                        Component.translatable(s, killed.getDisplayName(), entity.getDisplayName(), owner.getDisplayName()) : super.getLocalizedDeathMessage(killed);
             } else {
                 return super.getLocalizedDeathMessage(killed);
             }

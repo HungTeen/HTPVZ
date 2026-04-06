@@ -16,7 +16,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.player.Player;
@@ -63,9 +62,9 @@ public class InvasionSpawnerBlockEntity extends BlockEntity {
                 if (player != null
                         && ! blockState.getValue(InvasionSpawnerBlock.TRIGGERED)
                         && ! Util.hasBlockBetween(level, player.getEyePosition(), Vec3.atBottomCenterOf(blockEntity.getBlockPos().above()))
-                        && (player.blockPosition().distSqr(pos) < 4 || level.getEntities((Entity) null
-                        , new AABB(pos.offset(-32, -8, -32), pos.offset(32, 8, 32))
-                        , e -> ! EntityUtil.isEntityEvil(e)).size() > 4)) {
+                        && (player.blockPosition().distSqr(pos) < 16 || level.getEntities(player
+                        , new AABB(pos.offset(-24, -12, -24), pos.offset(24, 12, 24))
+                        , e -> ! (e instanceof Player) && ! EntityUtil.isEntityEvil(e)).size() < 4)) {
                     List<InvasionType> types = blockEntity.invasionTypes.isEmpty() ? InvasionType.generateTypes(player) : blockEntity.invasionTypes;
                     if (! types.isEmpty()) {
                         LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(level);

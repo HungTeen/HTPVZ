@@ -46,7 +46,7 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     public String hypnosisTempTeam;
     public boolean containsInvasion = false;
     //client
-    public boolean isDirty = true;
+    public boolean isDirty = false;
     private int stuckArrowWithATarget = 0;
 
     public static final Capability<PVZEntityCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});

@@ -184,7 +184,7 @@ public interface InvasionCondition {
                 numAt = arguments.size() > 1 ? 1 : -1;
             }
             resource = numAt == 1 ? arguments.get(0) : PVZAPI.get().getSunResourceName();
-            cost = numAt >= 0 ? Integer.parseInt(arguments.get(numAt)) : 500;
+            cost = numAt >= 0 ? Integer.parseInt(arguments.get(numAt)) : 700;
             if (target instanceof Player player && player.isCreative()) {
                 return true;
             }

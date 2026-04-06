@@ -9,7 +9,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PennyOffersPacket extends ClientboundMerchantOffersPacket{
+public class PennyOffersPacket extends ClientboundMerchantOffersPacket {
 
     public PennyOffersPacket(int p_132456_, MerchantOffers p_132457_, int p_132458_, int p_132459_, boolean p_132460_, boolean p_132461_) {
         super(p_132456_, p_132457_, p_132458_, p_132459_, p_132460_, p_132461_);

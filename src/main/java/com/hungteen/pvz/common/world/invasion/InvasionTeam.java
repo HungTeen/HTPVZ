@@ -13,6 +13,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.NaturalSpawner;
@@ -138,6 +139,9 @@ public class InvasionTeam {
         String name = entity.getScoreboardName();
         if (enemyTeam != null) {
             entity.getServer().getScoreboard().addPlayerToTeam(name, enemyTeam);
+        }
+        if (entity instanceof Mob mob) {
+            mob.setTarget(target);
         }
         return entity;
     }

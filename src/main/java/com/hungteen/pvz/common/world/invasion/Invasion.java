@@ -102,6 +102,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     private int targetTeammateCost = 0;
     public float threatFactor = 1;
     private float timeFactor = 1;
+    private int mostEnemyKilledTime = -1;
 
     public Invasion(Level level, List<InvasionType> types, LivingEntity target, BlockPos pos, int invasionLevel) {
         this(level, UUID.randomUUID(), types, target, pos, invasionLevel);
@@ -304,6 +305,10 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                         }
                     }
                     this.storedTargetPos = this.target.position();
+                    if ((getLivingMembersThreat() > currentWaveThreat / 4 && members.size() > 1)
+                            || currentWaveThreat < waves.get(currentWave).threat || mostEnemyKilledTime == -1) {
+                        mostEnemyKilledTime = currentWaveTime;
+                    }
                 }
             }
         }
@@ -329,7 +334,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     /**Returns a relative value of the ability player and plants damage zombies.*/
     public int getPlayerAttack() {
         Wave wave = this.getCurrentWave();
-        return (int) (((double) (80 * Math.max(0, (currentWaveThreat - getLivingMembersThreat()))) / (1 + wave.threat)) / (currentWaveTime / Math.min(1 + (double) wave.maximumWaitTime / 2, 1 + wave.minimumWaitTime * 1.6)))
+        return (int) (((double) (80 * Math.max(0, (currentWaveThreat - getLivingMembersThreat()))) / (1 + wave.threat)) / ((mostEnemyKilledTime > 0 ? mostEnemyKilledTime : currentWaveTime) / Math.min(1 + (double) wave.maximumWaitTime / 2, 1 + wave.minimumWaitTime * 1.6)))
                 + 20 * totalTime * this.waves.size() / (1 + expectedTotalTime) / (1 + currentWave);
     }
     /**Returns a relative value of the ability player grow its army.*/
@@ -382,6 +387,15 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 + cdNum.get() * 5;
     }
 
+    public int getPlayerNum() {
+        if (target instanceof Player player) {
+            return level.getEntitiesOfClass(Player.class
+                    , player.getBoundingBox().inflate(12, 8, 12)
+                    , e -> EntityUtil.isTeammate(e, player)).size();
+        }
+        return 1;
+    }
+
     public String getInfo() {
         Wave wave = getCurrentWave();
         int fle = 0;
@@ -397,9 +411,9 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 "\n TIME wave " + this.currentWaveTime / 20 + " exp. " + this.getCurrentWave().minimumWaitTime / 20 + "~" + this.getCurrentWave().maximumWaitTime / 20 + " total " + this.totalTime / 20 + " exp. " + expectedTotalTime / 20 +
                 "\n THREAT curr " + this.currentWaveThreat + "(" + this.currentWaveSummoned+ ") alive " + this.getLivingMembersThreat() + "("+ this.members.size() + ") total "+ this.getCurrentWave().threat;
         return (result + (
-                directorEnabled() ? "\n DIR_SYS: " + "TME " + (int) (timeFactor * 100) + " TRT " + (int) (threatFactor * 100) +
+                directorEnabled() ? "\n DIR_SYS: " + "TME " + (int) (timeFactor * 100) + "(" + mostEnemyKilledTime / 20 + ") TRT " + (int) (threatFactor * 100) +
                 "\n  ATK " + getPlayerAttack() + " - "
-                        + (int) (((double) (100 * Math.max(0, (currentWaveThreat - getLivingMembersThreat()))) / (1 + wave.threat)) / (currentWaveTime / Math.min(1 + (double) wave.maximumWaitTime / 2, 1 + wave.minimumWaitTime * 1.6))) + " "
+                        + (int) (((double) (100 * Math.max(0, (currentWaveThreat - getLivingMembersThreat()))) / (1 + wave.threat)) / ((mostEnemyKilledTime > 0 ? mostEnemyKilledTime : currentWaveTime) / Math.min(1 + (double) wave.maximumWaitTime / 2, 1 + wave.minimumWaitTime * 1.6))) + " "
                         + 100 * totalTime * this.waves.size() / (1 + expectedTotalTime) / (1 + currentWave) +
                 "\n  ALV " + getPlayerAlive() + " - "
                         + (int) (1.5 * currentWave * targetTeammateCount / waves.size()) + " "
@@ -478,16 +492,16 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             }
             PVZPlayerCapability.getPlayerData(player)
                     .ifPresent(cap -> {
-                        cap.setValue(PVZPlayerCapStats.INVASION_DIFFICULTY, (success ?
-                                (int)(((float) this.totalTime / this.expectedTotalTime + threatFactor * 2 + 7) / 10) * cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY) :
-                                (cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY) - 10)));
+                        cap.addValue(PVZPlayerCapStats.INVASION_DIFFICULTY, success ?
+                                (int) Math.max(1, (((float) this.expectedTotalTime / (this.totalTime + 1) - 1) * 3 + (threatFactor - 1) * 3)) : - 10);
                         cap.setValue(PVZPlayerCapStats.LAST_INVASION, 0);
                     });
         }
+        Component component = Component.translatable(endType, uuid.toString());
         if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
-            PVZMod.LOGGER.info("Invasion ended with end component " + this.invasionEvent.getName() + ".");
+            PVZMod.LOGGER.info("Invasion ended with end component {}.", component.getString());
         }
-        this.invasionEvent.setName(Component.translatable(endType, uuid.toString()));
+        this.invasionEvent.setName(component);
         this.endCountDown = 200;
     }
 
@@ -506,19 +520,20 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 }
             }
             //director.
+            Wave nextWave = this.waves.get(this.currentWave + 1);
+            nextWave.threat *= (int) Math.sqrt(Math.max(1, getPlayerNum()));
             if (directorEnabled()) {
-                float factor = Math.min(1, (float) currentWave / this.waves.size() * 2) / 2;
+                float progress = (float) currentWave / this.waves.size();
                 float attack = (float) getPlayerAttack() / 100;
                 float alive = (float) getPlayerAlive() / 100;
-                Wave nextWave = this.waves.get(this.currentWave + 1);
                 int minimumWaitTime = nextWave.minimumWaitTime;
                 int threat = nextWave.threat;
-                nextWave.minimumWaitTime += (int) (factor * ((float) nextWave.minimumWaitTime / attack * timeFactor - nextWave.minimumWaitTime));
-                nextWave.maximumWaitTime += (int) (factor * ((float) nextWave.maximumWaitTime / attack * timeFactor - nextWave.maximumWaitTime));
-                nextWave.threat += (int) (factor * (nextWave.threat * alive * threatFactor - nextWave.threat));
+                nextWave.minimumWaitTime += (int) (Math.min(0.5, progress) * ((float) nextWave.minimumWaitTime / attack * timeFactor - nextWave.minimumWaitTime));
+                nextWave.maximumWaitTime += (int) (Math.min(0.5, progress) * ((float) nextWave.maximumWaitTime / attack * timeFactor - nextWave.maximumWaitTime));
+                nextWave.threat += (int) (Math.min(0.5, progress) * (nextWave.threat * (alive * attack * threatFactor - 1)));
                 threatFactor = (float) nextWave.threat / threat;
                 timeFactor = (float) nextWave.minimumWaitTime / minimumWaitTime;
-                if (getPlayerFleeWill() > 1000 && factor > 0.2) {
+                if (getPlayerFleeWill() > 1000 && progress > 0.2) {
                     nextWave.threat = nextWave.threat * 100 / getPlayerFleeWill();
                 }
                 this.storedTargetTeammateCount = targetTeammateCount;
@@ -778,6 +793,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     public void readAdditionalSaveData(CompoundTag tag) {
         if (! this.level.isClientSide) {
             if (tag.contains("invasion_types")) {
+                if (this.types == null) types = new ArrayList<>();
                 this.types.clear();
                 ListTag types = ((ListTag) tag.get("invasion_types"));
                 types.forEach(typeName ->  {

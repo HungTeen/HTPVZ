@@ -124,8 +124,7 @@ public class CoolDownCommand {
         coolDowns.addCooldown(item, count);
         if (total > count) {
             coolDowns.cooldowns.computeIfPresent(item, (item1, instance) -> new ItemCooldowns.CooldownInstance(instance.startTime + count - total, instance.endTime));
-            PlayerContinueCoolDownPacket.sync(player, item,
-                    count - total, count);
+            PlayerContinueCoolDownPacket.sync(player);
         }
         return tmp ? 1 : 0;
     }
