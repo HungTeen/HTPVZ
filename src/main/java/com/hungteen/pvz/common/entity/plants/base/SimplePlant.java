@@ -156,10 +156,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
-            //2. when clicked on sides of blocks, plant on relative plants.
+            //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        boolean isSide = direction.getAxis() != Direction.Axis.Z;
         direction = getGrowDirection();
+        pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
         //now pos is the rooted block position.
         //collision check.
@@ -187,8 +188,8 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             if (isPlanting) {
                 this.moveTo(
                         pos.getX() + 0.5 + offset.getX(),
-                        pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
-                                (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
+                        pos.getY() + (isSide ? 1 : direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
+                                (level.getFluidState(pos).isEmpty() ? 0 : level.getFluidState(pos).getHeight(level, pos)) :
                                 state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
                         pos.getZ() + 0.5 + offset.getZ());
             }
@@ -297,21 +298,22 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                 }
             }
         }
-        //TODO relative codes. add particle when plant is dying.
     }
-    /**For IPlants not extending SimplePlant, manually use this in {@link Entity#baseTick() baseTick()}.*/
-    public static void testDisappear(Mob mob) {
+    /**For IPlants not extending SimplePlant, manually add this in {@link Entity#baseTick() baseTick()}.*/
+    public static <T extends Mob & IPlant> void testDisappear(T plant) {
         //disappear
-        int plantDisappearDatum = PVZConfig.PVZGameRules.getInt(mob.level, PVZConfig.Common.plantDisappearDatum);
-        if (mob instanceof IPlant plant && mob.isEffectiveAi() && ! mob.level.isClientSide
+        if (plant.level.getBlockState(plant.getRootBlockPos()).is(PVZBlockTags.PLANT_PERMANENT_ON)) return;
+        int plantDisappearDatum = PVZConfig.PVZGameRules.getInt(plant.level, PVZConfig.Common.plantDisappearDatum);
+        if (plant.isEffectiveAi() && ! plant.level.isClientSide
                 && plant.getDisappearTicks() > 0 && plantDisappearDatum > 0) {
-            if (mob.tickCount > plant.getDisappearTicks() && mob.tickCount % 300 == 0) {
+            if (plant.tickCount > plant.getDisappearTicks() && plant.tickCount % 300 == 0) {
                 int disappearable = PVZMod.serverAverageTickTime * 100 / plantDisappearDatum;
-                int plantCount = mob.level.getEntities(mob, mob.getBoundingBox().inflate(disappearable), entity -> EntityUtil.isTeammate(mob, entity)).size();
-                int playerCount = mob.level.getEntitiesOfClass(Player.class, mob.getBoundingBox().inflate((double) disappearable / 2)).size();
-                int enemyCount = mob.level.getEntities(mob, mob.getBoundingBox().inflate(Math.max(16, (double) 2500 / disappearable)), entity -> EntityUtil.checkCanEntityBeAttack(mob, entity)).size();
-                if (enemyCount < 10 && playerCount == 0 && plantCount > 20 * plant.getDisappearTicks() / mob.tickCount - 1) {
-                    mob.discard();
+                int plantCount = plant.level.getEntities(plant, plant.getBoundingBox().inflate(disappearable), entity -> EntityUtil.isTeammate(plant, entity)).size();
+                int playerCount = plant.level.getEntitiesOfClass(Player.class, plant.getBoundingBox().inflate((double) disappearable / 2)).size();
+                int enemyCount = plant.level.getEntities(plant, plant.getBoundingBox().inflate(Math.max(16, (double) 2500 / disappearable)), entity -> EntityUtil.checkCanEntityBeAttack(plant, entity)).size();
+                if (enemyCount < 10 && playerCount == 0 && plantCount > 20 * plant.getDisappearTicks() / plant.tickCount - 1) {
+                    plant.discard();
+                    //TODO add some particle.
                 }
             }
         }

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "0": {
+      "item": "minecraft:dispenser"
+    },
+    "1": {
+      "item": "pvz:alaya_resin"
+    },
+    "2": {
+      "item": "pvz:ventus_essence"
+    },
+    "3": {
+      "item": "pvz:pea_shooter_seed_packet"
+    }
+  },
+  "pattern": [
+    "221",
+    "203"
+  ],
+  "result": {
+    "item": "pvz:pea_gun"
+  }
+}

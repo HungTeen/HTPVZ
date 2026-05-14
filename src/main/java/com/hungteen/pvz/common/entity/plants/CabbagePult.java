@@ -33,7 +33,7 @@ public class CabbagePult extends ShooterPlant {
 
     @Override
     public void shootBullet() {
-        this.performShoot(SHOOT_OFFSET, 0, 0, true, 0);
+        this.performShoot(SHOOT_OFFSET, 0, this.getBbHeight(), true, 0);
     }
     @Override
     public double getMaxShootAngleTangent() {

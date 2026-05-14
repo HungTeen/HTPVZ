@@ -1,13 +1,17 @@
 package com.hungteen.pvz.common.entity.zombies;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.ICanGroupUp;
 import com.hungteen.pvz.api.interfaces.IHangable;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.ai.goal.BlockWithShieldGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
 import com.hungteen.pvz.common.register.PVZBannerPatterns;
+import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -51,6 +55,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**Basic class for pvz zombies. Pose.LONG_JUMPING is regarded tied and hanged under something here.*/
@@ -93,7 +98,7 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
 
     //methods
     public boolean shouldDropHand() {
-        return this.getHealth() < this.getAttributeBaseValue(Attributes.MAX_HEALTH) / 2;
+        return this.getHealth() < this.getAttributeBaseValue(Attributes.MAX_HEALTH) / 2 && this.getOffhandItem().isEmpty();
     }
 
     public boolean shouldDropHead() {
@@ -108,6 +113,13 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
         } else if (data instanceof Zombie.ZombieGroupData zombie$zombiegroupdata) {
             zombie$zombiegroupdata.canSpawnJockey = false;
             zombie$zombiegroupdata.isBaby = false;
+        }
+        if (getType() == PVZEntities.ZOMBIE.get() && spawnType == MobSpawnType.NATURAL) {
+            if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+                this.setItemSlot(EquipmentSlot.HEAD, random.nextInt(5) == 0
+                        ? PVZItems.BUCKET_HELMET.get().getDefaultInstance()
+                        : PVZItems.CONE_HELMET.get().getDefaultInstance());
+            }
         }
         return super.finalizeSpawn(level, difficulty, spawnType, data, tag);
     }
@@ -143,6 +155,11 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
     }
 
     @Override
+    protected void handleAttributes(float p_34340_) {
+        this.randomizeReinforcementsChance();
+    }
+
+    @Override
     protected boolean isSunSensitive() {
         return false;
     }
@@ -156,7 +173,13 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
     }
     @Override
     public int getExperienceReward() {
-        return 0;
+        AtomicInteger result = new AtomicInteger(super.getExperienceReward());
+        getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+            if (cap.resource.equals(Invasion.INVASION_THREAT)) {
+                result.set(cap.cost * PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.invasionExperienceFactor) / 1000);
+            }
+        });
+        return result.get();
     }
 
     @Override

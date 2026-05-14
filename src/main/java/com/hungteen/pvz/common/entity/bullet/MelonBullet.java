@@ -94,6 +94,10 @@ public class MelonBullet extends BaseBullet {
     public float getAttackDamage() {
         return (float) (this.attackDamage * (this.getMelonSkill() == MelonSkill.GRAVITY ? this.getDeltaMovement().distanceToSqr(Vec3.ZERO) : 1));
     }
+    public float getKnockBackStrength() {
+        return (float) (knockBackStrengh * (this.getMelonSkill() == MelonSkill.GRAVITY ? this.getDeltaMovement().distanceToSqr(Vec3.ZERO) : 1));
+    }
+
     public List<MobEffectInstance> getMobEffects() {
         List<MobEffectInstance> list = new java.util.ArrayList<>(List.of(new MobEffectInstance(MobEffects.HEAL, 2)));
         if (this.getMelonType() == MelonType.Ice) {
@@ -119,7 +123,8 @@ public class MelonBullet extends BaseBullet {
     }
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
-        for (int i = 0; i < 50; i ++) {
+        double skillMultiplier = this.getMelonSkill() == MelonSkill.GRAVITY ? this.getDeltaMovement().distanceToSqr(Vec3.ZERO) : 1;
+        for (int i = 0; i < (int) (50 * skillMultiplier); i ++) {
             level.addParticle(new ItemParticleOption(ParticleTypes.ITEM,
                             new ItemStack(this.getMelonSkill() == MelonSkill.POTION ? Items.GLISTERING_MELON_SLICE : Items.MELON_SLICE)),
                     getX() + random.nextFloat() * 0.5 - 0.25,

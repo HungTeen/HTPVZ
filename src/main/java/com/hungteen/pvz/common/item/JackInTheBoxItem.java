@@ -40,7 +40,7 @@ public class JackInTheBoxItem extends Item {
         if (tag.contains("strength")) {
             strength = tag.getInt("strength");
         } else {
-            strength = 3;
+            strength = 2;
         }
         if (EntityUtil.isEntityValid(user) && ! level.isClientSide) {
             Explosion.BlockInteraction explosion$blockinteraction = destructive &&

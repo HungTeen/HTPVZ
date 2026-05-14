@@ -1,5 +1,5 @@
 {
-  "parent": "pvz:harvest_sprout",
+  "parent": "pvz:zen_garden",
   "display": {
     "title": {
       "translate": "advancements.pvz.harvest_marigold.title"
@@ -12,15 +12,105 @@
       }
     },
   "criteria": {
-    "harvest_marigold": {
+    "harvest_marigold_white": {
       "conditions": {
       },
-      "trigger": "pvz:harvest_marigold"
+      "trigger": "pvz:harvest_marigold_white"
+    },
+    "harvest_marigold_orange": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_orange"
+    },
+    "harvest_marigold_magenta": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_magenta"
+    },
+    "harvest_marigold_light_blue": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_light_blue"
+    },
+    "harvest_marigold_yellow": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_yellow"
+    },
+    "harvest_marigold_lime": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_lime"
+    },
+    "harvest_marigold_pink": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_pink"
+    },
+    "harvest_marigold_gray": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_gray"
+    },
+    "harvest_marigold_light_gray": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_light_gray"
+    },
+    "harvest_marigold_cyan": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_cyan"
+    },
+    "harvest_marigold_purple": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_purple"
+    },
+    "harvest_marigold_blue": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_blue"
+    },
+    "harvest_marigold_brown": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_brown"
+    },
+    "harvest_marigold_green": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_green"
+    },
+    "harvest_marigold_red": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_red"
+    },
+    "harvest_marigold_black": {
+      "conditions": {
+      },
+      "trigger": "pvz:harvest_marigold_black"
     }
   },
   "requirements": [
     [
-      "harvest_marigold"
+      "harvest_marigold_white",
+      "harvest_marigold_orange",
+      "harvest_marigold_magenta",
+      "harvest_marigold_light_blue",
+      "harvest_marigold_yellow",
+      "harvest_marigold_lime",
+      "harvest_marigold_pink",
+      "harvest_marigold_gray",
+      "harvest_marigold_light_gray",
+      "harvest_marigold_cyan",
+      "harvest_marigold_purple",
+      "harvest_marigold_blue",
+      "harvest_marigold_brown",
+      "harvest_marigold_green",
+      "harvest_marigold_red",
+      "harvest_marigold_black"
     ]
   ]
 }

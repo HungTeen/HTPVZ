@@ -50,7 +50,6 @@ import java.util.Optional;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
-import static net.minecraft.world.level.biome.Biomes.LUSH_CAVES;
 
 public class GrassCarp extends AbstractFish implements IForgeShearable {
 
@@ -82,7 +81,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     }
 
     public static boolean checkGrassCarpSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
-        return level.getBiome(pos).is(LUSH_CAVES) && level.getBlockState(pos.below()).is(Blocks.CLAY) && level.getBlockState(pos.above()).is(Blocks.AIR);
+        return level.getBlockState(pos.below()).is(Blocks.CLAY) && level.getBlockState(pos.above()).is(Blocks.AIR);
     }
 
     @Override

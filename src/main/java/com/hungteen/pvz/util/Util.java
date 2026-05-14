@@ -160,7 +160,7 @@ public class Util {
         return result.getType() != HitResult.Type.MISS;
     }
     public static int getInvasionLevel(Player player) {
-        return Math.min(11, Math.max(1, (int) Math.floor((float) PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY) / 10)));
+        return 1 + Math.min(10, Math.max(0, (int) Math.floor((float) PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY) / 10)));
     }
     /**Available in server only.*/
     public static int getDarknessSunThreshold(Player player) {

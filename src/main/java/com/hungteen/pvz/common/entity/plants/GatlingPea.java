@@ -19,6 +19,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -95,7 +96,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
     @Override
     public void shootBullet() {
-        this.performShoot(SHOOT_OFFSET, 0, 0, true,
+        this.performShoot(SHOOT_OFFSET, 0, this.getBbHeight() * 0.55F, true,
                 this.getOverheat() > MAX_OVERHEAT * 0.67 ? (this.getOverheat() - MAX_OVERHEAT * 0.67) / 25 : 0);
         this.setOverheat(this.getOverheat() + 12 * (this.getFirstPassenger() instanceof Player player && player.isCreative() ? 0 : 1));
         if (getOverheat() > MAX_OVERHEAT && ! this.entityData.get(FUSING)) {
@@ -237,8 +238,19 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
             if (hasSkill(RAPID_DEPLOYMENT_SKILL_NAME)) {
                 return super.customVehicleSafe(event, target, true);
             }
-            if (target.getType() == PVZEntities.REPEATER.get()) {
+            if (target.getType() == PVZEntities.REPEATER.get() && target instanceof Repeater repeater) {
+                boolean targetRoot = target.getEntityData().get(repeater.root());
+                boolean thisRoot = this.getEntityData().get(this.root());
+                if (targetRoot != thisRoot) {
+                    target.getEntityData().set(repeater.root(), thisRoot);
+                    MutableComponent component = repeater.customPositionSafe(event, repeater.level, repeater.blockPosition(), repeater.getGrowDirection(), true);
+                    target.getEntityData().set(repeater.root(), targetRoot);
+                    if (component.getContents() instanceof TranslatableContents translatable && translatable.getKey().equals("hint.pvz.plant.cant_plant_on")) {
+                        return Component.translatable("hint.pvz.plant.cant_plant_on", this.getName(), translatable.getArgs()[1]);
+                    }
+                }
                 GatlingPea gatlingPea = ((Mob) target).convertTo(PVZEntities.GATLING_PEA.get(), true);
+                gatlingPea.getEntityData().set(gatlingPea.root(), thisRoot);
                 if (gatlingPea != null) {
                     gatlingPea.setSkillVal(this.getSkillVal());
                     if (event != null) {

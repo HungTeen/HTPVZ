@@ -42,20 +42,28 @@ public class PVZDamageSource {
 
     /**For compatibility pvz damages are not changing any vanilla damage types but added decorations to them to meet PvZ's need.
      * <br>However, thus the damage sources decorated by PvZ damageSource decorators are unable to safely reuse
-     * due because they may be still stored in PVZDamageSource and may be affected by PvZ damage-related events.
+     * because they may be still stored in PVZDamageSource and may be affected by PvZ damage-related events.
      * Before reusing them, call {@link PVZDamageSource#clear()}.
      * */
     public static final DamageSource PLANT_WILT = (new DamageSource("plant_wilt")).bypassArmor();
     public static final DamageSource FALLEN_STAR = new DamageSource("fallen_star");
     public static final DamageSource SILVER_SWORD = new DamageSource("silver_sword");
 
-
+    public static ShieldBlockEvent onShieldBlock(LivingEntity blocker, DamageSource source, float blocked, boolean isShieldItemBlocking) {
+        isVanillaShieldBlocking = isShieldItemBlocking;
+        ShieldBlockEvent result = ForgeHooks.onShieldBlock(blocker, source, blocked);
+        isVanillaShieldBlocking = true;
+        return result;
+    }
     //damageSource types
     public static DamageSource projectileDamageSource(String name, Entity projectile, Entity owner) {
         return new OwnedIndirectDamageSource(name, projectile, owner instanceof LivingEntity ? owner : projectile).setProjectile();
     }
     public static DamageSource wallNutCollide(LivingEntity source, Entity target) {
         return hitBossWithProportion(knockBack(new OwnedDamageSource("nut_collide", source), 2F), target);
+    }
+    public static DamageSource tallNutThornsDamage(LivingEntity source, Entity target) {
+        return hitBossWithProportion(DamageSource.thorns(source), target);
     }
     public static DamageSource chomperHurt(LivingEntity source, Entity target) {
         return hitBossWithProportion(teamFilter(setSharp(owned("eaten", source))), target);
@@ -168,7 +176,7 @@ public class PVZDamageSource {
     public static boolean isElectric(DamageSource source) {
         return electricSource == source || staticElectricSources.contains(source);
     }
-    /**Set direct damage source not eating to avoid attacker hypnotised by Hypno-Shrooms unexpectedly.*/
+    /**Set direct damage source not eating to avoid attacker hypnotized by Hypno-Shrooms unexpectedly.*/
     public static DamageSource setNotEating(DamageSource source) {
         notEatingSource = source;
         return source;
@@ -209,6 +217,8 @@ public class PVZDamageSource {
 
     public static DamageSource transferEntitySource = null;
     public static Entity transferredEntity = null;
+
+    public static boolean isVanillaShieldBlocking = true;
 
 
 
@@ -294,6 +304,7 @@ public class PVZDamageSource {
             if (destWorld != null) {
                 ev.setCanceled(true);
                 player.setPortalCooldown();
+                player.resetFallDistance();
                 player.changeDimension(destWorld, new ZenGardenTeleporter(destWorld));
                 return;
             }
@@ -301,7 +312,7 @@ public class PVZDamageSource {
         //handle IArmorEntity and ExtraHealthArmorItem
         if (! ev.getSource().isBypassArmor() || ev.getSource() == DamageSource.FREEZE || isBypassShield(ev.getSource())) {
             if (entity.getVehicle() instanceof IArmorEntity vehicle && vehicle.canRecieveDamage(ev.getSource(), ev.getAmount(), entity)) {
-                ShieldBlockEvent blockEvent = ForgeHooks.onShieldBlock(entity, ev.getSource(), ev.getAmount());
+                ShieldBlockEvent blockEvent = PVZDamageSource.onShieldBlock(entity, ev.getSource(), ev.getAmount(), false);
                 if (! blockEvent.isCanceled()) {
                     var blocked = blockEvent.getBlockedDamage();
                     ((Entity) vehicle).hurt(ev.getSource(), ev.getAmount());

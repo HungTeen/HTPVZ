@@ -392,10 +392,11 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
-            //2. when clicked on sides of blocks, plant on relative plants.
+            //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        boolean isSide = direction.getAxis() != Direction.Axis.Z;
         direction = getGrowDirection();
+        pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
         //now pos is the rooted block position.
         //collision check.
@@ -423,7 +424,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
             if (isPlanting) {
                 this.moveTo(
                         pos.getX() + 0.5 + offset.getX(),
-                        pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
+                        pos.getY() + (isSide ? 1 : direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
                                 (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
                                 state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
                         pos.getZ() + 0.5 + offset.getZ());

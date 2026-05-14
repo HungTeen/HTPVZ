@@ -34,6 +34,7 @@ public class PlayerKnockBackPacket {
                 player.setDeltaMovement((relative ? player.getDeltaMovement() : Vec3.ZERO).add(knockBack));
             }
         });
+        ctx.get().setPacketHandled(true);
     }
 
     //methods

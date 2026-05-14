@@ -84,13 +84,9 @@ public class PennyMenu extends AbstractContainerMenu {
             ItemStack result = itemStack.copy();
             if (slot.hasItem()) {
                 if (index >= 39) {
-                    if (!this.moveItemStackTo(itemStack, 3, 39, true)) {
-                        return ItemStack.EMPTY;
-                    }
-                    slot.onQuickCraft(itemStack, result);
-                    this.playTradeSound();
+                    return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(itemStack, 3, 39, false)) {
+            } else if (! this.moveItemStackTo(itemStack, 3, 39, false)) {
                 return ItemStack.EMPTY;
             }
 

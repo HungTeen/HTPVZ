@@ -10,6 +10,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 
@@ -35,6 +36,11 @@ public class SpikeWeedRenderer<T extends SpikeWeed> extends MobRenderer<T, Entit
     @Override
     public ResourceLocation getTextureLocation(T sunflower) {
         return STATE0;
+    }
+
+    @Override
+    protected int getBlockLightLevel(T spikeWeed, BlockPos pos) {
+        return Math.max(super.getBlockLightLevel(spikeWeed, pos), super.getBlockLightLevel(spikeWeed, pos.relative(spikeWeed.getGrowDirection())));
     }
 
 }

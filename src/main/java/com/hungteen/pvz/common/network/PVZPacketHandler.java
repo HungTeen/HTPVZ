@@ -34,6 +34,7 @@ public class PVZPacketHandler {
         CHANNEL.registerMessage(id ++, PVZEntityInteractPacket.class, PVZEntityInteractPacket::toBytes, PVZEntityInteractPacket::new, PVZEntityInteractPacket::handle);
         //BETWEEN SIDES
         CHANNEL.registerMessage(id ++, PVZFogPacket.class, PVZFogPacket::toBytes, PVZFogPacket::new, PVZFogPacket::handle);
+        CHANNEL.registerMessage(id ++, EnderSeedBundleContainerPacket.class, EnderSeedBundleContainerPacket::toBytes, EnderSeedBundleContainerPacket::new, EnderSeedBundleContainerPacket::handle);
     }
 
     public static <MSG> void sendToServer(MSG msg){

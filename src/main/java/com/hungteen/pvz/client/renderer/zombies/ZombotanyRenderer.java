@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.renderer.zombies;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.zombie.PVZZombieModel;
-import com.hungteen.pvz.common.entity.ModelPartEntity;
+import com.hungteen.pvz.client.particle.ModelPartParticle;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.entity.zombies.zombotany.IZombotany;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -59,8 +59,10 @@ public class ZombotanyRenderer<T extends PVZZombie & IZombotany, M extends PVZZo
                     PVZMod.LOGGER.error("Missing Head Texture for zombotany " + zombie);
                     location = new ResourceLocation("missingno");
                 }
-                new ModelPartEntity(zombie.level, model.head, location).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
+                float headScale = zombie.getPlantHeadScale() * (zombie.isBaby() ? 0.67F : 1F);
+                new ModelPartParticle(zombie, model.head, location
+                        , new Vec3(0, zombie.getBbHeight(), 0)
+                        ).scale(headScale);
             }
         }
         super.render(zombie, p_115456_, partialTicks, poseStack, bufferSource, p_115460_);

@@ -66,6 +66,11 @@ public class DandelionSeedBullet extends BaseBullet {
     }
     @Override
     protected void onHitEntity(EntityHitResult result) {
+        super.onHitEntity(result);
+        if (!this.level.isClientSide()) {
+            explode(result.getEntity().position());
+        }
+        explode(result.getEntity().position());
     }
 
     @Override

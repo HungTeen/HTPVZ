@@ -1,0 +1,49 @@
+{
+    "name": "Invasion",
+    "icon": "pvz:cone_helmet",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "The invasions of this mod are made trying to imitate the levels of PVZ, but there are some differences. Under default configuration, invasions happen in the Overworld and the Nether, The details of invaions may differ accroding to the biome, the level and the structures you are in. When an invasion is about to happen on you, you'll get an invasion debuff which is able to be cleared by drinking milk."
+        },
+        {
+            "type": "text",
+            "text": "When an invasion start there will not immediately be monsters. You can plant some Sunflowers, Wall Nuts and Potato Mines as a preliminary, and then the shooters."
+        },
+        {
+            "type": "spotlight",
+            "title": "Golden Taco",
+            "item": "pvz:golden_taco",
+            "text": "When a big wave is about to come, there may be some Taco Imps. They are not being proactively attacked by most of the plants, and when they die they will drop a precious Golden Taco. these tacos can continually complete the cool downs of your plants and keep your sun at a level in several seconds. If you got a chance to use them, they may save you from great disadvantage. Golden Tacos can go bad in several seconds after an invasion end and turn themselves into common tacos. Common Tacos still provide you some buffs but much weaker."
+        },
+        {
+            "type": "spotlight",
+            "title": "Sun Flower",
+            "item": "pvz:sun_flower_seed_packet",
+            "text": "You may have noticed that you have 200 (or two sun icons) max sun. Sunflowers, in this mod, also increases your max sun a little. So you should keep your self near your sunflowers to keep the gain effects. The Sunflowers in the mod produces much faster than the original game, and has much longer cool down. Make sure to protect your Sunflowers will."
+        },
+        {
+            "type": "spotlight",
+            "title": "Wall Nut",
+            "item": "pvz:wall_nut_seed_packet",
+            "text": "As zombies in Minecraft has much faster speed than those of PVZ, Wall Nuts in this mod is more important than the original game. Wall Nuts attacts enemies in a small range to attack itself. It can be planted with a small interval, and circle a safe zone to protect your plants in invasions."
+        },
+        {
+            "type": "spotlight",
+            "title": "Potato Mine",
+            "item": "pvz:potato_mine_seed_packet",
+            "text": "Potato Mines can be used in many creative ways. You can use them to intercept one or two zombies before your Wall Nuts are ready, to reap a bunch of zombies surrounding your Wall Nuts, or to plant them in the middle of your shooters and explode the Pole Vaulting Zombies. Just take care of them for a few seconds before they are prepared."
+        },
+        {
+            "type": "text",
+            "text": "For more usage of plants in invasion, check the Almanac."
+        },
+        {
+            "type": "text",
+            "text": "You can check the progress of invasions through the bar shown at the top of the screen. When you succeed in an invasion, the zombies will drop a Loot Bag, which you can open by right mouse button. The first several invasions may not be that hard and can be done even without a plant, but it grows harder with your gaming continue, the awards are also getting more abundant."
+        }
+    ],
+    "advancement": "minecraft:adventure/root",
+    "sortnum": 6
+}

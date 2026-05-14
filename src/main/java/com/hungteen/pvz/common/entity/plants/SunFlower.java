@@ -42,7 +42,7 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
     @Override
     public int getGenCD() {
         SunState sunState = this.getSunState();
-        return sunState == SunState.FULL ? 400 : sunState == SunState.HALF ? 600 : 800;
+        return sunState == SunState.FULL ? 240 : sunState == SunState.HALF ? 360 : 480;
     }
     public int getSunAmount(){
         return 50;

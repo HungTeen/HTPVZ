@@ -4,11 +4,11 @@ loaderVersion="[43,)"
 license="GPL v3"
 [[mods]]
 modId="pvz"
-version="0.1-beta1-fix3"
+version="0.1-beta2"
 displayName="HungTeen's Plants vs. Zombies 2"
 logoFile="logo.png"
 credits=""
-authors="Pang_Teen, GrassCarp_草鱼, Susen36, 一只姥暀八, BF_Meow, 慕铁0607（日语翻译)，Geru13565651（俄语翻译）, MagnetShroomV63（俄语翻译）"
+authors="Pang_Teen, GrassCarp_草鱼, Susen36, TTTongxin, BF_Meow, 慕铁_0607（日语翻译)，Geru13565651（俄语翻译）, MagnetShroomV63（俄语翻译）, Renatskaytoff（俄语翻译）"
 description='''A mod that bring pvz to Minecraft!'''
 
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
@@ -28,6 +28,6 @@ description='''A mod that bring pvz to Minecraft!'''
     modId="minecraft"
     mandatory=true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
-    versionRange="[1.19.2,1.20)"
+    versionRange="[1.19.2,1.19.3)"
     ordering="NONE"
     side="BOTH"

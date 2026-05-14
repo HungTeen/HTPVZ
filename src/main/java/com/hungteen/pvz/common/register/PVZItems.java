@@ -63,7 +63,6 @@ public class PVZItems {
     public static final RegistryObject<Item> PEA = composter(0.3F).item("pea", () -> new BlockItem(PVZBlocks.PEA.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> SNOW_PEA = composter(0.3F).item("snow_pea");
     public static final RegistryObject<Item> FLAME_PEA = composter(0.3F).item("flame_pea");
-    public static final RegistryObject<Item> NUT = composter(0.3F).item("nut");
     public static final RegistryObject<Item> STARFRUIT = item("starfruit");
     public static final RegistryObject<Item> PEPPER = composter(0.3F).item("pepper", () -> new BlockItem(PVZBlocks.PEPPER.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC).rarity(Rarity.RARE).fireResistant()));
     public static final RegistryObject<Item> FALLEN_STAR = item("fallen_star");
@@ -91,11 +90,11 @@ public class PVZItems {
     public static final RegistryObject<Item> POP_SMARTS = item("pop_smarts", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(2).saturationMod(0.6F).build())));
     public static final RegistryObject<Item> CABBAGE = tag(PVZItemTags.CABBAGE).composter(0.85F).item("cabbage", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(3).saturationMod(0.4F).build())));
     public static final RegistryObject<Item> CORN = tag(PVZItemTags.CORN).composter(0.75F).item("corn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.4F).build())));
-    public static final RegistryObject<Item> POPCORN = item("popcorn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(1).saturationMod(0.2F).build())));
+    public static final RegistryObject<Item> POPCORN = item("popcorn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).fast().nutrition(1).saturationMod(0.2F).build())));
     public static final RegistryObject<Item> CHOCOLATE = item("chocolate", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.3F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 20), 0.4F).build())));
     public static final RegistryObject<Item> TACO = item("taco", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(6).saturationMod(1.2F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 100), 0.6F).effect(() -> new MobEffectInstance(MobEffects.SATURATION, 5), 1).build())));
-    public static final RegistryObject<Item> GOLDEN_TACO = item("golden_taco", () -> new DisappearableItem((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).durability(30).rarity(Rarity.RARE).food((new FoodProperties.Builder()).nutrition(6).saturationMod(1.2F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 150, 5), 1).effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 150, 1), 1).effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 200), 1).effect(() -> new MobEffectInstance(MobEffects.SATURATION, 10), 1).effect(() -> new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 600, 2), 1).alwaysEat().build()), () -> TACO.get()));
-
+    public static final RegistryObject<Item> GOLDEN_TACO = item("golden_taco", () -> new GoldenTacoItem((new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_FOOD).rarity(Rarity.RARE).food((new FoodProperties.Builder()).nutrition(6).saturationMod(1.2F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 150, 5), 1).effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 150, 1), 1).effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 200), 1).effect(() -> new MobEffectInstance(MobEffects.SATURATION, 5), 1).effect(() -> new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 300, 5), 1).alwaysEat().build()), () -> TACO.get()));
+    public static final RegistryObject<Item> NUT = composter(0.3F).item("nut", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(3).saturationMod(0.2F).build())));
 
     //spawners
     public static final RegistryObject<Item> SPROUT = item("sprout", () -> new SproutItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL), false));
@@ -129,12 +128,13 @@ public class PVZItems {
     public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> WATERING_POT = tag(PVZItemTags.SNAILS_CAN_PICK_UP, PVZItemTags.WATERING_POTS).model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_BLOCKS)));
     public static final RegistryObject<Item> ZEN_GARDEN_PORTAL = model(Model.Modeled).item("zen_garden_portal", () -> new BlockItem(PVZBlocks.ZEN_GARDEN_PORTAL.get(), new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_BLOCKS)));
-    public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL).fireResistant()));
     public static final RegistryObject<Item> ALMANAC = item("almanac", () -> new AlmanacItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> SHELL_STARTUP = item("shell_startup", () -> new DescriptionItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL), "tooltip.pvz.shell_startup"));
     public static final RegistryObject<Item> POP_SMARTS_ON_A_STICK = model(Model.FishingRod).item("pop_smarts_on_a_stick", () -> new PopSmartsOnAStickItem<>((new Item.Properties()).durability(8).tab(PVZItemTabs.PVZ_FUNCTIONAL), PVZEntities.PUMPKIN_ZOMBIE.get(), 7));
     public static final RegistryObject<Item> FOG_IN_BOTTLE = item("fog_in_bottle", () -> new FogInBottleItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> SNAIL_GACHAPON = item("snail_gachapon", () -> new SnailGachaponItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(16)));
+    public static final RegistryObject<Item> ENDER_SEED_BUNDLE = item("ender_seed_bundle", () -> new EnderSeedBundleItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1)));
 
     static {
         createBannerPatterns();
@@ -218,7 +218,9 @@ public class PVZItems {
     }
 
     public static void createBannerPatterns() {
-        PVZBannerPatterns.bannerMap.forEach((obj, tag) -> item(Util.name(obj) + "_banner_pattern", () -> new BannerPatternItem(tag, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC))));
+        PVZBannerPatterns.bannerMap.forEach((obj, tag) -> {
+            PVZBannerPatterns.itemMap.put(obj, item(Util.name(obj) + "_banner_pattern", () -> new BannerPatternItem(tag, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC))));
+        });
     }
 
     public static void createSeedPackets() {
@@ -229,7 +231,7 @@ public class PVZItems {
             }
             seedPacketMap.put(data,
                     tag(PVZItemTags.SEED_PACKETS).item(name + "_seed_packet", () -> new SeedPacketItem(
-                            new Item.Properties().stacksTo(1).defaultDurability(150).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
+                            new Item.Properties().stacksTo(1).rarity(data.advanced ? Rarity.EPIC : Rarity.COMMON).defaultDurability(data.advanced ? 300 : 115).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
                     )));
         };
 
@@ -240,7 +242,7 @@ public class PVZItems {
             }
             seedMap.put(data,
                     tag(PVZItemTags.SEEDS, PVZItemTags.SNAILS_CAN_PICK_UP).item(name + "_seed", () -> new SeedItem(
-                            new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
+                            new Item.Properties().stacksTo(16).rarity(data.advanced ? Rarity.UNCOMMON : Rarity.COMMON).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
                     )));
         };
     }

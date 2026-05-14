@@ -35,6 +35,7 @@ public interface IPlant extends INeedSafeSituation, IHaveSkills {
     EntityDataAccessor<Boolean> root();
 
     /**These two methods are direction and blockPos used for testing whether this situation is safe,
+     * return null for strict block position of the plant.
      * especially for wall-attaching plants like {@link com.hungteen.pvz.common.entity.plants.SpikeWeed SpikeWeed}.
      * @see com.hungteen.pvz.common.entity.plants.base.SimplePlant#baseTick() SimplePlant#baseTick() */
     @Nullable

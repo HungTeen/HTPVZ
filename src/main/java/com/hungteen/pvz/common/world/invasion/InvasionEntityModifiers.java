@@ -10,12 +10,16 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
@@ -37,6 +41,8 @@ public class InvasionEntityModifiers {
     public static final ResourceLocation CHECK_SPAWN_RULES = Util.prefix("check_spawn_rules");
     public static final ResourceLocation WITH_FOG = Util.prefix("with_fog");
     public static final ResourceLocation WITH_TACO = Util.prefix("with_taco");
+    public static final ResourceLocation HOLD_RANDOM_JEWEL = Util.prefix("hold_random_jewel");
+    public static final ResourceLocation HOLD_RANDOM_MATERIAL = Util.prefix("hold_random_material");
 
     public static boolean babylize(@Nullable Invasion invasion, Entity entity, int threat) {
         if (entity instanceof Mob mob && ! mob.isBaby()) {
@@ -89,8 +95,44 @@ public class InvasionEntityModifiers {
             return true;
         }
         if (invasion.currentWave > invasion.waves.size() / 3 && invasion.getCurrentWave().isBigWave &&
-                threat > 100 && random.nextInt(invasion.getCurrentWave().threat) < threat) {
+                threat > 500 && random.nextInt(invasion.getCurrentWave().threat) < threat / 2) {
             invasion.summonEntity(TACO);
+        }
+        return true;
+    }
+    public static boolean holdRandomJewel(@Nullable Invasion invasion, Entity entity, int threat) {
+        if (invasion == null || ! EntityUtil.isEntityValid(invasion.target)) {
+            return true;
+        }
+        if (entity instanceof Zombie zombie && zombie.getRandom().nextInt(50) == 0) {
+            if (zombie.getOffhandItem().isEmpty()) {
+                zombie.setItemInHand(InteractionHand.OFF_HAND
+                        , (zombie.getRandom().nextBoolean() ? Items.DIAMOND : PVZItems.JEWEL.get()).getDefaultInstance());
+                zombie.setGuaranteedDrop(EquipmentSlot.OFFHAND);
+            }
+        }
+        return true;
+    }
+    public static boolean holdRandomMaterial(@Nullable Invasion invasion, Entity entity, int threat) {
+        if (invasion == null || ! EntityUtil.isEntityValid(invasion.target)) {
+            return true;
+        }
+        if (entity instanceof Zombie zombie && zombie.getRandom().nextInt(25) == 0) {
+            if (zombie.getOffhandItem().isEmpty()) {
+                int i = random.nextInt(10);
+                Item item = i == 0 ? Items.NETHERITE_SCRAP : i <= 2 ? Items.PRISMARINE_CRYSTALS : i == 3 ? Items.DIAMOND : i <= 7 ? Items.IRON_INGOT : Items.GOLD_INGOT;
+                zombie.setItemInHand(InteractionHand.OFF_HAND, item.getDefaultInstance());
+                zombie.setGuaranteedDrop(EquipmentSlot.OFFHAND);
+                if (zombie.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+                    zombie.setItemSlot(EquipmentSlot.HEAD, Items.CHAINMAIL_HELMET.getDefaultInstance());
+                }
+                if (zombie.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
+                    zombie.setItemSlot(EquipmentSlot.CHEST, Items.CHAINMAIL_CHESTPLATE.getDefaultInstance());
+                }
+                if (zombie.getItemBySlot(EquipmentSlot.FEET).isEmpty()) {
+                    zombie.setItemSlot(EquipmentSlot.FEET, Items.CHAINMAIL_BOOTS.getDefaultInstance());
+                }
+            }
         }
         return true;
     }

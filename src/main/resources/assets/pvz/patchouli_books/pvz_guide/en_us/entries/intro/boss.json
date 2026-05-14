@@ -1,0 +1,22 @@
+{
+    "name": "Boss",
+    "icon": "pvz:spatiotemporal_unit",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "spotlight",
+            "title": "Ghast Rider",
+            "item": "pvz:pepper",
+            "text": "At present, there is one boss in the Nether in this mod. Similar to invasion, boss battles are also increasingly difficult as the battle progresses and are difficult to defeat solely with weapons. If there are no weapons in your mod list that can, like, heaven-destroying and earth-annihilating, it's better to prepare some plants with you. It drops a cultivable pepper.  "
+        },
+        {
+            "type": "text",
+            "text": "A little tip: Umbrella Leaves can effectively intercept incoming Angers, but only one Umbrella Leaf cannot launch continuously and block all the projectiles and all the Angers. Iceberg lettuce interrupts the boss's skill spelling, but you need to first shoot down the boss from the ghastlings it rides on."
+        },
+        {
+            "type": "text",
+            "text": "Besides, there is another boss in the end. This boss has not been fully developed yet, but you can still kill it to obtain the next key item: Spatiotemporal Unit. It is not the ultimate boss of this mod, and obtaining Spatiotemporal Unit is not the end point of this mod. Please wait for the author's further development."
+        }
+    ],
+    "sortnum": 8
+}

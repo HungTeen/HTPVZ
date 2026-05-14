@@ -1,0 +1,27 @@
+{
+	"name": "gui.pvz.guide",
+	"landing_text": "gui.pvz.guide.info",
+	"version": 1,
+	"book_texture":"patchouli:textures/gui/book_blue.png",
+	"model":"pvz:guide",
+	"show_progress":false,
+	"creative_tab":"pvz_functional",
+	"use_resource_pack":true,
+	"pamphlet": true,
+	"macros": {
+	    "$(red)":"$(#ff0000)",
+	    "$(bred)":"$(l)$(#ff0000)",
+	    "$(green)":"$(#00ff00)",
+	    "$(bgreen)":"$(l)$(#00ff00)",
+	    "$(blue)":"$(#0000ff)",
+	    "$(bblue)":"$(l)$(#0000ff)",
+	    "$(yellow)":"$(#ffeb06)",
+	    "$(byellow)":"$(l)$(#ffeb06)",
+	    "$(purple)":"$(#ff00ff)",
+	    "$(bpurple)":"$(l)$(#ff00ff)",
+	    "$(aqua)":"$(#00ffff)",
+	    "$(baqua)":"$(l)$(#00ffff)",
+	    "$(orange)":"$(#ff851f)",
+	    "$(borange)":"$(l)$(#ff851f)"
+	}
+}

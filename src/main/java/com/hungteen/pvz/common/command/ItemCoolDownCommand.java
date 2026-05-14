@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class CoolDownCommand {
+public class ItemCoolDownCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(Commands.literal("item").then(Commands.literal("cooldown").requires((ctx) -> ctx.hasPermission(2))
                 .then(Commands.literal("tick")

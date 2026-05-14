@@ -1,0 +1,24 @@
+{
+    "name": "Plant",
+    "icon": "pvz:tangle_kelp_bucket",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "You may plant when you have a Seed Packet. But just like planting in your balcony or yard, plants also have some demands.In servival gamemode, plants needs sun to be planted, and they start cooling down after planting."
+        },
+        {
+            "type": "text",
+            "text": "Most plants needs to be planted on Grass Blocks or blocks like that instead of common dirt, and can't be planted overlapping on other plants' bounding box. If a plant gets into somewhere they can't survive, they'll continue losing health until die."
+        },
+        {
+            "type": "text",
+            "text": "When a plant has been living for too long, it may disapper naturally like plants planted in PVZ can't be keeped until the next level. However, you can plant on Garden Flower Pots to keep some plants."
+        },
+        {
+            "type": "text",
+            "text": "Some plants (may need skill) has more ways to use except for invasions. Iceburg Lettuce can be used to put off fire if you are lit, Umbrella Leaves may help you jump further, and Lily Pads can even be riden on like boats."
+        }
+    ],
+    "sortnum": 3
+}

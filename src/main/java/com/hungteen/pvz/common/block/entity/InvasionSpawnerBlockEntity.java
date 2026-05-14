@@ -5,6 +5,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.block.InvasionSpawnerBlock;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.register.PVZBlockEntities;
+import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.common.world.invasion.InvasionType;
 import com.hungteen.pvz.util.EntityUtil;
@@ -60,6 +61,7 @@ public class InvasionSpawnerBlockEntity extends BlockEntity {
                 Player player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16
                         , p -> ! EntityUtil.isEntityEvil(p) && ! blockEntity.triggerHistory.containsKey(p.getUUID()) && EntityUtil.isSurvivalPlayer(p));
                 if (player != null
+                        && ! level.getBiome(pos).is(PVZBiomeTags.UNABLE_INVASION)
                         && ! blockState.getValue(InvasionSpawnerBlock.TRIGGERED)
                         && ! Util.hasBlockBetween(level, player.getEyePosition(), Vec3.atBottomCenterOf(blockEntity.getBlockPos().above()))
                         && (player.blockPosition().distSqr(pos) < 16 || level.getEntities(player

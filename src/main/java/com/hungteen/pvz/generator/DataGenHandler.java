@@ -22,6 +22,7 @@ public class DataGenHandler {
         g.addProvider(i, new EntityTagGen(g, helper));
         g.addProvider(i, new BannerPatternTagGen(g, helper));
         g.addProvider(i, new BiomeTagGen(g, helper));
+        g.addProvider(i, new StructureTagGen(g, helper));
 
         g.addProvider(i, new InvasionTypeGen(g));
 

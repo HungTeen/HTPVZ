@@ -1,0 +1,33 @@
+{
+    "name": "Seed Packet",
+    "icon": "pvz:flower_seed_packet",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "Seed Packets are crafted on crafting tables. Different kinds of seed packets have different recipes, but the recipes have similar pattern. Here shows the two kinds of recipe of Pea Shooter Seed Packet. "
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:seed_packets/fusion/pea_shooter_seed_packet",
+            "recipe2": "pvz:seed_packets/pea_shooter_seed_packet"
+        },
+        {
+            "type": "text",
+            "text": "The first kind of recipe needs seeds and a seed packet template. Seeds are available by invasions or planting sprouts, I'll tell you more about this later. Only a part of plants can be obtained by the second kind of recipe. These recipes will need plant ingredients, seed packet templates and essences of certain elements."
+        },
+        {
+            "type": "text",
+            "text": "Seed packet templates stand for the dimension the plant is in. The recipes of them require Origin Essence (Chorus Fruit Seed Packet needs Alaya Resin), a kind of plant in that dimension and some mineral, following the pattern below:"
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:flower_seed_packet"
+        },
+        {
+            "type": "text",
+            "text": "Seeds are also plantable, but they are consumed after that. Seed Packets have more durability."
+        }
+    ],
+    "sortnum": 2
+}

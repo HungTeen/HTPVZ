@@ -105,7 +105,6 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
             ClientUtil.translateAgeable(poseStack, this);
         }
         this.head.render(poseStack, headConsumer, p_102036_, p_102037_, p_102038_, p_102039_, p_102040_, p_102041_);
-//        this.head.render(poseStack, this.multiBufferSource.getBuffer(RenderType.outline(this.textureLocation)), p_102036_, p_102037_, p_102038_, p_102039_, p_102040_, p_102041_);
         if (this.young) {
             poseStack.popPose();
         }

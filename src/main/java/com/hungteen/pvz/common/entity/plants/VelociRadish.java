@@ -80,7 +80,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         super(entityType, level);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.WATER, 4.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 8.0F);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -106,12 +106,12 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 (entity -> entity instanceof Mob mob && mob.getTarget() == this &&
                         (this.getAttribute(Attributes.ATTACK_DAMAGE).getModifier(ATTACK_MODIFIER_UUID) == null)),
                 6.0F, 1.0D, 1.0D));
+        this.goalSelector.addGoal(1, new GroupShareEnemyGoal(this));
+        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(2, new TurnipAttackGoal(this, 1, true));
         this.goalSelector.addGoal(3, new FollowGroupLeaderGoal(this));
         this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
-        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.goalSelector.addGoal(1, new GroupShareEnemyGoal(this));
         this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this));
     }
     @Override
@@ -213,10 +213,11 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
-            //2. when clicked on sides of blocks, plant on relative plants.
+            //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        boolean isSide = direction.getAxis() != Direction.Axis.Z;
         direction = getGrowDirection();
+        pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
         //collision check.
         AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
@@ -237,7 +238,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 //final plant.
                 this.moveTo(
                         pos.getX() + 0.5 + offset.getX(),
-                        pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
+                        pos.getY() + (isSide ? 1 : direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
                                 (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
                                 state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
                         pos.getZ() + 0.5 + offset.getZ());

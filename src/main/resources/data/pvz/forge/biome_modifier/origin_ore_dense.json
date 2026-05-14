@@ -1,6 +1,6 @@
 {
   "type": "forge:add_features",
-  "biomes": "#forge:is_dense_overworld",
+  "biomes": "#forge:is_dense/overworld",
   "features": "pvz:ore_origin",
   "step": "vegetal_decoration"
 }

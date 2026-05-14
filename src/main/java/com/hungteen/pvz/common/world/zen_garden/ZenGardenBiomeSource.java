@@ -29,6 +29,7 @@ import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.placement.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,7 +87,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
     }
 
     @Override
-    public Holder<Biome> getNoiseBiome(int ix, int iy, int iz, Climate.Sampler sampler) {
+    public @NotNull Holder<Biome> getNoiseBiome(int ix, int iy, int iz, Climate.Sampler sampler) {
         int x = QuartPos.toBlock(ix);
         int y = QuartPos.toBlock(iy);
         int z = QuartPos.toBlock(iz);

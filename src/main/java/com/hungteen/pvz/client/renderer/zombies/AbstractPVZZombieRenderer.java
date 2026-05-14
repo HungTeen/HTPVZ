@@ -2,7 +2,7 @@ package com.hungteen.pvz.client.renderer.zombies;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.client.model.zombie.PVZZombieModel;
-import com.hungteen.pvz.common.entity.ModelPartEntity;
+import com.hungteen.pvz.client.particle.ModelPartParticle;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -26,6 +26,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
+
 public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends PVZZombieModel<T>> extends HumanoidMobRenderer<T, M> {
     public AbstractPVZZombieRenderer(EntityRendererProvider.Context context, M p_174170_) {
         super(context, p_174170_, 0.5F);
@@ -47,23 +49,14 @@ public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends P
             this.model.setupAnim(zombie, 0, 0, partialTicks, zombie.getYRot(), zombie.getXRot());
             if (zombie.renderHand && zombie.shouldDropHand()) {
                 zombie.renderHand = false;
-                Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
-                        zombie.getRandom().nextFloat() * 0.15,
-                        zombie.getRandom().nextFloat() * 0.25 - 0.125);
-                new ModelPartEntity(zombie.level, model.leftArm, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight() * 0.75, 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
-                new ModelPartEntity(zombie.level, model.leftSleeve, getTextureLocation(zombie)).pos(zombie.position().add(0,  zombie.getBbHeight() * 0.75, 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
+                new ModelPartParticle(zombie
+                        , zombie.isLeftHanded() ? List.of(model.rightArm, model.rightSleeve) : List.of(model.leftArm, model.leftSleeve)
+                        , getTextureLocation(zombie), new Vec3(0, 0.75, 0)).offset(new Vec3(0, - 0.125, 0));
             }
             if (zombie.renderHead && zombie.shouldDropHead()) {
                 zombie.renderHead = false;
-                Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
-                        zombie.getRandom().nextFloat() * 0.15,
-                        zombie.getRandom().nextFloat() * 0.25 - 0.125);
-                new ModelPartEntity(zombie.level, model.head, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
-                new ModelPartEntity(zombie.level, model.hat, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.5, 0.5)).scale(zombie.isBaby() ? 0.67F : 1F).join(zombie.level);
+                new ModelPartParticle(zombie, List.of(model.head, model.hat), getTextureLocation(zombie), new Vec3(0, zombie.getBbHeight(), 0))
+                        .offset(new Vec3(0, 0.125, 0));
             }
         }
         super.render(zombie, p_115456_, partialTicks, poseStack, bufferSource, p_115460_);

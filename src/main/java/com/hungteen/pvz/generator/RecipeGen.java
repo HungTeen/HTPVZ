@@ -78,13 +78,15 @@ public class RecipeGen extends RecipeProvider {
                 if (data.noAutoRecipe) return;
                 final Item packet = data.recipe.get("packet") instanceof RegistryObject<?> ?
                         ((RegistryObject<Item>) data.recipe.get("packet")).get() :
-                        PVZItems.seedPacketMap.get((RegisterSeedPacketsEvent.SeedPacketData<?>)data.recipe.get("packet")).get();
+                        PVZItems.seedPacketMap.get((RegisterSeedPacketsEvent.SeedPacketData<?>) data.recipe.get("packet")).get();
                 if (data.recipe.get("seed") != null) {
                     Item seed;
                     try {
                         seed = data.recipe.get("seed") instanceof RegistryObject<?> obj ?
-                                ((RegistryObject<Item>) obj).get() :
-                                (Item)data.recipe.get("seed");
+                                ((RegistryObject<Item>) obj).get()
+                                : data.recipe.get("seed") instanceof RegisterSeedPacketsEvent.SeedPacketData data1 ?
+                                        PVZItems.seedPacketMap.get(data1).get()
+                                        : (Item) data.recipe.get("seed");
                     } catch (ClassCastException error) {
                         seed = ((RegistryObject<Block>) data.recipe.get("seed")).get().asItem();
                     }

@@ -3,19 +3,20 @@ package com.hungteen.pvz.common.capability.player;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
-import com.hungteen.pvz.common.entity.FallenStar;
+import com.hungteen.pvz.client.PVZKeyBindings;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.npcs.Penny;
+import com.hungteen.pvz.common.item.EnderSeedBundleItem;
 import com.hungteen.pvz.common.item.PumpkinHelmetItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.common.network.EnderSeedBundleContainerPacket;
 import com.hungteen.pvz.common.network.PlayerContinueCoolDownPacket;
 import com.hungteen.pvz.common.network.ServerInfoPacket;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZDimensions;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZMobEffects;
-import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
@@ -26,11 +27,14 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -43,10 +47,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -59,7 +68,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -70,8 +82,15 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     private final Player player;
     public static final Capability<PVZPlayerCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
     public static int syncCount = 0;
+
     /**Pair of garden teleporting positions. The first is overworld pos, the second is garden pos.*/
     private Pair<Vec3, Vec3> gardenPos = new Pair<>(null, null);
+
+    /**Container of {@link com.hungteen.pvz.common.item.EnderSeedBundleItem EnderSeedBundle}.*/
+    private Container enderSeedBundleContainer = new SimpleContainer(9);
+    public int clientBundleContainerDirty = -2;
+
+    /**gamerules*/
     public boolean isTeamBattleOn = false;
     public int advancedPlantsExtraCostRange = 30;
 
@@ -87,21 +106,19 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     private PVZPlayerCapStats createNBT(){
-        if(nbt == null){
+        if (nbt == null) {
             nbt = new PVZPlayerCapStats();
         }
         return nbt;
     }
-    public static void tick(TickEvent.@NotNull ServerTickEvent ev) {
+    public static void tick(@NotNull TickEvent.ServerTickEvent ev) {
         for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
             //timed sync
             if (++ syncCount % 10 == 0) {
-                ServerInfoPacket.sync(player, ((ServerLevel) player.level));
-                boolean syncAll = syncCount >= 100;
-                getPlayerData(player).ifPresent(data -> data.sync(syncCount == 100));
-                if (syncAll) {
-                    syncCount = 0;
-                }
+                ServerInfoPacket.sync(player, ((ServerLevel) player.level), syncCount == 20);
+                getPlayerData(player).ifPresent(data -> data.sync(syncCount == 40));
+                if (syncCount == 10 || syncCount == 60 && ! player.isCreative()) EnderSeedBundleContainerPacket.syncToClient(player, -1);
+                if (syncCount == 100) syncCount = 0;
             }
             //functional
             getPlayerData(player).ifPresent((nbt) -> {
@@ -131,7 +148,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         if (player.hasEffect(MobEffects.DARKNESS)) {
                             player.removeEffect(MobEffects.DARKNESS);
                         }
-                        if (nbt.sunCountDown >= 15 / (player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
+                        if (nbt.sunCountDown >= 45 / (player.getEffect(PVZMobEffects.BRIGHTNESS.get()).getAmplifier() + 1)) {
                             int limitSun = Util.getDarknessSunThreshold(player);
                             int curSun = nbt.getValue(PVZPlayerCapStats.SUN);
                             if (curSun < limitSun) {
@@ -236,31 +253,6 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         Sun.spawnSunWithEffects(player.level, overFlow, player.blockPosition(), 0.3F);
                     }
                     nbt.setValueLimit(PVZPlayerCapStats.SUN, 0, toMax);
-                    //natural sun spawn
-                    interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnSunInterval);
-                    if (interval > 0 && player.tickCount % interval == 0 && ! player.level.getBiome(player.getOnPos()).is(PVZBiomeTags.UNABLE_SUN_FALLING)) {
-                        int x = player.blockPosition().getX() + player.getRandom().nextInt(20) - 10;
-                        int z = player.blockPosition().getZ() + player.getRandom().nextInt(20) - 10;
-                        BlockPos pos = new BlockPos(x,
-                                Math.max(player.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z),
-                                        player.blockPosition().getY()) + 6, z);
-                        int light = player.level.getBrightness(LightLayer.SKY, pos) - player.level.getSkyDarken();
-                        if (light > 9) {
-                            Sun.spawnByAmount(player.level, light > 12 ? 50 : 25, pos, Vec3.ZERO);
-                        }
-                    }
-                    //natural fallen stars spawn
-                    interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnFallenStarInterval);
-                    if (interval > 0 && player.tickCount % interval == 0 && ! player.level.getBiome(player.getOnPos()).is(PVZBiomeTags.UNABLE_STAR_FALLING)) {
-                        int x = player.blockPosition().getX() + player.getRandom().nextInt(50) - 25;
-                        int z = player.blockPosition().getZ() + player.getRandom().nextInt(50) - 25;
-                        BlockPos pos = new BlockPos(x,
-                                Math.max(player.level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z),
-                                        player.blockPosition().getY()) + 30, z);
-                        if (player.level.isNight() && ! player.level.isRaining()) {
-                            FallenStar.spawnAt(player.level, pos);
-                        }
-                    }
                 }
                 //cool down effects.
                 if (nbt.getValue(PVZPlayerCapStats.PLANT_HAVE_CD) == 0) {
@@ -287,24 +279,19 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 if (player.tickCount % 100 == 0 && interval > 0) {
                     int lastInvasion = nbt.getValue(PVZPlayerCapStats.LAST_INVASION);
                     if (lastInvasion > interval && player.getRandom().nextInt(lastInvasion) > (float) (lastInvasion / 2 + interval / 2)) {
-                        nbt.setValue(PVZPlayerCapStats.LAST_INVASION, interval / 2);
-                        player.level.getEntitiesOfClass(Player.class
-                                , player.getBoundingBox().inflate(12, 8, 12)
-                                , e -> e != player && EntityUtil.isTeammate(e, player)).forEach(player1 -> PVZPlayerCapability.getPlayerData(player1)
-                                        .ifPresent(nbt1 -> nbt1.setValue(PVZPlayerCapStats.LAST_INVASION
-                                                , Math.min(nbt1.getValue(PVZPlayerCapStats.LAST_INVASION), interval / 2))));
-                        InvasionTeam.spawnFor(player);
+                        nbt.setValue(PVZPlayerCapStats.LAST_INVASION, InvasionTeam.spawnFor(player) ? interval / 2 : (int) (interval * 0.8));
                     }
                     nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 1);
                 }
                 //penny spawn
                 if (player.level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
-                    int gameTime = Math.toIntExact(player.level.getGameTime() % 50000);
-                    if (gameTime > 500 && gameTime < 24000) {
+                    interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnPennyInterval);
+                    int gameTime = Math.toIntExact(player.level.getGameTime() % interval);
+                    if (gameTime > 500 && gameTime < interval / 2) {
                         if (nbt.getValue(PVZPlayerCapStats.SUMMONED_PENNY) == 0 && spawnPenny(player)) {
                             nbt.setValue(PVZPlayerCapStats.SUMMONED_PENNY, 1);
                         }
-                    } else if (gameTime < 49000) {
+                    } else if (gameTime < interval) {
                         nbt.setValue(PVZPlayerCapStats.SUMMONED_PENNY, 0);
                     }
                 }
@@ -314,49 +301,65 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     pumpkinHelmet.changeToPumpkin(itemStack, player.level, player.position().add(0, player.getBbHeight() / 2, 0), player.getXRot(), player.getYRot(), player.getDeltaMovement());
                     player.containerMenu.setCarried(ItemStack.EMPTY);
                 }
+                //ender seed bundle ticking
+                player.getCapability(CAP).ifPresent(cap -> {
+                    int slot = EnderSeedBundleItem.getHotBarEnderSeedBundleSlot(player);
+                    for (int i = 0; i < 9; i ++) {
+                        cap.enderSeedBundleContainer.getItem(i).inventoryTick(player.getLevel(), player, 41 + i, slot >= 0);
+                    }
+                });
             });
         }
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static void clientTick(TickEvent.ClientTickEvent ev) {
         if (ClientProxy.MC.level == null) {
             return;
         }
-        ClientProxy.MC.level.getEntities().getAll().forEach(entity -> {
-            entity.getCapability(CAP).ifPresent((cap) -> {
-                //garden border
-                Player player = ClientProxy.getPlayer();
-                if (player != null) {
-                    if (player.level.dimension().location().equals(Util.prefix("zen_garden")) && player.hasEffect(PVZMobEffects.DISTANCE_EFFECT.get())) {
-                        Vec3 cenVec = player.position();
-                        if (playerPos != null && cenVec.distanceToSqr(playerPos) < 4) {
-                            cenVec = cenVec.subtract(Vec3.atCenterOf(
-                                    ZenGardenChunkGenerator.getMainIslandPos(cenVec.x / 16, cenVec.z / 16)));
-                            Vec3 posVec = player.position().subtract(playerPos).multiply(1, 0, 1);
-                            Vec3 movVec = player.getDeltaMovement().multiply(1, 0, 1);
-                            Vec3 posMod = posVec.add(cenVec);
-                            Vec3 movMod = movVec.add(cenVec);
-                            double dist = cenVec.length();
-                            double tmp = posMod.length();
-                            posMod = posMod.normalize().multiply(tmp - dist, 0, tmp - dist);
-                            tmp = movMod.length();
-                            movMod = movMod.normalize().multiply(tmp - dist, 0, tmp - dist);
-                            tmp = Math.min(1, (player.getEffect(PVZMobEffects.DISTANCE_EFFECT.get()).getAmplifier() + 1) / 5);
-                            //player's position is far from center, so regard the mod vector has the same angle as cenVec do.
-                            if (cenVec.x * posMod.x + cenVec.z * posMod.z > 0) {
-                                player.move(MoverType.SELF, posMod.multiply(- tmp, 0, - tmp));
-                            }
-                            if (cenVec.x * movMod.x + cenVec.z * movMod.z > 0) {
-                                player.setDeltaMovement(player.getDeltaMovement().subtract(movMod.multiply(tmp, 0, tmp)));
-                            }
+        if (PVZKeyBindings.keyEnderSeedBundle.isDown()) {
+            EnderSeedBundleItem.selectEnderSeedBundle(ClientProxy.getPlayer());
+        }
+        ClientProxy.MC.level.getEntities().getAll().forEach(entity -> entity.getCapability(CAP).ifPresent((cap) -> {
+            Player player = ClientProxy.getPlayer();
+            //garden border
+            if (player != null) {
+                if (player.level.dimension().location().equals(Util.prefix("zen_garden")) && player.hasEffect(PVZMobEffects.DISTANCE_EFFECT.get())) {
+                    Vec3 cenVec = player.position();
+                    if (playerPos != null && cenVec.distanceToSqr(playerPos) < 4) {
+                        cenVec = cenVec.subtract(Vec3.atCenterOf(
+                                ZenGardenChunkGenerator.getMainIslandPos(cenVec.x / 16, cenVec.z / 16)));
+                        Vec3 posVec = player.position().subtract(playerPos).multiply(1, 0, 1);
+                        Vec3 movVec = player.getDeltaMovement().multiply(1, 0, 1);
+                        Vec3 posMod = posVec.add(cenVec);
+                        Vec3 movMod = movVec.add(cenVec);
+                        double dist = cenVec.length();
+                        double tmp = posMod.length();
+                        posMod = posMod.normalize().multiply(tmp - dist, 0, tmp - dist);
+                        tmp = movMod.length();
+                        movMod = movMod.normalize().multiply(tmp - dist, 0, tmp - dist);
+                        tmp = Math.min(1, (player.getEffect(PVZMobEffects.DISTANCE_EFFECT.get()).getAmplifier() + 1) / 5);
+                        //player's position is far from center, so regard the mod vector has the same angle as cenVec do.
+                        if (cenVec.x * posMod.x + cenVec.z * posMod.z > 0) {
+                            player.move(MoverType.SELF, posMod.multiply(- tmp, 0, - tmp));
                         }
-                        playerPos = player.position();
-                    } else {
-                        playerPos = null;
+                        if (cenVec.x * movMod.x + cenVec.z * movMod.z > 0) {
+                            player.setDeltaMovement(player.getDeltaMovement().subtract(movMod.multiply(tmp, 0, tmp)));
+                        }
                     }
+                    playerPos = player.position();
+                } else {
+                    playerPos = null;
                 }
-            });
-        });
+            }
+            //ender seed bundle
+            if (player.isCreative()) {
+                if (cap.clientBundleContainerDirty > -2) {
+                    EnderSeedBundleContainerPacket.syncToServer(cap.clientBundleContainerDirty);
+                    cap.clientBundleContainerDirty = -2;
+                }
+            }
+        }));
     }
 
     @net.minecraftforge.eventbus.api.SubscribeEvent
@@ -408,7 +411,6 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 Penny penny = PVZEntities.PENNY.get().spawn((ServerLevel) player.level
                         , null, null, null, blockpos2, MobSpawnType.EVENT, false, false);
                 if (penny != null) {
-                    penny.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200));
                     player.displayClientMessage(Component.translatable("hint.pvz.penny"), true);
                     return true;
                 }
@@ -472,6 +474,24 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         });
     }
 
+    public static void setEnderSeedBundleSlot(Player player, int slot, ItemStack itemStack) {
+        player.getCapability(CAP).ifPresent(cap -> {
+            cap.enderSeedBundleContainer.setItem(slot, itemStack);
+            cap.clientBundleContainerDirty = cap.clientBundleContainerDirty == -2 ? slot : -1;
+        });
+        if (player instanceof ServerPlayer serverPlayer) {
+            EnderSeedBundleContainerPacket.syncToClient(serverPlayer, slot);
+        }
+    }
+
+    public static ItemStack getEnderSeedBundleSlot(Player player, int slot) {
+        AtomicReference<ItemStack> itemStack = new AtomicReference<>(ItemStack.EMPTY);
+        player.getCapability(CAP).ifPresent(cap -> {
+            itemStack.set(cap.enderSeedBundleContainer.getItem(slot));
+        });
+        return itemStack.get();
+    }
+
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         return cap == CAP ? LazyOptional.of(() -> (T) this) : LazyOptional.empty();
@@ -527,6 +547,20 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 posTag.putDouble("garden_z", this.gardenPos.getSecond().z);
             }
             tag.put("garden_pos", posTag);
+        }{
+            ListTag seedBundleTag = new ListTag();
+            for(int i = 0; i < enderSeedBundleContainer.getContainerSize(); ++i) {
+                ItemStack itemstack = enderSeedBundleContainer.getItem(i);
+                if (!itemstack.isEmpty()) {
+                    CompoundTag compoundtag = new CompoundTag();
+                    compoundtag.putByte("Slot", (byte)i);
+                    itemstack.save(compoundtag);
+                    seedBundleTag.add(compoundtag);
+                }
+                if (!seedBundleTag.isEmpty()) {
+                    tag.put("EnderSeedBundle", seedBundleTag);
+                }
+            }
         }
         return tag;
     }
@@ -558,6 +592,16 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     posTag.getDouble("garden_y"),
                     posTag.getDouble("garden_z")
             ) : null);
+        }
+        if (tag.contains("EnderSeedBundle")) {
+            ListTag listtag = tag.getList("EnderSeedBundle", 10);
+            for(int i = 0; i < listtag.size(); ++i) {
+                CompoundTag compoundtag = listtag.getCompound(i);
+                int j = compoundtag.getByte("Slot") & 255;
+                if (j < enderSeedBundleContainer.getContainerSize()) {
+                    enderSeedBundleContainer.setItem(j, ItemStack.of(compoundtag));
+                }
+            }
         }
     }
 }

@@ -7,10 +7,7 @@ import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.plants.MariGold;
 import com.hungteen.pvz.common.event.SproutTransformEvent;
-import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.register.PVZStats;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -166,6 +163,11 @@ public class Sprout extends Mob implements IGardenPlant {
                 this.level.addParticle(ParticleTypes.ELECTRIC_SPARK,
                         getX() + random.nextFloat() * 0.8 - 0.4, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.4,
                         0, random.nextFloat(), 0);
+                if (random.nextInt(5) == 0) {
+                    this.level.addParticle(PVZParticles.SUN.get(),
+                            getX() + random.nextFloat() * 0.8 - 0.4, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.4,
+                            0, 0, 0);
+                }
             }
             if (plant != null) {
                 plant.tick();
@@ -249,9 +251,9 @@ public class Sprout extends Mob implements IGardenPlant {
             Entity entity = type.create(level);
             if (entity != null) {
                 ItemStack stack = entity.getPickResult();
-                int num = this.random.nextInt(3) + 5;
+                int num = this.random.nextInt(4) + 5;
                 for (int i = 0; i < num; i ++) {
-                    ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), stack);
+                    ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), stack.copy());
                     BlockPos pos = blockPosition();
                     itementity.setPos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
                     level.addFreshEntity(itementity);

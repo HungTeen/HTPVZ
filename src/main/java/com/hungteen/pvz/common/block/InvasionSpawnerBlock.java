@@ -44,6 +44,12 @@ public class InvasionSpawnerBlock extends BaseEntityBlock {
                             , 0, random.nextFloat() * (triggered ? 1.5 : 0.5), 0);
                 }
             }
+            level.addParticle(
+                    ParticleTypes.CAMPFIRE_COSY_SMOKE
+                    , pos.getX() + random.nextFloat() * 0.8 + 0.1
+                    , pos.getY() + random.nextFloat()
+                    , pos.getZ() + random.nextFloat() * 0.8 + 0.1
+                    , 0, triggered ? 0.2 : 0, 0);
         }
     }
     @Override

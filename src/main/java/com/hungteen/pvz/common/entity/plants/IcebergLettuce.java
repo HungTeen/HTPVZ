@@ -12,10 +12,15 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.Snowball;
 import net.minecraft.world.level.Level;
@@ -113,7 +118,7 @@ public class IcebergLettuce extends ShooterPlant {
 
     @Override
     public void shootBullet() {
-        this.performShoot(0, 0, 0.2, false, 5);
+        this.performShoot(0, 0, this.getBbHeight() * 0.5F, false, 5);
     }
     @Override
     public double getMaxShootAngleTangent() {
@@ -134,28 +139,55 @@ public class IcebergLettuce extends ShooterPlant {
         public void tick() {
             List<LivingEntity> entities = entity.level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(0.6, 0.2, 0.6),
                     (entity) -> (EntityUtil.checkCanEntityBeAttack(this.entity, entity) && ! entity.hasEffect(PVZMobEffects.FREEZE.get())));
-            if (entities.isEmpty() && this.entity.tickCount < 100) {
+            if (! entities.isEmpty() || this.entity.tickCount >= 100) {
+                MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 80);
+                if (entity.hasSkill(RANGE_SKILL_NAME)) {
+                    entities = entity.level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(2, 0.25, 2),
+                            (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity)));
+                    entities.forEach((entity) -> entity.addEffect(instance));
+                } else if (! entities.isEmpty()) {
+                    LivingEntity target = entities.get(0);
+                    double targetDistance = target.position().distanceToSqr(entity.position());
+                    for (LivingEntity i : entities) {
+                        double tmp = i.position().distanceToSqr(entity.position());
+                        if (i.position().distanceToSqr(entity.position()) < targetDistance) {
+                            target = i;
+                            targetDistance = tmp;
+                        }
+                    }
+                    target.addEffect(instance);
+                }
+                ((ServerLevel) entity.level).sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + 0.2, entity.getZ(), entity.hasSkill(RANGE_SKILL_NAME) ? 60 : 20, 0.0D, 0.0D, 0.0D, entity.hasSkill(RANGE_SKILL_NAME) ? 0.2F : 0.1F);
+                entity.discard();
                 return;
             }
-            MobEffectInstance instance = new MobEffectInstance(PVZMobEffects.FREEZE.get(), 80);
-            if (entity.hasSkill(RANGE_SKILL_NAME)) {
-                entities = entity.level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(2, 0.25, 2),
-                        (entity) -> (entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this.entity, entity)));
-                entities.forEach((entity) -> entity.addEffect(instance));
-            } else if (! entities.isEmpty()) {
-                LivingEntity target = entities.get(0);
-                double targetDistance = target.position().distanceToSqr(entity.position());
-                for (LivingEntity i : entities) {
-                    double tmp = i.position().distanceToSqr(entity.position());
-                    if (i.position().distanceToSqr(entity.position()) < targetDistance) {
-                        target = i;
-                        targetDistance = tmp;
+            List<Player> players = entity.level.getNearbyPlayers(TargetingConditions.forNonCombat(), this.entity, entity.getBoundingBox().inflate(0.6, 0.2, 0.6));
+            players = players.stream().filter(p -> EntityUtil.isTeammate(p, this.entity) && p.isOnFire()).toList();
+            if (! players.isEmpty()) {
+                if (entity.hasSkill(RANGE_SKILL_NAME)) {
+                    players = entity.level.getNearbyPlayers(TargetingConditions.DEFAULT, this.entity
+                            , entity.getBoundingBox().inflate(2, 0.25, 2));
+                    players = players.stream().filter(p -> EntityUtil.isTeammate(p, this.entity) && p.isOnFire()).toList();
+                    players.forEach(player -> {
+                        player.clearFire();
+                        player.setTicksFrozen(50);
+                    });
+                } else if (! players.isEmpty()) {
+                    Player target = players.get(0);
+                    double targetDistance = target.position().distanceToSqr(entity.position());
+                    for (Player i : players) {
+                        double tmp = i.position().distanceToSqr(entity.position());
+                        if (i.position().distanceToSqr(entity.position()) < targetDistance) {
+                            target = i;
+                            targetDistance = tmp;
+                        }
                     }
+                    target.clearFire();
+                    target.setTicksFrozen(50);
                 }
-                target.addEffect(instance);
+                ((ServerLevel) entity.level).sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + 0.2, entity.getZ(), entity.hasSkill(RANGE_SKILL_NAME) ? 60 : 20, 0.0D, 0.0D, 0.0D, entity.hasSkill(RANGE_SKILL_NAME) ? 0.2F : 0.1F);
+                entity.discard();
             }
-            ((ServerLevel) entity.level).sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + 0.2, entity.getZ(), entity.hasSkill(RANGE_SKILL_NAME) ? 60 : 20, 0.0D, 0.0D, 0.0D, entity.hasSkill(RANGE_SKILL_NAME) ? 0.2F : 0.1F);
-            entity.discard();
         }
     }
 }

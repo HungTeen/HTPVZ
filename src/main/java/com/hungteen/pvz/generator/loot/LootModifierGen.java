@@ -135,9 +135,9 @@ public class LootModifierGen extends GlobalLootModifierProvider {
                 SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.nether_aggressive", RegisterSproutsEvent.NETHER_AGGRESSIVE)
         )));
 
-        this.add("sprout_from_city_end_treasure", new AddItemModifier(new LootItemCondition[]{
-                LootTableIdCondition.builder(new ResourceLocation("chests/city_end_treasure")).build(),
-                LootItemRandomChanceCondition.randomChance(0.4F).build()
+        this.add("sprout_from_end_city_treasure", new AddItemModifier(new LootItemCondition[]{
+                LootTableIdCondition.builder(new ResourceLocation("chests/end_city_treasure")).build(),
+                LootItemRandomChanceCondition.randomChance(0.2F).build()
         }, List.of(
                 SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.ender", RegisterSproutsEvent.ENDER)
         )));

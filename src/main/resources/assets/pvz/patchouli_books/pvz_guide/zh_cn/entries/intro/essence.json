@@ -1,0 +1,35 @@
+{
+    "name": "精华",
+    "icon": "pvz:origin_essence",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "获取原始精华是这个模组的开始。它们会在树苗尝试生长时生成在树苗下的泥土里，将其变为原始精华矿。你可以在树苗上方放置方块阻挡其生长来促使原始精华矿形成。原始精华是合成种子包和一些道具的原料。 "
+        },
+        {
+            "type": "text",
+            "text": "原始精华矿是种子包的原料，也可以用来制作精华熔炉。精华熔炉能消耗原始精华将不同的原材料辐射成为不同元素的精华，辐射后的精华可以用于制作种子包或为植物学习技能。"
+        },
+        {
+            "type": "text",
+            "text": "可以参考如下的配方。其中，坠星会在夜晚自然从空中掉落，但它们白天会消失。萤石粉除在地狱挖掘萤石获取外，还可以用熔炉熔炼主世界地下生成的夜明石获取。"
+        },
+        {
+            "type": "pvz:essence",
+            "input1": "minecraft:clay_ball",
+            "input2": "minecraft:prismarine_crystals",
+            "input3": "minecraft:blaze_powder",
+            "input4": "pvz:fallen_star",
+            "input5": "minecraft:glowstone_dust",
+            "input6": "minecraft:snowball",
+            "output1": "pvz:terra_essence",
+            "output2": "pvz:aqua_essence",
+            "output3": "pvz:ignis_essence",
+            "output4": "pvz:ventus_essence",
+            "output5": "pvz:lux_essence",
+            "output6": "pvz:gelum_essence"
+        }
+    ],
+    "sortnum": 1
+}

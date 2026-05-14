@@ -25,7 +25,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 
 public class BaseBullet extends Projectile {
-	protected float attackDamage = 0F;
+	protected float attackDamage = 2F;
 	protected float gravity = 0.1F;
 	protected float size = 1F;// need sync?
 	protected float knockBackStrengh = 0F;

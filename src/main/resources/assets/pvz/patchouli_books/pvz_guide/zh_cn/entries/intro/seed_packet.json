@@ -1,0 +1,33 @@
+{
+    "name": "种子包",
+    "icon": "pvz:flower_seed_packet",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "你需要在工作台上制作植物种子包。不同的种子包有不同的配方，但配方的结构大体上是类似的。这里展示了豌豆射手种子包的两种配方。 "
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:seed_packets/fusion/pea_shooter_seed_packet",
+            "recipe2": "pvz:seed_packets/pea_shooter_seed_packet"
+        },
+        {
+            "type": "text",
+            "text": "第一种需要种子和种子包模板。其中所需要的种子可以通过入侵或种植花苗来获取，这些后面会讲到。只有一部分植物可以通过第二种格式的配方获取。这些配方通常需要一个植物原料，种子包模板和特定的元素精华。"
+        },
+        {
+            "type": "text",
+            "text": "种子包模板代表了植物所属的维度。它们的配方一般由原始精华（只有紫颂果种子包需要藏识树脂）、一种该维度的植物和一些矿物组成。遵循如下的模式："
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:flower_seed_packet"
+        },
+        {
+            "type": "text",
+            "text": "种子本身也可以用于种植植物，但它们是一次性的；种子包则有更多的耐久。"
+        }
+    ],
+    "sortnum": 2
+}

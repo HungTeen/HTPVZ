@@ -44,7 +44,6 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     public Set<UUID> zombieEventUUIDs = new HashSet<>();
     public short tickCount = 0;
     public String hypnosisTempTeam;
-    public boolean containsInvasion = false;
     //client
     public boolean isDirty = false;
     private int stuckArrowWithATarget = 0;
@@ -241,7 +240,6 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             }
             basicTag.put("zombie_events", zombieEventTag);
         }
-        basicTag.putBoolean("contains_invasion", containsInvasion);
         return basicTag;
     }
 
@@ -274,9 +272,6 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                 zombieEventUUIDs.add(zombieEventTag.getUUID(String.valueOf(i)));
                 i ++;
             }
-        }
-        if (nbt.contains("contains_invasion")) {
-            this.containsInvasion = nbt.getBoolean("contains_invasion");
         }
     }
 }

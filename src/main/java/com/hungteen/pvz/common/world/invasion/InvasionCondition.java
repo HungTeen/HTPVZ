@@ -8,7 +8,9 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.event.RegisterInvasionConditionsEvent;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,8 +19,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -64,6 +68,16 @@ public interface InvasionCondition {
         });
         return location[0];
     }
+
+//    default String getTranslationName() {
+//        ResourceLocation location = getName();
+//        return "zombie_event." + location.getNamespace() + ".invasion.condition." + location.getPath();
+//    }
+//
+//    /**For most conditions, there's no need to show.*/
+//    default Component getTranslation(List<String> arguments) {
+//        return Component.literal("");
+//    }
 
     static Map<ResourceLocation, InvasionCondition> registerConditions() {
         RegisterInvasionConditionsEvent event = new RegisterInvasionConditionsEvent();
@@ -121,6 +135,32 @@ public interface InvasionCondition {
                 } else {
                     if (target.level.getBiome(target.blockPosition()).unwrap()
                             .map(key -> key.location().toString().equals(argument), biome -> false)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    class InStructureCondition implements InvasionCondition {
+        @Override
+        public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
+            StructureManager manager = ((ServerLevel) target.level).structureManager();
+            BlockPos pos = target.blockPosition();
+            if (arguments.isEmpty()) {
+                return manager.hasAnyStructureAt(pos);
+            }
+            for (String argument : arguments) {
+                if (argument.startsWith("#")) {
+                    ResourceLocation resourcelocation = new ResourceLocation(argument.substring(1));
+                    TagKey<Structure> tagkey = TagKey.create(Registry.STRUCTURE_REGISTRY, resourcelocation);
+                    if (manager.getStructureWithPieceAt(pos, tagkey).isValid()) {
+                        return true;
+                    }
+                } else {
+                    ResourceKey<Structure> structureKey = ResourceKey.create(Registry.STRUCTURE_REGISTRY, new ResourceLocation(argument));
+                    if (manager.getStructureWithPieceAt(pos, structureKey).isValid()) {
                         return true;
                     }
                 }

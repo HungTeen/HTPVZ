@@ -9,7 +9,7 @@ public class QuickCoolDownEnchantment extends Enchantment {
         super(Enchantment.Rarity.UNCOMMON, PVZEnchantments.SUMMON_CARD, new EquipmentSlot[]{EquipmentSlot.MAINHAND});
     }
     public int getMinCost(int p_45171_) {
-        return 12 + (p_45171_ - 1) * 20;
+        return p_45171_ * 12 + 2;
     }
 
     public int getMaxCost(int p_45173_) {

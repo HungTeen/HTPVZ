@@ -46,7 +46,7 @@ public class PVZPlayerCapStats {
         initValue(PLANT_HAVE_CD, 1, 0, 1);//naturally creative:0, survival:1.
         initValueNoSync(SUMMONED_PENNY, 0, 0, 1);//if the player has summoned Penny recently.
         initValueNoSync(INVASION_DIFFICULTY, 0, 0, 100);//invasion difficulty.
-        initValueNoSync(LAST_INVASION, 0, 0, 1000);//time since last invasion occurred on this player.
+        initValueNoSync(LAST_INVASION, 0, 0, 10000);//time since last invasion occurred on this player.
         //resource
         initValue(SUN, 50, 0, 200);
     }
@@ -79,7 +79,7 @@ public class PVZPlayerCapStats {
     }
 
     public Integer getValue(String key) {
-        return dataMap.get(key);
+        return dataMap.getOrDefault(key, 0);
     }
 
     public boolean addValue(String key, Integer value) {
@@ -115,7 +115,7 @@ public class PVZPlayerCapStats {
     }
 
     public Pair<Integer, Integer> getValueLimit(String key) {
-        return dataLimitMap.get(key);
+        return dataLimitMap.getOrDefault(key, Pair.of(0, 0));
     }
 
     public List<String> getDirtyList() {

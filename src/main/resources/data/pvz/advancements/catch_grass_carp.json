@@ -14,22 +14,20 @@
       }
     },
   "criteria": {
-    "has_item": {
+    "catch_grass_carp": {
       "conditions": {
-        "items": [
-          {
-            "items": [
-              "pvz:grass_carp_bucket"
-            ]
-          }
-        ]
+        "item": {
+          "items": [
+            "pvz:grass_carp_bucket"
+          ]
+        }
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:filled_bucket"
     }
   },
   "requirements": [
     [
-      "has_item"
+      "catch_grass_carp"
     ]
   ]
 }

@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.npcs;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
@@ -52,35 +53,45 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
     protected MerchantOffers offers;
     private final Set<Pair<Integer, ItemStack>> valuables = Set.of(
             Pair.of(2, PVZItems.ALMANAC.get().getDefaultInstance()),
+            Pair.of(4, new ItemStack(PVZItems.SEED_DISPENSARY.get(), 6)),
+            Pair.of(6, new ItemStack(PVZBlocks.GARDEN_FLOWER_POT.get(), 1)),
             Pair.of(6, PVZItems.SHELL_STARTUP.get().getDefaultInstance()),
-            Pair.of(6, PVZItems.SEED_DISPENSARY.get().getDefaultInstance()),
             Pair.of(6, PVZBlocks.SILVER_SWORD_ORNAMENT.get().asItem().getDefaultInstance()),
-            Pair.of(8, PVZItems.GRASSCARP_BUCKET.get().getDefaultInstance()),
-            Pair.of(12, new ItemStack(Items.TOTEM_OF_UNDYING)),
-            Pair.of(18, PVZItems.CHILI_CHAN.get().getDefaultInstance()),
-            Pair.of(18, PVZItems.PEA_GUN.get().getDefaultInstance())
+            Pair.of(18, new ItemStack(PVZItems.SNAIL_GACHAPON.get(), 3))
     );
     private final Set<Pair<Integer, ItemStack>> commons = Set.of(
-            Pair.of(1, new ItemStack(Items.LEAD, 2)),
+            Pair.of(2, new ItemStack(Items.LEAD, 2)),
             Pair.of(2, new ItemStack(Items.NAME_TAG)),
-            Pair.of(2, new ItemStack(PVZItems.CHOCOLATE.get(), 5)),
-            Pair.of(2, new ItemStack(Items.ENDER_PEARL, 8)),
-            Pair.of(4, new ItemStack(PVZItems.FOG_IN_BOTTLE.get(), 4)),
+            Pair.of(3, new ItemStack(PVZItems.TACO.get(), 4)),
+            Pair.of(8, new ItemStack(Items.NETHERITE_SCRAP, 8)),
             Pair.of(18, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(PVZEnchantments.SUN_MENDING.get(), 1))),
-            Pair.of(18, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(PVZEnchantments.SOILLESS_CULTURE.get(), 1)))
+            Pair.of(18, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(PVZEnchantments.SUN_SHOVEL.get(), 1))),
+            Pair.of(18, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(PVZEnchantments.SOILLESS_CULTURE.get(), 1))),
+            Pair.of(20, new ItemStack(Items.TOTEM_OF_UNDYING))
     );
     private final Set<Pair<Integer, ItemStack>> materials = Set.of(
-            Pair.of(2, new ItemStack(PVZItems.ORIGIN_ESSENCE.get(), 16)),
-            Pair.of(1, new ItemStack(PVZItems.ALAYA_RESIN.get(), 3)),
-            Pair.of(1, new ItemStack(PVZItems.ALAYA_RESIN.get(), 3)),
             Pair.of(1, new ItemStack(Items.EMERALD, 8)),
-            Pair.of(4, new ItemStack(Items.DIAMOND, 4))
+            Pair.of(1, new ItemStack(Items.EMERALD, 8)),
+            Pair.of(1, new ItemStack(Items.CLAY_BALL, 8)),
+            Pair.of(1, new ItemStack(Items.SNOWBALL, 8)),
+            Pair.of(1, new ItemStack(Items.NAUTILUS_SHELL, 1)),
+            Pair.of(2, new ItemStack(PVZItems.ORIGIN_ESSENCE.get(), 8)),
+            Pair.of(2, new ItemStack(Items.PHANTOM_MEMBRANE, 3)),
+            Pair.of(2, new ItemStack(Items.ENDER_PEARL, 5)),
+            Pair.of(2, new ItemStack(PVZItems.FALLEN_STAR.get(), 8)),
+            Pair.of(3, new ItemStack(Items.GLOWSTONE_DUST, 8)),
+            Pair.of(3, new ItemStack(Items.DIAMOND, 3)),
+            Pair.of(3, new ItemStack(Items.DIAMOND, 3)),
+            Pair.of(3, new ItemStack(PVZItems.FOG_IN_BOTTLE.get(), 4)),
+            Pair.of(4, new ItemStack(Items.PRISMARINE_CRYSTALS, 8)),
+            Pair.of(4, new ItemStack(Items.BLAZE_POWDER, 8))
     );
 
     public Penny(EntityType<? extends Mob> p_21368_, Level p_21369_) {
         super(p_21368_, p_21369_);
         this.idleAnimationState.start(this.tickCount);
-        this.setDespawnTime(40000);
+        int interval = PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.naturallySpawnPennyInterval);
+        this.setDespawnTime(interval / 2);
     }
 
     public void setDespawnTime(int time) {
@@ -105,6 +116,10 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
                 && ! this.isTrading() && level.getNearestPlayer(this, 20) == null) {
             this.discard();
         }
+    }
+
+    public boolean canBeLeashed(Player p_21418_) {
+        return false;
     }
 
     public @NotNull InteractionResult mobInteract(Player player, InteractionHand hand) {
@@ -221,30 +236,35 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
     public void updateTrades() {
         MerchantOffers offers = this.offers;
         ItemStack jewel = PVZItems.JEWEL.get().getDefaultInstance();
-        for (int i = 0; i < 2; i ++) {
+        jewel.setCount(2);
+        for (int i = 0; i < 3; i ++) {
             offers.add(new MerchantOffer(jewel.copy(), PVZItems.MARIGOLD_SPROUT.get().getDefaultInstance()
-                    , 1, 1, 0));
+                    , 1, 0, 0));
         }
-        offers.add(new MerchantOffer(jewel.copy(), new ItemStack(PVZItems.FERTILIZER.get(), 5)
-                , 1, 1, 0));
-        jewel.setCount(24);
-        offers.add(new MerchantOffer(jewel.copy(), new ItemStack(PVZItems.SNAIL_GACHAPON.get(), 3)
-                , 1, 1, 0));
+        jewel.setCount(2);
+        offers.add(new MerchantOffer(jewel.copy(), new ItemStack(PVZItems.FERTILIZER.get(), 8)
+                , 1, 0, 0));
         Pair<Integer, ItemStack> pair;
         pair = this.valuables.stream().findFirst().get();
         jewel.setCount(pair.getFirst());
         offers.add(new MerchantOffer(jewel.copy(), pair.getSecond()
-                , 1, 1, 0));
-        pair = this.commons.stream().findFirst().get();
-        jewel.setCount(pair.getFirst());
-        offers.add(new MerchantOffer(jewel.copy(), pair.getSecond()
-                , 1, 1, 0));
-        var iterator = this.materials.stream().iterator();
+                , 1, 0, 0));
+        var iterator = this.commons.stream().iterator();
         for (int i = 0; i < 2; i ++) {
             pair = iterator.next();
             jewel.setCount(pair.getFirst());
             offers.add(new MerchantOffer(jewel.copy(), pair.getSecond()
-                    , 1, 1, 0));
+                    , 1, 0, 0));
+        }
+        jewel.setCount(3);
+        offers.add(new MerchantOffer(jewel.copy(), new ItemStack(PVZItems.ALAYA_RESIN.get(), 3)
+                , 1, 0, 0));
+        iterator = this.materials.stream().iterator();
+        for (int i = 0; i < 4; i ++) {
+            pair = iterator.next();
+            jewel.setCount(pair.getFirst());
+            offers.add(new MerchantOffer(jewel.copy(), pair.getSecond()
+                    , 1, 0, 0));
         }
     }
 

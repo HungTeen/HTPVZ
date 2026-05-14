@@ -1,0 +1,16 @@
+{
+    "name": "ガイドブック",
+    "icon": "minecraft:book",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "この本のレシピの紹介です。"
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:patchouli_guide_book"
+        }
+    ],
+    "sortnum": 0
+}

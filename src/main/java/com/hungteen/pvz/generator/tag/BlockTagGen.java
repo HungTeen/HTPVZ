@@ -11,16 +11,12 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.hungteen.pvz.common.register.PVZBlocks.WoodSet.*;
-import static com.hungteen.pvz.common.register.PVZBlocks.woodList;
-import static com.hungteen.pvz.common.register.PVZBlocks.woodTypeList;
 
 public class BlockTagGen extends BlockTagsProvider {
 
@@ -30,17 +26,7 @@ public class BlockTagGen extends BlockTagsProvider {
     @Override
     public void addTags(){
         //atBlockRegister
-        PVZBlocks.tagMap.forEach((block, tagList)-> tagList.forEach((tag) -> this.tag(tag).add(block.get())));
-        //woodSet
-        for (int i = 0; i < woodList.size(); i ++){
-            String name = woodTypeList.get(i).name();
-            LOGS.add(tag(name + "_logs"));
-            this.tag(LOGS.get(i)).add(woodList.get(i).get(Log).get(),
-                    woodList.get(i).get(StLog).get(),
-                    woodList.get(i).get(Wood).get(),
-                    woodList.get(i).get(StWood).get()
-            );
-        }
+        PVZBlocks.tagMap.forEach((block, tagList)-> tagList.forEach((tag) -> this.tag(tag).add(block.get()).replace(false)));
         //others
         this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(
                 Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT,
@@ -52,17 +38,20 @@ public class BlockTagGen extends BlockTagsProvider {
                 Blocks.CRIMSON_NYLIUM, Blocks.WARPED_NYLIUM,
                 Blocks.MOSS_BLOCK, Blocks.MOSS_CARPET, PVZBlocks.CARP_GRASS.get(),
                 Blocks.SCULK, Blocks.SCULK_CATALYST,
-                Blocks.LILY_PAD
+                Blocks.LILY_PAD,
+                PVZBlocks.GARDEN_FLOWER_POT.get()
         );
         this.tag(PVZBlockTags.PLANTABLE_STONE).addTags(
                 Tags.Blocks.STONE, Tags.Blocks.NETHERRACK, BlockTags.TERRACOTTA, Tags.Blocks.COBBLESTONE,
-                Tags.Blocks.SANDSTONE, Tags.Blocks.SAND, Tags.Blocks.GRAVEL, Tags.Blocks.OBSIDIAN)
+                        Tags.Blocks.SANDSTONE, Tags.Blocks.SAND, Tags.Blocks.GRAVEL, Tags.Blocks.OBSIDIAN,
+                        BlockTags.STONE_BRICKS, BlockTags.WALLS, Tags.Blocks.ORES)
                 .add(Blocks.BLACKSTONE, Blocks.PRISMARINE, Blocks.DRIPSTONE_BLOCK);
         this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTags(BlockTags.MOSS_REPLACEABLE, BlockTags.REPLACEABLE_PLANTS, BlockTags.LEAVES);
         this.tag(PVZBlockTags.SCULK).add(Blocks.SCULK, Blocks.SCULK_CATALYST, Blocks.SCULK_VEIN, Blocks.SCULK_SENSOR, Blocks.SCULK_SHRIEKER);
         this.tag(BlockTags.DIRT).add(PVZBlocks.ORIGIN_ORE.get());
         this.tag(PVZBlockTags.SNAIL_SPAWNABLE_ON).addTags(BlockTags.ANIMALS_SPAWNABLE_ON).add(Blocks.MOSS_BLOCK);
         this.tag(PVZBlockTags.FUNGICICOLIDAE_SPAWNABLE_ON).add(Blocks.MYCELIUM);
+        this.tag(PVZBlockTags.PLANT_PERMANENT_ON).add(PVZBlocks.GARDEN_FLOWER_POT.get());
     }
 
     public static final List<TagKey<Block>> LOGS = new ArrayList<>();

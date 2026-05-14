@@ -31,13 +31,13 @@ public class Dandelion extends ShooterPlant {
 
     @Override
     public void shootBullet() {
-        this.performShoot(0, 0, 0.8F, true, 0);
+        this.performShoot(0, 0, this.getBbHeight() + 0.4F, true, 0);
         ((ServerLevel) level).sendParticles(PVZParticles.DANDELION.get(), getX(), getY() + 1.5f, getZ(), 5,0, 0, 0, 0);
     }
 
     @Override
     public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
-        return super.getShootAngle(target, forwardOffset, rightOffset, heightOffset).add(0, 4, 0);
+        return super.getShootAngle(target, forwardOffset, rightOffset, heightOffset).add(0, 3.5, 0);
     }
 
     @Override

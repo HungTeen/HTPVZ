@@ -1,0 +1,26 @@
+{
+    "name": "Skill",
+    "icon": "pvz:essence_altar",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "spotlight",
+            "title": "Essence Altar",
+            "item": "pvz:essence_altar",
+            "text": "Seed Packets can be attached skills by consuming certain essences and seeds on Essence Altar. In this mod skills are important. Learing skills may change the abilities of the plant and some skills may even completely change the usage scenary of plants."
+        },
+        {
+            "type": "text",
+            "text": "You may think that it is some kind of enchantment. They have something in common, and there are enchantments appliable on Seed Packets, but skills and enchantments can't be seen as equal simply. Enchantments works for the item, the effects are same for any plant, but skills take effect on the summoned plants, and are different depends on the plant type."
+        },
+        {
+            "type": "text",
+            "text": "Essence Altar is crafted with Alaya Resin, Origin Essence Block and Obsidian. "
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:essence_altar"
+        }
+    ],
+    "sortnum": 4
+}

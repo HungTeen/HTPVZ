@@ -10,7 +10,6 @@ import com.hungteen.pvz.common.world.invasion.InvasionType;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
@@ -106,6 +105,7 @@ public class PVZMobEffects {
                     .addAttributeModifier(Attributes.ARMOR, HYPNOTIZED_EFFECT_UUID.toString(), 2F, AttributeModifier.Operation.ADDITION))
             .unapplicableWhen((entity, effectInstance) -> entity.getType().is(PVZEntityTags.HYPNOTISED_INVULNERABLE))
             .build();
+
 
     public static void addMixs() {
         PotionBrewing.addMix(Potions.AWKWARD, PVZBlocks.PLANTERN.get().asItem(), potionMap.get("brightness").get());
@@ -263,30 +263,31 @@ public class PVZMobEffects {
             }
         }
     }
+
+
     public static class InvasionOmenEffect extends PVZMobEffect {
-        static LivingEntity removed = null;
 
         public InvasionOmenEffect(MobEffectCategory p_19451_, int p_19452_) {
             super(p_19451_, p_19452_);
         }
 
         public void applyEffectTick(LivingEntity entity, int amplifier) {
-            if (! entity.level.isClientSide && entity != removed && entity instanceof Player) {
-                List<InvasionType> types = InvasionType.generateTypes(entity);
-                if (entity instanceof ServerPlayer player) {
-                    if ((types.isEmpty() || ! types.stream().allMatch(type -> type.isAvailable(entity, types)))) {
-                        player.displayClientMessage(Component.translatable("hint.pvz.invasion.no_available_invasion"), true);
-                    } else {
-                        entity.level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
+            if (! entity.level.isClientSide && entity instanceof ServerPlayer player) {
+                if (Invasion.canInvade(player)) {
+                    List<InvasionType> types = InvasionType.generateTypes(player);
+                    if (! types.isEmpty()) {
+                        var cap = PVZZombieEventCapability.fromLevel(player.level);
+                        if (cap != null) {
                             cap.addEvent(new Invasion(entity.level, types, entity, entity.blockPosition(), Math.min(11, Math.max(1, amplifier))));
-                        });
+                            entity.removeEffect(INVASION_OMEN.get());
+                        }
                     }
                 }
             }
         }
 
         public boolean isDurationEffectTick(int duration, int amplifier) {
-            return duration == 1;
+            return duration % 200 == 1;
         }
     }
     /**About how Hypnotzed effect work, see {@link com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal HypnotizedTargetGoal}.*/

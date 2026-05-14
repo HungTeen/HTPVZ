@@ -90,7 +90,15 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     public BlockPos getRootBlockPos() {
-        return blockPosition().relative(getGrowDirection().getOpposite());
+        boolean relative = switch (this.getGrowDirection()) {
+            case DOWN -> this.position().y - this.blockPosition().getY() >= 0;
+            case UP -> this.position().y - this.blockPosition().getY() <= 0;
+            case NORTH -> this.position().z - this.blockPosition().getZ() <= 0.5;
+            case SOUTH -> this.position().z - this.blockPosition().getZ() >= 0.5;
+            case WEST -> this.position().x - this.blockPosition().getX() <= 0.5;
+            case EAST -> this.position().x - this.blockPosition().getX() >= 0.5;
+        };
+        return relative ? blockPosition().relative(getGrowDirection().getOpposite()) : blockPosition();
     }
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_33434_) {
@@ -126,7 +134,7 @@ public class SpikeWeed extends SimplePlant {
 
     @Override
     public Vec3 getDeltaMovement() {
-        boolean bool = this.entityData.get(ATTACH_FACE) == Direction.UP
+        boolean bool = getGrowDirection() == Direction.UP
                 || ! this.hasSkill(ON_WALL_SKILL_NAME)
                 || level.getBlockState(this.getRootBlockPos()).isAir()
                 || (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock);
@@ -134,11 +142,11 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     public void tick() {
-        if ((this.entityData.get(ATTACH_FACE) != Direction.UP)
+        if ((getGrowDirection() != Direction.UP)
                 && (level.getBlockState(this.getRootBlockPos()).isAir()
                         || ! this.hasSkill(ON_WALL_SKILL_NAME)
                         || (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock))) {
-            this.entityData.set(ATTACH_FACE, Direction.UP);
+            this.setGrowDirection(Direction.UP);
         }
         super.tick();
         BlockPos pos = blockPosition();
@@ -159,13 +167,13 @@ public class SpikeWeed extends SimplePlant {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putString("attach_direction", this.entityData.get(ATTACH_FACE).getName());
+        tag.putString("attach_direction", getGrowDirection().getName());
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
         Direction direction = Direction.byName(tag.getString("attach_direction"));
-        this.entityData.set(ATTACH_FACE, direction == null ? Direction.UP : direction);
+        this.setGrowDirection(direction == null ? Direction.UP : direction);
     }
     @Override
     public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {

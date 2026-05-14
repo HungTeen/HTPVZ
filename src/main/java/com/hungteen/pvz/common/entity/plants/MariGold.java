@@ -10,6 +10,7 @@ import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -17,6 +18,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -31,11 +33,18 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraftforge.common.MinecraftForge;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Set;
 
 public class MariGold extends SimplePlant implements IGardenPlant {
@@ -125,20 +134,24 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
 
     public void produce() {
-        ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), this.getRandomIngot().getDefaultInstance());
+        ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), this.getRandomLoot());
         BlockPos pos = blockPosition();
         itementity.setPos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
         level.addFreshEntity(itementity);
     }
 
-    private Item getRandomIngot() {
-        if (this.getGrowLevel() < this.getMaxLevel()) {
-            if (random.nextFloat() < getIronChance()) {
-                return Items.IRON_INGOT;
-            }
-            return Items.GOLD_INGOT;
-        }
-        return PVZItems.JEWEL.get();
+    private @Nullable ItemStack getRandomLoot() {
+        LootTable lootTable = this.getProduceLootTable();
+        if (lootTable == null) return ItemStack.EMPTY;
+        List<ItemStack> items = lootTable.getRandomItems(
+                new LootContext.Builder((ServerLevel) this.level)
+                        .create(LootContextParamSet.builder().build()));
+        if (items.isEmpty()) return ItemStack.EMPTY;
+        return items.get(this.random.nextInt(items.size()));
+    }
+
+    public LootTable getProduceLootTable() {
+        return this.level.getServer().getLootTables().get(Util.prefix("entities/marigold_produce_" + this.getGrowLevel()));
     }
 
 
@@ -191,8 +204,8 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     public int getColor() {
         return this.entityData.get(COLOR);
     }
-    public void setColor(int level) {
-        this.entityData.set(COLOR, level);
+    public void setColor(int color) {
+        this.entityData.set(COLOR, color);
     }
 
 
@@ -207,10 +220,6 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     public Set<TagKey<Block>> getAcceptableTags() {
         return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.GARDEN_FLOWER_POT);
-    }
-
-    public float getIronChance() {
-        return 0.75F;
     }
 
     @Override
@@ -290,13 +299,19 @@ public class MariGold extends SimplePlant implements IGardenPlant {
                         Entity owner = cap.getOwner();
                         if (owner instanceof ServerPlayer serverPlayer) {
                             serverPlayer.awardStat(PVZStats.HARVEST_MARIGOLDS);
-                            PVZCriteriaTriggers.HARVEST_MARIGOLD.trigger(serverPlayer);
+                            int color = mariGold.getColor();
+                            for (DyeColor dye: PVZCriteriaTriggers.marigoldTriggers.keySet()) {
+                                if (dye.getTextColor() == color) {
+                                    PVZCriteriaTriggers.marigoldTriggers.get(dye).trigger(serverPlayer);
+                                    break;
+                                }
+                            }
                         }
                     });
                     mariGold.discard();
                 }
             } else if (time == 8 || time == 10 || time == 12
-                    || ((time == 9 || time == 11 || time == 13 || time == 15) && random.nextBoolean() && mariGold.getGrowLevel() < mariGold.getMaxLevel())) {
+                    || ((time == 9 || time == 11 || time == 13 || time == 15) && random.nextBoolean())) {
                 mariGold.produce();
             }
         }

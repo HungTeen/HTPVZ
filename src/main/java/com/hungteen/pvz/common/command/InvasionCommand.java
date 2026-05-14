@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class InvasionCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("invasion")
+        dispatcher.register(Commands.literal("invasion").requires((ctx) -> ctx.hasPermission(2))
                 .then(Commands.literal("add")
                         .then(Commands.argument("level", IntegerArgumentType.integer())
                                 .then(Commands.argument("target", EntityArgument.entities())

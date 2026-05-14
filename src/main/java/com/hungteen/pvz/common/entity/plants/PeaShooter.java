@@ -38,7 +38,7 @@ public class PeaShooter extends ShooterPlant {
 
     @Override
     public void shootBullet() {
-        this.performShoot(SHOOT_OFFSET, 0, -0.2F, true, 0);
+        this.performShoot(SHOOT_OFFSET, 0, this.getBbHeight() * 0.55F, true, 0);
     }
 
     @Override

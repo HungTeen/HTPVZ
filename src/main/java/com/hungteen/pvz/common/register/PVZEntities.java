@@ -7,7 +7,6 @@ import com.hungteen.pvz.client.model.SnailModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.model.zombie.*;
 import com.hungteen.pvz.client.renderer.EntityLifterRenderer;
-import com.hungteen.pvz.client.renderer.ModelPartRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.bullet.*;
@@ -135,10 +134,6 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).noSummon()
             .entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
 
-    //client
-    public static final RegistryObject<EntityType<ModelPartEntity>> MODEL_PART = collision(0.2F, 0.2F).noSummon().noSave()
-            .entity("model_part", ModelPartEntity::new, MobCategory.MISC);
-
     //plants
     public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, WallNut::checkSpawnRules)
@@ -207,7 +202,7 @@ public class PVZEntities {
             .collision(0.6F, 0.6F).entity("gold_bloom", GoldBloom::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<SpikeWeed>> SPIKE_WEED = attribute(SpikeWeed::createAttributes).tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SpikeWeed::checkSpawnRules)
-            .collision(0.95F, 0.125F).entity("spike_weed", SpikeWeed::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.95F, 0.15F).entity("spike_weed", SpikeWeed::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<TorchWood>> TORCH_WOOD = attribute(TorchWood::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TorchWood::checkSpawnRules)
             .collision(0.95F, 0.65F).entity("torch_wood", TorchWood::new, OtherRegisters.PVZPlantMobCategory);
@@ -294,7 +289,7 @@ public class PVZEntities {
             .spawnEgg(0x799587, 0xd4b367)
             .entity("wall_nut_zombie", WallNutZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<TallNutZombie>> TALL_NUT_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0x799587, 0xcda65d)
+            .spawnEgg(0x799587, 0xcda65d).collision(0.6F, 2.6F)
             .entity("tall_nut_zombie", TallNutZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<PumpkinZombie>> PUMPKIN_ZOMBIE = attribute(PumpkinZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0xdd854c)
@@ -424,7 +419,6 @@ public class PVZEntities {
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);
         r(e, HOOK, HookRenderer::new);
-        r(e, MODEL_PART, ModelPartRenderer::new);
         r(e, ENTITY_LIFTER, EntityLifterRenderer::new);
         r(e, FALLEN_STAR, FallenStarRenderer::new);
         r(e, PEA_SHOOTER_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, PeaShooterZombieModel.class));

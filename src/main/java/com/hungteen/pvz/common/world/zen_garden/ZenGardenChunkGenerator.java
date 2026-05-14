@@ -51,9 +51,6 @@ public class ZenGardenChunkGenerator extends ChunkGenerator {
     private final BlockState grass = Blocks.GRASS_BLOCK.defaultBlockState();
     private final BlockState mycelium = Blocks.MYCELIUM.defaultBlockState();
 
-    //TODO still not finished: 1) wisdom tree. 2) mobs (Garden Bee, Redstone Bug, Snail, Snailrillum). 3) BGM. 4) multi main islands.
-
-
     public ZenGardenChunkGenerator(Registry<StructureSet> structureSetRegistry, Registry<Biome> registry, Settings settings) {
         super(structureSetRegistry, settings.structureOverrides(), new ZenGardenBiomeSource(registry));
         this.settings = settings;

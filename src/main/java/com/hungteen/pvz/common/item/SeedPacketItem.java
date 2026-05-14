@@ -69,7 +69,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
-public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkills{
+public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkills {
     /**Contains all kinds of SeedPacketItem.*/
     public static List<SeedPacketItem<?>> seedPacketItemList = new ArrayList<>();
 
@@ -228,6 +228,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             }
             return InteractionResultHolder.fail(player.getItemInHand(handIn));
         }
+        if (level.isClientSide()) return InteractionResultHolder.consume(player.getItemInHand(handIn));
         //planting. not using Item.useOn() for not supporting planting on fluid.
         BlockHitResult fluidResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
         BlockHitResult blockResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
@@ -337,6 +338,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         Level level = ev.getLevel();
         ItemStack itemStack = ev.getEntity().getItemInHand(ev.getHand());
         if (ev.getEntity().getItemInHand(ev.getHand()).getItem() instanceof SeedPacketItem<?> item) {
+            if (level.isClientSide()) return;
             MutableComponent plantResult = item.plantOnEntity(ev.getEntity(), itemStack, level, ev.getTarget());
             if (plantResult == null) {
                 item.used(itemStack, ev.getEntity());

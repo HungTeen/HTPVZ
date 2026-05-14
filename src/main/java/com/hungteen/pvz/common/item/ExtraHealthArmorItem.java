@@ -4,13 +4,16 @@ import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
 import com.hungteen.pvz.client.model.attached.BucketHelmetModel;
+import com.hungteen.pvz.client.particle.ModelPartParticle;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.common.entity.ModelPartEntity;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.DropDamagedArmorPacket;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -20,8 +23,11 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -40,23 +46,31 @@ public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken {
 
     public void handleHurt(LivingHurtEvent event) {
         ItemStack stack = event.getEntity().getItemBySlot(slot);
-        int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
-        stack.hurtAndBreak(blocked * 5 /* 5 durability equals to 1 health. */, event.getEntity(), (entity) -> {
-            DropDamagedArmorPacket.drop((IDropWhenBroken) stack.getItem(), entity.level,
-                    entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0));
-            entity.broadcastBreakEvent(slot);
-        });
-        event.setAmount(event.getAmount() - blocked);
+        ShieldBlockEvent blockEvent = PVZDamageSource.onShieldBlock(event.getEntity(), event.getSource(), event.getAmount(), false);
+        if (! blockEvent.isCanceled()) {
+            int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
+            stack.hurtAndBreak(blocked * 5 /* 5 durability equals to 1 health. */, event.getEntity(), (entity) -> {
+                DropDamagedArmorPacket.drop((IDropWhenBroken) stack.getItem(), entity.level,
+                        entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0));
+                entity.broadcastBreakEvent(slot);
+            });
+            event.setAmount(event.getAmount() - blocked);
+        }
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void clientBroken(Vec3 pos, Level level) {
         if (level.isClientSide && PVZConfig.Client.zombiesDropParts.get()) {
             EntityModelSet models = Minecraft.getInstance().getEntityModels();
-            new ModelPartEntity(level,
-                    models.bakeLayer(PVZLayerHandler.LayerLocationMap.get(ForgeRegistries.ITEMS.getKey(this).getPath() + ":main")),
-                    new ResourceLocation("pvz:textures/models/armor/" + ForgeRegistries.ITEMS.getKey(this).getPath() + "_2.png"))
-                    .pos(pos)
-                    .rotation(new Vec3(0.5, 0, 0)).join(level);
+            if (level.isClientSide && PVZConfig.Client.zombiesDropParts.get()) {
+                ClientProxy.MC.particleEngine.add(
+                        new ModelPartParticle((ClientLevel) level
+                                , models.bakeLayer(PVZLayerHandler.LayerLocationMap.get(ForgeRegistries.ITEMS.getKey(this).getPath() + ":main"))
+                                , new ResourceLocation("pvz:textures/models/armor/" + ForgeRegistries.ITEMS.getKey(this).getPath() + "_2.png")
+                                , pos)
+                                .rotation(new Vec3(60, 60, 60))
+                                .offset(new Vec3(0, 0.5, 0)));
+            }
         }
     }
 

@@ -18,10 +18,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class EssenceAltarBlock extends BaseEntityBlock {
-    private static final VoxelShape AABB = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 9.0D, 16.0D);
+    private static final VoxelShape AABB = Shapes.or(Block.box(0.0D, 0.0D, 0.0D, 16.0D, 4.0D, 16.0D)
+            , Block.box(2.0D, 4.0D, 2.0D, 14.0D, 8.0D, 14.0D));
     public EssenceAltarBlock(Properties p_49224_) {
         super(p_49224_);
     }

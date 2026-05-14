@@ -115,7 +115,7 @@ public class SplitPea extends PeaShooter {
     public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
         if (target != null) {
             Vec3 vec = EntityUtil.getNormalisedVector2d(this, target);
-            final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
+            final double deltaY = heightOffset;
             final double deltaX = forwardOffset * vec.x - rightOffset * vec.z;
             final double deltaZ = forwardOffset * vec.z + rightOffset * vec.x;
             Vec3 bulletPos = new Vec3(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
@@ -123,14 +123,14 @@ public class SplitPea extends PeaShooter {
             Vec3 deltaPos;
             Vec3 targetSpeed;
             if (target == this.getTarget()) {
-                if (storedEnemyPos != null) {
+                if (storedEnemyPos != null && aimTime > 0) {
                     targetSpeed = target.position().subtract(storedEnemyPos)
                             .multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
                 } else {
                     targetSpeed = target.getDeltaMovement();
                 }
             } else {
-                if (storedBackWardEnemyPos != null) {
+                if (storedBackWardEnemyPos != null && aimTime > 0) {
                     targetSpeed = target.position().subtract(storedBackWardEnemyPos)
                             .multiply(1 / (float) backwardAimTime, 1 / (float) backwardAimTime, 1 / (float) backwardAimTime);
                 } else {
@@ -139,13 +139,13 @@ public class SplitPea extends PeaShooter {
             }
             int time = (int) Math.round(distanceTo(target) / speed);
             deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bulletPos.x,
-                    target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bulletPos.y,//angle limit move to targeting goals.
+                    target.getY() + targetSpeed.y * time + target.getEyeHeight() - bulletPos.y,//angle limit move to targeting goals.
                     target.getZ() + targetSpeed.z * time - bulletPos.z);
             for (int tmp = 0; tmp < 3; tmp ++) {
                 //recurse to increase accuracy.
                 time = (int) Math.round(Math.sqrt(deltaPos.x * deltaPos.x + deltaPos.y * deltaPos.y + deltaPos.z * deltaPos.z) / speed);
                 deltaPos = new Vec3(target.getX() + targetSpeed.x * time - bulletPos.x,
-                        target.getY() + targetSpeed.y * time + target.getBbHeight() / 2 - bulletPos.y,
+                        target.getY() + targetSpeed.y * time + target.getEyeHeight() - bulletPos.y,
                         target.getZ() + targetSpeed.z * time - bulletPos.z);
             }
             return deltaPos;
@@ -170,7 +170,7 @@ public class SplitPea extends PeaShooter {
             //create bullet
             Vec3 deltaPos = getShootAngle(target, forwardOffset, rightOffset, heightOffset);
             Vec3 normalized = deltaPos.normalize();
-            final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
+            final double deltaY = heightOffset;
             final double deltaX = forwardOffset * normalized.x - rightOffset * normalized.z;
             final double deltaZ = forwardOffset * normalized.z + rightOffset * normalized.x;
             Projectile bullet = this.createBullet();

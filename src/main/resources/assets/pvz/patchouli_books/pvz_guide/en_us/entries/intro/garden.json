@@ -1,0 +1,31 @@
+{
+    "name": "Zen Garden",
+    "icon": "pvz:zen_garden_portal",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "Zen Garden is a foggy island.  With no annoying monsters inside, you can treat this island as your base and even set your spawn point inside. Zen Garden can be visited through Zen Garden Portal. But if you get too far from the island, the Distance Effect debuff stops you from continue exploring. The recipes below shows how a Zen Garden Portal is crafted."
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:watering_pot",
+            "recipe2": "pvz:zen_garden_portal"
+        },
+        {
+            "type": "spotlight",
+            "title": "Sprout",
+            "item": "pvz:sprout",
+            "text": "You may get Sprouts from the Loot Bags of invasions. Sprouts needs to be planted in Garden Flower Pots in Zen Garden. After being planted, Sprouts needs to be watered and fertilized to grow up. When they grow to the largest, you can harvest them and receive a lot of seeds. Here shows the recipe of Fertilizer."
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:fertilizer"
+        },
+        {
+            "type": "text",
+            "text": "Sometimes Penny will appear in the garden and stay for some time. You can buy some stuffs like Marigold Sprouts and Alaya Resins with Jewels dropped in invasions. Alaya Resin is the ingrediant of many kinds of crucial tools. If you have Jewels, buy some."
+        }
+    ],
+    "sortnum": 6
+}

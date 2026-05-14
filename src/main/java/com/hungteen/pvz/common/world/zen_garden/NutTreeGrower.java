@@ -62,7 +62,7 @@ public class NutTreeGrower extends AbstractMegaTreeGrower {
                 BlockStateProvider.simple(NUT.get(Log).get()),
                 new MegaNutTrunkPlacer(10, 16, 16),
                 new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-                        .add(NUT.get(Leaves).get().defaultBlockState(), 8)
+                        .add(NUT.get(Leaves).get().defaultBlockState(), 15)
                         .add(PVZBlocks.NUT_LEAVES_WITH_NUTS.get().defaultBlockState(), 1)),
                 new MegaJungleFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), 2),
                 new TwoLayersFeatureSize(1, 1, 2)))

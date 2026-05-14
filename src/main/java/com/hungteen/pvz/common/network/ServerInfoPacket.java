@@ -21,29 +21,35 @@ import java.util.function.Supplier;
  */
 public class ServerInfoPacket {
     private final ServerLevel level;
+    private final boolean syncAll;
     private final boolean teamBattle;
     private final int advancedPlantExtraCostRange;
     private final Set<String> evilSet;
-    public ServerInfoPacket(ServerLevel level) {
+    public ServerInfoPacket(ServerLevel level, boolean syncAll) {
         this.level = level;
         this.teamBattle = PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.teamBattle);
         this.advancedPlantExtraCostRange = PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.advancedPlantExtraCostRange);
         this.evilSet = new HashSet<>();
+        this.syncAll = syncAll;
     }
     public ServerInfoPacket(FriendlyByteBuf buf) {
+        this.syncAll = false;
         this.level = null;
         this.teamBattle = buf.readBoolean();
         this.advancedPlantExtraCostRange = buf.readInt();
         this.evilSet = new HashSet<>();
-        int size = buf.readInt();
-        for (int i = 0; i < size; i ++) {
-            evilSet.add(buf.readUtf());
-        }
+        try {
+            int size = buf.readInt();
+            for (int i = 0; i < size; i ++) {
+                evilSet.add(buf.readUtf());
+            }
+        } catch (Exception ignored) {}
     }
     public void toBytes(FriendlyByteBuf buf) {
         this.evilSet.clear();
         buf.writeBoolean(teamBattle);
         buf.writeInt(advancedPlantExtraCostRange);
+        if (! PVZSavedData.isDirty(level.getScoreboard()) && ! this.syncAll) return;
         Collection<PlayerTeam> teams = level.getScoreboard().getPlayerTeams();
         teams.forEach(team -> {
             if (PVZSavedData.isEvil(level.getScoreboard(), team.getName())) {
@@ -60,22 +66,21 @@ public class ServerInfoPacket {
         ctx.get().enqueueWork(() -> player.getCapability(PVZPlayerCapability.CAP).ifPresent(cap -> {
             cap.isTeamBattleOn = teamBattle;
             cap.advancedPlantsExtraCostRange = advancedPlantExtraCostRange;
-            PVZSavedData.clientEvilList = this.evilSet;
         }));
+        PVZSavedData.clientEvilList = this.evilSet;
         ctx.get().setPacketHandled(true);
     }
 
 
     //method
-    public static void sync(ServerPlayer player, ServerLevel level) {
-        if (! PVZSavedData.isDirty(level.getScoreboard())) return;
+    public static void sync(ServerPlayer player, ServerLevel level, boolean syncAll) {
         AtomicBoolean needSync = new AtomicBoolean();
         player.getCapability(PVZPlayerCapability.CAP).ifPresent(cap -> {
             boolean teamBattleUnsynced = cap.isTeamBattleOn != PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.teamBattle);
             boolean extraCostUnsynced = cap.advancedPlantsExtraCostRange != PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.advancedPlantExtraCostRange);
             needSync.set(teamBattleUnsynced || extraCostUnsynced);
         });
-        if (! needSync.get()) return;
-        PVZPacketHandler.sendToClient(player, new ServerInfoPacket(level));
+        if (! syncAll && ! needSync.get() && ! PVZSavedData.isDirty(level.getScoreboard())) return;
+        PVZPacketHandler.sendToClient(player, new ServerInfoPacket(level, syncAll));
     }
 }

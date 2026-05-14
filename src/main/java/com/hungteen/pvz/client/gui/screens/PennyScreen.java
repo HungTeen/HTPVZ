@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.SimpleContainer;
@@ -119,6 +120,9 @@ public class PennyScreen extends AbstractContainerScreen<PennyMenu> {
                     && hoveredSlot.index - 39 + 8 * menu.merchantContainer.currentPage < menu.getOffers().size()) {
                 MerchantOffer offer = menu.getOffers().get(hoveredSlot.index - 39 + 8 * menu.merchantContainer.currentPage);
                 Component desc = Component.translatable(offer.getResult().getDescriptionId() + ".penny_desc");
+                if (desc.getContents() instanceof TranslatableContents c && desc.getString().equals(c.getKey())) {
+                    desc = Component.translatable("hint.pvz.penny_default");
+                }
                 List<FormattedCharSequence> components = font.split(desc, 87);
                 int j = 0;
                 for (FormattedCharSequence i : components) {

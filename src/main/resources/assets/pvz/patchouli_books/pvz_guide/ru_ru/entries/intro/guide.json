@@ -1,0 +1,16 @@
+{
+    "name": "Книга руководства",
+    "icon": "minecraft:book",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "Здесь показан рецепт крафта этой книги."
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:patchouli_guide_book"
+        }
+    ],
+    "sortnum": 0
+}

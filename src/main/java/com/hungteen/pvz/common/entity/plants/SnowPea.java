@@ -79,6 +79,7 @@ public class SnowPea extends PeaShooter {
         if (this.timeOverheat > 1200 && ForgeEventFactory.canLivingConvert(this, PVZEntities.PEA_SHOOTER.get(), (timer) -> this.timeOverheat = timer)) {
 //            this.playConvertedSound();TODO add sound.
             PeaShooter peaShooter = convertTo(PVZEntities.PEA_SHOOTER.get(), true);
+            peaShooter.getEntityData().set(peaShooter.root(), this.getEntityData().get(root()));
             if (peaShooter != null) {
                 if (this.hasCustomName()) {
                     peaShooter.setCustomName(this.getCustomName());

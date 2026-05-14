@@ -30,7 +30,7 @@ public class ItemTagGen extends ItemTagsProvider {
     @Override
     public void addTags(){
         //atItemRegister
-        PVZItems.tagMap.forEach((item, tagList)-> tagList.forEach((tag) -> this.tag(tag).add(item.get())));
+        PVZItems.tagMap.forEach((item, tagList)-> tagList.forEach((tag) -> this.tag(tag).add(item.get()).replace(false)));
         //woodSet
         this.copy(BlockTags.PLANKS, ItemTags.PLANKS);
         this.copy(BlockTags.LOGS, ItemTags.LOGS);

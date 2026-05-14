@@ -2,8 +2,8 @@ package com.hungteen.pvz.client.renderer.zombies;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.client.model.zombie.DiggerZombieModel;
+import com.hungteen.pvz.client.particle.ModelPartParticle;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.common.entity.ModelPartEntity;
 import com.hungteen.pvz.common.entity.zombies.DiggerZombie;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.util.Util;
@@ -53,11 +53,8 @@ public class DiggerZombieRenderer<T extends DiggerZombie, M extends DiggerZombie
         if (PVZConfig.zombieDropParts() && ! ClientProxy.MC.isPaused()) {
             if (zombie.renderHat && ! zombie.hasHelmet()) {
                 zombie.renderHat = false;
-                Vec3 speed = new Vec3(zombie.getRandom().nextFloat() * 0.25 - 0.125,
-                        zombie.getRandom().nextFloat() * 0.15,
-                        zombie.getRandom().nextFloat() * 0.25 - 0.125);
-                new ModelPartEntity(zombie.level, model.helmet, getTextureLocation(zombie)).pos(zombie.position().add(0, zombie.getBbHeight(), 0))
-                        .speed(speed).rotation(new Vec3(0.5, 0.4, 0.5)).scale(zombie.isBaby() ? 0.5F : 1F).join(zombie.level);
+                new ModelPartParticle(zombie, model.hat, getTextureLocation(zombie), new Vec3(0, zombie.getBbHeight(), 0))
+                        .offset(new Vec3(0, - 0.125, 0));
             }
         }
     }

@@ -2,26 +2,28 @@ package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
-import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal;
 import com.hungteen.pvz.common.entity.plants.Plantern;
 import com.hungteen.pvz.common.network.DropDamagedArmorPacket;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZItemTags;
-import com.hungteen.pvz.util.Util;
-import net.minecraft.server.level.ServerPlayer;
+import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.IndirectEntityDamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -54,19 +56,14 @@ public class PVZEntityEventHandler {
     public static void onLivingDie(LivingDeathEvent event) {
         if (! event.getEntity().level.isClientSide) {
             //occur invasion.
-            event.getEntity().getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
-                if (cap.containsInvasion) {
-                    Entity source = event.getSource() instanceof IndirectEntityDamageSource source1 ? source1.owner : event.getSource().getEntity();
-                    Player player = source instanceof ServerPlayer player1 ? player1
-                            : (source != null && (PVZEntityCapability.getOwner(source) instanceof ServerPlayer player1) ? player1 : null);
-                    if (player != null) {
-                        player.addEffect(new MobEffectInstance(PVZMobEffects.INVASION_OMEN.get(),
-                                player.getRandom().nextInt(600) + 400, Util.getInvasionLevel(player) - 1));
-                    }
-                }
-            });
-            //player lose sun.TODO adapt keep inventory game rule
-            if (event.getEntity() instanceof Player player) {
+            var cap = PVZZombieEventCapability.fromLevel(event.getEntity().level);
+            if (cap != null) {
+                InvasionTeam team = cap.getNearestEventRanged(InvasionTeam.class, event.getEntity().blockPosition()
+                        , t -> t.leaderUUID != null && t.leaderUUID.equals(event.getEntity().getUUID()));
+                if (team != null) team.onLeaderDie(event.getEntity(), event.getSource());
+            }
+            //player lose sun.
+            if (event.getEntity() instanceof Player player && player.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
                 int fall = PVZPlayerCapability.getValue(player, PVZPlayerCapStats.SUN) - 50;
                 if (fall > 0) {
                     Sun.spawnSunsWithEffectsByAmount(player.level, player.getOnPos().above(), fall, 0, 0.4F);
@@ -77,8 +74,8 @@ public class PVZEntityEventHandler {
 
     @SubscribeEvent
     public static void PVZShieldBlock(ShieldBlockEvent ev) {
+        if (! PVZDamageSource.isVanillaShieldBlocking) return;
         LivingEntity entity = ev.getEntity();
-
         if (! (entity instanceof Player)) {
             ItemStack item = entity.getUseItem();
 

@@ -1,5 +1,6 @@
 package com.hungteen.pvz;
 
+import com.hungteen.pvz.client.PVZKeyBindings;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.gui.screens.AlmanacScreen;
 import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
@@ -17,6 +18,7 @@ import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.world.PVZFog;
 import com.hungteen.pvz.common.world.PVZSavedData;
+import com.hungteen.pvz.common.world.PVZWorldEvents;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
@@ -177,6 +179,7 @@ public class PVZMod
                 PVZMenus.registerScreens();
             });
             PVZItems.registerProperties();
+            PVZKeyBindings.init();
 
             //clear variables
             PVZParticles.particleMap.clear();
@@ -217,6 +220,7 @@ public class PVZMod
             PVZEntityCapability.tick(ev);
             PVZFogCapability.tick(ev);
             PVZZombieEventCapability.tick(ev);
+            PVZWorldEvents.tick(ev);
             //scoreboard tick
             PVZSavedData.tick();
             //server stress releasing
@@ -252,7 +256,7 @@ public class PVZMod
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent ev) {
         CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
-        CoolDownCommand.register(dispatcher, ev.getBuildContext());
+        ItemCoolDownCommand.register(dispatcher, ev.getBuildContext());
         InvasionCommand.register(dispatcher);
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);

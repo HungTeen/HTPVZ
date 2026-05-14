@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.bullet.SeedArrow;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -27,20 +28,30 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
 public class SeedCrossbowItem extends CrossbowItem {
-    public static final Predicate<ItemStack> ARROW_FIREWORK_OR_SEED_PACKET = ARROW_OR_FIREWORK.or((itemStack) -> itemStack.getItem() instanceof SeedPacketItem<?>);
+    private static List<Integer> enderBundleFilledWithSeeds = new ArrayList<>();
+    public static final Predicate<ItemStack> ACCEPTABLE_BULLETS = ARROW_OR_FIREWORK.or((itemStack) -> {
+        if (itemStack.getItem() instanceof SeedPacketItem<?>) return true;
+        if (itemStack.getItem() instanceof EnderSeedBundleItem item) return enderBundleFilledWithSeeds.contains(item.getPointer(itemStack));
+        return false;
+    });
 
     public SeedCrossbowItem(Properties properties) {
         super(properties);
     }
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
+        for (int k = 0; k < 9; k ++) {
+            if (! PVZPlayerCapability.getEnderSeedBundleSlot(player, k).isEmpty()) enderBundleFilledWithSeeds.add(k);
+        }
         if (isCharged(itemstack)) {
             performShooting(level, player, hand, itemstack, 3.14F, 1.0F);
             setCharged(itemstack, false);
+            enderBundleFilledWithSeeds.clear();
             return InteractionResultHolder.consume(itemstack);
         } else if (!player.getProjectile(itemstack).isEmpty()) {
             if (!isCharged(itemstack)) {
@@ -48,15 +59,16 @@ public class SeedCrossbowItem extends CrossbowItem {
 //                this.midLoadSoundPlayed = false;
                 player.startUsingItem(hand);
             }
-
+            enderBundleFilledWithSeeds.clear();
             return InteractionResultHolder.consume(itemstack);
         } else {
+            enderBundleFilledWithSeeds.clear();
             return InteractionResultHolder.fail(itemstack);
         }
     }
 
     public Predicate<ItemStack> getSupportedHeldProjectiles() {
-        return ARROW_FIREWORK_OR_SEED_PACKET;
+        return ACCEPTABLE_BULLETS;
     }
 
     public static void shootProjectile(Level level, LivingEntity entity, InteractionHand hand, ItemStack itemStack, ItemStack bullet, float p_40900_, boolean p_40901_, float p_40902_, float p_40903_, float p_40904_) {
@@ -133,11 +145,18 @@ public class SeedCrossbowItem extends CrossbowItem {
 
     }
 
-    private static boolean tryLoadProjectiles(LivingEntity shooter, ItemStack itemStack) {
-        int i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MULTISHOT, itemStack);
+    private static boolean tryLoadProjectiles(LivingEntity shooter, ItemStack crossbow) {
+        int i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MULTISHOT, crossbow);
         int j = i == 0 ? 1 : 3;
         boolean instaBuild = shooter instanceof Player && ((Player)shooter).getAbilities().instabuild;
-        ItemStack bullet = shooter.getProjectile(itemStack);
+
+        if (shooter instanceof Player player) {
+            for (int k = 0; k < 9; k ++) {
+                if (! PVZPlayerCapability.getEnderSeedBundleSlot(player, k).isEmpty()) enderBundleFilledWithSeeds.add(k);
+            }
+        }
+        ItemStack bullet = shooter.getProjectile(crossbow);
+        enderBundleFilledWithSeeds.clear();
         ItemStack itemstack1 = bullet.copy();
 
         for(int k = 0; k < j; ++k) {
@@ -150,7 +169,7 @@ public class SeedCrossbowItem extends CrossbowItem {
                 itemstack1 = bullet.copy();
             }
 
-            if (!loadProjectile(shooter, itemStack, bullet, k > 0, instaBuild)) {
+            if (! loadProjectile(shooter, crossbow, bullet, k > 0, instaBuild)) {
                 return false;
             }
         }
@@ -162,10 +181,13 @@ public class SeedCrossbowItem extends CrossbowItem {
         if (bullet.isEmpty()) {
             return false;
         } else {
+            if (bullet.getItem() instanceof EnderSeedBundleItem item && shooter instanceof Player player) {
+                bullet = PVZPlayerCapability.getEnderSeedBundleSlot(player, item.getPointer(bullet));
+            }
             boolean isArrow = instaBuild && bullet.getItem() instanceof ArrowItem;
             boolean isSeed = bullet.getItem() instanceof SeedPacketItem<?>;
             ItemStack itemstack;
-            if (!isArrow && !instaBuild && !p_40866_) {
+            if (! isArrow && ! instaBuild && ! p_40866_) {
                 if (! isSeed) {
                     itemstack = bullet.split(1);
                     if (bullet.isEmpty() && shooter instanceof Player) {

@@ -15,6 +15,7 @@ public class PVZBlockTags {
     public static final TagKey<Block> GARDEN_FLOWER_POT = pvzTag("garden_flower_pot");
     public static final TagKey<Block> SNAIL_SPAWNABLE_ON = pvzTag("snail_spawnable_on");
     public static final TagKey<Block> FUNGICICOLIDAE_SPAWNABLE_ON = pvzTag("fungicicolidae_spawnable_on");
+    public static final TagKey<Block> PLANT_PERMANENT_ON = pvzTag("plant_permanent_on");
 
     //definition
 

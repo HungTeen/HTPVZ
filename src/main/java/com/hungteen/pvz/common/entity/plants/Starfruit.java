@@ -40,7 +40,7 @@ public class Starfruit extends ShooterPlant {
 
     @Override
     public void shootBullet() {
-        this.performShoot(0, 0, 0, true, 0);
+        this.performShoot(0, 0, this.getBbHeight() * 0.5F, true, 0);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class Starfruit extends ShooterPlant {
     }
     @Override
     public void tick() {
-        if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.FOLLOW_RANGE, ATTRIBUTE_MODIFIER_UUID)) {
+        if (hasSkill(SATELLITE_SKILL) && ! EntityUtil.attributeHasModifierOfUUID(this, Attributes.FOLLOW_RANGE, ATTRIBUTE_MODIFIER_UUID)) {
             EntityUtil.addModifierToAttribute(this, Attributes.FOLLOW_RANGE, new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", -0.5, AttributeModifier.Operation.MULTIPLY_BASE));
         }
         super.tick();

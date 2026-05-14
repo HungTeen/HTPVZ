@@ -16,6 +16,7 @@ public class PVZBiomeTags {
     public static TagKey<Biome> UNABLE_SUN_FALLING = pvzTag("unable_sun_falling");
     public static TagKey<Biome> UNABLE_STAR_FALLING = pvzTag("unable_star_falling");
     public static TagKey<Biome> UNABLE_MOOBLOOM_SPAWNING = pvzTag("unable_moobloom_spawning");
+    public static TagKey<Biome> UNABLE_INVASION = pvzTag("unable_invasion");
     public static TagKey<Biome> EXTRA_MOOBLOOM_SPAWNING = pvzTag("extra_moobloom_spawning");
 
 

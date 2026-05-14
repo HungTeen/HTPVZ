@@ -44,10 +44,22 @@ public class ZenGardenTeleporter extends PortalForcer {
             }
             if (vec3 == null) {
                 if (destWorld.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
-                    Random random = new Random(PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.gardenForEveryOne)
-                            ? player.getUUID().getLeastSignificantBits()
-                            : player.getTeam() == null ? 0 : player.getTeam().hashCode()
-                    );
+                    long seed;
+                    if (PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.gardenForEveryOne)) {
+                        seed = player.getUUID().getLeastSignificantBits();
+                    } else if (player.getTeam() == null) {
+                        seed = 0;
+                    } else {
+                        String name = player.getTeam().getName();
+                        seed = 0xcbf29ce484222325L;
+                        long prime = 0x100000001b3L;
+                        for (int i = 0; i < name.length(); i ++) {
+                            char c = name.charAt(i);
+                            seed ^= (c & 0xff);
+                            seed *= prime;
+                        }
+                    }
+                    Random random = new Random(seed);
                     HolderSet<Structure> holderSet = (destWorld.registryAccess().registryOrThrow(Registry.STRUCTURE_REGISTRY)
                             .getHolder(PVZStructures.GARDEN_PORTAL.getKey())).map(HolderSet::direct).get();
                     Pair<BlockPos, Holder<Structure>> pair = destWorld.getChunkSource().getGenerator()
