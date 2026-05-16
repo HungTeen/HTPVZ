@@ -53,7 +53,7 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
     protected MerchantOffers offers;
     private final Set<Pair<Integer, ItemStack>> valuables = Set.of(
             Pair.of(2, PVZItems.ALMANAC.get().getDefaultInstance()),
-            Pair.of(4, new ItemStack(PVZItems.SEED_DISPENSARY.get(), 6)),
+            Pair.of(4, new ItemStack(PVZItems.SEED_DISPENSARY.get(), 2)),
             Pair.of(6, new ItemStack(PVZBlocks.GARDEN_FLOWER_POT.get(), 1)),
             Pair.of(6, PVZItems.SHELL_STARTUP.get().getDefaultInstance()),
             Pair.of(6, PVZBlocks.SILVER_SWORD_ORNAMENT.get().asItem().getDefaultInstance()),
@@ -63,7 +63,7 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
             Pair.of(2, new ItemStack(Items.LEAD, 2)),
             Pair.of(2, new ItemStack(Items.NAME_TAG)),
             Pair.of(3, new ItemStack(PVZItems.TACO.get(), 4)),
-            Pair.of(8, new ItemStack(Items.NETHERITE_SCRAP, 8)),
+            Pair.of(12, new ItemStack(Items.NETHERITE_SCRAP)),
             Pair.of(18, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(PVZEnchantments.SUN_MENDING.get(), 1))),
             Pair.of(18, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(PVZEnchantments.SUN_SHOVEL.get(), 1))),
             Pair.of(18, EnchantedBookItem.createForEnchantment(new EnchantmentInstance(PVZEnchantments.SOILLESS_CULTURE.get(), 1))),
@@ -319,7 +319,7 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
                 menu.setSelectionHint(val);
                 menu.tryMoveItems(val);
             } else {
-                menu.merchantContainer.currentPage = 1 - val;
+                menu.merchantContainer.currentPage = - val - 1;
                 menu.merchantContainer.updateSellItem();
             }
         }

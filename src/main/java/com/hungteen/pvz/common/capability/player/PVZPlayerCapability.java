@@ -81,7 +81,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     private PVZPlayerCapStats nbt = null;
     private final Player player;
     public static final Capability<PVZPlayerCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
-    public static int syncCount = 0;
+    public int syncCount = 0;
 
     /**Pair of garden teleporting positions. The first is overworld pos, the second is garden pos.*/
     private Pair<Vec3, Vec3> gardenPos = new Pair<>(null, null);
@@ -113,15 +113,16 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
     }
     public static void tick(@NotNull TickEvent.ServerTickEvent ev) {
         for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
-            //timed sync
-            if (++ syncCount % 10 == 0) {
-                ServerInfoPacket.sync(player, ((ServerLevel) player.level), syncCount == 20);
-                getPlayerData(player).ifPresent(data -> data.sync(syncCount == 40));
-                if (syncCount == 10 || syncCount == 60 && ! player.isCreative()) EnderSeedBundleContainerPacket.syncToClient(player, -1);
-                if (syncCount == 100) syncCount = 0;
-            }
-            //functional
-            getPlayerData(player).ifPresent((nbt) -> {
+            player.getCapability(CAP).ifPresent(cap -> {
+                var nbt = cap.getPlayerData();
+                //timed sync
+                if (++ cap.syncCount % 10 == 0) {
+                    ServerInfoPacket.sync(player, ((ServerLevel) player.level), cap.syncCount == 20);
+                    getPlayerData(player).ifPresent(data -> data.sync(cap.syncCount == 40));
+                    if (cap.syncCount == 10 || cap.syncCount == 60 && ! player.isCreative()) EnderSeedBundleContainerPacket.syncToClient(player, -1);
+                    if (cap.syncCount == 100) cap.syncCount = 0;
+                }
+                //functional
                 if (! player.isSpectator()) {
                     //team
                     if (player.getTeam() == null && PVZConfig.PVZGameRules.getBoolean(player.level, PVZConfig.Common.joinDefaultTeam)) {
@@ -302,12 +303,10 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     player.containerMenu.setCarried(ItemStack.EMPTY);
                 }
                 //ender seed bundle ticking
-                player.getCapability(CAP).ifPresent(cap -> {
-                    int slot = EnderSeedBundleItem.getHotBarEnderSeedBundleSlot(player);
-                    for (int i = 0; i < 9; i ++) {
-                        cap.enderSeedBundleContainer.getItem(i).inventoryTick(player.getLevel(), player, 41 + i, slot >= 0);
-                    }
-                });
+                int slot = EnderSeedBundleItem.getHotBarEnderSeedBundleSlot(player);
+                for (int i = 0; i < 9; i ++) {
+                    cap.enderSeedBundleContainer.getItem(i).inventoryTick(player.getLevel(), player, 41 + i, slot >= 0);
+                }
             });
         }
     }

@@ -360,7 +360,8 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public static boolean tryShovel(Player player, InteractionHand handIn, LivingEntity target) {
         ItemStack itemstack = player.getItemInHand(handIn);
         ItemStack itemstack1 = player.getItemInHand(InteractionHand.MAIN_HAND);
-        boolean result = (itemstack.getItem() instanceof ShovelItem || itemstack.getItem() instanceof IPlantShovelable)
+        boolean result = (itemstack.getItem() instanceof ShovelItem
+                        || (itemstack.getItem() instanceof IPlantShovelable shovelable && shovelable.canShovel(target, itemstack)))
                 && ! player.getCooldowns().isOnCooldown(itemstack.getItem())
                 && ! (handIn == InteractionHand.OFF_HAND && itemstack1.getItem() instanceof SeedPacketItem<?>);
                     // TODO why does shovel in offHand still runs useOn() when seedPacket is already planted? If can solve, this part can be deleted.

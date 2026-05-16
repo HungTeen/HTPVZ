@@ -25,6 +25,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
@@ -48,6 +50,7 @@ public class PVZWorldEvents {
         }
     }
     @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
     public static void playerDestroyShield(PlayerDestroyItemEvent ev) {
         if (ev.getHand() != null && ev.getEntity().getItemInHand(ev.getHand()).getItem() instanceof PVZShieldItem item) {
             item.clientBroken(ev.getEntity().position(), ev.getEntity().level);

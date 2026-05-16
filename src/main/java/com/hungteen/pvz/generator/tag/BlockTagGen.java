@@ -18,6 +18,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hungteen.pvz.common.register.PVZBlocks.WoodSet.*;
+import static com.hungteen.pvz.common.register.PVZBlocks.woodList;
+import static com.hungteen.pvz.common.register.PVZBlocks.woodTypeList;
+
 public class BlockTagGen extends BlockTagsProvider {
 
     public BlockTagGen(DataGenerator p_126511_, @Nullable ExistingFileHelper existingFileHelper) {
@@ -27,7 +31,16 @@ public class BlockTagGen extends BlockTagsProvider {
     public void addTags(){
         //atBlockRegister
         PVZBlocks.tagMap.forEach((block, tagList)-> tagList.forEach((tag) -> this.tag(tag).add(block.get()).replace(false)));
-        //others
+        //woodSet
+        for (int i = 0; i < woodList.size(); i ++){
+            String name = woodTypeList.get(i).name();
+            LOGS.add(tag(name + "_logs"));
+            this.tag(LOGS.get(i)).add(woodList.get(i).get(Log).get(),
+                    woodList.get(i).get(StLog).get(),
+                    woodList.get(i).get(Wood).get(),
+                    woodList.get(i).get(StWood).get()
+            );
+        }//others
         this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(
                 Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT,
                 Blocks.SOUL_SAND, Blocks.SOUL_SOIL, PVZBlocks.FLOATING_SOUL_SOIL.get(),

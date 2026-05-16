@@ -123,11 +123,11 @@ public class InvasionTypeGen implements DataProvider {
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 2F))
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PLANTERN.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.VELOCI_RADISH.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.LILY_PAD.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 3F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SNOW_PEA.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 6F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.VELOCI_RADISH.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 6F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1))
@@ -191,7 +191,7 @@ public class InvasionTypeGen implements DataProvider {
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(3F, 5F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(3F, 5F))
+                                        .setRolls(UniformGenerator.between(1F, 2F))
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PLANTERN.get())).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TANGLE_KELP.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
                         ).withPool(
@@ -536,7 +536,7 @@ public class InvasionTypeGen implements DataProvider {
                 ),
                 conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
-                        condition(new InvasionCondition.ObtainedAdvancementCondition(), "pvz:kill_end_zomboss")
+                        condition(new InvasionCondition.ObtainedAdvancementCondition(), "pvz:kill_ender_zomboss")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.HOLD_RANDOM_JEWEL, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES),
                 Optional.of(
@@ -592,7 +592,7 @@ public class InvasionTypeGen implements DataProvider {
         map.put(Util.prefix("overworld_zombotany_jalapeno"), new InvasionType(loot("pvz:invasion/overworld_zombotany"),
                 conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
-                        condition(new InvasionCondition.ObtainedAdvancementCondition(), "pvz:kill_end_zomboss"),
+                        condition(new InvasionCondition.ObtainedAdvancementCondition(), "pvz:kill_ender_zomboss"),
                         condition(new InvasionCondition.InBiomeCondition(), "#forge:is_hot")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.HOLD_RANDOM_JEWEL, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES),

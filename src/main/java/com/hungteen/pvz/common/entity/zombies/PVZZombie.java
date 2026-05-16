@@ -50,6 +50,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.level.block.entity.BannerPatterns;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -94,6 +95,13 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
     public static UUID GROUP_UP_MODIFIER = UUID.fromString("772807aa-672f-bfda-7d21-0f66823f6d53");
     public PVZZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
+        if (! this.fireImmune()) {
+            this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, -1.0F);
+            this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
+        }
+        this.setPathfindingMalus(BlockPathTypes.DAMAGE_CACTUS, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.DANGER_CACTUS, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 8.0F);
     }
 
     //methods

@@ -49,6 +49,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static net.minecraft.util.Mth.ceil;
@@ -69,7 +70,7 @@ public class PVZOverlayHandler {
 
     public static void tick(float tickTime) {
         Player player = getCameraPlayer();
-        if (PVZPlayerCapability.getPlayerData(player).isPresent()) {
+        if (player != null && PVZPlayerCapability.getPlayerData(player).isPresent()) {
             double tmp = Math.pow(0.95, tickTime * 100);
             int now = PVZPlayerCapability.getValue(player,  PVZPlayerCapStats.SUN);
             int barLength = (int) (94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(player, PVZPlayerCapStats.SUN).getSecond());
@@ -563,7 +564,7 @@ public class PVZOverlayHandler {
         BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
-    private static Player getCameraPlayer() {
+    private static @Nullable Player getCameraPlayer() {
         return ! (ClientProxy.MC.getCameraEntity() instanceof Player) ? null : ClientProxy.getPlayer();
     }
 
@@ -602,5 +603,5 @@ public class PVZOverlayHandler {
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
-    public record ZombieEventBarInformation(UUID uuid, int x, int y, BossEvent event) {};
+    public record ZombieEventBarInformation(UUID uuid, int x, int y, BossEvent event) {}
 }

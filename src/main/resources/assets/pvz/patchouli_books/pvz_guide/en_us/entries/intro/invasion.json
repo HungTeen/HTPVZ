@@ -44,6 +44,5 @@
             "text": "You can check the progress of invasions through the bar shown at the top of the screen. When you succeed in an invasion, the zombies will drop a Loot Bag, which you can open by right mouse button. The first several invasions may not be that hard and can be done even without a plant, but it grows harder with your gaming continue, the awards are also getting more abundant."
         }
     ],
-    "advancement": "minecraft:adventure/root",
     "sortnum": 6
 }

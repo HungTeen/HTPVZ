@@ -530,7 +530,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
 
     public void end(Vec3 position, String endType, boolean success) {
         if (target instanceof Player player) {
-            if (success) {
+            if (success && ! player.level.isClientSide) {
                 player.awardStat(PVZStats.INVASIONS_WON);
                 InvasionType invasionType = this.getMainType();
                 if (invasionType != null && invasionType.loot().isPresent()) {
@@ -551,7 +551,6 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                     .ifPresent(cap -> {
                         cap.addValue(PVZPlayerCapStats.INVASION_DIFFICULTY, success ?
                                 (int) Math.max(1, (((float) this.expectedTotalTime / (this.totalTime + 1) - 1) * 5 + (threatFactor - 1) * 5)) : - 3);
-                        cap.setValue(PVZPlayerCapStats.LAST_INVASION, 0);
                     });
         }
         Component component = Component.translatable(endType, uuid.toString());

@@ -35,16 +35,17 @@ public class ItemTagGen extends ItemTagsProvider {
         this.copy(BlockTags.PLANKS, ItemTags.PLANKS);
         this.copy(BlockTags.LOGS, ItemTags.LOGS);
         this.copy(BlockTags.LOGS_THAT_BURN, ItemTags.LOGS_THAT_BURN);
+        this.copy(BlockTags.SAPLINGS, ItemTags.SAPLINGS);
         this.copy(BlockTags.WOODEN_BUTTONS, ItemTags.WOODEN_BUTTONS);
         this.copy(BlockTags.WOODEN_DOORS, ItemTags.WOODEN_DOORS);
-        this.copy(BlockTags.SAPLINGS, ItemTags.SAPLINGS);
         this.copy(BlockTags.WOODEN_STAIRS, ItemTags.WOODEN_STAIRS);
-        this.copy(BlockTags.LEAVES, ItemTags.LEAVES);
-        this.copy(BlockTags.WOODEN_TRAPDOORS, ItemTags.WOODEN_TRAPDOORS);
+        this.copy(BlockTags.WOODEN_SLABS, ItemTags.WOODEN_SLABS);
         this.copy(BlockTags.WOODEN_TRAPDOORS, ItemTags.WOODEN_TRAPDOORS);
         this.copy(BlockTags.WOODEN_FENCES, ItemTags.WOODEN_FENCES);
+        this.copy(BlockTags.WOODEN_PRESSURE_PLATES, ItemTags.WOODEN_PRESSURE_PLATES);
+        this.copy(BlockTags.LEAVES, ItemTags.LEAVES);
         this.copy(BlockTags.STANDING_SIGNS, ItemTags.SIGNS);
-        for (TagKey<Block> i : BlockTagGen.LOGS){
+        for (TagKey<Block> i : BlockTagGen.LOGS) {
             TagKey<Item> tag = tag(i.location().getPath());
             this.copy(i, tag);
             LOGS.add(tag);

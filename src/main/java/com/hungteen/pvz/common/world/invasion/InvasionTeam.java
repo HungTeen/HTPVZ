@@ -6,6 +6,8 @@ import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.api.interfaces.ICanGroupUp;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.world.PathSeeker;
 import com.hungteen.pvz.util.EntityUtil;
@@ -180,6 +182,7 @@ public class InvasionTeam extends ZombieEvent {
                 }
                 if (! this.invasionTypes.isEmpty()) {
                     shouldApplyEffect = false;
+                    PVZPlayerCapability.getPlayerData(player).ifPresent(nbt -> nbt.setValue(PVZPlayerCapStats.LAST_INVASION, 0));
                     PVZZombieEventCapability.fromLevel(player.level)
                             .addEvent(new Invasion(this.level, this.uuid, this.invasionTypes, player, this.position, Util.getInvasionLevel(player)));
                 }

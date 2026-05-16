@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.common.world.invasion.Invasion;
@@ -279,6 +280,7 @@ public class PVZMobEffects {
                         var cap = PVZZombieEventCapability.fromLevel(player.level);
                         if (cap != null) {
                             cap.addEvent(new Invasion(entity.level, types, entity, entity.blockPosition(), Math.min(11, Math.max(1, amplifier))));
+                            PVZPlayerCapability.getPlayerData(player).ifPresent(nbt -> nbt.setValue(PVZPlayerCapStats.LAST_INVASION, 0));
                             entity.removeEffect(INVASION_OMEN.get());
                         }
                     }

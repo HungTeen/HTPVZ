@@ -3,6 +3,7 @@ package com.hungteen.pvz.client.gui.screens;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
@@ -128,6 +129,9 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                                 this.leftPos + 234, this.topPos + 18);
                     } else if (seed instanceof RegistryObject<?> registryObject && registryObject.get() instanceof ItemLike itemLike) {
                         ClientProxy.MC.getItemRenderer().renderAndDecorateFakeItem(itemLike.asItem().getDefaultInstance(),
+                                this.leftPos + 234, this.topPos + 18);
+                    } else if (seed instanceof RegisterSeedPacketsEvent.SeedPacketData<?> data1) {
+                        ClientProxy.MC.getItemRenderer().renderAndDecorateFakeItem(SeedPacketItem.getSeedPacket(data1.entitySupplier.get()).getDefaultInstance(),
                                 this.leftPos + 234, this.topPos + 18);
                     }
                 }

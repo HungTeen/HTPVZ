@@ -85,6 +85,7 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> marigoldsRequires;
         public static ForgeConfigSpec.ConfigValue<Boolean> sproutsRequires;
         public static ForgeConfigSpec.ConfigValue<Boolean> enableInvasionDirector;
+        public static ForgeConfigSpec.ConfigValue<Boolean> seedDispensaryGiveSprout;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnInvasionsInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnFallenStarInterval;
@@ -159,6 +160,9 @@ public class PVZConfig {
             enableInvasionDirector = add(builder
                             .comment("when on, an invasion director will dynamically adjust invasions."),
                     "enableInvasionDirector", true);
+            seedDispensaryGiveSprout = add(builder
+                            .comment("when on, Seed Dispensaries gives players sprouts instead of seeds."),
+                    "seedDispensaryGiveSprout", true);
             naturallySpawnInvasionsInterval = add(builder
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
                     "naturallySpawnInvasionsInterval", 24000, 0, 1000000);

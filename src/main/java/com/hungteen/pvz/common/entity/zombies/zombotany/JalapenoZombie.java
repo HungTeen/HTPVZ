@@ -86,10 +86,6 @@ public class JalapenoZombie extends PVZZombie implements IZombotany {
             }
         }
     }
-    @Override
-    public boolean fireImmune() {
-        return true;
-    }
 
     public void explode() {
         level.explode(this, teamFilter(DamageSource.explosion(this).bypassArmor()), null, this.getX(), this.getY() + 1.5, this.getZ(),

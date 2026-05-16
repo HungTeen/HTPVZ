@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.network;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.mojang.datafixers.util.Pair;
@@ -59,6 +60,7 @@ public class PlayerCapStatsPacket {
                 nbt.setValueLimit(keys.get(i), limitMin.get(i).intValue(), limitMax.get(i).intValue());
             }
         }));
+        PVZMod.LOGGER.info("packet received!");
         ctx.get().setPacketHandled(true);
     }
 

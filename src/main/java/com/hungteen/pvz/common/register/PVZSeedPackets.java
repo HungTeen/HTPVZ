@@ -50,7 +50,7 @@ public class PVZSeedPackets {
                 .recipe(Items.POTATO, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE)
                 .note(Component.translatable("container.pvz.almanac.can_plant_on_dirt"));
         add(PVZEntities.SNOW_PEA).cost(150).coolDown(FAST).skillList(SnowPea.staticSkillList)
-                .recipe(PVZItems.FLOWER_SEED_PACKET);
+                .recipe(getData(PVZEntities.PEA_SHOOTER), PVZItems.FLOWER_SEED_PACKET, PVZItems.IGNIS_ESSENCE);
         add(PVZEntities.LILY_PAD).cost(25).coolDown(FAST).skillList(LilyPad.staticSkillList)
                 .recipe(Items.LILY_PAD, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE)
                 .note(Component.translatable("container.pvz.almanac.can_only_plant_on_water"));
