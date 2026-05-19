@@ -21,6 +21,7 @@ public class RegisterInvasionConditionsEvent extends Event {
                 .put(Util.prefix("is_underground"), new InvasionCondition.IsUndergroundCondition())
                 .put(Util.prefix("obtained_advancement"), new InvasionCondition.ObtainedAdvancementCondition())
                 .put(Util.prefix("has_item"), new InvasionCondition.HasItemCondition())
+                .put(Util.prefix("has_effect"), new InvasionCondition.HasEffectCondition())
                 .put(Util.prefix("in_dimension"), new InvasionCondition.InDimensionCondition())
                 .put(Util.prefix("in_biome"), new InvasionCondition.InBiomeCondition())
                 .put(Util.prefix("in_structure"), new InvasionCondition.InStructureCondition())

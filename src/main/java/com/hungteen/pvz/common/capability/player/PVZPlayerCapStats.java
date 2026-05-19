@@ -83,7 +83,7 @@ public class PVZPlayerCapStats {
     }
 
     public boolean addValue(String key, Integer value) {
-        Boolean valueAlreadyExists;
+        boolean valueAlreadyExists;
         if (dataMap.containsKey(key)) {
             setValue(key, dataMap.get(key) + value);
             valueAlreadyExists = true;

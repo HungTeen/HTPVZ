@@ -92,8 +92,18 @@ public class InvasionTypeGen implements DataProvider {
                 conditions(
                         condition(new InvasionCondition.InStructureCondition(), "pvz:invasion_ruin")
                 ),
-                entityModifiers(InvasionEntityModifiers.HOLD_RANDOM_MATERIAL),
-                Optional.empty(), List.of(), true, 1.2F, 1.8F,10000
+                entityModifiers(InvasionEntityModifiers.HOLD_RANDOM_MATERIAL, InvasionEntityModifiers.POWER_JACK_IN_A_BOX_ZOMBIE),
+                Optional.empty(),
+                List.of(
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get()).get(), CONE, 5, false, 0.25F
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get())
+                                        .equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get()
+                                , CONE + ZOMBIE, 10, false, 0.6F
+                        )
+        ), true, 1.8F, 1F,10000
         ));
         map.put(Util.prefix("overworld_underground"), new InvasionType(loot(),
                 conditions(
@@ -639,7 +649,7 @@ public class InvasionTypeGen implements DataProvider {
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 2F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PUMPKIN.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SPIKE_WEED.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
                         ).withPool(
                                 LootPool.lootPool()
@@ -717,7 +727,7 @@ public class InvasionTypeGen implements DataProvider {
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(1F, 2F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.STARFRUIT.get())).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
+                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TORCH_WOOD.get())).setWeight(15).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 5F))))
                         ).withPool(
                                 LootPool.lootPool()

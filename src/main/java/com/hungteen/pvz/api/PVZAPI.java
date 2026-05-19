@@ -34,7 +34,8 @@ public class PVZAPI {
         return LAZY_INSTANCE.get();
     }
 
-    public interface IPVZAPI{
+    public interface IPVZAPI {
+        default boolean isDummy() {return true;}
         //player
         /**The key for sun in playerStats and EntityCap. */
         default String getSunResourceName() {

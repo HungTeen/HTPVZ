@@ -31,8 +31,8 @@ public class Plantern extends SimplePlant {
     public static final String LEAD_SKILL_NAME = "skill.pvz.plantern.light_house";
     public static final String DETECT_SKILL_NAME = "skill.pvz.plantern.lantern_radar";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(LEAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 0, 350),
-            new Skill(DETECT_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 125, 350).avoidSkills(LEAD_SKILL_NAME)
+            new Skill(LEAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 0, 0),
+            new Skill(DETECT_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 125, 0).avoidSkills(LEAD_SKILL_NAME)
     );
     public AnimationState idleAnimationState = new AnimationState();
 
@@ -158,7 +158,7 @@ public class Plantern extends SimplePlant {
                 return Math.abs(angle - entityAngle) < 0.5;
             }).forEach((entity) -> {
                 if (entity instanceof LivingEntity livingEntity) {
-                    livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 25));
+                    livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 100));
                 }
             });
         }

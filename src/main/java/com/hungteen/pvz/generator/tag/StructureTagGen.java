@@ -16,6 +16,7 @@ public class StructureTagGen extends StructureTagsProvider {
 
     @Override
     public void addTags() {
-        this.tag(PVZStructureTags.CAN_INVADE).add(PVZStructures.INVASION_RUIN.get(), Structures.MINESHAFT.get(), Structures.NETHER_FOSSIL.get(), Structures.MINESHAFT_MESA.get());
+        this.tag(PVZStructureTags.CAN_INVADE).add(PVZStructures.INVASION_RUIN.get(), PVZStructures.NETHER_INVASION_RUIN.get()
+                , Structures.MINESHAFT.get(), Structures.NETHER_FOSSIL.get(), Structures.MINESHAFT_MESA.get());
     }
 }

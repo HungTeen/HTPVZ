@@ -36,7 +36,7 @@ public class KernelPult extends ShooterPlant {
     public static final String BUTTER_SKILL_NAME = "skill.pvz.kernel_pult.butter_pult";
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 300)
+            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 200)
     );
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {

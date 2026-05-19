@@ -20,6 +20,10 @@ public class PVZShieldItem extends ShieldItem implements IDropWhenBroken {
         super(p_43089_);
     }
 
+    public boolean isValidRepairItem(ItemStack p_43091_, ItemStack p_43092_) {
+        return false;
+    }
+
     @OnlyIn(Dist.CLIENT)
     public void clientBroken(Vec3 pos, Level level) {
         ItemStack item = this.getDefaultInstance();

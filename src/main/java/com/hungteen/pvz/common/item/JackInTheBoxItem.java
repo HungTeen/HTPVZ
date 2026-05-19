@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
@@ -46,7 +47,8 @@ public class JackInTheBoxItem extends Item {
             Explosion.BlockInteraction explosion$blockinteraction = destructive &&
                     net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(level, user) && PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.jackInTheBoxGriefing) ?
                             Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
-            level.explode(null, user.getX(), user.getY(), user.getZ(), strength, explosion$blockinteraction);
+            level.explode(null, new EntityDamageSource("explosion.player", user).setScalesWithDifficulty().setExplosion()
+                    , null, user.getX(), user.getY(), user.getZ(), strength, false, explosion$blockinteraction);
             if (! user.isAlive()) {
                 spawnLingeringCloud(user);
             }
@@ -97,6 +99,12 @@ public class JackInTheBoxItem extends Item {
         ItemProperties.register(PVZItems.JACK_IN_THE_BOX.get(), new ResourceLocation("rollup"),
                 (itemStack, level, entity, seed) -> entity instanceof LivingEntity && entity.isUsingItem() && entity.getUseItem() == itemStack ? (float) Math.sin((double) itemStack.getUseDuration() - entity.getUseItemRemainingTicks()) > 0 ? 1 : 0 : 0);
         ItemProperties.register(PVZItems.JACK_IN_THE_BOX.get(), new ResourceLocation("shining"),
+                (itemStack, level, entity, seed) -> entity instanceof LivingEntity && entity.isUsingItem() && entity.getUseItem() == itemStack ? (Math.sin(Math.pow((float) (itemStack.getUseDuration() - entity.getUseItemRemainingTicks()), 1.4) / 4) < 0.05 || (itemStack.getUseDuration() - entity.getUseItemRemainingTicks()) > 50 ? 1 : 0) : 0);
+        ItemProperties.register(PVZItems.CHARGED_JACK_IN_THE_BOX.get(), new ResourceLocation("open"),
+                (itemStack, level, entity, seed) -> entity instanceof LivingEntity && entity.isUsingItem() && entity.getUseItem() == itemStack ? 1 : 0);
+        ItemProperties.register(PVZItems.CHARGED_JACK_IN_THE_BOX.get(), new ResourceLocation("rollup"),
+                (itemStack, level, entity, seed) -> entity instanceof LivingEntity && entity.isUsingItem() && entity.getUseItem() == itemStack ? (float) Math.sin((double) itemStack.getUseDuration() - entity.getUseItemRemainingTicks()) > 0 ? 1 : 0 : 0);
+        ItemProperties.register(PVZItems.CHARGED_JACK_IN_THE_BOX.get(), new ResourceLocation("shining"),
                 (itemStack, level, entity, seed) -> entity instanceof LivingEntity && entity.isUsingItem() && entity.getUseItem() == itemStack ? (Math.sin(Math.pow((float) (itemStack.getUseDuration() - entity.getUseItemRemainingTicks()), 1.4) / 4) < 0.05 || (itemStack.getUseDuration() - entity.getUseItemRemainingTicks()) > 50 ? 1 : 0) : 0);
     }
 }

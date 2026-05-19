@@ -85,7 +85,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     /**Check {@link IGardenPlant} for the two methods below.*/
     @Override
-    public InteractionResult onWatered(Player player, ItemStack stack) {
+    public InteractionResult onWatered(@Nullable Player player, @Nullable ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringWater()) {
             this.setRemainingGrowTick(100 + random.nextInt(100));
@@ -97,12 +97,13 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         }
     }
 
-    public InteractionResult onFertilized(Player player, ItemStack stack) {
+    public InteractionResult onFertilized(@Nullable Player player, @Nullable ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringFertilizer()) {
             GardenPlantGrowUpEvent event = new GardenPlantGrowUpEvent(this, true);
             MinecraftForge.EVENT_BUS.post(event);
-            if (event.shouldApplyEffects) {
+            if (event.shouldProduce) {
+                ExperienceOrb.award((ServerLevel)this.level, this.position(), 3);
                 this.entityData.set(IS_PRODUCING, true);
             }
             if (! event.isCanceled()) {
@@ -281,7 +282,11 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         @Override
         public boolean canUse() {
             if (mariGold.getRemainingGrowTick() <= 0) {
-                setRequiring(true);
+                if (PVZConfig.PVZGameRules.getBoolean(mariGold.level, PVZConfig.Common.marigoldsRequires))
+                    setRequiring(true);
+                else {
+                    mariGold.onFertilized(null, null);
+                }
             }
             return mariGold.entityData.get(IS_PRODUCING);
         }

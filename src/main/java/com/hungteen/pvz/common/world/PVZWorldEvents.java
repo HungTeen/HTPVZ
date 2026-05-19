@@ -9,7 +9,9 @@ import com.hungteen.pvz.common.entity.FallenStar;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.PVZShieldItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.register.PVZBiomes;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.register.PVZDimensions;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.common.world.invasion.Invasion;
@@ -18,10 +20,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
@@ -29,6 +37,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.living.ZombieEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
@@ -86,6 +95,16 @@ public class PVZWorldEvents {
     }
 
     @SubscribeEvent
+    public static void playerCapRespawnSync(PlayerEvent.PlayerRespawnEvent event) {
+        event.getEntity().getCapability(PVZPlayerCapability.CAP).ifPresent(cap -> cap.sync(true));
+    }
+
+    @SubscribeEvent
+    public static void playerCapRespawnSync(PlayerEvent.PlayerChangedDimensionEvent event) {
+        event.getEntity().getCapability(PVZPlayerCapability.CAP).ifPresent(cap -> cap.sync(true));
+    }
+
+    @SubscribeEvent
     public static void addListener(AddReloadListenerEvent ev) {
         ev.addListener(new InvasionTypeManager());
         ev.addListener(new DataSkillManager());
@@ -99,6 +118,17 @@ public class PVZWorldEvents {
                 event.setResult(Event.Result.DENY);
             }
         });
+    }
+
+    @SubscribeEvent
+    public static void onEntityTick(LivingEvent.LivingTickEvent event) {
+        LivingEntity entity = event.getEntity();
+        Level level = entity.getLevel();
+        if (! level.isClientSide && level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)
+                && level.getBiome(entity.blockPosition()).is(PVZBiomes.GARDEN_VOID.getKey())) {
+            if (entity instanceof Player player) {
+            }
+        }
     }
 
     //called by PVZMod#onServerTick(ev).

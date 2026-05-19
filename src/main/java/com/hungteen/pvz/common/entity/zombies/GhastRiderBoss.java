@@ -19,12 +19,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class GhastRiderBoss extends FireImp {
     public BlockPos homePos = null;
@@ -57,18 +59,6 @@ public class GhastRiderBoss extends FireImp {
                 true, (entity) -> EntityUtil.checkCanEntityBeAttack(this, entity)));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class,
                 true, (entity) -> entity instanceof IPlant && EntityUtil.checkCanEntityBeAttack(this, entity)));
-    }
-
-    @Override
-    public void startSeenByPlayer(ServerPlayer p_31483_) {
-        super.startSeenByPlayer(p_31483_);
-        this.bossEvent.addPlayer(p_31483_);
-    }
-
-    @Override
-    public void stopSeenByPlayer(ServerPlayer p_31488_) {
-        super.stopSeenByPlayer(p_31488_);
-        this.bossEvent.removePlayer(p_31488_);
     }
 
     public void addAdditionalSaveData(CompoundTag tag) {
@@ -128,6 +118,14 @@ public class GhastRiderBoss extends FireImp {
         int storedDeathTime = this.deathTime;
         int boardingCoolDown = this.boardingCooldown;
         if (! level.isClientSide) {
+            List<Player> newPlayers = level.getNearbyPlayers(TargetingConditions.forCombat(), this, this.getBoundingBox().inflate(48));
+            List<ServerPlayer> currentPlayers = List.copyOf(this.bossEvent.getPlayers());
+            for (ServerPlayer player : currentPlayers) {
+                if (! newPlayers.contains(player)) this.bossEvent.removePlayer(player);
+            }
+            for (Player player : newPlayers) {
+                if (player instanceof ServerPlayer serverPlayer && ! currentPlayers.contains(serverPlayer)) this.bossEvent.addPlayer(serverPlayer);
+            }
             if (this.isAlive()) {
                 if (this.homePos == null) {
                     this.homePos = this.blockPosition();

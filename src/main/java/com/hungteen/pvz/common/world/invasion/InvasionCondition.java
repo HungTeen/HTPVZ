@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -95,6 +96,26 @@ public interface InvasionCondition {
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
             return 1;
+        }
+    }
+
+    /**Detects which dimension target is in. Accepts only 1 argument.*/
+    class HasEffectCondition implements InvasionCondition {
+        @Override
+        public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
+            if (arguments.isEmpty()) {
+                PVZMod.LOGGER.warn("Condition has_effect of " + type.getName() + " received no arguments.");
+            }
+            for (String argument : arguments) {
+                ResourceLocation resourcelocation = new ResourceLocation(argument);
+                if (ForgeRegistries.MOB_EFFECTS.containsKey(resourcelocation)) {
+                    MobEffect effect = ForgeRegistries.MOB_EFFECTS.getValue(resourcelocation);
+                    if (target.hasEffect(effect)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 

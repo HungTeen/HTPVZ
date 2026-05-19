@@ -21,19 +21,20 @@ public class BiomeTagGen extends BiomeTagsProvider {
         this.tag(PVZBiomeTags.HAS_GARDEN_PORTAL).add(PVZBiomes.GARDEN_PLAINS.get());
         this.tag(PVZBiomeTags.HAS_GARDEN_SHELVES).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_MUSHROOM.get());
         this.tag(PVZBiomeTags.HAS_SACRIFICIAL_VENUE).add(Biomes.NETHER_WASTES, Biomes.SOUL_SAND_VALLEY);
-        this.tag(PVZBiomeTags.HAS_INVASION_RUIN).add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.SNOWY_PLAINS, Biomes.ICE_SPIKES, Biomes.DESERT
+        this.tag(PVZBiomeTags.HAS_OVERWORLD_INVASION_RUIN).add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.SNOWY_PLAINS, Biomes.ICE_SPIKES, Biomes.DESERT
                 , Biomes.SWAMP, Biomes.MANGROVE_SWAMP, Biomes.FOREST, Biomes.FLOWER_FOREST, Biomes.BIRCH_FOREST, Biomes.DARK_FOREST
                 , Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA
                 , Biomes.TAIGA, Biomes.SNOWY_TAIGA, Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU
                 , Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_FOREST, Biomes.WINDSWEPT_SAVANNA
                 , Biomes.JUNGLE, Biomes.SPARSE_JUNGLE, Biomes.BAMBOO_JUNGLE, Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS
                 , Biomes.MEADOW, Biomes.GROVE, Biomes.SNOWY_SLOPES);
-        this.tag(BiomeTags.HAS_CLOSER_WATER_FOG).replace(false).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get());
-        this.tag(PVZBiomeTags.UNABLE_SUN_PRODUCTION).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_ISLAND.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get());
-        this.tag(PVZBiomeTags.UNABLE_SUN_FALLING).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_ISLAND.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get());
+        this.tag(PVZBiomeTags.HAS_NETHER_INVASION_RUIN).add(Biomes.NETHER_WASTES, Biomes.SOUL_SAND_VALLEY, Biomes.CRIMSON_FOREST, Biomes.WARPED_FOREST);
+        this.tag(BiomeTags.HAS_CLOSER_WATER_FOG).replace(false).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get(), PVZBiomes.GARDEN_VOID.get());
+        this.tag(PVZBiomeTags.UNABLE_SUN_PRODUCTION).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_ISLAND.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get(), PVZBiomes.GARDEN_VOID.get());
+        this.tag(PVZBiomeTags.UNABLE_SUN_FALLING).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_ISLAND.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get(), PVZBiomes.GARDEN_VOID.get());
         this.tag(PVZBiomeTags.UNABLE_MOOBLOOM_SPAWNING).add(Biomes.END_MIDLANDS);
         this.tag(PVZBiomeTags.UNABLE_INVASION).add(Biomes.MUSHROOM_FIELDS
-                , PVZBiomes.GARDEN_MUSHROOM.getKey(), PVZBiomes.GARDEN_PLAINS.getKey() , PVZBiomes.GARDEN_RIVER.getKey(), PVZBiomes.GARDEN_ISLAND.getKey());
+                , PVZBiomes.GARDEN_MUSHROOM.getKey(), PVZBiomes.GARDEN_PLAINS.getKey() , PVZBiomes.GARDEN_RIVER.getKey(), PVZBiomes.GARDEN_ISLAND.getKey(), PVZBiomes.GARDEN_VOID.getKey());
         this.tag(PVZBiomeTags.EXTRA_MOOBLOOM_SPAWNING).add(Biomes.MEADOW, Biomes.FLOWER_FOREST, Biomes.SUNFLOWER_PLAINS);
     }
 }

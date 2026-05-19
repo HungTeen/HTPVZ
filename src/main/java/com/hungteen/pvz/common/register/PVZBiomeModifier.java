@@ -53,11 +53,9 @@ public class PVZBiomeModifier implements BiomeModifier {
             }
             if (biome.is(BiomeTags.IS_NETHER) && ! biome.is(PVZBiomeTags.UNABLE_INVASION)) {
                 builder.getMobSpawnSettings().getSpawner(MobCategory.MONSTER)
-                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.ZOMBIE.get(), 5, 1,1));
+                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.BUNGEE_ZOMBIE.get(), 4, 1,1));
                 builder.getMobSpawnSettings().getSpawner(MobCategory.MONSTER)
-                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.BUNGEE_ZOMBIE.get(), 5, 1,1));
-                builder.getMobSpawnSettings().getSpawner(MobCategory.MONSTER)
-                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.LAVA_DIVER_ZOMBIE.get(), 5, 1,1));
+                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.FIRE_IMP.get(), 2, 1,1));
             }
         }
     }

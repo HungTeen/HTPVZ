@@ -13,8 +13,8 @@ public interface IGardenPlant {
     /**This determines GardenFlowerPotBlock or other possible garden flower pots is water pot.*/
     BooleanProperty WATER = BooleanProperty.create("water");
 
-    InteractionResult onWatered(@Nullable Player player, ItemStack stack);
-    InteractionResult onFertilized(@Nullable Player player, ItemStack stack);
+    InteractionResult onWatered(@Nullable Player player, @Nullable ItemStack stack);
+    InteractionResult onFertilized(@Nullable Player player, @Nullable ItemStack stack);
 
     /**@return  The max level the garden plant can reach.*/
     int getMaxLevel();

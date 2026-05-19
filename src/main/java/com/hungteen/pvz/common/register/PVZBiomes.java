@@ -20,6 +20,7 @@ public class PVZBiomes {
     public static final RegistryObject<Biome> GARDEN_ISLAND = BIOMES.register("garden_island", ZenGardenBiomeSource::gardenIsland);
     public static final RegistryObject<Biome> GARDEN_RIVER = BIOMES.register("garden_river", ZenGardenBiomeSource::gardenRiver);
     public static final RegistryObject<Biome> GARDEN_MUSHROOM = BIOMES.register("garden_mushroom", ZenGardenBiomeSource::gardenMushroom);
+    public static final RegistryObject<Biome> GARDEN_VOID = BIOMES.register("garden_void", ZenGardenBiomeSource::gardenVoid);
     public static boolean features = false;
 
 

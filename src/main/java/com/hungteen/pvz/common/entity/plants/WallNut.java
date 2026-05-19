@@ -59,7 +59,7 @@ public class WallNut extends SimplePlant implements IIronEntity {
     public static String COLLISION_SKILL_NAME = "skill.pvz.wall_nut.elastic_collision";
     public static List<Skill> staticSkillList = List.of(
             new Skill(FIRST_AID_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 4, 1, 0, 0),
-            new Skill(EXPLODE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
+            new Skill(EXPLODE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 150, 500),
             new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(EXPLODE_SKILL_NAME),
             new Skill(COLLISION_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 4, 50, 0)
                     .avoidSkills(ARMOR_SKILL_NAME)

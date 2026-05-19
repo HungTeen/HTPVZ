@@ -1,11 +1,10 @@
 package com.hungteen.pvz.common.capability;
 
-import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.util.Util;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -33,9 +32,7 @@ public class CapabilityHandler {
 
     @SubscribeEvent
     public static void attachLevelCaps(AttachCapabilitiesEvent<Level> ev) {
-        if (ev.getObject() instanceof ServerLevel) {
-            ev.addCapability(Util.prefix("pvz_fog"), new PVZFogCapability());
-        }
+        ev.addCapability(Util.prefix("pvz_fog"), new PVZFogCapability(ev.getObject()));
         ev.addCapability(Util.prefix("zombie_event"), new PVZZombieEventCapability(ev.getObject()));
     }
 }

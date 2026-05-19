@@ -39,7 +39,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     public static final String FREE_SKILL_NAME = "skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf";
     public static final String BOUNCE_SKILL_NAME = "skill.pvz.umbrella_leaf.bounce_bounds_bonus";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 2, -75, -190),
+            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 2, -75, -290),
             new Skill(BOUNCE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 6, 50, 0)
     );
 

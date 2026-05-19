@@ -25,21 +25,19 @@ public class PlayerStatsCommand {
                                                 }))))
                         .then(Commands.literal("query")
                                 .then(Commands.argument("name", StringArgumentType.word())
-                                        .then(Commands.literal("value")
-                                                .executes((command) -> {
-                                                    return queryPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), true);
-                                                }))
+                                        .executes((command) -> {
+                                            return queryPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), true);
+                                        })
                                         .then(Commands.literal("limit")
                                                 .executes((command) -> {
                                                     return queryPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), false);
                                                 }))))
                         .then(Commands.literal("set")
                                 .then(Commands.argument("name", StringArgumentType.word())
-                                        .then(Commands.literal("value")
-                                                .then(Commands.argument("amount", IntegerArgumentType.integer())
-                                                        .executes((command) -> {
-                                                            return setPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "amount"));
-                                                        })))
+                                        .then(Commands.argument("amount", IntegerArgumentType.integer())
+                                                .executes((command) -> {
+                                                    return setPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "amount"));
+                                                }))
                                         .then(Commands.literal("limit")
                                                 .then(Commands.argument("min", IntegerArgumentType.integer())
                                                         .then(Commands.argument("max", IntegerArgumentType.integer())

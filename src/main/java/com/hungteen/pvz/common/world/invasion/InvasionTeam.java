@@ -85,7 +85,9 @@ public class InvasionTeam extends ZombieEvent {
             return;
         }
         if (this.leaderUUID == null) {
-            this.seeker.tick();
+            if (this.seeker.availablePositions.isEmpty() && this.tickCount % 10 == 0) {
+                this.seeker.tick();
+            }
             this.position = this.target.blockPosition();
             if (this.invasionTypes.isEmpty() || ! this.invasionTypes.stream().allMatch(type -> type.isAvailable(target, invasionTypes))) {
                 return;

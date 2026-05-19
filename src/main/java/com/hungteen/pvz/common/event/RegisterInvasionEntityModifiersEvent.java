@@ -22,6 +22,7 @@ public class RegisterInvasionEntityModifiersEvent extends Event {
                 .put(InvasionEntityModifiers.WITH_FOG, InvasionEntityModifiers::withFog)
                 .put(InvasionEntityModifiers.WITH_TACO, InvasionEntityModifiers::withTaco)
                 .put(InvasionEntityModifiers.HOLD_RANDOM_JEWEL, InvasionEntityModifiers::holdRandomJewel)
+                .put(InvasionEntityModifiers.POWER_JACK_IN_A_BOX_ZOMBIE, InvasionEntityModifiers::powerJackInABoxZombie)
                 .put(InvasionEntityModifiers.HOLD_RANDOM_MATERIAL, InvasionEntityModifiers::holdRandomMaterial);
     }
     public static ImmutableMap<ResourceLocation, TriPredicate<@Nullable Invasion, Entity, Integer>> get() {

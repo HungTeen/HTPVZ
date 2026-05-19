@@ -20,6 +20,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -70,18 +73,19 @@ public class WateringPotItem extends BlockItem {
         Player player = context.getPlayer();
         ItemStack itemStack = context.getItemInHand();
         if (player != null && ! player.isShiftKeyDown()) {
-            BlockHitResult fluidResult = getPlayerPOVHitResult(context.getLevel(), player, ClipContext.Fluid.ANY);
-            BlockPos blockpos = fluidResult.getBlockPos();
+            BlockHitResult hitResult = getPlayerPOVHitResult(context.getLevel(), player, ClipContext.Fluid.ANY);
+            BlockPos blockpos = hitResult.getBlockPos();
             Level level = context.getLevel();
-            if (level.getBlockState(fluidResult.getBlockPos()).getFluidState().is(Fluids.WATER)) {
-                if (level.mayInteract(player, blockpos)
-                        && player.mayUseItemAt(blockpos, context.getClickedFace(), itemStack)) {
+            BlockState state = level.getBlockState(blockpos);
+            if (level.mayInteract(player, blockpos)
+                    && player.mayUseItemAt(blockpos, context.getClickedFace(), itemStack)) {
+                if (state.getFluidState().is(Fluids.WATER)) {
                     if (! context.getLevel().isClientSide) {
                         level.gameEvent(player, GameEvent.FLUID_PICKUP, blockpos);
                         itemStack.setDamageValue(0);
                         return InteractionResult.CONSUME;
                     } else {
-                        BlockPos pos = fluidResult.getBlockPos();
+                        BlockPos pos = hitResult.getBlockPos();
                         Random random = new Random();
                         for (int i = 0; i < 5; i ++) {
                             level.addParticle(ParticleTypes.BUBBLE,
@@ -99,8 +103,44 @@ public class WateringPotItem extends BlockItem {
                         }
                         return InteractionResult.SUCCESS;
                     }
+                } else if (state.getBlock() instanceof FarmBlock && itemStack.getDamageValue() < itemStack.getMaxDamage()) {
+                    state.setValue(FarmBlock.MOISTURE, FarmBlock.MAX_MOISTURE);
+                    if (! context.getLevel().isClientSide) {
+                        level.setBlock(blockpos, state.setValue(FarmBlock.MOISTURE, FarmBlock.MAX_MOISTURE), 3);
+                        if (! player.getAbilities().instabuild) itemStack.setDamageValue(itemStack.getDamageValue() + 1);
+                        return InteractionResult.CONSUME;
+                    } else {
+                        Random random = new Random();
+                        for (int i = 0; i < 10; i ++) {
+                            level.addParticle(ParticleTypes.SPLASH,
+                                    blockpos.getX() + random.nextFloat() * 1,
+                                    blockpos.getY() + random.nextFloat() * 1 + 1,
+                                    blockpos.getZ() + random.nextFloat() * 1,
+                                    0, 0, 0);
+                        }
+                        return InteractionResult.SUCCESS;
+                    }
+                } else if (state.getBlock() instanceof CropBlock && level.getBlockState(blockpos.below()).getBlock() instanceof FarmBlock
+                        && itemStack.getDamageValue() < itemStack.getMaxDamage()) {
+                    blockpos = blockpos.below();
+                    state = level.getBlockState(blockpos);
+                    level.setBlock(blockpos, state.setValue(FarmBlock.MOISTURE, FarmBlock.MAX_MOISTURE), 3);
+                    if (! player.getAbilities().instabuild) itemStack.setDamageValue(itemStack.getDamageValue() + 1);
+                    if (! context.getLevel().isClientSide) {
+                        state.setValue(FarmBlock.MOISTURE, FarmBlock.MAX_MOISTURE);
+                        return InteractionResult.CONSUME;
+                    } else {
+                        Random random = new Random();
+                        for (int i = 0; i < 10; i ++) {
+                            level.addParticle(ParticleTypes.SPLASH,
+                                    blockpos.getX() + random.nextFloat() * 1,
+                                    blockpos.getY() + random.nextFloat() * 1 + 1,
+                                    blockpos.getZ() + random.nextFloat() * 1,
+                                    0, 0, 0);
+                        }
+                        return InteractionResult.SUCCESS;
+                    }
                 }
-            } else {
                 return context.getLevel().isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
             }
         }

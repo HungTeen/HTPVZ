@@ -49,7 +49,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     public static final String RAPID_DEPLOYMENT_SKILL_NAME = "skill.pvz.plant.rapid_deployment";
     public static List<Skill> staticSkillList = List.of(
             new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 150, 0),
-            new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, -800),
+            new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, -940),
             new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(LOW_BUDGET_SKILL_NAME),
             new Skill(RAPID_DEPLOYMENT_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 16, 4, 150, 0)
     );

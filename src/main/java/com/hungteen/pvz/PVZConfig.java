@@ -207,7 +207,7 @@ public class PVZConfig {
                     "plantDamageDatum", 20, 0, 10000);
             sunProductionDatum = add(builder
                             .comment("gives a production speed multiplier for pvz plants. the value should be the production interval of sunflowers in second."),
-                    "sunProductionDatum", 20, 0, 10000);
+                    "sunProductionDatum", 12, 0, 10000);
             plantDisappearDatum = add(builder
                             .comment("probability to natural disappear of plants relative to the default value. Set to 0 to disable natural disappear."),
                     "plantDisappearDatum", 100, 0, 10000);

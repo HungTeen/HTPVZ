@@ -340,7 +340,9 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     }
     public void alignBlocks() {
         BlockPos pos = this.getOnPos();
-        moveTo(pos.getX() + 0.5, this.getY(), pos.getZ() + 0.5);
+        if (this.position().distanceToSqr(new Vec3(pos.getX() + 0.5, this.getY(), pos.getZ() + 0.5)) > 1e-3) {
+            moveTo(pos.getX() + 0.5, this.getY(), pos.getZ() + 0.5);
+        }
     }
 
     protected InteractionResult mobInteract(Player player, InteractionHand handIn) {

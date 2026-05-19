@@ -5,9 +5,9 @@ import net.minecraftforge.event.entity.EntityEvent;
 
 @net.minecraftforge.eventbus.api.Cancelable
 public class GardenPlantGrowUpEvent extends EntityEvent {
-    public boolean shouldApplyEffects;
-    public GardenPlantGrowUpEvent(Entity entity, boolean shouldApplyEffects) {
+    public boolean shouldProduce;
+    public GardenPlantGrowUpEvent(Entity entity, boolean shouldProduce) {
         super(entity);
-        this.shouldApplyEffects = shouldApplyEffects;
+        this.shouldProduce = shouldProduce;
     }
 }

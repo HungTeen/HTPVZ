@@ -20,6 +20,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
     @Override
+    public boolean isDummy() {
+        return false;
+    }
+    @Override
     public String getSunResourceName() {
         return PVZPlayerCapStats.SUN;
     }
@@ -61,7 +65,7 @@ public class PVZAPI implements com.hungteen.pvz.api.PVZAPI.IPVZAPI {
     }
     @Override
     public float getSunProductionDatum(Level level) {
-        return (float) PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.sunProductionDatum) / 20;
+        return (float) PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.sunProductionDatum) / 12;
     }
 
     @Override

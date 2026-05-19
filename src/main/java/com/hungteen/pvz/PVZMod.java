@@ -245,7 +245,7 @@ public class PVZMod
                 if (EssenceAltarScreen.nameRollTime > 20) {
                     EssenceAltarScreen.nameRollTime -= 20;
                 }
-                PVZFog.clientFogsTick(0.05F);
+                PVZFog.clientTick(0.05F);
             }
             //caps tick
             PVZEntityCapability.clientTick(ev);

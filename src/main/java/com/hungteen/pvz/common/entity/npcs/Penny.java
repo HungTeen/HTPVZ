@@ -53,7 +53,7 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
     protected MerchantOffers offers;
     private final Set<Pair<Integer, ItemStack>> valuables = Set.of(
             Pair.of(2, PVZItems.ALMANAC.get().getDefaultInstance()),
-            Pair.of(4, new ItemStack(PVZItems.SEED_DISPENSARY.get(), 2)),
+            Pair.of(3, new ItemStack(PVZItems.SEED_DISPENSARY.get())),
             Pair.of(6, new ItemStack(PVZBlocks.GARDEN_FLOWER_POT.get(), 1)),
             Pair.of(6, PVZItems.SHELL_STARTUP.get().getDefaultInstance()),
             Pair.of(6, PVZBlocks.SILVER_SWORD_ORNAMENT.get().asItem().getDefaultInstance()),

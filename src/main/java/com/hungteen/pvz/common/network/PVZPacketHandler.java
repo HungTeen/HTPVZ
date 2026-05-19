@@ -41,16 +41,24 @@ public class PVZPacketHandler {
         CHANNEL.sendToServer(msg);
     }
 
-    public static <MSG> void sendToClient(ServerPlayer serverPlayer, MSG msg){
+    public static <MSG> void sendToClient(ServerPlayer serverPlayer, MSG msg) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), msg);
+//        PVZMod.LOGGER.info("sent packet " + msg + " to " + serverPlayer.getName().getString());
     }
 
-    public static <MSG> void sendToNearByClient(Level world, Vec3 vec, double dis, MSG msg){
+    public static <MSG> void sendToNearByClient(Level level, Vec3 vec, double dis, MSG msg){
+//        PVZMod.LOGGER.info("sent packet " + msg + " nearby");
         CHANNEL.send(PacketDistributor.NEAR.with(() ->
-                new PacketDistributor.TargetPoint(vec.x, vec.y, vec.z, dis, world.dimension())), msg);
+                new PacketDistributor.TargetPoint(vec.x, vec.y, vec.z, dis, level.dimension())), msg);
+    }
+
+    public static <MSG> void sendToLevel(Level level, MSG msg) {
+//        PVZMod.LOGGER.info("sent packet " + msg + " level " + level);
+        CHANNEL.send(PacketDistributor.DIMENSION.with(level::dimension), msg);
     }
 
     public static <MSG> void sendToPlayers(MSG msg) {
+//        PVZMod.LOGGER.info("sent packet " + msg + " to all");
         CHANNEL.send(PacketDistributor.ALL.noArg(), msg);
     }
 }

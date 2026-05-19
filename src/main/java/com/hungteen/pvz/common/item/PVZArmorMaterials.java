@@ -4,17 +4,16 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.Supplier;
 
 public enum PVZArmorMaterials implements ArmorMaterial {
 
-    CONE("pvz:cone", 250, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, 0F, 0F, () -> Ingredient.of(Items.LEATHER), true),
-    BUCKET("pvz:bucket", 750, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, () -> Ingredient.of(Items.IRON_INGOT), true),
-    DUCK_LIFEBUOY("pvz:duck_lifebuoy", 100, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, 0F, 0F, () -> Ingredient.of(Items.LEATHER), true),
-    PUMPKIN("pvz:pumpkin", 500, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, 0F, 0F, () -> Ingredient.of(Items.PUMPKIN), true);
+    CONE("pvz:cone", 250, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, 0F, 0F, Ingredient::of, true),
+    BUCKET("pvz:bucket", 750, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_IRON, 0F, 0F, Ingredient::of, true),
+    DUCK_LIFEBUOY("pvz:duck_lifebuoy", 100, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, 0F, 0F, Ingredient::of, true),
+    PUMPKIN("pvz:pumpkin", 500, new int[] {0, 0, 0, 0}, 10, SoundEvents.ARMOR_EQUIP_LEATHER, 0F, 0F, Ingredient::of, true);
 
     private static final int[] HEALTH_PER_SLOT = new int[] {13, 15, 16, 11};
     private final String name;

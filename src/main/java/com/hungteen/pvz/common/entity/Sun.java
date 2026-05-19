@@ -121,11 +121,9 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
         if (this.level.isClientSide && ClientProxy.getPlayer() != player) {
             return false;
         }
-        if (this.getAmount() >= 150) {
-            Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
-            if (entry != null) {
-                return true;
-            }
+        Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
+        if (entry != null) {
+            return true;
         }
         final AtomicBoolean result = new AtomicBoolean();
         PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) ->
@@ -169,7 +167,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
             PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
                 int currentSun = nbt.getValue(PVZPlayerCapStats.SUN);
                 //sun mending enchantment.
-                if (currentSun >= nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond() && getAmount() >= 150) {
+                if (currentSun >= nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond()) {
                     Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
                     if (entry != null) {
                         ItemStack itemStack = entry.getValue();

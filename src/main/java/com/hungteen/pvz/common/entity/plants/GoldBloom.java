@@ -17,7 +17,7 @@ public class GoldBloom extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
     public static final String TRANSPORTER_SKILL_NAME = "skill.pvz.gold_bloom.sun_transporter";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(TRANSPORTER_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 6, 300, -1140)
+            new Skill(TRANSPORTER_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 6, 300, -940)
     );
 
     public void setupPresentationAnim() {

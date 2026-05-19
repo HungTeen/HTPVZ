@@ -16,6 +16,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -33,6 +34,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -140,8 +142,12 @@ public class Sprout extends Mob implements IGardenPlant {
     public void tick() {
         super.tick();
         if (! level.isClientSide) {
-            if (this.getRemainingGrowTick() <= 0) {
-                setRequiring(true);
+            if (this.getRemainingGrowTick() <= 0 && isEffectiveAi()) {
+                if (PVZConfig.PVZGameRules.getBoolean(this.level, PVZConfig.Common.marigoldsRequires))
+                    setRequiring(true);
+                else {
+                    this.onFertilized(null, null);
+                }
             }
             if (this.tickCount % 10 == 0 && ! level.getBlockState(this.getOnPos()).is(PVZBlockTags.GARDEN_FLOWER_POT)) {
                 this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
@@ -183,6 +189,7 @@ public class Sprout extends Mob implements IGardenPlant {
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (! level.isClientSide && getGrowLevel() >= this.getMaxLevel()) {
             produce();
+            ExperienceOrb.award((ServerLevel)this.level, this.position(), 5);
             this.discard();
             if (player instanceof ServerPlayer serverPlayer) {
                 player.awardStat(PVZStats.HARVEST_SPROUTS);
@@ -213,7 +220,7 @@ public class Sprout extends Mob implements IGardenPlant {
 
     /**Check {@link IGardenPlant} for the two methods below.*/
     @Override
-    public InteractionResult onWatered(Player player, ItemStack stack) {
+    public InteractionResult onWatered(@Nullable Player player, @Nullable ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringWater()) {
             this.setRemainingGrowTick(100 + random.nextInt(100));
@@ -225,12 +232,12 @@ public class Sprout extends Mob implements IGardenPlant {
         }
     }
     @Override
-    public InteractionResult onFertilized(Player player, ItemStack stack) {
+    public InteractionResult onFertilized(@Nullable Player player, @Nullable ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringFertilizer()) {
             GardenPlantGrowUpEvent event = new GardenPlantGrowUpEvent(this, this.getGrowLevel() == 0);
             MinecraftForge.EVENT_BUS.post(event);
-            if (event.shouldApplyEffects) {
+            if (event.shouldProduce) {
                 this.transformPlant();
             }
             if (! event.isCanceled()) {

@@ -7,12 +7,15 @@ import com.hungteen.pvz.common.item.SproutItem;
 import com.hungteen.pvz.common.loot.AddItemModifier;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraftforge.common.data.GlobalLootModifierProvider;
 import net.minecraftforge.common.loot.LootTableIdCondition;
 
@@ -28,16 +31,19 @@ public class LootModifierGen extends GlobalLootModifierProvider {
         //drops
         this.add("cabbage_seed_from_grass", new AddItemModifier(new LootItemCondition[] {
                 LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.GRASS).build(),
+                MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)).invert().build(),
                 LootItemRandomChanceCondition.randomChance(0.025F).build()
         }, List.of(PVZItems.CABBAGE_SEED.get().getDefaultInstance())));
 
         this.add("pea_from_grass", new AddItemModifier(new LootItemCondition[] {
                 LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.GRASS).build(),
+                MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)).invert().build(),
                 LootItemRandomChanceCondition.randomChance(0.125F).build()
         }, List.of(PVZItems.PEA.get().getDefaultInstance())));
 
         this.add("corn_kernels_from_grass", new AddItemModifier(new LootItemCondition[] {
                 LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.GRASS).build(),
+                MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)).invert().build(),
                 LootItemRandomChanceCondition.randomChance(0.025F).build()
         }, List.of(PVZItems.CORN_KERNELS.get().getDefaultInstance())));
 

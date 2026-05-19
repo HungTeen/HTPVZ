@@ -306,6 +306,7 @@ public class PVZDamageSource {
                 player.setPortalCooldown();
                 player.resetFallDistance();
                 player.changeDimension(destWorld, new ZenGardenTeleporter(destWorld));
+                player.removeEffect(PVZMobEffects.DISTANCE_EFFECT.get());
                 return;
             }
         }

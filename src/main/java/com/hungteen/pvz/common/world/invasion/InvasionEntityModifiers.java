@@ -1,5 +1,7 @@
 package com.hungteen.pvz.common.world.invasion;
 
+import com.hungteen.pvz.common.capability.level.PVZFogCapability;
+import com.hungteen.pvz.common.entity.zombies.JackInABoxZombie;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.world.PVZFog;
@@ -42,6 +44,7 @@ public class InvasionEntityModifiers {
     public static final ResourceLocation WITH_FOG = Util.prefix("with_fog");
     public static final ResourceLocation WITH_TACO = Util.prefix("with_taco");
     public static final ResourceLocation HOLD_RANDOM_JEWEL = Util.prefix("hold_random_jewel");
+    public static final ResourceLocation POWER_JACK_IN_A_BOX_ZOMBIE = Util.prefix("power_jack_in_a_box_zombie");
     public static final ResourceLocation HOLD_RANDOM_MATERIAL = Util.prefix("hold_random_material");
 
     public static boolean babylize(@Nullable Invasion invasion, Entity entity, int threat) {
@@ -81,12 +84,12 @@ public class InvasionEntityModifiers {
         if (invasion == null) {
             return true;
         }
-        PVZFog fog = PVZFog.getFog(invasion.uuid);
+        PVZFog fog = PVZFogCapability.getFog(invasion.level, invasion.uuid);
         if (fog == null) {
-            PVZFog.addFogSided(invasion.level.dimension().location(), Vec3.atCenterOf(invasion.position), 100, ((double) invasion.invasionLevel / 5 + 1), invasion.range, invasion.uuid);
+            PVZFogCapability.addOrResetFogSided(invasion.level, invasion.position, 2000, ((double) invasion.invasionLevel / 5 + 1), invasion.range, invasion.uuid);
         } else {
-            fog.lifeLeft = 100;
-            fog.position = Vec3.atCenterOf(invasion.position);
+            fog.lifeLeft = 2000;
+            fog.targetPos = invasion.position;
         }
         return true;
     }
@@ -97,6 +100,17 @@ public class InvasionEntityModifiers {
         if (invasion.currentWave > invasion.waves.size() / 3 && invasion.getCurrentWave().isBigWave &&
                 threat > 500 && random.nextInt(invasion.getCurrentWave().threat) < threat / 2) {
             invasion.summonEntity(TACO);
+        }
+        return true;
+    }
+    public static boolean powerJackInABoxZombie(@Nullable Invasion invasion, Entity entity, int threat) {
+        if (invasion == null) return true;
+        if (entity instanceof JackInABoxZombie zombie) {
+            LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(invasion.level);
+            lightningbolt.moveTo(Vec3.atBottomCenterOf(entity.getOnPos()));
+            lightningbolt.setVisualOnly(true);
+            invasion.level.addFreshEntity(lightningbolt);
+            zombie.thunderHit((ServerLevel) invasion.level, lightningbolt);
         }
         return true;
     }

@@ -97,7 +97,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
 
     public static final String SUN_SKILL_NAME = "skill.pvz.chomper.energy_transduction";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SUN_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 50, 300)
+            new Skill(SUN_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 50, 200)
     );
     Vec3 storedPosition;
     private BlockPos originalPos;

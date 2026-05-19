@@ -2,8 +2,6 @@ package com.hungteen.pvz.common.entity.zombies;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
-import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -29,9 +27,8 @@ public class TacoImp extends Imp {
     public static void onPlantCheckTeammate(TeammateTestingEvent event) {
         //won't be regarded as target by shooters/pults.
         if (! event.forCombat) return;
-        if (event.A instanceof TacoImp || event.B instanceof TacoImp) {
-            Entity other = event.A instanceof TacoImp ? event.B : event.A;
-            event.currentResult = event.currentResult || other instanceof ShooterPlant;
+        if ((event.A instanceof TacoImp || event.B instanceof TacoImp) && event.A.distanceToSqr(event.B) > 6) {
+            event.currentResult = true;
         }
     }
 

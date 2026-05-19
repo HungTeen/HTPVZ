@@ -345,12 +345,12 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                             Iterator<Wave> waves = this.waves.iterator();
                             Wave wave = waves.next();
                             int w = 0;
-                            for (int i = 0; i < expectedTotalTime; i += 40) {
+                            for (int i = totalTime; i < expectedTotalTime; i += 40) {
                                 informationExpected.add(w);
                                 waveTime += 40;
-                                if (waveTime > wave.expectedWaveTime()) {
+                                if (wave != null && waveTime > wave.expectedWaveTime()) {
                                     waveTime -= wave.expectedWaveTime();
-                                    wave = waves.next();
+                                    wave = waves.hasNext() ? waves.next() : null;
                                     w ++;
                                 }
                             }
@@ -529,6 +529,13 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     }
 
     public void end(Vec3 position, String endType, boolean success) {
+        Component component = Component.translatable(endType, uuid.toString());
+        if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
+            PVZMod.LOGGER.info("Invasion ended with end component {}.", component.getString());
+            PVZMod.LOGGER.info("Gathered information: \n  Wave {}, \n  Team {}, \n  Expected {}, \n  Member {}, \n  Threat {}, \n  TimeF {}, \n  ThreatF {}, \n  Attack {}, \n  Alive {}, \n  Act {}, \n  Flee {}"
+                    , informationWave, informationTeam, informationExpected, informationMember, informationThreat, informationTimeF, informationThreatF
+                    , informationAttack, informationAlive, informationActive, informationFlee);
+        }
         if (target instanceof Player player) {
             if (success && ! player.level.isClientSide) {
                 player.awardStat(PVZStats.INVASIONS_WON);
@@ -549,16 +556,12 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             }
             PVZPlayerCapability.getPlayerData(player)
                     .ifPresent(cap -> {
-                        cap.addValue(PVZPlayerCapStats.INVASION_DIFFICULTY, success ?
-                                (int) Math.max(1, (((float) this.expectedTotalTime / (this.totalTime + 1) - 1) * 5 + (threatFactor - 1) * 5)) : - 3);
+                        int difficultyGrow = success ? (int) Math.max(1, (((float) this.expectedTotalTime / (this.totalTime + 1) - 1) * 5 + (threatFactor - 1) * 5)) : - 3;
+                        cap.addValue(PVZPlayerCapStats.INVASION_DIFFICULTY, difficultyGrow);
+                                if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
+                                    PVZMod.LOGGER.info("Difficulty added " + difficultyGrow + ", current: " + cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY));
+                                }
                     });
-        }
-        Component component = Component.translatable(endType, uuid.toString());
-        if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
-            PVZMod.LOGGER.info("Invasion ended with end component {}.", component.getString());
-            PVZMod.LOGGER.info("Gathered information: \n  Wave {}, \n  Team {}, \n  Expected {}, \n  Member {}, \n  Threat {}, \n  TimeF {}, \n  ThreatF {}, \n  Attack {}, \n  Alive {}, \n  Act {}, \n  Flee {}"
-                    , informationWave, informationTeam, informationExpected, informationMember, informationThreat, informationTimeF, informationThreatF
-                    , informationAttack, informationAlive, informationActive, informationFlee);
         }
         this.invasionEvent.setName(component);
         this.endCountDown = 200;
@@ -596,13 +599,16 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 float progress = (float) (currentWave - 1) / this.waves.size();
                 float attack = (float) Math.max(1, getPlayerAttack()) / 100;
                 float alive = (float) Math.max(1, getPlayerAlive()) / 100;
-                int expWaveTime = nextWave.expectedWaveTime();
-                int threat = nextWave.threat;
-                if (timeFactor / attack <= 1) nextWave.minimumWaitTime += (int) (Math.min(0.5, progress) * ((float) nextWave.minimumWaitTime * (timeFactor / attack - 1)));
-                else nextWave.maximumWaitTime += (int) (Math.min(0.5, progress) * ((float) nextWave.maximumWaitTime * (timeFactor / attack - 1)));
-                nextWave.threat += (int) (Math.min(0.5, progress) * (nextWave.threat * (alive * attack * threatFactor - 1)));
-                threatFactor = (float) Mth.clamp((float) nextWave.threat / threat, 0.5, 2);
-                timeFactor = (float) Mth.clamp((float) nextWave.expectedWaveTime() / expWaveTime, 0.5, 2);
+                float time = (float) mostEnemyKilledTime / this.getCurrentWave().expectedWaveTime();
+                if (! nextWave.isBigWave) {
+                    int expWaveTime = nextWave.expectedWaveTime();
+                    int threat = nextWave.threat;
+                    if (timeFactor / time <= 1) nextWave.minimumWaitTime += (int) (Math.min(0.5, progress) * ((float) nextWave.minimumWaitTime * (Math.min(2, timeFactor / time) - 1)));
+                    else nextWave.maximumWaitTime += (int) (Math.min(0.5, progress) * ((float) nextWave.maximumWaitTime * (Math.min(2, timeFactor / time) - 1)));
+                    nextWave.threat += (int) (Math.min(0.5, progress) * (nextWave.threat * (alive * attack * threatFactor - 1)));
+                    threatFactor = (float) Mth.clamp((float) nextWave.threat / threat, 0.5, 2);
+                    timeFactor = (float) Mth.clamp((float) nextWave.expectedWaveTime() / expWaveTime, 0.5, 2);
+                }
                 if (getPlayerFleeWill() > 1000 && progress > 0.2) {
                     nextWave.threat = nextWave.threat * 100 / getPlayerFleeWill();
                 }
@@ -612,6 +618,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 threatFactor = 1;
                 timeFactor = 1;
             }
+            this.mostEnemyKilledTime = -1;
             this.currentWave += 1;
             this.currentWaveTime = 0;
             this.currentWaveThreat = 0;

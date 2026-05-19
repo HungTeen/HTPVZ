@@ -65,7 +65,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
     public ZenGardenBiomeSource(Registry<Biome> biomeRegistry) {
         super(() -> getStartBiomes(biomeRegistry));
         this.biomeRegistry = biomeRegistry;
-        end = biomeRegistry.getHolderOrThrow(Biomes.THE_VOID);
+        end = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_VOID.getKey());
         plain = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_PLAINS.getKey());
         mushroom = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_MUSHROOM.getKey());
         river = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_RIVER.getKey());
@@ -73,7 +73,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
     }
 
     private static List<Holder<Biome>> getStartBiomes(Registry<Biome> registry) {
-        return Stream.of(Biomes.THE_VOID, PVZBiomes.GARDEN_PLAINS.getKey(), PVZBiomes.GARDEN_MUSHROOM.getKey(), PVZBiomes.GARDEN_RIVER.getKey(), PVZBiomes.GARDEN_ISLAND.getKey())
+        return Stream.of(PVZBiomes.GARDEN_VOID.getKey(), PVZBiomes.GARDEN_PLAINS.getKey(), PVZBiomes.GARDEN_MUSHROOM.getKey(), PVZBiomes.GARDEN_RIVER.getKey(), PVZBiomes.GARDEN_ISLAND.getKey())
                 .map(s -> registry.getHolderOrThrow(ResourceKey.create(BuiltinRegistries.BIOME.key(), s.location()))).collect(Collectors.toList());
     }
 
@@ -156,6 +156,16 @@ public class ZenGardenBiomeSource extends BiomeSource {
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
         return PVZBiomes.biome(Biome.Precipitation.NONE, 0x7575df, 0xad7ee6, 0x47bbc5, 0x053134,
                 0.8F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
+                new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
+    }
+
+    public static Biome gardenVoid() {
+        MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
+        mobSpawnBuilder.addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(EntityType.PHANTOM, 25, 4, 8));
+        BiomeGenerationSettings.Builder biomeGenBuilder = new BiomeGenerationSettings.Builder();
+        Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
+        return PVZBiomes.biome(Biome.Precipitation.NONE, 0x15082b, 0x15082b, 0x47bbc5, 0x053134,
+                0F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
                 new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
 

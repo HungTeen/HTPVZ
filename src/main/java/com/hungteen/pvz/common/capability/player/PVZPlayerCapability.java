@@ -43,6 +43,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
+import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
@@ -111,15 +112,14 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         }
         return nbt;
     }
+
     public static void tick(@NotNull TickEvent.ServerTickEvent ev) {
         for (ServerPlayer player : ev.getServer().getPlayerList().getPlayers()) {
             player.getCapability(CAP).ifPresent(cap -> {
                 var nbt = cap.getPlayerData();
                 //timed sync
                 if (++ cap.syncCount % 10 == 0) {
-                    ServerInfoPacket.sync(player, ((ServerLevel) player.level), cap.syncCount == 20);
-                    getPlayerData(player).ifPresent(data -> data.sync(cap.syncCount == 40));
-                    if (cap.syncCount == 10 || cap.syncCount == 60 && ! player.isCreative()) EnderSeedBundleContainerPacket.syncToClient(player, -1);
+                    cap.sync(false);
                     if (cap.syncCount == 100) cap.syncCount = 0;
                 }
                 //functional
@@ -141,6 +141,23 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         if (distSqr >= 160000) {
                             int strength = (distSqr - 160000) / 40000;
                             player.addEffect(new MobEffectInstance(PVZMobEffects.DISTANCE_EFFECT.get(), 50, strength));
+                        }
+                        if (player.tickCount % 20 == 0 && player.hasEffect(PVZMobEffects.DISTANCE_EFFECT.get())) {
+                            int amplifier = player.getEffect(PVZMobEffects.DISTANCE_EFFECT.get()).getAmplifier();
+                            if (amplifier >= 4) {
+                                if (! player.hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
+                                    player.addEffect(new MobEffectInstance(MobEffects.DARKNESS,50));
+                                }
+                            }
+                            List<Phantom> phantoms = player.level.getEntitiesOfClass(Phantom.class, player.getBoundingBox().inflate(32, 256, 32));
+                            if (phantoms.size() < amplifier / 3) {
+                                Phantom phantom = EntityType.PHANTOM.create(player.level);
+                                if (phantom != null) {
+                                    phantom.moveTo(player.position().add(0, 30, 0));
+                                    player.level.addFreshEntity(phantom);
+                                    phantom.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 5000, amplifier / 5));
+                                }
+                            }
                         }
                     }
                     //sun related mob effects.
@@ -311,6 +328,14 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
         }
     }
 
+    public void sync(boolean syncAll) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            ServerInfoPacket.sync(serverPlayer, ((ServerLevel) serverPlayer.level), syncAll || syncCount == 20);
+            getPlayerData(player).ifPresent(data -> data.sync(syncAll || syncCount == 40));
+            if ((syncAll || syncCount == 10 || syncCount == 60) && ! serverPlayer.isCreative()) EnderSeedBundleContainerPacket.syncToClient(serverPlayer, -1);
+        }
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static void clientTick(TickEvent.ClientTickEvent ev) {
         if (ClientProxy.MC.level == null) {
@@ -324,6 +349,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
             //garden border
             if (player != null) {
                 if (player.level.dimension().location().equals(Util.prefix("zen_garden")) && player.hasEffect(PVZMobEffects.DISTANCE_EFFECT.get())) {
+                    int amplifier = player.getEffect(PVZMobEffects.DISTANCE_EFFECT.get()).getAmplifier();
                     Vec3 cenVec = player.position();
                     if (playerPos != null && cenVec.distanceToSqr(playerPos) < 4) {
                         cenVec = cenVec.subtract(Vec3.atCenterOf(
@@ -337,7 +363,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         posMod = posMod.normalize().multiply(tmp - dist, 0, tmp - dist);
                         tmp = movMod.length();
                         movMod = movMod.normalize().multiply(tmp - dist, 0, tmp - dist);
-                        tmp = Math.min(1, (player.getEffect(PVZMobEffects.DISTANCE_EFFECT.get()).getAmplifier() + 1) / 5);
+                        tmp = Math.min(1, (amplifier + 1) / 5);
                         //player's position is far from center, so regard the mod vector has the same angle as cenVec do.
                         if (cenVec.x * posMod.x + cenVec.z * posMod.z > 0) {
                             player.move(MoverType.SELF, posMod.multiply(- tmp, 0, - tmp));

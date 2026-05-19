@@ -10,10 +10,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.network.ClientProxy;
-import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
-import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.register.PVZMobEffects;
-import com.hungteen.pvz.common.register.PVZParticles;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
@@ -62,10 +59,10 @@ public class PotatoMine extends SimplePlant {
     public static String POISONOUS_SKILL_NAME = "skill.pvz.potato_mine.poison_enrichment";
     public static List<Skill> staticSkillList = List.of(
             new Skill(MINER_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 6, 0, 0),
-            new Skill(STRONG_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 8, 25, 300),
-            new Skill(QUICK_LOAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 50, 300)
+            new Skill(STRONG_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 8, 25, 200),
+            new Skill(QUICK_LOAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 50, 200)
                     .avoidSkills(STRONG_SKILL_NAME),
-            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 8, 75, 300)
+            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 8, 75, 200)
                     .avoidSkills(STRONG_SKILL_NAME)
     );
     public PotatoMine(EntityType<? extends Mob> entityType, Level level) {

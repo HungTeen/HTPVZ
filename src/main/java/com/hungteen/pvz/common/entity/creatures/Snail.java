@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
+import com.hungteen.pvz.common.block.GardenFlowerPotBlock;
 import com.hungteen.pvz.common.item.FertilizerItem;
 import com.hungteen.pvz.common.item.WateringPotItem;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -17,6 +18,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -57,6 +59,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
 
     public long awakenTick = -1;
     private final SimpleContainer inventory = new SimpleContainer(4);
+    public BlockPos home = null;
 
     static final UUID speedModifierUUID = UUID.fromString("88af647f-66f7-3017-95af-5f1a2fb2b730");
     static final UUID armorModifierUUID = UUID.fromString("f9c668cd-b7bf-ce27-3caa-c188738feb43");
@@ -88,7 +91,8 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         this.goalSelector.addGoal(2, new TemptGoal(this, 1.25D, Ingredient.of(PVZItems.CHOCOLATE.get()), false));
         this.goalSelector.addGoal(3, new SnailCollectItemsGoal(this));
         this.goalSelector.addGoal(4, new SnailFeedPlantsGoal(this));
-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(5, new MoveBackToGardenPotsGoal(this));
+        this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
         super.registerGoals();
     }
@@ -148,6 +152,20 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         if (this.hasEffect(MobEffects.MOVEMENT_SPEED)) {
             this.recordAwakenTick(this.level.getGameTime() - 100);
         }
+        if (this.isEffectiveAi() && ! level.isClientSide) {
+            if (this.fallDistance > 3) {
+                this.retreatIntoShell();
+            }
+        }
+    }
+
+    @Override
+    public boolean hurt(DamageSource source, float damage) {
+        if (this.getPose() == Pose.DIGGING && source == DamageSource.FALL) {
+            this.emergeFromShell();
+            return false;
+        }
+        return super.hurt(source, damage);
     }
 
     @Override
@@ -157,6 +175,13 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         tag.putBoolean("Climbing", this.isClimbing());
         tag.putBoolean("Sleeping", this.getPose() != Pose.STANDING);
         tag.put("Inventory", this.inventory.createTag());
+        if (this.home != null) {
+            CompoundTag posTag = new CompoundTag();
+            posTag.putInt("x", this.home.getX());
+            posTag.putInt("y", this.home.getY());
+            posTag.putInt("z", this.home.getZ());
+            tag.put("Home", posTag);
+        }
     }
 
     @Override
@@ -173,6 +198,10 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         }
         if (tag.contains("Inventory")) {
             this.inventory.fromTag(tag.getList("Inventory", CompoundTag.TAG_COMPOUND));
+        }
+        if (tag.contains("Home")) {
+            CompoundTag posTag = tag.getCompound("Home");
+            this.home = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
         }
     }
 
@@ -213,12 +242,16 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
                     return InteractionResult.SUCCESS;
                 } else if (itemstack.isEmpty()) {
                     ItemStack item = this.getItemInHand(InteractionHand.MAIN_HAND);
-                    BehaviorUtils.throwItem(this, item, player.position());
-                    this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                    for (int i = 0; i < this.getInventory().getContainerSize(); i ++) {
-                        if (this.getInventory().getItem(i) == item) {
-                            this.getInventory().setItem(i, ItemStack.EMPTY);
-                            break;
+                    if (item.isEmpty()) {
+                        this.retreatIntoShell();
+                    } else {
+                        BehaviorUtils.throwItem(this, item, player.position());
+                        this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                        for (int i = 0; i < this.getInventory().getContainerSize(); i ++) {
+                            if (this.getInventory().getItem(i) == item) {
+                                this.getInventory().setItem(i, ItemStack.EMPTY);
+                                break;
+                            }
                         }
                     }
                 }
@@ -415,6 +448,46 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
             }
         }
     }
+    public static class MoveBackToGardenPotsGoal extends Goal {
+        final Snail snail;
+
+        public MoveBackToGardenPotsGoal(Snail snail) {
+            this.snail = snail;
+            this.setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            if (! snail.isTame()) return false;
+            if (! snail.navigation.isDone() && snail.tickCount % 60 > 1) return false;
+            if (snail.home == null || snail.home.distSqr(snail.blockPosition()) > 9) {
+                boolean found = false;
+                for (int y = -1; y < 2; y ++) {
+                    for (int x = -3; x < 3; x ++) {
+                        for (int z = -3; z < 3; z ++) {
+                            BlockPos pos = snail.blockPosition().offset(x, y, z);
+                            if (snail.level.getBlockState(pos).getBlock() instanceof GardenFlowerPotBlock) {
+                                snail.home = pos;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                    if (found) break;
+                }
+                return !found && snail.home != null;
+            }
+            return false;
+        }
+
+        @Override
+        public void tick() {
+            if (snail.navigation.isDone()) {
+                snail.navigation.moveTo(snail.home.getX(), snail.home.getY(), snail.home.getZ(), 1);
+            }
+        }
+    }
 
     public static class SnailRetreatIntoShellGoal extends Goal {
         final Snail snail;
@@ -432,7 +505,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
                 return snail.random.nextInt(Math.max(1, snail.getAwakenTime() / 100)) > 100 && snail.random.nextInt(100) == 0;
             } else {
                 return snail.random.nextInt(3000) == 0
-                        || ! this.snail.level.getEntitiesOfClass(Player.class, this.snail.getBoundingBox().inflate(10, 10, 5)
+                        || ! this.snail.level.getEntitiesOfClass(Player.class, this.snail.getBoundingBox().inflate(4, 2, 4)
                         , player -> (! player.isShiftKeyDown() || EntityUtil.isLeavingGround(player)) && ! player.isSpectator()).isEmpty();
             }
         }
