@@ -17,6 +17,7 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
@@ -34,6 +35,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -301,6 +303,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                 ((ServerLevel) level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(entity.getOnPos()))
                         .setPos(entity.getOnPos()), entity.getX(), entity.getY(), entity.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.25F);
                 PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, - event.cost));
+                level.playSound(null, pos, level.getBlockState(pos).getFluidState().isEmpty() ? PVZSoundEvents.PLANT.get() : PVZSoundEvents.PLANT_WATER.get(), SoundSource.PLAYERS,1, 1);
                 if (event.resource.equals(PVZAPI.get().getSunResourceName())) {
                     player.awardStat(PVZStats.USE_SUN, event.cost);
                 }
@@ -388,6 +391,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
 
             if (targetCheck == null) {
                 //plant.
+                level.playSound(null, entity.blockPosition(), level.getBlockState(entity.blockPosition()).getFluidState().isEmpty() ? PVZSoundEvents.PLANT.get() : PVZSoundEvents.PLANT_WATER.get(), SoundSource.PLAYERS,1, 1);
                 PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, -event.cost));
                 if (event.resource.equals(PVZAPI.get().getSunResourceName())) {
                     player.awardStat(PVZStats.USE_SUN, event.cost);

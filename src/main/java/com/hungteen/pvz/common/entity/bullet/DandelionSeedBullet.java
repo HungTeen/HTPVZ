@@ -3,9 +3,11 @@ package com.hungteen.pvz.common.entity.bullet;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZParticles;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -73,6 +75,10 @@ public class DandelionSeedBullet extends BaseBullet {
         explode(result.getEntity().position());
     }
 
+    @Override
+    public SoundEvent getHitSound() {
+        return PVZSoundEvents.DANDELION_HIT.get();
+    }
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);

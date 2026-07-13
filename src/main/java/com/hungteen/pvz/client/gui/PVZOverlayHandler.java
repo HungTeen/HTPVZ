@@ -93,16 +93,9 @@ public class PVZOverlayHandler {
 
     @SubscribeEvent
     public static void banVanillaArmorBar(RenderGuiOverlayEvent.Pre ev) {
-        int armorHealth = 0;
         Player player = getCameraPlayer();
         if (player == null) return;
-        for (ItemStack itemStack : player.getArmorSlots()) {
-            if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
-                armorHealth += itemStack.getMaxDamage() - itemStack.getDamageValue();
-            }
-        }
-        if (armorHealth == 0) return;
-
+        if (EntityUtil.getExtraArmorHealth(player) <= 0) return;
         if (PVZConfig.renderSeparateArmorBar() && ev.getOverlay().id().equals(new ResourceLocation("armor_level"))) {
             ev.setCanceled(true);
             renderArmorInSingleBar = true;

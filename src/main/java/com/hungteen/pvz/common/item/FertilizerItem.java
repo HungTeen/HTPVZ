@@ -1,8 +1,10 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,6 +29,7 @@ public class FertilizerItem extends Item {
             InteractionResult result = plant.onFertilized(player, itemStack);
             if (result.consumesAction()) {
                 if (! target.level.isClientSide) {
+                    target.level.playSound(null, target, PVZSoundEvents.SPROUT_FERTILIZE.get(), player == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1.0F, 1.0F);
                     itemStack.shrink(1);
                     ((ServerLevel) target.level).sendParticles(ParticleTypes.COMPOSTER,
                             target.getX(), target.getY() + target.getBbHeight(), target.getZ(),

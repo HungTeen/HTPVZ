@@ -5,6 +5,7 @@ import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
 import com.hungteen.pvz.util.Util;
@@ -12,7 +13,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -163,7 +163,7 @@ public class PeaShooterZombie extends PVZZombie implements IZombotany, IShooter 
         //shoot
         bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, getBulletSpeed(), (float) randomAngle);
         if (needSound) {
-            EntityUtil.playSound(this, SoundEvents.SNOW_GOLEM_SHOOT);
+            EntityUtil.playSound(this, PVZSoundEvents.PEA_SHOOT.get());
         }
         bullet.setOwner(this);
         BaseBullet bullet1 = (BaseBullet) bullet;

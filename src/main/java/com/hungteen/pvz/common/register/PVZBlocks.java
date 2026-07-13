@@ -18,6 +18,7 @@ import net.minecraft.world.item.SignItem;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,6 +68,7 @@ public class PVZBlocks {
     public static Map<RegistryObject<Block>, String> renderTypeMap = new HashMap<>();
     //blockEntity
     private static String storedBlockEntity = null;
+    private static BlockEntityType storedBlockEntityT = null;
     @Deprecated // will be cleared after register.
     public static Map<String, List<RegistryObject<Block>>> blockEntityMap = new HashMap<>();
     //flammable
@@ -92,6 +94,12 @@ public class PVZBlocks {
     public static final RegistryObject<Block> ORIGIN_BLOCK = tag(BlockTags.NEEDS_STONE_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).block("origin_block", () -> new Block(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GREEN).strength(15, 50).lightLevel(i -> 15).sound(SoundType.ANCIENT_DEBRIS).requiresCorrectToolForDrops()));
     public static final RegistryObject<Block> ORIGIN_ORE = tag(BlockTags.MINEABLE_WITH_SHOVEL).block("origin_ore", () -> new Block(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GREEN).strength(1F).sound(SoundType.GRASS).lightLevel(i -> 9)));
     public static final RegistryObject<Block> LUNAR_STONE = tag(BlockTags.MINEABLE_WITH_PICKAXE).block("lunar_stone", () -> new Block(Block.Properties.of(Material.STONE, MaterialColor.COLOR_YELLOW).strength(2F).sound(SoundType.STONE).lightLevel(i -> 8)));
+    public static final RegistryObject<Block> LUNAR_STONE_SLAB = tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS).model(Model.Slab, res("lunar_stone")).block("lunar_stone_slab", () -> new SlabBlock(BlockBehaviour.Properties.copy(PVZBlocks.LUNAR_STONE.get())));
+    public static final RegistryObject<Block> LUNAR_STONE_STAIRS = tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS).model(Model.Stairs, res("lunar_stone")).block("lunar_stone_stairs", () -> new StairBlock(() -> LUNAR_STONE.get().defaultBlockState(), BlockBehaviour.Properties.copy(PVZBlocks.LUNAR_STONE.get())));
+    public static final RegistryObject<Block> LUNAR_STONE_WALL = tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.WALLS).itemModel(PVZItems.Model.Block, res("lunar_stone_wall_inventory")).model(Model.Wall, res("lunar_stone")).block("lunar_stone_wall", () -> new WallBlock(BlockBehaviour.Properties.copy(LUNAR_STONE.get())));
+    public static final RegistryObject<Block> POLISHED_LUNAR_STONE = tag(BlockTags.MINEABLE_WITH_PICKAXE).block("polished_lunar_stone", () -> new Block(Block.Properties.copy(LUNAR_STONE.get())));
+    public static final RegistryObject<Block> CRISELED_LUNAR_STONE = tag(BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).block("criseled_lunar_stone", () -> new Block(Block.Properties.copy(LUNAR_STONE.get())));
+    public static final RegistryObject<Block> LUNAR_STONE_PILLAR = tag(BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Column, res("lunar_stone_pillar"), res("polished_lunar_stone")).block("lunar_stone_pillar", () -> new RotatedPillarBlock(Block.Properties.copy(LUNAR_STONE.get())));
     public static final RegistryObject<Block> WISDOM_TREE_CORE = tag(BlockTags.MINEABLE_WITH_AXE).loot(false).model(Model.Modeled).block("wisdom_tree_core", () -> new WisdomTreeCoreBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(-1.0F, 3600000.0F).noLootTable().randomTicks().lightLevel(i-> 12)));
     public static final RegistryObject<Block> WISDOM_TREE_LOG = tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS).loot(false).model(Model.Column, res("wisdom_tree_log"), res("nut_log_top")).block("wisdom_tree_log", () -> new WisdomTreeLogBlock(BlockBehaviour.Properties.of(Material.WOOD).strength(10F).noLootTable().randomTicks().lightLevel(i-> 3)));
     public static final RegistryObject<Block> PATTRA_LEAVES = composter(0.3F).tag(BlockTags.LEAVES).renderType("cutout").loot(false).block("pattra_leaves", () -> new PattraLeavesBlock(BlockBehaviour.Properties.copy(Blocks.OAK_LEAVES).strength(5F).noLootTable()));
@@ -99,7 +107,7 @@ public class PVZBlocks {
     public static final RegistryObject<Block> ESSENCE_FURNACE = tag(BlockTags.NEEDS_STONE_TOOL, BlockTags.MINEABLE_WITH_PICKAXE).model(Model.Modeled).blockEntity("essence_furnace").block("essence_furnace", () -> new EssenceFurnaceBlock(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).lightLevel(litBlockEmission(13))));
     public static final RegistryObject<Block> GARDEN_FLOWER_POT = tag(BlockTags.MINEABLE_WITH_PICKAXE, PVZBlockTags.GARDEN_FLOWER_POT).model(Model.Modeled).itemModel(PVZItems.Model.Block).block("garden_flower_pot", () -> new GardenFlowerPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0.5F)));
     public static final RegistryObject<Block> WATERING_POT = model(Model.Modeled).noItem().block("watering_pot", () -> new WateringPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F)));
-    public static final RegistryObject<Block> ZEN_GARDEN_PORTAL = model(Model.Modeled).noItem(/*registered separatedly.*/).block("zen_garden_portal", () -> new ZenGardenPortalBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F).lightLevel(i-> 12)));
+    public static final RegistryObject<Block> ZEN_GARDEN_PORTAL = tag(BlockTags.PORTALS).model(Model.Modeled).noItem(/*registered separatedly.*/).block("zen_garden_portal", () -> new ZenGardenPortalBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F).lightLevel(i-> 12)));
     public static final RegistryObject<Block> FLOATING_SOUL_SOIL = loot(false).model(Model.Simple).tag(BlockTags.SOUL_FIRE_BASE_BLOCKS, BlockTags.MINEABLE_WITH_SHOVEL).block("floating_soul_soil", () -> new FloatingSoulSoilBlock(BlockBehaviour.Properties.copy(Blocks.SOUL_SOIL).strength(0.5F).explosionResistance(0).lightLevel(i -> 8)));
     public static final RegistryObject<Block> SILVER_SWORD_ORNAMENT = model(Model.Modeled).renderType("cutout").itemModel(PVZItems.Model.Simple)
             .tag(BlockTags.MINEABLE_WITH_AXE).blockEntity("silver_sword_ornament")
@@ -107,6 +115,9 @@ public class PVZBlocks {
     public static final RegistryObject<Block> INVASION_SPAWNER = loot(false).model(Model.Modeled)
             .tag(BlockTags.FEATURES_CANNOT_REPLACE, BlockTags.MINEABLE_WITH_PICKAXE).blockEntity("invasion_spawner")
             .block("invasion_spawner", () -> new InvasionSpawnerBlock(BlockBehaviour.Properties.copy(Blocks.SPAWNER)));
+    public static final RegistryObject<Block> TOMBSTONE = loot(false).model(Model.Modeled)
+            .tag(BlockTags.FEATURES_CANNOT_REPLACE, BlockTags.MINEABLE_WITH_PICKAXE).blockEntity("tombstone")
+            .block("tombstone", () -> new TombstoneBlock(BlockBehaviour.Properties.copy(Blocks.DEEPSLATE)));
     //NO_TAB
     public static final RegistryObject<Block> ENTITY_LIGHT = loot(false).model(Model.Modeled).blockEntity("entity_light").noItem().block("entity_light", () -> new EntityLightBlock(BlockBehaviour.Properties.of(Material.AIR)
             .strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> i.getValue(EntityLightBlock.LEVEL))));
@@ -175,13 +186,13 @@ public class PVZBlocks {
         tagMap.put(blockObj, storedTag);
         storedTag = new ArrayList<>();
         //renderType
-        if (storedRenderType != null){
+        if (storedRenderType != null) {
             renderTypeMap.put(blockObj, storedRenderType);
             storedRenderType = null;
         }
         //blockEntity
-        if (storedBlockEntity != null){
-            if (! blockEntityMap.containsKey(storedBlockEntity)){
+        if (storedBlockEntity != null) {
+            if (! blockEntityMap.containsKey(storedBlockEntity)) {
                 blockEntityMap.put(storedBlockEntity, List.of(blockObj));
             } else {
                 List<RegistryObject<Block>> list = new ArrayList<>(List.copyOf(blockEntityMap.get(storedBlockEntity)));
@@ -208,7 +219,6 @@ public class PVZBlocks {
         //return
         return blockObj;
     }
-
     private static Map<WoodSet, RegistryObject<Block>> wood(String name, AbstractTreeGrower treeGrower, TagKey<Block>... tags){
         /**Boats need to be registered separately in {@link PVZItems}*/
         //init
@@ -356,7 +366,7 @@ public class PVZBlocks {
         Simple, Column, Box, Cross, Carpet,
         Slab, Stairs, Door, Trapdoor,
         Plate, Button, Sign, WallSign,
-        Fence, Gate, Potted,
+        Fence, Wall, Gate, Potted,
         Modeled
     }
 }

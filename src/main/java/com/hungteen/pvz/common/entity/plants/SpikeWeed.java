@@ -5,10 +5,7 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.block.EntityLightBlock;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
-import com.hungteen.pvz.common.register.PVZBlocks;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -20,6 +17,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -208,6 +206,7 @@ public class SpikeWeed extends SimplePlant {
             List<Entity> list = entity.level.getEntities(entity,
                     entity.getBoundingBox().inflate(0.1 * Math.abs(direction.getX()), 0.1 * Math.abs(direction.getY()), 0.1 * Math.abs(direction.getZ())),
                     (entity1) -> EntityUtil.checkCanEntityBeAttack(entity, entity1));
+            if (! list.isEmpty()) entity.level.playSound(null, entity, PVZSoundEvents.SPIKE_WEED_ATTACK.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
             list.forEach((entity1 -> {
                 entity1.hurt(PVZDamageSource.spikeWeedHurt(entity, entity1), (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
                 if (entity1 instanceof LivingEntity && entity.hasSkill(POISONOUS_SKILL_NAME)) {

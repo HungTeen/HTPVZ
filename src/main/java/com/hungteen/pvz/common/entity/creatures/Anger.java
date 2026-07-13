@@ -150,7 +150,7 @@ public class Anger extends FlyingMob {
                         for (int y = -2; y < 3; y ++) {
                             int dist = Math.abs(x) + Math.abs(y) + Math.abs(z) + 1;
                             if (dist < 6 && anger.random.nextInt(dist) == 0 && level.getBlockState(this.anger.blockPosition().offset(x, y, z)).is(BlockTags.SNOW)) {
-                                level.setBlock(this.anger.blockPosition().offset(x, y, z), Blocks.AIR.defaultBlockState(), 3);
+                                level.setBlockAndUpdate(this.anger.blockPosition().offset(x, y, z), Blocks.AIR.defaultBlockState());
                             }
                         }
                     }

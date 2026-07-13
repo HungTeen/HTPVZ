@@ -23,11 +23,19 @@ public class MathUtil {
     }
 
     public static BlockPos posFromUuid(UUID uuid) {
+        return posFromUuid(uuid, 0xa975c974);
+    }
+
+    public static UUID posToUuid(BlockPos pos) {
+        return posToUuid(pos, 0xa975c974);
+    }
+
+    public static BlockPos posFromUuid(UUID uuid, int prefix) {
         int[] arr = UUIDUtil.uuidToIntArray(uuid);
+        if (prefix != arr[0]) return null;
         return new BlockPos(arr[1], arr[2], arr[3]);
     }
     public static UUID posToUuid(BlockPos pos, int prefix) {
-        //using a positive number to avoid errors.
         int[] arr = {prefix, pos.getX(), pos.getY(), pos.getZ()};
         return UUIDUtil.uuidFromIntArray(arr);
     }

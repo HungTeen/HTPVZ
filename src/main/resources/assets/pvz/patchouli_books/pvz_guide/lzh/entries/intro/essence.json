@@ -1,0 +1,35 @@
+{
+    "name": "*0",
+    "icon": "pvz:origin_essence",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "*1"
+        },
+        {
+            "type": "text",
+            "text": "*2"
+        },
+        {
+            "type": "text",
+            "text": "*3"
+        },
+        {
+            "type": "pvz:essence",
+            "input1": "minecraft:clay_ball",
+            "input2": "minecraft:prismarine_crystals",
+            "input3": "minecraft:blaze_powder",
+            "input4": "pvz:fallen_star",
+            "input5": "minecraft:glowstone_dust",
+            "input6": "minecraft:snowball",
+            "output1": "pvz:terra_essence",
+            "output2": "pvz:aqua_essence",
+            "output3": "pvz:ignis_essence",
+            "output4": "pvz:ventus_essence",
+            "output5": "pvz:lux_essence",
+            "output6": "pvz:gelum_essence"
+        }
+    ],
+    "sortnum": 1
+}

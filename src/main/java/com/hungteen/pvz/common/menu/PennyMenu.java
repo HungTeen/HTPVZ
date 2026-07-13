@@ -2,10 +2,8 @@ package com.hungteen.pvz.common.menu;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.common.register.PVZMenus;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.ClientSideMerchant;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -143,11 +141,8 @@ public class PennyMenu extends AbstractContainerMenu {
         this.vanillaMenu.tryMoveItems(p_40073_);
     }
 
-    private void playTradeSound() {
-        if (!this.trader.isClientSide()) {
-            Entity entity = (Entity)this.trader;
-            entity.getLevel().playLocalSound(entity.getX(), entity.getY(), entity.getZ(), this.trader.getNotifyTradeSound(), SoundSource.NEUTRAL, 1.0F, 1.0F, false);
-        }
+    public void playTradeSound() {
+        this.vanillaMenu.playTradeSound();
     }
 
     @Override

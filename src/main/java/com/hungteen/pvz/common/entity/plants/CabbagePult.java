@@ -5,6 +5,8 @@ import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -46,6 +48,11 @@ public class CabbagePult extends ShooterPlant {
     }
 
     @Override
+    protected SoundEvent getShootSound() {
+        return PVZSoundEvents.CABBAGE_SHOOT.get();
+    }
+
+    @Override
     public float getAttackDamage() {
         return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue();
     }
@@ -71,7 +78,7 @@ public class CabbagePult extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 5D)
+                .add(Attributes.ATTACK_DAMAGE, 8D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

@@ -1,10 +1,7 @@
 package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.network.ClientProxy;
-import com.hungteen.pvz.common.register.OtherRegisters;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -12,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -70,6 +68,12 @@ public class MelonBullet extends BaseBullet {
         }
         super.onHitEntity(result);
     }
+
+    @Override
+    public SoundEvent getHitSound() {
+        return PVZSoundEvents.MELON_HIT.get();
+    }
+
     @Override
     protected void onHitBlock(BlockHitResult result) {
         if (!this.level.isClientSide()) {

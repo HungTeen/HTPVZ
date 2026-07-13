@@ -5,13 +5,14 @@ import com.hungteen.pvz.api.interfaces.IShooter;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -43,11 +44,11 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	@Override
 	protected void registerGoals() {
 		super.registerGoals();
-		this.shooterAttackGoal = new ShooterAttackGoal(this);
-		this.goalSelector.addGoal(1, shooterAttackGoal);
 		this.goalSelector.addGoal(1, new AttractEnemyGoal(this, () -> this.getFirstPassenger() == null, 1));
-		this.goalSelector.addGoal(2, new LookAtPlayerGoal(this, Player.class, 6.0F));
-		this.goalSelector.addGoal(2, new RandomLookAroundGoal(this));
+		this.shooterAttackGoal = new ShooterAttackGoal(this);
+		this.goalSelector.addGoal(2, shooterAttackGoal);
+		this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 6.0F));
+		this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
 
 		this.targetGoal = new ShooterTargetGoal(this);
 		this.targetSelector.addGoal(1, targetGoal);
@@ -78,7 +79,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 		}
 		//shoot
 		bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, getBulletSpeed(), (float) randomAngle);
-		if (needSound) {
+		if (needSound && getShootSound() != null) {
 			EntityUtil.playSound(this, this.getShootSound());
 		}
 		bullet.setOwner(this);
@@ -131,8 +132,8 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 	protected abstract Projectile createBullet();
 
-	protected SoundEvent getShootSound() {
-		return SoundEvents.SNOW_GOLEM_SHOOT;
+	protected @Nullable SoundEvent getShootSound() {
+		return PVZSoundEvents.PEA_SHOOT.get();
 	}
 
 	/**
@@ -235,19 +236,22 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 		@Override
 		public boolean canUse() {
-			//looking control.
+			if (! this.shooter.canShoot()) return false;
 			LivingEntity target = this.shooter.getTarget();
-			if (EntityUtil.isEntityValid(target)) {
-				this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
-			}
-			//countdown.
 			final int time = this.shooter.getAttackTime();
-			if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && EntityUtil.isEntityValid(target))) {
+			if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && hasRotToPosition() && EntityUtil.isEntityValid(target))) {
 				this.shooter.setAttackTime(time > 0 ? time - 1 : this.shooter.getShootCD());
 			}
 			shooter.entityData.set(POSE, (this.shooter.getAttackTime() < this.shooter.shootAnimLength()));
-			//can shoot.
-			return this.shooter.canShoot();
+			return EntityUtil.isEntityValid(target);
+		}
+
+		protected boolean hasRotToPosition() {
+			if (! EntityUtil.isEntityValid(this.shooter.getTarget())) return true;
+			double d0 = this.shooter.getLookControl().getWantedX() - this.shooter.getX();
+			double d1 = this.shooter.getLookControl().getWantedZ() - this.shooter.getZ();
+			return ((Math.abs(d1) <= 1E-5F) && (Math.abs(d0) <= 1E-5F) ? 0
+					: Math.abs((float)((Mth.atan2(d1, d0) * (double)(180F / (float)Math.PI)) + 270) % 360) - (shooter.getYHeadRot() + 360) % 360) < 15;
 		}
 
 		@Override
@@ -257,8 +261,13 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 
 		@Override
 		public void tick() {
-			int time = this.shooter.getAttackTime();
-			if (this.shooter.shootTimes().contains(time)) {
+			//looking control
+			LivingEntity target = this.shooter.getTarget();
+			if (EntityUtil.isEntityValid(target)) {
+				this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
+			}
+			//shooting
+			if (this.shooter.shootTimes().contains(this.shooter.getAttackTime())) {
 				this.shooter.shootBullet();
 				if (EntityUtil.isEntityValid(this.shooter.getTarget())) {
 					shooter.aimTime = 0;

@@ -8,10 +8,12 @@ import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -31,6 +33,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -69,8 +72,9 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         if (this.isAlive()) {
             if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.dyeMarigold) && player.getItemInHand(handIn).getItem() instanceof DyeItem dye) {
                 if (this.isAlive() && this.getColor() != dye.getDyeColor().getTextColor()) {
-                    this.level.playSound(player, this, SoundEvents.DYE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                    this.level.playSound(null, this, SoundEvents.DYE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                     if (! this.level.isClientSide) {
+                        level.playSound(null, this, PVZSoundEvents.SPROUT_HARVEST.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
                         this.setColor(dye.getDyeColor().getTextColor());
                         player.getItemInHand(handIn).shrink(1);
                     }
@@ -107,6 +111,8 @@ public class MariGold extends SimplePlant implements IGardenPlant {
                 this.entityData.set(IS_PRODUCING, true);
             }
             if (! event.isCanceled()) {
+                if (! level.isClientSide)
+                    level.playSound(null, this, PVZSoundEvents.SPROUT_WATER.get(), player == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1.0F, 1.0F);
                 setGrowLevel(this.getGrowLevel() + 1);
             }
             this.setRequiringWater(true);
@@ -125,6 +131,26 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         this.entityData.define(REQUIRES_WATER, true);
         this.entityData.define(GROW_ENDED, false);
         this.entityData.define(COLOR, DyeColor.values()[this.random.nextInt(16)].getTextColor());
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (! this.level.isClientSide) {
+            if (this.getRemainingGrowTick() > 40) {
+                List<Bee> bees = this.level.getEntitiesOfClass(Bee.class
+                        , this.getBoundingBox().inflate(0.5, 0.5, 0.5)
+                        , bee -> bee.savedFlowerPos != null && bee.savedFlowerPos.equals(this.blockPosition()));
+                if (! bees.isEmpty()) {
+                    this.growEndTime -= 3;
+                    if (this.random.nextInt(3) == 0) {
+                        ((ServerLevel) this.level).sendParticles(ParticleTypes.COMPOSTER,
+                                position().x, position().y + 0.3, position().z,
+                                2, 0.3, 0.3, 0.3, 0);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -318,6 +344,10 @@ public class MariGold extends SimplePlant implements IGardenPlant {
             } else if (time == 8 || time == 10 || time == 12
                     || ((time == 9 || time == 11 || time == 13 || time == 15) && random.nextBoolean())) {
                 mariGold.produce();
+            } else if (time == 2) {
+                mariGold.level.playSound(null, mariGold
+                        , mariGold.getGrowLevel() < 3 ? PVZSoundEvents.MARIGOLD_PRODUCE.get() : PVZSoundEvents.MARIGOLD_PRODUCE_GEMS.get()
+                        , SoundSource.NEUTRAL, 1.0F, 1.0F);
             }
         }
     }

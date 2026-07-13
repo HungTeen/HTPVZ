@@ -61,7 +61,7 @@ public class PVZFog {
         AtomicReference<Double> strength = new AtomicReference<>((double) 0);
         level.getCapability(PVZFogCapability.CAP).ifPresent(cap -> {
             for (PVZFog fog : cap.fogs.values()) {
-                strength.set(Math.max(fog.effect * fog.getStrengthAt(position), strength.get()));
+                strength.set(Math.max(fog.getStrengthAt(position), strength.get()));
             }
         });
         return strength.get();
@@ -91,12 +91,6 @@ public class PVZFog {
                                     fog.position.getZ() + radius * Math.cos(yRot),
                                     0, 0, 0);
                         }
-                        if (fog.getStrengthAt(ClientProxy.getPlayer().position()) > 0) {
-                            fog.effect += tickTime / 20;
-                        } else {
-                            fog.effect -= tickTime / 20;
-                        }
-                        fog.effect = Math.max(Math.min(Math.min(fog.lifeLeft, 1), fog.effect), 0);
                         if (fog.lifeLeft < 0) {
                             cap.fogs.remove(fog.uuid);
                         }
@@ -112,12 +106,12 @@ public class PVZFog {
         if (ClientProxy.getPlayer() != null) {
             double strength = getFogStrengthAt(ClientProxy.getPlayer().level, ClientProxy.getPlayer().position());
             if (ClientProxy.getPlayer().hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
-                bufferStrength = (float) (bufferStrength * 0.98 + strength * 0.005);
+                bufferStrength = (float) (bufferStrength * 0.995 + strength * 0.0005);
             } else if (ClientProxy.getPlayer().hasEffect(PVZMobEffects.DISTANCE_EFFECT.get())) {
                 float mul = Math.max(1, (float) (ClientProxy.getPlayer().getEffect(PVZMobEffects.DISTANCE_EFFECT.get()).getAmplifier() + 1) / 5);
-                bufferStrength = (float) (bufferStrength * 0.98 + strength * 0.02 + 0.2 * mul);
+                bufferStrength = (float) (bufferStrength * 0.995 + strength * 0.005 + 0.05 * mul);
             } else {
-                bufferStrength = (float) (bufferStrength * 0.98 + strength * 0.02);
+                bufferStrength = (float) (bufferStrength * 0.995 + strength * 0.005);
             }
             if (bufferStrength < 1e-8) bufferStrength = 0;
             if (bufferStrength > 0) {

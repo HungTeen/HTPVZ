@@ -165,7 +165,7 @@ public class PVZConfig {
                     "seedDispensaryGiveSprout", true);
             naturallySpawnInvasionsInterval = add(builder
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
-                    "naturallySpawnInvasionsInterval", 24000, 0, 1000000);
+                    "naturallySpawnInvasionsInterval", 4000, 0, 1000000);
             naturallySpawnSunInterval = add(builder
                             .comment("sun naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural sun spawn."),
                     "naturallySpawnSunInterval", 2000, 0, 1000000);
@@ -180,10 +180,10 @@ public class PVZConfig {
                     "naturallyRegainSunInterval", 60, 0, 1000000);
             invasionSpawnerCoolDown = add(builder
                             .comment("cool down of invasion spawner for a single player."),
-                    "invasionSpawnerCoolDown", 72000, 0, 1000000);
+                    "invasionSpawnerCoolDown", 12000, 0, 1000000);
             invasionExperienceFactor = add(builder
                             .comment("a factor of the experience dropped in invasions."),
-                    "invasionExperienceFactor", 30, 0, 1000000);
+                    "invasionExperienceFactor", 100, 0, 1000000);
             marigoldGrowTime = add(builder
                             .comment("ticks marigolds should stay in after being fertilized before they grow to next level."),
                     "marigoldGrowTime", 12000, 100, 1000000);
@@ -191,11 +191,10 @@ public class PVZConfig {
                             .comment("ticks sprouts should stay in after being fertilized before they grow to next level."),
                     "sproutGrowTime", 24000, 100, 1000000);
             invasionDifficultyFactorK = add(builder
-                            .comment("the general factor about the rate difficulty of invasions grows."),
-                    "invasionDifficultyFactorK", 600, 0, 1000000);
+                            .comment("the general factor about the rate difficulty of invasions grows."),                    "invasionDifficultyFactorK", 1000, 0, 1000000);
             invasionDifficultyFactorB = add(builder
                             .comment("the general factor about the difficulty of invasions when it starts."),
-                    "invasionDifficultyFactorB", 100, 0, 1000000);
+                    "invasionDifficultyFactorB", 300, 0, 1000000);
             advancedPlantExtraCostRange = add(builder
                             .comment("when planting advanced plants, plants of the same type in this range will be included for calculation of extra cost. set to -1 to disable extra sun cost."),
                     "advancedPlantExtraCostRange", 30, -1, 500);

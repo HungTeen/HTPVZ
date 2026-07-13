@@ -61,10 +61,19 @@ public class BlockLootGen extends BlockLoot {
         this.addSlabDrop(PVZBlocks.GARDEN_FLOWER_POT.get());
         this.addConditionDrop(PVZBlocks.FLOATING_SOUL_SOIL.get(), HAS_SILK_TOUCH);
         this.addNoLoot(PVZBlocks.INVASION_SPAWNER.get());
+        this.add(PVZBlocks.TOMBSTONE.get(), LootTable.lootTable().withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1F))
+                        .add(LootItem.lootTableItem(Items.GOLD_INGOT).setWeight(5))
+                        .add(LootItem.lootTableItem(Items.IRON_INGOT).setWeight(19))
+                        .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(1)))
+                .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1F))
+                        .add(LootItem.lootTableItem(Items.GOLD_NUGGET).setWeight(1).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 9F))))
+                        .add(LootItem.lootTableItem(Items.IRON_NUGGET).setWeight(4).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 9F)))))
+        );
         //TODO bug that essence alter and origin block drop self without tool.
 
         //the rest
-        PVZBlocks.BLOCKS.getEntries().forEach((blockObj) ->{
+        PVZBlocks.BLOCKS.getEntries().forEach((blockObj) -> {
             if (blockObj.getId().getNamespace().equals(PVZMod.MODID) && !lootedList.contains(blockObj.get()) && blockObj.get().asItem() != Items.AIR) {
                 outPut(blockObj.get());
                 this.dropSelf(blockObj.get());

@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.DamageSourceSharpEvent;
 import com.hungteen.pvz.api.interfaces.IArmorEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
@@ -75,7 +76,7 @@ public class PVZDamageSource {
         return setNotEating(new EntityDamageSource("crush", source));
     }
     public static DamageSource tangleKelpHurt(LivingEntity source, Entity target) {
-        return hitBossWithProportion(anoOwned("tangle_kelp", source), target);
+        return hitBossWithProportion(anoOwned("tangle_kelp", source).bypassArmor(), target);
     }
 
     public static DamageSource owned(String name, LivingEntity source) {
@@ -310,6 +311,18 @@ public class PVZDamageSource {
                 return;
             }
         }
+        //owned plant attack regard as player attack
+        Entity attacker = ev.getSource() instanceof IndirectEntityDamageSource indSource
+                ? indSource.owner : ev.getSource().getEntity();
+        if (attacker != null && PVZEntityCapability.getOwner(attacker) instanceof Player player) {
+            entity.setLastHurtByPlayer(player);
+        }
+        //sun blood effect
+        if (entity.hasEffect(PVZMobEffects.SUN_BLOOD.get())) {
+            double amplifier = entity.getEffect(PVZMobEffects.SUN_BLOOD.get()).getAmplifier() * 0.3 + 1;
+            Sun.spawnSunWithEffects(entity.level, (int) (Math.max(5, ev.getAmount() * 3) * amplifier)
+                    , entity.blockPosition().offset(0, entity.getEyeHeight(), 0), 0.2F);
+        }
         //handle IArmorEntity and ExtraHealthArmorItem
         if (! ev.getSource().isBypassArmor() || ev.getSource() == DamageSource.FREEZE || isBypassShield(ev.getSource())) {
             if (entity.getVehicle() instanceof IArmorEntity vehicle && vehicle.canRecieveDamage(ev.getSource(), ev.getAmount(), entity)) {
@@ -343,9 +356,6 @@ public class PVZDamageSource {
         }
         if (ev.getSource() == multiplierSource) {
             ev.setAmount(ev.getAmount() * multiplier);
-        }
-        if (ev.getSource() == knockBackSource) {
-
         }
     }
     @SubscribeEvent

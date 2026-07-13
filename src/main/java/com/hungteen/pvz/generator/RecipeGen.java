@@ -115,6 +115,12 @@ public class RecipeGen extends RecipeProvider {
                 }
             }
         });
+        slabBuilder(PVZBlocks.LUNAR_STONE_SLAB.get(), Ingredient.of(PVZBlocks.LUNAR_STONE.get()))
+                .unlockedBy(getHasName(PVZBlocks.LUNAR_STONE.get()), has(PVZBlocks.LUNAR_STONE.get())).save(c);
+        wallBuilder(PVZBlocks.LUNAR_STONE_WALL.get(), Ingredient.of(PVZBlocks.LUNAR_STONE.get()))
+                .unlockedBy(getHasName(PVZBlocks.LUNAR_STONE.get()), has(PVZBlocks.LUNAR_STONE.get())).save(c);
+        stairBuilder(PVZBlocks.LUNAR_STONE_STAIRS.get(), Ingredient.of(PVZBlocks.LUNAR_STONE.get()))
+                .unlockedBy(getHasName(PVZBlocks.LUNAR_STONE.get()), has(PVZBlocks.LUNAR_STONE.get())).save(c);
     }
 
     public ItemLike wood(int i, WoodSet elem){

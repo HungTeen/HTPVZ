@@ -18,12 +18,15 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -36,6 +39,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -152,6 +156,19 @@ public class Sprout extends Mob implements IGardenPlant {
             if (this.tickCount % 10 == 0 && ! level.getBlockState(this.getOnPos()).is(PVZBlockTags.GARDEN_FLOWER_POT)) {
                 this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
             }
+            if (this.getRemainingGrowTick() > 40) {
+                List<Bee> bees = this.level.getEntitiesOfClass(Bee.class
+                        , this.getBoundingBox().inflate(0.5, 0.5, 0.5)
+                        , bee -> bee.savedFlowerPos != null && bee.savedFlowerPos.equals(this.blockPosition()));
+                if (! bees.isEmpty()) {
+                    this.growEndTime -= 3;
+                    if (this.random.nextInt(3) == 0) {
+                        ((ServerLevel) this.level).sendParticles(ParticleTypes.COMPOSTER,
+                                position().x, position().y + 0.3, position().z,
+                                2, 0.3, 0.3, 0.3, 0);
+                    }
+                }
+            }
         } else {
             if (! entityData.get(PLANT_NAME).equals("") && this.plant == null) {
                 EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityData.get(PLANT_NAME)));
@@ -166,12 +183,14 @@ public class Sprout extends Mob implements IGardenPlant {
                     }
                 }
             } else if (getGrowLevel() >= this.getMaxLevel()) {
-                this.level.addParticle(ParticleTypes.ELECTRIC_SPARK,
-                        getX() + random.nextFloat() * 0.8 - 0.4, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.4,
-                        0, random.nextFloat(), 0);
-                if (random.nextInt(5) == 0) {
-                    this.level.addParticle(PVZParticles.SUN.get(),
+                if (random.nextInt(2) == 0) {
+                    this.level.addParticle(ParticleTypes.ELECTRIC_SPARK,
                             getX() + random.nextFloat() * 0.8 - 0.4, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.4,
+                            0, random.nextFloat(), 0);
+                }
+                if (random.nextInt(5) == 0) {
+                    this.level.addParticle(PVZParticles.GLOW_DUST.get(),
+                            getX() + random.nextFloat() * 0.8 - 0.2, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.2,
                             0, 0, 0);
                 }
             }
@@ -192,7 +211,9 @@ public class Sprout extends Mob implements IGardenPlant {
             ExperienceOrb.award((ServerLevel)this.level, this.position(), 5);
             this.discard();
             if (player instanceof ServerPlayer serverPlayer) {
+                level.playSound(null, this, SoundEvents.DYE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                 player.awardStat(PVZStats.HARVEST_SPROUTS);
+                PVZCriteriaTriggers.HARVEST_SPROUT.trigger(serverPlayer);
                 PVZCriteriaTriggers.HARVEST_SPROUT.trigger(serverPlayer);
             }
             return InteractionResult.CONSUME;
@@ -241,6 +262,8 @@ public class Sprout extends Mob implements IGardenPlant {
                 this.transformPlant();
             }
             if (! event.isCanceled()) {
+                if (! level.isClientSide)
+                    level.playSound(null, this, PVZSoundEvents.SPROUT_GROW.get(), player == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1.0F, 1.0F);
                 setGrowLevel(this.getGrowLevel() + 1);
             }
             this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.sproutGrowTime));
@@ -258,7 +281,7 @@ public class Sprout extends Mob implements IGardenPlant {
             Entity entity = type.create(level);
             if (entity != null) {
                 ItemStack stack = entity.getPickResult();
-                int num = this.random.nextInt(4) + 5;
+                int num = this.random.nextInt(2) + 4;
                 for (int i = 0; i < num; i ++) {
                     ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), stack.copy());
                     BlockPos pos = blockPosition();

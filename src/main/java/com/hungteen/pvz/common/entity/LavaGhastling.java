@@ -109,7 +109,7 @@ public class LavaGhastling extends Ghast {
 
         public void stop() {
             this.ghast.setCharging(false);
-            this.chargeTime = -120;
+            this.chargeTime = -80;
         }
 
         public void tick() {
@@ -134,7 +134,7 @@ public class LavaGhastling extends Ghast {
                         LargeFireball largefireball = new LargeFireball(level, this.ghast, d2, d3, d4, this.ghast.getExplosionPower());
                         largefireball.setPos(this.ghast.getX() + vec3.x, this.ghast.getY(0.5D) + 0.5D, largefireball.getZ() + vec3.z);
                         level.addFreshEntity(largefireball);
-                        this.chargeTime = -120;
+                        this.chargeTime = -80;
                     }
                 } else if (this.chargeTime > 0) {
                     --this.chargeTime;

@@ -5,9 +5,11 @@ import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
 import com.hungteen.pvz.client.particle.ModelPartParticle;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.Level;
@@ -35,10 +37,15 @@ public class PVZShieldItem extends ShieldItem implements IDropWhenBroken {
         }
     }
 
+    public SoundEvent getBlockSound() {
+        return PVZSoundEvents.DAMAGE_METAL.get();
+    }
+
     public static void registerProperties(){
         ItemProperties.register(PVZItems.SCREEN_DOOR_SHIELD.get(), new ResourceLocation("durability"),
                 (itemStack, level, entity, seed) -> (150 - itemStack.getDamageValue()) / 51);
         ItemProperties.register(PVZItems.SCREEN_DOOR_SHIELD.get(), new ResourceLocation("blocking"),
                 (itemStack, level, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == itemStack ? 1.0F : 0.0F);
     }
+
 }

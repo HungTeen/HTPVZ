@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.world;
 
+import com.google.common.collect.ImmutableMap;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
@@ -9,35 +10,34 @@ import com.hungteen.pvz.common.entity.FallenStar;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.item.PVZShieldItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
-import com.hungteen.pvz.common.register.PVZBiomes;
 import com.hungteen.pvz.common.register.PVZBlocks;
-import com.hungteen.pvz.common.register.PVZDimensions;
+import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
+import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.common.world.invasion.InvasionTypeManager;
+import net.minecraft.commands.arguments.SlotArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.ai.sensing.VillagerHostilesSensor;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.living.ZombieEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
@@ -75,8 +75,8 @@ public class PVZWorldEvents {
     }
 
     @SubscribeEvent
-    public static void playerRespawnCoolDown(PlayerEvent.PlayerRespawnEvent event) {
-        if (! event.getEntity().level.isClientSide && ! event.isEndConquered()) {
+    public static void playerLoginCoolDown(PlayerEvent.PlayerLoggedInEvent event) {
+        if (! event.getEntity().level.isClientSide) {
             if (PVZPlayerCapability.getValue(event.getEntity(), PVZPlayerCapStats.PLANT_HAVE_CD) == 0) {
                 return;
             }
@@ -97,11 +97,44 @@ public class PVZWorldEvents {
     @SubscribeEvent
     public static void playerCapRespawnSync(PlayerEvent.PlayerRespawnEvent event) {
         event.getEntity().getCapability(PVZPlayerCapability.CAP).ifPresent(cap -> cap.sync(true));
+        //re-cooldown
+        if (! event.getEntity().level.isClientSide && ! event.isEndConquered()) {
+            if (PVZPlayerCapability.getValue(event.getEntity(), PVZPlayerCapStats.PLANT_HAVE_CD) == 0) {
+                return;
+            }
+            ItemCooldowns cooldowns = event.getEntity().getCooldowns();
+            for (ItemStack item : event.getEntity().getInventory().items) {
+                if (item.getItem() instanceof SeedPacketItem<?> item1) {
+                    cooldowns.addCooldown(item.getItem(), item1.getBaseCoolDown(null));
+                }
+            }
+            for (ItemStack item : event.getEntity().getInventory().offhand) {
+                if (item.getItem() instanceof SeedPacketItem<?> item1) {
+                    cooldowns.addCooldown(item.getItem(), item1.getBaseCoolDown(null));
+                }
+            }
+        }
     }
 
     @SubscribeEvent
-    public static void playerCapRespawnSync(PlayerEvent.PlayerChangedDimensionEvent event) {
+    public static void playerCapChangeDimensionSync(PlayerEvent.PlayerChangedDimensionEvent event) {
         event.getEntity().getCapability(PVZPlayerCapability.CAP).ifPresent(cap -> cap.sync(true));
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        Player oldPlayer = event.getOriginal();
+        Player newPlayer = event.getEntity();
+        oldPlayer.reviveCaps();
+        LazyOptional<PVZPlayerCapability> oldCap = oldPlayer.getCapability(PVZPlayerCapability.CAP);
+        LazyOptional<PVZPlayerCapability> newCap = newPlayer.getCapability(PVZPlayerCapability.CAP);
+        oldCap.ifPresent(o -> newCap.ifPresent( n -> {
+            n.deserializeNBT(o.serializeNBT());
+            if (! newPlayer.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+                n.getPlayerData().setValue(PVZPlayerCapStats.SUN, 50);
+            }
+            n.sync(true);
+        }));
     }
 
     @SubscribeEvent
@@ -118,17 +151,6 @@ public class PVZWorldEvents {
                 event.setResult(Event.Result.DENY);
             }
         });
-    }
-
-    @SubscribeEvent
-    public static void onEntityTick(LivingEvent.LivingTickEvent event) {
-        LivingEntity entity = event.getEntity();
-        Level level = entity.getLevel();
-        if (! level.isClientSide && level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)
-                && level.getBiome(entity.blockPosition()).is(PVZBiomes.GARDEN_VOID.getKey())) {
-            if (entity instanceof Player player) {
-            }
-        }
     }
 
     //called by PVZMod#onServerTick(ev).
@@ -185,6 +207,31 @@ public class PVZWorldEvents {
             });
         }
     }
+
+    //misc bootstraps
+    public static void commonBootstrap() {
+        var builder = ImmutableMap.<EntityType<?>, Float>builder();
+        VillagerHostilesSensor.ACCEPTABLE_DISTANCE_FROM_HOSTILES.forEach(builder::put);
+        PVZEntities.tagMap.forEach((obj, list) -> {
+            if (list.contains(PVZEntityTags.ZOMBIE)) {
+                builder.put((EntityType<?>) obj.get(), 8F);
+            }
+        });
+        VillagerHostilesSensor.ACCEPTABLE_DISTANCE_FROM_HOSTILES = builder.build();
+    }
+
+    public static void serverBootstrap() {
+        try {
+            ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+            SlotArgument.SLOTS.forEach(builder::put);
+            for (int i = 0; i < 9; i ++) {
+                builder.put("pvz.seed_bundle." + i, i + 73562);
+            }
+            SlotArgument.SLOTS = builder.build();
+        } catch (Exception ignored) {
+        }
+    }
+
 
     //for test
 //    @SubscribeEvent

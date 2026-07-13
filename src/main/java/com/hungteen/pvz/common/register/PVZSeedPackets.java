@@ -40,7 +40,7 @@ public class PVZSeedPackets {
         //pvz packets.
 
         //overworld
-        add(PVZEntities.PEA_SHOOTER).cost(75).coolDown(FAST).skillList(PeaShooter.staticSkillList)
+        add(PVZEntities.PEA_SHOOTER).cost(100).coolDown(FAST).skillList(PeaShooter.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.SUN_FLOWER).cost(50).coolDown(MEDIUM).skillList(SunFlower.staticSkillList)
                 .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
@@ -49,7 +49,7 @@ public class PVZSeedPackets {
         add(PVZEntities.POTATO_MINE).cost(25).coolDown(MEDIUM).skillList(PotatoMine.staticSkillList)
                 .recipe(Items.POTATO, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE)
                 .note(Component.translatable("container.pvz.almanac.can_plant_on_dirt"));
-        add(PVZEntities.SNOW_PEA).cost(150).coolDown(FAST).skillList(SnowPea.staticSkillList)
+        add(PVZEntities.SNOW_PEA).cost(175).coolDown(FAST).skillList(SnowPea.staticSkillList)
                 .recipe(getData(PVZEntities.PEA_SHOOTER), PVZItems.FLOWER_SEED_PACKET, PVZItems.GELUM_ESSENCE);
         add(PVZEntities.LILY_PAD).cost(25).coolDown(FAST).skillList(LilyPad.staticSkillList)
                 .recipe(Items.LILY_PAD, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE)
@@ -59,7 +59,7 @@ public class PVZSeedPackets {
                 .note(Component.translatable("container.pvz.almanac.can_only_plant_on_water"));
         add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
                 .recipeBlock(PVZBlocks.PLANTERN, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
-        add(PVZEntities.SPLIT_PEA).cost(150).coolDown(MEDIUM).skillList(SplitPea.staticSkillList)
+        add(PVZEntities.SPLIT_PEA).cost(200).coolDown(MEDIUM).skillList(SplitPea.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
                 .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
@@ -72,7 +72,7 @@ public class PVZSeedPackets {
                 .recipe(PVZItems.FLOWER_SEED_PACKET)
                 .note(Component.translatable("container.pvz.almanac.can_plant_on_most_places"));
         //the nether
-        add(PVZEntities.REPEATER).cost(150).coolDown(FAST).skillList(Repeater.staticSkillList)
+        add(PVZEntities.REPEATER).cost(200).coolDown(FAST).skillList(Repeater.staticSkillList)
                 .recipe(getData(PVZEntities.PEA_SHOOTER), PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.HYPNO_SHROOM).cost(75).coolDown(SLOW).skillList(HypnoShroom.staticSkillList)
                 .recipe(PVZItems.NETHER_WART_SEED_PACKET).setCreativeOnly()

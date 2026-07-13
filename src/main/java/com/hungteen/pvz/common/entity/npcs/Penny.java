@@ -10,13 +10,13 @@ import com.hungteen.pvz.common.network.PennyOffersPacket;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -156,6 +156,16 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
     }
 
     @Override
+    public SoundEvent getAmbientSound() {
+        return PVZSoundEvents.PENNY_AMBIENT.get();
+    }
+
+    @Override
+    public SoundEvent getNotifyTradeSound() {
+        return PVZSoundEvents.PENNY_TRADE.get();
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("DespawnDelay", this.despawnTime);
@@ -256,7 +266,7 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
             offers.add(new MerchantOffer(jewel.copy(), pair.getSecond()
                     , 1, 0, 0));
         }
-        jewel.setCount(3);
+        jewel.setCount(8);
         offers.add(new MerchantOffer(jewel.copy(), new ItemStack(PVZItems.ALAYA_RESIN.get(), 3)
                 , 1, 0, 0));
         iterator = this.materials.stream().iterator();
@@ -295,11 +305,6 @@ public class Penny extends Mob implements Npc, Merchant, IEntityPacketHandler {
     @Override
     public boolean showProgressBar() {
         return false;
-    }
-
-    @Override
-    public SoundEvent getNotifyTradeSound() {
-        return SoundEvents.VILLAGER_YES;
     }
 
     @Override

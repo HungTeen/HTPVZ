@@ -5,7 +5,7 @@ import com.hungteen.pvz.common.register.PVZStructures;
 import com.hungteen.pvz.common.tags.PVZStructureTags;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.StructureTagsProvider;
-import net.minecraft.data.worldgen.Structures;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +16,7 @@ public class StructureTagGen extends StructureTagsProvider {
 
     @Override
     public void addTags() {
-        this.tag(PVZStructureTags.CAN_INVADE).add(PVZStructures.INVASION_RUIN.get(), PVZStructures.NETHER_INVASION_RUIN.get()
-                , Structures.MINESHAFT.get(), Structures.NETHER_FOSSIL.get(), Structures.MINESHAFT_MESA.get());
+        this.tag(PVZStructureTags.CAN_INVADE).add(PVZStructures.INVASION_RUIN.get(), PVZStructures.NETHER_INVASION_RUIN.get())
+                .add(BuiltinStructures.MINESHAFT).add(BuiltinStructures.NETHER_FOSSIL).add(BuiltinStructures.MINESHAFT_MESA);
     }
 }

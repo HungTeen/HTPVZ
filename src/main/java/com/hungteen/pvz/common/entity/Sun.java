@@ -8,10 +8,7 @@ import com.hungteen.pvz.api.interfaces.ISunContainer;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.network.ClientProxy;
-import com.hungteen.pvz.common.register.PVZEnchantments;
-import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.register.PVZParticles;
-import com.hungteen.pvz.common.register.PVZStats;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -191,11 +188,11 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
                 if (actual - currentSun > 0) {
                     player.awardStat(PVZStats.COLLECT_SUN);
                 }
+                this.playSound(PVZSoundEvents.COLLECT_SUN.get());
             });
             event = new AbsorbSunEvent.Player(this, player, AbsorbSunEvent.Phase.End);
             MinecraftForge.EVENT_BUS.post(event);
         }
-        //TODO add a event here.
     }
 
     //ISunAbsorber

@@ -1,0 +1,20 @@
+{
+    "name": "*0",
+    "icon": "minecraft:zombie_head",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "*1"
+        },
+        {
+            "type": "text",
+            "text": "*3"
+        },
+        {
+            "type": "text",
+            "text": "*2"
+        }
+    ],
+    "sortnum": 5
+}

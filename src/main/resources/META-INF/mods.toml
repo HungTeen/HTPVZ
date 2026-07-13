@@ -4,7 +4,7 @@ loaderVersion="[43,)"
 license="GPL v3"
 [[mods]]
 modId="pvz"
-version="0.1-beta3-fix1"
+version="0.1-beta4"
 displayName="HungTeen's Plants vs. Zombies 2"
 logoFile="logo.png"
 credits=""

@@ -5,6 +5,7 @@ import com.hungteen.pvz.common.block.GardenFlowerPotBlock;
 import com.hungteen.pvz.common.item.FertilizerItem;
 import com.hungteen.pvz.common.item.WateringPotItem;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -13,8 +14,11 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -41,6 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.Nullable;
@@ -87,17 +92,24 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
     }
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new SnailRetreatIntoShellGoal(this));
+        this.goalSelector.addGoal(1, new SnailPaniclyRetreatIntoShellGoal(this));
         this.goalSelector.addGoal(2, new TemptGoal(this, 1.25D, Ingredient.of(PVZItems.CHOCOLATE.get()), false));
         this.goalSelector.addGoal(3, new SnailCollectItemsGoal(this));
         this.goalSelector.addGoal(4, new SnailFeedPlantsGoal(this));
         this.goalSelector.addGoal(5, new MoveBackToGardenPotsGoal(this));
-        this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(6, new SnailTiredlyRetreatIntoShellGoal(this));
+        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         super.registerGoals();
     }
+    @Nullable
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_21434_, DifficultyInstance p_21435_, MobSpawnType p_21436_, @javax.annotation.Nullable SpawnGroupData p_21437_, @javax.annotation.Nullable CompoundTag p_21438_) {
+        SpawnGroupData data = super.finalizeSpawn(p_21434_, p_21435_, p_21436_, p_21437_, p_21438_);
+        this.setLeftHanded(false);
+        return data;
+    }
 
-    protected PathNavigation createNavigation(Level p_33802_) {
+        protected PathNavigation createNavigation(Level p_33802_) {
         return new WallClimberNavigation(this, p_33802_);
     }
 
@@ -112,8 +124,13 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
     public void setClimbing(boolean climbing) {
         this.entityData.set(CLIMBING, climbing);
     }
+
     public int getAwakenTime() {
         return (this.getLevel().isClientSide || this.awakenTick == -1) ? 2100000000 : (int) (this.getLevel().getGameTime() - this.awakenTick);
+    }
+    @Override
+    public double getPassengersRidingOffset() {
+        return this.getBbHeight();
     }
 
     public void recordAwakenTick() {
@@ -166,6 +183,16 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
             return false;
         }
         return super.hurt(source, damage);
+    }
+
+    @Override
+    public SoundEvent getAmbientSound() {
+        return PVZSoundEvents.SNAIL_AMBIENT.get();
+    }
+
+    @Override
+    public SoundEvent getHurtSound(DamageSource damageSource) {
+        return this.getPose() == Pose.DIGGING ? SoundEvents.SHIELD_BLOCK : PVZSoundEvents.SNAIL_HURT.get();
     }
 
     @Override
@@ -283,6 +310,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
 
     public void retreatIntoShell() {
         this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        this.playSound(PVZSoundEvents.SNAIL_RETREAT.get());
         this.setPose(Pose.DIGGING);
     }
     public void emergeFromShell() {
@@ -489,10 +517,10 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         }
     }
 
-    public static class SnailRetreatIntoShellGoal extends Goal {
+    public static class SnailPaniclyRetreatIntoShellGoal extends Goal {
         final Snail snail;
 
-        public SnailRetreatIntoShellGoal(Snail snail) {
+        public SnailPaniclyRetreatIntoShellGoal(Snail snail) {
             this.snail = snail;
             this.setFlags(EnumSet.of(Flag.MOVE));
         }
@@ -500,14 +528,11 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         @Override
         public boolean canUse() {
             if (snail.getAwakenTime() < 20) return false; //prevent situations animation is not over.
-            if (snail.isTame()) {
-                if (this.snail.hasEffect(MobEffects.MOVEMENT_SPEED)) return false;
-                return snail.random.nextInt(Math.max(1, snail.getAwakenTime() / 100)) > 100 && snail.random.nextInt(100) == 0;
-            } else {
-                return snail.random.nextInt(3000) == 0
-                        || ! this.snail.level.getEntitiesOfClass(Player.class, this.snail.getBoundingBox().inflate(4, 2, 4)
-                        , player -> (! player.isShiftKeyDown() || EntityUtil.isLeavingGround(player)) && ! player.isSpectator()).isEmpty();
-            }
+            return snail.random.nextInt(3000) == 0
+                    || (! snail.isTame() ? (! this.snail.level.getEntitiesOfClass(Player.class, this.snail.getBoundingBox().inflate(4, 2, 4)
+                    , player -> (! player.isCrouching() || EntityUtil.isLeavingGround(player)) && ! player.isSpectator()).isEmpty())
+                    : (! this.snail.level.getEntities(snail, this.snail.getBoundingBox().inflate(4, 2, 4)
+                    , entity -> ! EntityUtil.isTeammate(snail, entity)).isEmpty()));
         }
 
         @Override
@@ -532,8 +557,44 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
 
     }
 
+    public static class SnailTiredlyRetreatIntoShellGoal extends Goal {
+        final Snail snail;
 
-    public class SnailJumpControl extends JumpControl {
+        public SnailTiredlyRetreatIntoShellGoal(Snail snail) {
+            this.snail = snail;
+            this.setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            if (snail.getAwakenTime() < 10000) return false; //prevent situations animation is not over.
+            if (this.snail.hasEffect(MobEffects.MOVEMENT_SPEED)) return false;
+            return snail.random.nextInt(Math.max(1, snail.getAwakenTime() / 100)) > 100 && snail.random.nextInt(100) == 0;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return snail.getPose() != Pose.STANDING && (snail.isTame() || snail.tickCount % 500 > 1) || canUse();
+        }
+
+        @Override
+        public void tick() {
+            snail.navigation.stop();
+        }
+
+        @Override
+        public void start() {
+            snail.retreatIntoShell();
+        }
+
+        @Override
+        public void stop() {
+            snail.emergeFromShell();
+        }
+
+    }
+
+    public static class SnailJumpControl extends JumpControl {
 
         public SnailJumpControl(Mob mob) {
             super(mob);

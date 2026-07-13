@@ -2,8 +2,10 @@ package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +26,12 @@ public class CornBullet extends BaseBullet {
         this.size = 0.5F;
     }
 
+    @Override
+    public SoundEvent getHitSound() {
+        return PVZSoundEvents.CORN_HIT.get();
+    }
+
+    @Override
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
         for (int i = 0; i < 5; i ++) {

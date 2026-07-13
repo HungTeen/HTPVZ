@@ -21,7 +21,7 @@ import java.util.*;
  * @param isAddition Whether this type is additional invasion type. Additional invasion types can't be selected single, while only one non-additional types con be selected.
  * @param conditions See {@link InvasionCondition}.**/
 public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLocation, List<String>>> conditions, List<ResourceLocation> entityModifiers,
-                           Optional<EnemyType> flagEnemy, List<EnemyType> enemies, boolean isAddition, boolean disableDirector, float threatFactor, float length, int weight) {
+                           Optional<EnemyType> flagEnemy, List<EnemyType> enemies, boolean isAddition, boolean disableDirector, float threatFactor, float lootFactor, float length, int weight) {
     public static Codec<InvasionType> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             ResourceLocation.CODEC.optionalFieldOf("loot").forGetter(InvasionType::loot),
             Codec.compoundList(ResourceLocation.CODEC, Codec.STRING.listOf()).optionalFieldOf("conditions", List.of()).forGetter(InvasionType::conditions),
@@ -31,6 +31,7 @@ public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLo
             Codec.BOOL.optionalFieldOf("is_addition", false).forGetter(InvasionType::isAddition),
             Codec.BOOL.optionalFieldOf("disable_director", false).forGetter(InvasionType::disableDirector),
             Codec.FLOAT.optionalFieldOf("threat_factor", 1F).forGetter(InvasionType::threatFactor),
+            Codec.FLOAT.optionalFieldOf("loot_factor", 1F).forGetter(InvasionType::lootFactor),
             Codec.FLOAT.optionalFieldOf("length", 1F).forGetter(InvasionType::length),
             Codec.INT.optionalFieldOf("weight", 100).forGetter(InvasionType::weight)
         ).apply(builder, InvasionType::new)
@@ -41,8 +42,8 @@ public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLo
     public static final Map<ResourceLocation, TriPredicate<Invasion, Entity, Integer>> invasionEntityModifiers = RegisterInvasionEntityModifiersEvent.get();
 
     public InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLocation, List<String>>> conditions, List<ResourceLocation> entityModifiers,
-                               Optional<EnemyType> flagEnemy, List<EnemyType> enemies, boolean isAddition, float threatFactor, float length, int weight) {
-        this(loot, conditions, entityModifiers, flagEnemy, enemies, isAddition, false, threatFactor, length, weight);
+                               Optional<EnemyType> flagEnemy, List<EnemyType> enemies, boolean isAddition, float threatFactor, float lootFactor, float length, int weight) {
+        this(loot, conditions, entityModifiers, flagEnemy, enemies, isAddition, false, threatFactor, lootFactor, length, weight);
     }
 
     //Methods

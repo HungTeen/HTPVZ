@@ -7,6 +7,7 @@ import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal;
 import com.hungteen.pvz.common.entity.plants.Plantern;
+import com.hungteen.pvz.common.item.PVZShieldItem;
 import com.hungteen.pvz.common.network.DropDamagedArmorPacket;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -117,6 +118,9 @@ public class PVZEntityEventHandler {
                     entity.playSound(SoundEvents.SHIELD_BREAK, 0.8F, 0.8F + entity.level.random.nextFloat() * 0.4F);
                 }
             }
+        }
+        if (entity.getUseItem().getItem() instanceof PVZShieldItem item) {
+            entity.playSound(item.getBlockSound());
         }
     }
 }

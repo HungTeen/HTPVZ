@@ -6,7 +6,9 @@ import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZEntityCapPacket;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -14,6 +16,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
@@ -54,12 +57,18 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     public static void clientTick(TickEvent.ClientTickEvent ev) {
-        if (ClientProxy.MC.level == null) {
+        ClientLevel level = (ClientLevel) ClientProxy.getLevel();
+        if (level == null || ClientProxy.MC.isPaused()) {
             return;
         }
-        ClientProxy.MC.level.getEntities().getAll().forEach(entity -> {
+        level.getEntities().getAll().forEach(entity -> {
             entity.getCapability(CAP).ifPresent((cap) -> {
-            //sync
+                if (entity instanceof LivingEntity living && living.getRandom().nextBoolean()
+                        && living.getAttribute(Attributes.MAX_HEALTH).getModifier(PVZMobEffects.SUN_BLOOD_EFFECT_UUID) != null) {
+                    level.addParticle(PVZParticles.SUN.get(), entity.getX(), entity.getY() + entity.getEyeHeight(), entity.getZ()
+                            , living.getRandom().nextFloat() * 0.2 - 0.1, 0.1f, living.getRandom().nextFloat() * 0.2 - 0.1);
+                }
+                //sync
                 PVZEntityCapPacket.read(entity.getUUID(), cap);
             });
         });
@@ -261,7 +270,7 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             this.ownerUuid = nbt.getUUID("owner");
             //TODO handle situation when player is not available when loading.
             this.owner = ((ServerLevel) (entity.level)).getEntity(ownerUuid);
-            if (! (owner instanceof Player)) {
+            if (owner != null && ! (owner instanceof Player)) {
                 this.ownerUuid = null;
             }
         }

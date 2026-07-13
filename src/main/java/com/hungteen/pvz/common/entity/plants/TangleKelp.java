@@ -11,6 +11,7 @@ import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -28,7 +29,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -317,8 +318,7 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
 
     @Override
     public SoundEvent getPickupSound() {
-        //TODO sounds has not changed.
-        return SoundEvents.BUCKET_FILL_AXOLOTL;
+        return PVZSoundEvents.BUCKET_FILL_TANGLE_KELP.get();
     }
 
     public static class TangleKelpAttackGoal extends Goal{
@@ -362,6 +362,7 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
                     }
                 } else if (tangleKelp.tickCount % 40 < 2) {
                     Entity target = tangleKelp.getFirstPassenger();
+                    tangleKelp.level.playSound(null, tangleKelp, PVZSoundEvents.TANGLE_KELP_ATTACK.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
                     target.hurt(PVZDamageSource.tangleKelpHurt(tangleKelp, target),
                             (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(tangleKelp.level));
                     tangleKelp.hurt(PVZDamageSource.tangleKelpHurt(tangleKelp, target), 0.5f);

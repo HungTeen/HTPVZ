@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.entity.Hook;
 import com.hungteen.pvz.common.entity.bullet.ArrowWithATarget;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
 import com.mojang.serialization.Dynamic;
@@ -205,6 +206,7 @@ private final DynamicGameEventListener<VibrationListener> dynamicGameEventListen
                             target.stopRiding();
                             target.boardingCooldown = 0;
                             target.startRiding(zombie);
+                            zombie.playSound(PVZSoundEvents.BUNGEE_ZOMBIE_STEAL.get());
                             stayTime = 0;
                         } else if (stayTime > 10) {
                             for (Entity rider : zombie.getPassengers()) {

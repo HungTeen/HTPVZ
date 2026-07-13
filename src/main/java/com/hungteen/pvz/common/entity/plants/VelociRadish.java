@@ -12,6 +12,7 @@ import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,6 +26,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -215,7 +217,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         }
             //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        boolean isSide = direction.getAxis() != Direction.Axis.Z;
+        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Z;
         direction = getGrowDirection();
         pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
@@ -298,15 +300,19 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         // skill
         if (! level.isClientSide) {
             if (hasSkill(this, STRONG_SKILL_NAME)) {
-                setGlowingTag(tickCount < 200 && (tickCount <= 100 || tickCount % 10 < 5));
                 if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER_UUID)) {
                     this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTACK_MODIFIER_UUID, "skill bonus", 26, AttributeModifier.Operation.ADDITION));
-                    this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 14, AttributeModifier.Operation.ADDITION));
+                    this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 15, AttributeModifier.Operation.ADDITION));
+                    this.getAttribute(Attributes.MOVEMENT_SPEED).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 0.15, AttributeModifier.Operation.ADDITION));
                     this.heal(20);
                 } else if (tickCount > 200) {
                     this.removeSkill(this, getSkillFromName(STRONG_SKILL_NAME));
+                    ((ServerLevel) this.level).sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE
+                            , this.getX(), this.getY() + 0.5, this.getZ(), 10
+                            , 0.3F, 0.3F, 0.3F, 0.01f);
                     this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(ATTACK_MODIFIER_UUID);
                     this.getAttribute(Attributes.MAX_HEALTH).removeModifier(HEALTH_MODIFIER_UUID);
+                    this.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(HEALTH_MODIFIER_UUID);
                 }
             } else if (hasSkill(this, GROUP_SKILL_NAME)) {
                 for (int i = 0; i < 3; i ++) {
@@ -403,6 +409,10 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 //TODO remake the relationship of attack and animation
                 this.mob.swing(InteractionHand.MAIN_HAND);
                 this.mob.doHurtTarget(entity);
+                this.mob.level.playSound(null, mob, ((VelociRadish) mob).hasSkill(STRONG_SKILL_NAME)
+                        ? PVZSoundEvents.VELOCI_RADISH_STRONG_ATTACK.get()
+                        : PVZSoundEvents.VELOCI_RADISH_ATTACK.get()
+                        , SoundSource.NEUTRAL, 1.0F, 1.0F);
             }
         }
         @Override

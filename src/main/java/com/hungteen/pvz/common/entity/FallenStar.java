@@ -67,12 +67,12 @@ public class FallenStar extends ItemEntity {
             this.discard();
         }
         //moving && bouncing.
-        if (this.getDeltaMovement().y < - 2) {
-            this.setDeltaMovement(this.getDeltaMovement().multiply(1, 0, 1).add(0, - 2, 0));
+        if (this.getDeltaMovement().y < - 1) {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(1, 0, 1).add(0, - 1, 0));
         }
         if (! level.isClientSide && this.verticalCollisionBelow) {
             double speedSqr = this.storedSpeed.lengthSqr();
-            if (speedSqr > 2) {
+            if (speedSqr > 0.5) {
                 level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.5)).forEach(entity -> entity.hurt(PVZDamageSource.FALLEN_STAR, (float) speedSqr * 3));
             }
             this.setDeltaMovement(this.getDeltaMovement().x, (this.storedSpeed.y < -1 ? - this.storedSpeed.y * 0.5 : this.getDeltaMovement().y), this.getDeltaMovement().z);

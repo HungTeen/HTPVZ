@@ -2,6 +2,8 @@ package com.hungteen.pvz.common.entity.zombies;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -20,6 +22,7 @@ public class TacoImp extends Imp {
 
     public static AttributeSupplier.Builder createAttributes() {
         return Imp.createAttributes()
+                .add(Attributes.MAX_HEALTH, 20D)
                 .add(Attributes.MOVEMENT_SPEED, 0.18D);
     }
 
@@ -36,5 +39,10 @@ public class TacoImp extends Imp {
     protected void addBehaviourGoals() {
         super.addBehaviourGoals();
         this.goalSelector.addGoal(1, new PanicGoal(this, 1F));
+    }
+
+    @Override
+    public SoundEvent getAmbientSound() {
+        return PVZSoundEvents.TACO_IMP_AMBIENT.get();
     }
 }

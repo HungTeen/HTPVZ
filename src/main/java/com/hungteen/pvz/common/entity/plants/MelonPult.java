@@ -5,6 +5,8 @@ import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.MelonBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -54,6 +56,11 @@ public class MelonPult extends ShooterPlant {
     }
 
     @Override
+    protected SoundEvent getShootSound() {
+        return PVZSoundEvents.MELON_SHOOT.get();
+    }
+
+    @Override
     public float getAttackDamage() {
         return (float) getAttribute(Attributes.ATTACK_DAMAGE).getValue();
     }
@@ -83,7 +90,7 @@ public class MelonPult extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 16D)
+                .add(Attributes.ATTACK_DAMAGE, 30D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

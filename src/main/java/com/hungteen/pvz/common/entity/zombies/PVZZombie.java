@@ -8,27 +8,27 @@ import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.ai.goal.BlockWithShieldGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
-import com.hungteen.pvz.common.register.PVZBannerPatterns;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -44,20 +44,18 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraft.world.level.block.entity.BannerPatterns;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 /**Basic class for pvz zombies. Pose.LONG_JUMPING is regarded tied and hanged under something here.*/
 public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
@@ -76,22 +74,6 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
     public boolean renderHead = true; // controlled by renderer.
     protected ZombieAttackGoal attackGoal;
     protected RandomStrollGoal randomStrollGoal;
-    public static Consumer<Entity> CONEHEAD_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance());
-    public static Consumer<Entity> BUCKET_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance());
-    public static Consumer<Entity> DUCK_LIFEBUOY_ZOMBIE_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.LEGS, PVZItems.DUCK_LIFEBUOY.get().getDefaultInstance());
-    public static Consumer<Entity> SCREEN_DOOR_CONSUMER = (entity) -> entity.setItemSlot(EquipmentSlot.MAINHAND, PVZItems.SCREEN_DOOR_SHIELD.get().getDefaultInstance());
-    public static Consumer<Entity> OVERWORLD_FLAG_ZOMBIE_CONSUMER = (entity) -> {
-        entity.setItemSlot(EquipmentSlot.HEAD, getOverworldBanner());
-        entity.getEntityData().set(SKIN, "minecraft_overworld");
-    };
-    public static Consumer<Entity> NETHER_FLAG_ZOMBIE_CONSUMER = (entity) -> {
-        entity.setItemSlot(EquipmentSlot.HEAD, getNetherBanner());
-        entity.getEntityData().set(SKIN, "minecraft_the_nether");
-    };
-    public static Consumer<Entity> END_FLAG_ZOMBIE_CONSUMER = (entity) -> {
-        entity.setItemSlot(EquipmentSlot.HEAD, getEndBanner());
-        entity.getEntityData().set(SKIN, "minecraft_the_end");
-    };
     public static UUID GROUP_UP_MODIFIER = UUID.fromString("772807aa-672f-bfda-7d21-0f66823f6d53");
     public PVZZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
@@ -184,7 +166,7 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
         AtomicInteger result = new AtomicInteger(super.getExperienceReward());
         getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
             if (cap.resource.equals(Invasion.INVASION_THREAT)) {
-                result.set(cap.cost * PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.invasionExperienceFactor) / 1000);
+                result.set(cap.cost * PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.invasionExperienceFactor) / 5000);
             }
         });
         return result.get();
@@ -347,53 +329,12 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
         }
     }
 
+    //sounds
+    @Override
+    public @NotNull SoundEvent getAmbientSound() {
+        return PVZSoundEvents.ZOMBIE_AMBIENT.get();
+    }
 
-    //utils
-    public static ItemStack getOverworldBanner() {
-        final ItemStack itemstack = new ItemStack(Items.RED_BANNER);
-        final CompoundTag tag = new CompoundTag();
-        ListTag listTag = (new BannerPattern.Builder())
-                .addPattern(BannerPatterns.BORDER, DyeColor.BLUE)
-                .addPattern(BannerPatterns.TRIANGLES_TOP, DyeColor.WHITE)
-                .addPattern(BannerPatterns.TRIANGLES_BOTTOM, DyeColor.WHITE)
-                .addPattern(PVZBannerPatterns.BRAIN.getKey(), DyeColor.WHITE)
-                .toListTag();
-        tag.put("Patterns", listTag);
-        BlockItem.setBlockEntityData(itemstack, BlockEntityType.BANNER, tag);
-        itemstack.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
-        itemstack.setHoverName((Component.translatable("block.pvz.brain_banner")));
-        return itemstack;
-    }
-    public static ItemStack getNetherBanner() {
-        final ItemStack itemstack = new ItemStack(Items.RED_BANNER);
-        final CompoundTag tag = new CompoundTag();
-        ListTag listTag = (new BannerPattern.Builder())
-                .addPattern(BannerPatterns.GRADIENT, DyeColor.ORANGE)
-                .addPattern(BannerPatterns.BRICKS, DyeColor.BROWN)
-                .addPattern(BannerPatterns.CIRCLE_MIDDLE, DyeColor.ORANGE)
-                .addPattern(BannerPatterns.BORDER, DyeColor.ORANGE)
-                .addPattern(PVZBannerPatterns.BRAIN.getKey(), DyeColor.WHITE)
-                .toListTag();
-        tag.put("Patterns", listTag);
-        BlockItem.setBlockEntityData(itemstack, BlockEntityType.BANNER, tag);
-        itemstack.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
-        itemstack.setHoverName((Component.translatable("block.pvz.brain_banner")));
-        return itemstack;
-    }
-    public static ItemStack getEndBanner() {
-        final ItemStack itemstack = new ItemStack(Items.PURPLE_BANNER);
-        final CompoundTag tag = new CompoundTag();
-        ListTag listTag = (new BannerPattern.Builder())
-                .addPattern(BannerPatterns.TRIANGLE_TOP, DyeColor.BLACK)
-                .addPattern(BannerPatterns.TRIANGLE_BOTTOM, DyeColor.BLACK)
-                .addPattern(PVZBannerPatterns.BRAIN.getKey(), DyeColor.WHITE)
-                .toListTag();
-        tag.put("Patterns", listTag);
-        BlockItem.setBlockEntityData(itemstack, BlockEntityType.BANNER, tag);
-        itemstack.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL);
-        itemstack.setHoverName((Component.translatable("block.pvz.brain_banner")));
-        return itemstack;
-    }
 
     //ICanGroupUp
     ICanGroupUp leader = null;

@@ -2,7 +2,7 @@ package com.hungteen.pvz.generator;
 
 import com.hungteen.pvz.generator.loot.BlockLootGen;
 import com.hungteen.pvz.generator.loot.EntityLootGen;
-import com.hungteen.pvz.generator.loot.InvasionLootGen;
+import com.hungteen.pvz.generator.loot.TreasureLootGen;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.loot.LootTableProvider;
@@ -29,7 +29,7 @@ public class LootGen extends LootTableProvider {
         return List.of(
                 Pair.of(BlockLootGen::new , LootContextParamSets.BLOCK),
                 Pair.of(EntityLootGen::new , LootContextParamSets.ENTITY),
-                Pair.of(InvasionLootGen::new , LootContextParamSets.CHEST)
+                Pair.of(TreasureLootGen::new , LootContextParamSets.CHEST)
         );
     }
     @Override

@@ -1,0 +1,30 @@
+{
+    "name": "器具解注",
+    "icon": "pvz:pea_gun",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "*1"
+        },
+        {
+            "type": "spotlight",
+            "title": "*5",
+            "item": "pvz:almanac",
+            "text": "*2"
+        },
+        {
+            "type": "spotlight",
+            "title": "*6",
+            "item": "pvz:ender_seed_bundle",
+            "text": "*3"
+        },
+        {
+            "type": "spotlight",
+            "title": "*7",
+            "item": "pvz:seed_crossbow",
+            "text": "*4"
+        }
+    ],
+    "sortnum": 7
+}

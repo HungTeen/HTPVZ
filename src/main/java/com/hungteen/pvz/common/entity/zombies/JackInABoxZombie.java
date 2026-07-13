@@ -1,6 +1,8 @@
 package com.hungteen.pvz.common.entity.zombies;
 
+import com.hungteen.pvz.common.item.JackInTheBoxItem;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -9,6 +11,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
@@ -51,6 +55,10 @@ public class JackInABoxZombie extends PVZZombie implements PowerableMob {
         return spawnGroupData;
     }
 
+    public static AttributeSupplier.Builder createAttributes() {
+        return PVZZombie.createAttributes().add(Attributes.MOVEMENT_SPEED, 0.28F);
+    }
+
     @Override
     public boolean isPowered() {
         return this.getEntityData().get(IS_POWERED);
@@ -72,7 +80,7 @@ public class JackInABoxZombie extends PVZZombie implements PowerableMob {
 
     /**Not only jack-in-a-box is acceptable, but the item should be in main hand.*/
     public static class JackInABoxZombieUseItemGoal extends Goal {
-        private Mob mob;
+        private final Mob mob;
         public JackInABoxZombieUseItemGoal(Mob mob) {
             this.mob = mob;
         }
@@ -85,6 +93,8 @@ public class JackInABoxZombie extends PVZZombie implements PowerableMob {
 
         public void start() {
             super.start();
+            if (this.mob instanceof JackInABoxZombie zombie && zombie.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof JackInTheBoxItem)
+                this.mob.playSound(PVZSoundEvents.JACK_IN_A_BOX_ZOMBIE_SURPRISE.get());
             this.mob.startUsingItem(InteractionHand.MAIN_HAND);
         }
 

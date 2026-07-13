@@ -7,6 +7,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BiomeTagsProvider;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,5 +37,9 @@ public class BiomeTagGen extends BiomeTagsProvider {
         this.tag(PVZBiomeTags.UNABLE_INVASION).add(Biomes.MUSHROOM_FIELDS
                 , PVZBiomes.GARDEN_MUSHROOM.getKey(), PVZBiomes.GARDEN_PLAINS.getKey() , PVZBiomes.GARDEN_RIVER.getKey(), PVZBiomes.GARDEN_ISLAND.getKey(), PVZBiomes.GARDEN_VOID.getKey());
         this.tag(PVZBiomeTags.EXTRA_MOOBLOOM_SPAWNING).add(Biomes.MEADOW, Biomes.FLOWER_FOREST, Biomes.SUNFLOWER_PLAINS);
+        this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_BUCKET).addTags(Tags.Biomes.IS_DENSE_OVERWORLD, Tags.Biomes.IS_HOT_OVERWORLD);
+        this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_DUCK).addTags(BiomeTags.IS_OCEAN);
+        this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_SNOWMAN).addTags(Tags.Biomes.IS_SNOWY);
+        this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_CEMETERY).addTags(Tags.Biomes.IS_PLAINS);
     }
 }

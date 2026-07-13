@@ -4,7 +4,9 @@ import com.hungteen.pvz.api.events.GetPeaGunBulletEvent;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -93,6 +95,7 @@ public class PeaGunItem extends ProjectileWeaponItem {
                             .multiply((1 + punch * 0.1) * resistance, (1 + punch * 0.1) * resistance, (1 + punch * 0.1) * resistance)));
                 }
                 projectile.setOwner(player);
+                level.playSound(null, player, PVZSoundEvents.PEA_SNIPER_SHOOT.get(), SoundSource.PLAYERS, 1, 1);
                 projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.0F + punch * 1.5F, 1.0F);
                 level.addFreshEntity(projectile);
                 player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), player.getAbilities().instabuild ? 3 :

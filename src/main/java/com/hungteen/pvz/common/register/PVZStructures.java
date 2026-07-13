@@ -80,7 +80,7 @@ public class PVZStructures {
     )));
     public static final RegistryObject<Structure> GARDEN_PORTAL = STRUCTURES.register("garden_portal", () -> new JigsawStructure(new Structure.StructureSettings(
             biomes(PVZBiomeTags.HAS_GARDEN_PORTAL), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN
-    ), GARDEN_PORTAL_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(32)), true, Heightmap.Types.WORLD_SURFACE_WG));
+    ), GARDEN_PORTAL_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
     public static final RegistryObject<StructureSet> GARDEN_PORTAL_SET = STRUCTURE_SETS.register("garden_portal", () ->
             new StructureSet(GARDEN_PORTAL.getHolder().get(), new RandomSpreadStructurePlacement(6, 5, RandomSpreadType.LINEAR, 105325493)));
 
@@ -115,14 +115,55 @@ public class PVZStructures {
             biomes(PVZBiomeTags.HAS_OVERWORLD_INVASION_RUIN), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN
     ), INVASION_RUIN_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
     public static final RegistryObject<StructureSet> INVASION_RUIN_SET = STRUCTURE_SETS.register("invasion_ruin", () ->
-            new StructureSet(INVASION_RUIN.getHolder().get(), new RandomSpreadStructurePlacement(36, 24, RandomSpreadType.LINEAR, 125796538)));
+            new StructureSet(INVASION_RUIN.getHolder().get(), new RandomSpreadStructurePlacement(24, 16, RandomSpreadType.LINEAR, 125796538)));
 
     //nether_invasion_ruin
     public static final RegistryObject<StructurePieceType> NETHER_INVASION_RUIN_PIECE = STRUCTURE_PIECE_TYPES.register("nether_invasion_ruin", () -> StructurePieceType.setTemplatePieceId(NetherInvasionRuinStructurePieces.NetherInvasionRuinStructurePiece::new, "PVZNIR"));
     public static final RegistryObject<StructureType<NetherInvasionRuinStructure>> NETHER_INVASION_RUIN_TYPE = STRUCTURE_TYPES.register("nether_invasion_ruin", () -> () -> NetherInvasionRuinStructure.CODEC);
     public static final RegistryObject<Structure> NETHER_INVASION_RUIN = STRUCTURES.register("nether_invasion_ruin", () -> new NetherInvasionRuinStructure(new Structure.StructureSettings(biomes(PVZBiomeTags.HAS_NETHER_INVASION_RUIN), Map.of(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.BEARD_THIN), UniformHeight.of(VerticalAnchor.absolute(32), VerticalAnchor.belowTop(2))));
     public static final RegistryObject<StructureSet> NETHER_INVASION_RUIN_SET = STRUCTURE_SETS.register("nether_invasion_ruin", () ->
-            new StructureSet(NETHER_INVASION_RUIN.getHolder().get(), new RandomSpreadStructurePlacement(18, 14, RandomSpreadType.LINEAR, 125796538)));
+            new StructureSet(NETHER_INVASION_RUIN.getHolder().get(), new RandomSpreadStructurePlacement(16, 8, RandomSpreadType.LINEAR, 125796539)));
+
+    //zombie_structure
+    public static final RegistryObject<StructureTemplatePool> ZOMBIE_STRUCTURE_BUCKET_POOL = TEMPLATE_POOLS.register("zombie_structure_bucket", () -> new StructureTemplatePool(Util.prefix("invasion_ruin"),
+            new ResourceLocation("empty"), List.of(
+            Pair.of(SinglePoolElement.single("pvz:zombie_structure_bucket").apply(Projection.RIGID), 1)
+    )));
+    public static final RegistryObject<Structure> ZOMBIE_STRUCTURE_BUCKET = STRUCTURES.register("zombie_structure_bucket", () -> new JigsawStructure(new Structure.StructureSettings(
+            biomes(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_BUCKET), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN
+    ), ZOMBIE_STRUCTURE_BUCKET_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
+    public static final RegistryObject<StructureSet> ZOMBIE_STRUCTURE_BUCKET_SET = STRUCTURE_SETS.register("zombie_structure_bucket", () ->
+            new StructureSet(ZOMBIE_STRUCTURE_BUCKET.getHolder().get(), new RandomSpreadStructurePlacement(24, 16, RandomSpreadType.LINEAR, 125796540)));
+
+    public static final RegistryObject<StructureTemplatePool> ZOMBIE_STRUCTURE_SNOWMAN_POOL = TEMPLATE_POOLS.register("zombie_structure_snowman", () -> new StructureTemplatePool(Util.prefix("invasion_ruin"),
+            new ResourceLocation("empty"), List.of(
+            Pair.of(SinglePoolElement.single("pvz:zombie_structure_snowman").apply(Projection.RIGID), 1)
+    )));
+    public static final RegistryObject<Structure> ZOMBIE_STRUCTURE_SNOWMAN = STRUCTURES.register("zombie_structure_snowman", () -> new JigsawStructure(new Structure.StructureSettings(
+            biomes(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_SNOWMAN), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN
+    ), ZOMBIE_STRUCTURE_SNOWMAN_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
+    public static final RegistryObject<StructureSet> ZOMBIE_STRUCTURE_SNOWMAN_SET = STRUCTURE_SETS.register("zombie_structure_snowman", () ->
+            new StructureSet(ZOMBIE_STRUCTURE_SNOWMAN.getHolder().get(), new RandomSpreadStructurePlacement(24, 16, RandomSpreadType.LINEAR, 125796541)));
+
+    public static final RegistryObject<StructureTemplatePool> ZOMBIE_STRUCTURE_DUCK_POOL = TEMPLATE_POOLS.register("zombie_structure_duck", () -> new StructureTemplatePool(Util.prefix("invasion_ruin"),
+            new ResourceLocation("empty"), List.of(
+            Pair.of(SinglePoolElement.single("pvz:zombie_structure_duck").apply(Projection.RIGID), 1)
+    )));
+    public static final RegistryObject<Structure> ZOMBIE_STRUCTURE_DUCK = STRUCTURES.register("zombie_structure_duck", () -> new JigsawStructure(new Structure.StructureSettings(
+            biomes(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_DUCK), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.NONE
+    ), ZOMBIE_STRUCTURE_DUCK_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
+    public static final RegistryObject<StructureSet> ZOMBIE_STRUCTURE_DUCK_SET = STRUCTURE_SETS.register("zombie_structure_duck", () ->
+            new StructureSet(ZOMBIE_STRUCTURE_DUCK.getHolder().get(), new RandomSpreadStructurePlacement(24, 16, RandomSpreadType.LINEAR, 125796542)));
+
+    public static final RegistryObject<StructureTemplatePool> ZOMBIE_STRUCTURE_CEMETERY_POOL = TEMPLATE_POOLS.register("zombie_structure_cemetery", () -> new StructureTemplatePool(Util.prefix("invasion_ruin"),
+            new ResourceLocation("empty"), List.of(
+            Pair.of(SinglePoolElement.single("pvz:zombie_structure_cemetery").apply(Projection.RIGID), 1)
+    )));
+    public static final RegistryObject<Structure> ZOMBIE_STRUCTURE_CEMETERY = STRUCTURES.register("zombie_structure_cemetery", () -> new JigsawStructure(new Structure.StructureSettings(
+            biomes(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_CEMETERY), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN
+    ), ZOMBIE_STRUCTURE_CEMETERY_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
+    public static final RegistryObject<StructureSet> ZOMBIE_STRUCTURE_CEMETERY_SET = STRUCTURE_SETS.register("zombie_structure_cemetery", () ->
+            new StructureSet(ZOMBIE_STRUCTURE_CEMETERY.getHolder().get(), new RandomSpreadStructurePlacement(24, 16, RandomSpreadType.LINEAR, 125796543)));
 
 
     private static HolderSet<Biome> biomes(TagKey<Biome> tagKey) {

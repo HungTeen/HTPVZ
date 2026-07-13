@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.item;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,6 +11,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -150,6 +152,8 @@ public class WateringPotItem extends BlockItem {
     @Override
     public @NotNull InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity target, InteractionHand hand) {
         if (itemStack.getMaxDamage() - itemStack.getDamageValue() >= 1) {
+            if (! player.level.isClientSide)
+                player.level.playSound(null, target, PVZSoundEvents.SPROUT_WATER.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
             water(target, player, itemStack);
             return player.getLevel().isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         } else {
@@ -167,7 +171,7 @@ public class WateringPotItem extends BlockItem {
         if (target instanceof IGardenPlant plant) {
             plant.onWatered(player, itemStack);
         }
-        if (! target.level.isClientSide && itemStack.getMaxDamage() >= itemStack.getDamageValue()) {
+        if (! target.level.isClientSide && itemStack.getMaxDamage() > itemStack.getDamageValue()) {
             itemStack.hurt(1, target.getRandom(), (ServerPlayer) player);
             ((ServerLevel) target.level).sendParticles(ParticleTypes.DRIPPING_WATER,
                     target.getX(), target.getY() + target.getBbHeight(), target.getZ(),

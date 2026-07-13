@@ -14,6 +14,7 @@ import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,17 +25,24 @@ public class InvasionCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("invasion").requires((ctx) -> ctx.hasPermission(2))
                 .then(Commands.literal("add")
+                        .executes(c -> addInvasion(c.getSource(), 5
+                                , c.getSource().getEntity()
+                                , UUID.randomUUID()))
                         .then(Commands.argument("level", IntegerArgumentType.integer())
-                                .then(Commands.argument("target", EntityArgument.entities())
                                 .executes(c -> addInvasion(c.getSource(),
                                         IntegerArgumentType.getInteger(c, "level")
-                                        , EntityArgument.getEntity(c, "target")
+                                        , c.getSource().getEntity()
                                         , UUID.randomUUID()))
-                                .then(Commands.argument("uuid", UuidArgument.uuid())
+                                .then(Commands.argument("target", EntityArgument.entities())
                                         .executes(c -> addInvasion(c.getSource(),
                                                 IntegerArgumentType.getInteger(c, "level")
                                                 , EntityArgument.getEntity(c, "target")
-                                                , UuidArgument.getUuid(c, "uuid")))))))
+                                                , UUID.randomUUID()))
+                                        .then(Commands.argument("uuid", UuidArgument.uuid())
+                                                .executes(c -> addInvasion(c.getSource(),
+                                                        IntegerArgumentType.getInteger(c, "level")
+                                                        , EntityArgument.getEntity(c, "target")
+                                                        , UuidArgument.getUuid(c, "uuid")))))))
                 .then(Commands.literal("remove")
                         .then(Commands.literal("all")
                                 .executes(c -> removeAllInvasion(c.getSource())))
@@ -42,7 +50,7 @@ public class InvasionCommand {
                                 .executes(c -> removeInvasion(c.getSource(), UuidArgument.getUuid(c, "uuid"))))));
     }
 
-    public static int addInvasion(CommandSourceStack source, int level, Entity entity, UUID uuid) {
+    public static int addInvasion(CommandSourceStack source, int level, @Nullable Entity entity, UUID uuid) {
         if (! (entity instanceof LivingEntity living)) {
             source.sendFailure(Component.translatable("commands.pvz.invasion.target_must_be_living", uuid));
             return 0;

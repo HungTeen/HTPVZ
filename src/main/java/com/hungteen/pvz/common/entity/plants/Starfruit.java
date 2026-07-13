@@ -7,7 +7,9 @@ import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.common.entity.bullet.StarfruitBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -104,6 +106,11 @@ public class Starfruit extends ShooterPlant {
     }
 
     @Override
+    protected SoundEvent getShootSound() {
+        return PVZSoundEvents.STAR_SHOOT.get();
+    }
+
+    @Override
     public int getShootCD() {
         return 40;
     }
@@ -111,7 +118,7 @@ public class Starfruit extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 16D)
-                .add(Attributes.ATTACK_DAMAGE, 5D)
+                .add(Attributes.ATTACK_DAMAGE, 8D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

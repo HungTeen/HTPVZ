@@ -94,6 +94,7 @@ public class PVZMod
         PVZStructures.register(modBus);
 
         PVZParticles.PARTICLES.register(modBus);
+        PVZSoundEvents.SOUNDS.register(modBus);
 
         PVZMenus.MENU_TYPES.register(modBus);
 
@@ -121,7 +122,6 @@ public class PVZMod
     }
 
 
-
     private void commonSetup(final FMLCommonSetupEvent event)
     {
 
@@ -144,6 +144,7 @@ public class PVZMod
             PVZBlocks.queueRelease();
             PVZItems.queueRelease();
             PVZMobEffects.addMixs();
+            PVZWorldEvents.commonBootstrap();
         });
         RegisterSproutsEvent sproutEvent = new RegisterSproutsEvent();
         MinecraftForge.EVENT_BUS.post(sproutEvent);
@@ -163,6 +164,7 @@ public class PVZMod
     public void onServerStarting(ServerStartingEvent event)
     {
         PVZBiomes.checkFeatures();
+        PVZWorldEvents.serverBootstrap();
     }
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

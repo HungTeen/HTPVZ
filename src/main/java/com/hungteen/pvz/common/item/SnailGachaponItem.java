@@ -2,12 +2,15 @@ package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
@@ -49,6 +52,7 @@ public class SnailGachaponItem extends Item {
             }
             if (entitytype.spawn((ServerLevel)level, itemstack, context.getPlayer(), blockpos1, MobSpawnType.SPAWN_EGG, true, !Objects.equals(blockpos, blockpos1) && direction == Direction.UP) != null) {
                 itemstack.shrink(1);
+                level.playSound(null, (Entity) null, PVZSoundEvents.SNAIL_GACHAPON_USE.get(), context.getPlayer() == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1, 1);
                 level.gameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, blockpos);
             }
 

@@ -1,12 +1,15 @@
 {
   "required": true,
   "package": "com.hungteen.pvz.mixin",
+  "minVersion": "0.8.5",
   "compatibilityLevel": "JAVA_17",
   "refmap": "pvz.refmap.json",
   "mixins": [
+    "BeePollinateGoalMixin",
+    "ItemCommandsMixin",
+    "SlimeAttackGoalMixin"
   ],
   "server": [
-    "SlimeAttackGoalMixin"
   ],
   "client": [
   ],

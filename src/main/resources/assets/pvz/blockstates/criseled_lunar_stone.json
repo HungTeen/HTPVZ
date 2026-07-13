@@ -1,0 +1,26 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "pvz:block/criseled_lunar_stone_0",
+        "weight": 1
+      },
+      {
+        "model": "pvz:block/criseled_lunar_stone_1",
+        "weight": 1
+      },
+      {
+        "model": "pvz:block/criseled_lunar_stone_2",
+        "weight": 1
+      },
+      {
+        "model": "pvz:block/criseled_lunar_stone_3",
+        "weight": 1
+      },
+      {
+        "model": "pvz:block/criseled_lunar_stone",
+        "weight": 3
+      }
+      ]
+    }
+}

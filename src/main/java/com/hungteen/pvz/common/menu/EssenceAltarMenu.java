@@ -4,11 +4,9 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.common.item.SeedItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
-import com.hungteen.pvz.common.register.PVZBlocks;
-import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
-import com.hungteen.pvz.common.register.PVZEnchantments;
-import com.hungteen.pvz.common.register.PVZMenus;
+import com.hungteen.pvz.common.register.*;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -123,7 +121,11 @@ public class EssenceAltarMenu extends AbstractContainerMenu {
                         }
                     }
                     ((IHaveSkills) slots.get(0).getItem().getItem()).addSkill(slots.get(0).getItem(), skillID);
-                    if (player instanceof ServerPlayer player1) PVZCriteriaTriggers.ESSENCE_ALTAR.trigger(player1);
+                    if (player instanceof ServerPlayer player1) {
+                        this.access.execute((level, blockPos) ->
+                                level.playSound(player, blockPos, PVZSoundEvents.ESSENCE_ALTAR_USE.get(), SoundSource.BLOCKS, 1, 1));
+                        PVZCriteriaTriggers.ESSENCE_ALTAR.trigger(player1);
+                    }
                     return true;
                 }
             }

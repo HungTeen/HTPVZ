@@ -8,10 +8,12 @@ import com.hungteen.pvz.common.entity.bullet.CornBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -73,6 +75,11 @@ public class KernelPult extends ShooterPlant {
         this.performShoot(SHOOT_OFFSET, 0, this.getBbHeight(), true, 0);
         this.changeBullet();
     }
+    @Override
+    protected SoundEvent getShootSound() {
+        return this.getCurrentBullet() == CornTypes.BUTTER ? PVZSoundEvents.BUTTER_SHOOT.get() : PVZSoundEvents.CORN_SHOOT.get();
+    }
+
     @Override
     public double getMaxShootAngleTangent() {
         return Double.POSITIVE_INFINITY;
@@ -140,7 +147,7 @@ public class KernelPult extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 2D)
+                .add(Attributes.ATTACK_DAMAGE, 3D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
     public enum CornTypes{

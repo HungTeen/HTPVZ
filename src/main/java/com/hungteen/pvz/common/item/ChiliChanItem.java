@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelShaper;
@@ -65,6 +66,7 @@ public class ChiliChanItem extends ShovelItem {
     }
     public boolean hurtEnemy(ItemStack itemStack, LivingEntity target, LivingEntity user) {
         if (! (user instanceof Player player) || player.getAttackStrengthScale(0.5F) == 1) {
+            user.playSound(PVZSoundEvents.CHILI_CHAN_KNOCKBACK.get());
             Vec3 vec3 = user.getViewVector(0);
             AttributeInstance attribute = target.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
             double knockBackModifier = 1;

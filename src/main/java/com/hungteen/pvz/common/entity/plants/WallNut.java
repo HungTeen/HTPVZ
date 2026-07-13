@@ -4,15 +4,13 @@ import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IIronEntity;
+import com.hungteen.pvz.client.sound.WallNutSoundInstance;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.common.register.PVZAttributes;
-import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -25,6 +23,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -76,7 +75,7 @@ public class WallNut extends SimplePlant implements IIronEntity {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(EXPLODE_COUNT, -1);
-        this.entityData.define(IRON_ARMOR, 0F);
+        this.entityData.define(IRON_ARMOR, getMaxIronArmor());
         this.entityData.define(IS_BOWLING, false);
     }
 
@@ -85,10 +84,10 @@ public class WallNut extends SimplePlant implements IIronEntity {
         return hasIronArmor();
     }
     public boolean hasIronArmor() {
-        return entityData.get(IRON_ARMOR) > 0;
+        return this.hasSkill(ARMOR_SKILL_NAME) && entityData.get(IRON_ARMOR) > 0;
     }
     public float getIronArmor() {
-        return entityData.get(IRON_ARMOR);
+        return this.hasSkill(ARMOR_SKILL_NAME) ? entityData.get(IRON_ARMOR) : 0;
     }
     public void setIronArmor(float value) {
         entityData.set(IRON_ARMOR, value);
@@ -100,8 +99,11 @@ public class WallNut extends SimplePlant implements IIronEntity {
         return this.entityData.get(IS_BOWLING);
     }
     public boolean canBowling() {return true;}
-    public void setBowling(boolean is_bowling) {
-        this.entityData.set(IS_BOWLING, is_bowling);
+    public void setBowling(boolean isBowling) {
+        if (isBowling && this.level.isClientSide) {
+            WallNutSoundInstance.add(this);
+        }
+        this.entityData.set(IS_BOWLING, isBowling);
     }
 
     //entity settings
@@ -332,6 +334,7 @@ public class WallNut extends SimplePlant implements IIronEntity {
                 if (wallNut.hasSkill(EXPLODE_SKILL_NAME)) {
                     wallNut.explode();
                 } else {
+                    wallNut.level.playSound(null, wallNut, PVZSoundEvents.WALL_NUT_HIT.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
                     entities.forEach((entity -> {
                         entity.hurt(PVZDamageSource.wallNutCollide(this.wallNut, entity), (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(wallNut.level));
                         damageCooldown = 5;

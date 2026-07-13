@@ -2,8 +2,10 @@ package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +22,11 @@ public class CabbageBullet extends BaseBullet {
         super(PVZEntities.CABBAGE.get(), worldIn, cabbagePult);
         setOwner(cabbagePult);
         this.setNoGravity(false);
+    }
+
+    @Override
+    public SoundEvent getHitSound() {
+        return PVZSoundEvents.CABBAGE_HIT.get();
     }
 
     protected void splashParticle() {

@@ -4,6 +4,7 @@ import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.entity.zombies.JackInABoxZombie;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.world.PVZFog;
 import com.hungteen.pvz.generator.InvasionTypeGen;
 import com.hungteen.pvz.util.EntityUtil;
@@ -43,6 +44,7 @@ public class InvasionEntityModifiers {
     public static final ResourceLocation CHECK_SPAWN_RULES = Util.prefix("check_spawn_rules");
     public static final ResourceLocation WITH_FOG = Util.prefix("with_fog");
     public static final ResourceLocation WITH_TACO = Util.prefix("with_taco");
+    public static final ResourceLocation WITH_SUN_BLOOD = Util.prefix("with_sun_blood");
     public static final ResourceLocation HOLD_RANDOM_JEWEL = Util.prefix("hold_random_jewel");
     public static final ResourceLocation POWER_JACK_IN_A_BOX_ZOMBIE = Util.prefix("power_jack_in_a_box_zombie");
     public static final ResourceLocation HOLD_RANDOM_MATERIAL = Util.prefix("hold_random_material");
@@ -97,9 +99,16 @@ public class InvasionEntityModifiers {
         if (invasion == null || ! EntityUtil.isEntityValid(invasion.target)) {
             return true;
         }
-        if (invasion.currentWave > invasion.waves.size() / 3 && invasion.getCurrentWave().isBigWave &&
-                threat > 500 && random.nextInt(invasion.getCurrentWave().threat) < threat / 2) {
+        if (invasion.currentWave > invasion.waves.size() / 3
+                && (invasion.getCurrentWave().isBigWave || invasion.level.random.nextInt(5) == 0)
+                && random.nextInt(invasion.getCurrentWave().threat) == 0) {
             invasion.summonEntity(TACO);
+        }
+        return true;
+    }
+    public static boolean withSunBlood(@Nullable Invasion invasion, Entity entity, int threat) {
+        if (entity instanceof LivingEntity living && living.getRandom().nextInt(25) == 0) {
+            living.addEffect(new MobEffectInstance(PVZMobEffects.SUN_BLOOD.get(), 2000));
         }
         return true;
     }

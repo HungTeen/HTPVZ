@@ -1,12 +1,15 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.client.sound.JackInTheBoxSoundInstance;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.EntityDamageSource;
@@ -20,14 +23,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
+@Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class JackInTheBoxItem extends Item {
     public final boolean destructive;
-    public JackInTheBoxItem(Properties p_41383_, boolean destructive) {
+    private final Supplier<SoundEvent> soundEvent;
+    public JackInTheBoxItem(Properties p_41383_, Supplier<SoundEvent> soundEvent, boolean destructive) {
         super(p_41383_);
+        this.soundEvent = soundEvent;
         this.destructive = destructive;
     }
     public void releaseUsing(ItemStack itemStack, Level level, LivingEntity livingEntity, int duration) {
@@ -35,6 +47,24 @@ public class JackInTheBoxItem extends Item {
             explode(level, livingEntity, itemStack);
         }
     }
+
+    @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
+    public static void onLivingTick(LivingEvent.LivingTickEvent ev) {
+        LivingEntity livingEntity = ev.getEntity();
+        if (livingEntity.level.isClientSide()) {
+            ItemStack itemStack = livingEntity.getItemInHand(InteractionHand.MAIN_HAND);
+            if (! (itemStack.getItem() instanceof JackInTheBoxItem)) itemStack = livingEntity.getItemInHand(InteractionHand.OFF_HAND);
+            if (itemStack.getItem() instanceof JackInTheBoxItem) {
+                JackInTheBoxSoundInstance.play(livingEntity, itemStack);
+            }
+        }
+    }
+
+    public SoundEvent getHoldingSound(ItemStack itemStack) {
+        return soundEvent.get();
+    }
+
     public void explode(Level level, Entity user, ItemStack itemStack) {
         CompoundTag tag = itemStack.getOrCreateTag();
         int strength;

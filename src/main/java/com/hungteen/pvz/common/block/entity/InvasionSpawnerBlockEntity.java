@@ -12,15 +12,18 @@ import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -40,16 +43,33 @@ public class InvasionSpawnerBlockEntity extends BlockEntity {
     }
 
     public static void tick(Level level, BlockPos pos, BlockState blockState, InvasionSpawnerBlockEntity blockEntity) {
-        UUID uuid = MathUtil.posToUuid(pos, 0xd0d3a94b);
+        UUID uuid = MathUtil.posToUuid(pos);
         if (! level.isClientSide) {
+            long gameTime = level.getGameTime();
+            if (gameTime % 20 > 0) return;
             level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
-                boolean stored = blockState.getValue(InvasionSpawnerBlock.TRIGGERED);
-                boolean current = cap.hasEvent(uuid);
-                if (stored != current) {
-                    level.setBlock(pos, blockState.setValue(InvasionSpawnerBlock.TRIGGERED, current), 2);
+                boolean current = blockState.getValue(InvasionSpawnerBlock.TRIGGERED);
+                Invasion invasion = cap.getNearestEvent(Invasion.class, pos);
+                boolean hasInvasion = invasion != null && invasion.position.distSqr(pos) < 256;
+                if (! current) {
+                    if (hasInvasion) {
+                        level.setBlock(pos, blockState.setValue(InvasionSpawnerBlock.TRIGGERED, true), 2);
+                        if (invasion.target != null) blockEntity.triggerHistory.put(invasion.target.getUUID(), level.getGameTime());
+                    }
+                } else {
+                    if (hasInvasion) {
+                        BlockPos invasionPos = MathUtil.posFromUuid(invasion.uuid);
+                        if (invasionPos.equals(pos) && invasion.isEnded()) {
+                            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                            ((ServerLevel) level).sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE
+                                    , pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 10
+                                    , 0.3F, 0.3F, 0.3F, 0.01f);
+                        }
+                    } else {
+                        level.setBlock(pos, blockState.setValue(InvasionSpawnerBlock.TRIGGERED, false), 2);
+                    }
                 }
             });
-            long gameTime = level.getGameTime();
             Set<UUID> uuids = Set.copyOf(blockEntity.triggerHistory.keySet());
             for (UUID playerUuid: uuids) {
                 if (gameTime - blockEntity.triggerHistory.get(playerUuid) >
@@ -57,29 +77,29 @@ public class InvasionSpawnerBlockEntity extends BlockEntity {
                     blockEntity.triggerHistory.remove(playerUuid);
                 }
             }
-            if (gameTime % 20 == 0 && ! blockState.getValue(InvasionSpawnerBlock.TRIGGERED) && blockEntity.coolDown != 0) {
-                Player player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16
+            if (! blockState.getValue(InvasionSpawnerBlock.TRIGGERED) && blockEntity.coolDown != 0) {
+                Player player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 12
                         , p -> ! EntityUtil.isEntityEvil(p) && ! blockEntity.triggerHistory.containsKey(p.getUUID()) && EntityUtil.isSurvivalPlayer(p));
                 if (player != null
                         && ! level.getBiome(pos).is(PVZBiomeTags.UNABLE_INVASION)
-                        && ! blockState.getValue(InvasionSpawnerBlock.TRIGGERED)
-                        && ! Util.hasBlockBetween(level, player.getEyePosition(), Vec3.atBottomCenterOf(blockEntity.getBlockPos().above()))
-                        && (player.blockPosition().distSqr(pos) < 16 || level.getEntities(player
-                        , new AABB(pos.offset(-24, -12, -24), pos.offset(24, 12, 24))
-                        , e -> ! (e instanceof Player) && ! EntityUtil.isEntityEvil(e)).size() < 4)) {
-                    List<InvasionType> types = blockEntity.invasionTypes.isEmpty() ? InvasionType.generateTypes(player) : blockEntity.invasionTypes;
-                    if (! types.isEmpty()) {
-                        LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(level);
-                        lightningbolt.moveTo(Vec3.atBottomCenterOf(pos));
-                        lightningbolt.setVisualOnly(true);
-                        level.addFreshEntity(lightningbolt);
-                        level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
-                            Invasion invasion = new Invasion(level, uuid, types, player, pos, Util.getInvasionLevel(player));
-                            invasion.trackable = false;
-                            cap.addEvent(invasion);
-                        });
-                        blockEntity.triggerHistory.put(player.getUUID(), level.getGameTime());
-                        level.setBlock(pos, blockState.setValue(InvasionSpawnerBlock.TRIGGERED, true), 2);
+                        && ! blockState.getValue(InvasionSpawnerBlock.TRIGGERED)) {
+                    int teammateNum = level.getEntities(player
+                            , new AABB(pos.offset(-24, -12, -24), pos.offset(24, 12, 24))
+                            , e -> ! (e instanceof Player) && ! EntityUtil.isEntityEvil(e)).size();
+                    if ((player.blockPosition().distSqr(pos) < 16 || teammateNum < 4) && teammateNum < 10) {
+                        List<InvasionType> types = blockEntity.invasionTypes.isEmpty() ? InvasionType.generateTypes(player) : blockEntity.invasionTypes;
+                        if (! types.isEmpty()) {
+                            LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(level);
+                            lightningbolt.moveTo(Vec3.atBottomCenterOf(pos));
+                            lightningbolt.setVisualOnly(true);
+                            level.addFreshEntity(lightningbolt);
+                            level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
+                                Invasion invasion = new Invasion(level, uuid, types, player, pos, Util.getInvasionLevel(player));
+                                invasion.trackable = false;
+                                cap.addEvent(invasion);
+                            });
+                            level.setBlock(pos, blockState.setValue(InvasionSpawnerBlock.TRIGGERED, true), 2);
+                        }
                     }
                 }
             }

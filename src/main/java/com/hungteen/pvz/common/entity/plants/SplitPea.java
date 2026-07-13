@@ -53,7 +53,7 @@ public class SplitPea extends PeaShooter {
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.removeGoal(shooterAttackGoal);
-        this.goalSelector.addGoal(1, new SplitPeaAttackGoal(this));
+        this.goalSelector.addGoal(2, new SplitPeaAttackGoal(this));
         this.targetSelector.addGoal(1, new SplitPeaHandleTargetGoal(this));
     }
     public LivingEntity getBackTarget() {
@@ -84,15 +84,17 @@ public class SplitPea extends PeaShooter {
     }
     @Override
     public void setTarget(LivingEntity entity) {
-        if (entity != null && getEntityRelativeAngle(entity) < - 0.5/*120 degrees backward*/) {
+        double angle = entity != null ? getEntityRelativeAngle(entity) : 0;
+        if (entity != null && angle < (getTarget() == null ? 0 : - 0.5/*120 degrees backward*/)) {
             LivingChangeTargetEvent changeTargetEvent = ForgeHooks.onLivingChangeTarget(this, entity, LivingChangeTargetEvent.LivingTargetType.MOB_TARGET);
-            if (!changeTargetEvent.isCanceled()) {
+            if (! changeTargetEvent.isCanceled()) {
                 this.backwardTarget = changeTargetEvent.getNewTarget();
             }
-        } else if (entity != backwardTarget) {
+        } else if (entity != backwardTarget || entity == null) {
             super.setTarget(entity);
         }
     }
+
     public double/*cos of vectors*/ getEntityRelativeAngle(Entity entity) {
         Vec3 vec1 = getViewVector(0);
         Vec3 vec2 = entity.position().subtract(this.position()).multiply(1, 0, 1).normalize();
@@ -112,6 +114,7 @@ public class SplitPea extends PeaShooter {
         }
     }
 
+    @Override
     public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
         if (target != null) {
             Vec3 vec = EntityUtil.getNormalisedVector2d(this, target);
@@ -191,9 +194,8 @@ public class SplitPea extends PeaShooter {
                 EntityUtil.playSound(this, this.getShootSound());
             }
             bullet.setOwner(this);
-            if (bullet instanceof BaseBullet bullet1) {
-                bullet1.setAttackDamage(this.getAttackDamage() * PVZAPI.get().getPlantDamageDatum(this.level));
-            }
+            BaseBullet bullet1 = (BaseBullet) bullet;
+            bullet1.setAttackDamage(this.getAttackDamage() * PVZAPI.get().getPlantDamageDatum(this.level));
             this.level.addFreshEntity(bullet);
             return bullet;
         }
@@ -229,7 +231,7 @@ public class SplitPea extends PeaShooter {
             if (! DisperseEnemyTargetGoal.getDefaultPredicate(splitPea).and(splitPea::isHeightAvailable).test(splitPea.backwardTarget)) {
                 splitPea.backwardTarget = null;
             } else {
-                if (splitPea.getEntityRelativeAngle(splitPea.getBackTarget()) > -0.5) {
+                if (splitPea.getBackTarget() != null && splitPea.getEntityRelativeAngle(splitPea.getBackTarget()) > (splitPea.getTarget() == null ? 0 : -0.5)) {
                     splitPea.backwardTarget = null;
                 } else {
                     target += 1;
@@ -262,9 +264,9 @@ public class SplitPea extends PeaShooter {
                     (entity) -> EntityUtil.checkCanEntityBeAttack(splitPea, entity)), TargetingConditions.forCombat().range(range).selector(null),
                     this.splitPea, this.splitPea.getX(), this.splitPea.getEyeY(), this.splitPea.getZ());
             if (EntityUtil.isEntityValid(target)) {
-                if (this.splitPea.backwardTarget != null && splitPea.getEntityRelativeAngle(target) > 0) {
-                    this.splitPea.setTarget(target);
-                } else if (this.splitPea.getTarget() != null && splitPea.getEntityRelativeAngle(target) < -0.5) {
+                if (this.splitPea.backwardTarget != null && this.splitPea.getTarget() == null && splitPea.getEntityRelativeAngle(this.splitPea.backwardTarget) > 0) {
+                    this.splitPea.setTarget(this.splitPea.backwardTarget);
+                } else if (this.splitPea.getTarget() != null && this.splitPea.backwardTarget == null  && splitPea.getEntityRelativeAngle(target) < -0.5) {
                     this.splitPea.backwardTarget = target;
                 }
             }
@@ -277,29 +279,35 @@ public class SplitPea extends PeaShooter {
         }
         @Override
         public boolean canUse() {
-            //looking control.
+            if (! this.shooter.canShoot()) return false;
             LivingEntity target = this.shooter.getTarget();
             LivingEntity backTarget = ((SplitPea) this.shooter).getBackTarget();
-            if (EntityUtil.isEntityValid(backTarget) && ! EntityUtil.isEntityValid(target)) {
-                this.shooter.getLookControl().setLookAt(2 * shooter.getX() - backTarget.getX(),
-                        2 * shooter.getY() - backTarget.getY(),
-                        2 * shooter.getZ() - backTarget.getZ());
-            } else if (EntityUtil.isEntityValid(target)) {
-                this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
-            }
-            //countdown.
             final int time = this.shooter.getAttackTime();
-            if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && (EntityUtil.isEntityValid(target) || EntityUtil.isEntityValid(backTarget)))) {
+            if (time != this.shooter.shootAnimLength() || (this.shooter.canShoot() && hasRotToPosition()
+                    && (EntityUtil.isEntityValid(target) || EntityUtil.isEntityValid(backTarget)))) {
                 this.shooter.setAttackTime(time > 0 ? time - 1 : this.shooter.getShootCD());
             }
             shooter.getEntityData().set(POSE, (this.shooter.getAttackTime() < this.shooter.shootAnimLength()));
-            //can shoot.
-            return this.shooter.canShoot();
+            return EntityUtil.isEntityValid(target) || EntityUtil.isEntityValid(backTarget);
+        }
+
+        @Override
+        public boolean hasRotToPosition() {
+            return true;
         }
 
         @Override
         public void tick() {
-            int time = this.shooter.getAttackTime();
+            //looking control
+            LivingEntity target = this.shooter.getTarget();
+            LivingEntity backTarget = ((SplitPea) this.shooter).getBackTarget();
+            if (EntityUtil.isEntityValid(target)) {
+                this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
+            } else if (EntityUtil.isEntityValid(backTarget)) {
+                this.shooter.getLookControl().setLookAt(2 * shooter.getX() - backTarget.getX(), 2 * shooter.getY() - backTarget.getY(), 2 * shooter.getZ() - backTarget.getZ());
+            }
+            //shooting
+            final int time = this.shooter.getAttackTime();
             if (this.shooter.shootTimes().contains(time)) {
                 this.shooter.shootBullet();
                 if (time > 10) {

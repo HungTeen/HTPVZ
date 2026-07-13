@@ -2,11 +2,14 @@ package com.hungteen.pvz.common.block;
 
 import com.hungteen.pvz.common.block.entity.EssenceFurnaceBlockEntity;
 import com.hungteen.pvz.common.register.PVZBlockEntities;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -100,5 +103,16 @@ public class EssenceFurnaceBlock extends BaseEntityBlock {
 
     public BlockState getStateForPlacement(BlockPlaceContext p_48689_) {
         return this.defaultBlockState().setValue(FACING, p_48689_.getHorizontalDirection().getOpposite());
+    }
+
+    public void animateTick(BlockState blockState, Level level, BlockPos pos, RandomSource random) {
+        if (blockState.getValue(LIT)) {
+            double d0 = pos.getX() + 0.5D;
+            double d1 = pos.getY();
+            double d2 = pos.getZ() + 0.5D;
+            if (random.nextDouble() < 0.1D) {
+                level.playLocalSound(d0, d1, d2, PVZSoundEvents.ESSENCE_FURNACE_AMBIENT.get(), SoundSource.BLOCKS, 1.0F, 1.0F, false);
+            }
+        }
     }
 }

@@ -57,7 +57,7 @@ public class SnowPea extends PeaShooter {
         super.registerGoals();
         this.targetSelector.removeGoal(targetGoal);
         this.targetGoal = new SnowPeaTargetGoal(this);
-        this.targetSelector.addGoal(1, targetGoal);
+        this.targetSelector.addGoal(2, targetGoal);
     }
 
     @Override

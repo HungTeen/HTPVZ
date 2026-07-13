@@ -9,12 +9,13 @@ import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.serialization.Dynamic;
@@ -48,7 +49,6 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.navigation.WallClimberNavigation;
-import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
@@ -394,7 +394,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         }
             //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        boolean isSide = direction.getAxis() != Direction.Axis.Z;
+        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Z;
         direction = getGrowDirection();
         pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
@@ -511,7 +511,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     }
     @Override
     public boolean shouldListen(ServerLevel p_223872_, GameEventListener p_223873_, BlockPos p_223874_, GameEvent p_223875_, GameEvent.Context context) {
-        return isSculk(this) && EntityUtil.checkCanEntityBeAttack(this, context.sourceEntity()) && ! (context.sourceEntity() instanceof Slime);
+        return isSculk(this) && EntityUtil.checkCanEntityBeAttack(this, context.sourceEntity());
     }
 
     @Override
@@ -573,6 +573,9 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     if (chomper.getAttackTime() <= 0) {
                         return chomper.animTick > 59 && chomper.animTick % 60 <= 1;
                     } else {
+                        if (chomper.animTick % 20 == 10 || chomper.animTick % 20 == 11) {
+                            chomper.playSound(PVZSoundEvents.CHOMPER_CHEW.get(), 1.0F, 1.0F);
+                        }
                         return false;
                     }
                 }
@@ -597,6 +600,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     if (chomper.getTarget().distanceToSqr(chomper) < 16) {
                         chomper.setPose(Pose.SPIN_ATTACK);
                     } else {
+                        chomper.playSound(PVZSoundEvents.CHOMPER_START_BURROW.get(), 1.0F, 1.0F);
                         chomper.setPose(Pose.DIGGING);
                     }
                 }
@@ -606,16 +610,18 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                 case USING_TONGUE, SPIN_ATTACK -> {
                     if (chomper.animTick == (chomper.getPose() == Pose.USING_TONGUE ? 11 : 14)) {
                         LivingEntity target = chomper.getTarget();
+                        chomper.playSound(PVZSoundEvents.CHOMPER_ATTACK.get(), 1.0F, 1.0F);
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) &&
                                 chomper.distanceToSqr(target.position()) <= (chomper.getPose() == Pose.SPIN_ATTACK ? 16 : 6) && ! target.getType().is(Tags.EntityTypes.BOSSES)) {
                             target.startRiding(chomper);
                             target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper, target), 2F), (float) (chomper.getAttributeValue(Attributes.ATTACK_DAMAGE) / 8 * PVZAPI.get().getPlantDamageDatum(chomper.level)));
-                            if (target.getBbWidth() > 1.25 || target instanceof Slime /*to prevent a vanilla bug*/) {
+                            if (target.getBbWidth() > 1.25) {
                                 target.stopRiding();
                             }
                         }
                     } else if (chomper.animTick == 53) {
                         Entity rider = chomper.getFirstPassenger();
+                        chomper.playSound(PVZSoundEvents.CHOMPER_ATTACK_END.get(), 1.0F, 1.0F);
                         if (rider != null) {
                             chomper.setAttackTime(chomper.getAttackCD());
                             rider.hurt(PVZDamageSource.chomperHurt(chomper, rider).bypassArmor(), (float) (chomper.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(chomper.level)));
@@ -677,6 +683,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                             if (! homeSafe) {
                                 chomper.setRootBlockPos(chomper.findNearbyRootablePos());
                             }
+                            chomper.playSound(PVZSoundEvents.CHOMPER_END_BURROW.get(), 1.0F, 1.0F);
                             chomper.setPose(Pose.EMERGING);
                             chomper.alignBlocks();
                             pos = chomper.getRootBlockPos().above();

@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
@@ -15,6 +16,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -92,6 +94,7 @@ public class HypnoShroom extends SimplePlant implements IMushroom {
         if (entity instanceof LivingEntity target && damageSource.getDirectEntity() == entity) {
             if (! this.isSleeping() && ! EntityUtil.isTeammate(this, entity) && PVZDamageSource.isEating(damageSource) && this.distanceToSqr(entity) < 4 && ! (entity instanceof Player)) {
                 PVZMobEffects.hypnotizeWithTeam(target, this, 6000);
+                level.playSound(null, this, PVZSoundEvents.HYPNO_SHROOM_TRANSFORM.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
                 this.setPose(Pose.USING_TONGUE);//to let client identify.
                 this.discard();
             }

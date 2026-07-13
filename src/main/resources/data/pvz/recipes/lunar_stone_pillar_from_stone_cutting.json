@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "pvz:lunar_stone"
+  },
+  "result": "pvz:lunar_stone_pillar"
+}

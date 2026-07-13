@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 public class EssenceFurnaceMenu extends RecipeBookMenu<Container>{
     private EssenceFurnaceBlockEntity blockEntity;
@@ -167,6 +167,19 @@ public class EssenceFurnaceMenu extends RecipeBookMenu<Container>{
     @Override
     public boolean shouldMoveToInventory(int index) {
         return true;
+    }
+
+    public static class SlotItemHandler extends net.minecraftforge.items.SlotItemHandler {
+
+        public SlotItemHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+            super(itemHandler, index, xPosition, yPosition);
+        }
+
+        @Override
+        public boolean mayPickup(Player playerIn) {
+            return true;
+        }
+
     }
 
 }

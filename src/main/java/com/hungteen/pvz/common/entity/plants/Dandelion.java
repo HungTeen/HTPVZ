@@ -5,7 +5,9 @@ import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.DandelionSeedBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZParticles;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -34,7 +36,10 @@ public class Dandelion extends ShooterPlant {
         this.performShoot(0, 0, this.getBbHeight() + 0.4F, true, 0);
         ((ServerLevel) level).sendParticles(PVZParticles.DANDELION.get(), getX(), getY() + 1.5f, getZ(), 5,0, 0, 0, 0);
     }
-
+    @Override
+    protected SoundEvent getShootSound() {
+        return PVZSoundEvents.DANDELION_SHOOT.get();
+    }
     @Override
     public Vec3 getShootAngle(Entity target, double forwardOffset, double rightOffset, double heightOffset) {
         return super.getShootAngle(target, forwardOffset, rightOffset, heightOffset).add(0, 3.5, 0);

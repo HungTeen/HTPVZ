@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -9,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -38,6 +40,12 @@ public class StarfruitBullet extends BaseBullet {
         super(bulletEntityType, level);
         this.shootDamageName = "starfruit";
     }
+
+    @Override
+    public SoundEvent getHitSound() {
+        return PVZSoundEvents.STAR_HIT.get();
+    }
+    @Override
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
         for (int i = 0; i < 5; i ++) {

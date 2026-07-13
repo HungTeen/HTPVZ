@@ -2,10 +2,12 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.client.sound.GatlingPeaSoundInstance;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
+import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -24,6 +26,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
@@ -51,7 +54,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
             new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 150, 0),
             new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, -940),
             new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(LOW_BUDGET_SKILL_NAME),
-            new Skill(RAPID_DEPLOYMENT_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 16, 4, 150, 0)
+            new Skill(RAPID_DEPLOYMENT_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 16, 4, 200, 0)
     );
     public GatlingPea(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
@@ -65,7 +68,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.removeGoal(shooterAttackGoal);
-        this.goalSelector.addGoal(1, new GatlingAttackGoal(this));
+        this.goalSelector.addGoal(2, new GatlingAttackGoal(this));
         this.targetSelector.removeGoal(targetGoal);
         this.targetSelector.addGoal(1, new GatlingTargetGoal(this));
     }
@@ -104,6 +107,16 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         }
     }
 
+    @Override
+    protected PeaBullet createBullet() {
+        PeaBullet bullet = super.createBullet();
+        if (this.hasSkill(FIRE_SKILL_NAME) && this.getOverheat() > MAX_OVERHEAT / 2) {
+            if (random.nextFloat() < (float) (this.getOverheat() - MAX_OVERHEAT / 2) / MAX_OVERHEAT / 0.17F) {
+                bullet.setPeaType(PeaBullet.PeaType.SoulFire);
+            }
+        }
+        return bullet;
+    }
     public Set<Integer> shootTimes() {
         return this.getFirstPassenger() instanceof Player ?
                 Set.of(0, 1 ,2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19) :
@@ -164,7 +177,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     @Override
     /** shoot cd is also affected by {@link FUSING}.*/
     public int getShootCD() {
-        return this.getFirstPassenger() instanceof Player ? 21 : 40;
+        return 20;
     }
 
     @Override
@@ -179,6 +192,11 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     }
 
     @Override
+    public SoundEvent getShootSound() {
+        return this.isVehicle() ? null : super.getShootSound();
+    }
+
+    @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_219422_) {
         super.onSyncedDataUpdated(p_219422_);
         if (POSE.equals(p_219422_)) {
@@ -186,6 +204,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                 this.idleAnimationState.stop();
                 if (this.getFirstPassenger() instanceof Player) {
                     this.controlledAnimationState.start(this.tickCount);
+                    if (level.isClientSide) GatlingPeaSoundInstance.add(this);
                     this.shootAnimationState.stop();
                 } else {
                     this.shootAnimationState.start(this.tickCount);
@@ -346,8 +365,24 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         public GatlingAttackGoal(GatlingPea shooter) {
             super(shooter);
         }
+
         @Override
         public boolean canUse() {
+            if (! this.shooter.canShoot()) return false;
+            LivingEntity target = this.shooter.getTarget();
+            final int time = this.shooter.getAttackTime();
+            if (time != this.shooter.shootAnimLength()
+                    || (this.shooter.canShoot()
+                            && ((hasRotToPosition() && EntityUtil.isEntityValid(target))
+                                    || (this.shooter.getFirstPassenger() instanceof Player && ((GatlingPea) shooter).playerFire)))) {
+                this.shooter.setAttackTime(time > 0 ? time - 1 : this.shooter.getShootCD());
+            }
+            shooter.getEntityData().set(POSE, (this.shooter.getAttackTime() < this.shooter.shootAnimLength()));
+            return EntityUtil.isEntityValid(target) || this.shooter.getFirstPassenger() instanceof Player;
+        }
+
+        @Override
+        public void tick() {
             //looking control.
             LivingEntity target = this.shooter.getTarget();
             if (shooter.isVehicle() && shooter.getFirstPassenger() instanceof Player player) {
@@ -355,16 +390,16 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
             } else if (EntityUtil.isEntityValid(target)) {
                 this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
             }
-            //countdown.
+            if (! hasRotToPosition()) return;
+            //shooting
             final int time = this.shooter.getAttackTime();
-            if (time != this.shooter.shootAnimLength() || (shooter.canShoot() &&
-                    (EntityUtil.isEntityValid(target) ||
-                    (this.shooter.getFirstPassenger() instanceof Player && ((GatlingPea) shooter).playerFire)))) {
-                this.shooter.setAttackTime(time > 0 ? time - 1 : this.shooter.getShootCD());
+            if (this.shooter.shootTimes().contains(time)) {
+                this.shooter.shootBullet();
+                if (EntityUtil.isEntityValid(this.shooter.getTarget())) {
+                    shooter.aimTime = 0;
+                    shooter.storedEnemyPos = this.shooter.getTarget().position();
+                }
             }
-            shooter.getEntityData().set(POSE, (this.shooter.getAttackTime() < this.shooter.shootAnimLength()));
-            //can shoot.
-            return this.shooter.canShoot();
         }
     }
 

@@ -1,0 +1,24 @@
+{
+    "name": "*0",
+    "icon": "pvz:tangle_kelp_bucket",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "*1"
+        },
+        {
+            "type": "text",
+            "text": "*2"
+        },
+        {
+            "type": "text",
+            "text": "*3"
+        },
+        {
+            "type": "text",
+            "text": "較與原戯，植物或有妙用（或需技）。戯者可以冰生菜滅火，可凴傘葉遠跳，可驅蓮葉航於水中。"
+        }
+    ],
+    "sortnum": 3
+}

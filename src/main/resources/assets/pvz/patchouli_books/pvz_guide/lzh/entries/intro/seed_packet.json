@@ -1,0 +1,33 @@
+{
+    "name": "*0",
+    "icon": "pvz:flower_seed_packet",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "*1"
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:seed_packets/fusion/pea_shooter_seed_packet",
+            "recipe2": "pvz:seed_packets/pea_shooter_seed_packet"
+        },
+        {
+            "type": "text",
+            "text": "*4"
+        },
+        {
+            "type": "text",
+            "text": "*2"
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:flower_seed_packet"
+        },
+        {
+            "type": "text",
+            "text": "*3"
+        }
+    ],
+    "sortnum": 2
+}

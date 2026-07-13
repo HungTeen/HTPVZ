@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -73,6 +74,7 @@ public class LootBagItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack lootBag = player.getItemInHand(hand);
         player.awardStat(Stats.ITEM_USED.get(lootBag.getItem()));
+        player.playSound(PVZSoundEvents.LOOT_BAG_USE.get());
         if (level instanceof ServerLevel serverLevel) {
             List<ItemStack> itemStacks = this.getLoots(lootBag, serverLevel, player, player.position());
             if (itemStacks.isEmpty()) {

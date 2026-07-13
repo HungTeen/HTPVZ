@@ -4,11 +4,12 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IHangable;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
-import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -119,6 +120,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             if (entityData.get(ATTACK_TIME) == 30) {
                 this.openAnimationState.stop();
                 this.idleAnimationState.stop();
+                playSound(PVZSoundEvents.UMBRELLA_LEAF_BOUNCE.get(), 1.0F, 1.0F);
                 this.openAnimationState.start(this.tickCount);
             } else if (entityData.get(ATTACK_TIME) < 20 && ! this.idleAnimationState.isStarted()) {
                 this.openAnimationState.stop();

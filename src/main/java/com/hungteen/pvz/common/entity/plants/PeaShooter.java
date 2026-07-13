@@ -1,17 +1,23 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.common.block.EntityLightBlock;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,7 +41,14 @@ public class PeaShooter extends ShooterPlant {
     public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
-
+    @Override
+    public boolean fireImmune() {
+        return this.hasSkill(FIRE_SKILL_NAME);
+    }
+    @Override
+    public boolean canFreeze() {
+        return ! this.hasSkill(FIRE_SKILL_NAME);
+    }
     @Override
     public void shootBullet() {
         this.performShoot(SHOOT_OFFSET, 0, this.getBbHeight() * 0.55F, true, 0);
@@ -64,6 +77,20 @@ public class PeaShooter extends ShooterPlant {
                 this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.5, AttributeModifier.Operation.MULTIPLY_BASE));
             }
         }
+        BlockPos pos = getOnPos().above();
+        if (! level.isClientSide() && this.hasSkill(FIRE_SKILL_NAME)) {
+            if (level.getBlockState(pos).isAir()) {
+                level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                        .setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 9 : 7), 2);
+            } else if (level.getBlockState(pos).is(Blocks.WATER)) {
+                level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                        .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 9 : 7), 2);
+            }
+            if (level.getBlockState(pos).is(PVZBlocks.ENTITY_LIGHT.get())) {
+                level.setBlock(pos, level.getBlockState(pos)
+                        .setValue(EntityLightBlock.HAS_SOURCE, true), 2);
+            }
+        }
         super.tick();
     }
 
@@ -72,8 +99,13 @@ public class PeaShooter extends ShooterPlant {
     }
 
     @Override
+    public SoundEvent getShootSound() {
+        return this.hasSkill(SNIPER_SKILL_NAME) ? PVZSoundEvents.PEA_SNIPER_SHOOT.get() : super.getShootSound();
+    }
+
+    @Override
     public int getShootCD() {
-        return this.hasSkill(this, SNIPER_SKILL_NAME) ? 160 : 40;
+        return this.hasSkill(this, SNIPER_SKILL_NAME) ? 160 : 20;
     }
 
     @Override
@@ -87,7 +119,7 @@ public class PeaShooter extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 5D)
+                .add(Attributes.ATTACK_DAMAGE, 4D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.35D);
     }
 

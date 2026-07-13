@@ -350,12 +350,11 @@ public class PVZEntities {
     @OnlyIn(Dist.CLIENT)
     public static void simpleRenderHandler() {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
-        rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.5F, "textures/entity/plants/pea_shooter/pea_shooter.png");
         rS(STARFRUIT, StarfruitModel::new, StarfruitModel::createBodyLayer, 0.5F, "textures/entity/plants/starfruit/starfruit.png");
         rS(SPLIT_PEA, SplitPeaModel::new, SplitPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/split_pea/split_pea.png");
         rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.5F, "textures/entity/plants/repeater/repeater.png");
         rS(CABBAGE_PULT, CabbagePultModel::new, CabbagePultModel::createBodyLayer, 0.5F, "textures/entity/plants/cabbage_pult/cabbage_pult.png");
-        rS(VELOCI_RADISH, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
+        rS(VELOCI_RADISH, VelociRadishModel::new, VelociRadishModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
         rS(LILY_PAD, LilyPadModel::new, LilyPadModel::createBodyLayer, 0.5F, "textures/entity/plants/lily_pad/lily_pad.png");
         rS(KERNEL_PULT, KernelPultModel::new, KernelPultModel::createBodyLayer, 0.5F, "textures/entity/plants/kernel_pult/kernel_pult.png");
         rS(UMBRELLA_LEAF, UmbrellaLeafModel::new, UmbrellaLeafModel::createBodyLayer, 0.5F, "textures/entity/plants/umbrella_leaf/umbrella_leaf.png");
@@ -387,6 +386,7 @@ public class PVZEntities {
         r(e, TALL_NUT, TallNutRenderer::new);
         r(e, PLANTERN, PlanternRenderer::new);
         r(e, FLOWER_POT, FlowerPotRenderer::new);
+        r(e, PEA_SHOOTER, PeaShooterRenderer::new);
         r(e, GATLING_PEA, GatlingPeaRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
         r(e, FOG_IN_BOTTLE, ctx -> new ThrownItemRenderer(ctx, 1, false));

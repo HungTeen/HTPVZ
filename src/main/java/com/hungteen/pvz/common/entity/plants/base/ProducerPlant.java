@@ -8,7 +8,7 @@ import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -19,6 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.dimension.DimensionType;
+
+import javax.annotation.Nullable;
 
 public abstract class ProducerPlant extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
@@ -72,7 +74,7 @@ public abstract class ProducerPlant extends SimplePlant {
      */
     protected void genSun(int num, int cnt) {
         Sun.spawnSunsWithEffectsByAmount(level, this.blockPosition(), num, num / cnt, 0.25F);
-        EntityUtil.playSound(this, SoundEvents.EXPERIENCE_ORB_PICKUP);
+        if (getProduceSound() != null) EntityUtil.playSound(this, getProduceSound());
     }
 
     /**
@@ -88,6 +90,9 @@ public abstract class ProducerPlant extends SimplePlant {
      */
     public abstract int getGenCD();
 
+    public @Nullable SoundEvent getProduceSound() {
+        return null;
+    }
 
     /**
      * is producer going to gen, use for render sunflower sun layer.

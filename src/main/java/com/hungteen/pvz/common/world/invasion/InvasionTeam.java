@@ -26,7 +26,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.NaturalSpawner;
@@ -64,9 +63,13 @@ public class InvasionTeam extends ZombieEvent {
 
     public static boolean spawnFor(ServerPlayer player) {
         if (! Invasion.canInvade(player)) return false;
+        var cap = PVZZombieEventCapability.fromLevel(player.level);
+        if (cap == null) return false;
+        var ev = cap.getNearestEventRanged(ZombieEvent.class, player.blockPosition());
+        if (ev != null && ev.position.distSqr(player.blockPosition()) < 4096) return false;
         PathSeeker seeker = new PathSeeker((ServerLevel) player.level);
-        seeker.minDistanceSqr = 576;
-        seeker.maxDistanceSqr = 1024;
+        seeker.minDistanceSqr = 1024;
+        seeker.maxDistanceSqr = 4096;
         InvasionTeam team = new InvasionTeam(seeker, player, UUID.randomUUID());
         team.seeker.center = player.blockPosition();
         team.seeker.targetPos = player.blockPosition();
@@ -98,7 +101,7 @@ public class InvasionTeam extends ZombieEvent {
                         return;
                     }
                     double dist = pos.distSqr(target.blockPosition());
-                    if (dist > 576 && dist < 1024) {
+                    if (dist > seeker.minDistanceSqr && dist < seeker.maxDistanceSqr) {
                         double horizontalDistSqr = (pos.getX() - target.getX()) * (pos.getX() - target.getX()) + (pos.getZ() - target.getZ()) * (pos.getZ() - target.getZ());
                         double verticalDist = pos.getY() - target.getY();
                         if (verticalDist > 0 || verticalDist * verticalDist < 1.5 * horizontalDistSqr) {
@@ -141,7 +144,7 @@ public class InvasionTeam extends ZombieEvent {
             if (this.leader == null) {
                 if (tickCount % 20 == 0) {
                     leader = ((ServerLevel) level).getEntity(leaderUUID);
-                    missingCount++;
+                    missingCount ++;
                 }
                 if (leader == null && missingCount > 5) {
                     remove();
@@ -150,12 +153,17 @@ public class InvasionTeam extends ZombieEvent {
                 this.position = this.leader.blockPosition();
                 missingCount = 0;
             }
-            if (this.tickCount > 6000 && (this.leader == null || this.level.getNearestPlayer(leader, 16) == null)) {
-                if (this.leader != null) leader.discard();
-                this.remove();
-            }
-            if ((this.tickCount % 20 == 0 && ! EntityUtil.isEntityValid(leader))) {
-                this.remove();
+            boolean leaderValid = EntityUtil.isEntityValid(leader);
+            if (this.tickCount % 20 == 0) {
+                if (! leaderValid) {
+                    this.remove();
+                } else if (this.level.getNearestPlayer(leader, 80) == null) {
+                    if (this.leader != null) leader.discard();
+                    this.remove();
+                } else if (this.tickCount > 6000 && this.level.getNearestPlayer(leader, 16) == null) {
+                    if (this.leader != null) leader.discard();
+                    this.remove();
+                }
             }
         }
     }
@@ -191,7 +199,7 @@ public class InvasionTeam extends ZombieEvent {
             }
             if (shouldApplyEffect) {
                 player.addEffect(new MobEffectInstance(PVZMobEffects.INVASION_OMEN.get(),
-                        player.getRandom().nextInt(100) * 200 + 50000, Util.getInvasionLevel(player) - 1));
+                        player.getRandom().nextInt(100) * 200 + 50000, Util.getInvasionLevel(player)));
             }
         }
         remove();
@@ -230,9 +238,6 @@ public class InvasionTeam extends ZombieEvent {
         String name = entity.getScoreboardName();
         if (enemyTeam != null) {
             entity.getServer().getScoreboard().addPlayerToTeam(name, enemyTeam);
-        }
-        if (entity instanceof Mob mob) {
-            mob.setTarget(target);
         }
         return entity;
     }

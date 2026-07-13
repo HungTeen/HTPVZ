@@ -29,22 +29,28 @@ public class PVZFogCommand {
                                         500, 1, 10, UuidArgument.getUuid(command, "uuid")))
                                 )
                                 .then(Commands.argument("seconds", IntegerArgumentType.integer())
-                                .then(Commands.argument("strength", DoubleArgumentType.doubleArg())
-                                .then(Commands.argument("range", DoubleArgumentType.doubleArg())
                                         .executes((c) -> addFog(c.getSource(), BlockPosArgument.getSpawnablePos(c, "pos"),
-                                                IntegerArgumentType.getInteger(c, "seconds"), DoubleArgumentType.getDouble(c, "strength"),
-                                                DoubleArgumentType.getDouble(c, "range")))
-                                        .then(Commands.argument("uuid", UuidArgument.uuid())
+                                                IntegerArgumentType.getInteger(c, "seconds") * 20, 1,
+                                                10))
+                                        .then(Commands.argument("strength", DoubleArgumentType.doubleArg())
                                                 .executes((c) -> addFog(c.getSource(), BlockPosArgument.getSpawnablePos(c, "pos"),
-                                                        IntegerArgumentType.getInteger(c, "seconds"), DoubleArgumentType.getDouble(c, "strength"),
-                                                        DoubleArgumentType.getDouble(c, "range"), UuidArgument.getUuid(c, "uuid")))
-                                                ))))))
+                                                        IntegerArgumentType.getInteger(c, "seconds") * 20, DoubleArgumentType.getDouble(c, "strength"),
+                                                        10))
+                                                .then(Commands.argument("range", DoubleArgumentType.doubleArg())
+                                                        .executes((c) -> addFog(c.getSource(), BlockPosArgument.getSpawnablePos(c, "pos"),
+                                                                IntegerArgumentType.getInteger(c, "seconds") * 20, DoubleArgumentType.getDouble(c, "strength"),
+                                                                DoubleArgumentType.getDouble(c, "range")))
+                                                        .then(Commands.argument("uuid", UuidArgument.uuid())
+                                                                .executes((c) -> addFog(c.getSource(), BlockPosArgument.getSpawnablePos(c, "pos"),
+                                                                        IntegerArgumentType.getInteger(c, "seconds") * 20, DoubleArgumentType.getDouble(c, "strength"),
+                                                                        DoubleArgumentType.getDouble(c, "range"), UuidArgument.getUuid(c, "uuid")))
+                                                                ))))))
                 .then(Commands.literal("modify")
                         .then(Commands.argument("uuid", UuidArgument.uuid())
                                 .then(Commands.literal("pos").then(Commands.argument("value", Vec3Argument.vec3()).executes(
                                         (c -> modifyFog(c.getSource(), UuidArgument.getUuid(c, "uuid"), BlockPosArgument.getSpawnablePos(c, "value"))))))
                                 .then(Commands.literal("seconds").then(Commands.argument("value", IntegerArgumentType.integer()).executes(
-                                        (c -> modifyFog(c.getSource(), UuidArgument.getUuid(c, "uuid"), PVZFogPacket.ModifyType.LIFE_TIME, IntegerArgumentType.getInteger(c, "value"))))))
+                                        (c -> modifyFog(c.getSource(), UuidArgument.getUuid(c, "uuid"), PVZFogPacket.ModifyType.LIFE_TIME, IntegerArgumentType.getInteger(c, "value") * 20)))))
                                 .then(Commands.literal("strength").then(Commands.argument("value", IntegerArgumentType.integer()).executes(
                                         (c -> modifyFog(c.getSource(), UuidArgument.getUuid(c, "uuid"), PVZFogPacket.ModifyType.STRENGTH, IntegerArgumentType.getInteger(c, "value"))))))
                         ))

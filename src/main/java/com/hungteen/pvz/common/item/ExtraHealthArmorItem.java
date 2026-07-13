@@ -49,6 +49,8 @@ public class ExtraHealthArmorItem extends ArmorItem implements IDropWhenBroken {
         ShieldBlockEvent blockEvent = PVZDamageSource.onShieldBlock(event.getEntity(), event.getSource(), event.getAmount(), false);
         if (! blockEvent.isCanceled()) {
             int blocked = (int) Math.min(stack.getMaxDamage() - stack.getDamageValue(), event.getAmount());
+            if (this.material instanceof PVZArmorMaterials material && material.getBreakSound() != null)
+                event.getEntity().playSound(material.getBreakSound(), 1, 1);
             stack.hurtAndBreak(blocked * 5 /* 5 durability equals to 1 health. */, event.getEntity(), (entity) -> {
                 DropDamagedArmorPacket.drop((IDropWhenBroken) stack.getItem(), entity.level,
                         entity.position().add(0, slot == EquipmentSlot.HEAD ? entity.getBbHeight() : 0, 0));

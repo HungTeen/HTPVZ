@@ -4,6 +4,8 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.CheckReteamableToOwnerEvent;
 import com.hungteen.pvz.api.events.SculkJudgmentEvent;
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
+import com.hungteen.pvz.common.entity.plants.WallNut;
+import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
@@ -20,6 +22,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
@@ -58,6 +61,20 @@ public class EntityUtil {
         if (attr != null && attr.modifierById.keySet().stream().noneMatch(uuid1 -> uuid1.equals(modifier.getId()))) {
             attr.addTransientModifier(modifier);
         }
+    }
+
+    public static int getExtraArmorHealth(Entity entity) {
+        if (! (entity instanceof LivingEntity entity1)) return 0;
+        int armorHealth = 0;
+        for (ItemStack itemStack : entity1.getArmorSlots()) {
+            if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
+                armorHealth += (itemStack.getMaxDamage() - itemStack.getDamageValue()) / 5;
+            }
+        }
+        if (entity instanceof WallNut wallNut) {
+            armorHealth += (int) wallNut.getIronArmor();
+        }
+        return armorHealth;
     }
 
 
@@ -206,7 +223,7 @@ public class EntityUtil {
      * use to play sound in world.
      */
     public static void playSound(Entity entity, SoundEvent ev) {
-        if(ev != null) {
+        if (ev != null) {
             entity.playSound(ev, 1.0F, random.nextFloat() * 0.2F + 0.9F);
         }
     }

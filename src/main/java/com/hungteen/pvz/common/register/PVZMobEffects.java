@@ -10,7 +10,6 @@ import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.common.world.invasion.InvasionType;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
@@ -93,11 +92,16 @@ public class PVZMobEffects {
     public static final RegistryObject<MobEffect> INVASION_OMEN = effect("invasion_omen", () ->
             new InvasionOmenEffect(MobEffectCategory.HARMFUL, 0x2d4a3e)).build();
 
-    public static final UUID DISTANCE_EFFECT_UUID = UUID.fromString("b2fd9a45-5679-7850-25c3-b684eb4b0e52");
     public static final RegistryObject<MobEffect> DISTANCE_EFFECT = effect("distance_effect", () ->
-            new PVZMobEffect(MobEffectCategory.HARMFUL, 0xffffff))
+            new PVZMobEffect(MobEffectCategory.HARMFUL, 0x15082b))
             .build();
 
+    public static final UUID SUN_BLOOD_EFFECT_UUID = UUID.fromString("94b7d6e2-a451-a619-a89b-56f087fdd3c3");
+    public static final RegistryObject<MobEffect> SUN_BLOOD = effect("sun_blood", () ->
+            new PVZMobEffect(MobEffectCategory.BENEFICIAL, 0xffcfa1)
+                    .addAttributeModifier(Attributes.MAX_HEALTH, SUN_BLOOD_EFFECT_UUID.toString(), 0F, AttributeModifier.Operation.ADDITION))
+            .registerPotion(1200)
+            .build();
 
     /**To use this effect, use {@link PVZMobEffects#hypnotizeWithTeam(LivingEntity, String, int)} for conveinence.*/
     public static final UUID HYPNOTIZED_EFFECT_UUID = UUID.fromString("8ee427fa-6f9d-2aa5-6d52-76b37472bfc1");
@@ -330,10 +334,6 @@ public class PVZMobEffects {
         }
 
         public void applyEffectTick(LivingEntity entity, int level) {
-            if (entity instanceof LocalPlayer player && player.portalTime <= 0) {
-                player.portalTime = player.getRandom().nextFloat() / 2;
-                player.oPortalTime = player.getRandom().nextFloat() / 2;
-            }
         }
     }
 }

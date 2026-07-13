@@ -1,11 +1,13 @@
 package com.hungteen.pvz.common.entity.zombies;
 
+import com.hungteen.pvz.client.sound.DiggerZombieSoundInstance;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -110,6 +112,15 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
         Level level = this.level;
         if (level instanceof ServerLevel serverlevel) {
             p_219413_.accept(this.dynamicGameEventListener, serverlevel);
+        }
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
+        if (DATA_POSE.equals(data)) {
+            if (getPose() == Pose.SWIMMING && level.isClientSide) {
+                DiggerZombieSoundInstance.add(this);
+            }
         }
     }
 

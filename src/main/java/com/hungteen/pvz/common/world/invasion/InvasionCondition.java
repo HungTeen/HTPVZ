@@ -212,7 +212,7 @@ public interface InvasionCondition {
             } catch (Exception ignored) {
             }
             if (target instanceof Player player) {
-                return player.isCreative() ? true : value >= PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY);
+                return player.isCreative() ? true : value <= PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY);
             }
             return false;
         }

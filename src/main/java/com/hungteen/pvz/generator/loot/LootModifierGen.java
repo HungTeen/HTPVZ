@@ -29,23 +29,11 @@ public class LootModifierGen extends GlobalLootModifierProvider {
     @Override
     protected void start() {
         //drops
-        this.add("cabbage_seed_from_grass", new AddItemModifier(new LootItemCondition[] {
-                LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.GRASS).build(),
-                MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)).invert().build(),
-                LootItemRandomChanceCondition.randomChance(0.025F).build()
-        }, List.of(PVZItems.CABBAGE_SEED.get().getDefaultInstance())));
-
         this.add("pea_from_grass", new AddItemModifier(new LootItemCondition[] {
                 LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.GRASS).build(),
                 MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)).invert().build(),
-                LootItemRandomChanceCondition.randomChance(0.125F).build()
+                LootItemRandomChanceCondition.randomChance(0.1F).build()
         }, List.of(PVZItems.PEA.get().getDefaultInstance())));
-
-        this.add("corn_kernels_from_grass", new AddItemModifier(new LootItemCondition[] {
-                LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.GRASS).build(),
-                MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)).invert().build(),
-                LootItemRandomChanceCondition.randomChance(0.025F).build()
-        }, List.of(PVZItems.CORN_KERNELS.get().getDefaultInstance())));
 
         //spawn bonus chest
         this.add("seed_packets_from_spawn_bonus_chest", new AddItemModifier(new LootItemCondition[] {
@@ -73,12 +61,6 @@ public class LootModifierGen extends GlobalLootModifierProvider {
         )));
 
         this.add("sprout_from_igloo", new AddItemModifier(new LootItemCondition[] {
-                LootTableIdCondition.builder(new ResourceLocation("chests/igloo_chest")).build()
-        }, List.of(
-                SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.icy", RegisterSproutsEvent.ICY)
-        )));
-
-        this.add("sprout_from_igloo_random", new AddItemModifier(new LootItemCondition[] {
                 LootTableIdCondition.builder(new ResourceLocation("chests/igloo_chest")).build(),
                 LootItemRandomChanceCondition.randomChance(0.6F).build()
         }, List.of(
@@ -129,21 +111,20 @@ public class LootModifierGen extends GlobalLootModifierProvider {
 
         this.add("sprout_from_bastion_bridge", new AddItemModifier(new LootItemCondition[]{
                 LootTableIdCondition.builder(new ResourceLocation("chests/bastion_bridge")).build(),
-                LootItemRandomChanceCondition.randomChance(0.6F).build()
         }, List.of(
                 SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.nether_defencive", RegisterSproutsEvent.NETHER_DEFENCIVE)
         )));
 
         this.add("sprout_from_ruined_portal", new AddItemModifier(new LootItemCondition[]{
                 LootTableIdCondition.builder(new ResourceLocation("chests/ruined_portal")).build(),
-                LootItemRandomChanceCondition.randomChance(0.4F).build()
+                LootItemRandomChanceCondition.randomChance(0.3F).build()
         }, List.of(
                 SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.nether_aggressive", RegisterSproutsEvent.NETHER_AGGRESSIVE)
         )));
 
         this.add("sprout_from_end_city_treasure", new AddItemModifier(new LootItemCondition[]{
                 LootTableIdCondition.builder(new ResourceLocation("chests/end_city_treasure")).build(),
-                LootItemRandomChanceCondition.randomChance(0.2F).build()
+                LootItemRandomChanceCondition.randomChance(0.6F).build()
         }, List.of(
                 SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.ender", RegisterSproutsEvent.ENDER)
         )));

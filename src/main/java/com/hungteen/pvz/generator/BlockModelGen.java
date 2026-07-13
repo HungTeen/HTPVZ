@@ -41,6 +41,7 @@ public class BlockModelGen extends BlockStateProvider {
                 case Door -> door((DoorBlock) block, pair.getSecond().getSecond(), renderType);
                 case Trapdoor -> trapdoor((TrapDoorBlock) block, pair.getSecond().getSecond(), renderType);
                 case Fence -> fence((FenceBlock) block, pair.getSecond().getSecond(), renderType);
+                case Wall -> wall((WallBlock) block, pair.getSecond().getSecond(), renderType);
                 case Gate -> gate((FenceGateBlock) block, pair.getSecond().getSecond(), renderType);
                 case Button -> button((ButtonBlock) block, pair.getSecond().getSecond(), renderType);
                 case Plate -> plate((PressurePlateBlock) block, pair.getSecond().getSecond(), renderType);
@@ -119,6 +120,15 @@ public class BlockModelGen extends BlockStateProvider {
         } else if (list.size() == 1){
             fenceBlockWithRenderType(block, list.get(0), renderType);
             models().fenceInventory(path(block) + "_inventory", list.get(0));
+        }
+    }
+    private void wall(WallBlock block, List<ResourceLocation> list, String renderType){
+        if (list.size() == 0){
+            wallBlockWithRenderType(block, blockTexture(block), renderType);
+            models().wallInventory(path(block) + "_inventory", blockTexture(block));
+        } else if (list.size() == 1){
+            wallBlockWithRenderType(block, list.get(0), renderType);
+            models().wallInventory(path(block) + "_inventory", list.get(0));
         }
     }
     private void gate(FenceGateBlock block, List<ResourceLocation> list, String renderType){

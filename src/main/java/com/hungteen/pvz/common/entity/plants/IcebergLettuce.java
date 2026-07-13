@@ -4,6 +4,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.ParticleTypes;
@@ -159,6 +160,7 @@ public class IcebergLettuce extends ShooterPlant {
                 }
                 ((ServerLevel) entity.level).sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + 0.2, entity.getZ(), entity.hasSkill(RANGE_SKILL_NAME) ? 60 : 20, 0.0D, 0.0D, 0.0D, entity.hasSkill(RANGE_SKILL_NAME) ? 0.2F : 0.1F);
                 entity.discard();
+                entity.playSound(PVZSoundEvents.ICEBERG_LETTUCE_EXPLODE.get(), 1.0F, 1.0F);
                 return;
             }
             List<Player> players = entity.level.getNearbyPlayers(TargetingConditions.forNonCombat(), this.entity, entity.getBoundingBox().inflate(0.6, 0.2, 0.6));
@@ -187,6 +189,7 @@ public class IcebergLettuce extends ShooterPlant {
                 }
                 ((ServerLevel) entity.level).sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + 0.2, entity.getZ(), entity.hasSkill(RANGE_SKILL_NAME) ? 60 : 20, 0.0D, 0.0D, 0.0D, entity.hasSkill(RANGE_SKILL_NAME) ? 0.2F : 0.1F);
                 entity.discard();
+                entity.playSound(PVZSoundEvents.ICEBERG_LETTUCE_EXPLODE.get(), 1.0F, 1.0F);
             }
         }
     }

@@ -42,6 +42,7 @@ public class PVZLayerHandler {
         L(e, "lava_ghastling_light", LavaGhastlingLightModel::createBodyLayer);
 
 
+        L(e, PVZEntities.PEA_SHOOTER, PeaShooterModel::createBodyLayer);
         L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, "armor", WallNutArmorModel::createBodyLayer);

@@ -6,6 +6,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -55,7 +56,7 @@ public class PeaBullet extends BaseBullet {
                     this.changeCoolDown = 5;
                 }
             } else if (this.isInLava()) {
-                setPeaType(this.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common : PeaBullet.PeaType.Fire);
+                setPeaType(this.getPeaType() == PeaType.Ice ? PeaType.Common : PeaType.Fire);
                 this.changeCoolDown = 5;
             }
         } else {
@@ -155,6 +156,15 @@ public class PeaBullet extends BaseBullet {
     }
 
     @Override
+    public SoundEvent getHitSound() {
+        return switch (getPeaType()) {
+            case SoulFire, Fire -> PVZSoundEvents.FIRE_PEA_HIT.get();
+            case Ice -> PVZSoundEvents.SNOW_PEA_HIT.get();
+            default -> super.getHitSound();
+        };
+    }
+
+    @Override
     protected boolean dealDamageTo(Entity target) {
         boolean hurt;
         hurt = super.dealDamageTo(target);
@@ -173,6 +183,7 @@ public class PeaBullet extends BaseBullet {
         } else if (getPeaType() == PeaType.Ice) {
             target.clearFire();
             if (target.canFreeze() && target.getTicksFrozen() < 400) {
+                if (target.getTicksFrozen() <= 0) this.playSound(PVZSoundEvents.SNOW_PEA_FREEZE.get(), 1, 1);
                 target.setTicksFrozen(400);
             }
         } else if (getPeaType() == PeaType.Poison && target instanceof LivingEntity living) {

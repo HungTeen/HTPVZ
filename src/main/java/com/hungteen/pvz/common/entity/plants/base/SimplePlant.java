@@ -14,10 +14,7 @@ import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
 import com.hungteen.pvz.common.item.SeedItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZEnchantments;
-import com.hungteen.pvz.common.register.PVZParticles;
-import com.hungteen.pvz.common.register.PVZStats;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -32,6 +29,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
@@ -158,7 +156,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
             //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        boolean isSide = direction.getAxis() != Direction.Axis.Z;
+        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Z;
         direction = getGrowDirection();
         pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
@@ -411,6 +409,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                 if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapStats.SUN)) {
                     Sun.spawnSunsWithEffectsByAmount(target.level, target.getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
                 }
+                target.level.playSound(null, target, PVZSoundEvents.SHOVEL_PLANT.get(), SoundSource.PLAYERS,1, 1);
                 ((ServerLevel)target.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, target.level.getBlockState(target.getOnPos())).setPos(target.getOnPos()), target.getX(), target.getY(), target.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 target.remove(RemovalReason.DISCARDED);
                 player.awardStat(PVZStats.SHOVEL_PLANT);

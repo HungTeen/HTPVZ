@@ -8,9 +8,8 @@ import com.hungteen.pvz.common.menu.EssenceFurnaceRecipe;
 import com.hungteen.pvz.common.world.invasion.LootWithinZombieEventCondition;
 import com.hungteen.pvz.common.world.zen_garden.GlowBerryDecorator;
 import com.hungteen.pvz.common.world.zen_garden.MegaNutTrunkPlacer;
+import com.hungteen.pvz.common.world.zen_garden.NutTreeBeeHiveDecorator;
 import com.hungteen.pvz.util.Util;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Options;
 import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.core.Registry;
 import net.minecraft.network.syncher.EntityDataSerializer;
@@ -38,6 +37,7 @@ public class OtherRegisters {
     //tree decorators.
     public static final DeferredRegister<TreeDecoratorType<?>> TREE_DECORATORS = DeferredRegister.create(ForgeRegistries.TREE_DECORATOR_TYPES, PVZMod.MODID);
     public static final RegistryObject<TreeDecoratorType<GlowBerryDecorator>> GLOW_BERRY_DECORATOR = TREE_DECORATORS.register("glow_berry", () -> new TreeDecoratorType<>(GlowBerryDecorator.CODEC));
+    public static final RegistryObject<TreeDecoratorType<NutTreeBeeHiveDecorator>> NUT_TREE_BEEHIVE_DECORATOR = TREE_DECORATORS.register("nut_tree_beehive", () -> new TreeDecoratorType<>(NutTreeBeeHiveDecorator.CODEC));
 
     //trunk placers
     public static final DeferredRegister<TrunkPlacerType<?>> TRUNK_PLACER = DeferredRegister.create(Registry.TRUNK_PLACER_TYPE_REGISTRY, PVZMod.MODID);

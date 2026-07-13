@@ -10,10 +10,12 @@ import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.*;
@@ -53,6 +55,7 @@ public class TorchWood extends SimplePlant {
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 30D)
                 .add(Attributes.ARMOR, 0D)
+                .add(Attributes.ATTACK_DAMAGE, 5D)
                 .add(Attributes.FOLLOW_RANGE, 2D);
     }
     @Override
@@ -89,7 +92,7 @@ public class TorchWood extends SimplePlant {
                     .setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 12 : 15), 2);
         } else if (level.getBlockState(pos).is(Blocks.WATER)) {
             level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
-                    .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, 15), 2);
+                    .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 12 : 15), 2);
         }
         if (level.getBlockState(pos).is(PVZBlocks.ENTITY_LIGHT.get())) {
             level.setBlock(pos, level.getBlockState(pos)
@@ -142,12 +145,14 @@ public class TorchWood extends SimplePlant {
                     if (pea.getPeaType() == PeaBullet.PeaType.SoulFire) {
                         return;
                     } else if (pea.getPeaType() == PeaBullet.PeaType.Common) {
-                        pea.setAttackDamage(pea.getAttackDamage() + (this.entity.isSoulFire() ? 8F : 4F) * PVZAPI.get().getPlantDamageDatum(pea.level));
+                        double damage = this.entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+                        pea.setAttackDamage((float) (pea.getAttackDamage() + (this.entity.isSoulFire() ? 2F : 1F) * damage * PVZAPI.get().getPlantDamageDatum(pea.level)));
                     }
                     if (! pea.fireImmune()) {
                         pea.setPeaType(pea.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common :
                                 this.entity.isSoulFire() ? PeaBullet.PeaType.SoulFire : PeaBullet.PeaType.Fire);
                         pea.changeCoolDown = 5;
+                        entity.level.playSound(null, this.entity, PVZSoundEvents.TORCH_WOOD_IGNITE.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
                     }
                 } else if (entity instanceof LivingEntity living && living.getTicksFrozen() > living.getTicksRequiredToFreeze()) {
                     living.setTicksFrozen(living.getTicksRequiredToFreeze());
