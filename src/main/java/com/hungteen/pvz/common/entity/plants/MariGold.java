@@ -137,12 +137,12 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     public void tick() {
         super.tick();
         if (! this.level.isClientSide) {
-            if (this.getRemainingGrowTick() > 40) {
+            if (this.getRemainingGrowTick() > 40 && ! this.produceAnimationState.isStarted()) {
                 List<Bee> bees = this.level.getEntitiesOfClass(Bee.class
                         , this.getBoundingBox().inflate(0.5, 0.5, 0.5)
                         , bee -> bee.savedFlowerPos != null && bee.savedFlowerPos.equals(this.blockPosition()));
                 if (! bees.isEmpty()) {
-                    this.growEndTime -= 3;
+                    this.growEndTime -= 2;
                     if (this.random.nextInt(3) == 0) {
                         ((ServerLevel) this.level).sendParticles(ParticleTypes.COMPOSTER,
                                 position().x, position().y + 0.3, position().z,

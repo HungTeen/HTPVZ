@@ -106,13 +106,13 @@ public class LootModifierGen extends GlobalLootModifierProvider {
         this.add("sprout_from_bastion_treasure", new AddItemModifier(new LootItemCondition[]{
                 LootTableIdCondition.builder(new ResourceLocation("chests/bastion_treasure")).build()
         }, List.of(
-                SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.nether_defencive", RegisterSproutsEvent.NETHER_DEFENCIVE)
+                SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.nether_defensive", RegisterSproutsEvent.NETHER_DEFENSIVE)
         )));
 
         this.add("sprout_from_bastion_bridge", new AddItemModifier(new LootItemCondition[]{
                 LootTableIdCondition.builder(new ResourceLocation("chests/bastion_bridge")).build(),
         }, List.of(
-                SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.nether_defencive", RegisterSproutsEvent.NETHER_DEFENCIVE)
+                SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.nether_defensive", RegisterSproutsEvent.NETHER_DEFENSIVE)
         )));
 
         this.add("sprout_from_ruined_portal", new AddItemModifier(new LootItemCondition[]{

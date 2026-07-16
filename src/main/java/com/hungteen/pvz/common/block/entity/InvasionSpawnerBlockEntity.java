@@ -50,16 +50,16 @@ public class InvasionSpawnerBlockEntity extends BlockEntity {
             level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
                 boolean current = blockState.getValue(InvasionSpawnerBlock.TRIGGERED);
                 Invasion invasion = cap.getNearestEvent(Invasion.class, pos);
-                boolean hasInvasion = invasion != null && invasion.position.distSqr(pos) < 256;
+                boolean hasInvasionNearBy = invasion != null && invasion.position.distSqr(pos) < 256;
                 if (! current) {
-                    if (hasInvasion) {
+                    if (hasInvasionNearBy) {
                         level.setBlock(pos, blockState.setValue(InvasionSpawnerBlock.TRIGGERED, true), 2);
                         if (invasion.target != null) blockEntity.triggerHistory.put(invasion.target.getUUID(), level.getGameTime());
                     }
                 } else {
-                    if (hasInvasion) {
+                    if (hasInvasionNearBy) {
                         BlockPos invasionPos = MathUtil.posFromUuid(invasion.uuid);
-                        if (invasionPos.equals(pos) && invasion.isEnded()) {
+                        if (invasionPos != null && invasionPos.equals(pos) && invasion.isEnded()) {
                             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                             ((ServerLevel) level).sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE
                                     , pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 10

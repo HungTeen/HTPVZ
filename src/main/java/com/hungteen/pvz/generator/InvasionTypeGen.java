@@ -444,7 +444,10 @@ public class InvasionTypeGen implements DataProvider {
                                 EntityBuilder.of(EntityType.SKELETON).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(), BUCKET, 5, false, 0.8F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.LAVA_GHASTLING.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(), BUCKET, 15, true, 0.4F
+                                EntityBuilder.of(EntityType.WITHER_SKELETON).get(), CONE, 15, false, 0.6F
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.LAVA_GHASTLING.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(), BUCKET, 15, true, 0.6F
                         )
                 ),
                 false, 1, 1, 1.2F,500

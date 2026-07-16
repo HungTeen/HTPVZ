@@ -306,25 +306,25 @@ public class PVZEntities {
 
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F)
-            .trackRange(4).updateInterval(20)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("pea", PeaBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<StarfruitBullet>> STARFRUIT_BULLET = collision(0.6F, 0.2F)
-            .trackRange(4).updateInterval(20)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("starfruit_bullet", StarfruitBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<CabbageBullet>> CABBAGE = collision(0.4F, 0.4F)
-            .trackRange(4).updateInterval(20)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("cabbage", CabbageBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<CornBullet>> CORN = collision(0.25F, 0.25F)
-            .trackRange(4).updateInterval(20)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("corn", CornBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<ButterBullet>> BUTTER = collision(0.5F, 0.5F)
-            .trackRange(4).updateInterval(20)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("butter", ButterBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<MelonBullet>> MELON = collision(0.8F, 0.8F)
-            .trackRange(4).updateInterval(20)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("melon", MelonBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<DandelionSeedBullet>> DANDELION_SEED = collision(0.4F, 0.4F)
-            .trackRange(4).updateInterval(20)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("dandelion_seed", DandelionSeedBullet::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<SeedArrow>> SEED_ARROW = collision(0.2F, 0.2F).tag(EntityTypeTags.ARROWS)
             .trackRange(4).updateInterval(20)
@@ -336,7 +336,7 @@ public class PVZEntities {
             .trackRange(4).updateInterval(20)
             .entity("hook", Hook::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<ThrownFogInBottle>> FOG_IN_BOTTLE = collision(0.25F, 0.25F)
-            .trackRange(4).updateInterval(20)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("fog_in_bottle", ThrownFogInBottle::new, MobCategory.MISC);
 
     //client

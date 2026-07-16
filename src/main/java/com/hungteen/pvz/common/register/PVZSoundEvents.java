@@ -110,7 +110,7 @@ public class PVZSoundEvents {
     public static final RegistryObject<SoundEvent> GARGANTUAR_ATTACK = loc(6).sound("entity.zombie.gargantuar.attack", 24);
     public static final RegistryObject<SoundEvent> BUNGEE_ZOMBIE_SCREAM = loc(3).sound("entity.zombie.bungee_zombie.scream", 24);
     public static final RegistryObject<SoundEvent> BUNGEE_ZOMBIE_STEAL = sound("entity.zombie.bungee_zombie.steal");
-    public static final RegistryObject<SoundEvent> HOOK_HIT = sound("entity.hook.hit", 32);
+    public static final RegistryObject<SoundEvent> HOOK_HIT = loc(3).sound("entity.hook.hit", 32);
     public static final RegistryObject<SoundEvent> HOOK_LAUNCH = sound("entity.hook.launch");
 //    public static final RegistryObject<SoundEvent> LAVA_GHASTLING_AMBIENT = sound("entity.lava_ghastling.ambient");
 //    public static final RegistryObject<SoundEvent> LAVA_GHASTLING_HURT = sound("entity.lava_ghastling.hurt");

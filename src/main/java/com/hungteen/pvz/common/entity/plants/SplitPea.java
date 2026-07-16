@@ -130,14 +130,14 @@ public class SplitPea extends PeaShooter {
                     targetSpeed = target.position().subtract(storedEnemyPos)
                             .multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
                 } else {
-                    targetSpeed = target.getDeltaMovement();
+                    targetSpeed = target.getDeltaMovement().add(0, 0.1/*minus gravity*/, 0);
                 }
             } else {
-                if (storedBackWardEnemyPos != null && aimTime > 0) {
+                if (storedBackWardEnemyPos != null && backwardAimTime > 0) {
                     targetSpeed = target.position().subtract(storedBackWardEnemyPos)
                             .multiply(1 / (float) backwardAimTime, 1 / (float) backwardAimTime, 1 / (float) backwardAimTime);
                 } else {
-                    targetSpeed = target.getDeltaMovement();
+                    targetSpeed = target.getDeltaMovement().add(0, 0.1/*minus gravity*/, 0);
                 }
             }
             int time = (int) Math.round(distanceTo(target) / speed);
@@ -190,12 +190,13 @@ public class SplitPea extends PeaShooter {
             }
             //shoot
             bullet.shoot(deltaPos.x, deltaPos.y, deltaPos.z, getBulletSpeed(), (float) randomAngle);
-            if (needSound) {
+            if (needSound && getShootSound() != null) {
                 EntityUtil.playSound(this, this.getShootSound());
             }
             bullet.setOwner(this);
-            BaseBullet bullet1 = (BaseBullet) bullet;
-            bullet1.setAttackDamage(this.getAttackDamage() * PVZAPI.get().getPlantDamageDatum(this.level));
+            if (bullet instanceof BaseBullet bullet1) {
+                bullet1.setAttackDamage(this.getAttackDamage() * PVZAPI.get().getPlantDamageDatum(this.level));
+            }
             this.level.addFreshEntity(bullet);
             return bullet;
         }

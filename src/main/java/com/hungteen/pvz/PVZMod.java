@@ -141,18 +141,15 @@ public class PVZMod
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Log).get(), map.get(PVZBlocks.WoodSet.StLog).get());
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Wood).get(), map.get(PVZBlocks.WoodSet.StWood).get());
             });
-            PVZBlocks.queueRelease();
-            PVZItems.queueRelease();
             PVZMobEffects.addMixs();
             PVZWorldEvents.commonBootstrap();
+            //clear variables
+            PVZBlocks.release();
+            PVZItems.release();
+            PVZEntities.release();
         });
         RegisterSproutsEvent sproutEvent = new RegisterSproutsEvent();
         MinecraftForge.EVENT_BUS.post(sproutEvent);
-
-        //clear variables
-        PVZBlocks.release();
-        PVZItems.release();
-        PVZEntities.release();
 
         //network
         PVZPacketHandler.init();

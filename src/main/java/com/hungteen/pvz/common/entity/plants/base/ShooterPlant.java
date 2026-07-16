@@ -55,7 +55,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	}
 
 	/**
-	 * shoot pea with offsets.
+	 * shoot with offsets.
 	 */
 	public @Nullable Projectile performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
 		LivingEntity target = this.getTarget();

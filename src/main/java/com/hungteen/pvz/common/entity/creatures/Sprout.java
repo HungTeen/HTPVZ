@@ -161,7 +161,7 @@ public class Sprout extends Mob implements IGardenPlant {
                         , this.getBoundingBox().inflate(0.5, 0.5, 0.5)
                         , bee -> bee.savedFlowerPos != null && bee.savedFlowerPos.equals(this.blockPosition()));
                 if (! bees.isEmpty()) {
-                    this.growEndTime -= 3;
+                    this.growEndTime -= 2;
                     if (this.random.nextInt(3) == 0) {
                         ((ServerLevel) this.level).sendParticles(ParticleTypes.COMPOSTER,
                                 position().x, position().y + 0.3, position().z,

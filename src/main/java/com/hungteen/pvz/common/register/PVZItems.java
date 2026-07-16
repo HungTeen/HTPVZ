@@ -249,13 +249,9 @@ public class PVZItems {
         };
     }
 
-    public static void release(){
-        List.of(tagMap, seedMap, seedPacketMap).forEach(Map::clear);
+    public static void release() {
+        List.of(tagMap, seedMap, seedPacketMap, composterMap).forEach(Map::clear);
         modelList.clear();
-    }
-
-    public static void queueRelease() {
-        composterMap.clear();
     }
 
     public enum Model {

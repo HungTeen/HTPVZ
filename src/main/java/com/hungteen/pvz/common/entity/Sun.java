@@ -170,6 +170,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
                         ItemStack itemStack = entry.getValue();
                         int amount = getAmount() / 50;
                         this.remove(Entity.RemovalReason.DISCARDED);
+                        this.playSound(PVZSoundEvents.COLLECT_SUN.get());
                         itemStack.setDamageValue(Math.max(0, itemStack.getDamageValue() - amount));
                     }
                 }
@@ -188,7 +189,9 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
                 if (actual - currentSun > 0) {
                     player.awardStat(PVZStats.COLLECT_SUN);
                 }
-                this.playSound(PVZSoundEvents.COLLECT_SUN.get());
+                if (currentSun < actual) {
+                    this.playSound(PVZSoundEvents.COLLECT_SUN.get());
+                }
             });
             event = new AbsorbSunEvent.Player(this, player, AbsorbSunEvent.Phase.End);
             MinecraftForge.EVENT_BUS.post(event);

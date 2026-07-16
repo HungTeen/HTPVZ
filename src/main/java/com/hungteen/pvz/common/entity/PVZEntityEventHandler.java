@@ -5,6 +5,7 @@ import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.entity.ai.goal.BeeGoToGardenPlantsGoal;
 import com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal;
 import com.hungteen.pvz.common.entity.plants.Plantern;
 import com.hungteen.pvz.common.item.PVZShieldItem;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -42,6 +44,8 @@ public class PVZEntityEventHandler {
             if (mob instanceof WanderingTrader trader) {
                 trader.goalSelector.addGoal(2, new AvoidEntityGoal<>(trader, Plantern.class, entity -> entity.level.isNight(),
                         8.0F, 0.5D, 0.5D, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test));
+            } else if (ev.getEntity() instanceof Bee bee) {
+                bee.goalSelector.addGoal(3, new BeeGoToGardenPlantsGoal(bee));
             }
         }
     }

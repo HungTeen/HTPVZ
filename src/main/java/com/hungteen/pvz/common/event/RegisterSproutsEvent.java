@@ -25,7 +25,7 @@ public class RegisterSproutsEvent extends Event {
     public static final Map<String, Integer> WATER = Map.of("pvz:lily_pad", 5, "pvz:tangle_kelp", 3, "pvz:marigold", 2);
 
     public static final Map<String, Integer> NETHER_AGGRESSIVE = Map.of("pvz:repeater", 5, "pvz:torch_wood", 3, "pvz:spike_weed", 3, "pvz:melon_pult", 3);
-    public static final Map<String, Integer> NETHER_DEFENCIVE = Map.of("pvz:umbrella_leaf", 5, "pvz:tall_nut", 5, "pvz:pumpkin", 3, "pvz:plantern", 3);
+    public static final Map<String, Integer> NETHER_DEFENSIVE = Map.of("pvz:umbrella_leaf", 5, "pvz:tall_nut", 5, "pvz:pumpkin", 3, "pvz:plantern", 3);
 
     public static final Map<String, Integer> ENDER = Map.of("pvz:gatling_pea", 1);
 
@@ -35,7 +35,7 @@ public class RegisterSproutsEvent extends Event {
                 "sprout.pvz.icy", ICY,
                 "sprout.pvz.water", WATER,
                 "sprout.pvz.nether_aggressive", NETHER_AGGRESSIVE,
-                "sprout.pvz.nether_defensive", NETHER_DEFENCIVE,
+                "sprout.pvz.nether_defensive", NETHER_DEFENSIVE,
                 "sprout.pvz.ender", ENDER));
     }
 

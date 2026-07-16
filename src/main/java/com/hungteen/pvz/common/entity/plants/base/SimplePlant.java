@@ -409,7 +409,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
                 if (cap != null && enchantmentLevel > 0 && Objects.equals(cap.resource, PVZPlayerCapStats.SUN)) {
                     Sun.spawnSunsWithEffectsByAmount(target.level, target.getOnPos(), (int) (cap.cost * SunShovelEnchantment.returnSunPercent(enchantmentLevel)), 0, 0.25F);
                 }
-                target.level.playSound(null, target, PVZSoundEvents.SHOVEL_PLANT.get(), SoundSource.PLAYERS,1, 1);
+                target.level.playSound(null, target.blockPosition(), PVZSoundEvents.SHOVEL_PLANT.get(), SoundSource.PLAYERS,1, 1);
                 ((ServerLevel)target.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, target.level.getBlockState(target.getOnPos())).setPos(target.getOnPos()), target.getX(), target.getY(), target.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.15F);
                 target.remove(RemovalReason.DISCARDED);
                 player.awardStat(PVZStats.SHOVEL_PLANT);

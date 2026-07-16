@@ -218,7 +218,7 @@ jar {
                 "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "${config.mod_owner}",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs": "mixins.pvz.json"
+                "MixinConfigs": "pvz.mixins.json"
         ])
     }
 }
