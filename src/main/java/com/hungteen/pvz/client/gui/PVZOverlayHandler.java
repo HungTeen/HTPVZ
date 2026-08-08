@@ -430,7 +430,7 @@ public class PVZOverlayHandler {
                     if (resourceIsSun) {
                         if (PVZConfig.renderSunAsNumber()) {
                             w = ClientProxy.MC.font.width(cost + "") + 10;
-                            blit(posestack, 8 - w / 2, 7, 40, 0, 9, 9);
+                            blit(posestack, 8 - w / 2, -10, 40, 0, 9, 9);
                             ClientProxy.MC.font.draw(posestack, cost + "", 8 - (float) w / 2 + 11, -8, cost > now ? 0xEF1010 : 0x663600);
                             ClientProxy.MC.font.draw(posestack, cost + "", 8 - (float) w / 2 + 10,-9, 0xFFFFFF);
                         } else {

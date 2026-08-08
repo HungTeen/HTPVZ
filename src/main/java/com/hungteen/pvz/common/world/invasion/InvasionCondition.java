@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <br>Sometimes invasion types need to know how many arguments are needed because of the nested conditions.
  * Use {@link InvasionCondition#getArgLength(LivingEntity, List, InvasionType, List) getArgLength()} to define now many arguments this condition need, And the redundant conditions will be ignored.*/
 public interface InvasionCondition {
+
     Map<ResourceLocation, InvasionCondition> invasionConditions = registerConditions();
     boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes);
     default int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
@@ -230,8 +231,12 @@ public interface InvasionCondition {
     }
 
     class AroundEntitiesCostCondition implements InvasionCondition {
+
+        public static boolean shouldCalculateAroundEntityCost = true;
+
         @Override
         public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
+            if (! shouldCalculateAroundEntityCost) return true;
             String resource;
             int cost;
             int numAt = 0;
@@ -255,6 +260,7 @@ public interface InvasionCondition {
                     totalCost.addAndGet(cap.resource.equals(resource) ? cap.cost : 0)));
             return totalCost.get() < cost;
         }
+
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
             try {

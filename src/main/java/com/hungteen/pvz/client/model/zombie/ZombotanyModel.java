@@ -144,6 +144,7 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
         float f = (float)p_232318_ / 1000.0F;
         return p_232317_.looping() ? f % p_232317_.lengthInSeconds() : f;
     }
+
     public Optional<ModelPart> getAnyDescendantWithName(String p_233394_) {
         return this.attachedHead.getAllParts().filter((p_233400_) -> {
             return p_233400_.hasChild(p_233394_);

@@ -14,6 +14,7 @@ public class TallNutZombieModel<T extends TallNutZombie> extends ZombotanyModel<
             if (attachedHead.hasChild("eye_close")) {
                 attachedHead.getChild("eye_close").z = zombie.tickCount % 120 < 2 ? 0F : 0.1F;
             }
+            attachedHead.getChild("vine").visible = false;
         }
         super.setupAnim(zombie, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
     }

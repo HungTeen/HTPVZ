@@ -266,7 +266,7 @@ public class Sprout extends Mob implements IGardenPlant {
                     level.playSound(null, this, PVZSoundEvents.SPROUT_GROW.get(), player == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1.0F, 1.0F);
                 setGrowLevel(this.getGrowLevel() + 1);
             }
-            this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.sproutGrowTime));
+            if (this.getGrowLevel() < this.getMaxLevel()) this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.sproutGrowTime));
             this.setRequiringWater(true);
             this.setRequiring(false);
             return InteractionResult.CONSUME;
@@ -335,7 +335,7 @@ public class Sprout extends Mob implements IGardenPlant {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("isMarigold", this.isMarigold());
-        tag.putBoolean("requiresWater", this.isRequiringWater());
+        tag.putBoolean("requiresWater", this.entityData.get(REQUIRES_WATER));
         tag.putInt("growLevel", this.getGrowLevel());
         tag.putLong("growEndTime", this.growEndTime);
         if (! this.entityData.get(PLANT_NAME).equals("")) {

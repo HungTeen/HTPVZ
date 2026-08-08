@@ -63,17 +63,18 @@ public class InvasionTeam extends ZombieEvent {
 
     public static boolean spawnFor(ServerPlayer player) {
         if (! Invasion.canInvade(player)) return false;
+        if (player.hasEffect(PVZMobEffects.INVASION_OMEN.get())) return false;
         var cap = PVZZombieEventCapability.fromLevel(player.level);
         if (cap == null) return false;
         var ev = cap.getNearestEventRanged(ZombieEvent.class, player.blockPosition());
         if (ev != null && ev.position.distSqr(player.blockPosition()) < 4096) return false;
         PathSeeker seeker = new PathSeeker((ServerLevel) player.level);
-        seeker.minDistanceSqr = 1024;
-        seeker.maxDistanceSqr = 4096;
+        seeker.minDistanceSqr = 576;
+        seeker.maxDistanceSqr = 2048;
         InvasionTeam team = new InvasionTeam(seeker, player, UUID.randomUUID());
         team.seeker.center = player.blockPosition();
         team.seeker.targetPos = player.blockPosition();
-        PVZZombieEventCapability.fromLevel(player.level).addEvent(team);
+        cap.addEvent(team);
         return true;
     }
 
@@ -87,18 +88,21 @@ public class InvasionTeam extends ZombieEvent {
             if (target == null) remove();
             return;
         }
-        if (this.leaderUUID == null) {
-            if (this.seeker.availablePositions.isEmpty() && this.tickCount % 10 == 0) {
+         if (this.leaderUUID == null) {
+            this.position = this.target.blockPosition();
+            if (this.seeker.availablePositions.isEmpty() && this.tickCount % 4 == 0) {
+                this.seeker.center = this.position;
+                this.seeker.targetPos = this.position;
                 this.seeker.tick();
             }
-            this.position = this.target.blockPosition();
             if (this.invasionTypes.isEmpty() || ! this.invasionTypes.stream().allMatch(type -> type.isAvailable(target, invasionTypes))) {
+                this.remove();
                 return;
             }
             if (! seeker.availablePositions.isEmpty()) {
                 for (BlockPos pos : seeker.availablePositions) {
                     if (target.level.getBrightness(LightLayer.BLOCK, pos) > 0) {
-                        return;
+                        break;
                     }
                     double dist = pos.distSqr(target.blockPosition());
                     if (dist > seeker.minDistanceSqr && dist < seeker.maxDistanceSqr) {
@@ -111,7 +115,8 @@ public class InvasionTeam extends ZombieEvent {
                                 List<CompoundTag> tags = new ArrayList<>();
                                 Optional<InvasionType.EnemyType> leader = invasionTypes.get(0).flagEnemy();
                                 List<InvasionType.EnemyType> types = invasionTypes.get(0).enemies();
-                                types = types.stream().filter(t -> t.startFrom() <= 0.1 && ! t.isElite()).toList();
+                                types = types.stream()
+                                        .filter(t -> t.startFrom() <= 0.1 && ! t.isElite() && t.isAvailable(target, invasionTypes.get(0), invasionTypes)).toList();
                                 if (! types.isEmpty()) {
                                     for (int i = 0; i < size; i ++) {
                                         tags.add(types.get(random.nextInt(types.size())).entityData());

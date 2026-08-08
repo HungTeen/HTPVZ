@@ -29,7 +29,7 @@ public class LootBagItem extends Item {
         super(p_41383_);
     }
 
-    public static ItemStack modify(ItemStack itemStack, ResourceLocation location, int size) {
+    public static ItemStack lootBag(ItemStack itemStack, ResourceLocation location, int size) {
         if (itemStack.getItem() instanceof LootBagItem) {
             itemStack.getOrCreateTag().putString("loot_table", location.toString());
             itemStack.getOrCreateTag().putInt("size", size);

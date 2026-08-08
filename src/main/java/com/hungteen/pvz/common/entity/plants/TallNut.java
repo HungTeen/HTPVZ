@@ -29,8 +29,8 @@ public class TallNut extends WallNut {
     public static final String VINE_SKILL_NAME = "skill.pvz.tall_nut.vine_nut";
     public static List<Skill> staticSkillList = List.of(
             new Skill(FIRST_AID_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 4, 1, 0, 0),
-            new Skill(WallNut.ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 6, 75, 0),
-            new Skill(VINE_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 6, 100, 0).avoidSkills(WallNut.ARMOR_SKILL_NAME),
+            new Skill(WallNut.ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 7, 75, 0),
+            new Skill(VINE_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 12, 100, 0).avoidSkills(WallNut.ARMOR_SKILL_NAME),
             new Skill(PROJ_PROTECTION_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 50, 0).avoidSkills(VINE_SKILL_NAME)
     );
     public TallNut(EntityType<? extends Mob> entityType, Level level) {

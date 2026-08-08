@@ -62,8 +62,8 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
     public static String TORPEDO_SKILL_NAME = "skill.pvz.tangle_kelp.torpedo_kelp";
     public static String OXYGEN_SKILL_NAME = "skill.pvz.tangle_kelp.oxygen_algae";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(TORPEDO_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 4, 50, 0),
-            new Skill(OXYGEN_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 125, 0).avoidSkills(TORPEDO_SKILL_NAME)
+            new Skill(TORPEDO_SKILL_NAME, PVZItems.AQUA_ESSENCE, 6, 8, 50, 0),
+            new Skill(OXYGEN_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 12, 12, 125, 0).avoidSkills(TORPEDO_SKILL_NAME)
     );
 
     public TangleKelp(EntityType<? extends Mob> entityType, Level level) {

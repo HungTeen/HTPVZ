@@ -96,7 +96,7 @@ public class PVZSoundEvents {
 //    public static final RegistryObject<SoundEvent> HEAVY_ZOMBIE_AMBIENT = sound("entity.zombie.zombie.ambient_heavy");
 //    public static final RegistryObject<SoundEvent> HEAVY_ZOMBIE_DEATH = sound("entity.zombie.death_heavy");
     public static final RegistryObject<SoundEvent> TACO_IMP_AMBIENT = loc(3).sound("entity.zombie.taco_imp.ambient");
-    public static final RegistryObject<SoundEvent> GHAST_RIDER_SPELL = loc(4).sound("entity.zombie.ghast_rider.spell", 40);
+    public static final RegistryObject<SoundEvent> GHAST_RIDER_SPELL = loc(4).sound("entity.zombie.ghast_rider.spell", 80);
 //    public static final RegistryObject<SoundEvent> GHAST_RIDER_AMBIENT = sound("entity.ghast_rider.ambient");
 //    public static final RegistryObject<SoundEvent> GHAST_RIDER_LINKED = sound("entity.ghast_rider.linked");
 //    public static final RegistryObject<SoundEvent> GHAST_RIDER_TELEPORT = sound("entity.ghast_rider.teleport");
@@ -155,6 +155,7 @@ public class PVZSoundEvents {
     public static final RegistryObject<SoundEvent> GARDEN_PORTAL_USE = sound("block.zen_garden_portal.use", 32);
 
     public static final RegistryObject<SoundEvent> MUSIC_DISC_ZEN_GARDEN = sound("music_disc.zen_garden");
+    public static final RegistryObject<SoundEvent> MUSIC_DISC_BRAINIAC_MANIAC = sound("music_disc.brainiac_maniac");
 
     private static PVZSoundEvents loc(String location) {
         storedLocation.put(location, 5);

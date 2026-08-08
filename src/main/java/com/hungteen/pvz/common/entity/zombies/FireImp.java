@@ -48,7 +48,7 @@ public class FireImp extends Imp {
         boolean flag = super.doHurtTarget(p_34276_);
         if (flag) {
             float f = this.level.getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
-            p_34276_.setSecondsOnFire(4 * (int)f);
+            p_34276_.setSecondsOnFire((int)f);
         }
         return flag;
     }

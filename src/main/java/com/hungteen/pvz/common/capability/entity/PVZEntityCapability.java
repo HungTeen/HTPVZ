@@ -171,7 +171,8 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             }
         }
     }
-    /**don't use this method to adjust if the entity has owner! use {@link PVZEntityCapability#hasOwner() hasOwner()} instead.*/
+
+    /**don't use this method to test if the entity has owner! use {@link PVZEntityCapability#hasOwner() hasOwner()} instead.*/
     public Entity getOwner() {
         this.owner = owner == null ? ((ServerLevel) (entity.level)).getEntity(ownerUuid) : owner;
         return owner;

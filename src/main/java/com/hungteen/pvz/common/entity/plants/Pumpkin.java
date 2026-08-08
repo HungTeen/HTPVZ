@@ -13,6 +13,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -47,7 +48,7 @@ public class Pumpkin extends SimplePlant implements IArmorEntity, ICanBePlantedO
     public static final String PUMPKIN_HELMET_SKILL_NAME = "skill.pvz.pumpkin.pumpkin_helmet";
     public static List<Skill> staticSkillList = List.of(
             new Skill(FIRST_AID_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 4, 1, 0, 0),
-            new Skill(PUMPKIN_HELMET_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 12, 200, 500)
+            new Skill(PUMPKIN_HELMET_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 12, 200, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.SLOW)
     );
 
     public Pumpkin(EntityType<? extends Mob> entityType, Level level) {

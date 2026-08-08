@@ -27,6 +27,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -136,6 +137,7 @@ public class PVZMod
             PVZItems.composterMap.forEach((itemObj, chance) ->
                     ComposterBlock.add(chance, (ItemLike) itemObj.get())
             );
+            ComposterBlock.add(0.1f, Items.ROTTEN_FLESH);
                     PVZBlocks.woodList.forEach((map) -> {
                 AxeItem.STRIPPABLES = new HashMap<>(AxeItem.STRIPPABLES);
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Log).get(), map.get(PVZBlocks.WoodSet.StLog).get());
@@ -256,7 +258,7 @@ public class PVZMod
     public static void registerCommands(RegisterCommandsEvent ev) {
         CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
         ItemCoolDownCommand.register(dispatcher, ev.getBuildContext());
-        InvasionCommand.register(dispatcher);
+        ZombieEventCommands.register(dispatcher);
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);
         PVZFogCommand.register(dispatcher);

@@ -47,7 +47,7 @@ public class WallNutZombie extends PVZZombie implements IZombotany {
 
     public static AttributeSupplier.@NotNull Builder createAttributes() {
         return Zombie.createAttributes()
-                .add(Attributes.MAX_HEALTH, 40D)
+                .add(Attributes.MAX_HEALTH, 30D)
                 .add(Attributes.ARMOR, 25D)
                 .add(Attributes.ARMOR_TOUGHNESS, 5D);
     }

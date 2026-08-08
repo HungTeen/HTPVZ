@@ -15,6 +15,7 @@ import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
@@ -97,7 +98,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
 
     public static final String SUN_SKILL_NAME = "skill.pvz.chomper.energy_transduction";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SUN_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 50, 200)
+            new Skill(SUN_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 50, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM)
     );
     Vec3 storedPosition;
     private BlockPos originalPos;
@@ -394,7 +395,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         }
             //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Z;
+        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Y;
         direction = getGrowDirection();
         pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();

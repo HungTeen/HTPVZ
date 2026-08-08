@@ -29,7 +29,7 @@ public class Starfruit extends ShooterPlant {
     public static final UUID ATTRIBUTE_MODIFIER_UUID = UUID.fromString("f6ebe0aa-8c4d-737c-cabf-12418e4d00f6");
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SATELLITE_SKILL, PVZItems.VENTUS_ESSENCE, 32, 8, 125, 0)
+            new Skill(SATELLITE_SKILL, PVZItems.VENTUS_ESSENCE, 32, 12, 125, 0)
     );
 
     public Starfruit(EntityType<? extends Mob> type, Level worldIn) {

@@ -156,7 +156,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
             //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Z;
+        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Y;
         direction = getGrowDirection();
         pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();

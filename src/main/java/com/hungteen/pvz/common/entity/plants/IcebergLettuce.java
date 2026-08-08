@@ -4,6 +4,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
@@ -34,8 +35,8 @@ public class IcebergLettuce extends ShooterPlant {
     public static final String SHOOTER_SKILL_NAME = "skill.pvz.iceberg_lettuce.lettuce_shooter";
     public static final String RANGE_SKILL_NAME = "skill.pvz.iceberg_lettuce.ice_storm";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SHOOTER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 0, 120),
-            new Skill(RANGE_SKILL_NAME, PVZItems.GELUM_ESSENCE, 8, 4, 50, 120)
+            new Skill(SHOOTER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 12, 6, 0, PVZSeedPackets.MEDIUM - PVZSeedPackets.FAST),
+            new Skill(RANGE_SKILL_NAME, PVZItems.GELUM_ESSENCE, 14, 6, 50, PVZSeedPackets.MEDIUM - PVZSeedPackets.FAST)
     );
 
     public IcebergLettuce(EntityType<? extends Mob> entityType, Level level) {

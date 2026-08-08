@@ -18,6 +18,8 @@ import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.boss.EnderDragonPart;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -25,7 +27,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -61,22 +62,25 @@ public class PVZDamageSource {
         return new OwnedIndirectDamageSource(name, projectile, owner instanceof LivingEntity ? owner : projectile).setProjectile();
     }
     public static DamageSource wallNutCollide(LivingEntity source, Entity target) {
-        return hitBossWithProportion(knockBack(new OwnedDamageSource("nut_collide", source), 2F), target);
+        return isPlantDamage(knockBack(new OwnedDamageSource("nut_collide", source), 2F), target);
     }
     public static DamageSource tallNutThornsDamage(LivingEntity source, Entity target) {
-        return hitBossWithProportion(DamageSource.thorns(source), target);
+        return isPlantDamage(DamageSource.thorns(source), target);
     }
     public static DamageSource chomperHurt(LivingEntity source, Entity target) {
-        return hitBossWithProportion(teamFilter(setSharp(owned("eaten", source))), target);
+        return isPlantDamage(teamFilter(setSharp(owned("eaten", source))), target);
     }
     public static DamageSource spikeWeedHurt(LivingEntity source, Entity target) {
-        return hitBossWithProportion(setSharp(anoOwned("spike_weed", source)), target);
+        return isPlantDamage(setSharp(anoOwned("spike_weed", source)), target);
     }
     public static DamageSource gargantuarCrash(LivingEntity source) {
         return setNotEating(new EntityDamageSource("crush", source));
     }
     public static DamageSource tangleKelpHurt(LivingEntity source, Entity target) {
-        return hitBossWithProportion(anoOwned("tangle_kelp", source).bypassArmor(), target);
+        return isPlantDamage(anoOwned("tangle_kelp", source).bypassArmor(), target);
+    }
+    public static DamageSource angerAttack(LivingEntity source) {
+        return ignoreInvTime(DamageSource.mobAttack(source));
     }
 
     public static DamageSource owned(String name, LivingEntity source) {
@@ -108,27 +112,27 @@ public class PVZDamageSource {
         knockBackStrength = strength;
         return source;
     }
-    /**Set the rate of damage apply on bosses and make the damage available for ender dragons. To avoid dealing too much damage that instantly kill bosses.*/
-    public static DamageSource hitBossWithProportion(DamageSource source, Entity target) {
-        return hitBossWithProportion(source, target, 1 - EntityUtil.getPlantDamageResistance(target));
+    /**Set the rate of damage according to {@link com.hungteen.pvz.common.register.PVZAttributes.PLANT_HURT_RESISTANCE PLANT_HURT_RESISTANCE} and make the damage available for ender dragons. To avoid dealing too much damage that instantly kill bosses.*/
+    public static DamageSource isPlantDamage(DamageSource source, @Nullable Entity target) {
+        return isPlantDamage(source, target, 1 - EntityUtil.getPlantDamageResistance(target));
     }
-    public static DamageSource hitBossWithProportion(DamageSource source, Entity target, float factor) {
-        if (target.getType().is(Tags.EntityTypes.BOSSES) || (target instanceof PartEntity<?> part && part.getParent().getType().is(Tags.EntityTypes.BOSSES))) {
-            hurtBossSource = new DamageSource(source.getMsgId()).setExplosion();
+    public static DamageSource isPlantDamage(DamageSource source, @Nullable Entity target, float factor) {
+        if (target instanceof EnderDragonPart || target instanceof EnderDragon) {
+            plantResistedSource = new DamageSource(source.getMsgId()).setExplosion();
             if (source.getEntity() != null) {
                 Entity owner = PVZEntityCapability.getOwner(source.getEntity());
                 if (EntityUtil.isEntityValid(PVZEntityCapability.getOwner(source.getEntity()))) {
-                    hurtBossSource = new IndirectEntityDamageSource(source.getMsgId(), source.getEntity(), owner);
+                    plantResistedSource = new IndirectEntityDamageSource(source.getMsgId(), source.getEntity(), owner);
                 }
             }
             if (source.isProjectile()) {
-                hurtBossSource.setProjectile();
+                plantResistedSource.setProjectile();
             }
-            //TODO change to copy();
-            bossFactor = factor;
-            return hurtBossSource;
+        } else {
+            plantResistedSource = source;
         }
-        return source;
+        plantResistanceFactor = factor;
+        return plantResistedSource;
     }
     /**Allow the damage to go pass shields without ignoring the armor. For plants like Fume-Shrooms.*/
     public static DamageSource bypassShield(DamageSource source) {
@@ -198,8 +202,8 @@ public class PVZDamageSource {
     public static DamageSource multiplierSource = null;
     private static float multiplier = 1;
 
-    private static DamageSource hurtBossSource = null;
-    private static float bossFactor = 1;
+    private static DamageSource plantResistedSource = null;
+    private static float plantResistanceFactor = 1;
 
     public static DamageSource knockBackSource = null;
     private static Entity knockBackEntity = null;
@@ -227,7 +231,7 @@ public class PVZDamageSource {
         sharpSource = null;
         electricSource = null;
         notEatingSource = null;
-        hurtBossSource = null;
+        plantResistedSource = null;
         multiplierSource = null;
         ignoreInvTimeSource = null;
         knockBackSource = null;
@@ -254,7 +258,7 @@ public class PVZDamageSource {
             Map<EquipmentSlot, ItemStack> invalidItems = new HashMap<>();
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 ItemStack item = target.getItemBySlot(slot);
-                if (item.is(PVZItemTags.IRON)){
+                if (item.is(PVZItemTags.IRON)) {
                     invalidItems.put(slot, item);
                     target.setItemSlot(slot, ItemStack.EMPTY);
                 }
@@ -287,7 +291,7 @@ public class PVZDamageSource {
             }
         }
         if (ev.getSource() == ignoreInvTimeSource) {
-            if (target.invulnerableTime <= (target instanceof Player ? Math.min(15, invTimeLessThan) : invTimeLessThan)) {
+            if (target.invulnerableTime <= invTimeLessThan && ! (target instanceof Player) && ! target.getType().is(Tags.EntityTypes.BOSSES)) {
                 invTimeTmp = target.invulnerableTime;
                 target.invulnerableTime = 0;
             }
@@ -346,10 +350,8 @@ public class PVZDamageSource {
             }
         }
         //handle damageSource decorations
-        if (entity.getType().is(Tags.EntityTypes.BOSSES)) {
-            if (ev.getSource() == hurtBossSource) {
-                ev.setAmount(ev.getAmount() * bossFactor);
-            }
+        if (ev.getSource() == plantResistedSource) {
+            ev.setAmount(ev.getAmount() * plantResistanceFactor);
         }
         if (ev.getSource() == ignoreInvTimeSource && invTimeTmp > 0) {
             entity.invulnerableTime = invTimeTmp;

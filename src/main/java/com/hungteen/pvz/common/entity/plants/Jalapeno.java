@@ -31,7 +31,7 @@ public class Jalapeno extends SimplePlant {
     public static final String NO_FRIENDLY_FIRE_SKILL_NAME = "skill.pvz.jalapeno.precise_strike";
     private static UUID SKILL_BOOST_UUID = UUID.fromString("42ec228b-586e-9369-8d0c-e336502daa20");
     public static List<Skill> staticSkillList = List.of(
-            new Skill(TRACK_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 200, 0),
+            new Skill(TRACK_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 200, 0),
             new Skill(NO_FRIENDLY_FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 50, 0)
     );
 

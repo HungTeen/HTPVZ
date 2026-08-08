@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.entity.bullet.CornBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -38,7 +39,7 @@ public class KernelPult extends ShooterPlant {
     public static final String BUTTER_SKILL_NAME = "skill.pvz.kernel_pult.butter_pult";
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 200)
+            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM)
     );
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {

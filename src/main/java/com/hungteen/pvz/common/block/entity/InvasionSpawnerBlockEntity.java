@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.block.entity;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.block.InvasionSpawnerBlock;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.register.PVZBlockEntities;
@@ -85,8 +86,8 @@ public class InvasionSpawnerBlockEntity extends BlockEntity {
                         && ! blockState.getValue(InvasionSpawnerBlock.TRIGGERED)) {
                     int teammateNum = level.getEntities(player
                             , new AABB(pos.offset(-24, -12, -24), pos.offset(24, 12, 24))
-                            , e -> ! (e instanceof Player) && ! EntityUtil.isEntityEvil(e)).size();
-                    if ((player.blockPosition().distSqr(pos) < 16 || teammateNum < 4) && teammateNum < 10) {
+                            , e -> e instanceof IPlant && ! EntityUtil.isEntityEvil(e)).size();
+                    if ((player.blockPosition().distSqr(pos) < 16 || teammateNum > 3) && teammateNum < 8) {
                         List<InvasionType> types = blockEntity.invasionTypes.isEmpty() ? InvasionType.generateTypes(player) : blockEntity.invasionTypes;
                         if (! types.isEmpty()) {
                             LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(level);

@@ -58,9 +58,9 @@ public class WallNut extends SimplePlant implements IIronEntity {
     public static String COLLISION_SKILL_NAME = "skill.pvz.wall_nut.elastic_collision";
     public static List<Skill> staticSkillList = List.of(
             new Skill(FIRST_AID_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 4, 1, 0, 0),
-            new Skill(EXPLODE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 150, 500),
-            new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(EXPLODE_SKILL_NAME),
-            new Skill(COLLISION_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 4, 50, 0)
+            new Skill(EXPLODE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 6, 12, 150, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.MEDIUM),
+            new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 12, 12, 50, 0).avoidSkills(EXPLODE_SKILL_NAME),
+            new Skill(COLLISION_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 6, 50, 0)
                     .avoidSkills(ARMOR_SKILL_NAME)
     );
 
@@ -113,7 +113,7 @@ public class WallNut extends SimplePlant implements IIronEntity {
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 40D)
+                .add(Attributes.MAX_HEALTH, 30D)
                 .add(Attributes.ARMOR, 25D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20D)
                 .add(Attributes.ATTACK_DAMAGE, 30D)

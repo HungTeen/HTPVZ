@@ -11,6 +11,7 @@ import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -51,8 +52,8 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     public static final String LOW_BUDGET_SKILL_NAME = "skill.pvz.gatling_pea.low_budget_configuration";
     public static final String RAPID_DEPLOYMENT_SKILL_NAME = "skill.pvz.plant.rapid_deployment";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 150, 0),
-            new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, -940),
+            new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 3, 8, 150, 0),
+            new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.FAST),
             new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(LOW_BUDGET_SKILL_NAME),
             new Skill(RAPID_DEPLOYMENT_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 16, 4, 200, 0)
     );

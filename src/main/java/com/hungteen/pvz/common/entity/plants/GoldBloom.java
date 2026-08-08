@@ -4,6 +4,7 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.AnimationState;
@@ -19,7 +20,7 @@ public class GoldBloom extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
     public static final String TRANSPORTER_SKILL_NAME = "skill.pvz.gold_bloom.sun_transporter";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(TRANSPORTER_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 6, 300, -940)
+            new Skill(TRANSPORTER_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 6, 300, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.VERY_FAST)
     );
 
     public void setupPresentationAnim() {

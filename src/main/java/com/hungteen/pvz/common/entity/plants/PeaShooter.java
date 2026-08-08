@@ -7,6 +7,7 @@ import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -29,9 +30,9 @@ public class PeaShooter extends ShooterPlant {
     public static String SNIPER_SKILL_NAME = "skill.pvz.pea_shooter.sniper";
     public static String FIRE_SKILL_NAME = "skill.pvz.pea_shooter.fire_shooter";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 100, 0),
-            new Skill(SNIPER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 4, 12, 150, 940).avoidSkills(PUNCH_SKILL_NAME), //for pvp.
-            new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0).avoidSkills(PUNCH_SKILL_NAME, SNIPER_SKILL_NAME)
+            new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 3, 8, 100, 0),
+            new Skill(SNIPER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 16, 16, 150, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.FAST).avoidSkills(PUNCH_SKILL_NAME), //for pvp.
+            new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 6, 12, 50, 0).avoidSkills(PUNCH_SKILL_NAME, SNIPER_SKILL_NAME)
     );
 
     public PeaShooter(EntityType<? extends Mob> type, Level worldIn) {

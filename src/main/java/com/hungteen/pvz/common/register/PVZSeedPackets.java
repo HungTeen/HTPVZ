@@ -23,7 +23,7 @@ import java.util.function.Supplier;
  */
 public class PVZSeedPackets {
     public static final int VERY_FAST = 10; //will a plant really use this?
-    public static final int FAST = 60;
+    public static final int FAST = 40;
     public static final int MEDIUM = 300;
     public static final int SLOW = 500;
     public static final int VERY_SLOW = 1000;
@@ -44,7 +44,7 @@ public class PVZSeedPackets {
                 .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.SUN_FLOWER).cost(50).coolDown(MEDIUM).skillList(SunFlower.staticSkillList)
                 .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
-        add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillList)
+        add(PVZEntities.WALL_NUT).cost(50).coolDown(MEDIUM).skillList(WallNut.staticSkillList)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.POTATO_MINE).cost(25).coolDown(MEDIUM).skillList(PotatoMine.staticSkillList)
                 .recipe(Items.POTATO, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE)
@@ -59,7 +59,7 @@ public class PVZSeedPackets {
                 .note(Component.translatable("container.pvz.almanac.can_only_plant_on_water"));
         add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
                 .recipeBlock(PVZBlocks.PLANTERN, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
-        add(PVZEntities.SPLIT_PEA).cost(200).coolDown(MEDIUM).skillList(SplitPea.staticSkillList)
+        add(PVZEntities.SPLIT_PEA).cost(150).coolDown(MEDIUM).skillList(SplitPea.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
                 .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);

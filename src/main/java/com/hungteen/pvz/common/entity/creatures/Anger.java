@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
@@ -37,7 +38,7 @@ public class Anger extends FlyingMob {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 2.0D)
                 .add(Attributes.FLYING_SPEED, 0.6F)
-                .add(Attributes.ATTACK_DAMAGE, 1D);
+                .add(Attributes.ATTACK_DAMAGE, 2D);
     }
     @Override
     protected void registerGoals() {
@@ -139,6 +140,7 @@ public class Anger extends FlyingMob {
                 if (! EntityUtil.isTeammate(anger, entity)) {
                     float damage = (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
                     entity.hurt(DamageSource.ON_FIRE, damage);
+                    entity.hurt(PVZDamageSource.angerAttack(anger), 2);
                     entity.setSecondsOnFire(entity instanceof Player ? 2 : (int) damage);
                 } else if (friendlyFire) {
                     entity.setSecondsOnFire(2);

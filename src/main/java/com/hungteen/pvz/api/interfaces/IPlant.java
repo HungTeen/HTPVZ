@@ -31,6 +31,10 @@ import java.util.Set;
  */
 
 public interface IPlant extends INeedSafeSituation, IHaveSkills {
+    default LivingEntity asEntity() {
+        return (LivingEntity) this;
+    }
+
     /**EntityData controlling if the plant need proper block to plant on.*/
     EntityDataAccessor<Boolean> root();
 

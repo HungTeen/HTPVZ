@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.world;
 import com.google.common.collect.ImmutableMap;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
@@ -17,6 +18,7 @@ import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.common.world.invasion.InvasionTypeManager;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.commands.arguments.SlotArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -26,18 +28,22 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.sensing.VillagerHostilesSensor;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.living.ZombieEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
@@ -232,6 +238,17 @@ public class PVZWorldEvents {
         }
     }
 
+
+    @SubscribeEvent
+    public static void reboundProjectiles(ProjectileImpactEvent ev) {
+        Projectile proj = ev.getProjectile();
+        if (proj.getLevel().isClientSide) return;
+        if (proj instanceof AbstractArrow arrow && ! arrow.inGround && ev.getRayTraceResult() instanceof EntityHitResult result && result.getEntity() instanceof IPlant iPlant && proj.getOwner() instanceof LivingEntity owner) {
+            if (EntityUtil.isTeammate(owner, result.getEntity()) && iPlant.asEntity().distanceToSqr(owner) < 8) {
+                ev.setCanceled(true);
+            }
+        }
+    }
 
     //for test
 //    @SubscribeEvent

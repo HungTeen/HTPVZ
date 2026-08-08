@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StuckArrowWithATargetLayer <T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
-    private static final Comparator<String> cpr = (a, b) -> stringToInt(a) - stringToInt(b);
+    private static final Comparator<String> cpr = Comparator.comparingInt(StuckArrowWithATargetLayer::stringToInt);
     public StuckArrowWithATargetLayer(RenderLayerParent<T, M> p_117346_) {
         super(p_117346_);
     }
@@ -46,7 +46,7 @@ public class StuckArrowWithATargetLayer <T extends LivingEntity, M extends Entit
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int p_117351_, T entity, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
         int i = this.numStuck(entity);
-        RandomSource random = RandomSource.create((long)entity.getId() + 820162226);
+        RandomSource random = RandomSource.create((long)entity.getId() + 820162326);
         if (i > 0) {
             for(int j = 0; j < i; j ++) {
                 poseStack.pushPose();

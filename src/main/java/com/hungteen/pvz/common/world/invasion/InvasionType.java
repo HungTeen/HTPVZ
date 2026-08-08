@@ -139,5 +139,24 @@ public record InvasionType(Optional<ResourceLocation> loot, List<Pair<ResourceLo
         public EnemyType(CompoundTag entityData, int threat, int weight, boolean isElite, float startFrom) {
             this(entityData, List.of(), threat, weight, isElite, startFrom);
         }
+
+        public boolean isAvailable(LivingEntity target, InvasionType type, List<InvasionType> selectedTypes) {
+            if (this.conditions != null) {
+                for (Pair<ResourceLocation, List<String>> pair : this.conditions) {
+                    InvasionCondition condition = InvasionCondition.invasionConditions.get(pair.getFirst());
+                    if (condition == null) {
+                        PVZMod.LOGGER.error("Found unavailable condition " + pair.getFirst() + " in enemy type " +
+                                "( threat: " + threat + ", weight: " + weight + ", elite: " + isElite + " ,start_from: " + startFrom + ") of invasion type " + type.getName() + "!");
+                        return false;
+                    } else {
+                        int argumentLength = condition.getArgLength(target, pair.getSecond(), type, selectedTypes);
+                        if (! condition.test(target, pair.getSecond().subList(0, argumentLength), type, selectedTypes)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
     }
 }

@@ -28,7 +28,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -59,6 +58,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**Basic class for pvz zombies. Pose.LONG_JUMPING is regarded tied and hanged under something here.*/
 public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
+    private static final UUID SPEED_MODIFIER_BABY_UUID = UUID.fromString("B9766B59-9566-4402-BC1F-2EE2A276D836");
+    private static final AttributeModifier SPEED_MODIFIER_BABY = new AttributeModifier(SPEED_MODIFIER_BABY_UUID, "Baby speed boost", 0.25D, AttributeModifier.Operation.MULTIPLY_BASE);
     public static final EntityDataAccessor<String> SKIN = SynchedEntityData.defineId(PVZZombie.class, EntityDataSerializers.STRING);
     /**
      * The entity the zombie ties itself on.
@@ -77,12 +78,13 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
     public static UUID GROUP_UP_MODIFIER = UUID.fromString("772807aa-672f-bfda-7d21-0f66823f6d53");
     public PVZZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
-        if (! this.fireImmune()) {
-            this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, -1.0F);
-            this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
-        }
+//        if (! this.fireImmune()) {
+//            this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, -1.0F);
+//            this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
+//        }
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_CACTUS, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.DANGER_CACTUS, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.RAIL, 0F);
         this.setPathfindingMalus(BlockPathTypes.WATER, 8.0F);
     }
 
@@ -132,8 +134,8 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
         attackGoal = new ZombieAttackGoal(this, 1.0D, false);
         randomStrollGoal = new RandomStrollGoal(this, 1.0D);
         this.goalSelector.addGoal(1, new BlockWithShieldGoal(this));
-        this.goalSelector.addGoal(2, attackGoal);
-        this.goalSelector.addGoal(3, new FollowGroupLeaderGoal(this));
+        this.goalSelector.addGoal(2, new FollowGroupLeaderGoal(this));
+        this.goalSelector.addGoal(3, attackGoal);
         this.goalSelector.addGoal(6, new MoveThroughVillageGoal(this, 1.0D, true, 4, this::canBreakDoors));
         this.goalSelector.addGoal(7, randomStrollGoal);
         this.targetSelector.addGoal(1, new GroupShareEnemyGoal(this));
@@ -144,6 +146,17 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
         this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Turtle.class, 10, true, false, Turtle.BABY_ON_LAND_SELECTOR));
     }
 
+    public void setBaby(boolean baby) {
+        super.setBaby(baby);
+        if (!this.level.isClientSide) {
+            EntityUtil.removeModifierFromAttribute(this, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER_BABY_UUID);
+            if (baby) {
+                AttributeInstance attributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
+                attributeinstance.addTransientModifier(SPEED_MODIFIER_BABY);
+            }
+        }
+
+    }
     @Override
     protected void handleAttributes(float p_34340_) {
         this.randomizeReinforcementsChance();
@@ -163,10 +176,10 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
     }
     @Override
     public int getExperienceReward() {
-        AtomicInteger result = new AtomicInteger(super.getExperienceReward());
+        AtomicInteger result = new AtomicInteger(super.getExperienceReward() / 3);
         getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
             if (cap.resource.equals(Invasion.INVASION_THREAT)) {
-                result.set(cap.cost * PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.invasionExperienceFactor) / 5000);
+                result.set(cap.cost * PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.invasionExperienceFactor) / 10000);
             }
         });
         return result.get();
@@ -368,6 +381,11 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
     @Override
     public int getGroupRangeSqr() {
         return 8;
+    }
+
+    @Override
+    public Mob self() {
+        return this;
     }
 
 

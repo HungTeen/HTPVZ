@@ -20,8 +20,8 @@ import java.util.Set;
 public class Repeater extends PeaShooter {
     public static final String TRIPLE_SKILL_NAME = "skill.pvz.repeater.triple_tap";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(PeaShooter.PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 6, 100, 0),
-            new Skill(TRIPLE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 50, 0)
+            new Skill(PeaShooter.PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 3, 8, 100, 0),
+            new Skill(TRIPLE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 18, 8, 50, 0)
 );
     public Repeater(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);

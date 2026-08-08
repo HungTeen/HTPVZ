@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.ZombieEvent;
+import com.hungteen.pvz.common.world.ZombieGroup;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import com.hungteen.pvz.util.Util;
@@ -24,6 +25,7 @@ public class PVZZombieEvents {
     //registries
     public static final RegistryObject<Class<? extends ZombieEvent>> INVASION = ZOMBIE_EVENTS.register("invasion", () -> Invasion.class);
     public static final RegistryObject<Class<? extends ZombieEvent>> INVASION_TEAM = ZOMBIE_EVENTS.register("invasion_team", () -> InvasionTeam.class);
+    public static final RegistryObject<Class<? extends ZombieEvent>> ZOMBIE_GROUP = ZOMBIE_EVENTS.register("zombie_group", () -> ZombieGroup.class);
 
 
     /**Remember to {@link ZombieEvent#deserializeNBT(CompoundTag) deserialize} with the tag in the init method.

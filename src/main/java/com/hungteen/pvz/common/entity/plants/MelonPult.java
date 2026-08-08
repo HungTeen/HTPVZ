@@ -23,8 +23,8 @@ public class MelonPult extends ShooterPlant {
     public static final String POTION_SKILL_NAME = "skill.pvz.melon_pult.glistering_melon";
     public static final String GRAVITY_SKILL_NAME = "skill.pvz.melon_pult.gravitational_potential";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(POTION_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 4, 100, 0),
-            new Skill(GRAVITY_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 8, 50, 0).avoidSkills(POTION_SKILL_NAME)
+            new Skill(POTION_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 8, 100, 0),
+            new Skill(GRAVITY_SKILL_NAME, PVZItems.TERRA_ESSENCE, 16, 12, 50, 0).avoidSkills(POTION_SKILL_NAME)
     );
 
     public MelonPult(EntityType<? extends Mob> type, Level worldIn) {

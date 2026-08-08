@@ -94,9 +94,9 @@ public class RecipeGen extends RecipeProvider {
                             ((RegistryObject<Item>) obj).get() :
                             (Item)data.recipe.get("essence");
                     ShapedRecipeBuilder.shaped(itemObj.get())
-                            .pattern("CCC")
+                            .pattern(" C ")
                             .pattern("CBC")
-                            .pattern("CAC")
+                            .pattern(" A ")
                             .define('A', seed)
                             .define('B', packet)
                             .define('C', essence)

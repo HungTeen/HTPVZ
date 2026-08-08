@@ -55,8 +55,9 @@ public abstract class AbstractPVZZombieRenderer<T extends PVZZombie, M extends P
             }
             if (zombie.renderHead && zombie.shouldDropHead()) {
                 zombie.renderHead = false;
+                float scale = zombie.isBaby() ? 0.67F : 1;
                 new ModelPartParticle(zombie, List.of(model.head, model.hat), getTextureLocation(zombie), new Vec3(0, zombie.getBbHeight(), 0))
-                        .offset(new Vec3(0, 0.125, 0));
+                        .offset(new Vec3(0, 0.125, 0)).scale(scale);
             }
         }
         super.render(zombie, p_115456_, partialTicks, poseStack, bufferSource, p_115460_);

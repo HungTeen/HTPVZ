@@ -12,6 +12,7 @@ import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -66,8 +67,8 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public static final String GROUP_SKILL_NAME = "skill.pvz.veloci_radish.clever_girls";
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill(STRONG_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 4, 25, 440),
-            new Skill(GROUP_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 4, 100, 440).avoidSkills(STRONG_SKILL_NAME)
+            new Skill(STRONG_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 12, 8, 25, PVZSeedPackets.SLOW - PVZSeedPackets.FAST),
+            new Skill(GROUP_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 100, PVZSeedPackets.SLOW - PVZSeedPackets.FAST).avoidSkills(STRONG_SKILL_NAME)
     );
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
@@ -217,7 +218,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         }
             //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Z;
+        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Y;
         direction = getGrowDirection();
         pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
@@ -392,6 +393,11 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     @Override
     public int getGroupRangeSqr(){
         return 64;
+    }
+
+    @Override
+    public Mob self() {
+        return this;
     }
 
     private static class TurnipAttackGoal extends MeleeAttackGoal {

@@ -88,7 +88,7 @@ public class JackInABoxZombie extends PVZZombie implements PowerableMob {
         public boolean canUse() {
             return mob.getTicksFrozen() <= 0 && ! mob.getMainHandItem().isEmpty() && mob.getMainHandItem().getUseDuration() > 0 &&
                     (! mob.isUsingItem() || mob.getUseItemRemainingTicks() > mob.getMainHandItem().getUseDuration() - 60) &&
-                    mob.tickCount > 100 && (mob.isUsingItem() || mob.getRandom().nextFloat() < (mob.getTarget() != null && mob.getTarget().distanceToSqr(mob) < 25 ? 0.01F : 0.001F));
+                    mob.tickCount > 160 && (mob.isUsingItem() || mob.getRandom().nextFloat() < (mob.getTarget() != null && mob.getTarget().distanceToSqr(mob) < 25 ? 0.01F : 0.001F));
         }
 
         public void start() {

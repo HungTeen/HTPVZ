@@ -26,8 +26,8 @@ public class SnowPea extends PeaShooter {
     public int timeOverheat;
     public static String NEWVER_MELT_ICE_SKILL_NAME = "skill.pvz.snow_pea.never_melt_ice";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(PeaShooter.PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 50, 0),
-            new Skill(NEWVER_MELT_ICE_SKILL_NAME, PVZItems.GELUM_ESSENCE, 6, 6, 75, 0)
+            new Skill(PeaShooter.PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 3, 8, 50, 0),
+            new Skill(NEWVER_MELT_ICE_SKILL_NAME, PVZItems.GELUM_ESSENCE, 12, 6, 75, 0)
     );
     public SnowPea(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);

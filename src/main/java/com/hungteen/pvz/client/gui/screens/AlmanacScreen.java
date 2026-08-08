@@ -284,7 +284,7 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
             boolean renderAsNumber = PVZConfig.renderSunAsNumber() || ! selected.getResource(null).equals(PVZAPI.get().getSunResourceName());
             int cost = selected.getBaseCost(null);
             if (renderAsNumber) {
-                int offset = (selected.getResource(null).equals(PVZAPI.get().getSunResourceName()) ? 10 : 0) + 170;
+                int offset = (selected.getResource(null).equals(PVZAPI.get().getSunResourceName()) ? 10 : 0) + 160;
                 this.font.draw(poseStack, cost + (selected.extraCost ? "+" : ""), 1 + offset, 61, 0);
                 this.font.draw(poseStack, cost + (selected.extraCost ? "+" : ""), offset, 60, 0xFFFFFF);
             } else if (selected.extraCost && selected.getResource(null).equals(PVZAPI.get().getSunResourceName())) {

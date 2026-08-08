@@ -5,6 +5,7 @@ import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.datafixers.DataFixUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 import java.util.EnumSet;
@@ -30,34 +31,35 @@ public class FollowGroupLeaderGoal extends Goal {
     }
 
     public boolean canUse() {
-        if (mob instanceof LivingEntity mob) {
-            if (this.mob.hasFollowers()) {
-                return false;
-            } else if (this.mob.isFollower()) {
-                return true;
-            } else if (this.nextStartTick > 0) {
-                --this.nextStartTick;
-                return false;
-            } else {
-                this.nextStartTick = this.nextStartTick(this.mob);
-                double range = ((ICanGroupUp) mob).getGroupRangeSqr();
-                Predicate<Entity> Leaderpredicate = (target) ->
-                        EntityUtil.isTeammate(mob, target) && target instanceof ICanGroupUp &&
-                                ICanGroupUp.canBeFollowed((Entity & ICanGroupUp) target) || ! ((ICanGroupUp) target).isFollower();
-                List<? extends LivingEntity> list = mob.level.getEntitiesOfClass(mob.getClass(),
-                        mob.getBoundingBox().inflate(range, range, range), Leaderpredicate);
-                ICanGroupUp entity = (Entity & ICanGroupUp) DataFixUtils
-                        .orElse(list.stream().filter(entity1 -> ICanGroupUp.canBeFollowed((Entity & ICanGroupUp) entity1)).findAny(), this.mob);
-                entity.addFollowers(
-                        (Stream<? extends ICanGroupUp>) list.stream().filter((target) -> target instanceof ICanGroupUp && ! ((ICanGroupUp) target).isFollower()));
-                return this.mob.isFollower();
-            }
+        Mob mob = this.mob.self();
+        if (mob.getTarget() != null && mob.distanceToSqr(mob.getTarget()) <= 64) {
+            return false;
+        } else if (this.mob.hasFollowers()) {
+            return false;
+        } else if (this.mob.isFollower()) {
+            return true;
+        } else if (this.nextStartTick > 0) {
+            --this.nextStartTick;
+            return false;
+        } else {
+            this.nextStartTick = this.nextStartTick(this.mob);
+            double range = ((ICanGroupUp) mob).getGroupRangeSqr();
+            Predicate<Entity> Leaderpredicate = (target) ->
+                    EntityUtil.isTeammate(mob, target) && target instanceof ICanGroupUp &&
+                            ICanGroupUp.canBeFollowed((Entity & ICanGroupUp) target) || ! ((ICanGroupUp) target).isFollower();
+            List<? extends LivingEntity> list = mob.level.getEntitiesOfClass(mob.getClass(),
+                    mob.getBoundingBox().inflate(range, range, range), Leaderpredicate);
+            ICanGroupUp entity = (Entity & ICanGroupUp) DataFixUtils
+                    .orElse(list.stream().filter(entity1 -> ICanGroupUp.canBeFollowed((Entity & ICanGroupUp) entity1)).findAny(), this.mob);
+            entity.addFollowers(
+                    (Stream<? extends ICanGroupUp>) list.stream().filter((target) -> target instanceof ICanGroupUp t && ! t.isFollower()));
+            return this.mob.isFollower();
         }
-        return false;
     }
 
     public boolean canContinueToUse() {
-        return this.mob.isFollower() && this.mob.inRangeOfLeader();
+        Mob mob = this.mob.self();
+        return this.mob.isFollower() && this.mob.inRangeOfLeader() && (mob.getTarget() == null || mob.distanceToSqr(mob.getTarget()) > 64);
     }
 
     public void start() {

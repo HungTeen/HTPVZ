@@ -58,11 +58,11 @@ public class PotatoMine extends SimplePlant {
     public static String QUICK_LOAD_SKILL_NAME = "skill.pvz.potato_mine.quick_load";
     public static String POISONOUS_SKILL_NAME = "skill.pvz.potato_mine.poison_enrichment";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(MINER_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 6, 0, 0),
-            new Skill(STRONG_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 8, 25, 200),
-            new Skill(QUICK_LOAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 50, 200)
+            new Skill(MINER_SKILL_NAME, PVZItems.TERRA_ESSENCE, 3, 1, 0, 0),
+            new Skill(STRONG_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 6, 6, 25, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM),
+            new Skill(QUICK_LOAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 10, 12, 50, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM)
                     .avoidSkills(STRONG_SKILL_NAME),
-            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 8, 75, 200)
+            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 12, 6, 75, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM)
                     .avoidSkills(STRONG_SKILL_NAME)
     );
     public PotatoMine(EntityType<? extends Mob> entityType, Level level) {
@@ -75,15 +75,14 @@ public class PotatoMine extends SimplePlant {
             this.dead = true;
             float radius = this.hasSkill(STRONG_SKILL_NAME) ? 3F : 2F;
 //            level.playSound(null, this, PVZSoundEvents.POTATO_MINE_EXPLODE.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
-            level.explode(this, knockBack(
+            level.explode(this, isPlantDamage(knockBack(
                     ignoreInvTime(
                             teamFilter(
                                     multiply(
                                             DamageSource.explosion(this).bypassArmor()
                                             , (this.isPoisonous() ? 0.75F : 1.25F) * PVZAPI.get().getPlantDamageDatum(this.level))))
-                    , 0.2F),
-                    null, this.getX(), this.getY(), this.getZ(),
-                    radius, false, Explosion.BlockInteraction.NONE);
+                    , 0.2F), null),
+                    null, this.getX(), this.getY(), this.getZ(), radius, false, Explosion.BlockInteraction.NONE);
             if (this.isPoisonous()) {
                 this.spawnPoisonCloud();
             }

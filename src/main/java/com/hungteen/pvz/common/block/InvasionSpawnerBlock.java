@@ -1,11 +1,14 @@
 package com.hungteen.pvz.common.block;
 
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.block.entity.InvasionSpawnerBlockEntity;
 import com.hungteen.pvz.common.register.PVZBlockEntities;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -17,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 public class InvasionSpawnerBlock extends BaseEntityBlock {
@@ -32,6 +36,10 @@ public class InvasionSpawnerBlock extends BaseEntityBlock {
 
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         BlockState blockState = level.getBlockState(pos);
+        int teammateNum = level.getEntities((Entity) null
+                , new AABB(pos.offset(-24, -12, -24), pos.offset(24, 12, 24))
+                , e -> e instanceof IPlant && ! EntityUtil.isEntityEvil(e)).size();
+        if (teammateNum >= 8) return;
         if (blockState.is(PVZBlocks.INVASION_SPAWNER.get())) {
             boolean triggered = blockState.getValue(InvasionSpawnerBlock.TRIGGERED);
             if (triggered || random.nextBoolean()) {

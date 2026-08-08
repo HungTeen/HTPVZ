@@ -16,20 +16,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 public class SacrificialVenueStructure extends Structure {
-    public static final Codec<Structure> CODEC = RecordCodecBuilder.create((p_229304_) -> {
+    public static final Codec<SacrificialVenueStructure> CODEC = RecordCodecBuilder.create((p_229304_) -> {
         return p_229304_.group(settingsCodec(p_229304_)).apply(p_229304_, SacrificialVenueStructure::new);
     });
 
     public SacrificialVenueStructure(StructureSettings settings) {
         super(settings);
     }
+
     @Override
     public @NotNull Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
         BlockPos worldPos = context.chunkPos().getWorldPosition();
         BlockPos pos = new BlockPos(worldPos.getX(), 31, worldPos.getZ());
         return heightAvailable(context, pos) ? Optional.of(new Structure.GenerationStub(pos, structurePiecesBuilder ->
                 SacrificialVenueStructurePiece.add(context.structureTemplateManager(), structurePiecesBuilder, pos)))
-
                 : Optional.empty();
     }
 

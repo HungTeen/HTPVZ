@@ -112,7 +112,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
             }
             if (! event.isCanceled()) {
                 if (! level.isClientSide)
-                    level.playSound(null, this, PVZSoundEvents.SPROUT_WATER.get(), player == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1.0F, 1.0F);
+                    level.playSound(null, this, PVZSoundEvents.SPROUT_GROW.get(), player == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1.0F, 1.0F);
                 setGrowLevel(this.getGrowLevel() + 1);
             }
             this.setRequiringWater(true);

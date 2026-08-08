@@ -137,6 +137,7 @@ public class PVZItems {
     public static final RegistryObject<Item> ENDER_SEED_BUNDLE = item("ender_seed_bundle", () -> new EnderSeedBundleItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1)));
 
     public static final RegistryObject<Item> MUSIC_DISC_ZEN_GARDEN = item("music_disc_zen_garden", () -> new RecordItem(11, PVZSoundEvents.MUSIC_DISC_ZEN_GARDEN, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC).rarity(Rarity.RARE), 69));
+    public static final RegistryObject<Item> MUSIC_DISC_BRAINIAC_MANIAC = item("music_disc_brainiac_maniac", () -> new RecordItem(12, PVZSoundEvents.MUSIC_DISC_ZEN_GARDEN, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC).rarity(Rarity.RARE), 102));
 
     static {
         createBannerPatterns();
@@ -233,7 +234,7 @@ public class PVZItems {
             }
             seedPacketMap.put(data,
                     tag(PVZItemTags.SEED_PACKETS).item(name + "_seed_packet", () -> new SeedPacketItem(
-                            new Item.Properties().stacksTo(1).rarity(data.advanced ? Rarity.EPIC : Rarity.COMMON).defaultDurability(data.advanced ? 300 : 115).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
+                            new Item.Properties().stacksTo(1).rarity(data.advanced ? Rarity.EPIC : Rarity.COMMON).defaultDurability(data.advanced ? 350 : 150).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
                     )));
         };
 

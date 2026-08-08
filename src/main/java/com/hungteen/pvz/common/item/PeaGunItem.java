@@ -133,13 +133,13 @@ public class PeaGunItem extends ProjectileWeaponItem {
         int force = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.POWER_ARROWS, shooter.getItemBySlot(slot));
         if (bulletItem == PVZItems.PEA.get()) {
             pea.setPeaType(attachFire ? PeaBullet.PeaType.Fire : PeaBullet.PeaType.Common);
-            pea.setAttackDamage(6 + force * 2);
+            pea.setAttackDamage(8 + force * 2);
         } else if (bulletItem == PVZItems.SNOW_PEA.get()) {
             pea.setPeaType(attachFire ? PeaBullet.PeaType.Common : PeaBullet.PeaType.Ice);
-            pea.setAttackDamage(4 + force * 2);
+            pea.setAttackDamage(7 + force * 2);
         } else if (bulletItem == PVZItems.FLAME_PEA.get()) {
             pea.setPeaType(PeaBullet.PeaType.Fire);
-            pea.setAttackDamage(10 + force * 2);
+            pea.setAttackDamage(12 + force * 2);
         }
         pea.setKnockBackStrength(0.35F + force * 0.05F);
         pea.setNoGravity(true);

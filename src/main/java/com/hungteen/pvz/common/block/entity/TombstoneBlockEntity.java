@@ -37,10 +37,10 @@ public class TombstoneBlockEntity extends SpawnerBlockEntity {
 
         public TombstoneSpawner(TombstoneBlockEntity entity) {
             this.entity = entity;
-            this.minSpawnDelay = 500;
-            this.maxSpawnDelay = 1000;
+            this.minSpawnDelay = 1200;
+            this.maxSpawnDelay = 2400;
             this.spawnCount = 1;
-            this.spawnRange = 1;
+            this.spawnRange = 2;
             this.maxNearbyEntities = 2;
         }
 

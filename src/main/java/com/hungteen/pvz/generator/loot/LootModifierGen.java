@@ -69,7 +69,7 @@ public class LootModifierGen extends GlobalLootModifierProvider {
 
         this.add("sprout_from_village_snowy_house", new AddItemModifier(new LootItemCondition[] {
                 LootTableIdCondition.builder(new ResourceLocation("chests/village/village_snowy_house")).build(),
-                LootItemRandomChanceCondition.randomChance(0.8F).build()
+                LootItemRandomChanceCondition.randomChance(0.6F).build()
         }, List.of(
                 SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.icy", RegisterSproutsEvent.ICY)
         )));
@@ -124,7 +124,7 @@ public class LootModifierGen extends GlobalLootModifierProvider {
 
         this.add("sprout_from_end_city_treasure", new AddItemModifier(new LootItemCondition[]{
                 LootTableIdCondition.builder(new ResourceLocation("chests/end_city_treasure")).build(),
-                LootItemRandomChanceCondition.randomChance(0.6F).build()
+                LootItemRandomChanceCondition.randomChance(0.4F).build()
         }, List.of(
                 SproutItem.getTaggedItem((SproutItem) PVZItems.SPROUT.get(), "sprout.pvz.ender", RegisterSproutsEvent.ENDER)
         )));

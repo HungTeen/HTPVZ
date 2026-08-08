@@ -36,6 +36,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.EnchantRandomlyFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
@@ -97,14 +98,14 @@ public class InvasionTypeGen implements DataProvider {
                 Optional.empty(),
                 List.of(
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get()).get(), CONE, 5, false, 0.25F
+                                EntityBuilder.of(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get()).get(), CONE, 3, false, 0.25F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get())
                                         .equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get()
-                                , CONE + ZOMBIE, 10, false, 0.6F
+                                , CONE + ZOMBIE, 2, false, 0.6F
                         )
-        ), true, 2F, 0.5F, 1F, 10000
+        ), true, 2F, 0.6F, 1F, 10000
         ));
         map.put(Util.prefix("overworld_underground"), new InvasionType(loot(),
                 conditions(
@@ -148,13 +149,9 @@ public class InvasionTypeGen implements DataProvider {
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(2))
                                         .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
-                                        .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 3F))))
+                                        .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5))
+                                        .add(LootItem.lootTableItem(Items.BOOK).setWeight(10).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                                         .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 8F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(1F, 2F))
-                                        .add(LootItem.lootTableItem(PVZItems.POP_SMARTS.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 10F))))
-                                        .add(LootItem.lootTableItem(Items.IRON_INGOT).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 9F))))
                         ).withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(2))
@@ -204,30 +201,40 @@ public class InvasionTypeGen implements DataProvider {
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get())
                                         .equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                )
                                 , BUCKET, 5, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.HUSK)
                                         .equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get()
                                 , conditions(
-                                condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.IS_BADLANDS), arg(BiomeTags.HAS_DESERT_PYRAMID)))
+                                    condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.IS_BADLANDS), arg(BiomeTags.HAS_DESERT_PYRAMID)),
+                                    condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                )
                                 , BUCKET, 15, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get()).get()
-                                , CONE, 5, false, 0.5F
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "4")
+                                )
+                                , CONE, 3, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.SNORKEL_ZOMBIE.get()).get()
                                 , conditions(
-                                condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS)))
+                                        condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS))
+                                )
                                 , CONE, 15, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.SNORKEL_ZOMBIE.get())
                                         .equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get()
                                 , conditions(
-                                condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS)))
+                                        condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS))
+                                )
                                 , BUCKET + ZOMBIE, 5, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
@@ -237,18 +244,24 @@ public class InvasionTypeGen implements DataProvider {
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get())
                                         .equip(EquipmentSlot.MAINHAND, PVZItems.SCREEN_DOOR_SHIELD.get().getDefaultInstance()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                )
                                 , DOOR, 10, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.IMP.get()).get(), IMP, 10, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.GARGANTUAR.get()).get(), GARG, 10, true, 0.5F
+                                EntityBuilder.of(PVZEntities.GARGANTUAR.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "16")
+                                ), GARG, 10, true, 0.5F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.SLIME)
                                         .passenger(EntityBuilder.of(PVZEntities.ZOMBIE.get()))
-                                        .modify(entity -> entity.putInt("Size", 2)).get()
+                                        .modify(entity -> entity.putInt("Size", 1)).get()
                                 , conditions(
                                 condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS)))
                                 , ZOMBIE + SLIME, 10, false, 0
@@ -256,10 +269,11 @@ public class InvasionTypeGen implements DataProvider {
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.SLIME)
                                         .passenger(EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()))
-                                        .modify(entity -> entity.putInt("Size", 3)).get()
+                                        .modify(entity -> entity.putInt("Size", 2)).get()
                                 , conditions(
-                                condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS)))
-                                , BUCKET + SLIME, 5, true, 0.3F
+                                        condition(new InvasionCondition.InBiomeCondition(), arg(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS)),
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), BUCKET + SLIME, 5, true, 0.3F
                         )
                 ),
                 false, 1, 1, 1,100
@@ -278,6 +292,8 @@ public class InvasionTypeGen implements DataProvider {
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(2))
                                         .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 8F))))
+                                        .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5))
+                                        .add(LootItem.lootTableItem(Items.BOOK).setWeight(10).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                                         .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 8F))))
                         ).withPool(
                                 LootPool.lootPool()
@@ -288,7 +304,8 @@ public class InvasionTypeGen implements DataProvider {
                 ),
                 conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
-                        condition(new InvasionCondition.ObtainedAdvancementCondition(), "pvz:kill_ender_zomboss")
+                        condition(new InvasionCondition.ObtainedAdvancementCondition(), "pvz:kill_ender_zomboss"),
+                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.WITH_SUN_BLOOD, InvasionEntityModifiers.HOLD_RANDOM_JEWEL, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES),
                 Optional.of(
@@ -321,7 +338,10 @@ public class InvasionTypeGen implements DataProvider {
                                 , BUCKET + 100, 2, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get())).get(), GARG + CONE, 50, true, 0.7F
+                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get())).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "16")
+                                ), GARG + CONE, 50, true, 0.7F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get()).get(), BUCKET, 15, false, 0
@@ -333,10 +353,16 @@ public class InvasionTypeGen implements DataProvider {
                                 EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get()).get(), ZOMBIE, 5, false, 0
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.TALL_NUT_ZOMBIE.get()).get(), GARG, 10, false, 0.5F
+                                EntityBuilder.of(PVZEntities.TALL_NUT_ZOMBIE.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "16")
+                                ), GARG, 10, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get())).get(), GARG, 5, false, 0.3F
+                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get())).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "16")
+                                ), GARG, 5, false, 0.3F
                         )
                 ),
                 false, 1, 1, 1F,500
@@ -345,7 +371,8 @@ public class InvasionTypeGen implements DataProvider {
                 conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
                         condition(new InvasionCondition.ObtainedAdvancementCondition(), "pvz:kill_ender_zomboss"),
-                        condition(new InvasionCondition.InBiomeCondition(), "#forge:is_hot")
+                        condition(new InvasionCondition.InBiomeCondition(), "#forge:is_hot"),
+                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.WITH_SUN_BLOOD, InvasionEntityModifiers.HOLD_RANDOM_JEWEL, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES),
                 Optional.of(
@@ -395,8 +422,10 @@ public class InvasionTypeGen implements DataProvider {
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TALL_NUT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(3F, 5F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1))
+                                        .setRolls(ConstantValue.exactly(2))
                                         .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 8F))))
+                                        .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5))
+                                        .add(LootItem.lootTableItem(Items.BOOK).setWeight(10).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                                         .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 8F))))
                         ).withPool(
                                 LootPool.lootPool()
@@ -426,28 +455,46 @@ public class InvasionTypeGen implements DataProvider {
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(), CONE, 20, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(), BUCKET, 5, false, 0.5F
+                                EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), BUCKET, 5, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.FIRE_IMP.get()).get(), BUCKET, 10, false, 0.3F
+                                EntityBuilder.of(PVZEntities.FIRE_IMP.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), BUCKET, 10, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get(), CONE, 10, false, 0.3F
+                                EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "2")
+                                ), CONE, 10, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.LAVA_DIVER_ZOMBIE.get()).get(), CONE, 15, false, 0.2F
+                                EntityBuilder.of(PVZEntities.LAVA_DIVER_ZOMBIE.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), CONE, 15, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.SKELETON).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(), 400, 5, false, 0.4F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(EntityType.SKELETON).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(), BUCKET, 5, false, 0.8F
+                                EntityBuilder.of(EntityType.SKELETON).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "12")
+                                ), BUCKET, 5, false, 0.8F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.WITHER_SKELETON).get(), CONE, 15, false, 0.6F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.LAVA_GHASTLING.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(), BUCKET, 15, true, 0.6F
+                                EntityBuilder.of(PVZEntities.LAVA_GHASTLING.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "12")
+                                ), BUCKET, 15, true, 0.6F
                         )
                 ),
                 false, 1, 1, 1.2F,500
@@ -467,8 +514,10 @@ public class InvasionTypeGen implements DataProvider {
                                         .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.MELON_PULT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1))
+                                        .setRolls(ConstantValue.exactly(2))
                                         .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 8F))))
+                                        .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5))
+                                        .add(LootItem.lootTableItem(Items.BOOK).setWeight(10).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                                         .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 8F))))
                         ).withPool(
                                 LootPool.lootPool()
@@ -497,32 +546,50 @@ public class InvasionTypeGen implements DataProvider {
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(), CONE, 20, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(), BUCKET, 5, false, 0.5F
+                                EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), BUCKET, 5, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.FIRE_IMP.get()).get(), BUCKET, 10, false, 0.3F
+                                EntityBuilder.of(PVZEntities.FIRE_IMP.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), BUCKET, 10, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get(), DOOR, 5, false, 0.3F
+                                EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), DOOR, 5, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.POLE_VAULTING_ZOMBIE.get()).get(), POLE, 6, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.LAVA_DIVER_ZOMBIE.get()).get(), CONE, 15, false, 0.2F
+                                EntityBuilder.of(PVZEntities.LAVA_DIVER_ZOMBIE.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), CONE, 15, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.MAGMA_CUBE)
                                         .passenger(EntityBuilder.of(PVZEntities.ZOMBIE.get()))
-                                        .modify(entity -> entity.putInt("Size", 2)).get(), ZOMBIE + SLIME, 10, false, 0
+                                        .modify(entity -> entity.putInt("Size", 1)).get(), ZOMBIE + SLIME, 10, false, 0
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(EntityType.MAGMA_CUBE)
                                         .passenger(EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()))
-                                        .modify(entity -> entity.putInt("Size", 3)).get(), BUCKET + SLIME, 5, true, 0.5F
+                                        .modify(entity -> entity.putInt("Size", 2)).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "12")
+                                ), BUCKET + SLIME, 5, true, 0.5F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.GARGANTUAR.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(), GARG + CONE, 15, true, 0.5F
+                                EntityBuilder.of(PVZEntities.GARGANTUAR.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "16")
+                                ), GARG + CONE, 15, true, 0.5F
                         )
                 ),
                 false, 1, 1, 1.2F,300
@@ -549,22 +616,37 @@ public class InvasionTypeGen implements DataProvider {
                                 EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance()).get(), CONE, 20, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get(), BUCKET, 5, false, 0.5F
+                                EntityBuilder.of(PVZEntities.ZOMBIE.get()).equip(EquipmentSlot.HEAD, PVZItems.BUCKET_HELMET.get().getDefaultInstance()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), BUCKET, 5, false, 0.5F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.FIRE_IMP.get()).get(), BUCKET, 10, false, 0.3F
+                                EntityBuilder.of(PVZEntities.FIRE_IMP.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), BUCKET, 10, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get(), DOOR, 5, false, 0.3F
+                                EntityBuilder.of(PVZEntities.BUNGEE_ZOMBIE.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "2")
+                                ), DOOR, 5, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.POLE_VAULTING_ZOMBIE.get()).get(), POLE, 6, false, 0.3F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.LAVA_DIVER_ZOMBIE.get()).get(), CONE, 15, false, 0.2F
+                                EntityBuilder.of(PVZEntities.LAVA_DIVER_ZOMBIE.get()).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
+                                ), CONE, 15, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.GARGANTUAR.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get(), GARG + CONE, 15, true, 0.5F
+                                EntityBuilder.of(PVZEntities.GARGANTUAR.get()).passenger(EntityBuilder.of(PVZEntities.FIRE_IMP.get())).get()
+                                , conditions(
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "16")
+                                ), GARG + CONE, 15, true, 0.5F
                         )
                 ),
                 false, 1, 1, 1.2F,500

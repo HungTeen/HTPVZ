@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.command;
 
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.register.PVZZombieEvents;
+import com.hungteen.pvz.common.world.ZombieGroup;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.common.world.invasion.InvasionType;
 import com.hungteen.pvz.util.Util;
@@ -21,33 +22,40 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class InvasionCommand {
+public class ZombieEventCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("invasion").requires((ctx) -> ctx.hasPermission(2))
-                .then(Commands.literal("add")
-                        .executes(c -> addInvasion(c.getSource(), 5
-                                , c.getSource().getEntity()
-                                , UUID.randomUUID()))
-                        .then(Commands.argument("level", IntegerArgumentType.integer())
-                                .executes(c -> addInvasion(c.getSource(),
-                                        IntegerArgumentType.getInteger(c, "level")
+        dispatcher.register(Commands.literal("zombieevent").requires((ctx) -> ctx.hasPermission(2))
+                .then(Commands.literal("invasion")
+                        .then(Commands.literal("add")
+                                .executes(c -> addInvasion(c.getSource(), 5
                                         , c.getSource().getEntity()
                                         , UUID.randomUUID()))
-                                .then(Commands.argument("target", EntityArgument.entities())
+                                .then(Commands.argument("level", IntegerArgumentType.integer())
                                         .executes(c -> addInvasion(c.getSource(),
                                                 IntegerArgumentType.getInteger(c, "level")
-                                                , EntityArgument.getEntity(c, "target")
+                                                , c.getSource().getEntity()
                                                 , UUID.randomUUID()))
-                                        .then(Commands.argument("uuid", UuidArgument.uuid())
+                                        .then(Commands.argument("target", EntityArgument.entities())
                                                 .executes(c -> addInvasion(c.getSource(),
                                                         IntegerArgumentType.getInteger(c, "level")
                                                         , EntityArgument.getEntity(c, "target")
-                                                        , UuidArgument.getUuid(c, "uuid")))))))
-                .then(Commands.literal("remove")
-                        .then(Commands.literal("all")
-                                .executes(c -> removeAllInvasion(c.getSource())))
-                        .then(Commands.argument("uuid", UuidArgument.uuid())
-                                .executes(c -> removeInvasion(c.getSource(), UuidArgument.getUuid(c, "uuid"))))));
+                                                        , UUID.randomUUID()))
+                                                .then(Commands.argument("uuid", UuidArgument.uuid())
+                                                        .executes(c -> addInvasion(c.getSource(),
+                                                                IntegerArgumentType.getInteger(c, "level")
+                                                                , EntityArgument.getEntity(c, "target")
+                                                                , UuidArgument.getUuid(c, "uuid")))))))
+                        .then(Commands.literal("remove")
+                                .then(Commands.literal("all")
+                                        .executes(c -> removeAllInvasion(c.getSource())))
+                                .then(Commands.argument("uuid", UuidArgument.uuid())
+                                        .executes(c -> removeInvasion(c.getSource(), UuidArgument.getUuid(c, "uuid"))))))
+                .then(Commands.literal("zombiegroup")
+                        .then(Commands.argument("target", EntityArgument.player())
+                                .executes(c -> ZombieGroup.spawnFor(EntityArgument.getPlayer(c, "target")) ? 1 : 0)
+                        )
+                )
+        );
     }
 
     public static int addInvasion(CommandSourceStack source, int level, @Nullable Entity entity, UUID uuid) {

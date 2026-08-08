@@ -189,7 +189,7 @@ public class BaseBullet extends Projectile {
 
 	protected DamageSource getDamageSource(Entity target) {
 		DamageSource source = PVZDamageSource.ignoreInvTime(
-						PVZDamageSource.hitBossWithProportion(
+						PVZDamageSource.isPlantDamage(
 								PVZDamageSource.knockBack(
 										PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
 				, getKnockBackStrength()), target));

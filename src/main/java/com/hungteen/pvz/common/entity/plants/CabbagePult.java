@@ -22,7 +22,7 @@ public class CabbagePult extends ShooterPlant {
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
     public static final String SPEED_SKILL_NAME = "skill.pvz.cabbage_pult.deft_hand";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SPEED_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 0)
+            new Skill(SPEED_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 18, 16, 100, 0)
     );
 
     public CabbagePult(EntityType<? extends Mob> type, Level worldIn) {

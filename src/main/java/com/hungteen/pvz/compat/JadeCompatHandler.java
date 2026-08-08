@@ -131,7 +131,7 @@ public class JadeCompatHandler implements IWailaPlugin {
                     : cap.getOwner()).ifPresent(owner -> {
                         if (EntityUtil.isTeammate(entity, serverPlayer)) {
                             tag.putString("Owner", owner.getName().getString());
-                        } else {
+                        } else if (EntityUtil.isTeammateIgnoringTeam(entity, serverPlayer)) {
                             tag.putString("Owner", "#");
                         }
                     }));

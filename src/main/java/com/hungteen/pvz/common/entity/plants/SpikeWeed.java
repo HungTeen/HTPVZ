@@ -42,8 +42,8 @@ public class SpikeWeed extends SimplePlant {
     public static final String ON_WALL_SKILL_NAME = "skill.pvz.spike_weed.viscous_pseudoroots";
     public static final String POISONOUS_SKILL_NAME = "skill.pvz.spike_weed.poison_attenna";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(ON_WALL_SKILL_NAME, PVZItems.TERRA_ESSENCE, 6, 4, 0, 0),
-            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 4, 100, 0)
+            new Skill(ON_WALL_SKILL_NAME, PVZItems.TERRA_ESSENCE, 12, 8, 0, 0),
+            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 12, 8, 100, 0)
     );
 
     public SpikeWeed(EntityType<? extends Mob> entityType, Level level) {

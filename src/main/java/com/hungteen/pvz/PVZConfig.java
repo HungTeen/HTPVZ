@@ -51,7 +51,7 @@ public class PVZConfig {
         return Client.zombieRenderStuckArrows.get();
     }
 
-    public static void init(){
+    public static void init() {
         {
             final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
             ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, specPair.getRight());
@@ -90,6 +90,7 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnFallenStarInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnPennyInterval;
+        public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnZombieGroupInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> invasionSpawnerCoolDown;
         public static ForgeConfigSpec.ConfigValue<Integer> invasionExperienceFactor;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallyRegainSunInterval;
@@ -149,7 +150,7 @@ public class PVZConfig {
                             .comment("when on, pvz mod prevents players from leaving the island it is on."),
                     "gardenBorder", true);
             gardenOnlySprouts = add(builder
-                            .comment("when on, sprouts can only be planted in the Zen Garden."),
+                            .comment("when on, sprouts can only be planted in Zen Garden."),
                     "gardenOnlySprouts", true);
             marigoldsRequires = add(builder
                             .comment("when off, marigolds can grow up without needing water or fertilizer."),
@@ -165,7 +166,10 @@ public class PVZConfig {
                     "seedDispensaryGiveSprout", true);
             naturallySpawnInvasionsInterval = add(builder
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
-                    "naturallySpawnInvasionsInterval", 4000, 0, 1000000);
+                    "naturallySpawnInvasionsInterval", 1000, 0, 1000000);
+            naturallySpawnZombieGroupInterval = add(builder
+                            .comment("zombie groups will spawn from time to time near players at this interval. set to 0 to turn off natural fallen star spawn."),
+                    "naturallySpawnZombieGroupInterval", 2500, 0, 1000000);
             naturallySpawnSunInterval = add(builder
                             .comment("sun naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural sun spawn."),
                     "naturallySpawnSunInterval", 2000, 0, 1000000);
@@ -191,10 +195,11 @@ public class PVZConfig {
                             .comment("ticks sprouts should stay in after being fertilized before they grow to next level."),
                     "sproutGrowTime", 24000, 100, 1000000);
             invasionDifficultyFactorK = add(builder
-                            .comment("the general factor about the rate difficulty of invasions grows."),                    "invasionDifficultyFactorK", 1000, 0, 1000000);
+                            .comment("the general factor about the rate difficulty of invasions grows."),
+                    "invasionDifficultyFactorK", 1200, 0, 1000000);
             invasionDifficultyFactorB = add(builder
                             .comment("the general factor about the difficulty of invasions when it starts."),
-                    "invasionDifficultyFactorB", 300, 0, 1000000);
+                    "invasionDifficultyFactorB", 200, 0, 1000000);
             advancedPlantExtraCostRange = add(builder
                             .comment("when planting advanced plants, plants of the same type in this range will be included for calculation of extra cost. set to -1 to disable extra sun cost."),
                     "advancedPlantExtraCostRange", 30, -1, 500);

@@ -335,6 +335,9 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<Hook>> HOOK = collision(0.2F, 0.2F)
             .trackRange(4).updateInterval(20)
             .entity("hook", Hook::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<ModifiedFireBall>> FIREBALL = collision(0.2F, 0.2F)
+            .trackRange(4).updateInterval(20)
+            .entity("fireball", ModifiedFireBall::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<ThrownFogInBottle>> FOG_IN_BOTTLE = collision(0.25F, 0.25F)
             .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("fog_in_bottle", ThrownFogInBottle::new, MobCategory.MISC);
@@ -419,6 +422,7 @@ public class PVZEntities {
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);
         r(e, HOOK, HookRenderer::new);
+        r(e, FIREBALL, ctx -> new ThrownItemRenderer<>(ctx, 1.5F, true));
         r(e, ENTITY_LIFTER, EntityLifterRenderer::new);
         r(e, FALLEN_STAR, FallenStarRenderer::new);
         r(e, PEA_SHOOTER_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, PeaShooterZombieModel.class));

@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.renderer.zombies;
 import com.hungteen.pvz.client.layer.VanillaLightLayer;
 import com.hungteen.pvz.client.model.zombie.FireImpModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
-import com.hungteen.pvz.common.entity.zombies.FireImp;
+import com.hungteen.pvz.common.entity.zombies.GhastRiderBoss;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -19,15 +19,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 
-public class GhastRiderRenderer<T extends FireImp, M extends FireImpModel<T>> extends AbstractPVZZombieRenderer<T, M> {
+public class GhastRiderRenderer<T extends GhastRiderBoss, M extends FireImpModel<T>> extends AbstractPVZZombieRenderer<T, M> {
     private static final ResourceLocation TEXTURE = Util.prefix("textures/entity/zombie/imp/ghast_rider.png");
     private static final ResourceLocation LIGHT_0 = Util.prefix("textures/entity/zombie/imp/ghast_rider_light_0.png");
     private static final ResourceLocation LIGHT_1 = Util.prefix("textures/entity/zombie/imp/ghast_rider_light_1.png");
-    static int jointNum;
     public GhastRiderRenderer(EntityRendererProvider.Context context) {
         super(context, (M) new FireImpModel<T>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("fire_imp:main"))));
-        this.addLayer(new VanillaLightLayer<>(this, LIGHT_0, zombie -> zombie.getHealth() / zombie.getMaxHealth() >= 0.5));
-        this.addLayer(new VanillaLightLayer<>(this, LIGHT_1, zombie -> zombie.getHealth() / zombie.getMaxHealth() < 0.5));
+        this.addLayer(new VanillaLightLayer<>(this, LIGHT_0, zombie -> ! zombie.isPhase2()));
+        this.addLayer(new VanillaLightLayer<>(this, LIGHT_1, GhastRiderBoss::isPhase2));
     }
 
     @Override
@@ -75,24 +74,24 @@ public class GhastRiderRenderer<T extends FireImp, M extends FireImpModel<T>> ex
         int anchorBlockLight = zombie.level.getBrightness(LightLayer.BLOCK, tiedPosition);
         int entitySkyLight = zombie.level.getBrightness(LightLayer.SKY, blockpos);
         int anchorSkyLight = zombie.level.getBrightness(LightLayer.SKY, tiedPosition);
-        jointNum = (int) Math.sqrt(zombie.getRopeLengthSqr()) * 8;
+        int jointNum = (int) Math.sqrt(zombie.getRopeLengthSqr()) * 8;
         for(int i = jointNum; i >= 0; --i) {
             float afx = i % 2 == 1 ? 0 : fX;
             float afz = i % 2 == 1 ? 0 : fZ;
             addVertexPair(vertexconsumer, matrix4f, leashX, leashY, leashZ, entityBlockLight, 15, entitySkyLight, anchorSkyLight,
-                    width * 2, 0, afz, afx, jointNum, true);
+                    width * 2, 0, afz, afx, jointNum, jointNum, true);
         }
         for(int i = jointNum; i >= 0; --i) {
             float afx = i % 2 == 1 ? 0 : fX;
             float afz = i % 2 == 1 ? 0 : fZ;
             addVertexPair(vertexconsumer, matrix4f, leashX, leashY, leashZ, entityBlockLight, 15, entitySkyLight, anchorSkyLight,
-                    width, 0, afz, afx, i, true);
+                    width, 0, afz, afx, i, jointNum, true);
         }
         poseStack.popPose();
     }
     private static void addVertexPair(VertexConsumer vertexConsumer, Matrix4f matrix4f, float leashX, float leashY, float leashZ
             , int entityBlockLight, int anchorBlockLight, int entitySkyLight, int anchorSkyLight
-            , float widthZ, float widthX, float fZ, float fX, int progress, boolean bool) {
+            , float widthZ, float widthX, float fZ, float fX, int progress, int jointNum, boolean bool) {
         float progressPercent = (float) progress / jointNum;
         float heat = (float) (1 / (5.01 - 5 * progressPercent));
         int i = (int)Mth.lerp(progressPercent, (float)entityBlockLight, (float)anchorBlockLight);

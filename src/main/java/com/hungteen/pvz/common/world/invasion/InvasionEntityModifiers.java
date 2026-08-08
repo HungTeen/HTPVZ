@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.world.invasion;
 
 import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.entity.zombies.JackInABoxZombie;
+import com.hungteen.pvz.common.entity.zombies.TacoImp;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -90,7 +91,7 @@ public class InvasionEntityModifiers {
         if (fog == null) {
             PVZFogCapability.addOrResetFogSided(invasion.level, invasion.position, 2000, ((double) invasion.invasionLevel / 5 + 1), invasion.range, invasion.uuid);
         } else {
-            fog.lifeLeft = 2000;
+            fog.lifeLeft = 1000;
             fog.targetPos = invasion.position;
         }
         return true;
@@ -100,14 +101,22 @@ public class InvasionEntityModifiers {
             return true;
         }
         if (invasion.currentWave > invasion.waves.size() / 3
-                && (invasion.getCurrentWave().isBigWave || invasion.level.random.nextInt(5) == 0)
-                && random.nextInt(invasion.getCurrentWave().threat) == 0) {
-            invasion.summonEntity(TACO);
+                && invasion.currentWaveThreat == 0
+                && (invasion.getCurrentWave().isBigWave || invasion.level.random.nextInt(6) == 0)) {
+            boolean hasTaco = entity instanceof TacoImp;
+            for (Entity member : invasion.getMembers()) {
+                if (member instanceof TacoImp) {
+                    hasTaco = true;
+                    break;
+                }
+            }
+            if (! hasTaco) invasion.summonEntity(TACO);
         }
         return true;
     }
     public static boolean withSunBlood(@Nullable Invasion invasion, Entity entity, int threat) {
-        if (entity instanceof LivingEntity living && living.getRandom().nextInt(25) == 0) {
+        int sunChance = invasion == null ? 25 : ((int) (12 * (2 + (float) invasion.totalTime / invasion.expectedTotalTime)) - (entity.level.isDay() ? 0 : 8));
+        if (entity instanceof LivingEntity living && living.getRandom().nextInt(sunChance) == 0) {
             living.addEffect(new MobEffectInstance(PVZMobEffects.SUN_BLOOD.get(), 2000));
         }
         return true;

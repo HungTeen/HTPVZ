@@ -178,6 +178,24 @@ public class EntityUtil {
         MinecraftForge.EVENT_BUS.post(event);
         return event.currentResult;
     }
+
+    public static boolean isTeammateIgnoringTeam(Entity A, Entity B) {
+        if (A != null && A == B) return true;
+        if (A instanceof Projectile proj && proj.getOwner() != null) {
+            return isTeammate(proj.getOwner(), B);
+        }
+        if (B instanceof Projectile proj && proj.getOwner() != null) {
+            return isTeammate(A, proj.getOwner());
+        }
+        if (A == null || B == null) {
+            PVZMod.LOGGER.error("{} is found null in teammate check!", A == null ? "A" : "B");
+            return false;
+        }
+        boolean AIsEnemy = (! A.getType().is(PVZEntityTags.FRIENDLY)) && (A instanceof Enemy || A.getType().is(PVZEntityTags.ENEMY) || A.getType().is(Tags.EntityTypes.BOSSES));
+        boolean BIsEnemy = (! B.getType().is(PVZEntityTags.FRIENDLY)) && (B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY) || B.getType().is(Tags.EntityTypes.BOSSES));
+        return AIsEnemy == BIsEnemy;
+    }
+
     /**
      * check can AttackGoal continue to attack target. <b>CAN ONLY</b> call on server.
      */

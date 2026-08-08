@@ -35,8 +35,8 @@ public class TorchWood extends SimplePlant {
     public static final String SOUL_SKILL_NAME = "skill.pvz.torch_wood.soul_torch";
     public static final String ARMOR_SKILL_NAME = "skill.pvz.torch_wood.tough_bark";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SOUL_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 4, 50, 0),
-            new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 4, 50, 0)
+            new Skill(SOUL_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 8, 50, 0),
+            new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 8, 50, 0)
     );
 
     public TorchWood(EntityType<? extends Mob> entityType, Level level) {

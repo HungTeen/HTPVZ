@@ -14,6 +14,7 @@ import com.hungteen.pvz.common.network.EnderSeedBundleContainerPacket;
 import com.hungteen.pvz.common.network.PlayerContinueCoolDownPacket;
 import com.hungteen.pvz.common.network.ServerInfoPacket;
 import com.hungteen.pvz.common.register.*;
+import com.hungteen.pvz.common.world.ZombieGroup;
 import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
@@ -48,6 +49,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -115,7 +117,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
             player.getCapability(CAP).ifPresent(cap -> {
                 var nbt = cap.getPlayerData();
                 //timed sync
-                if (++ cap.syncCount % 10 == 0) {
+                if (++ cap.syncCount % 5 == 0) {
                     cap.sync(false);
                     if (cap.syncCount == 100) cap.syncCount = 0;
                 }
@@ -295,6 +297,11 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         if (InvasionTeam.spawnFor(player)) nbt.setValue(PVZPlayerCapStats.LAST_INVASION, 0);
                     }
                     nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 1);
+                }
+                //zombie group spawn
+                interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnZombieGroupInterval);
+                if (interval != 0 && player.tickCount % interval == interval / 2 && player.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
+                    ZombieGroup.spawnFor(player);
                 }
                 //penny spawn
                 if (player.level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {

@@ -109,6 +109,7 @@ public class PVZBlocks {
     public static final RegistryObject<Block> WATERING_POT = model(Model.Modeled).noItem().block("watering_pot", () -> new WateringPotBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F)));
     public static final RegistryObject<Block> ZEN_GARDEN_PORTAL = tag(BlockTags.PORTALS).model(Model.Modeled).noItem(/*registered separatedly.*/).block("zen_garden_portal", () -> new ZenGardenPortalBlock(BlockBehaviour.Properties.of(Material.CLAY).strength(0F).lightLevel(i-> 12)));
     public static final RegistryObject<Block> FLOATING_SOUL_SOIL = loot(false).model(Model.Simple).tag(BlockTags.SOUL_FIRE_BASE_BLOCKS, BlockTags.MINEABLE_WITH_SHOVEL).block("floating_soul_soil", () -> new FloatingSoulSoilBlock(BlockBehaviour.Properties.copy(Blocks.SOUL_SOIL).strength(0.5F).explosionResistance(0).lightLevel(i -> 8)));
+    public static final RegistryObject<Block> WARPED_OBSILIUM = model(Model.Modeled).tag(PVZBlockTags.PLANTABLE_DIRT, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL).block("warped_obsilium", () -> new Block(BlockBehaviour.Properties.copy(Blocks.OBSIDIAN)));
     public static final RegistryObject<Block> SILVER_SWORD_ORNAMENT = model(Model.Modeled).renderType("cutout").itemModel(PVZItems.Model.Simple)
             .tag(BlockTags.MINEABLE_WITH_AXE).blockEntity("silver_sword_ornament")
             .block("silver_sword_ornament", () -> new SilverSwordOrnamentBlock(BlockBehaviour.Properties.copy(Blocks.OAK_FENCE)));

@@ -1,6 +1,7 @@
 package com.hungteen.pvz.mixin;
 
 import net.minecraft.world.entity.monster.Slime;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Slime.SlimeAttackGoal.class)
 public class SlimeAttackGoalMixin {
 
-    @Shadow public Slime slime;
+    @Final @Shadow private Slime slime;
 
     @Inject(method = "canContinueToUse", at = @At("HEAD"), cancellable = true)
     public void canContinueToUse(CallbackInfoReturnable<Boolean> cir) {

@@ -9,6 +9,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraftforge.common.world.BiomeModifier;
 import net.minecraftforge.common.world.ModifiableBiomeInfo;
@@ -51,11 +52,23 @@ public class PVZBiomeModifier implements BiomeModifier {
                 builder.getMobSpawnSettings().getSpawner(MobCategory.MONSTER)
                         .add(new MobSpawnSettings.SpawnerData(PVZEntities.SNORKEL_ZOMBIE.get(), 10, 1,1));
             }
-            if (biome.is(BiomeTags.IS_NETHER) && ! biome.is(PVZBiomeTags.UNABLE_INVASION)) {
+            if (biome == Biomes.WARPED_FOREST) {
                 builder.getMobSpawnSettings().getSpawner(MobCategory.MONSTER)
-                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.BUNGEE_ZOMBIE.get(), 4, 1,1));
+                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.JACK_IN_A_BOX_ZOMBIE.get(), 2, 1,1));
+            }
+            if (biome == Biomes.CRIMSON_FOREST) {
                 builder.getMobSpawnSettings().getSpawner(MobCategory.MONSTER)
-                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.FIRE_IMP.get(), 2, 1,1));
+                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.FIRE_IMP.get(), 1, 1,1));
+            }
+            if (biome == Biomes.BASALT_DELTAS) {
+                builder.getMobSpawnSettings().getSpawner(MobCategory.MONSTER)
+                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.FIRE_IMP.get(), 1, 1,1));
+            }
+            if (biome == Biomes.NETHER_WASTES) {
+                builder.getMobSpawnSettings().getSpawner(MobCategory.MONSTER)
+                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.FIRE_IMP.get(), 1, 1,1));
+                builder.getMobSpawnSettings().getSpawner(MobCategory.MONSTER)
+                        .add(new MobSpawnSettings.SpawnerData(PVZEntities.IMP.get(), 2, 1,1));
             }
         }
     }

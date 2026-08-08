@@ -120,6 +120,7 @@ public class GargantuarModel<T extends Gargantuar> extends HierarchicalModel<T> 
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		//humanoid animations.
 		boolean flag = gargantuar.getFallFlyingTicks() > 4;
+		this.head.visible = gargantuar.renderHead;
 		this.head.yRot = netHeadYaw * ((float)Math.PI / 180F);
 		if (flag) {
 			this.head.xRot = (-(float)Math.PI / 4F);

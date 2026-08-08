@@ -1,12 +1,11 @@
 package com.hungteen.pvz.api.interfaces;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 
 import java.util.stream.Stream;
 
-/**Must Be {@link LivingEntity} .*/
+/**Must Be {@link Mob} .*/
 public interface ICanGroupUp {
     ICanGroupUp getLeader();
     void setLeader(ICanGroupUp entity);
@@ -15,14 +14,17 @@ public interface ICanGroupUp {
     void setSchoolSize(int size);
     int getGroupRangeSqr();
 
-    default boolean isFollower() {
-        return this.getLeader() != null && ((LivingEntity) this.getLeader()).isAlive();
+    default Mob self() {
+        return (Mob) this;
     }
 
-    default ICanGroupUp startFollowing(ICanGroupUp target) {
+    default boolean isFollower() {
+        return this.getLeader() != null && this.getLeader().self().isAlive();
+    }
+
+    default void startFollowing(ICanGroupUp target) {
         this.setLeader(target);
         target.addFollower();
-        return target;
     }
 
     default void stopFollowing() {
@@ -53,12 +55,12 @@ public interface ICanGroupUp {
     }
 
     default boolean inRangeOfLeader() {
-        return ((Entity) this).distanceToSqr((Entity) this.getLeader()) <= getGroupRangeSqr();
+        return self().distanceToSqr((Entity) this.getLeader()) <= getGroupRangeSqr();
     }
 
     default void pathToLeader() {
         if (this.isFollower() && ((Entity)this).position().distanceToSqr(((Entity) getLeader()).position()) > getGroupRangeSqr() / 4) {
-            ((Mob) this).getNavigation().moveTo((Entity) this.getLeader(), 1.0D);
+            self().getNavigation().moveTo((Entity) this.getLeader(), 1.0D);
         }
     }
 }
