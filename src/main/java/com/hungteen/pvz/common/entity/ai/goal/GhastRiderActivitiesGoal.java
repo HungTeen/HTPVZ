@@ -1,10 +1,12 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
-import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.LavaGhastling;
 import com.hungteen.pvz.common.entity.creatures.Anger;
-import com.hungteen.pvz.common.entity.zombies.*;
+import com.hungteen.pvz.common.entity.zombies.FireImp;
+import com.hungteen.pvz.common.entity.zombies.GhastRiderBoss;
+import com.hungteen.pvz.common.entity.zombies.JackInABoxZombie;
+import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
@@ -26,6 +28,7 @@ import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
+import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.LevelReader;
@@ -100,6 +103,10 @@ public class GhastRiderActivitiesGoal extends Goal {
         if (crossCooldown > 0) crossCooldown --;
         if (tpCooldown > 0) tpCooldown --;
         frozenTick = zombie.getTicksFrozen() > 0 ? ++ frozenTick : 0;
+        //removing dead ghast from list
+        Set.copyOf(this.zombie.ghastlings).forEach(ghast -> {
+            if (ghast.isDeadOrDying()) this.zombie.ghastlings.remove(ghast);
+        });
         if (! EntityUtil.isEntityValid(zombie.getTarget())) {
             if (tpCooldown <= 0) {
                 switchOffWalkingGoals();
@@ -109,6 +116,7 @@ public class GhastRiderActivitiesGoal extends Goal {
             }
             if (zombie.tickCount % 5 == 0 && atCenter()) {
                 zombie.heal(0.5f);
+
                 if (zombie.isPhase2() && healthRate > 0.75) {
                     zombie.setPhase2(false);
                     EntityUtil.removeModifierFromAttribute(this.zombie, Attributes.ARMOR, PHASE2_MODIFIER_UUID);
@@ -126,10 +134,6 @@ public class GhastRiderActivitiesGoal extends Goal {
             return;
         }
         battleStartTick ++;
-        //removing dead ghast from list
-        Set.copyOf(this.zombie.ghastlings).forEach(ghast -> {
-            if (ghast.isDeadOrDying()) this.zombie.ghastlings.remove(ghast);
-        });
         if (zombie.isPassenger()) {
             this.hangingTick = 0;
             unmountedTick = 0;
@@ -311,7 +315,7 @@ public class GhastRiderActivitiesGoal extends Goal {
                                     if (type == PVZEntities.FIRE_IMP.get()) fireImpCount ++;
                                     if (type == PVZEntities.BUNGEE_ZOMBIE.get()) bungeeCount ++;
                                     if (type == PVZEntities.JACK_IN_A_BOX_ZOMBIE.get()) jackCount ++;
-                                } else if ((entity instanceof Player || entity instanceof IPlant) && EntityUtil.checkCanEntityBeAttack(zombie, entity)) {
+                                } else if (! (entity instanceof Strider) && EntityUtil.checkCanEntityBeAttack(zombie, entity)) {
                                     enemyCount ++;
                                     if (entity instanceof Player player && player.getInventory().hasAnyOf(Set.of(PVZItems.GOLDEN_TACO.get()))) {
                                         tacoCount += player.getInventory().countItem(PVZItems.GOLDEN_TACO.get());

@@ -274,7 +274,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         super.addAdditionalSaveData(tag);
         tag.putInt("growLevel", this.getGrowLevel());
         tag.putLong("growEndTime", this.growEndTime);
-        tag.putBoolean("requiresWater", this.isRequiringWater());
+        tag.putBoolean("requiresWater", this.entityData.get(REQUIRES_WATER));
         tag.putInt("color", this.entityData.get(COLOR));
     }
 

@@ -44,7 +44,7 @@ public class BlockTagGen extends BlockTagsProvider {
         this.tag(PVZBlockTags.UNPLANTABLE_DIRT).add(
                 Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT,
                 Blocks.SOUL_SAND, Blocks.SOUL_SOIL, PVZBlocks.FLOATING_SOUL_SOIL.get(),
-                Blocks.SAND, Blocks.RED_SAND
+                Blocks.SAND, Blocks.RED_SAND, Blocks.PACKED_MUD, Blocks.MUD
         );
         this.tag(PVZBlockTags.PLANTABLE_DIRT).add(
                 Blocks.GRASS_BLOCK, Blocks.MYCELIUM, Blocks.PODZOL, Blocks.DIRT_PATH,
@@ -58,7 +58,23 @@ public class BlockTagGen extends BlockTagsProvider {
                 Tags.Blocks.STONE, Tags.Blocks.NETHERRACK, BlockTags.TERRACOTTA, Tags.Blocks.COBBLESTONE,
                         Tags.Blocks.SANDSTONE, Tags.Blocks.SAND, Tags.Blocks.GRAVEL, Tags.Blocks.OBSIDIAN,
                         BlockTags.STONE_BRICKS, BlockTags.WALLS, Tags.Blocks.ORES)
-                .add(Blocks.BLACKSTONE, Blocks.PRISMARINE, Blocks.DRIPSTONE_BLOCK, Blocks.BASALT);
+                .add(Blocks.DRIPSTONE_BLOCK, Blocks.BASALT, Blocks.POLISHED_BASALT, Blocks.SMOOTH_BASALT, Blocks.BRICKS, Blocks.CALCITE, Blocks.CRYING_OBSIDIAN
+                        , Blocks.ANDESITE_SLAB, Blocks.GRANITE_SLAB, Blocks.DIORITE_SLAB, Blocks.POLISHED_ANDESITE_SLAB, Blocks.POLISHED_GRANITE_SLAB, Blocks.POLISHED_DIORITE_SLAB
+                        , Blocks.INFESTED_CHISELED_STONE_BRICKS, Blocks.INFESTED_CRACKED_STONE_BRICKS, Blocks.INFESTED_MOSSY_STONE_BRICKS, Blocks.INFESTED_STONE_BRICKS
+                        , Blocks.PRISMARINE, Blocks.PRISMARINE_BRICKS, Blocks.DARK_PRISMARINE, Blocks.DARK_PRISMARINE_SLAB, Blocks.PRISMARINE_SLAB, Blocks.PRISMARINE_BRICK_SLAB
+                        , Blocks.BRICK_SLAB, Blocks.STONE_BRICK_SLAB, Blocks.STONE_SLAB, Blocks.COBBLESTONE_SLAB
+                        , Blocks.DEEPSLATE_BRICK_SLAB, Blocks.DEEPSLATE_BRICKS, Blocks.CRACKED_DEEPSLATE_BRICKS
+                        , Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES, Blocks.CRACKED_DEEPSLATE_TILES
+                        , Blocks.POLISHED_DEEPSLATE_SLAB, Blocks.COBBLED_DEEPSLATE_SLAB, Blocks.CHISELED_DEEPSLATE, Blocks.REINFORCED_DEEPSLATE
+                        , Blocks.SMOOTH_STONE, Blocks.SMOOTH_STONE_SLAB, Blocks.MOSSY_STONE_BRICK_SLAB, Blocks.MOSSY_COBBLESTONE_SLAB
+                        , Blocks.SMOOTH_RED_SANDSTONE_SLAB, Blocks.SMOOTH_SANDSTONE_SLAB, Blocks.SANDSTONE_SLAB, Blocks.RED_SANDSTONE_SLAB, Blocks.CUT_RED_SANDSTONE_SLAB, Blocks.CUT_SANDSTONE_SLAB
+                        , Blocks.NETHER_BRICK_SLAB, Blocks.NETHER_BRICKS, Blocks.CHISELED_NETHER_BRICKS, Blocks.CRACKED_NETHER_BRICKS, Blocks.RED_NETHER_BRICK_SLAB, Blocks.RED_NETHER_BRICKS
+                        , Blocks.POLISHED_BLACKSTONE_BRICKS, Blocks.POLISHED_BLACKSTONE_BRICK_SLAB, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS
+                        , Blocks.BLACKSTONE, Blocks.BLACKSTONE_SLAB, Blocks.POLISHED_BLACKSTONE, Blocks.POLISHED_BLACKSTONE_SLAB, Blocks.CHISELED_POLISHED_BLACKSTONE, Blocks.GILDED_BLACKSTONE
+                        , Blocks.QUARTZ_BLOCK, Blocks.QUARTZ_SLAB, Blocks.SMOOTH_QUARTZ_SLAB, Blocks.SMOOTH_QUARTZ, Blocks.QUARTZ_BRICKS, Blocks.QUARTZ_PILLAR, Blocks.CHISELED_QUARTZ_BLOCK
+                        , Blocks.MUD_BRICKS, Blocks.MUD_BRICK_SLAB
+                        , Blocks.PURPUR_SLAB, Blocks.PURPUR_BLOCK, Blocks.PURPUR_PILLAR
+                        , Blocks.END_STONE, Blocks.END_STONE_BRICKS, Blocks.END_STONE_BRICK_SLAB);
         this.tag(PVZBlockTags.WISDOM_TREE_REPLACEABLE).addTags(BlockTags.MOSS_REPLACEABLE, BlockTags.REPLACEABLE_PLANTS, BlockTags.LEAVES);
         this.tag(PVZBlockTags.SCULK).add(Blocks.SCULK, Blocks.SCULK_CATALYST, Blocks.SCULK_VEIN, Blocks.SCULK_SENSOR, Blocks.SCULK_SHRIEKER);
         this.tag(BlockTags.DIRT).add(PVZBlocks.ORIGIN_ORE.get());

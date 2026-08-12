@@ -11,7 +11,6 @@ import net.minecraftforge.common.loot.LootModifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Random;
 
 public class AddItemModifier extends LootModifier {
     public static final Codec<AddItemModifier> CODEC = RecordCodecBuilder.create(instance -> codecStart(instance)
@@ -25,7 +24,9 @@ public class AddItemModifier extends LootModifier {
 
     @Override
     protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-        generatedLoot.addAll(this.itemStack);
+        for (ItemStack itemStack : this.itemStack) {
+            generatedLoot.add(itemStack.copy());
+        }
         return generatedLoot;
     }
 

@@ -115,7 +115,7 @@ public class PVZStructures {
             biomes(PVZBiomeTags.HAS_OVERWORLD_INVASION_RUIN), Map.of(), GenerationStep.Decoration.SURFACE_STRUCTURES, TerrainAdjustment.BEARD_THIN
     ), INVASION_RUIN_POOL.getHolder().get(),7, ConstantHeight.of(VerticalAnchor.absolute(0)), true, Heightmap.Types.WORLD_SURFACE_WG));
     public static final RegistryObject<StructureSet> INVASION_RUIN_SET = STRUCTURE_SETS.register("invasion_ruin", () ->
-            new StructureSet(INVASION_RUIN.getHolder().get(), new RandomSpreadStructurePlacement(16, 10, RandomSpreadType.LINEAR, 125796538)));
+            new StructureSet(INVASION_RUIN.getHolder().get(), new RandomSpreadStructurePlacement(16, 10, RandomSpreadType.LINEAR, 125579638)));
 
     //nether_invasion_ruin
     public static final RegistryObject<StructurePieceType> NETHER_INVASION_RUIN_PIECE = STRUCTURE_PIECE_TYPES.register("nether_invasion_ruin", () -> StructurePieceType.setTemplatePieceId(NetherInvasionRuinStructurePieces.NetherInvasionRuinStructurePiece::new, "PVZNIR"));

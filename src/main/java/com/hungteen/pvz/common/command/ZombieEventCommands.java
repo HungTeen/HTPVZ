@@ -69,7 +69,7 @@ public class ZombieEventCommands {
             source.sendSystemMessage(Component.translatable("commands.pvz.invasion.using_empty_invasion_type"));
         }
         entity.level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap ->
-                cap.addEvent(new Invasion(entity.level, uuid, types, living, entity.blockPosition(), Math.min(255, Math.max(1, level)))));
+                cap.addEvent(new Invasion(entity.level, uuid, types, living, entity.blockPosition(), Math.min(20, Math.max(0, level)))));
         source.sendSuccess(Component.translatable("commands.pvz.invasion.add", uuid), true);
         return 1;
     }

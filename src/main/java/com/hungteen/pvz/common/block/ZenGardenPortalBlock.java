@@ -50,6 +50,7 @@ public class ZenGardenPortalBlock extends HorizontalDirectionalBlock implements 
 
     public InteractionResult use(BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
         if (! level.isClientSide) {
+            if (player.isPassenger()) player.stopRiding();
             this.transport(player, pos);
 //            this.playSound(player, level, pos, true); TODO add sound.
             level.gameEvent(player, GameEvent.TELEPORT, pos);

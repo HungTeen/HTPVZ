@@ -303,6 +303,10 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<EnderZomboss>> ENDER_ZOMBOSS = attribute(EnderZomboss::createAttributes)
             .tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES).fireImmuine()
             .entity("ender_zomboss", EnderZomboss::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<ChorusTerminatorBoss>> CHORUS_TERMINATOR = attribute(ChorusTerminatorBoss::createAttributes)
+            .tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES)
+            .collision(7F, 6F)
+            .entity("chorus_terminator", ChorusTerminatorBoss::new, MobCategory.MONSTER);
 
     //bullets
     public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F)
@@ -364,6 +368,7 @@ public class PVZEntities {
         rS(MELON_PULT, MelonPultModel::new, MelonPultModel::createBodyLayer, 0.5F, "textures/entity/plants/melon_pult/melon_pult.png");
         rS(ICEBERG_LETTUCE, IcebergLettuceModel::new, IcebergLettuceModel::createBodyLayer, 0F, "textures/entity/plants/iceberg_lettuce/iceberg_lettuce.png");
         rS(PENNY, PennyModel::new, PennyModel::createBodyLayer, 1.5F);
+        rS(CHORUS_TERMINATOR, ChorusTerminatorModel::new, ChorusTerminatorModel::createBodyLayer, 1F, "textures/entity/zombie/chorus_terminator/chorus_terminator.png");
     }
 
     @OnlyIn(Dist.CLIENT)

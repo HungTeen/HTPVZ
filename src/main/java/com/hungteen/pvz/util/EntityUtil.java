@@ -28,6 +28,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -141,7 +142,13 @@ public class EntityUtil {
     /**Check if entities are teammates. can call on server or client.
      * <br>I you want to check if an entity is attackable, use {@link EntityUtil#checkCanEntityBeAttack(Entity, Entity)}.*/
     public static boolean isTeammate(Entity A, Entity B) {
-        if (A != null && A == B) return true;
+        if (A == null || B == null) {
+            PVZMod.LOGGER.error("{} is found null in teammate check!", A == null ? "A" : "B");
+            return false;
+        }
+        if (A == B) return true;
+        if (A instanceof PartEntity<?> p) return isTeammate(p.getParent(), B);
+        if (B instanceof PartEntity<?> p) return isTeammate(A, p.getParent());
         if (A instanceof Projectile proj && proj.getOwner() != null) {
             return isTeammate(proj.getOwner(), B);
         }
@@ -149,10 +156,6 @@ public class EntityUtil {
             return isTeammate(A, proj.getOwner());
         }
         boolean result;
-        if (A == null || B == null) {
-            PVZMod.LOGGER.error("{} is found null in teammate check!", A == null ? "A" : "B");
-            return false;
-        }
 
         Team teamA = A.getTeam();
         Team teamB = B.getTeam();
@@ -180,16 +183,18 @@ public class EntityUtil {
     }
 
     public static boolean isTeammateIgnoringTeam(Entity A, Entity B) {
-        if (A != null && A == B) return true;
+        if (A == null || B == null) {
+            PVZMod.LOGGER.error("{} is found null in teammate check!", A == null ? "A" : "B");
+            return false;
+        }
+        if (A == B) return true;
+        if (A instanceof PartEntity<?> p) return isTeammateIgnoringTeam(p.getParent(), B);
+        if (B instanceof PartEntity<?> p) return isTeammateIgnoringTeam(A, p.getParent());
         if (A instanceof Projectile proj && proj.getOwner() != null) {
             return isTeammate(proj.getOwner(), B);
         }
         if (B instanceof Projectile proj && proj.getOwner() != null) {
             return isTeammate(A, proj.getOwner());
-        }
-        if (A == null || B == null) {
-            PVZMod.LOGGER.error("{} is found null in teammate check!", A == null ? "A" : "B");
-            return false;
         }
         boolean AIsEnemy = (! A.getType().is(PVZEntityTags.FRIENDLY)) && (A instanceof Enemy || A.getType().is(PVZEntityTags.ENEMY) || A.getType().is(Tags.EntityTypes.BOSSES));
         boolean BIsEnemy = (! B.getType().is(PVZEntityTags.FRIENDLY)) && (B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY) || B.getType().is(Tags.EntityTypes.BOSSES));
@@ -200,6 +205,7 @@ public class EntityUtil {
      * check can AttackGoal continue to attack target. <b>CAN ONLY</b> call on server.
      */
     public static boolean checkCanEntityBeAttack(Entity attacker, Entity target) {
+        if (target instanceof PartEntity<?> p) return checkCanEntityBeAttack(attacker, p.getParent());
         if (attacker == null || target == null) return false;
         boolean result = ((! (target instanceof Player)) || isSurvivalPlayer(target)) && isEntityValid(target) && ! isTeammate(attacker, target);
         TeammateTestingEvent event = new TeammateTestingEvent(attacker, target, ! result, true);

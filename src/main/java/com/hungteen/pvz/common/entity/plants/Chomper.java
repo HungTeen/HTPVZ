@@ -67,6 +67,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.common.Mod;
 
@@ -182,6 +183,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                 .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.MOVEMENT_SPEED, 0D)
                 .add(Attributes.ATTACK_DAMAGE, 40D)
+                .add(ForgeMod.ATTACK_RANGE.get(), 4D)
                 .add(Attributes.FOLLOW_RANGE, 32D);
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
@@ -555,7 +557,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
             switch (chomper.getPose()) {
                 case STANDING -> {
                     if (chomper.animTick > 59 && chomper.animTick % 60 <= 1 && EntityUtil.checkCanEntityBeAttack(chomper, this.chomper.getTarget())) {
-                        if (chomper.getTarget().distanceToSqr(chomper) < 16) {
+                        if (chomper.getTarget().distanceToSqr(chomper) < chomper.getAttributeValue(ForgeMod.ATTACK_RANGE.get())) {
                             return true;
                         } else {
                             Path path = chomper.getNavigation().createPath(this.chomper.getTarget(), 0);
@@ -598,7 +600,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     if (! EntityUtil.isEntityValid(this.chomper.getTarget())) {
                         return;
                     }
-                    if (chomper.getTarget().distanceToSqr(chomper) < 16) {
+                    if (chomper.getTarget().distanceToSqr(chomper) < chomper.getAttributeValue(ForgeMod.ATTACK_RANGE.get())) {
                         chomper.setPose(Pose.SPIN_ATTACK);
                     } else {
                         chomper.playSound(PVZSoundEvents.CHOMPER_START_BURROW.get(), 1.0F, 1.0F);
@@ -613,7 +615,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                         LivingEntity target = chomper.getTarget();
                         chomper.playSound(PVZSoundEvents.CHOMPER_ATTACK.get(), 1.0F, 1.0F);
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) &&
-                                chomper.distanceToSqr(target.position()) <= (chomper.getPose() == Pose.SPIN_ATTACK ? 16 : 6) && ! target.getType().is(Tags.EntityTypes.BOSSES)) {
+                                chomper.distanceToSqr(target.position()) <= ((chomper.getPose() == Pose.SPIN_ATTACK ? 1 : 0.5) * chomper.getAttributeValue(ForgeMod.ATTACK_RANGE.get())) && ! target.getType().is(Tags.EntityTypes.BOSSES)) {
                             target.startRiding(chomper);
                             target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper, target), 2F), (float) (chomper.getAttributeValue(Attributes.ATTACK_DAMAGE) / 8 * PVZAPI.get().getPlantDamageDatum(chomper.level)));
                             if (target.getBbWidth() > 1.25) {

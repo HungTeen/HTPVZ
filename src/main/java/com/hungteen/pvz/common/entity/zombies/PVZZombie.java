@@ -108,9 +108,10 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
         }
         if (getType() == PVZEntities.ZOMBIE.get() && spawnType == MobSpawnType.NATURAL) {
             if (this.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
-                this.setItemSlot(EquipmentSlot.HEAD, random.nextInt(5) == 0
-                        ? PVZItems.BUCKET_HELMET.get().getDefaultInstance()
-                        : PVZItems.CONE_HELMET.get().getDefaultInstance());
+                this.setItemSlot(EquipmentSlot.HEAD, PVZItems.CONE_HELMET.get().getDefaultInstance());
+                if (this.getRandom().nextInt(5) == 0) {
+
+                }
             }
         }
         return super.finalizeSpawn(level, difficulty, spawnType, data, tag);

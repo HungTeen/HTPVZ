@@ -49,8 +49,8 @@ public class PeaGunItem extends ProjectileWeaponItem {
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment)
     {
         return super.canApplyAtEnchantingTable(stack, enchantment) ||
-                enchantment == Enchantments.INFINITY_ARROWS ||
-                enchantment == Enchantments.FLAMING_ARROWS ||
+                (enchantment == Enchantments.INFINITY_ARROWS && ! stack.getAllEnchantments().containsKey(Enchantments.FLAMING_ARROWS)) ||
+                (enchantment == Enchantments.FLAMING_ARROWS && ! stack.getAllEnchantments().containsKey(Enchantments.INFINITY_ARROWS)) ||
                 enchantment == Enchantments.QUICK_CHARGE ||
                 enchantment == Enchantments.PUNCH_ARROWS ||
                 enchantment == Enchantments.POWER_ARROWS;

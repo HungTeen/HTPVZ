@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.entity.PartEntity;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -58,7 +59,18 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	 * shoot with offsets.
 	 */
 	public @Nullable Projectile performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
-		LivingEntity target = this.getTarget();
+		Entity target = this.getTarget();
+		if (target != null) {
+			double distSqr = target.position().distanceToSqr(this.position());
+			for (PartEntity<?> part : target.getParts()) {
+				if (! isHeightAvailable(part)) continue;
+				double distSqr1 = part.position().distanceToSqr(this.position());
+				if (distSqr1 < distSqr) {
+					distSqr = distSqr1;
+					target = part;
+				}
+			}
+		}
 		//create bullet
 		Vec3 deltaPos = getShootAngle(target, forwardOffset, rightOffset, heightOffset);
 		Vec3 normalized = deltaPos.normalize();
@@ -172,7 +184,8 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			Vec3 deltaPos;
 			Vec3 targetSpeed;
 			if (storedEnemyPos != null && aimTime > 0) {
-				targetSpeed = target.position().subtract(storedEnemyPos)
+				targetSpeed = target.position()
+						.add(target instanceof PartEntity<?> p ? p.getParent().position().subtract(p.position()) : Vec3.ZERO).subtract(storedEnemyPos)
 						.multiply(1 / (float) aimTime, 1 / (float) aimTime, 1 / (float) aimTime);
 			} else {
 				targetSpeed = target.getDeltaMovement().add(0, 0.1/*minus gravity*/, 0);
