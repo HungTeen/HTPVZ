@@ -3,14 +3,13 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.common.world.invasion.Invasion;
 import com.hungteen.pvz.common.world.invasion.InvasionType;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
@@ -93,11 +92,16 @@ public class PVZMobEffects {
     public static final RegistryObject<MobEffect> INVASION_OMEN = effect("invasion_omen", () ->
             new InvasionOmenEffect(MobEffectCategory.HARMFUL, 0x2d4a3e)).build();
 
-    public static final UUID DISTANCE_EFFECT_UUID = UUID.fromString("b2fd9a45-5679-7850-25c3-b684eb4b0e52");
     public static final RegistryObject<MobEffect> DISTANCE_EFFECT = effect("distance_effect", () ->
-            new PVZMobEffect(MobEffectCategory.HARMFUL, 0xffffff))
+            new PVZMobEffect(MobEffectCategory.HARMFUL, 0x15082b))
             .build();
 
+    public static final UUID SUN_BLOOD_EFFECT_UUID = UUID.fromString("94b7d6e2-a451-a619-a89b-56f087fdd3c3");
+    public static final RegistryObject<MobEffect> SUN_BLOOD = effect("sun_blood", () ->
+            new PVZMobEffect(MobEffectCategory.BENEFICIAL, 0xffcfa1)
+                    .addAttributeModifier(Attributes.MAX_HEALTH, SUN_BLOOD_EFFECT_UUID.toString(), 0F, AttributeModifier.Operation.ADDITION))
+            .registerPotion(1200)
+            .build();
 
     /**To use this effect, use {@link PVZMobEffects#hypnotizeWithTeam(LivingEntity, String, int)} for conveinence.*/
     public static final UUID HYPNOTIZED_EFFECT_UUID = UUID.fromString("8ee427fa-6f9d-2aa5-6d52-76b37472bfc1");
@@ -106,6 +110,7 @@ public class PVZMobEffects {
                     .addAttributeModifier(Attributes.ARMOR, HYPNOTIZED_EFFECT_UUID.toString(), 2F, AttributeModifier.Operation.ADDITION))
             .unapplicableWhen((entity, effectInstance) -> entity.getType().is(PVZEntityTags.HYPNOTISED_INVULNERABLE))
             .build();
+
 
     public static void addMixs() {
         PotionBrewing.addMix(Potions.AWKWARD, PVZBlocks.PLANTERN.get().asItem(), potionMap.get("brightness").get());
@@ -263,30 +268,32 @@ public class PVZMobEffects {
             }
         }
     }
+
+
     public static class InvasionOmenEffect extends PVZMobEffect {
-        static LivingEntity removed = null;
 
         public InvasionOmenEffect(MobEffectCategory p_19451_, int p_19452_) {
             super(p_19451_, p_19452_);
         }
 
         public void applyEffectTick(LivingEntity entity, int amplifier) {
-            if (! entity.level.isClientSide && entity != removed && entity instanceof Player) {
-                List<InvasionType> types = InvasionType.generateTypes(entity);
-                if (entity instanceof ServerPlayer player) {
-                    if ((types.isEmpty() || ! types.stream().allMatch(type -> type.isAvailable(entity, types)))) {
-                        player.displayClientMessage(Component.translatable("hint.pvz.invasion.no_available_invasion"), true);
-                    } else {
-                        entity.level.getCapability(PVZZombieEventCapability.CAP).ifPresent(cap -> {
+            if (! entity.level.isClientSide && entity instanceof ServerPlayer player) {
+                if (Invasion.canInvade(player)) {
+                    List<InvasionType> types = InvasionType.generateTypes(player);
+                    if (! types.isEmpty()) {
+                        var cap = PVZZombieEventCapability.fromLevel(player.level);
+                        if (cap != null) {
                             cap.addEvent(new Invasion(entity.level, types, entity, entity.blockPosition(), Math.min(11, Math.max(1, amplifier))));
-                        });
+                            PVZPlayerCapability.getPlayerData(player).ifPresent(nbt -> nbt.setValue(PVZPlayerCapStats.LAST_INVASION, 0));
+                            entity.removeEffect(INVASION_OMEN.get());
+                        }
                     }
                 }
             }
         }
 
         public boolean isDurationEffectTick(int duration, int amplifier) {
-            return duration == 1;
+            return duration % 200 == 1;
         }
     }
     /**About how Hypnotzed effect work, see {@link com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal HypnotizedTargetGoal}.*/
@@ -327,10 +334,6 @@ public class PVZMobEffects {
         }
 
         public void applyEffectTick(LivingEntity entity, int level) {
-            if (entity instanceof LocalPlayer player && player.portalTime <= 0) {
-                player.portalTime = player.getRandom().nextFloat() / 2;
-                player.oPortalTime = player.getRandom().nextFloat() / 2;
-            }
         }
     }
 }

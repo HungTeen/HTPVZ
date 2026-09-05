@@ -1,0 +1,36 @@
+{
+  "parent": "pvz:first_plant",
+  "display": {
+    "frame": "goal",
+    "title": {
+      "translate": "advancements.pvz.kill_ender_zomboss.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.kill_ender_zomboss.description"
+    },
+    "icon": {
+      "item": "pvz:spatiotemporal_unit"
+    }
+  },
+  "criteria": {
+    "kill_end_zomboss": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "pvz:ender_zomboss"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:player_killed_entity"
+    }
+  },
+  "requirements": [
+    [
+      "kill_end_zomboss"
+    ]
+  ]
+}

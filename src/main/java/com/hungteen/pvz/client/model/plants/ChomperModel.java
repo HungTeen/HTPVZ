@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.4
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.ChomperAnimation;
+import com.hungteen.pvz.client.model.plants.animation.ChomperModelAnimation;
 import com.hungteen.pvz.common.entity.plants.Chomper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -88,14 +88,14 @@ public class ChomperModel<T extends Chomper> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T chomper, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.bone.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(chomper.idleAnimationState, ChomperAnimation.idle, ageInTicks);
-		this.animate(chomper.digAnimationState, ChomperAnimation.dig, ageInTicks);
-		this.animate(chomper.attackAnimationState, ChomperAnimation.attack, ageInTicks);
-		this.animate(chomper.outAnimationState, ChomperAnimation.out, ageInTicks);
-		this.animate(chomper.digestAnimationState, ChomperAnimation.digest, ageInTicks);
-		this.animate(chomper.swallowAnimationState, ChomperAnimation.swallow, ageInTicks);
-		this.animate(chomper.swimAnimationState, ChomperAnimation.swim, ageInTicks);
-		this.animate(chomper.meleeAnimationState, ChomperAnimation.melee, ageInTicks);
+		this.animate(chomper.idleAnimationState, ChomperModelAnimation.idle, ageInTicks);
+		this.animate(chomper.digAnimationState, ChomperModelAnimation.dig, ageInTicks);
+		this.animate(chomper.attackAnimationState, ChomperModelAnimation.attack, ageInTicks);
+		this.animate(chomper.outAnimationState, ChomperModelAnimation.out, ageInTicks);
+		this.animate(chomper.digestAnimationState, ChomperModelAnimation.digest, ageInTicks);
+		this.animate(chomper.swallowAnimationState, ChomperModelAnimation.swallow, ageInTicks);
+		this.animate(chomper.swimAnimationState, ChomperModelAnimation.swim, ageInTicks);
+		this.animate(chomper.meleeAnimationState, ChomperModelAnimation.melee, ageInTicks);
 	}
 
 	@Override

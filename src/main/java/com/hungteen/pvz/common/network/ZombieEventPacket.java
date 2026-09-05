@@ -54,6 +54,6 @@ public class ZombieEventPacket {
     public static void removalToClient(ZombieEvent event) {
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("removal", true);
-        PVZPacketHandler.sendToPlayers(new ZombieEventPacket(event.uuid, tag));
+        PVZPacketHandler.sendToLevel(event.level, new ZombieEventPacket(event.uuid, tag));
     }
 }

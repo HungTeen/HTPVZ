@@ -1,0 +1,25 @@
+{
+  "variants": {
+    "axis=z,type=0": {
+      "model": "pvz:block/tombstone"
+    },
+    "axis=z,type=1": {
+      "model": "pvz:block/tombstone_1"
+    },
+    "axis=z,type=2": {
+      "model": "pvz:block/tombstone_2"
+    },
+    "axis=x,type=0": {
+      "model": "pvz:block/tombstone",
+      "y": 90
+    },
+    "axis=x,type=1": {
+      "model": "pvz:block/tombstone_1",
+      "y": 90
+    },
+    "axis=x,type=2": {
+      "model": "pvz:block/tombstone_2",
+      "y": 90
+    }
+  }
+}

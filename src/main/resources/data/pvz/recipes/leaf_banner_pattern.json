@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "item": "pvz:alaya_resin"
+    }
+  ],
+  "result": {
+    "item": "pvz:leaf_banner_pattern"
+  }
+}

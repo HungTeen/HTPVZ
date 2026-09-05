@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.4
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.GoldBloomAnimation;
+import com.hungteen.pvz.client.model.plants.animation.GoldBloomModelAnimation;
 import com.hungteen.pvz.common.entity.plants.GoldBloom;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -96,8 +96,8 @@ public class GoldBloomModel<T extends GoldBloom> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T goldBloom, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(goldBloom.explodeAnimationState, GoldBloomAnimation.explode, ageInTicks);
-		this.animate(goldBloom.idleAnimationState, GoldBloomAnimation.idle, ageInTicks);
+		this.animate(goldBloom.explodeAnimationState, GoldBloomModelAnimation.explode, ageInTicks);
+		this.animate(goldBloom.idleAnimationState, GoldBloomModelAnimation.idle, ageInTicks);
 	}
 
 	@Override

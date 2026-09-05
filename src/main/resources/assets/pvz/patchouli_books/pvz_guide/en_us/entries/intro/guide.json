@@ -1,0 +1,16 @@
+{
+    "name": "Guide Book",
+    "icon": "minecraft:book",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "Here shows the recipe of this book."
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:patchouli_guide_book"
+        }
+    ],
+    "sortnum": 0
+}

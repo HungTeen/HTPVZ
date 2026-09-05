@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "orange_dye",
+  "ingredients": [
+    {
+      "item": "pvz:pepper"
+    },
+    {
+      "item": "pvz:ignis_essence"
+    },
+    {
+      "item": "pvz:ignis_essence"
+    },
+    {
+      "item": "pvz:ignis_essence"
+    },
+    {
+      "item": "pvz:ignis_essence"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "pvz:jalapeno_seed"
+  }
+}

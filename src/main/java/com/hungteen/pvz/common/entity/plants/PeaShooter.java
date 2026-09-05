@@ -1,17 +1,24 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.block.EntityLightBlock;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,9 +30,9 @@ public class PeaShooter extends ShooterPlant {
     public static String SNIPER_SKILL_NAME = "skill.pvz.pea_shooter.sniper";
     public static String FIRE_SKILL_NAME = "skill.pvz.pea_shooter.fire_shooter";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 100, 0),
-            new Skill(SNIPER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 4, 12, 150, 940).avoidSkills(PUNCH_SKILL_NAME), //for pvp.
-            new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 4, 50, 0).avoidSkills(PUNCH_SKILL_NAME, SNIPER_SKILL_NAME)
+            new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 3, 8, 100, 0),
+            new Skill(SNIPER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 16, 16, 150, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.FAST).avoidSkills(PUNCH_SKILL_NAME), //for pvp.
+            new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 6, 12, 50, 0).avoidSkills(PUNCH_SKILL_NAME, SNIPER_SKILL_NAME)
     );
 
     public PeaShooter(EntityType<? extends Mob> type, Level worldIn) {
@@ -35,10 +42,17 @@ public class PeaShooter extends ShooterPlant {
     public List<Skill> getBasicStaticSkillList(){
         return staticSkillList;
     }
-
+    @Override
+    public boolean fireImmune() {
+        return this.hasSkill(FIRE_SKILL_NAME);
+    }
+    @Override
+    public boolean canFreeze() {
+        return ! this.hasSkill(FIRE_SKILL_NAME);
+    }
     @Override
     public void shootBullet() {
-        this.performShoot(SHOOT_OFFSET, 0, -0.2F, true, 0);
+        this.performShoot(SHOOT_OFFSET, 0, this.getBbHeight() * 0.55F, true, 0);
     }
 
     @Override
@@ -64,6 +78,20 @@ public class PeaShooter extends ShooterPlant {
                 this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.5, AttributeModifier.Operation.MULTIPLY_BASE));
             }
         }
+        BlockPos pos = getOnPos().above();
+        if (! level.isClientSide() && this.hasSkill(FIRE_SKILL_NAME)) {
+            if (level.getBlockState(pos).isAir()) {
+                level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                        .setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 9 : 7), 2);
+            } else if (level.getBlockState(pos).is(Blocks.WATER)) {
+                level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
+                        .setValue(EntityLightBlock.WATERLOGGED, true).setValue(EntityLightBlock.LEVEL, random.nextInt(7) == 0 ? 9 : 7), 2);
+            }
+            if (level.getBlockState(pos).is(PVZBlocks.ENTITY_LIGHT.get())) {
+                level.setBlock(pos, level.getBlockState(pos)
+                        .setValue(EntityLightBlock.HAS_SOURCE, true), 2);
+            }
+        }
         super.tick();
     }
 
@@ -72,19 +100,27 @@ public class PeaShooter extends ShooterPlant {
     }
 
     @Override
+    public SoundEvent getShootSound() {
+        return this.hasSkill(SNIPER_SKILL_NAME) ? PVZSoundEvents.PEA_SNIPER_SHOOT.get() : super.getShootSound();
+    }
+
+    @Override
     public int getShootCD() {
-        return this.hasSkill(this, SNIPER_SKILL_NAME) ? 160 : 40;
+        return this.hasSkill(this, SNIPER_SKILL_NAME) ? 160 : 20;
     }
 
     @Override
     public float getBulletSpeed() {
         return (this.hasSkill(this, SNIPER_SKILL_NAME) ? 5F : 1F) * super.getBulletSpeed();
     }
-
+    @Override
+    public int getDisappearTicks() {
+        return this.hasSkill(SNIPER_SKILL_NAME) ? 2100000000 : super.getDisappearTicks();
+    }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 5D)
+                .add(Attributes.ATTACK_DAMAGE, 4D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.35D);
     }
 

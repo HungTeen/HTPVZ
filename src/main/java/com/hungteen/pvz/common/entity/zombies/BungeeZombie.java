@@ -1,9 +1,11 @@
 package com.hungteen.pvz.common.entity.zombies;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.entity.Hook;
 import com.hungteen.pvz.common.entity.bullet.ArrowWithATarget;
 import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
 import com.mojang.serialization.Dynamic;
@@ -14,9 +16,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
@@ -42,6 +46,7 @@ private final DynamicGameEventListener<VibrationListener> dynamicGameEventListen
     public void addBehaviourGoals() {
         super.addBehaviourGoals();
         this.goalSelector.addGoal(1, new BungeeZombieAttackGoal(this));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class, true, (entity) -> entity instanceof IPlant && EntityUtil.checkCanEntityBeAttack(this, entity)));
     }
 
     @Override
@@ -133,13 +138,16 @@ private final DynamicGameEventListener<VibrationListener> dynamicGameEventListen
         public void tick() {
             Entity target = zombie.getTarget();
             boolean targetAvailable = EntityUtil.isEntityValid(target) && target.getBbWidth() <= 1;
-            if (! this.zombie.isHanging() || this.zombie.tickCount % 200 <= 1) {
-                if (targetAvailable) {
+            if (! this.zombie.isHanging() || this.zombie.tickCount % 300 <= 1) {
+                if (targetAvailable && zombie.position().distanceToSqr(target.position()) > 8) {
                     BlockPos pos = target.blockPosition().offset(0, Math.ceil(target.getBbHeight()),0);
                     for (; pos.getY() < this.zombie.level.getMaxBuildHeight(); pos = pos.above()) {
                         if (! level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()) {
                             BlockPos nowPos = zombie.getHangingPosition();
-                            if ((nowPos == null || ! nowPos.equals(pos)) && zombie.blockPosition().offset(0, Math.ceil(zombie.getBbHeight()), 0).getY() <= pos.getY()) {
+                            if ((nowPos == null || ! (nowPos.getX() == pos.getX() && nowPos.getZ() == pos.getZ()))
+                                    && zombie.blockPosition().offset(0, Math.ceil(zombie.getBbHeight()), 0).getY() <= pos.getY()
+                                    && zombie.getHangingEntity() == null) {
+                                if (nowPos != null && pos.distSqr(nowPos) < 4) break;
                                 Hook hook = new Hook(PVZEntities.HOOK.get(), this.zombie.level);
                                 Vec3 zombieCenter = this.zombie.position().add(0, zombie.getBbHeight() / 2, 0);
                                 hook.setPos(zombieCenter);
@@ -147,6 +155,9 @@ private final DynamicGameEventListener<VibrationListener> dynamicGameEventListen
                                 Vec3 deltaPos = Vec3.atBottomCenterOf(pos).subtract(zombieCenter);
                                 hook.shoot(deltaPos.x, deltaPos.y, deltaPos.z, 2, 0);
                                 this.zombie.level.addFreshEntity(hook);
+                                this.zombie.setRopeLengthSqr(Math.min(this.zombie.getRopeLengthSqr(), 25));
+                                this.zombie.setHangingEntity(hook);
+                                break;
                             }
                         }
                     }
@@ -205,6 +216,7 @@ private final DynamicGameEventListener<VibrationListener> dynamicGameEventListen
                             target.stopRiding();
                             target.boardingCooldown = 0;
                             target.startRiding(zombie);
+                            zombie.playSound(PVZSoundEvents.BUNGEE_ZOMBIE_STEAL.get());
                             stayTime = 0;
                         } else if (stayTime > 10) {
                             for (Entity rider : zombie.getPassengers()) {

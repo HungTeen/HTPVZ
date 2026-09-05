@@ -8,11 +8,13 @@ public class SunImageToolTipComponent implements TooltipComponent {
     public boolean isCostSun;
     public boolean isAddition;
     public boolean hasCd;
-    public SunImageToolTipComponent(int cost, int cd, boolean isCostSun, boolean isAddition, boolean hasCd) {
+    public boolean hasExtraCost;
+    public SunImageToolTipComponent(int cost, int cd, boolean isCostSun, boolean isAddition, boolean hasCd, boolean hasExtraCost) {
         this.cost = cost;
         this.cd = cd;
         this.isCostSun = isCostSun;
         this.isAddition = isAddition;
         this.hasCd = hasCd;
+        this.hasExtraCost = hasExtraCost;
     }
 }

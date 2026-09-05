@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.network.PlayerKnockBackPacket;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.ParticleTypes;
@@ -15,6 +16,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -43,6 +45,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -59,12 +62,12 @@ public class Gargantuar extends PVZZombie {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return PVZZombie.createAttributes()
-                .add(Attributes.ARMOR, 120D)
-                .add(Attributes.ARMOR_TOUGHNESS, 80D)
+                .add(Attributes.ARMOR, 80D)
+                .add(Attributes.ARMOR_TOUGHNESS, 50D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.75D)
                 .add(Attributes.ATTACK_SPEED, 1D)
                 .add(Attributes.ATTACK_DAMAGE, 4D)
-                .add(Attributes.MAX_HEALTH, 60D);
+                .add(Attributes.MAX_HEALTH, 100D);
     }
     @Override
     protected void addBehaviourGoals() {
@@ -168,6 +171,22 @@ public class Gargantuar extends PVZZombie {
                 .add(new Vec3(- Math.sin(yBodyRot / 57.2), 0, Math.cos(yBodyRot / 57.2)).normalize().scale(this.isBaby() ? -0.5 : -0.7)));
     }
 
+    //sounds
+    @Override
+    public @NotNull SoundEvent getAmbientSound() {
+        return PVZSoundEvents.GARGANTUAR_AMBIENT.get();
+    }
+
+    @Override
+    public @NotNull SoundEvent getDeathSound() {
+        return PVZSoundEvents.GARGANTUAR_DEATH.get();
+    }
+
+    @Override
+    public @NotNull SoundEvent getStepSound() {
+        return PVZSoundEvents.GARGANTUAR_STEP.get();
+    }
+
     public static class GargantuarRiderGoal extends Goal {
         private final Gargantuar gargantuar;
         private short animCount;
@@ -199,6 +218,7 @@ public class Gargantuar extends PVZZombie {
             } else if (animCount == 32) {
                 Entity entity = gargantuar.getFirstPassenger();
                 if (EntityUtil.isEntityValid(entity)) {
+                    if (entity instanceof Imp imp) gargantuar.level.playSound(null, imp, imp.getThrowSound(this.gargantuar), imp.getSoundSource(), 1, 1);
                     entity.stopRiding();
                     double dist = EntityUtil.isEntityValid(gargantuar.getTarget()) ? gargantuar.getTarget().position().subtract(gargantuar.position())
                             .multiply(new Vec3(1, 0, 1)).distanceTo(Vec3.ZERO) : 8;
@@ -269,6 +289,7 @@ public class Gargantuar extends PVZZombie {
                 mob.getNavigation().stop();
             }
             if (animCount == 1) {
+                mob.playSound(PVZSoundEvents.GARGANTUAR_ATTACK.get());
                 mob.setPose(Pose.SPIN_ATTACK);
             } else if (animCount == 26) {
                 LivingEntity target = this.mob.getTarget();
@@ -277,6 +298,7 @@ public class Gargantuar extends PVZZombie {
                     double dis = this.getAttackReachSqr(target);
                     if (distance <= dis) {
                         if (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER)) {
+                            mob.playSound(PVZSoundEvents.ANVIL_HAMMER_CRASH.get());
                             target.hurt(PVZDamageSource.ignoreInvTime(PVZDamageSource.gargantuarCrash(mob).bypassArmor()), (float) mob.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2F);
                             List<Entity> list = mob.level.getEntities((Entity) null,
                                     new AABB(target.position().add(-0.8, 0, -0.8), target.position().add(0.8, 1, 0.8)),

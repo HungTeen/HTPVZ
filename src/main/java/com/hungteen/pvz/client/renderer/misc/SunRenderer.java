@@ -23,7 +23,9 @@ import net.minecraft.resources.ResourceLocation;
 public class SunRenderer extends EntityRenderer<Sun> {
 
 	private static final ResourceLocation SUN_LOCATION = new ResourceLocation("pvz", "textures/entity/sun/sun.png");
+	private static final ResourceLocation SUN_LIGHT_LOCATION = new ResourceLocation("pvz", "textures/entity/sun/sun_light.png");
 	private static final RenderType RENDER_TYPE = RenderType.itemEntityTranslucentCull(SUN_LOCATION);
+	private static final RenderType LIGHT_RENDER_TYPE = RenderType.itemEntityTranslucentCull(SUN_LIGHT_LOCATION);
 
 	public SunRenderer(EntityRendererProvider.Context p_174110_) {
 		super(p_174110_);
@@ -33,6 +35,10 @@ public class SunRenderer extends EntityRenderer<Sun> {
 
 	protected int getBlockLightLevel(Sun p_114606_, BlockPos p_114607_) {
 		return Math.min(super.getBlockLightLevel(p_114606_, p_114607_) + 7, 15);
+	}
+
+	protected int getSkyLightLevel(Sun p_114606_, BlockPos p_114607_) {
+		return Math.min(super.getSkyLightLevel(p_114606_, p_114607_) + 7, 15);
 	}
 
 	@Override
@@ -64,7 +70,7 @@ public class SunRenderer extends EntityRenderer<Sun> {
 			alpha = 255;
 		}
 
-		stack.translate(0.0D, (double) 0.1F, 0.0D);
+		stack.translate(0.0D, 0.1F, 0.0D);
 		stack.mulPose(this.entityRenderDispatcher.cameraOrientation());
 		stack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
 		final float size = 0.4F;
@@ -77,6 +83,15 @@ public class SunRenderer extends EntityRenderer<Sun> {
 		vertex(vertexconsumer, matrix4f, matrix3f, 1F, -1.0F, red, green, blue, x + 12.01F * Math.cos(tick + 1.57F) / 64, y + 12.01F * Math.sin(tick + 1.57F) / 64, p_114604_, alpha);
 		vertex(vertexconsumer, matrix4f, matrix3f, 1F, 1.0F, red, green, blue, x - 12.01F * Math.cos(tick) / 64, y - 12.01F * Math.sin(tick) / 64, p_114604_, alpha);
 		vertex(vertexconsumer, matrix4f, matrix3f, -1F, 1.0F, red, green, blue, x - 12.01F * Math.cos(tick + 1.57F) / 64, y - 12.01F * Math.sin(tick + 1.57F) / 64, p_114604_, alpha);
+		VertexConsumer vertexconsumer1 = bufferSource.getBuffer(LIGHT_RENDER_TYPE);
+		red = Math.min(255, 3 * red);
+		green = Math.min(255, 2 * green);
+		blue = Math.min(255, 6 * blue);
+		alpha = (int) Math.min(255, 1.5 * alpha);
+		vertex(vertexconsumer1, matrix4f, matrix3f, -1F, -1.0F, red, green, blue, x + 12.01F * Math.cos(tick) / 64, y + 12.01F * Math.sin(tick) / 64, p_114604_, alpha);
+		vertex(vertexconsumer1, matrix4f, matrix3f, 1F, -1.0F, red, green, blue, x + 12.01F * Math.cos(tick + 1.57F) / 64, y + 12.01F * Math.sin(tick + 1.57F) / 64, p_114604_, alpha);
+		vertex(vertexconsumer1, matrix4f, matrix3f, 1F, 1.0F, red, green, blue, x - 12.01F * Math.cos(tick) / 64, y - 12.01F * Math.sin(tick) / 64, p_114604_, alpha);
+		vertex(vertexconsumer1, matrix4f, matrix3f, -1F, 1.0F, red, green, blue, x - 12.01F * Math.cos(tick + 1.57F) / 64, y - 12.01F * Math.sin(tick + 1.57F) / 64, p_114604_, alpha);
 		stack.popPose();
 		super.render(sun, p_114600_, partialTicks, stack, bufferSource, p_114604_);
 	}

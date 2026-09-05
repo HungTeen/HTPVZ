@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.tags.PVZBannerPatternTags;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 public class PVZBannerPatterns {
     public static Map<RegistryObject<BannerPattern>, TagKey<BannerPattern>> bannerMap = new HashMap<>();
+    public static Map<RegistryObject<BannerPattern>, RegistryObject<Item>> itemMap = new HashMap<>();
 
     public static final DeferredRegister<BannerPattern> BANNERS = DeferredRegister.create(Registry.BANNER_PATTERN_REGISTRY, PVZMod.MODID);
     public static final RegistryObject<BannerPattern> BRAIN = banner("brain", PVZBannerPatternTags.PATTERN_ITEM_BRAIN);

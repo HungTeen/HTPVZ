@@ -6,13 +6,10 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 import com.hungteen.pvz.common.entity.plants.SpikeWeed;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
-import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.resources.ResourceLocation;
 
 public class SpikeWeedModel<T extends SpikeWeed> extends HierarchicalModel<T> {
 	private final ModelPart total;
@@ -28,7 +25,7 @@ public class SpikeWeedModel<T extends SpikeWeed> extends HierarchicalModel<T> {
 		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create().texOffs(0, 19).addBox(-8.0F, -3.0F, -8.0F, 16.0F, 3.0F, 16.0F, new CubeDeformation(0.0F))
 		.texOffs(0, 0).addBox(-8.0F, -3.2F, -8.0F, 16.0F, 3.0F, 16.0F, new CubeDeformation(0.3F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-		PartDefinition bone = total.addOrReplaceChild("bone", CubeListBuilder.create().texOffs(32, 38).addBox(-8.0F, -6.0F, -4.0F, 16.0F, 4.0F, 0.0F, new CubeDeformation(0.0F))
+		PartDefinition bone = total.addOrReplaceChild("head", CubeListBuilder.create().texOffs(32, 38).addBox(-8.0F, -6.0F, -4.0F, 16.0F, 4.0F, 0.0F, new CubeDeformation(0.0F))
 		.texOffs(32, 42).addBox(-8.0F, -6.0F, 4.0F, 16.0F, 4.0F, 0.0F, new CubeDeformation(0.0F))
 		.texOffs(0, 22).addBox(-4.0F, -6.0F, -8.0F, 0.0F, 4.0F, 16.0F, new CubeDeformation(0.0F))
 		.texOffs(0, 26).addBox(4.0F, -6.0F, -8.0F, 0.0F, 4.0F, 16.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));

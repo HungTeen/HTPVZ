@@ -2,18 +2,21 @@
   "type": "minecraft:crafting_shaped",
   "key": {
     "$": {
-      "item": "minecraft:crossbow"
+      "item": "minecraft:tripwire_hook"
     },
     "&": {
-      "item": "minecraft:vine"
+      "item": "minecraft:stick"
     },
     "%": {
       "item": "pvz:alaya_resin"
+    },
+    "#": {
+      "item": "minecraft:vine"
     }
   },
   "pattern": [
     "&%&",
-    " $ ",
+    "#$#",
     " & "
   ],
   "result": {

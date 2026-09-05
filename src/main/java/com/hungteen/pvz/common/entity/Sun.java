@@ -7,9 +7,8 @@ import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.api.interfaces.ISunContainer;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.register.PVZEnchantments;
-import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.register.PVZParticles;
+import com.hungteen.pvz.common.network.ClientProxy;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -29,14 +28,15 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     public static final float SUN_FALL_SPEED = 0.03F;
     public static final int DEFAULT_AMOUNT = 50;
-    public static final int MAX_LIVE_TICK = 500;
+    public static final int MAX_LIVE_TICK = 750;
     public LivingEntity controller = null;
-    public Vec3 ColorBase = new Vec3(255,230,15);
-    public Vec3 ColorChange = new Vec3(0,25,15);
+    public Vec3 ColorBase = new Vec3(255,235,30);
+    public Vec3 ColorChange = new Vec3(0,10,15);
     private ISunAbsorber attractedBy;
     private Player attractingPlayer = null;
     private static final EntityDataAccessor<Integer> AMOUNT = SynchedEntityData.defineId(Sun.class, EntityDataSerializers.INT);
@@ -115,10 +115,17 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
         if (player.isCreative()) {
             return true;
         }
-        final boolean[] tmp = new boolean[1];
+        if (this.level.isClientSide && ClientProxy.getPlayer() != player) {
+            return false;
+        }
+        Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
+        if (entry != null) {
+            return true;
+        }
+        final AtomicBoolean result = new AtomicBoolean();
         PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) ->
-                tmp[0] = nbt.getValue(PVZPlayerCapStats.SUN) < nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond());
-        return tmp[0];
+                result.set(nbt.getValue(PVZPlayerCapStats.SUN) < nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond()));
+        return result.get();
     }
 
     @Override
@@ -154,31 +161,41 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
         AbsorbSunEvent event = new AbsorbSunEvent.Player(this, player, AbsorbSunEvent.Phase.Start);
         MinecraftForge.EVENT_BUS.post(event);
         if (! event.isCanceled()) {
-            //sun mending enchantment.
-            if (getAmount() >= 50) {
-                Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
-                if (entry != null) {
-                    ItemStack itemStack = entry.getValue();
-                    setAmount(getAmount() - 25);
-                    itemStack.setDamageValue(itemStack.getDamageValue() - 1);
-                }
-            }
-            //player absorb.
             PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
-                int origin = nbt.getValue(PVZPlayerCapStats.SUN);
+                int currentSun = nbt.getValue(PVZPlayerCapStats.SUN);
+                //sun mending enchantment.
+                if (currentSun >= nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond()) {
+                    Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
+                    if (entry != null) {
+                        ItemStack itemStack = entry.getValue();
+                        int amount = getAmount() / 50;
+                        this.remove(Entity.RemovalReason.DISCARDED);
+                        this.playSound(PVZSoundEvents.COLLECT_SUN.get());
+                        itemStack.setDamageValue(Math.max(0, itemStack.getDamageValue() - amount));
+                    }
+                }
+                //player absorb.
                 int num = getAmount();
                 nbt.addValue(PVZPlayerCapStats.SUN, num);
                 int actual = nbt.getValue(PVZPlayerCapStats.SUN);
-                if (actual - origin >= num || player.isCreative()) {
+                if (actual - currentSun >= num || player.isCreative()) {
                     this.remove(Entity.RemovalReason.DISCARDED);
                 } else {
-                    this.setAmount(num - actual + origin);
+                    this.setAmount(num - actual + currentSun);
+                }
+                if (! player.isCreative()) {
+                    player.awardStat(PVZStats.COLLECT_SUN_VALUE, actual - currentSun);
+                }
+                if (actual - currentSun > 0) {
+                    player.awardStat(PVZStats.COLLECT_SUN);
+                }
+                if (currentSun < actual) {
+                    this.playSound(PVZSoundEvents.COLLECT_SUN.get());
                 }
             });
             event = new AbsorbSunEvent.Player(this, player, AbsorbSunEvent.Phase.End);
             MinecraftForge.EVENT_BUS.post(event);
         }
-        //TODO add a event here.
     }
 
     //ISunAbsorber
@@ -289,14 +306,14 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
             this.controller = null;
         }
         if (this.controller == null){
-            ColorBase = new Vec3(255,230,15);
-            ColorChange = new Vec3(0,25,15);
+            ColorBase = new Vec3(255,235,30);
+            ColorChange = new Vec3(0,10,15);
         }
     }
 
     public int getIcon() {
         final int value = this.getAmount();
-        return value < 6 ? 0 : value < 26 ? 1 : value < 51 ? 2 : 3;
+        return value < 25 ? 0 : value < 50 ? 1 : value < 150 ? 2 : 3;
     }
 
     @Override

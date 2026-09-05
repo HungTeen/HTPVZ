@@ -4,7 +4,9 @@ import com.hungteen.pvz.api.events.GetPeaGunBulletEvent;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -47,8 +49,8 @@ public class PeaGunItem extends ProjectileWeaponItem {
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment)
     {
         return super.canApplyAtEnchantingTable(stack, enchantment) ||
-                enchantment == Enchantments.INFINITY_ARROWS ||
-                enchantment == Enchantments.FLAMING_ARROWS ||
+                (enchantment == Enchantments.INFINITY_ARROWS && ! stack.getAllEnchantments().containsKey(Enchantments.FLAMING_ARROWS)) ||
+                (enchantment == Enchantments.FLAMING_ARROWS && ! stack.getAllEnchantments().containsKey(Enchantments.INFINITY_ARROWS)) ||
                 enchantment == Enchantments.QUICK_CHARGE ||
                 enchantment == Enchantments.PUNCH_ARROWS ||
                 enchantment == Enchantments.POWER_ARROWS;
@@ -93,6 +95,7 @@ public class PeaGunItem extends ProjectileWeaponItem {
                             .multiply((1 + punch * 0.1) * resistance, (1 + punch * 0.1) * resistance, (1 + punch * 0.1) * resistance)));
                 }
                 projectile.setOwner(player);
+                level.playSound(null, player, PVZSoundEvents.PEA_SNIPER_SHOOT.get(), SoundSource.PLAYERS, 1, 1);
                 projectile.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.0F + punch * 1.5F, 1.0F);
                 level.addFreshEntity(projectile);
                 player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), player.getAbilities().instabuild ? 3 :
@@ -130,13 +133,13 @@ public class PeaGunItem extends ProjectileWeaponItem {
         int force = EnchantmentHelper.getTagEnchantmentLevel(Enchantments.POWER_ARROWS, shooter.getItemBySlot(slot));
         if (bulletItem == PVZItems.PEA.get()) {
             pea.setPeaType(attachFire ? PeaBullet.PeaType.Fire : PeaBullet.PeaType.Common);
-            pea.setAttackDamage(6 + force * 2);
+            pea.setAttackDamage(8 + force * 2);
         } else if (bulletItem == PVZItems.SNOW_PEA.get()) {
             pea.setPeaType(attachFire ? PeaBullet.PeaType.Common : PeaBullet.PeaType.Ice);
-            pea.setAttackDamage(4 + force * 2);
+            pea.setAttackDamage(7 + force * 2);
         } else if (bulletItem == PVZItems.FLAME_PEA.get()) {
             pea.setPeaType(PeaBullet.PeaType.Fire);
-            pea.setAttackDamage(10 + force * 2);
+            pea.setAttackDamage(12 + force * 2);
         }
         pea.setKnockBackStrength(0.35F + force * 0.05F);
         pea.setNoGravity(true);

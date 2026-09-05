@@ -45,9 +45,12 @@ public class ArrowWithATarget extends AbstractArrow {
         super.onHitEntity(result);
         if (this.isRemoved() && result.getEntity() instanceof LivingEntity living) {
             if (! this.level.isClientSide && this.getPierceLevel() <= 0 && living.getArrowCount() > 0) {
-                living.setArrowCount(living.getArrowCount() - 1);
                 living.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
-                    cap.setStuckArrowWithATarget(cap.getStuckArrowWithATarget() + 1);
+                    int arrows = cap.getStuckArrowWithATarget();
+                    if (arrows < 4) {
+                        cap.setStuckArrowWithATarget(arrows + 1);
+                        living.setArrowCount(living.getArrowCount() - 1);
+                    }
                 });
             }
         }

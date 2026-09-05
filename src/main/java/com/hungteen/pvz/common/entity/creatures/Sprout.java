@@ -1,15 +1,14 @@
 package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.events.GardenPlantGrowUpEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.plants.MariGold;
 import com.hungteen.pvz.common.event.SproutTransformEvent;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
-import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -17,12 +16,17 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +37,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -49,7 +55,7 @@ public class Sprout extends Mob implements IGardenPlant {
     public long growEndTime = -1;
     public Sprout(EntityType<? extends Mob> p_21368_, Level p_21369_) {
         super(p_21368_, p_21369_);
-        this.entityData.set(DATA_POSE, Pose.DIGGING);
+        this.entityData.set(DATA_POSE, Pose.DIGGING);//used to set bounding box
     }
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
@@ -98,7 +104,7 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public boolean isRequiringWater() {
-        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < 2;
+        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < this.getMaxLevel();
     }
     @Override
     public void setRequiringFertilizer(boolean bool) {
@@ -106,7 +112,7 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public boolean isRequiringFertilizer() {
-        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < 2;
+        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < this.getMaxLevel();
     }
     protected boolean isRequiring() {
         return this.entityData.get(GROW_ENDED);
@@ -120,7 +126,7 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public int getMaxLevel() {
-        return 2;
+        return 3;
     }
     @Override
     public void setGrowLevel(int level) {
@@ -129,22 +135,39 @@ public class Sprout extends Mob implements IGardenPlant {
     }
     @Override
     public int getRemainingGrowTick() {
-        return (this.level.isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - Util.getServerTime(this.level.getServer()));
+        return (this.getLevel().isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - this.getLevel().getGameTime());
     }
     @Override
     public void setRemainingGrowTick(int time) {
-        this.growEndTime = this.level.isClientSide ? -1L : Util.getServerTime(this.level.getServer()) + time;
+        this.growEndTime = this.getLevel().isClientSide ? -1L : this.getLevel().getGameTime() + time;
     }
 
     @Override
     public void tick() {
         super.tick();
         if (! level.isClientSide) {
-            if (this.getRemainingGrowTick() <= 0) {
-                setRequiring(true);
+            if (this.getRemainingGrowTick() <= 0 && isEffectiveAi()) {
+                if (PVZConfig.PVZGameRules.getBoolean(this.level, PVZConfig.Common.marigoldsRequires))
+                    setRequiring(true);
+                else {
+                    this.onFertilized(null, null);
+                }
             }
             if (this.tickCount % 10 == 0 && ! level.getBlockState(this.getOnPos()).is(PVZBlockTags.GARDEN_FLOWER_POT)) {
                 this.hurt(PVZDamageSource.PLANT_WILT, (float) (0.2 * this.getAttribute(Attributes.MAX_HEALTH).getValue()));
+            }
+            if (this.getRemainingGrowTick() > 40) {
+                List<Bee> bees = this.level.getEntitiesOfClass(Bee.class
+                        , this.getBoundingBox().inflate(0.5, 0.5, 0.5)
+                        , bee -> bee.savedFlowerPos != null && bee.savedFlowerPos.equals(this.blockPosition()));
+                if (! bees.isEmpty()) {
+                    this.growEndTime -= 2;
+                    if (this.random.nextInt(3) == 0) {
+                        ((ServerLevel) this.level).sendParticles(ParticleTypes.COMPOSTER,
+                                position().x, position().y + 0.3, position().z,
+                                2, 0.3, 0.3, 0.3, 0);
+                    }
+                }
             }
         } else {
             if (! entityData.get(PLANT_NAME).equals("") && this.plant == null) {
@@ -159,10 +182,17 @@ public class Sprout extends Mob implements IGardenPlant {
                         }
                     }
                 }
-            } else if (getGrowLevel() >= 2 && this.getRemainingGrowTick() <= 0 ) {
-                this.level.addParticle(ParticleTypes.ELECTRIC_SPARK,
-                        getX() + random.nextFloat() * 0.8 - 0.4, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.4,
-                        0, random.nextFloat(), 0);
+            } else if (getGrowLevel() >= this.getMaxLevel()) {
+                if (random.nextInt(2) == 0) {
+                    this.level.addParticle(ParticleTypes.ELECTRIC_SPARK,
+                            getX() + random.nextFloat() * 0.8 - 0.4, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.4,
+                            0, random.nextFloat(), 0);
+                }
+                if (random.nextInt(5) == 0) {
+                    this.level.addParticle(PVZParticles.GLOW_DUST.get(),
+                            getX() + random.nextFloat() * 0.8 - 0.2, getY() + random.nextFloat() * 0.5, getZ() + random.nextFloat() * 0.8 - 0.2,
+                            0, 0, 0);
+                }
             }
             if (plant != null) {
                 plant.tick();
@@ -176,9 +206,16 @@ public class Sprout extends Mob implements IGardenPlant {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (getGrowLevel() >= 2 && this.getRemainingGrowTick() <= 0) {
+        if (! level.isClientSide && getGrowLevel() >= this.getMaxLevel()) {
             produce();
+            ExperienceOrb.award((ServerLevel)this.level, this.position(), 5);
             this.discard();
+            if (player instanceof ServerPlayer serverPlayer) {
+                level.playSound(null, this, SoundEvents.DYE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                player.awardStat(PVZStats.HARVEST_SPROUTS);
+                PVZCriteriaTriggers.HARVEST_SPROUT.trigger(serverPlayer);
+                PVZCriteriaTriggers.HARVEST_SPROUT.trigger(serverPlayer);
+            }
             return InteractionResult.CONSUME;
         }
         return super.mobInteract(player, hand);
@@ -204,7 +241,7 @@ public class Sprout extends Mob implements IGardenPlant {
 
     /**Check {@link IGardenPlant} for the two methods below.*/
     @Override
-    public InteractionResult onWatered(Player player, ItemStack stack) {
+    public InteractionResult onWatered(@Nullable Player player, @Nullable ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringWater()) {
             this.setRemainingGrowTick(100 + random.nextInt(100));
@@ -216,14 +253,20 @@ public class Sprout extends Mob implements IGardenPlant {
         }
     }
     @Override
-    public InteractionResult onFertilized(Player player, ItemStack stack) {
+    public InteractionResult onFertilized(@Nullable Player player, @Nullable ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringFertilizer()) {
-            if (this.getGrowLevel() == 0) {
+            GardenPlantGrowUpEvent event = new GardenPlantGrowUpEvent(this, this.getGrowLevel() == 0);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.shouldProduce) {
                 this.transformPlant();
             }
-            setGrowLevel(this.getGrowLevel() + 1);
-            this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.sproutGrowTime));
+            if (! event.isCanceled()) {
+                if (! level.isClientSide)
+                    level.playSound(null, this, PVZSoundEvents.SPROUT_GROW.get(), player == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1.0F, 1.0F);
+                setGrowLevel(this.getGrowLevel() + 1);
+            }
+            if (this.getGrowLevel() < this.getMaxLevel()) this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.sproutGrowTime));
             this.setRequiringWater(true);
             this.setRequiring(false);
             return InteractionResult.CONSUME;
@@ -238,9 +281,9 @@ public class Sprout extends Mob implements IGardenPlant {
             Entity entity = type.create(level);
             if (entity != null) {
                 ItemStack stack = entity.getPickResult();
-                int num = this.random.nextInt(2) + 2;
+                int num = this.random.nextInt(2) + 4;
                 for (int i = 0; i < num; i ++) {
-                    ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), stack);
+                    ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), stack.copy());
                     BlockPos pos = blockPosition();
                     itementity.setPos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
                     level.addFreshEntity(itementity);
@@ -249,26 +292,27 @@ public class Sprout extends Mob implements IGardenPlant {
         }
     }
     private void transformPlant() {
-        String result = "";
-        if (this.entityData.get(PLANT_NAME).equals("")) {
-            int allChance = 1;
-            for (int i: transformChance.values()) {
-                allChance += i;
-            }
-            int chosen = random.nextInt(allChance);
-            for (String name: transformChance.keySet()) {
-                chosen -= transformChance.get(name) > 0 ? transformChance.get(name) : 0;
-                if (chosen <= 0) {
-                    result = name;
-                    break;
+        String result = this.entityData.get(PLANT_NAME);
+        if (result.isEmpty()) {
+            if (this.isMarigold()) {
+                result = "pvz:marigold";
+            } else {
+                int allChance = 1;
+                for (int i: transformChance.values()) {
+                    allChance += i;
+                }
+                int chosen = random.nextInt(allChance);
+                for (String name: transformChance.keySet()) {
+                    chosen -= transformChance.get(name) > 0 ? transformChance.get(name) : 0;
+                    if (chosen <= 0) {
+                        result = name;
+                        break;
+                    }
+                }
+                if (result.equals("")) {
+                    result = "pvz:marigold";
                 }
             }
-            if (result.equals("")) {
-                result = "pvz:marigold";
-            }
-        }
-        if (this.isMarigold()) {
-            result = "pvz:marigold";
         }
         SproutTransformEvent event = new SproutTransformEvent(this, result);
         MinecraftForge.EVENT_BUS.post(event);
@@ -291,7 +335,7 @@ public class Sprout extends Mob implements IGardenPlant {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("isMarigold", this.isMarigold());
-        tag.putBoolean("requiresWater", this.isRequiringWater());
+        tag.putBoolean("requiresWater", this.entityData.get(REQUIRES_WATER));
         tag.putInt("growLevel", this.getGrowLevel());
         tag.putLong("growEndTime", this.growEndTime);
         if (! this.entityData.get(PLANT_NAME).equals("")) {

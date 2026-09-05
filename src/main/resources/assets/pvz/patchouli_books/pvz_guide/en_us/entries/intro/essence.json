@@ -1,0 +1,35 @@
+{
+    "name": "Essence",
+    "icon": "pvz:origin_essence",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "The acquisition of Origin Essence marks the beginning of this mod. It generates in the dirt beneath saplings when they attempt to grow, transforming it into Origin Essence Ore. You can place blocks above the saplings to block their growth and encourage the formation of Origin Essence Ore. "
+        },
+        {
+            "type": "text",
+            "text": "Essence serves as the ingredient for crafting seed packets and certain items, and can also be used to craft an Essence Furnace, which consumes Origin Essence to irradiate various raw materials into essences of different elements. The irradiated elements can be used for making seed packets or attaching skills on plants."
+        },
+        {
+            "type": "text",
+            "text": "The matches on the next page is the recipe. Fallen Stars in the recipe naturally fall from the sky at night, but they disappear during the day. And in addition to mining in the Nether to obtain glowstone dust, it can also be obtained by melting Lunar Stones generated underground in the overworld in a furnace."
+        },
+        {
+            "type": "pvz:essence",
+            "input1": "minecraft:clay_ball",
+            "input2": "minecraft:prismarine_crystals",
+            "input3": "minecraft:blaze_powder",
+            "input4": "pvz:fallen_star",
+            "input5": "minecraft:glowstone_dust",
+            "input6": "minecraft:snowball",
+            "output1": "pvz:terra_essence",
+            "output2": "pvz:aqua_essence",
+            "output3": "pvz:ignis_essence",
+            "output4": "pvz:ventus_essence",
+            "output5": "pvz:lux_essence",
+            "output6": "pvz:gelum_essence"
+        }
+    ],
+    "sortnum": 1
+}

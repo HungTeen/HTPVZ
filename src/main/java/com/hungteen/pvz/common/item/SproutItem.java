@@ -1,12 +1,14 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.block.GardenFlowerPotBlock;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.creatures.Sprout;
+import com.hungteen.pvz.common.event.RegisterSproutsEvent;
+import com.hungteen.pvz.common.register.PVZDimensions;
 import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.util.Util;
+import com.hungteen.pvz.common.register.PVZStats;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -15,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
@@ -30,7 +33,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
@@ -48,18 +50,20 @@ public class SproutItem extends Item {
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         if (level.isClientSide) {
-            if (! level.dimension().location().equals(Util.prefix("zen_garden"))) {
-                if (context.getPlayer() != null) {
-                    context.getPlayer().displayClientMessage(Component.translatable("hint.pvz.sprout.must_in_zen_garden"), true);
-                }
+            if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.gardenOnlySprouts)
+                    && ! level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
                 return super.useOn(context);
             }
             return InteractionResult.SUCCESS;
         }
-        if (! level.dimension().location().equals(Util.prefix("zen_garden"))) {
+        if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.gardenOnlySprouts)
+                && ! level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
+            if (context.getPlayer() != null) {
+                context.getPlayer().displayClientMessage(Component.translatable("hint.pvz.sprout.must_in_zen_garden"), true);
+            }
             return super.useOn(context);
         }
-        if (context.getPlayer() != null) {
+        if (context.getPlayer() instanceof ServerPlayer player) {
             BlockPos pos = context.getClickedPos();
             BlockState blockState = level.getBlockState(pos);
             if (blockState.getBlock() instanceof GardenFlowerPotBlock) {
@@ -71,8 +75,9 @@ public class SproutItem extends Item {
                     if (sprout != null) {
                         sprout.transformChance = getTransformChance(context.getItemInHand());
                         sprout.setMarigold(this.isMarigold);
-                        sprout.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(context.getPlayer()));
+                        sprout.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(player));
                         sprout.renewWaterPot();
+                        player.awardStat(PVZStats.PLANT_SPROUTS);
                         itemstack.shrink(1);
                         level.gameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, pos);
                     }

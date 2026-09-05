@@ -1,7 +1,11 @@
 package com.hungteen.pvz.common.world.invasion;
 
+import com.hungteen.pvz.common.capability.level.PVZFogCapability;
+import com.hungteen.pvz.common.entity.zombies.JackInABoxZombie;
+import com.hungteen.pvz.common.entity.zombies.TacoImp;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.world.PVZFog;
 import com.hungteen.pvz.generator.InvasionTypeGen;
 import com.hungteen.pvz.util.EntityUtil;
@@ -10,10 +14,16 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
@@ -24,7 +34,10 @@ import java.util.List;
 import java.util.Random;
 
 public class InvasionEntityModifiers {
-    private static Pair<CompoundTag, Integer> TACO = Pair.of(InvasionTypeGen.EntityBuilder.of(PVZEntities.TACO_IMP.get()).get(), 0);
+    private static Pair<CompoundTag, Integer> TACO = Pair.of(InvasionTypeGen.EntityBuilder
+            .of(PVZEntities.TACO_IMP.get())
+            .effect(new MobEffectInstance(MobEffects.GLOWING, 400))
+            .get(), 0);
     private static final Random random = new Random();
     public static final ResourceLocation BABYLIZE = Util.prefix("babylize");
     public static final ResourceLocation ADD_LIFEBUOY = Util.prefix("add_lifebuoy");
@@ -32,6 +45,10 @@ public class InvasionEntityModifiers {
     public static final ResourceLocation CHECK_SPAWN_RULES = Util.prefix("check_spawn_rules");
     public static final ResourceLocation WITH_FOG = Util.prefix("with_fog");
     public static final ResourceLocation WITH_TACO = Util.prefix("with_taco");
+    public static final ResourceLocation WITH_SUN_BLOOD = Util.prefix("with_sun_blood");
+    public static final ResourceLocation HOLD_RANDOM_JEWEL = Util.prefix("hold_random_jewel");
+    public static final ResourceLocation POWER_JACK_IN_A_BOX_ZOMBIE = Util.prefix("power_jack_in_a_box_zombie");
+    public static final ResourceLocation HOLD_RANDOM_MATERIAL = Util.prefix("hold_random_material");
 
     public static boolean babylize(@Nullable Invasion invasion, Entity entity, int threat) {
         if (entity instanceof Mob mob && ! mob.isBaby()) {
@@ -68,24 +85,86 @@ public class InvasionEntityModifiers {
     }
     public static boolean withFog(@Nullable Invasion invasion, Entity entity, int threat) {
         if (invasion == null) {
-            return false;
+            return true;
         }
-        PVZFog fog = PVZFog.getFog(invasion.uuid);
+        PVZFog fog = PVZFogCapability.getFog(invasion.level, invasion.uuid);
         if (fog == null) {
-            PVZFog.addFog(invasion.level.dimension().location(), Vec3.atCenterOf(invasion.position), 100, ((double) invasion.invasionLevel / 5 + 1), invasion.range, invasion.uuid);
+            PVZFogCapability.addOrResetFogSided(invasion.level, invasion.position, 2000, ((double) invasion.invasionLevel / 5 + 1), invasion.range, invasion.uuid);
         } else {
-            fog.lifeLeft = 100;
-            fog.position = Vec3.atCenterOf(invasion.position);
+            fog.lifeLeft = 1000;
+            fog.targetPos = invasion.position;
         }
         return true;
     }
     public static boolean withTaco(@Nullable Invasion invasion, Entity entity, int threat) {
         if (invasion == null || ! EntityUtil.isEntityValid(invasion.target)) {
-            return false;
+            return true;
         }
-        if (invasion.currentWave > invasion.waves.size() / 3 && invasion.getCurrentWave().isBigWave &&
-                threat > 100 && random.nextInt(invasion.getCurrentWave().threat) < threat) {
-            invasion.summonEntity(TACO);
+        if (invasion.currentWave > invasion.waves.size() / 3
+                && invasion.currentWaveThreat == 0
+                && (invasion.getCurrentWave().isBigWave || invasion.level.random.nextInt(6) == 0)) {
+            boolean hasTaco = entity instanceof TacoImp;
+            for (Entity member : invasion.getMembers()) {
+                if (member instanceof TacoImp) {
+                    hasTaco = true;
+                    break;
+                }
+            }
+            if (! hasTaco) invasion.summonEntity(TACO);
+        }
+        return true;
+    }
+    public static boolean withSunBlood(@Nullable Invasion invasion, Entity entity, int threat) {
+        int sunChance = invasion == null ? 25 : ((int) (12 * (2 + (float) invasion.totalTime / invasion.expectedTotalTime)) - (entity.level.isDay() ? 0 : 8));
+        if (entity instanceof LivingEntity living && living.getRandom().nextInt(sunChance) == 0) {
+            living.addEffect(new MobEffectInstance(PVZMobEffects.SUN_BLOOD.get(), 2000));
+        }
+        return true;
+    }
+    public static boolean powerJackInABoxZombie(@Nullable Invasion invasion, Entity entity, int threat) {
+        if (invasion == null) return true;
+        if (entity instanceof JackInABoxZombie zombie) {
+            LightningBolt lightningbolt = EntityType.LIGHTNING_BOLT.create(invasion.level);
+            lightningbolt.moveTo(Vec3.atBottomCenterOf(entity.getOnPos()));
+            lightningbolt.setVisualOnly(true);
+            invasion.level.addFreshEntity(lightningbolt);
+            zombie.thunderHit((ServerLevel) invasion.level, lightningbolt);
+        }
+        return true;
+    }
+    public static boolean holdRandomJewel(@Nullable Invasion invasion, Entity entity, int threat) {
+        if (invasion == null || ! EntityUtil.isEntityValid(invasion.target)) {
+            return true;
+        }
+        if (entity instanceof Zombie zombie && zombie.getRandom().nextInt(50) == 0) {
+            if (zombie.getOffhandItem().isEmpty()) {
+                zombie.setItemInHand(InteractionHand.OFF_HAND
+                        , (zombie.getRandom().nextBoolean() ? Items.DIAMOND : PVZItems.JEWEL.get()).getDefaultInstance());
+                zombie.setGuaranteedDrop(EquipmentSlot.OFFHAND);
+            }
+        }
+        return true;
+    }
+    public static boolean holdRandomMaterial(@Nullable Invasion invasion, Entity entity, int threat) {
+        if (invasion == null || ! EntityUtil.isEntityValid(invasion.target)) {
+            return true;
+        }
+        if (entity instanceof Zombie zombie && zombie.getRandom().nextInt(25) == 0) {
+            if (zombie.getOffhandItem().isEmpty()) {
+                int i = random.nextInt(10);
+                Item item = i == 0 ? Items.NETHERITE_SCRAP : i <= 2 ? Items.PRISMARINE_CRYSTALS : i == 3 ? Items.DIAMOND : i <= 7 ? Items.IRON_INGOT : Items.GOLD_INGOT;
+                zombie.setItemInHand(InteractionHand.OFF_HAND, item.getDefaultInstance());
+                zombie.setGuaranteedDrop(EquipmentSlot.OFFHAND);
+                if (zombie.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
+                    zombie.setItemSlot(EquipmentSlot.HEAD, Items.CHAINMAIL_HELMET.getDefaultInstance());
+                }
+                if (zombie.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
+                    zombie.setItemSlot(EquipmentSlot.CHEST, Items.CHAINMAIL_CHESTPLATE.getDefaultInstance());
+                }
+                if (zombie.getItemBySlot(EquipmentSlot.FEET).isEmpty()) {
+                    zombie.setItemSlot(EquipmentSlot.FEET, Items.CHAINMAIL_BOOTS.getDefaultInstance());
+                }
+            }
         }
         return true;
     }

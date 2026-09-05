@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "0": {
+      "item": "minecraft:iron_shovel"
+    },
+    "1": {
+      "item": "pvz:alaya_resin"
+    },
+    "2": {
+      "item": "pvz:ventus_essence"
+    }
+  },
+  "pattern": [
+    " 22",
+    " 02",
+    "1  "
+  ],
+  "result": {
+    "item": "pvz:chili_chan"
+  }
+}

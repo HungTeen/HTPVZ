@@ -69,12 +69,14 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                 this.skills = item.getStaticSkillList();
             }
         }
+        if (skills.size() <= 3) {
+            shownFirstSkill = 0;
+        }
         shownFirstSkill = min(shownFirstSkill, skills.size());
     }
 
     @Override
     protected void renderBg(PoseStack stack, float partialTicks, int mouseX, int mouseY) {
-        this.renderBackground(stack);
         Lighting.setupForFlatItems();
         RenderSystem.setShaderTexture(0, TEXTURE);
         stack.pushPose();
@@ -187,6 +189,7 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
 
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks){
+        this.renderBackground(stack);
         super.render(stack, mouseX, mouseY, partialTicks);
         renderTooltip(stack, mouseX, mouseY);
     }
@@ -218,8 +221,9 @@ public class EssenceAltarScreen extends AbstractContainerScreen<EssenceAltarMenu
                     }
                 }
                 ClientProxy.MC.screen.renderTooltip(stack, list,
-                        Optional.of(new SunImageToolTipComponent(cost, cd,
-                                ((SeedPacketItem<?>) menu.getItems().get(0).getItem()).getResource(menu.getItems().get(0)).equals(PVZPlayerCapStats.SUN), true, true)),
+                        Optional.of(new SunImageToolTipComponent(cost, cd
+                                , ((SeedPacketItem<?>) menu.getItems().get(0).getItem()).getResource(menu.getItems().get(0)).equals(PVZPlayerCapStats.SUN)
+                                , true, true, false)),
                         mouseX, mouseY, font, ItemStack.EMPTY);
             }
         } else {

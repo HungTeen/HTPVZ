@@ -2,13 +2,16 @@ package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
@@ -24,7 +27,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 
 public class BaseBullet extends Projectile {
-	protected float attackDamage = 0F;
+	protected float attackDamage = 2F;
 	protected float gravity = 0.1F;
 	protected float size = 1F;// need sync?
 	protected float knockBackStrengh = 0F;
@@ -151,6 +154,7 @@ public class BaseBullet extends Projectile {
 		super.onHit(result);
 		HitResult.Type type = result.getType();
 		if (type != HitResult.Type.MISS) {
+			this.playSound(this.getHitSound(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
 			this.gameEvent(GameEvent.PROJECTILE_LAND, this.getOwner());
 		}
 	}
@@ -165,21 +169,30 @@ public class BaseBullet extends Projectile {
 		super.onHitBlock(result);
 		this.discard();
 	}
+
+	public SoundEvent getHitSound() {
+		return PVZSoundEvents.PEA_HIT.get();
+	}
+
 	protected boolean dealDamageTo(Entity target) {
 		final float damage = this.getAttackDamage();
+		final DamageSource damageSource = getDamageSource(target);
+		if (target instanceof Shulker shulker && shulker.isClosed()
+				&& ! (damageSource.isBypassArmor() || damageSource.isExplosion() || PVZDamageSource.isBypassShield(damageSource))) {
+			return false;
+		}
 		//default normal damage.
-		boolean hurt = target.hurt(getDamageSource(target), damage);
+		boolean hurt = target.hurt(damageSource, damage);
 		this.discard();
 		return hurt;
 	}
 
 	protected DamageSource getDamageSource(Entity target) {
-		DamageSource source = PVZDamageSource.transferKiller(
-				PVZDamageSource.ignoreInvTime(
-						PVZDamageSource.hitBossWithProportion(
+		DamageSource source = PVZDamageSource.ignoreInvTime(
+						PVZDamageSource.isPlantDamage(
 								PVZDamageSource.knockBack(
 										PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner())
-				, getKnockBackStrength()), target)), PVZEntityCapability.getOwner(this));
+				, getKnockBackStrength()), target));
 		if (! this.isNoGravity()) {
 			source.damageHelmet();
 		}

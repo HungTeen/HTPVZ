@@ -46,6 +46,8 @@ public class RecipeGen extends RecipeProvider {
             woodFromLogs(c, wood(i, WoodSet.Wood), wood(i, WoodSet.Log));
             woodFromLogs(c, wood(i, WoodSet.StWood), wood(i, WoodSet.StLog));
             pressurePlate(c, wood(i, WoodSet.Plate), wood(i, WoodSet.Plank));
+            slabBuilder(wood(i, WoodSet.Slab), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
+            stairBuilder(wood(i, WoodSet.Stairs), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             fenceBuilder(wood(i, WoodSet.Fence), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             fenceGateBuilder(wood(i, WoodSet.Gate), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
             buttonBuilder(wood(i, WoodSet.Button), Ingredient.of(wood(i, WoodSet.Plank))).unlockedBy(getHasName(wood(i, WoodSet.Plank)), has(wood(i, WoodSet.Plank))).save(c);
@@ -76,13 +78,15 @@ public class RecipeGen extends RecipeProvider {
                 if (data.noAutoRecipe) return;
                 final Item packet = data.recipe.get("packet") instanceof RegistryObject<?> ?
                         ((RegistryObject<Item>) data.recipe.get("packet")).get() :
-                        PVZItems.seedPacketMap.get((RegisterSeedPacketsEvent.SeedPacketData<?>)data.recipe.get("packet")).get();
+                        PVZItems.seedPacketMap.get((RegisterSeedPacketsEvent.SeedPacketData<?>) data.recipe.get("packet")).get();
                 if (data.recipe.get("seed") != null) {
                     Item seed;
                     try {
                         seed = data.recipe.get("seed") instanceof RegistryObject<?> obj ?
-                                ((RegistryObject<Item>) obj).get() :
-                                (Item)data.recipe.get("seed");
+                                ((RegistryObject<Item>) obj).get()
+                                : data.recipe.get("seed") instanceof RegisterSeedPacketsEvent.SeedPacketData data1 ?
+                                        PVZItems.seedPacketMap.get(data1).get()
+                                        : (Item) data.recipe.get("seed");
                     } catch (ClassCastException error) {
                         seed = ((RegistryObject<Block>) data.recipe.get("seed")).get().asItem();
                     }
@@ -90,9 +94,9 @@ public class RecipeGen extends RecipeProvider {
                             ((RegistryObject<Item>) obj).get() :
                             (Item)data.recipe.get("essence");
                     ShapedRecipeBuilder.shaped(itemObj.get())
-                            .pattern("CCC")
+                            .pattern(" C ")
                             .pattern("CBC")
-                            .pattern("CAC")
+                            .pattern(" A ")
                             .define('A', seed)
                             .define('B', packet)
                             .define('C', essence)
@@ -111,6 +115,12 @@ public class RecipeGen extends RecipeProvider {
                 }
             }
         });
+        slabBuilder(PVZBlocks.LUNAR_STONE_SLAB.get(), Ingredient.of(PVZBlocks.LUNAR_STONE.get()))
+                .unlockedBy(getHasName(PVZBlocks.LUNAR_STONE.get()), has(PVZBlocks.LUNAR_STONE.get())).save(c);
+        wallBuilder(PVZBlocks.LUNAR_STONE_WALL.get(), Ingredient.of(PVZBlocks.LUNAR_STONE.get()))
+                .unlockedBy(getHasName(PVZBlocks.LUNAR_STONE.get()), has(PVZBlocks.LUNAR_STONE.get())).save(c);
+        stairBuilder(PVZBlocks.LUNAR_STONE_STAIRS.get(), Ingredient.of(PVZBlocks.LUNAR_STONE.get()))
+                .unlockedBy(getHasName(PVZBlocks.LUNAR_STONE.get()), has(PVZBlocks.LUNAR_STONE.get())).save(c);
     }
 
     public ItemLike wood(int i, WoodSet elem){

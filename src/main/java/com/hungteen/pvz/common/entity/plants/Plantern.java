@@ -2,9 +2,10 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.common.block.EntityLightBlock;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
@@ -30,15 +31,13 @@ public class Plantern extends SimplePlant {
     public static final String LEAD_SKILL_NAME = "skill.pvz.plantern.light_house";
     public static final String DETECT_SKILL_NAME = "skill.pvz.plantern.lantern_radar";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(LEAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 0, 350),
-            new Skill(DETECT_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 125, 350).avoidSkills(LEAD_SKILL_NAME)
+            new Skill(LEAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 4, 0, 0),
+            new Skill(DETECT_SKILL_NAME, PVZItems.LUX_ESSENCE, 14, 8, 125, 0).avoidSkills(LEAD_SKILL_NAME)
     );
     public AnimationState idleAnimationState = new AnimationState();
-    private int skillGlowTime = 0; //only available in client.
 
     public Plantern(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
-        this.setPersistenceRequired();
         this.idleAnimationState.start(this.tickCount);
     }
     public void setupPresentationAnim() {
@@ -67,7 +66,6 @@ public class Plantern extends SimplePlant {
         super.tick();
         BlockPos pos = getOnPos().offset(0, Math.round(this.getBbHeight()), 0);
         if (level.isClientSide()) {
-            this.skillGlowTime = Math.max(0, -- skillGlowTime);
             return ;
         } else if (level.getBlockState(pos).isAir()) {
             level.setBlock(pos, PVZBlocks.ENTITY_LIGHT.get().defaultBlockState()
@@ -103,12 +101,9 @@ public class Plantern extends SimplePlant {
         }
         return super.getDimensions(pose);
     }
-    public void refreshSkillGlowTime() {
-        this.skillGlowTime = 5;
-    }
+
     public boolean isCurrentlyGlowing() {
-        return this.skillGlowTime > 0 || super.isCurrentlyGlowing();
-        //To avoid server crash the part of testing player position is not put here.
+        return super.isCurrentlyGlowing() || (this.level.isClientSide && this.hasSkill(LEAD_SKILL_NAME) && EntityUtil.isTeammate(this, ClientProxy.getPlayer()));
     }
 
     public static class OfferBrightnessGoal extends Goal {
@@ -162,7 +157,7 @@ public class Plantern extends SimplePlant {
                 return Math.abs(angle - entityAngle) < 0.5;
             }).forEach((entity) -> {
                 if (entity instanceof LivingEntity livingEntity) {
-                    livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 25));
+                    livingEntity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 100));
                 }
             });
         }

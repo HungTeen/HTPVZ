@@ -1,0 +1,26 @@
+{
+  "parent": "pvz:zen_garden",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.essence_altar.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.essence_altar.description"
+    },
+    "icon": {
+      "item": "pvz:essence_altar"
+      }
+    },
+  "criteria": {
+    "attach_skill": {
+      "conditions": {
+      },
+      "trigger": "pvz:essence_altar"
+    }
+  },
+  "requirements": [
+    [
+      "attach_skill"
+    ]
+  ]
+}

@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.common.entity.zombies.BungeeZombie;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -23,10 +24,17 @@ public class Hook extends Projectile {
     }
 
     @Override
+    public void shoot(double p_37266_, double p_37267_, double p_37268_, float p_37269_, float p_37270_) {
+        playSound(PVZSoundEvents.HOOK_LAUNCH.get());
+        super.shoot(p_37266_, p_37267_, p_37268_, p_37269_, p_37270_);
+    }
+
+    @Override
     protected void onHit(HitResult result) {
         super.onHit(result);
         HitResult.Type type = result.getType();
         if (type != HitResult.Type.MISS) {
+            playSound(PVZSoundEvents.HOOK_HIT.get());
             this.gameEvent(GameEvent.PROJECTILE_LAND, this.getOwner());
         }
     }
@@ -41,6 +49,7 @@ public class Hook extends Projectile {
         Entity owner = this.getOwner();
         if (EntityUtil.isEntityValid(owner)) {
             if (owner instanceof BungeeZombie bungeeZombie) {
+                if (! bungeeZombie.isHanging()) bungeeZombie.playSound(PVZSoundEvents.BUNGEE_ZOMBIE_SCREAM.get());
                 bungeeZombie.setHangingPosition(result.getBlockPos());
                 bungeeZombie.ropeLengthSqr = result.getBlockPos().distSqr(bungeeZombie.blockPosition());
             }

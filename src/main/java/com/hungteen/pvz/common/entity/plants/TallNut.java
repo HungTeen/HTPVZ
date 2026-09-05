@@ -2,9 +2,12 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -22,11 +25,13 @@ import java.util.List;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class TallNut extends WallNut {
-    public static final String  PROJ_PROTECTION_SKILL_NAME = "skill.pvz.tall_nut.projectile_protection";
+    public static final String PROJ_PROTECTION_SKILL_NAME = "skill.pvz.tall_nut.projectile_protection";
+    public static final String VINE_SKILL_NAME = "skill.pvz.tall_nut.vine_nut";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(WallNut.FIRST_AID_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
-            new Skill(WallNut.ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 8, 75, 0),
-            new Skill(PROJ_PROTECTION_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 50, 0)
+            new Skill(FIRST_AID_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 4, 1, 0, 0),
+            new Skill(WallNut.ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 7, 75, 0),
+            new Skill(VINE_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 12, 100, 0).avoidSkills(WallNut.ARMOR_SKILL_NAME),
+            new Skill(PROJ_PROTECTION_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 50, 0).avoidSkills(VINE_SKILL_NAME)
     );
     public TallNut(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
@@ -49,6 +54,14 @@ public class TallNut extends WallNut {
 
     public float getMaxIronArmor() {
         return 400;
+    }
+
+    @Override
+    public boolean hurt(DamageSource source, float dmgNum) {
+        if (this.hasSkill(VINE_SKILL_NAME) && ! EntityUtil.isTeammate(this, source.getEntity()) && ! (source instanceof IndirectEntityDamageSource)) {
+            if (source.getEntity() != null) source.getEntity().hurt(PVZDamageSource.tallNutThornsDamage(this, source.getEntity()), Math.min(dmgNum, 2));
+        }
+        return super.hurt(source, dmgNum);
     }
 
     @SubscribeEvent

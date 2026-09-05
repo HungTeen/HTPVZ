@@ -1,0 +1,26 @@
+{
+    "name": "技",
+    "icon": "pvz:essence_altar",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "spotlight",
+            "title": "*4",
+            "item": "pvz:essence_altar",
+            "text": "*1"
+        },
+        {
+            "type": "text",
+            "text": "*2"
+        },
+        {
+            "type": "text",
+            "text": "*3"
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:essence_altar"
+        }
+    ],
+    "sortnum": 4
+}

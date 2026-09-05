@@ -57,10 +57,18 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
         MinecraftForge.EVENT_BUS.post(event);
     }
 
+    public boolean isMainEvent() {
+        return true;
+    }
+
+    public boolean needsSync() {
+        return true;
+    }
+
     public void remove() {
         MinecraftForge.EVENT_BUS.post(new ZombieEventEvent(this, ZombieEventEvent.Phase.Remove));
         this.removed = true;
-        PVZAPI.get().removeClientZombieEvent(this);
+        if (this.needsSync()) PVZAPI.get().removeClientZombieEvent(this);
     }
 
     public void tick(TickEvent.ServerTickEvent ev) {

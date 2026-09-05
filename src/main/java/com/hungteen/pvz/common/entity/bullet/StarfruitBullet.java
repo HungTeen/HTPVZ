@@ -2,10 +2,15 @@ package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +21,15 @@ import net.minecraft.world.phys.Vec3;
 
 public class StarfruitBullet extends BaseBullet {
 
+    public static final EntityDataAccessor<Boolean> SKILL = SynchedEntityData.defineId(StarfruitBullet.class, EntityDataSerializers.BOOLEAN);
     public boolean skill = false;
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(SKILL, false);
+    }
+
     public StarfruitBullet(Level worldIn, LivingEntity shooter) {
         super(PVZEntities.STARFRUIT_BULLET.get(), worldIn, shooter);
         this.setOwner(shooter);
@@ -27,6 +40,12 @@ public class StarfruitBullet extends BaseBullet {
         super(bulletEntityType, level);
         this.shootDamageName = "starfruit";
     }
+
+    @Override
+    public SoundEvent getHitSound() {
+        return PVZSoundEvents.STAR_HIT.get();
+    }
+    @Override
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
         for (int i = 0; i < 5; i ++) {
@@ -56,7 +75,7 @@ public class StarfruitBullet extends BaseBullet {
     public void tick() {
         super.tick();
         this.yRot += 5;
-        if (skill) {
+        if (entityData.get(SKILL)) {
             Vec3 addV = new Vec3(-this.getDeltaMovement().z, 0, this.getDeltaMovement().x).scale(Math.min(1F, tickCount == 0 ? 5 : 5f / this.tickCount));
             Vec3 mov = this.getDeltaMovement().multiply(1, 0, 1);
             this.setDeltaMovement(mov.add(addV).normalize().scale(mov.length()).add(0, this.getDeltaMovement().y, 0));
@@ -70,12 +89,12 @@ public class StarfruitBullet extends BaseBullet {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putBoolean("skill", this.skill);
+        tag.putBoolean("skill", this.entityData.get(SKILL));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        this.skill = tag.getBoolean("skill");
+        this.entityData.set(SKILL, tag.getBoolean("skill"));
     }
 }

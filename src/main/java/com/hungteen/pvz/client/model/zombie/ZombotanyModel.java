@@ -105,7 +105,6 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
             ClientUtil.translateAgeable(poseStack, this);
         }
         this.head.render(poseStack, headConsumer, p_102036_, p_102037_, p_102038_, p_102039_, p_102040_, p_102041_);
-//        this.head.render(poseStack, this.multiBufferSource.getBuffer(RenderType.outline(this.textureLocation)), p_102036_, p_102037_, p_102038_, p_102039_, p_102040_, p_102041_);
         if (this.young) {
             poseStack.popPose();
         }
@@ -145,6 +144,7 @@ public class ZombotanyModel<T extends PVZZombie & IZombotany> extends PVZZombieM
         float f = (float)p_232318_ / 1000.0F;
         return p_232317_.looping() ? f % p_232317_.lengthInSeconds() : f;
     }
+
     public Optional<ModelPart> getAnyDescendantWithName(String p_233394_) {
         return this.attachedHead.getAllParts().filter((p_233400_) -> {
             return p_233400_.hasChild(p_233394_);

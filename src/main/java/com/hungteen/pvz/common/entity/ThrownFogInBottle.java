@@ -1,7 +1,7 @@
 package com.hungteen.pvz.common.entity;
 
+import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.world.PVZFog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,7 +33,7 @@ public class ThrownFogInBottle extends ThrowableItemProjectile {
     protected void onHit(HitResult hitResult) {
         super.onHit(hitResult);
         if (this.level instanceof ServerLevel) {
-            PVZFog.addFog(level.dimension().location(), this.position(), 30, 10, 15, UUID.randomUUID());
+            PVZFogCapability.addOrResetFog(level, this.blockPosition(), 600, 10, 15, UUID.randomUUID());
             this.discard();
         }
 

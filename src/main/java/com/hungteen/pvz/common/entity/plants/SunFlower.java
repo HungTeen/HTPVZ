@@ -3,10 +3,11 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
 import com.hungteen.pvz.api.interfaces.ISunContainer;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
 import com.hungteen.pvz.common.register.PVZAttributes;
+import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -41,7 +42,7 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
     @Override
     public int getGenCD() {
         SunState sunState = this.getSunState();
-        return sunState == SunState.FULL ? 400 : sunState == SunState.HALF ? 600 : 800;
+        return sunState == SunState.FULL ? 240 : sunState == SunState.HALF ? 360 : 480;
     }
     public int getSunAmount(){
         return 50;
@@ -53,6 +54,7 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
 
     @Override
     public int extraMaxSun(BlockPos pos, Entity giveTo) {
+        if (level.getBiome(blockPosition()).is(PVZBiomeTags.UNABLE_SUN_PRODUCTION)) return 0;
         SunState sunState = this.getSunState();
         int extra = sunState == SunState.FULL ? 50 : sunState == SunState.HALF ? 25 : 0;
         int current = 0;

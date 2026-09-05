@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.block;
 
-import com.hungteen.pvz.common.item.WateringPotItem;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -48,7 +47,7 @@ public class WateringPotBlock extends HorizontalDirectionalBlock implements Simp
         FluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
         return this.defaultBlockState()
                 .setValue(FACING, context.getHorizontalDirection())
-                .setValue(WATER, fluidstate.isSourceOfType(Fluids.WATER) ? 5 : 5 - context.getItemInHand().getDamageValue())
+                .setValue(WATER, fluidstate.isSourceOfType(Fluids.WATER) ? 0 : 5 - context.getItemInHand().getDamageValue())
                 .setValue(WATERLOGGED, fluidstate.isSourceOfType(Fluids.WATER));
     }
 
@@ -63,8 +62,9 @@ public class WateringPotBlock extends HorizontalDirectionalBlock implements Simp
         player.awardStat(Stats.BLOCK_MINED.get(this));
         player.causeFoodExhaustion(0.005F);
         int water = blockState.getValue(WATER);
+        boolean waterlogged = blockState.getValue(WATERLOGGED);
         ItemStack stack = PVZItems.WATERING_POT.get().getDefaultInstance();
-        stack.setDamageValue(5 - water);
+        stack.setDamageValue(waterlogged ? 0 : 5 - water);
         popResource(level, pos, stack);
     }
 

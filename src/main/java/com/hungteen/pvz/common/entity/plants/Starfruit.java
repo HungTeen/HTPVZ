@@ -1,12 +1,15 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.common.entity.bullet.StarfruitBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -26,7 +29,7 @@ public class Starfruit extends ShooterPlant {
     public static final UUID ATTRIBUTE_MODIFIER_UUID = UUID.fromString("f6ebe0aa-8c4d-737c-cabf-12418e4d00f6");
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SATELLITE_SKILL, PVZItems.VENTUS_ESSENCE, 32, 8, 125, 0)
+            new Skill(SATELLITE_SKILL, PVZItems.VENTUS_ESSENCE, 32, 12, 125, 0)
     );
 
     public Starfruit(EntityType<? extends Mob> type, Level worldIn) {
@@ -39,14 +42,14 @@ public class Starfruit extends ShooterPlant {
 
     @Override
     public void shootBullet() {
-        this.performShoot(0, 0, 0, true, 0);
+        this.performShoot(0, 0, this.getBbHeight() * 0.5F, true, 0);
     }
 
     @Override
     protected StarfruitBullet createBullet() {
         StarfruitBullet bullet = new StarfruitBullet(this.level, this);
         if (this.hasSkill(SATELLITE_SKILL)) {
-            bullet.skill = true;
+            bullet.getEntityData().set(StarfruitBullet.SKILL, true);
         }
         return bullet;
     }
@@ -57,7 +60,7 @@ public class Starfruit extends ShooterPlant {
     }
     @Override
     public void tick() {
-        if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.FOLLOW_RANGE, ATTRIBUTE_MODIFIER_UUID)) {
+        if (hasSkill(SATELLITE_SKILL) && ! EntityUtil.attributeHasModifierOfUUID(this, Attributes.FOLLOW_RANGE, ATTRIBUTE_MODIFIER_UUID)) {
             EntityUtil.addModifierToAttribute(this, Attributes.FOLLOW_RANGE, new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", -0.5, AttributeModifier.Operation.MULTIPLY_BASE));
         }
         super.tick();
@@ -94,12 +97,17 @@ public class Starfruit extends ShooterPlant {
                 bullet.shoot(Math.cos(angle), 0.04, Math.sin(angle), speed, (float) randomAngle);
                 bullet.setOwner(this);
                 if (bullet instanceof BaseBullet bullet1) {
-                    bullet1.setAttackDamage(this.getAttackDamage());
+                    bullet1.setAttackDamage(this.getAttackDamage() * PVZAPI.get().getPlantDamageDatum(this.level));
                 }
                 this.level.addFreshEntity(bullet);
             }
         }
         return bullet;
+    }
+
+    @Override
+    protected SoundEvent getShootSound() {
+        return PVZSoundEvents.STAR_SHOOT.get();
     }
 
     @Override
@@ -110,7 +118,7 @@ public class Starfruit extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 16D)
-                .add(Attributes.ATTACK_DAMAGE, 5D)
+                .add(Attributes.ATTACK_DAMAGE, 8D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

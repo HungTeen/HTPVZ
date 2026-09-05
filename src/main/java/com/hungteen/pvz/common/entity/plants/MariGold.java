@@ -1,19 +1,27 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.events.GardenPlantGrowUpEvent;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IGardenPlant;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
+import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
+import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -25,12 +33,21 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraftforge.common.MinecraftForge;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Set;
 
 public class MariGold extends SimplePlant implements IGardenPlant {
@@ -55,8 +72,9 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         if (this.isAlive()) {
             if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.dyeMarigold) && player.getItemInHand(handIn).getItem() instanceof DyeItem dye) {
                 if (this.isAlive() && this.getColor() != dye.getDyeColor().getTextColor()) {
-                    this.level.playSound(player, this, SoundEvents.DYE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                    this.level.playSound(null, this, SoundEvents.DYE_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                     if (! this.level.isClientSide) {
+                        level.playSound(null, this, PVZSoundEvents.SPROUT_HARVEST.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
                         this.setColor(dye.getDyeColor().getTextColor());
                         player.getItemInHand(handIn).shrink(1);
                     }
@@ -71,7 +89,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     /**Check {@link IGardenPlant} for the two methods below.*/
     @Override
-    public InteractionResult onWatered(Player player, ItemStack stack) {
+    public InteractionResult onWatered(@Nullable Player player, @Nullable ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringWater()) {
             this.setRemainingGrowTick(100 + random.nextInt(100));
@@ -83,11 +101,20 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         }
     }
 
-    public InteractionResult onFertilized(Player player, ItemStack stack) {
+    public InteractionResult onFertilized(@Nullable Player player, @Nullable ItemStack stack) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         if (this.isRequiringFertilizer()) {
-            this.entityData.set(IS_PRODUCING, true);
-            setGrowLevel(this.getGrowLevel() + 1);
+            GardenPlantGrowUpEvent event = new GardenPlantGrowUpEvent(this, true);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.shouldProduce) {
+                ExperienceOrb.award((ServerLevel)this.level, this.position(), 3);
+                this.entityData.set(IS_PRODUCING, true);
+            }
+            if (! event.isCanceled()) {
+                if (! level.isClientSide)
+                    level.playSound(null, this, PVZSoundEvents.SPROUT_GROW.get(), player == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1.0F, 1.0F);
+                setGrowLevel(this.getGrowLevel() + 1);
+            }
             this.setRequiringWater(true);
             this.setRemainingGrowTick(PVZConfig.PVZGameRules.getInt(this.level, PVZConfig.Common.marigoldGrowTime));
             this.setRequiring(false);
@@ -107,6 +134,26 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        if (! this.level.isClientSide) {
+            if (this.getRemainingGrowTick() > 40 && ! this.produceAnimationState.isStarted()) {
+                List<Bee> bees = this.level.getEntitiesOfClass(Bee.class
+                        , this.getBoundingBox().inflate(0.5, 0.5, 0.5)
+                        , bee -> bee.savedFlowerPos != null && bee.savedFlowerPos.equals(this.blockPosition()));
+                if (! bees.isEmpty()) {
+                    this.growEndTime -= 2;
+                    if (this.random.nextInt(3) == 0) {
+                        ((ServerLevel) this.level).sendParticles(ParticleTypes.COMPOSTER,
+                                position().x, position().y + 0.3, position().z,
+                                2, 0.3, 0.3, 0.3, 0);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public EntityDimensions getDimensions(Pose pose) {
         return pose == Pose.DIGGING || pose == Pose.DYING ? EntityDimensions.scalable(0.4F, 0.5F) :
                 pose == Pose.SWIMMING ? EntityDimensions.scalable(0.6F, 0.8F) :
@@ -114,20 +161,24 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
 
     public void produce() {
-        ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), this.getRandomIngot().getDefaultInstance());
+        ItemEntity itementity = new ItemEntity(this.level, this.getX(), this.getEyeY(), this.getZ(), this.getRandomLoot());
         BlockPos pos = blockPosition();
         itementity.setPos(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
         level.addFreshEntity(itementity);
     }
 
-    private Item getRandomIngot() {
-        if (this.getGrowLevel() < 3) {
-            if (random.nextFloat() < getIronChance()) {
-                return Items.IRON_INGOT;
-            }
-            return Items.GOLD_INGOT;
-        }
-        return PVZItems.JEWEL.get();
+    private @Nullable ItemStack getRandomLoot() {
+        LootTable lootTable = this.getProduceLootTable();
+        if (lootTable == null) return ItemStack.EMPTY;
+        List<ItemStack> items = lootTable.getRandomItems(
+                new LootContext.Builder((ServerLevel) this.level)
+                        .create(LootContextParamSet.builder().build()));
+        if (items.isEmpty()) return ItemStack.EMPTY;
+        return items.get(this.random.nextInt(items.size()));
+    }
+
+    public LootTable getProduceLootTable() {
+        return this.level.getServer().getLootTables().get(Util.prefix("entities/marigold_produce_" + this.getGrowLevel()));
     }
 
 
@@ -153,7 +204,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     @Override
     public boolean isRequiringWater() {
-        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < 3;
+        return this.entityData.get(REQUIRES_WATER) && isRequiring() && this.getGrowLevel() < this.getMaxLevel();
     }
     @Override
     public void setRequiringFertilizer(boolean bool) {
@@ -161,7 +212,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     @Override
     public boolean isRequiringFertilizer() {
-        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < 3;
+        return (! this.entityData.get(REQUIRES_WATER)) && isRequiring() && this.getGrowLevel() < this.getMaxLevel();
     }
     protected boolean isRequiring() {
         return this.entityData.get(GROW_ENDED);
@@ -171,17 +222,17 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     @Override
     public int getRemainingGrowTick() {
-        return (this.level.isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - Util.getServerTime(this.level.getServer()));
+        return (this.getLevel().isClientSide || this.growEndTime == -1) ? 0 : (int) (this.growEndTime - this.getLevel().getGameTime());
     }
     @Override
     public void setRemainingGrowTick(int time) {
-        this.growEndTime = this.level.isClientSide ? -1L : Util.getServerTime(this.level.getServer()) + time;
+        this.growEndTime = this.getLevel().isClientSide ? -1L : this.getLevel().getGameTime() + time;
     }
     public int getColor() {
         return this.entityData.get(COLOR);
     }
-    public void setColor(int level) {
-        this.entityData.set(COLOR, level);
+    public void setColor(int color) {
+        this.entityData.set(COLOR, color);
     }
 
 
@@ -196,10 +247,6 @@ public class MariGold extends SimplePlant implements IGardenPlant {
     }
     public Set<TagKey<Block>> getAcceptableTags() {
         return Set.of(PVZBlockTags.PLANTABLE_DIRT, PVZBlockTags.GARDEN_FLOWER_POT);
-    }
-
-    public float getIronChance() {
-        return 0.75F;
     }
 
     @Override
@@ -227,7 +274,7 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         super.addAdditionalSaveData(tag);
         tag.putInt("growLevel", this.getGrowLevel());
         tag.putLong("growEndTime", this.growEndTime);
-        tag.putBoolean("requiresWater", this.isRequiringWater());
+        tag.putBoolean("requiresWater", this.entityData.get(REQUIRES_WATER));
         tag.putInt("color", this.entityData.get(COLOR));
     }
 
@@ -261,7 +308,11 @@ public class MariGold extends SimplePlant implements IGardenPlant {
         @Override
         public boolean canUse() {
             if (mariGold.getRemainingGrowTick() <= 0) {
-                setRequiring(true);
+                if (PVZConfig.PVZGameRules.getBoolean(mariGold.level, PVZConfig.Common.marigoldsRequires))
+                    setRequiring(true);
+                else {
+                    mariGold.onFertilized(null, null);
+                }
             }
             return mariGold.entityData.get(IS_PRODUCING);
         }
@@ -274,12 +325,29 @@ public class MariGold extends SimplePlant implements IGardenPlant {
             int time = PVZConfig.PVZGameRules.getInt(mariGold.level, PVZConfig.Common.marigoldGrowTime) - mariGold.getRemainingGrowTick();
             if (time > 40) {
                 mariGold.getEntityData().set(IS_PRODUCING, false);
-                if (mariGold.getGrowLevel() >= 3) {
+                if (mariGold.getGrowLevel() >= mariGold.getMaxLevel()) {
+                    mariGold.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+                        Entity owner = cap.getOwner();
+                        if (owner instanceof ServerPlayer serverPlayer) {
+                            serverPlayer.awardStat(PVZStats.HARVEST_MARIGOLDS);
+                            int color = mariGold.getColor();
+                            for (DyeColor dye: PVZCriteriaTriggers.marigoldTriggers.keySet()) {
+                                if (dye.getTextColor() == color) {
+                                    PVZCriteriaTriggers.marigoldTriggers.get(dye).trigger(serverPlayer);
+                                    break;
+                                }
+                            }
+                        }
+                    });
                     mariGold.discard();
                 }
             } else if (time == 8 || time == 10 || time == 12
-                    || ((time == 9 || time == 11 || time == 13 || time == 15) && random.nextBoolean() && mariGold.getGrowLevel() < 3)) {
+                    || ((time == 9 || time == 11 || time == 13 || time == 15) && random.nextBoolean())) {
                 mariGold.produce();
+            } else if (time == 2) {
+                mariGold.level.playSound(null, mariGold
+                        , mariGold.getGrowLevel() < 3 ? PVZSoundEvents.MARIGOLD_PRODUCE.get() : PVZSoundEvents.MARIGOLD_PRODUCE_GEMS.get()
+                        , SoundSource.NEUTRAL, 1.0F, 1.0F);
             }
         }
     }

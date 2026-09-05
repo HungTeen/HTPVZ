@@ -30,21 +30,22 @@ public class ItemTagGen extends ItemTagsProvider {
     @Override
     public void addTags(){
         //atItemRegister
-        PVZItems.tagMap.forEach((item, tagList)-> tagList.forEach((tag) -> this.tag(tag).add(item.get())));
+        PVZItems.tagMap.forEach((item, tagList)-> tagList.forEach((tag) -> this.tag(tag).add(item.get()).replace(false)));
         //woodSet
         this.copy(BlockTags.PLANKS, ItemTags.PLANKS);
         this.copy(BlockTags.LOGS, ItemTags.LOGS);
         this.copy(BlockTags.LOGS_THAT_BURN, ItemTags.LOGS_THAT_BURN);
+        this.copy(BlockTags.SAPLINGS, ItemTags.SAPLINGS);
         this.copy(BlockTags.WOODEN_BUTTONS, ItemTags.WOODEN_BUTTONS);
         this.copy(BlockTags.WOODEN_DOORS, ItemTags.WOODEN_DOORS);
-        this.copy(BlockTags.SAPLINGS, ItemTags.SAPLINGS);
         this.copy(BlockTags.WOODEN_STAIRS, ItemTags.WOODEN_STAIRS);
-        this.copy(BlockTags.LEAVES, ItemTags.LEAVES);
-        this.copy(BlockTags.WOODEN_TRAPDOORS, ItemTags.WOODEN_TRAPDOORS);
+        this.copy(BlockTags.WOODEN_SLABS, ItemTags.WOODEN_SLABS);
         this.copy(BlockTags.WOODEN_TRAPDOORS, ItemTags.WOODEN_TRAPDOORS);
         this.copy(BlockTags.WOODEN_FENCES, ItemTags.WOODEN_FENCES);
+        this.copy(BlockTags.WOODEN_PRESSURE_PLATES, ItemTags.WOODEN_PRESSURE_PLATES);
+        this.copy(BlockTags.LEAVES, ItemTags.LEAVES);
         this.copy(BlockTags.STANDING_SIGNS, ItemTags.SIGNS);
-        for (TagKey<Block> i : BlockTagGen.LOGS){
+        for (TagKey<Block> i : BlockTagGen.LOGS) {
             TagKey<Item> tag = tag(i.location().getPath());
             this.copy(i, tag);
             LOGS.add(tag);
@@ -55,6 +56,7 @@ public class ItemTagGen extends ItemTagsProvider {
                 Items.IRON_AXE, Items.IRON_HOE, Items.IRON_PICKAXE, Items.IRON_SHOVEL, Items.IRON_SWORD, Items.IRON_INGOT, Items.IRON_NUGGET,
                 Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
         this.tag(PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).add(Items.SHIELD);
+        this.tag(PVZItemTags.SNAILS_CAN_PICK_UP).add(Items.IRON_INGOT, Items.GOLD_INGOT);
     }
 
     public static final List<TagKey<Item>> LOGS = new ArrayList<>();

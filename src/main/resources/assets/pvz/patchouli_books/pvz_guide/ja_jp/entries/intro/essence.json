@@ -1,0 +1,35 @@
+{
+    "name": "真髄",
+    "icon": "pvz:origin_essence",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "根源真髄を入手するのは、このMODのスタートです。木が育つ時に下の土ブロックに生成するのを試し、根源真髄鉱石に変換します。苗木の上にブロックを置き、木になることを止め、根源真髄鉱石を効率的に得ることができます。根源真髄は大半アイテムの原料です。 "
+        },
+        {
+            "type": "text",
+            "text": "根源真髄鉱石はシードパケットの原料であり、真髄かまどを作ることもできる。真髄かまどは根源真髄を使って様々なアイテムを違う元素の真髄を作ることができ、シードパケットとスキルの原料となる。"
+        },
+        {
+            "type": "text",
+            "text": "このレシビを参考することができます。落ち星は夜空から落ちます、でも朝になると消えます。グロウストーンダストはグロウストーン以外に、オーバーワールドの夜光石を焼くことで入手できる。"
+        },
+        {
+            "type": "pvz:essence",
+            "input1": "minecraft:clay_ball",
+            "input2": "minecraft:prismarine_crystals",
+            "input3": "minecraft:blaze_powder",
+            "input4": "pvz:fallen_star",
+            "input5": "minecraft:glowstone_dust",
+            "input6": "minecraft:snowball",
+            "output1": "pvz:terra_essence",
+            "output2": "pvz:aqua_essence",
+            "output3": "pvz:ignis_essence",
+            "output4": "pvz:ventus_essence",
+            "output5": "pvz:lux_essence",
+            "output6": "pvz:gelum_essence"
+        }
+    ],
+    "sortnum": 1
+}

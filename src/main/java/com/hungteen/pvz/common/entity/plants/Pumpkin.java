@@ -2,14 +2,18 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.api.interfaces.*;
+import com.hungteen.pvz.api.interfaces.IArmorEntity;
+import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
+import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
+import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -26,12 +30,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
@@ -41,8 +47,8 @@ public class Pumpkin extends SimplePlant implements IArmorEntity, ICanBePlantedO
     public static final String FIRST_AID_SKILL_NAME = "skill.pvz.pumpkin.wall_nut_first_aid";
     public static final String PUMPKIN_HELMET_SKILL_NAME = "skill.pvz.pumpkin.pumpkin_helmet";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(FIRST_AID_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
-            new Skill(PUMPKIN_HELMET_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 12, 200, 500)
+            new Skill(FIRST_AID_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 4, 1, 0, 0),
+            new Skill(PUMPKIN_HELMET_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 12, 200, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.SLOW)
     );
 
     public Pumpkin(EntityType<? extends Mob> entityType, Level level) {
@@ -89,6 +95,44 @@ public class Pumpkin extends SimplePlant implements IArmorEntity, ICanBePlantedO
         if (source.isBypassArmor() || entity == null) return false;
         Vec3 pos = entity.position().subtract(target.position());
         return (pos.y < 0 || pos.y * pos.y / (pos.x * pos.x + pos.z * pos.z) < 3);
+    }
+
+    @Override
+    public Predicate<Entity> canPush() {
+        return entity -> ! EntityUtil.isTeammate(this, entity);
+    }
+
+    @Override
+    //to prevent entities from going through wall nuts.
+    protected void pushEntities() {
+        List<Entity> list = this.level.getEntities(this, this.getBoundingBox(), EntitySelector.pushableBy(this).and(this.canPush()));
+        if (! list.isEmpty()) {
+            int i = this.level.getGameRules().getInt(GameRules.RULE_MAX_ENTITY_CRAMMING);
+            if (i > 0 && list.size() > i - 1 && this.random.nextInt(4) == 0) {
+                int j = 0;
+                for (Entity entity : list) {
+                    if (!entity.isPassenger()) {
+                        ++j;
+                    }
+                }
+                if (j > i - 1) {
+                    this.hurt(DamageSource.CRAMMING, 6.0F);
+                }
+            }
+            for (Entity entity : list) {
+                if (! EntityUtil.isTeammate(this, entity)) {
+                    this.doPush(entity);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void doPush(Entity entity) {
+        entity.push(this);
+        for (int i = 0; i < 3; i ++) {
+            push(entity);
+        }
     }
 
     @Override
@@ -219,6 +263,7 @@ public class Pumpkin extends SimplePlant implements IArmorEntity, ICanBePlantedO
                 target.startRiding(this);
                 var positionCheck = customPositionSafe(event, target.level, target.getOnPos(), Direction.UP, true);
                 if (positionCheck != null) {
+                    target.stopRiding();
                     return positionCheck;
                 }
                 return target instanceof IPlant plant ? plant.customVehicleSafe(event, this, false) :

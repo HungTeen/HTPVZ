@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -36,7 +38,7 @@ public class Anger extends FlyingMob {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 2.0D)
                 .add(Attributes.FLYING_SPEED, 0.6F)
-                .add(Attributes.ATTACK_DAMAGE, 1D);
+                .add(Attributes.ATTACK_DAMAGE, 2D);
     }
     @Override
     protected void registerGoals() {
@@ -136,10 +138,12 @@ public class Anger extends FlyingMob {
                     return;
                 }
                 if (! EntityUtil.isTeammate(anger, entity)) {
-                    entity.hurt(DamageSource.ON_FIRE, (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
-                    entity.setSecondsOnFire(6);
+                    float damage = (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+                    entity.hurt(DamageSource.ON_FIRE, damage);
+                    entity.hurt(PVZDamageSource.angerAttack(anger), 2);
+                    entity.setSecondsOnFire(entity instanceof Player ? 2 : (int) damage);
                 } else if (friendlyFire) {
-                    entity.setSecondsOnFire(6);
+                    entity.setSecondsOnFire(2);
                 }
             });
             if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(anger.level, anger)) {
@@ -148,7 +152,7 @@ public class Anger extends FlyingMob {
                         for (int y = -2; y < 3; y ++) {
                             int dist = Math.abs(x) + Math.abs(y) + Math.abs(z) + 1;
                             if (dist < 6 && anger.random.nextInt(dist) == 0 && level.getBlockState(this.anger.blockPosition().offset(x, y, z)).is(BlockTags.SNOW)) {
-                                level.setBlock(this.anger.blockPosition().offset(x, y, z), Blocks.AIR.defaultBlockState(), 3);
+                                level.setBlockAndUpdate(this.anger.blockPosition().offset(x, y, z), Blocks.AIR.defaultBlockState());
                             }
                         }
                     }

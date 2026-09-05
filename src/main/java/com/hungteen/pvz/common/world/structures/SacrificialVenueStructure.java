@@ -10,29 +10,27 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.material.Fluids;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public class SacrificialVenueStructure extends Structure {
-    public static final Codec<Structure> CODEC = RecordCodecBuilder.create((p_229304_) -> {
+    public static final Codec<SacrificialVenueStructure> CODEC = RecordCodecBuilder.create((p_229304_) -> {
         return p_229304_.group(settingsCodec(p_229304_)).apply(p_229304_, SacrificialVenueStructure::new);
     });
 
     public SacrificialVenueStructure(StructureSettings settings) {
         super(settings);
     }
-    public Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
+
+    @Override
+    public @NotNull Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
         BlockPos worldPos = context.chunkPos().getWorldPosition();
         BlockPos pos = new BlockPos(worldPos.getX(), 31, worldPos.getZ());
-        boolean summonable = heightAvailable(context, pos);
-//        PVZMod.LOGGER.info("attempting to generate structure at " + pos + " and " + (summonable ? "succeeded" : "failed"));
-        return summonable ? Optional.of(new Structure.GenerationStub(pos, structurePiecesBuilder -> structurePiecesBuilder.addPiece(
-//                new IglooPieces.IglooPiece(context.structureTemplateManager(), new ResourceLocation("igloo/bottom"),
-//                        context.chunkPos().getWorldPosition(), Rotation.NONE, 0)
-                        new SacrificialVenueStructurePiece(context.structureTemplateManager(), new StructurePlaceSettings(), pos)
-                ))): Optional.empty();
+        return heightAvailable(context, pos) ? Optional.of(new Structure.GenerationStub(pos, structurePiecesBuilder ->
+                SacrificialVenueStructurePiece.add(context.structureTemplateManager(), structurePiecesBuilder, pos)))
+                : Optional.empty();
     }
 
     private static boolean heightAvailable(Structure.GenerationContext context, BlockPos pos) {
@@ -51,5 +49,4 @@ public class SacrificialVenueStructure extends Structure {
     public StructureType<?> type() {
         return PVZStructures.SACRIFICIAL_VENUE_TYPE.get();
     }
-
 }

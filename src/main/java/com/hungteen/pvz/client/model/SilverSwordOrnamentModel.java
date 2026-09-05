@@ -111,8 +111,8 @@ public class SilverSwordOrnamentModel<T extends Entity> extends HierarchicalMode
 		Level level = ClientProxy.getLevel();
 		if (level.getBlockEntity(new BlockPos(x, y, z)) instanceof SilverSwordOrnamentBlockEntity entity) {
 			this.total.getAllParts().forEach(ModelPart::resetPose);
-			this.animate(entity.idleAnimationState, SilverSwordOrnamentAnimation.idle, ageInTicks);
-			this.animate(entity.attackAnimationState, SilverSwordOrnamentAnimation.attack, ageInTicks);
+			this.animate(entity.idleAnimationState, SilverSwordOrnamentModelAnimation.idle, ageInTicks);
+			this.animate(entity.attackAnimationState, SilverSwordOrnamentModelAnimation.attack, ageInTicks);
 		}
 	}
 

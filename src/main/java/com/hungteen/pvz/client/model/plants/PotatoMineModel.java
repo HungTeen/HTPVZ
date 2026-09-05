@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.PotatoMineAnimation;
+import com.hungteen.pvz.client.model.plants.animation.PotatoMineModelAnimation;
 import com.hungteen.pvz.common.entity.plants.PotatoMine;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -45,9 +45,9 @@ public class PotatoMineModel<T extends PotatoMine> extends HierarchicalModel<T> 
 	@Override
 	public void setupAnim(T potatoMine, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(potatoMine.idleAnimationState, PotatoMineAnimation.idle, ageInTicks);
-		this.animate(potatoMine.outAnimationState, PotatoMineAnimation.out, ageInTicks);
-		this.animate(potatoMine.sleepAnimationState, PotatoMineAnimation.sleep, 0);
+		this.animate(potatoMine.idleAnimationState, PotatoMineModelAnimation.idle, ageInTicks);
+		this.animate(potatoMine.outAnimationState, PotatoMineModelAnimation.out, ageInTicks);
+		this.animate(potatoMine.sleepAnimationState, PotatoMineModelAnimation.sleep, 0);
 	}
 
 	@Override

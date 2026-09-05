@@ -1,15 +1,14 @@
 package com.hungteen.pvz.common.entity.bullet;
 
-import com.hungteen.pvz.common.register.OtherRegisters;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.*;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,6 +16,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class PeaBullet extends BaseBullet {
@@ -56,7 +56,7 @@ public class PeaBullet extends BaseBullet {
                     this.changeCoolDown = 5;
                 }
             } else if (this.isInLava()) {
-                setPeaType(this.getPeaType() == PeaBullet.PeaType.Ice ? PeaBullet.PeaType.Common : PeaBullet.PeaType.Fire);
+                setPeaType(this.getPeaType() == PeaType.Ice ? PeaType.Common : PeaType.Fire);
                 this.changeCoolDown = 5;
             }
         } else {
@@ -76,7 +76,7 @@ public class PeaBullet extends BaseBullet {
             }
             if (getPeaType() == PeaType.Fire) {
                 level.addParticle(ParticleTypes.SMOKE, getX(), getY(), getZ(), 0, 0, 0);
-                level.addParticle(ParticleTypes.SMOKE, getX() - movement.x / 2, getY() - movement.y / 2, getZ() - movement.z / 2, 0, 0, 0);
+                if (random.nextBoolean()) level.addParticle(ParticleTypes.SMOKE, getX() - movement.x / 2, getY() - movement.y / 2, getZ() - movement.z / 2, 0, 0, 0);
             } else if (getPeaType() == PeaType.Ice) {
                 level.addParticle(ParticleTypes.SNOWFLAKE, getX(), getY(), getZ(), 0, 0, 0);
             }
@@ -146,6 +146,24 @@ public class PeaBullet extends BaseBullet {
             this.ignoreShield = tag.getBoolean("ignore_armor");
         }
     }
+
+    @Override
+    public void onHitBlock(BlockHitResult result) {
+        if (this.getPeaType() == PeaType.Fire || this.getPeaType() == PeaType.SoulFire) {
+            this.setSecondsOnFire(1);
+        }
+        super.onHitBlock(result);
+    }
+
+    @Override
+    public SoundEvent getHitSound() {
+        return switch (getPeaType()) {
+            case SoulFire, Fire -> PVZSoundEvents.FIRE_PEA_HIT.get();
+            case Ice -> PVZSoundEvents.SNOW_PEA_HIT.get();
+            default -> super.getHitSound();
+        };
+    }
+
     @Override
     protected boolean dealDamageTo(Entity target) {
         boolean hurt;
@@ -165,11 +183,15 @@ public class PeaBullet extends BaseBullet {
         } else if (getPeaType() == PeaType.Ice) {
             target.clearFire();
             if (target.canFreeze() && target.getTicksFrozen() < 400) {
+                if (target.getTicksFrozen() <= 0) this.playSound(PVZSoundEvents.SNOW_PEA_FREEZE.get(), 1, 1);
                 target.setTicksFrozen(400);
             }
+        } else if (getPeaType() == PeaType.Poison && target instanceof LivingEntity living) {
+            living.addEffect(new MobEffectInstance(PVZMobEffects.PHYTOTOXIN.get(), 4));
         }
         return true;
     }
+
     protected DamageSource getDamageSource(Entity target) {
         DamageSource source = super.getDamageSource(target);
         if (ignoreShield) {

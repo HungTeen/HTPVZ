@@ -1,17 +1,20 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.BaseBullet;
 import com.hungteen.pvz.common.entity.bullet.ButterBullet;
 import com.hungteen.pvz.common.entity.bullet.CornBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -30,13 +33,13 @@ import java.util.List;
 
 public class KernelPult extends ShooterPlant {
     public static final EntityDataAccessor<Integer> CURRENT_BULLET = SynchedEntityData.defineId(KernelPult.class, EntityDataSerializers.INT);
-    private static final int BUTTER_CHANCE = 5;
+    private static final int BUTTER_CHANCE = 3;
     protected static final double SHOOT_OFFSET = 0.3D;//pea position offset
 
     public static final String BUTTER_SKILL_NAME = "skill.pvz.kernel_pult.butter_pult";
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 300)
+            new Skill(BUTTER_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM)
     );
 
     public KernelPult(EntityType<? extends Mob> type, Level worldIn) {
@@ -70,9 +73,14 @@ public class KernelPult extends ShooterPlant {
     }
     @Override
     public void shootBullet() {
-        this.performShoot(SHOOT_OFFSET, 0, 0, true, 0);
+        this.performShoot(SHOOT_OFFSET, 0, this.getBbHeight(), true, 0);
         this.changeBullet();
     }
+    @Override
+    protected SoundEvent getShootSound() {
+        return this.getCurrentBullet() == CornTypes.BUTTER ? PVZSoundEvents.BUTTER_SHOOT.get() : PVZSoundEvents.CORN_SHOOT.get();
+    }
+
     @Override
     public double getMaxShootAngleTangent() {
         return Double.POSITIVE_INFINITY;

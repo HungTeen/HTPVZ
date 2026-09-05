@@ -1,15 +1,17 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZConfig;
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -27,7 +29,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -60,8 +62,8 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
     public static String TORPEDO_SKILL_NAME = "skill.pvz.tangle_kelp.torpedo_kelp";
     public static String OXYGEN_SKILL_NAME = "skill.pvz.tangle_kelp.oxygen_algae";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(TORPEDO_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 4, 50, 0),
-            new Skill(OXYGEN_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 8, 125, 0).avoidSkills(TORPEDO_SKILL_NAME)
+            new Skill(TORPEDO_SKILL_NAME, PVZItems.AQUA_ESSENCE, 6, 8, 50, 0),
+            new Skill(OXYGEN_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 12, 12, 125, 0).avoidSkills(TORPEDO_SKILL_NAME)
     );
 
     public TangleKelp(EntityType<? extends Mob> entityType, Level level) {
@@ -316,8 +318,7 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
 
     @Override
     public SoundEvent getPickupSound() {
-        //TODO sounds has not changed.
-        return SoundEvents.BUCKET_FILL_AXOLOTL;
+        return PVZSoundEvents.BUCKET_FILL_TANGLE_KELP.get();
     }
 
     public static class TangleKelpAttackGoal extends Goal{
@@ -361,9 +362,10 @@ public class TangleKelp extends SimplePlant implements Bucketable, IPlant.IWater
                     }
                 } else if (tangleKelp.tickCount % 40 < 2) {
                     Entity target = tangleKelp.getFirstPassenger();
-                    target.hurt(PVZDamageSource.transferKiller(new DamageSource("tangle_kelp").bypassArmor(), PVZEntityCapability.getOwner(tangleKelp)),
-                            (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE));
-                    tangleKelp.hurt(new DamageSource("tangle_kelp").bypassArmor(), 0.5f);
+                    tangleKelp.level.playSound(null, tangleKelp, PVZSoundEvents.TANGLE_KELP_ATTACK.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                    target.hurt(PVZDamageSource.tangleKelpHurt(tangleKelp, target),
+                            (float) this.tangleKelp.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(tangleKelp.level));
+                    tangleKelp.hurt(PVZDamageSource.tangleKelpHurt(tangleKelp, target), 0.5f);
                 }
             }
         }

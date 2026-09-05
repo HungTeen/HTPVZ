@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_origin": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:alaya_resin"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_origin"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "pvz:seed_crossbow",
+      "pvz:experience_bottle",
+      "pvz:pea_gun",
+      "pvz:chili_chan",
+      "pvz:leaf_banner_pattern",
+      "pvz:essence_altar",
+      "pvz:ender_seed_bundle"
+    ]
+  }
+}

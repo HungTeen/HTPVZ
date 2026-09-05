@@ -5,10 +5,11 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -50,9 +51,9 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
     public static String FREE_SKILL_NAME = "skill.pvz.lily_pad.friendship_of_lily_pad";
     public static String LAVA_SWIMMER_SKILL_NAME = "skill.pvz.lily_pad.lava_swimmer";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(BOAT_SKILL_NAME, PVZItems.AQUA_ESSENCE, 6, 4, 0, 0),
-            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 6, 12, -25, 0).avoidSkills(BOAT_SKILL_NAME),
-            new Skill(LAVA_SWIMMER_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 9, 4, 75, 0).avoidSkills(BOAT_SKILL_NAME)
+            new Skill(BOAT_SKILL_NAME, PVZItems.AQUA_ESSENCE, 6, 8, 0, PVZSeedPackets.SLOW - PVZSeedPackets.FAST),
+            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 24, 12, -25, 0).avoidSkills(BOAT_SKILL_NAME),
+            new Skill(LAVA_SWIMMER_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 6, 8, 75, 0).avoidSkills(BOAT_SKILL_NAME, FREE_SKILL_NAME)
     );
 
     public LilyPad(EntityType<? extends Mob> entityType, Level level) {

@@ -3,6 +3,7 @@ package com.hungteen.pvz.client.gui.screens;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
@@ -128,6 +129,9 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                                 this.leftPos + 234, this.topPos + 18);
                     } else if (seed instanceof RegistryObject<?> registryObject && registryObject.get() instanceof ItemLike itemLike) {
                         ClientProxy.MC.getItemRenderer().renderAndDecorateFakeItem(itemLike.asItem().getDefaultInstance(),
+                                this.leftPos + 234, this.topPos + 18);
+                    } else if (seed instanceof RegisterSeedPacketsEvent.SeedPacketData<?> data1) {
+                        ClientProxy.MC.getItemRenderer().renderAndDecorateFakeItem(SeedPacketItem.getSeedPacket(data1.entitySupplier.get()).getDefaultInstance(),
                                 this.leftPos + 234, this.topPos + 18);
                     }
                 }
@@ -278,11 +282,15 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
         Map<Item, List<Item>> items = creative ? PVZSeedPackets.sortedCreative : PVZSeedPackets.sortedSurvival;
         if (items.get(chosenTab).get(chosenItem) instanceof SeedPacketItem<?> selected) {
             boolean renderAsNumber = PVZConfig.renderSunAsNumber() || ! selected.getResource(null).equals(PVZAPI.get().getSunResourceName());
+            int cost = selected.getBaseCost(null);
             if (renderAsNumber) {
-                this.font.draw(poseStack, selected.getBaseCost(null) + "",
-                        171 + (selected.getResource(null).equals(PVZAPI.get().getSunResourceName()) ? 0 : 10), 61, 0);
-                this.font.draw(poseStack, selected.getBaseCost(null) + "",
-                        170 + (selected.getResource(null).equals(PVZAPI.get().getSunResourceName()) ? 0 : 10), 60, 0xFFFFFF);
+                int offset = (selected.getResource(null).equals(PVZAPI.get().getSunResourceName()) ? 10 : 0) + 160;
+                this.font.draw(poseStack, cost + (selected.extraCost ? "+" : ""), 1 + offset, 61, 0);
+                this.font.draw(poseStack, cost + (selected.extraCost ? "+" : ""), offset, 60, 0xFFFFFF);
+            } else if (selected.extraCost && selected.getResource(null).equals(PVZAPI.get().getSunResourceName())) {
+                int offset = 8 * (int) Math.max(1, Math.ceil((double) cost / 100)) + 161;
+                this.font.draw(poseStack, "+", 1 + offset, 61, 0);
+                this.font.draw(poseStack, "+", offset, 60, 0xFFFFFF);
             }
             if (viewingSkills) {
                 int size = selected.getStaticSkillList().size();
@@ -383,8 +391,9 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
                                 Component.translatable(skill.name).withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_AQUA)),
                                 Component.translatable(skill.name + ".desc").withStyle(Style.EMPTY.withColor(0x545454))));
                         ClientProxy.MC.screen.renderTooltip(poseStack, list,
-                                Optional.of(new SunImageToolTipComponent(skill.addCostResource, skill.addCoolDown,
-                                        selected.getResource(null).equals(PVZPlayerCapStats.SUN), true, true)),
+                                Optional.of(new SunImageToolTipComponent(skill.addCostResource, skill.addCoolDown
+                                        , selected.getResource(null).equals(PVZPlayerCapStats.SUN)
+                                        , true, true, false)),
                                 mouseX, mouseY, font, ItemStack.EMPTY);
                     }
                 }
@@ -394,7 +403,8 @@ public class AlmanacScreen extends AbstractContainerScreen<AlmanacMenu> {
         }
     }
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks){
+    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(stack);
         super.render(stack, mouseX, mouseY, partialTicks);
         renderTooltip(stack, mouseX, mouseY);
     }

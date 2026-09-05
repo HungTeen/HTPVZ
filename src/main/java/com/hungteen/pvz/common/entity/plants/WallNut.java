@@ -1,16 +1,16 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IIronEntity;
+import com.hungteen.pvz.client.sound.WallNutSoundInstance;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.common.register.PVZAttributes;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -22,6 +22,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -46,6 +48,7 @@ import static com.hungteen.pvz.common.register.PVZDamageSource.*;
 public class WallNut extends SimplePlant implements IIronEntity {
     float storedHealth;
     float storedArmor;
+    int hitCount;
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Float> IRON_ARMOR = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Boolean> IS_BOWLING = SynchedEntityData.defineId(WallNut.class, EntityDataSerializers.BOOLEAN);
@@ -54,10 +57,10 @@ public class WallNut extends SimplePlant implements IIronEntity {
     public static String ARMOR_SKILL_NAME = "skill.pvz.wall_nut.iron_armor";
     public static String COLLISION_SKILL_NAME = "skill.pvz.wall_nut.elastic_collision";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(FIRST_AID_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, 0, 0),
-            new Skill(EXPLODE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 8, 150, 400),
-            new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 8, 50, 0).avoidSkills(EXPLODE_SKILL_NAME),
-            new Skill(COLLISION_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 4, 50, 0)
+            new Skill(FIRST_AID_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 4, 1, 0, 0),
+            new Skill(EXPLODE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 6, 12, 150, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.MEDIUM),
+            new Skill(ARMOR_SKILL_NAME, PVZItems.TERRA_ESSENCE, 12, 12, 50, 0).avoidSkills(EXPLODE_SKILL_NAME),
+            new Skill(COLLISION_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 6, 50, 0)
                     .avoidSkills(ARMOR_SKILL_NAME)
     );
 
@@ -65,13 +68,14 @@ public class WallNut extends SimplePlant implements IIronEntity {
         super(entityType, level);
         storedHealth = 0;
         storedArmor = 0;
+        hitCount = 0;
     }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(EXPLODE_COUNT, -1);
-        this.entityData.define(IRON_ARMOR, 0F);
+        this.entityData.define(IRON_ARMOR, getMaxIronArmor());
         this.entityData.define(IS_BOWLING, false);
     }
 
@@ -80,10 +84,10 @@ public class WallNut extends SimplePlant implements IIronEntity {
         return hasIronArmor();
     }
     public boolean hasIronArmor() {
-        return entityData.get(IRON_ARMOR) > 0;
+        return this.hasSkill(ARMOR_SKILL_NAME) && entityData.get(IRON_ARMOR) > 0;
     }
     public float getIronArmor() {
-        return entityData.get(IRON_ARMOR);
+        return this.hasSkill(ARMOR_SKILL_NAME) ? entityData.get(IRON_ARMOR) : 0;
     }
     public void setIronArmor(float value) {
         entityData.set(IRON_ARMOR, value);
@@ -95,8 +99,11 @@ public class WallNut extends SimplePlant implements IIronEntity {
         return this.entityData.get(IS_BOWLING);
     }
     public boolean canBowling() {return true;}
-    public void setBowling(boolean is_bowling) {
-        this.entityData.set(IS_BOWLING, is_bowling);
+    public void setBowling(boolean isBowling) {
+        if (isBowling && this.level.isClientSide) {
+            WallNutSoundInstance.add(this);
+        }
+        this.entityData.set(IS_BOWLING, isBowling);
     }
 
     //entity settings
@@ -106,7 +113,7 @@ public class WallNut extends SimplePlant implements IIronEntity {
 
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
-                .add(Attributes.MAX_HEALTH, 40D)
+                .add(Attributes.MAX_HEALTH, 30D)
                 .add(Attributes.ARMOR, 25D)
                 .add(Attributes.ARMOR_TOUGHNESS, 20D)
                 .add(Attributes.ATTACK_DAMAGE, 30D)
@@ -129,7 +136,7 @@ public class WallNut extends SimplePlant implements IIronEntity {
 
     @Override
     public Predicate<Entity> canPush(){
-        return entity -> entity.getType() == EntityType.PLAYER || ! EntityUtil.isTeammate(this, entity);
+        return entity -> ! EntityUtil.isTeammate(this, entity);
     }
 
     @Override
@@ -154,6 +161,14 @@ public class WallNut extends SimplePlant implements IIronEntity {
                     this.doPush(entity);
                 }
             }
+        }
+    }
+
+    @Override
+    protected void doPush(Entity entity) {
+        entity.push(this);
+        for (int i = 0; i < 3; i ++) {
+            push(entity);
         }
     }
 
@@ -220,12 +235,13 @@ public class WallNut extends SimplePlant implements IIronEntity {
     public void alignBlocks() {
         super.alignBlocks();
         this.setBowling(false);
+        this.hitCount = 0;
     }
 
     private void explode() {
         if (!this.level.isClientSide) {
             this.dead = true;
-            level.explode(this, transferKiller(ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), PVZEntityCapability.getOwner(this)), null, this.getX(), this.getY(), this.getZ(), 3F, false, Explosion.BlockInteraction.NONE);
+            level.explode(this, ignoreInvTime(teamFilter(DamageSource.explosion(this).bypassArmor())), null, this.getX(), this.getY(), this.getZ(), 3F, false, Explosion.BlockInteraction.NONE);
             this.discard();
         }
     }
@@ -318,9 +334,14 @@ public class WallNut extends SimplePlant implements IIronEntity {
                 if (wallNut.hasSkill(EXPLODE_SKILL_NAME)) {
                     wallNut.explode();
                 } else {
+                    wallNut.level.playSound(null, wallNut, PVZSoundEvents.WALL_NUT_HIT.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
                     entities.forEach((entity -> {
-                        entity.hurt(PVZDamageSource.wallNutCollide(this.wallNut, entity), (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                        entity.hurt(PVZDamageSource.wallNutCollide(this.wallNut, entity), (float) this.wallNut.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(wallNut.level));
                         damageCooldown = 5;
+                        wallNut.hitCount ++;
+                        if (wallNut.hitCount >= 5 && PVZEntityCapability.getOwner(wallNut) instanceof ServerPlayer player) {
+                            PVZCriteriaTriggers.STRIKE.trigger(player);
+                        }
                         wallNut.hurt(PVZDamageSource.wallNutCollide(this.wallNut, entity), 15);
                     }));
                 }

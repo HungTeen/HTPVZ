@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.model.plants;
 
-import com.hungteen.pvz.client.model.plants.animation.MarigoldAnimation;
+import com.hungteen.pvz.client.model.plants.animation.MarigoldModelAnimation;
 import com.hungteen.pvz.common.entity.plants.MariGold;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -98,8 +98,8 @@ public class MariGoldModel<T extends MariGold> extends HierarchicalModel<T> {
         this.nerd.visible = nerd;
         this.l_brow.zRot = nerd ? (float) (1 / Math.PI) : 0;
         this.r_brow.zRot = nerd ? (float) (- 1 / Math.PI) : 0;
-        this.animate(marigold.idleAnimationState, MarigoldAnimation.idle, ageInTicks);
-        this.animate(marigold.produceAnimationState, MarigoldAnimation.produce, ageInTicks);
+        this.animate(marigold.idleAnimationState, MarigoldModelAnimation.idle, ageInTicks);
+        this.animate(marigold.produceAnimationState, MarigoldModelAnimation.produce, ageInTicks);
 
         //size
         int level = marigold.getGrowLevel();

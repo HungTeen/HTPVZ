@@ -3,20 +3,27 @@ package com.hungteen.pvz.common.world.invasion;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
+import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.event.RegisterInvasionConditionsEvent;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -31,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <br>Sometimes invasion types need to know how many arguments are needed because of the nested conditions.
  * Use {@link InvasionCondition#getArgLength(LivingEntity, List, InvasionType, List) getArgLength()} to define now many arguments this condition need, And the redundant conditions will be ignored.*/
 public interface InvasionCondition {
+
     Map<ResourceLocation, InvasionCondition> invasionConditions = registerConditions();
     boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes);
     default int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
@@ -63,6 +71,16 @@ public interface InvasionCondition {
         return location[0];
     }
 
+//    default String getTranslationName() {
+//        ResourceLocation location = getName();
+//        return "zombie_event." + location.getNamespace() + ".invasion.condition." + location.getPath();
+//    }
+//
+//    /**For most conditions, there's no need to show.*/
+//    default Component getTranslation(List<String> arguments) {
+//        return Component.literal("");
+//    }
+
     static Map<ResourceLocation, InvasionCondition> registerConditions() {
         RegisterInvasionConditionsEvent event = new RegisterInvasionConditionsEvent();
         MinecraftForge.EVENT_BUS.post(event);
@@ -79,6 +97,26 @@ public interface InvasionCondition {
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
             return 1;
+        }
+    }
+
+    /**Detects which dimension target is in. Accepts only 1 argument.*/
+    class HasEffectCondition implements InvasionCondition {
+        @Override
+        public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
+            if (arguments.isEmpty()) {
+                PVZMod.LOGGER.warn("Condition has_effect of " + type.getName() + " received no arguments.");
+            }
+            for (String argument : arguments) {
+                ResourceLocation resourcelocation = new ResourceLocation(argument);
+                if (ForgeRegistries.MOB_EFFECTS.containsKey(resourcelocation)) {
+                    MobEffect effect = ForgeRegistries.MOB_EFFECTS.getValue(resourcelocation);
+                    if (target.hasEffect(effect)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 
@@ -127,6 +165,60 @@ public interface InvasionCondition {
         }
     }
 
+    class InStructureCondition implements InvasionCondition {
+        @Override
+        public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
+            StructureManager manager = ((ServerLevel) target.level).structureManager();
+            BlockPos pos = target.blockPosition();
+            if (arguments.isEmpty()) {
+                return manager.hasAnyStructureAt(pos);
+            }
+            for (String argument : arguments) {
+                if (argument.startsWith("#")) {
+                    ResourceLocation resourcelocation = new ResourceLocation(argument.substring(1));
+                    TagKey<Structure> tagkey = TagKey.create(Registry.STRUCTURE_REGISTRY, resourcelocation);
+                    if (manager.getStructureWithPieceAt(pos, tagkey).isValid()) {
+                        return true;
+                    }
+                } else {
+                    ResourceKey<Structure> structureKey = ResourceKey.create(Registry.STRUCTURE_REGISTRY, new ResourceLocation(argument));
+                    if (manager.getStructureWithPieceAt(pos, structureKey).isValid()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    class InvasionDifficultyGreaterThanCondition implements InvasionCondition {
+        @Override
+        public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
+            try {
+                if (! allProvidedArgs.isEmpty()) {
+                    Integer.parseInt(allProvidedArgs.get(0));
+                    return 1;
+                }
+            } catch (Exception ignored) {
+            }
+            return 0;
+        }
+        @Override
+        public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
+            int value = 0;
+            try {
+                if (! arguments.isEmpty()) {
+                    value = Integer.parseInt(arguments.get(0));
+                }
+            } catch (Exception ignored) {
+            }
+            if (target instanceof Player player) {
+                return player.isCreative() ? true : value <= PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY);
+            }
+            return false;
+        }
+    }
+
     class IsUndergroundCondition implements InvasionCondition {
         @Override
         public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
@@ -137,9 +229,14 @@ public interface InvasionCondition {
             return 0;
         }
     }
+
     class AroundEntitiesCostCondition implements InvasionCondition {
+
+        public static boolean shouldCalculateAroundEntityCost = true;
+
         @Override
         public boolean test(LivingEntity target, List<String> arguments, InvasionType type, List<InvasionType> selectedTypes) {
+            if (! shouldCalculateAroundEntityCost) return true;
             String resource;
             int cost;
             int numAt = 0;
@@ -153,7 +250,7 @@ public interface InvasionCondition {
                 numAt = arguments.size() > 1 ? 1 : -1;
             }
             resource = numAt == 1 ? arguments.get(0) : PVZAPI.get().getSunResourceName();
-            cost = numAt >= 0 ? Integer.parseInt(arguments.get(numAt)) : 500;
+            cost = numAt >= 0 ? Integer.parseInt(arguments.get(numAt)) : 700;
             if (target instanceof Player player && player.isCreative()) {
                 return true;
             }
@@ -163,9 +260,19 @@ public interface InvasionCondition {
                     totalCost.addAndGet(cap.resource.equals(resource) ? cap.cost : 0)));
             return totalCost.get() < cost;
         }
+
         @Override
         public int getArgLength(LivingEntity target, List<String> allProvidedArgs, InvasionType type, List<InvasionType> selectedTypes) {
-            return 0;
+            try {
+                if (allProvidedArgs.isEmpty()) {
+                    return 0;
+                } else {
+                    Integer.parseInt(allProvidedArgs.get(0));
+                    return 1;
+                }
+            } catch (Exception ignored) {
+                return 2;
+            }
         }
     }
 

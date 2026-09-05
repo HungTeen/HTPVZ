@@ -19,6 +19,11 @@ public class SoillessCultureEnchantment extends Enchantment {
     }
 
     @Override
+    public boolean isTreasureOnly() {
+        return true;
+    }
+
+    @Override
     public int getMaxLevel() {
         return 1;
     }

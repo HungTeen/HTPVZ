@@ -3,8 +3,10 @@ package com.hungteen.pvz.common.entity.bullet;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -40,10 +42,17 @@ public class ButterBullet extends BaseBullet {
     protected boolean dealDamageTo(Entity target) {
         boolean hurt = super.dealDamageTo(target);
         if (!this.level.isClientSide() && hurt) {
-            if (target instanceof LivingEntity living) living.addEffect(new MobEffectInstance(PVZMobEffects.BUTTER.get(),200,1));
+            if (target instanceof LivingEntity living) living.addEffect(new MobEffectInstance(PVZMobEffects.BUTTER.get(),120,1));
         }
         return hurt;
     }
+
+    @Override
+    public SoundEvent getHitSound() {
+        return PVZSoundEvents.BUTTER_HIT.get();
+    }
+
+    @Override
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
         for (int i = 0; i < 5; i ++) {

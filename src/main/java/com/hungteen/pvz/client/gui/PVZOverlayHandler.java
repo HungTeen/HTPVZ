@@ -3,10 +3,12 @@ package com.hungteen.pvz.client.gui;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.client.PVZKeyBindings;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.plants.GatlingPea;
+import com.hungteen.pvz.common.item.EnderSeedBundleItem;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
@@ -18,9 +20,11 @@ import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -29,12 +33,10 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -47,6 +49,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static net.minecraft.util.Mth.ceil;
@@ -59,21 +62,18 @@ public class PVZOverlayHandler {
     private static int bufferSunBarLength = 0;
     private static final Random random = new Random();
     public static float notEnoughHint = 0;
-    private static ItemStack storedMainHandItemStack = null;
-    private static boolean mainHandResourceIsSun = true;
-    private static int mainHandStackCost = 0;
-    private static ItemStack storedOffHandItemStack = null;
-    private static boolean offHandResourceIsSun = true;
-    private static int offHandStackCost = 0;
-    private static boolean storedHaveCost = false;
     private static boolean renderArmorInSingleBar = false;
     private static Set<ZombieEventBarInformation> invasionBars = new HashSet<>();
+    public static Map<ItemStack, Pair<Integer, Integer>> itemsToDrawCost = new HashMap<>();
+    private static double enderSeedBundleAnim = 0;
+
 
     public static void tick(float tickTime) {
-        if (PVZPlayerCapability.getPlayerData(ClientProxy.getPlayer()).isPresent()) {
-            double tmp = Math.pow(0.95, tickTime / 0.01);
-            int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapStats.SUN);
-            int barLength = (int) (94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(ClientProxy.getPlayer(), PVZPlayerCapStats.SUN).getSecond());
+        Player player = getCameraPlayer();
+        if (player != null && PVZPlayerCapability.getPlayerData(player).isPresent()) {
+            double tmp = Math.pow(0.95, tickTime * 100);
+            int now = PVZPlayerCapability.getValue(player,  PVZPlayerCapStats.SUN);
+            int barLength = (int) (94 * bufferSunAmount / PVZPlayerCapability.getValueLimit(player, PVZPlayerCapStats.SUN).getSecond());
             bufferSunAmount = now * (1 - tmp) + tmp * bufferSunAmount;
             bufferSunBarLength = (int) Math.min(94, (barLength * (1 - tmp) + tmp * bufferSunBarLength));
             if (bufferSunBarLength != barLength && Math.abs(bufferSunBarLength - barLength) <= 10) {
@@ -82,39 +82,26 @@ public class PVZOverlayHandler {
             if (notEnoughHint > 0) {
                 notEnoughHint -= tickTime;
             }
+            boolean renderOn = PVZKeyBindings.keyEnderSeedBundle.isDown()
+                    && !EnderSeedBundleItem.getHoldingEnderSeedBundle(player).isEmpty()
+                    && !(ClientProxy.MC.screen instanceof AbstractContainerScreen<?>);
+            enderSeedBundleAnim += ((renderOn ? 6 : 0) - enderSeedBundleAnim) / 30 / tickTime;
+            if (enderSeedBundleAnim < 0.5) enderSeedBundleAnim = 0;
+            if (enderSeedBundleAnim > 5) enderSeedBundleAnim = 5;
         }
-        boolean needCost = getCameraPlayer() != null && (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1) != storedHaveCost;
-        ItemStack itemStack = getCameraPlayer() == null ? null : getCameraPlayer().getItemInHand(InteractionHand.MAIN_HAND);
-        if ((itemStack != storedMainHandItemStack || needCost) && itemStack != null && itemStack.getItem() instanceof SeedPacketItem<?>) {
-            refreshMainHandItemStack(getCameraPlayer());
-            storedHaveCost = (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1);
-        }
-        storedMainHandItemStack = itemStack;
-        itemStack = getCameraPlayer() == null ? null : getCameraPlayer().getItemInHand(InteractionHand.OFF_HAND);
-        if ((itemStack != storedOffHandItemStack || needCost) && itemStack != null && itemStack.getItem() instanceof SeedPacketItem<?>) {
-            refreshOffHandItemStack(getCameraPlayer());
-            storedHaveCost = (PVZPlayerCapability.getValue(getCameraPlayer(), "plant_have_cost") == 1);
-        }
-        storedOffHandItemStack = itemStack;
     }
 
     @SubscribeEvent
     public static void banVanillaArmorBar(RenderGuiOverlayEvent.Pre ev) {
-        int armorHealth = 0;
         Player player = getCameraPlayer();
         if (player == null) return;
-        for (ItemStack itemStack : player.getArmorSlots()) {
-            if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
-                armorHealth += itemStack.getMaxDamage() - itemStack.getDamageValue();
-            }
-        }
-        if (armorHealth == 0) return;
-
+        if (EntityUtil.getExtraArmorHealth(player) <= 0) return;
         if (PVZConfig.renderSeparateArmorBar() && ev.getOverlay().id().equals(new ResourceLocation("armor_level"))) {
             ev.setCanceled(true);
             renderArmorInSingleBar = true;
         }
     }
+
     private static void renderArmorAsSingleBar(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
         if (! renderArmorInSingleBar) return;
         renderArmorInSingleBar = false;
@@ -371,6 +358,11 @@ public class PVZOverlayHandler {
                     if (tmp >= 0) {
                         blit(stack, x, y, 10 * tmp, 20, 9, 9);
                     }
+                } else if (player.hasEffect(PVZMobEffects.BRIGHTNESS.get())) {
+                    int tmp = ((gui.getGuiTicks() + 30 - i * 4) % 30) / 2 - 12;
+                    if (tmp >= 0) {
+                        blit(stack, x, y, 90 - 10 * tmp, 20, 9, 9);
+                    }
                 }
                 if (Math.abs(levelActual - levelShow) > 5) { //avoid natural sun regaining keeping stat bar showing white.
                     blit(stack, x, y, 40, 20, 9, 9);
@@ -386,114 +378,92 @@ public class PVZOverlayHandler {
         }
     }
 
-    private static void renderCostOfSeeds(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
+    private static void renderEnderSeedBundleHotBar(ForgeGui gui, PoseStack posestack, float partialTick, int width, int height) {
         Player player = getCameraPlayer();
-        if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements() && player != null && PVZPlayerCapability.getValue(player, "plant_have_cost") != 0) {
-            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
-            RenderSystem.enableBlend();
-            int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(),  PVZPlayerCapStats.SUN);
-            int x;
-            int y = height - 32;
-            int w;
-            if (storedMainHandItemStack != null && storedMainHandItemStack.getItem() instanceof SeedPacketItem<?>) {
-                x = player.getInventory().selected * 20 + width / 2 - 80;
-                if (mainHandResourceIsSun) {
-                    if (PVZConfig.renderSunAsNumber()) {
-                        w = ClientProxy.MC.font.width(mainHandStackCost + "") + 10;
-                        blit(stack, x - w / 2, y, 40, 0, 9, 9);
-                        ClientProxy.MC.font.draw(stack, mainHandStackCost + "", x - (float) w / 2 + 11, y + 2, mainHandStackCost > now ? 0xEF1010 : 0x663600);
-                        ClientProxy.MC.font.draw(stack, mainHandStackCost + "", x - (float) w / 2 + 10, y + 1, 0xFFFFFF);
-                    } else {
-                        int tmp = mainHandStackCost;
-                        int h = -2 * ceil((float)tmp / 500);
-                        while (tmp > 0){
-                            w = tmp > 500 ? 40 : ceil((float)tmp/100) * 8;
-                            for (int i = 0; i < w / 8; i ++) {
-                                if (tmp > 100) {
-                                    blit(stack, x - w / 2 + 8 * i, y + h + 4, 40, 0, 9, 9);
-                                } else {
-                                    blit(stack, x - w / 2 + 8 * i, y + h + 4, ceil((float)tmp / 25) * 10, 0, 9, 9);
-                                }
-                                if (mainHandStackCost > now) {
-                                    blit(stack, x - w / 2 + 8 * i, y + h + 4, 50, 20, 9, 9);
-                                }
-                                tmp -= 100;
-                            }
-                            h += 2;
-                        }
-                    }
-                } else {
-                    w = ClientProxy.MC.font.width(mainHandStackCost + "");
-                    ClientProxy.MC.font.draw(stack, mainHandStackCost + "", x - (float) w / 2 + 1, y + 2, 0x663600);
-                    ClientProxy.MC.font.draw(stack, mainHandStackCost + "", x - (float) w / 2, y + 1, 0xFFFFFF);
+        if (enderSeedBundleAnim <= 0 || player == null || ClientProxy.MC.screen instanceof AbstractContainerScreen<?>) {
+            return;
+        }
+        posestack.pushPose();
+        RenderSystem.enableBlend();
+        Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
+        blit(posestack, width / 2 - 91, height - 47 - (int) enderSeedBundleAnim, 0, 101, 182, 22);
+        ItemStack itemStack;
+        int slot = -1;
+        itemStack = EnderSeedBundleItem.getHoldingEnderSeedBundle(player);
+        if (itemStack.getItem() instanceof EnderSeedBundleItem item) {
+            slot = item.getPointer(itemStack);
+        }
+        if (slot >= 0) blit(posestack, width / 2 - 92 + 20 * slot, height - 48 - (int) enderSeedBundleAnim, 158, 77, 24, 24);
+        int y = height - 44 - (int) enderSeedBundleAnim;
+        for (int i = 0; i < 9; i ++) {
+            int x = width / 2 - 88 + 20 * i;
+            itemStack = PVZPlayerCapability.getEnderSeedBundleSlot(player, i);
+            if (! itemStack.isEmpty()) {
+                ClientProxy.MC.getItemRenderer().renderGuiItem(itemStack, x, y);
+                ClientProxy.MC.getItemRenderer().renderGuiItemDecorations(ClientProxy.MC.font, itemStack, x, y);
+                if (i == slot) {
+                    PVZOverlayHandler.itemsToDrawCost.put(itemStack.copy(), Pair.of(x, y));
                 }
-            }
-            Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
-            if (storedOffHandItemStack != null && storedOffHandItemStack.getItem() instanceof SeedPacketItem<?>) {
-                x = width / 2 - 110;
-                if (offHandResourceIsSun) {
-                    if (PVZConfig.renderSunAsNumber()) {
-                        w = ClientProxy.MC.font.width(offHandStackCost + "") + 10;
-                        blit(stack, x - w / 2, y, 40, 0, 9, 9);
-                        ClientProxy.MC.font.draw(stack, offHandStackCost + "", x - (float) w / 2 + 11, y + 2, mainHandStackCost > now ? 0xEF1010 : 0x663600);
-                        ClientProxy.MC.font.draw(stack, offHandStackCost + "", x - (float) w / 2 + 10, y + 1, 0xFFFFFF);
-                    } else {
-                        int tmp = offHandStackCost;
-                        int h = -2 * ceil((float)tmp / 500);
-                        while (tmp > 0){
-                            w = tmp > 500 ? 40 : ceil((float)tmp/100) * 8;
-                            for (int i = 0; i < w / 8; i ++){
-                                if (tmp > 100) {
-                                    blit(stack, x - w / 2 + 8 * i, y + h + 4, 40, 0, 9, 9);
-                                } else {
-                                    blit(stack, x - w / 2 + 8 * i, y + h + 4, ceil((float)tmp / 25) * 10, 0, 9, 9);
-                                }
-                                if (mainHandStackCost > now) {
-                                    blit(stack, x - w / 2 + 8 * i, y + h + 4, 50, 20, 9, 9);
-                                }
-                                tmp -= 100;
-                            }
-                            h += 2;
-                        }
-                    }
-                } else {
-                    w = ClientProxy.MC.font.width(offHandStackCost + "");
-                    ClientProxy.MC.font.draw(stack, offHandStackCost + "", x - (float) w / 2 + 1, y + 2, 0x663600);
-                    ClientProxy.MC.font.draw(stack, offHandStackCost + "", x - (float) w / 2, y + 1, 0xFFFFFF);
-                }
-                RenderSystem.disableBlend();
-                ClientProxy.MC.getProfiler().pop();
             }
         }
+        posestack.popPose();
     }
 
-    public static void renderCoolDownValue(ForgeGui gui, PoseStack stack, float partialTick, int width, int height) {
-        if (! PVZConfig.renderCoolDownValue()) return;
+    private static void renderCostOfSeeds(ForgeGui gui, PoseStack posestack, float partialTick, int width, int height) {
         Player player = getCameraPlayer();
-        if (!gui.getMinecraft().options.hideGui && gui.shouldDrawSurvivalElements() && player != null) {
-            int x;
-            int y = height - 10;
-            int w;
-            for (int i = 0; i < 10; ++ i) {
-                x = i < 9 ? i * 20 + width / 2 - 80 : width / 2 - 109;
-                Item item = i < 9 ? player.getInventory().getItem(i).getItem() : player.getOffhandItem().getItem();
-                if (player.getCooldowns().isOnCooldown(item)) {
-                    String count = ((int) ((float) player.getCooldowns().cooldowns.get(item).endTime - player.getCooldowns().tickCount) / 2) + "";
-                    count = (count.length() == 1 ? "0" : count.substring(0, count.length() - 1) + "") + (count.length() > 2 ? "" : "." + count.charAt(count.length() - 1));
-                    if (count.equals("0.0")) continue;
-                    w = ClientProxy.MC.font.width(count);
-                    stack.pushPose();
-                    stack.translate(0.0D, 0.0D, 201.0F);
-                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2 + 1, y, 0x444444);
-                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2 - 1, y, 0x444444);
-                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2, y + 1, 0x444444);
-                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2, y - 1, 0x444444);
-                    ClientProxy.MC.font.draw(stack, count, x - (float) w / 2, y, 0xFFFFFF);
-                    stack.popPose();
+        if (player == null || (ClientProxy.MC.screen instanceof AbstractContainerScreen<?>)) {
+            return;
+        }
+        itemsToDrawCost.forEach((itemStack, offset) -> {
+            posestack.pushPose();
+            posestack.translate(offset.getFirst(), offset.getSecond(), 0.0F);
+            if (PVZPlayerCapability.getValue(player, "plant_have_cost") != 0) {
+                Util.setTexture(Util.prefix("textures/gui/overlay/icons.png"));
+                RenderSystem.enableBlend();
+                int now = PVZPlayerCapability.getValue(ClientProxy.getPlayer(), PVZPlayerCapStats.SUN);
+                if (itemStack.getItem() instanceof SeedPacketItem<?>) {
+                    PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, itemStack);
+                    MinecraftForge.EVENT_BUS.post(event);
+                    boolean resourceIsSun = event.resource.equals(PVZPlayerCapStats.SUN);
+                    int cost = event.cost;
+                    int w;
+                    if (resourceIsSun) {
+                        if (PVZConfig.renderSunAsNumber()) {
+                            w = ClientProxy.MC.font.width(cost + "") + 10;
+                            blit(posestack, 8 - w / 2, -10, 40, 0, 9, 9);
+                            ClientProxy.MC.font.draw(posestack, cost + "", 8 - (float) w / 2 + 11, -8, cost > now ? 0xEF1010 : 0x663600);
+                            ClientProxy.MC.font.draw(posestack, cost + "", 8 - (float) w / 2 + 10,-9, 0xFFFFFF);
+                        } else {
+                            int tmp = cost;
+                            int h = -2 * ceil((float) tmp / 500);
+                            while (tmp > 0){
+                                w = tmp > 500 ? 40 : ceil((float) tmp / 100) * 8;
+                                for (int i = 0; i < w / 8; i ++) {
+                                    if (tmp > 100) {
+                                        blit(posestack, 8 - w / 2 + 8 * i,h - 8, 40, 0, 9, 9);
+                                    } else {
+                                        blit(posestack, 8 - w / 2 + 8 * i,h - 8, ceil((float)tmp / 25) * 10, 0, 9, 9);
+                                    }
+                                    if (cost > now) {
+                                        blit(posestack, 8 - w / 2 + 8 * i,h - 8, 50, 20, 9, 9);
+                                    }
+                                    tmp -= 100;
+                                }
+                                h += 2;
+                            }
+                        }
+                    } else {
+                        w = ClientProxy.MC.font.width(cost + "");
+                        ClientProxy.MC.font.draw(posestack, cost + "", 9 - (float) w / 2, -8, 0x663600);
+                        ClientProxy.MC.font.draw(posestack, cost + "", 8 - (float) w / 2,-9, 0xFFFFFF);
+                    }
                 }
             }
-        }
+            posestack.popPose();
+        });
+        itemsToDrawCost.clear();
     }
+
     @SubscribeEvent
     public static void getInvasionBars(CustomizeGuiOverlayEvent.BossEventProgress event) {
         ComponentContents contents = event.getBossEvent().getName().getContents();
@@ -530,7 +500,7 @@ public class PVZOverlayHandler {
                 for (int i = 0; i < invasion.waves.size(); i ++) {
                     Invasion.Wave wave = invasion.waves.get(i);
                     if (wave.isBigWave) {
-                        blit(stack, (int) (width - 23 - 130 * ((float) i / (invasion.waves.size() - 1))),
+                        blit(stack, (int) (width - 23 - 130 * ((float) i / (invasion.waves.size() - 2))),
                                 height - renderHeight + (invasion.currentWave >= i ? - 2 : + 3), 242, wave.isGivenUp ? 26 : 11, 14, (invasion.currentWave >= i ? 15 : 10));
                     }
                 }
@@ -587,21 +557,8 @@ public class PVZOverlayHandler {
         BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
-    private static Player getCameraPlayer() {
+    private static @Nullable Player getCameraPlayer() {
         return ! (ClientProxy.MC.getCameraEntity() instanceof Player) ? null : ClientProxy.getPlayer();
-    }
-
-    public static void refreshMainHandItemStack(Player player) {
-        PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, player.getItemInHand(InteractionHand.MAIN_HAND));
-        MinecraftForge.EVENT_BUS.post(event);
-        mainHandResourceIsSun = event.resource.equals(PVZPlayerCapStats.SUN);
-        mainHandStackCost = event.cost;
-    }
-    public static void refreshOffHandItemStack(Player player) {
-        PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, player.getItemInHand(InteractionHand.OFF_HAND));
-        MinecraftForge.EVENT_BUS.post(event);
-        offHandResourceIsSun = event.resource.equals(PVZPlayerCapStats.SUN);
-        offHandStackCost = event.cost;
     }
 
     @SubscribeEvent
@@ -609,9 +566,8 @@ public class PVZOverlayHandler {
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_level", PVZOverlayHandler::renderSunAsStats);
         ev.registerBelow(VanillaGuiOverlay.AIR_LEVEL.id(), "sun_bar", PVZOverlayHandler::renderSunAsBar);
         ev.registerBelow(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "gatling_overheat", PVZOverlayHandler::renderGatlingOverheat);
-//        ev.registerBelow(VanillaGuiOverlay.SPYGLASS.id(), "pumpkin", PVZOverlayHandler::renderPumpkinHelmet);
+        ev.registerBelow(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "ender_seed_bundle_hotbar", PVZOverlayHandler::renderEnderSeedBundleHotBar);
         ev.registerAbove(VanillaGuiOverlay.EXPERIENCE_BAR.id(), "card_cost", PVZOverlayHandler::renderCostOfSeeds);
-        ev.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "item_cooldown", PVZOverlayHandler::renderCoolDownValue);
         ev.registerAbove(VanillaGuiOverlay.PLAYER_HEALTH.id(), "armor_on_health", PVZOverlayHandler::renderArmorOnHealthBar);
         ev.registerAbove(VanillaGuiOverlay.ARMOR_LEVEL.id(), "armor_bar", PVZOverlayHandler::renderArmorAsSingleBar);
         ev.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "butter", PVZOverlayHandler::renderButterOverlay);
@@ -640,5 +596,5 @@ public class PVZOverlayHandler {
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
-    public record ZombieEventBarInformation(UUID uuid, int x, int y, BossEvent event) {};
+    public record ZombieEventBarInformation(UUID uuid, int x, int y, BossEvent event) {}
 }

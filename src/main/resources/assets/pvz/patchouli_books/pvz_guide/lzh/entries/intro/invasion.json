@@ -1,0 +1,48 @@
+{
+    "name": "敵襲",
+    "icon": "pvz:cone_helmet",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "*1"
+        },
+        {
+            "type": "text",
+            "text": "*2"
+        },
+        {
+            "type": "spotlight",
+            "title": "*4",
+            "item": "pvz:golden_taco",
+            "text": "*3"
+        },
+        {
+            "type": "spotlight",
+            "title": "*5",
+            "item": "pvz:sun_flower_seed_packet",
+            "text": "*6"
+        },
+        {
+            "type": "spotlight",
+            "title": "*7",
+            "item": "pvz:wall_nut_seed_packet",
+            "text": "*8"
+        },
+        {
+            "type": "spotlight",
+            "title": "*9",
+            "item": "pvz:potato_mine_seed_packet",
+            "text": "*10"
+        },
+        {
+            "type": "text",
+            "text": "*11"
+        },
+        {
+            "type": "text",
+            "text": "*12"
+        }
+    ],
+    "sortnum": 6
+}

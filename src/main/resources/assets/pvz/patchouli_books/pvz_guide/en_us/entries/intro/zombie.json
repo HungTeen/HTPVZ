@@ -1,0 +1,20 @@
+{
+    "name": "Zombie",
+    "icon": "minecraft:zombie_head",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "The zombies of this mod don't burn during the day. Under default configuration, zombies are not spawned only in the End. Compared with the vanilla game cones and buckets are harder. For example, buckets of Buckethead Zombies of this mod can absorb 10 times the health of a normal zombie instead of 5.5 in vanilla PVZ."
+        },
+        {
+            "type": "text",
+            "text": "However, the damage armors zombies wear can absorb is not a part of the health of the zombie. If you can somehow directly hurt their body, they are easy to kill."
+        },
+        {
+            "type": "text",
+            "text": "Some of the zombies can be spawned natually and others only appear in invasions. When adventureing you may meet zombies from the mod, and the Flag ones always contain an invasion. If you kill a flag zombie natually spawned in the wild, an invasion will start. Invasions may start immidiately or wait until all conditions meet."
+        }
+    ],
+    "sortnum": 5
+}

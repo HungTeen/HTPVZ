@@ -6,7 +6,9 @@ import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PVZEntityCapPacket;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZParticles;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -14,6 +16,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
@@ -29,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag> {
@@ -38,14 +42,13 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     public int cost = 0;
     //owner
     private Entity owner = null;
-    public UUID ownerUuid = null;
+    private UUID ownerUuid = null;
     //invasion
     public Set<UUID> zombieEventUUIDs = new HashSet<>();
     public short tickCount = 0;
     public String hypnosisTempTeam;
-    public boolean containsInvasion = false;
     //client
-    public boolean isDirty = true;
+    public boolean isDirty = false;
     private int stuckArrowWithATarget = 0;
 
     public static final Capability<PVZEntityCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
@@ -54,12 +57,18 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     public static void clientTick(TickEvent.ClientTickEvent ev) {
-        if (ClientProxy.MC.level == null) {
+        ClientLevel level = (ClientLevel) ClientProxy.getLevel();
+        if (level == null || ClientProxy.MC.isPaused()) {
             return;
         }
-        ClientProxy.MC.level.getEntities().getAll().forEach(entity -> {
+        level.getEntities().getAll().forEach(entity -> {
             entity.getCapability(CAP).ifPresent((cap) -> {
-            //sync
+                if (entity instanceof LivingEntity living && living.getRandom().nextBoolean()
+                        && living.getAttribute(Attributes.MAX_HEALTH).getModifier(PVZMobEffects.SUN_BLOOD_EFFECT_UUID) != null) {
+                    level.addParticle(PVZParticles.SUN.get(), entity.getX(), entity.getY() + entity.getEyeHeight(), entity.getZ()
+                            , living.getRandom().nextFloat() * 0.2 - 0.1, 0.1f, living.getRandom().nextFloat() * 0.2 - 0.1);
+                }
+                //sync
                 PVZEntityCapPacket.read(entity.getUUID(), cap);
             });
         });
@@ -142,10 +151,10 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
 
     //owner
     public void setOwner(UUID uuid) {
-        this.owner = ((ServerLevel) (entity.level)).getEntity(ownerUuid);
         if (owner instanceof Player) {
             this.ownerUuid = uuid;
         }
+        this.owner = ((ServerLevel) (entity.level)).getEntity(uuid);
     }
     public void setOwner(Entity entity) {
         this.owner = entity;
@@ -162,7 +171,8 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             }
         }
     }
-    /**don't use this method to adjust if the entity has owner! use {@link PVZEntityCapability#hasOwner() hasOwner()} instead.*/
+
+    /**don't use this method to test if the entity has owner! use {@link PVZEntityCapability#hasOwner() hasOwner()} instead.*/
     public Entity getOwner() {
         this.owner = owner == null ? ((ServerLevel) (entity.level)).getEntity(ownerUuid) : owner;
         return owner;
@@ -192,10 +202,8 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     }
 
     public static boolean hasOwner(Entity entity) {
-        AtomicReference<Boolean> result = new AtomicReference<>();
-        entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
-            result.set(cap.hasOwner());
-        });
+        AtomicBoolean result = new AtomicBoolean(true);
+        entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> result.set(cap.hasOwner()));
         return result.get();
     }
 
@@ -242,7 +250,6 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             }
             basicTag.put("zombie_events", zombieEventTag);
         }
-        basicTag.putBoolean("contains_invasion", containsInvasion);
         return basicTag;
     }
 
@@ -264,7 +271,7 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
             this.ownerUuid = nbt.getUUID("owner");
             //TODO handle situation when player is not available when loading.
             this.owner = ((ServerLevel) (entity.level)).getEntity(ownerUuid);
-            if (! (owner instanceof Player)) {
+            if (owner != null && ! (owner instanceof Player)) {
                 this.ownerUuid = null;
             }
         }
@@ -275,9 +282,6 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                 zombieEventUUIDs.add(zombieEventTag.getUUID(String.valueOf(i)));
                 i ++;
             }
-        }
-        if (nbt.contains("contains_invasion")) {
-            this.containsInvasion = nbt.getBoolean("contains_invasion");
         }
     }
 }

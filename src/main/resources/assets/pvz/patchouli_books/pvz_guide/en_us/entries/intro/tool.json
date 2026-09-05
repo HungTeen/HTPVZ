@@ -1,0 +1,30 @@
+{
+    "name": "Tips about Tools",
+    "icon": "pvz:pea_gun",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "There are some important tools in the mod. I'm listing them below."
+        },
+        {
+            "type": "spotlight",
+            "title": "Almanac",
+            "item": "pvz:almanac",
+            "text": "You can buy Almanac from Penny. Almanac records the dimensions, recipe and properties of all the plants in the mod, especially the difference they have from PVZ."
+        },
+        {
+            "type": "spotlight",
+            "title": "Ender Seed Bundle",
+            "item": "pvz:ender_seed_bundle",
+            "text": "Ender Seed Bundles can be made on a crafting table. You can control Ender Seed Bundles with a key (Z by default) and store or use the plants in your backpack fastly. Ender Seed Bundles gives 9 slots to put seeds and seed packets, the slots are shared between different bundles like those of Ender Chests."
+        },
+        {
+            "type": "spotlight",
+            "title": "Seed Crossbow",
+            "item": "pvz:seed_crossbow",
+            "text": "Seed Crossbows can be made on a crafting table. Except for the abilities vanilla crossbows have, it can load your plants and plant them somewhere far from you. With a Seed Crossbow the usage scenario of many plants can be expanded."
+        }
+    ],
+    "sortnum": 7
+}

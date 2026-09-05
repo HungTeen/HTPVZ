@@ -23,8 +23,8 @@ import java.util.function.Supplier;
  */
 public class PVZSeedPackets {
     public static final int VERY_FAST = 10; //will a plant really use this?
-    public static final int FAST = 60;
-    public static final int MEDIUM = 200;
+    public static final int FAST = 40;
+    public static final int MEDIUM = 300;
     public static final int SLOW = 500;
     public static final int VERY_SLOW = 1000;
     @Deprecated //clear after registry.
@@ -40,45 +40,48 @@ public class PVZSeedPackets {
         //pvz packets.
 
         //overworld
-        add(PVZEntities.PEA_SHOOTER).cost(75).coolDown(FAST).skillList(PeaShooter.staticSkillList)
+        add(PVZEntities.PEA_SHOOTER).cost(100).coolDown(FAST).skillList(PeaShooter.staticSkillList)
                 .recipe(PVZItems.PEA, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
-        add(PVZEntities.SUN_FLOWER).cost(50).coolDown(SLOW).skillList(SunFlower.staticSkillList)
+        add(PVZEntities.SUN_FLOWER).cost(50).coolDown(MEDIUM).skillList(SunFlower.staticSkillList)
                 .recipe(Items.SUNFLOWER, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
-        add(PVZEntities.WALL_NUT).cost(50).coolDown(SLOW).skillList(WallNut.staticSkillList)
+        add(PVZEntities.WALL_NUT).cost(50).coolDown(MEDIUM).skillList(WallNut.staticSkillList)
                 .recipe(PVZItems.NUT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE);
         add(PVZEntities.POTATO_MINE).cost(25).coolDown(MEDIUM).skillList(PotatoMine.staticSkillList)
                 .recipe(Items.POTATO, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE)
                 .note(Component.translatable("container.pvz.almanac.can_plant_on_dirt"));
-        add(PVZEntities.SNOW_PEA).cost(150).coolDown(MEDIUM).skillList(SnowPea.staticSkillList)
-                .recipe(PVZItems.FLOWER_SEED_PACKET);
+        add(PVZEntities.SNOW_PEA).cost(175).coolDown(FAST).skillList(SnowPea.staticSkillList)
+                .recipe(getData(PVZEntities.PEA_SHOOTER), PVZItems.FLOWER_SEED_PACKET, PVZItems.GELUM_ESSENCE);
         add(PVZEntities.LILY_PAD).cost(25).coolDown(FAST).skillList(LilyPad.staticSkillList)
                 .recipe(Items.LILY_PAD, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE)
                 .note(Component.translatable("container.pvz.almanac.can_only_plant_on_water"));
         add(PVZEntities.TANGLE_KELP).cost(25).coolDown(SLOW).skillList(TangleKelp.staticSkillList)
                 .recipe(Items.KELP, PVZItems.FLOWER_SEED_PACKET, PVZItems.AQUA_ESSENCE)
                 .note(Component.translatable("container.pvz.almanac.can_only_plant_on_water"));
+        add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
+                .recipeBlock(PVZBlocks.PLANTERN, PVZItems.FLOWER_SEED_PACKET, PVZItems.LUX_ESSENCE);
         add(PVZEntities.SPLIT_PEA).cost(150).coolDown(MEDIUM).skillList(SplitPea.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET);
         add(PVZEntities.CABBAGE_PULT).cost(100).coolDown(FAST).skillList(CabbagePult.staticSkillList)
                 .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.FLOWER_POT).cost(25).coolDown(FAST).skillList(FlowerPot.staticSkillList)
                 .recipe(Items.FLOWER_POT, PVZItems.FLOWER_SEED_PACKET, PVZItems.TERRA_ESSENCE)
-                .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"));
+                .note(Component.translatable("container.pvz.almanac.can_plant_on_most_places"));
         add(PVZEntities.MARIGOLD).cost(75).coolDown(VERY_SLOW).skillList(List.of())//No skills.
                 .recipe(PVZItems.FLOWER_SEED_PACKET).noAutoRecipe().setCreativeOnly();
-        add(PVZEntities.ICEBERG_LETTUCE).cost(0).coolDown(FAST).skillList(IcebergLettuce.staticSkillList)
-                .recipe(PVZItems.CABBAGE, PVZItems.FLOWER_SEED_PACKET, PVZItems.GELUM_ESSENCE)
-                .note(Component.translatable("container.pvz.almanac.can_plant_on_snow"))
-                .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"));
-        add(PVZEntities.VELOCI_RADISH).cost(50).coolDown(MEDIUM).skillList(VelociRadish.staticSkillList)
+        add(PVZEntities.VELOCI_RADISH).cost(50).coolDown(FAST).skillList(VelociRadish.staticSkillList)
                 .recipe(PVZItems.FLOWER_SEED_PACKET)
-                .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"));
+                .note(Component.translatable("container.pvz.almanac.can_plant_on_most_places"));
         //the nether
-        add(PVZEntities.REPEATER).cost(150).coolDown(FAST).skillList(Repeater.staticSkillList)
-                .recipe(PVZItems.NETHER_WART_SEED_PACKET);
+        add(PVZEntities.REPEATER).cost(200).coolDown(FAST).skillList(Repeater.staticSkillList)
+                .recipe(getData(PVZEntities.PEA_SHOOTER), PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.HYPNO_SHROOM).cost(75).coolDown(SLOW).skillList(HypnoShroom.staticSkillList)
+                .recipe(PVZItems.NETHER_WART_SEED_PACKET).setCreativeOnly()
+                .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"))
+                .note(Component.translatable("container.pvz.almanac.can_sculkificate"))
+                .note(Component.translatable("container.pvz.almanac.sleep_at_day"));
         add(PVZEntities.JALAPENO).cost(125).coolDown(VERY_SLOW).skillList(Jalapeno.staticSkillList)
                 .recipe(PVZItems.PEPPER, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.IGNIS_ESSENCE)
-                .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"))
+                .note(Component.translatable("container.pvz.almanac.can_plant_on_most_places"))
                 .note(Component.translatable("container.pvz.almanac.friendly_fire"));
         add(PVZEntities.SPIKE_WEED).cost(100).coolDown(MEDIUM).skillList(SpikeWeed.staticSkillList)
                 .recipe(Items.GLOW_LICHEN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE)
@@ -88,9 +91,7 @@ public class PVZSeedPackets {
                 .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"));
         add(PVZEntities.TALL_NUT).cost(125).coolDown(VERY_SLOW).skillList(TallNut.staticSkillList)
                 .recipe(PVZItems.NETHER_WART_SEED_PACKET);
-        add(PVZEntities.PLANTERN).cost(25).coolDown(VERY_SLOW).skillList(Plantern.staticSkillList)
-                .recipeBlock(PVZBlocks.PLANTERN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.LUX_ESSENCE);
-        add(PVZEntities.STARFRUIT).cost(200).coolDown(MEDIUM).skillList(Starfruit.staticSkillList)
+        add(PVZEntities.STARFRUIT).cost(200).coolDown(FAST).skillList(Starfruit.staticSkillList)
                 .recipe(PVZItems.STARFRUIT, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.PUMPKIN).cost(125).coolDown(SLOW).skillList(Pumpkin.staticSkillList)
                 .recipe(Items.PUMPKIN, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.TERRA_ESSENCE);
@@ -98,26 +99,25 @@ public class PVZSeedPackets {
                 .recipe(Items.BIG_DRIPLEAF, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
         add(PVZEntities.MELON_PULT).cost(450).coolDown(SLOW).skillList(MelonPult.staticSkillList)
                 .recipe(Items.MELON, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.VENTUS_ESSENCE);
+        add(PVZEntities.ICEBERG_LETTUCE).cost(0).coolDown(FAST).skillList(IcebergLettuce.staticSkillList)
+                .recipe(PVZItems.CABBAGE, PVZItems.NETHER_WART_SEED_PACKET, PVZItems.GELUM_ESSENCE)
+                .note(Component.translatable("container.pvz.almanac.can_plant_on_snow"))
+                .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"));
         //the end
-        add(PVZEntities.GATLING_PEA).cost(375).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
+        add(PVZEntities.GATLING_PEA).advanced().cost(400).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET)
                 .note(Component.translatable("container.pvz.almanac.can_only_plant_on", Component.translatable("entity.pvz.repeater").withStyle(ChatFormatting.RED)));
         //abyss
         add(PVZEntities.CHOMPER).cost(150).coolDown(MEDIUM).skillList(Chomper.staticSkillList)
                 .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly()
                 .note(Component.translatable("container.pvz.almanac.can_sculkificate")); //TODO change to chomper block in abyss.
-        add(PVZEntities.HYPNO_SHROOM).cost(75).coolDown(SLOW).skillList(HypnoShroom.staticSkillList)
-                .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly()
-                .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"))
-                .note(Component.translatable("container.pvz.almanac.can_sculkificate"))
-                .note(Component.translatable("container.pvz.almanac.sleep_at_day"));
         add(PVZEntities.KERNEL_PULT).cost(100).coolDown(MEDIUM).skillList(KernelPult.staticSkillList)
                 .recipe(PVZItems.CORN, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly();
         add(PVZEntities.DANDELION).cost(200).coolDown(MEDIUM).skillList(Dandelion.staticSkillList)
                 .recipe(Items.DANDELION, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.VENTUS_ESSENCE).setCreativeOnly();
         add(PVZEntities.GOLD_BLOOM).cost(0).coolDown(VERY_SLOW).skillList(GoldBloom.staticSkillList)
                 .recipe(Items.GLOW_BERRIES, PVZItems.FLUORESCENT_DAISY_SEED_PACKET, PVZItems.LUX_ESSENCE).setCreativeOnly()
-                .note(Component.translatable("container.pvz.almanac.can_plant_on_stone"));
+                .note(Component.translatable("container.pvz.almanac.can_plant_on_most_places"));
 
         //for other mods.
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();
@@ -129,6 +129,13 @@ public class PVZSeedPackets {
         RecipeSeedPacketData<T> newPacket = new RecipeSeedPacketData<>(goalEntity);
         seedPacketData.add(newPacket);
         return newPacket;
+    }
+
+    public static <T extends LivingEntity> RegisterSeedPacketsEvent.SeedPacketData<T> getData(Supplier<EntityType<T>> entity) {
+        for (RegisterSeedPacketsEvent.SeedPacketData<?> data : seedPacketData) {
+            if (data.entitySupplier.equals(entity)) return (RegisterSeedPacketsEvent.SeedPacketData<T>) data;
+        }
+        return null;
     }
 
     public static void sortAndClear() {
@@ -165,7 +172,6 @@ public class PVZSeedPackets {
         public boolean noAutoRecipe = false;
         public RecipeSeedPacketData(Supplier<EntityType<T>> entitySupplier) {
             super(entitySupplier);
-            this.entitySupplier = entitySupplier;
         }
         public RecipeSeedPacketData<T> resource(String resource) {
             this.resource = resource;
@@ -177,6 +183,10 @@ public class PVZSeedPackets {
         }
         public RecipeSeedPacketData<T> coolDown(int coolDown) {
             this.coolDown = coolDown;
+            return this;
+        }
+        public RecipeSeedPacketData<T> advanced() {
+            super.advanced();
             return this;
         }
         public RecipeSeedPacketData<T> skillList(List<Skill> list) {
@@ -196,6 +206,11 @@ public class PVZSeedPackets {
         public RecipeSeedPacketData<T> recipe(RegistryObject<Item> seed, RecipeSeedPacketData<? extends LivingEntity> packet, RegistryObject<Item> essence) {
             this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
             this.packet(packet.basePacketSupplier);
+            return this;
+        }
+        public <S extends LivingEntity> RecipeSeedPacketData<T> recipe(RegisterSeedPacketsEvent.SeedPacketData<? extends LivingEntity> seed, RegistryObject<Item> packet, RegistryObject<Item> essence) {
+            this.recipe = Map.of("seed", seed, "packet", packet, "essence", essence);
+            this.packet(packet);
             return this;
         }
         public RecipeSeedPacketData<T> recipeBlock(RegistryObject<Block> seed, RegistryObject<Item> packet, RegistryObject<Item> essence) {

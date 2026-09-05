@@ -3,12 +3,9 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.common.block.EntityLightBlock;
-import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
-import com.hungteen.pvz.common.register.PVZBlocks;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -20,9 +17,13 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -41,13 +42,12 @@ public class SpikeWeed extends SimplePlant {
     public static final String ON_WALL_SKILL_NAME = "skill.pvz.spike_weed.viscous_pseudoroots";
     public static final String POISONOUS_SKILL_NAME = "skill.pvz.spike_weed.poison_attenna";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(ON_WALL_SKILL_NAME, PVZItems.TERRA_ESSENCE, 6, 4, 0, 0),
-            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 4, 100, 0)
+            new Skill(ON_WALL_SKILL_NAME, PVZItems.TERRA_ESSENCE, 12, 8, 0, 0),
+            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 12, 8, 100, 0)
     );
 
     public SpikeWeed(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
-        this.setNoGravity(true);
     }
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
@@ -88,7 +88,15 @@ public class SpikeWeed extends SimplePlant {
     }
     @Override
     public BlockPos getRootBlockPos() {
-        return blockPosition().relative(getGrowDirection().getOpposite());
+        boolean relative = switch (this.getGrowDirection()) {
+            case DOWN -> this.position().y - this.blockPosition().getY() >= 0;
+            case UP -> this.position().y - this.blockPosition().getY() <= 0;
+            case NORTH -> this.position().z - this.blockPosition().getZ() <= 0.5;
+            case SOUTH -> this.position().z - this.blockPosition().getZ() >= 0.5;
+            case WEST -> this.position().x - this.blockPosition().getX() <= 0.5;
+            case EAST -> this.position().x - this.blockPosition().getX() >= 0.5;
+        };
+        return relative ? blockPosition().relative(getGrowDirection().getOpposite()) : blockPosition();
     }
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_33434_) {
@@ -121,14 +129,22 @@ public class SpikeWeed extends SimplePlant {
         }
         return aabb;
     }
+
+    @Override
+    public Vec3 getDeltaMovement() {
+        boolean bool = getGrowDirection() == Direction.UP
+                || ! this.hasSkill(ON_WALL_SKILL_NAME)
+                || level.getBlockState(this.getRootBlockPos()).isAir()
+                || (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock);
+        return bool ? super.getDeltaMovement() : Vec3.ZERO;
+    }
     @Override
     public void tick() {
-        setNoGravity(
-                ! (this.entityData.get(ATTACH_FACE) == Direction.UP) &&
-                ! level.getBlockState(this.getRootBlockPos()).isAir() &&
-                ! (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock));
-        if (! this.isNoGravity()) {
-            this.entityData.set(ATTACH_FACE, Direction.UP);
+        if ((getGrowDirection() != Direction.UP)
+                && (level.getBlockState(this.getRootBlockPos()).isAir()
+                        || ! this.hasSkill(ON_WALL_SKILL_NAME)
+                        || (level.getBlockState(this.getRootBlockPos()).getBlock() instanceof IFluidBlock))) {
+            this.setGrowDirection(Direction.UP);
         }
         super.tick();
         BlockPos pos = blockPosition();
@@ -149,13 +165,13 @@ public class SpikeWeed extends SimplePlant {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putString("attach_direction", this.entityData.get(ATTACH_FACE).getName());
+        tag.putString("attach_direction", getGrowDirection().getName());
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
         super.readAdditionalSaveData(tag);
         Direction direction = Direction.byName(tag.getString("attach_direction"));
-        this.entityData.set(ATTACH_FACE, direction == null ? Direction.UP : direction);
+        this.setGrowDirection(direction == null ? Direction.UP : direction);
     }
     @Override
     public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
@@ -190,6 +206,7 @@ public class SpikeWeed extends SimplePlant {
             List<Entity> list = entity.level.getEntities(entity,
                     entity.getBoundingBox().inflate(0.1 * Math.abs(direction.getX()), 0.1 * Math.abs(direction.getY()), 0.1 * Math.abs(direction.getZ())),
                     (entity1) -> EntityUtil.checkCanEntityBeAttack(entity, entity1));
+            if (! list.isEmpty()) entity.level.playSound(null, entity, PVZSoundEvents.SPIKE_WEED_ATTACK.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
             list.forEach((entity1 -> {
                 entity1.hurt(PVZDamageSource.spikeWeedHurt(entity, entity1), (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue());
                 if (entity1 instanceof LivingEntity && entity.hasSkill(POISONOUS_SKILL_NAME)) {

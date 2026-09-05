@@ -51,7 +51,7 @@ public class PVZConfig {
         return Client.zombieRenderStuckArrows.get();
     }
 
-    public static void init(){
+    public static void init() {
         {
             final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
             ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, specPair.getRight());
@@ -75,108 +75,157 @@ public class PVZConfig {
         public static ForgeConfigSpec.ConfigValue<Boolean> jackInTheBoxGriefing;
         public static ForgeConfigSpec.ConfigValue<Boolean> dynamicSunRule;
         public static ForgeConfigSpec.ConfigValue<Boolean> showInvasionDetails;
+        public static ForgeConfigSpec.ConfigValue<Boolean> goldenTacoDeteriorate;
         public static ForgeConfigSpec.ConfigValue<Boolean> joinDefaultTeam;
         public static ForgeConfigSpec.ConfigValue<Boolean> plantNeedsDurability;
         public static ForgeConfigSpec.ConfigValue<Boolean> dyeMarigold;
         public static ForgeConfigSpec.ConfigValue<Boolean> gardenBorder;
         public static ForgeConfigSpec.ConfigValue<Boolean> gardenForEveryOne;
+        public static ForgeConfigSpec.ConfigValue<Boolean> gardenOnlySprouts;
+        public static ForgeConfigSpec.ConfigValue<Boolean> marigoldsRequires;
+        public static ForgeConfigSpec.ConfigValue<Boolean> sproutsRequires;
+        public static ForgeConfigSpec.ConfigValue<Boolean> enableInvasionDirector;
+        public static ForgeConfigSpec.ConfigValue<Boolean> seedDispensaryGiveSprout;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnInvasionsInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnFallenStarInterval;
+        public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnPennyInterval;
+        public static ForgeConfigSpec.ConfigValue<Integer> naturallySpawnZombieGroupInterval;
+        public static ForgeConfigSpec.ConfigValue<Integer> invasionSpawnerCoolDown;
+        public static ForgeConfigSpec.ConfigValue<Integer> invasionExperienceFactor;
         public static ForgeConfigSpec.ConfigValue<Integer> naturallyRegainSunInterval;
         public static ForgeConfigSpec.ConfigValue<Integer> marigoldGrowTime;
         public static ForgeConfigSpec.ConfigValue<Integer> sproutGrowTime;
+        public static ForgeConfigSpec.ConfigValue<Integer> invasionDifficultyFactorK;
+        public static ForgeConfigSpec.ConfigValue<Integer> invasionDifficultyFactorB;
+        public static ForgeConfigSpec.ConfigValue<Integer> advancedPlantExtraCostRange;
+        public static ForgeConfigSpec.ConfigValue<Integer> darknessDecreaseSunThreshold;
+        public static ForgeConfigSpec.ConfigValue<Integer> plantDamageDatum;
+        public static ForgeConfigSpec.ConfigValue<Integer> sunProductionDatum;
+        public static ForgeConfigSpec.ConfigValue<Integer> plantDisappearDatum;
         public Common(ForgeConfigSpec.Builder builder) {
             builder.comment("All these configs are the default values of pvz game rules and are only effective in server.")
                     .comment("In the game you can also modify them separately for each world with /gamerule command and the rules are started with \"pvz:\".")
                     .push("PVZ Rules");
             shovelPermission = add(builder
-                    .translation("config.pvz.common.shovel_permission")
                     .comment("whether a player in the same team can shovel a plant if the player is NOT the owner of the plant."),
                     "shovelPermission", true);
             sunDisappear = add(builder
-                    .translation("config.pvz.common.sun_disappear")
                     .comment("whether sun disappear after a while it is generated."),
                     "sunDisappear", true);
             teamBattle = add(builder
-                    .translation("config.pvz.common.team_battle")
                     .comment("whether plants in different teams regard each other as enemy."),
                     "teamBattle", false);
             killWisdomTree = add(builder
-                    .translation("config.pvz.common.kill_wisdom_tree")
-                    .comment("if on, wisdom trees wilts itself and not grows."),
+                    .comment("when on, wisdom trees wilts itself and not grows."),
                     "killWisdomTree", false);
             canCanCanKelp = add(builder
-                    .translation("config.pvz.common.can_can_can_kelp")
-                    .comment("if on, players can interact with Tangle Kelps using buckets to bucket them."),
+                    .comment("when on, players can interact with Tangle Kelps using buckets to bucket them."),
                     "canCanCanKelp", true);
             jackInTheBoxGriefing = add(builder
-                            .translation("config.pvz.common.jack_in_the_box_griefing")
-                            .comment("if on, Jack-in-the-box breaks blocks when explode."),
+                            .comment("when on, Jack-in-the-box breaks blocks when explode."),
                     "jackInTheBoxGriefing", true);
             dynamicSunRule = add(builder
-                            .translation("config.pvz.common.dynamic_sun_rule")
-                            .comment("if on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),
+                            .comment("when on, player's max sun changes dynamically based on the number of sunflowers in the surrounding area."),
                     "dynamicSunRule", true);
             plantNeedsDurability = add(builder
-                            .translation("config.pvz.common.plant_needs_durability")
-                            .comment("if on, when player plants a plant the seed packet it use lost 1 durability."),
+                            .comment("when on, when player plants a plant the seed packet it use lost 1 durability."),
                     "plantNeedsDurability", true);
             dyeMarigold = add(builder
-                            .translation("config.pvz.common.dye_marigold")
-                            .comment("if on, player can dye marigold with dye."),
+                            .comment("when on, player can dye marigold with dye."),
                     "dyeMarigold", false);
             showInvasionDetails = add(builder
-                            .translation("config.pvz.common.show_invasion_details")
-                            .comment("if on, there will be particles and outputs showing how invasion searches positions mob can spawn."),
+                            .comment("when on, there will be particles and outputs showing how invasion searches positions mob can spawn."),
                     "showInvasionDetails", false);
+            goldenTacoDeteriorate = add(builder
+                            .comment("when on, golden taco changes into common taco when player is not in a zombie event."),
+                    "goldenTacoDeteriorate", true);
             joinDefaultTeam = add(builder
-                            .translation("config.pvz.common.join_default_team")
-                            .comment("if on, players without a team will automatically join a default player team of pvz mod, to prevent sweeping damage from hurting plants."),
+                            .comment("when on, players without a team will automatically join a default player team of pvz mod, to prevent sweeping damage from hurting plants."),
                     "joinDefaultTeam", true);
             gardenForEveryOne = add(builder
-                            .translation("config.pvz.common.garden_for_everyone")
-                            .comment("if on, pvz mod transports everyone in the same server to separated zen garden island. or players in a team will share the same zen garden."),
+                            .comment("when on, pvz mod transports everyone in the same server to separated zen garden island. or players in a team will share the same zen garden."),
                     "gardenForEveryone", false);
             gardenBorder = add(builder
-                            .translation("config.pvz.common.garden_border")
-                            .comment("if on, pvz mod prevents players from leaving the island it is on."),
+                            .comment("when on, pvz mod prevents players from leaving the island it is on."),
                     "gardenBorder", true);
+            gardenOnlySprouts = add(builder
+                            .comment("when on, sprouts can only be planted in Zen Garden."),
+                    "gardenOnlySprouts", true);
+            marigoldsRequires = add(builder
+                            .comment("when off, marigolds can grow up without needing water or fertilizer."),
+                    "marigoldsRequires", true);
+            sproutsRequires = add(builder
+                            .comment("when off, sprouts can grow up without needing water or fertilizer."),
+                    "sproutsRequires", true);
+            enableInvasionDirector = add(builder
+                            .comment("when on, an invasion director will dynamically adjust invasions."),
+                    "enableInvasionDirector", true);
+            seedDispensaryGiveSprout = add(builder
+                            .comment("when on, Seed Dispensaries gives players sprouts instead of seeds."),
+                    "seedDispensaryGiveSprout", true);
             naturallySpawnInvasionsInterval = add(builder
-                            .translation("config.pvz.common.naturally_spawn_invasions_interval")
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
-                    "naturallySpawnInvasionsInterval", 300, 0, 10000);
+                    "naturallySpawnInvasionsInterval", 1000, 0, 1000000);
+            naturallySpawnZombieGroupInterval = add(builder
+                            .comment("zombie groups will spawn from time to time near players at this interval. set to 0 to turn off natural fallen star spawn."),
+                    "naturallySpawnZombieGroupInterval", 2500, 0, 1000000);
             naturallySpawnSunInterval = add(builder
-                            .translation("config.pvz.common.naturally_spawn_sun_interval")
                             .comment("sun naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural sun spawn."),
-                    "naturallySpawnSunInterval", 300, 0, 10000);
+                    "naturallySpawnSunInterval", 2000, 0, 1000000);
             naturallySpawnFallenStarInterval = add(builder
-                            .translation("config.pvz.common.naturally_spawn_fallen_star_interval")
                             .comment("fallen stars naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural fallen star spawn."),
-                    "naturallySpawnFallenStarInterval", 1000, 0, 10000);
+                    "naturallySpawnFallenStarInterval", 9000, 0, 1000000);
+            naturallySpawnPennyInterval = add(builder
+                            .comment("fallen stars naturally spawn by players in the sky when skylight matches condition at this interval. set to 0 to turn off natural fallen star spawn."),
+                    "naturallySpawnPennyInterval", 50000, 0, 1000000);
             naturallyRegainSunInterval = add(builder
-                            .translation("config.pvz.common.naturally_regain_sun_interval")
                             .comment("players regain sun naturally at this interval. set to 0 to turn off natural sun regain."),
-                    "naturallyRegainSunInterval", 60, 0, 10000);
+                    "naturallyRegainSunInterval", 60, 0, 1000000);
+            invasionSpawnerCoolDown = add(builder
+                            .comment("cool down of invasion spawner for a single player."),
+                    "invasionSpawnerCoolDown", 12000, 0, 1000000);
+            invasionExperienceFactor = add(builder
+                            .comment("a factor of the experience dropped in invasions."),
+                    "invasionExperienceFactor", 100, 0, 1000000);
             marigoldGrowTime = add(builder
-                            .translation("config.pvz.common.marigold_grow_time")
                             .comment("ticks marigolds should stay in after being fertilized before they grow to next level."),
                     "marigoldGrowTime", 12000, 100, 1000000);
             sproutGrowTime = add(builder
-                            .translation("config.pvz.common.sprout_grow_time")
                             .comment("ticks sprouts should stay in after being fertilized before they grow to next level."),
                     "sproutGrowTime", 24000, 100, 1000000);
+            invasionDifficultyFactorK = add(builder
+                            .comment("the general factor about the rate difficulty of invasions grows."),
+                    "invasionDifficultyFactorK", 1200, 0, 1000000);
+            invasionDifficultyFactorB = add(builder
+                            .comment("the general factor about the difficulty of invasions when it starts."),
+                    "invasionDifficultyFactorB", 200, 0, 1000000);
+            advancedPlantExtraCostRange = add(builder
+                            .comment("when planting advanced plants, plants of the same type in this range will be included for calculation of extra cost. set to -1 to disable extra sun cost."),
+                    "advancedPlantExtraCostRange", 30, -1, 500);
+            darknessDecreaseSunThreshold = add(builder
+                            .comment("when player have darkness effect, sun of the player will naturally decrease until below this value. set to -1 to use the value based on difficulty."),
+                    "darknessDecreaseSunThreshold", -1, -1, 3000);
+            plantDamageDatum = add(builder
+                            .comment("gives a damage multiplier for pvz plants. the value should be the health of a common zombie."),
+                    "plantDamageDatum", 20, 0, 10000);
+            sunProductionDatum = add(builder
+                            .comment("gives a production speed multiplier for pvz plants. the value should be the production interval of sunflowers in second."),
+                    "sunProductionDatum", 12, 0, 10000);
+            plantDisappearDatum = add(builder
+                            .comment("probability to natural disappear of plants relative to the default value. Set to 0 to disable natural disappear."),
+                    "plantDisappearDatum", 100, 0, 10000);
             builder.pop();
         }
 
         public ForgeConfigSpec.ConfigValue<Boolean> add(ForgeConfigSpec.Builder builder, String name, Boolean defaultValue) {
-            ForgeConfigSpec.ConfigValue<Boolean> value = builder.define(name, defaultValue);
+            ForgeConfigSpec.ConfigValue<Boolean> value = builder.translation("gamerule.pvz:" + name).define(name, defaultValue);
             pvzBooleanRules.put(name, value);
             return value;
         }
 
         public ForgeConfigSpec.ConfigValue<Integer> add(ForgeConfigSpec.Builder builder, String name, int defaultValue, int min, int max) {
-            ForgeConfigSpec.ConfigValue<Integer> value = builder.defineInRange(name, defaultValue, min, max);
+            ForgeConfigSpec.ConfigValue<Integer> value = builder.translation("gamerule.pvz:" + name).defineInRange(name, defaultValue, min, max);
             pvzIntRules.put(name, value);
             return value;
         }
@@ -186,6 +235,7 @@ public class PVZConfig {
         //overlay settings
 
         public static ForgeConfigSpec.BooleanValue renderPVZTypeInvasionBar;
+        public static ForgeConfigSpec.BooleanValue renderPVZTypePennyGUI;
         public static ForgeConfigSpec.BooleanValue renderSunAsNumber;
         public static ForgeConfigSpec.IntValue renderSunBarX;
         public static ForgeConfigSpec.IntValue renderSunBarY;;
@@ -229,6 +279,10 @@ public class PVZConfig {
                     .translation("config.pvz.client.render_pvz_type_invasion_bar")
                     .comment("turn on to display invasion progress in the lower right corner of the screen with a zombie head.")
                     .define("renderPVZTypeInvasionBar", false);
+            renderPVZTypePennyGUI = builder
+                    .translation("config.pvz.client.render_pvz_type_penny_gui")
+                    .comment("turn on to display pvz style Penny store gui instead of vanilla style.")
+                    .define("renderPVZTypePennyGUI", true);
             builder.pop();
             builder.comment("Settings about models").push("Model Settings");
             //model settings
@@ -238,7 +292,7 @@ public class PVZConfig {
                     .define("renderBulletAsModel", true);
             zombiesDropParts = builder
                     .translation("config.pvz.client.zombies_drop_parts")
-                    .comment("if on, zombies will drop arms and heads when taking damage.")
+                    .comment("when on, zombies will drop arms and heads when taking damage.")
                     .define("zombiesDropParts", true);
             renderButterOnHead = builder
                     .translation("config.pvz.client.render_butter_on_head")

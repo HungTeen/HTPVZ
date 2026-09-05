@@ -1,9 +1,9 @@
 package com.hungteen.pvz.common.capability.level;
 
+import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.network.ZombieEventPacket;
 import com.hungteen.pvz.common.register.PVZZombieEvents;
-import com.hungteen.pvz.api.ZombieEvent;
-import com.hungteen.pvz.common.world.invasion.InvasionTeam;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -23,13 +23,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 public class PVZZombieEventCapability implements ICapabilitySerializable<CompoundTag> {
     public static final Capability<PVZZombieEventCapability> CAP = CapabilityManager.get(new CapabilityToken<>(){});
-    private final Level level;
+    public final Level level;
     private final Set<ZombieEvent> events = new HashSet<>();
     private static short tickCount = 1;
-    private static Set<ZombieEvent> removeEvent = new HashSet<>();
+    private static final Set<ZombieEvent> removingEvents = new HashSet<>();
 
     public PVZZombieEventCapability(Level level) {
         this.level = level;
@@ -39,7 +40,7 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
         return cap == CAP ? LazyOptional.of(() -> (T) this) : LazyOptional.empty();
     }
 
-    public static PVZZombieEventCapability fromLevel(Level level) {
+    public static @Nullable PVZZombieEventCapability fromLevel(Level level) {
         AtomicReference<PVZZombieEventCapability> result = new AtomicReference<>();
         level.getCapability(CAP).ifPresent(result::set);
         return result.get();
@@ -51,7 +52,7 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
 
     public void addEvent(ZombieEvent event) {
         this.events.add(event);
-        if (this.level instanceof ServerLevel) {
+        if (this.level instanceof ServerLevel && event.needsSync()) {
             ZombieEventPacket.toClient(event);
         }
     }
@@ -71,26 +72,79 @@ public class PVZZombieEventCapability implements ICapabilitySerializable<Compoun
     }
 
     public static void tick(TickEvent.ServerTickEvent ev) {
-        if (tickCount >= 20) {
+        if (++ tickCount >= 100) {
             tickCount = 0;
-        } else {
-            tickCount ++;
         }
         ev.getServer().getAllLevels().forEach(level -> level.getCapability(CAP).ifPresent(cap -> {
             if (tickCount == 0) {
-                cap.events.forEach(ZombieEventPacket::toClient);
+                cap.events.forEach(zEv -> {
+                    if (zEv.needsSync()) ZombieEventPacket.toClient(zEv);
+                });
             }
             cap.events.forEach(event -> {
                 if (! event.removed) {
                     event.tick(ev);
                 } else {
-                    removeEvent.add(event);
+                    removingEvents.add(event);
                 }
             });
-            removeEvent.forEach(cap.events::remove);
-            removeEvent.clear();
+            removingEvents.forEach(cap.events::remove);
+            removingEvents.clear();
+
         }));
-        InvasionTeam.serverTick();
+    }
+
+    public <T extends ZombieEvent> T getNearestEvent(Class<T> clazz, BlockPos pos) {
+        return getNearestEvent(clazz, pos, event -> true);
+    }
+    public <T extends ZombieEvent> T getNearestEvent(Class<T> clazz, BlockPos pos, Predicate<T> predicate) {
+        double dist = -1;
+        T result = null;
+        for (ZombieEvent event : this.getEvents()) {
+            if ((clazz == event.getClass() || clazz.isAssignableFrom(event.getClass())) && predicate.test((T) event)) {
+                double newDist = event.position.distSqr(pos);
+                if (dist < 0 || newDist < dist) {
+                    dist = newDist;
+                    result = (T) event;
+                }
+            }
+        }
+        return result;
+    }
+
+    public <T extends ZombieEvent> T getNearestEventRanged(Class<T> clazz, BlockPos pos) {
+        return getNearestEventRanged(clazz, pos, e -> true);
+    }
+
+    public <T extends ZombieEvent> T getNearestEventRanged(Class<T> clazz, BlockPos pos, Predicate<T> predicate) {
+        double dist = -1;
+        T result = null;
+        for (ZombieEvent event : this.getEvents()) {
+            if ((clazz == event.getClass() || clazz.isAssignableFrom(event.getClass())) && predicate.test((T) event)) {
+                double newDist = Math.sqrt(event.position.distSqr(pos)) - event.range;
+                if (newDist <= 0) return (T) event;
+                else if (dist < 0 || newDist < dist) {
+                    dist = newDist;
+                    result = (T) event;
+                }
+            }
+        }
+        return result;
+    }
+
+    public <T extends ZombieEvent> T getEventIn(Class<T> clazz, BlockPos pos) {
+        return getEventIn(clazz, pos, e -> true, 0);
+    }
+
+    public <T extends ZombieEvent> T getEventIn(Class<T> clazz, BlockPos pos, Predicate<T> predicate, int additionalRange) {
+        for (ZombieEvent event : this.getEvents()) {
+            if ((clazz == event.getClass() || clazz.isAssignableFrom(event.getClass())) && predicate.test((T) event)) {
+                if (Math.sqrt(event.position.distSqr(pos)) - (event.range + additionalRange) * (event.range + additionalRange) < 0) {
+                    return (T) event;
+                }
+            }
+        }
+        return null;
     }
 
     @Override

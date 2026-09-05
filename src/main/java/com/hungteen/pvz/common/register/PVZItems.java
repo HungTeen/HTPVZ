@@ -2,7 +2,6 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
-import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.item.*;
 import com.hungteen.pvz.common.tags.PVZItemTags;
 import com.hungteen.pvz.util.Util;
@@ -63,13 +62,12 @@ public class PVZItems {
     public static final RegistryObject<Item> PEA = composter(0.3F).item("pea", () -> new BlockItem(PVZBlocks.PEA.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> SNOW_PEA = composter(0.3F).item("snow_pea");
     public static final RegistryObject<Item> FLAME_PEA = composter(0.3F).item("flame_pea");
-    public static final RegistryObject<Item> NUT = composter(0.3F).item("nut");
     public static final RegistryObject<Item> STARFRUIT = item("starfruit");
-    public static final RegistryObject<Item> PEPPER = composter(0.3F).item("pepper", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_MISC).rarity(Rarity.RARE).fireResistant()));
+    public static final RegistryObject<Item> PEPPER = composter(0.3F).item("pepper", () -> new BlockItem(PVZBlocks.PEPPER.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC).rarity(Rarity.RARE).fireResistant()));
     public static final RegistryObject<Item> FALLEN_STAR = item("fallen_star");
     public static final RegistryObject<Item> CABBAGE_SEED = composter(0.3F).item("cabbage_seeds", () -> new BlockItem(PVZBlocks.CABBAGE_SEEDS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> CORN_KERNELS = composter(0.3F).item("corn_kernels", () -> new BlockItem(PVZBlocks.CORN_KERNELS.get(), new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
-    public static final RegistryObject<Item> JEWEL = item("jewel");
+    public static final RegistryObject<Item> JEWEL = tag(PVZItemTags.SNAILS_CAN_PICK_UP).item("jewel");
     public static final RegistryObject<Item> ALAYA_RESIN = item("alaya_resin");
     public static final RegistryObject<Item> SPATIOTEMPORAL_UNIT = item("spatiotemporal_unit");
     public static final RegistryObject<Item> ORIGIN_ESSENCE = tag(PVZItemTags.ESSENCE).item("origin_essence");
@@ -80,7 +78,7 @@ public class PVZItems {
     public static final RegistryObject<Item> GELUM_ESSENCE = tag(PVZItemTags.ESSENCE).item("gelum_essence");
     public static final RegistryObject<Item> LUX_ESSENCE = tag(PVZItemTags.ESSENCE).item("lux_essence");
 
-    public static final RegistryObject<Item> FERTILIZER = composter(1F).item("fertilizer", () -> new FertilizerItem(new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
+    public static final RegistryObject<Item> FERTILIZER = tag(PVZItemTags.SNAILS_CAN_PICK_UP, PVZItemTags.SPROUT_FERTILIZERS).composter(1F).item("fertilizer", () -> new FertilizerItem(new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> TREE_FERTILIZER = composter(1F).item("tree_fertilizer", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_MISC)));
     public static final RegistryObject<Item> FLOWER_SEED_PACKET = item("flower_seed_packet", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
     public static final RegistryObject<Item> NETHER_WART_SEED_PACKET = item("nether_wart_seed_packet", () -> new Item(new Item.Properties().tab(PVZItemTabs.PVZ_PLANT_CARDS)));
@@ -91,24 +89,24 @@ public class PVZItems {
     public static final RegistryObject<Item> POP_SMARTS = item("pop_smarts", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(2).saturationMod(0.6F).build())));
     public static final RegistryObject<Item> CABBAGE = tag(PVZItemTags.CABBAGE).composter(0.85F).item("cabbage", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(3).saturationMod(0.4F).build())));
     public static final RegistryObject<Item> CORN = tag(PVZItemTags.CORN).composter(0.75F).item("corn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.4F).build())));
-    public static final RegistryObject<Item> POPCORN = item("popcorn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(1).saturationMod(0.2F).build())));
+    public static final RegistryObject<Item> POPCORN = item("popcorn", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).fast().nutrition(1).saturationMod(0.2F).build())));
     public static final RegistryObject<Item> CHOCOLATE = item("chocolate", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(4).saturationMod(0.3F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 20), 0.4F).build())));
     public static final RegistryObject<Item> TACO = item("taco", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(6).saturationMod(1.2F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 100), 0.6F).effect(() -> new MobEffectInstance(MobEffects.SATURATION, 5), 1).build())));
-    public static final RegistryObject<Item> GOLDEN_TACO = item("golden_taco", () -> new DisappearableItem((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).durability(30).rarity(Rarity.RARE).food((new FoodProperties.Builder()).nutrition(6).saturationMod(1.2F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 150, 5), 1).effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 150, 1), 1).effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 200), 1).effect(() -> new MobEffectInstance(MobEffects.SATURATION, 10), 1).effect(() -> new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 600, 2), 1).alwaysEat().build()), () -> TACO.get()));
-
+    public static final RegistryObject<Item> GOLDEN_TACO = item("golden_taco", () -> new GoldenTacoItem((new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_FOOD).rarity(Rarity.RARE).food((new FoodProperties.Builder()).nutrition(6).saturationMod(1.2F).effect(() -> new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 150, 5), 1).effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 150, 1), 1).effect(() -> new MobEffectInstance(MobEffects.REGENERATION, 200), 1).effect(() -> new MobEffectInstance(MobEffects.SATURATION, 5), 1).effect(() -> new MobEffectInstance(PVZMobEffects.BRIGHTNESS.get(), 300, 5), 1).alwaysEat().build()), () -> TACO.get()));
+    public static final RegistryObject<Item> NUT = composter(0.3F).item("nut", () -> new Item((new Item.Properties()).tab(CreativeModeTab.TAB_FOOD).food((new FoodProperties.Builder()).nutrition(3).saturationMod(0.2F).build())));
 
     //spawners
     public static final RegistryObject<Item> SPROUT = item("sprout", () -> new SproutItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL), false));
     public static final RegistryObject<Item> MARIGOLD_SPROUT = item("marigold_sprout", () -> new SproutItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL), true));
-    public static final RegistryObject<Item> GRASSCARP_BUCKET = item("grass_carp_bucket", () -> new MobBucketItem(PVZEntities.GRASSCARP, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
-    public static final RegistryObject<Item> TANGLE_KELP_BUCKET = item("tangle_kelp_bucket", () -> new MobBucketItem(PVZEntities.TANGLE_KELP, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY_AXOLOTL, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
-    public static final RegistryObject<Item> OVERWORLD_FLAG_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("overworld_flag_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.OVERWORLD_FLAG_ZOMBIE_CONSUMER,0x4657e1, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
-    public static final RegistryObject<Item> NETHER_FLAG_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("nether_flag_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.NETHER_FLAG_ZOMBIE_CONSUMER,0xed5b34, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
-    public static final RegistryObject<Item> END_FLAG_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("end_flag_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.END_FLAG_ZOMBIE_CONSUMER,0xc756dc, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
-    public static final RegistryObject<Item> CONEHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("conehead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.CONEHEAD_ZOMBIE_CONSUMER,0xff9c03, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
-    public static final RegistryObject<Item> BUCKETHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("buckethead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.BUCKET_ZOMBIE_CONSUMER,0xe1d6d6, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
-    public static final RegistryObject<Item> DUCK_LIFEBUOY_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("duck_lifebuoy_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.DUCK_LIFEBUOY_ZOMBIE_CONSUMER,0xffe000, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
-    public static final RegistryObject<Item> SCREEN_DOOR_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("screen_door_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, PVZZombie.SCREEN_DOOR_CONSUMER,0xc8bbbd, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> GRASSCARP_BUCKET = item("grass_carp_bucket", () -> new MobBucketItem(PVZEntities.GRASSCARP, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> TANGLE_KELP_BUCKET = item("tangle_kelp_bucket", () -> new MobBucketItem(PVZEntities.TANGLE_KELP, () -> Fluids.WATER, () -> SoundEvents.BUCKET_EMPTY, new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> OVERWORLD_FLAG_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("overworld_flag_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, ModifiedSpawnEggItem.OVERWORLD_FLAG_ZOMBIE,0x4657e1, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> NETHER_FLAG_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("nether_flag_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, ModifiedSpawnEggItem.NETHER_FLAG_ZOMBIE,0xed5b34, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> END_FLAG_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("end_flag_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, ModifiedSpawnEggItem.END_FLAG_ZOMBIE,0xc756dc, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> CONEHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("conehead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, ModifiedSpawnEggItem.CONEHEAD_ZOMBIE,0xff9c03, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> BUCKETHEAD_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("buckethead_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, ModifiedSpawnEggItem.BUCKETHEAD_ZOMBIE,0xe1d6d6, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> DUCK_LIFEBUOY_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("duck_lifebuoy_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, ModifiedSpawnEggItem.DUCK_LIFEBUOY_ZOMBIE,0xffe000, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> SCREEN_DOOR_ZOMBIE_SPAWN_EGG = model(Model.SpawnEgg).item("screen_door_zombie_spawn_egg", () -> new ModifiedSpawnEggItem(PVZEntities.ZOMBIE, ModifiedSpawnEggItem.SCREEN_DOOR_ZOMBIE,0xc8bbbd, 0x799587, (new Item.Properties()).tab(CreativeModeTab.TAB_MISC)));
 
 
     //equipments
@@ -116,23 +114,30 @@ public class PVZItems {
     public static final RegistryObject<Item> BUCKET_HELMET = tag(PVZItemTags.IRON).item("bucket_helmet", () -> new ExtraHealthArmorItem(PVZArmorMaterials.BUCKET, new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL).durability(750), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> PUMPKIN_HELMET = item("pumpkin_helmet", () -> new PumpkinHelmetItem(PVZArmorMaterials.PUMPKIN, new Item.Properties().durability(750), EquipmentSlot.HEAD));
     public static final RegistryObject<Item> DUCK_LIFEBUOY = item("duck_lifebuoy", () -> new DuckLifebuoyItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> SCREEN_DOOR_SHIELD = tag(PVZItemTags.IRON, PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).model(Model.Modeled).item("screen_door_shield", () -> new PVZShieldItem((new Item.Properties()).durability(250).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> SCREEN_DOOR_SHIELD = tag(PVZItemTags.IRON, PVZItemTags.ENTITY_DAMAGEABLE_SHIELDS).model(Model.Modeled).item("screen_door_shield", () -> new PVZShieldItem((new Item.Properties()).durability(450).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+
 
     //tools
     public static final RegistryObject<Item> SEED_CROSSBOW = model(Model.Modeled).item("seed_crossbow", () -> new SeedCrossbowItem( new Item.Properties().stacksTo(1).durability(465).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> PEA_GUN = model(Model.Modeled).item("pea_gun", () -> new PeaGunItem( new Item.Properties().stacksTo(1).durability(400).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> CHILI_CHAN = model(Model.Handheld).item("chili_chan", () -> new ChiliChanItem( new Item.Properties().stacksTo(1).durability(233).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ANVIL_HAMMER = tag(PVZItemTags.IRON, PVZItemTags.GIANT_HAMMER).model(Model.Modeled).item("anvil_hammer", () -> new AnvilHammerItem( new Item.Properties().stacksTo(1).durability(300).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> JACK_IN_THE_BOX = tag(PVZItemTags.IRON).model(Model.Modeled).item("jack_in_the_box", () -> new JackInTheBoxItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1), false));
+    public static final RegistryObject<Item> JACK_IN_THE_BOX = tag(PVZItemTags.IRON).model(Model.Modeled).item("jack_in_the_box", () -> new JackInTheBoxItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1), PVZSoundEvents.JACK_IN_THE_BOX_MUSIC, false));
+    public static final RegistryObject<Item> CHARGED_JACK_IN_THE_BOX = tag(PVZItemTags.IRON).model(Model.Modeled).item("jack_in_the_box_charged", () -> new JackInTheBoxItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1), PVZSoundEvents.JACK_IN_THE_BOX_MUSIC_CHARGED, true));
     public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
-    public static final RegistryObject<Item> WATERING_POT = model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_BLOCKS)));
+    public static final RegistryObject<Item> WATERING_POT = tag(PVZItemTags.SNAILS_CAN_PICK_UP, PVZItemTags.WATERING_POTS).model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_BLOCKS)));
     public static final RegistryObject<Item> ZEN_GARDEN_PORTAL = model(Model.Modeled).item("zen_garden_portal", () -> new BlockItem(PVZBlocks.ZEN_GARDEN_PORTAL.get(), new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_BLOCKS)));
-    public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL).fireResistant()));
     public static final RegistryObject<Item> ALMANAC = item("almanac", () -> new AlmanacItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> SHELL_STARTUP = item("shell_startup", () -> new DescriptionItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL), "tooltip.pvz.shell_startup"));
-    public static final RegistryObject<Item> POP_SMARTS_ON_A_STICK = model(Model.FishingRod).item("pop_smarts_on_a_stick", () -> new PopSmartsOnAStickItem<>((new Item.Properties()).durability(15).tab(PVZItemTabs.PVZ_FUNCTIONAL), PVZEntities.PUMPKIN_ZOMBIE.get(), 7));
+    public static final RegistryObject<Item> POP_SMARTS_ON_A_STICK = model(Model.FishingRod).item("pop_smarts_on_a_stick", () -> new PopSmartsOnAStickItem<>((new Item.Properties()).durability(8).tab(PVZItemTabs.PVZ_FUNCTIONAL), PVZEntities.PUMPKIN_ZOMBIE.get(), 7));
     public static final RegistryObject<Item> FOG_IN_BOTTLE = item("fog_in_bottle", () -> new FogInBottleItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
+    public static final RegistryObject<Item> SNAIL_GACHAPON = item("snail_gachapon", () -> new SnailGachaponItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(16)));
+    public static final RegistryObject<Item> ENDER_SEED_BUNDLE = item("ender_seed_bundle", () -> new EnderSeedBundleItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1)));
+
+    public static final RegistryObject<Item> MUSIC_DISC_ZEN_GARDEN = item("music_disc_zen_garden", () -> new RecordItem(11, PVZSoundEvents.MUSIC_DISC_ZEN_GARDEN, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC).rarity(Rarity.RARE), 69));
+    public static final RegistryObject<Item> MUSIC_DISC_BRAINIAC_MANIAC = item("music_disc_brainiac_maniac", () -> new RecordItem(12, PVZSoundEvents.MUSIC_DISC_ZEN_GARDEN, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC).rarity(Rarity.RARE), 102));
 
     static {
         createBannerPatterns();
@@ -216,7 +221,9 @@ public class PVZItems {
     }
 
     public static void createBannerPatterns() {
-        PVZBannerPatterns.bannerMap.forEach((obj, tag) -> item(Util.name(obj) + "_banner_pattern", () -> new BannerPatternItem(tag, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC))));
+        PVZBannerPatterns.bannerMap.forEach((obj, tag) -> {
+            PVZBannerPatterns.itemMap.put(obj, item(Util.name(obj) + "_banner_pattern", () -> new BannerPatternItem(tag, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC))));
+        });
     }
 
     public static void createSeedPackets() {
@@ -227,7 +234,7 @@ public class PVZItems {
             }
             seedPacketMap.put(data,
                     tag(PVZItemTags.SEED_PACKETS).item(name + "_seed_packet", () -> new SeedPacketItem(
-                            new Item.Properties().stacksTo(1).defaultDurability(150).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly
+                            new Item.Properties().stacksTo(1).rarity(data.advanced ? Rarity.EPIC : Rarity.COMMON).defaultDurability(data.advanced ? 350 : 150).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
                     )));
         };
 
@@ -237,19 +244,15 @@ public class PVZItems {
                 model(Model.SeedPacket, res("seed_packets/seed"), res("plants/" + name));
             }
             seedMap.put(data,
-                    tag(PVZItemTags.SEEDS).item(name + "_seed", () -> new SeedItem(
-                            new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly
+                    tag(PVZItemTags.SEEDS, PVZItemTags.SNAILS_CAN_PICK_UP).item(name + "_seed", () -> new SeedItem(
+                            new Item.Properties().stacksTo(16).rarity(data.advanced ? Rarity.UNCOMMON : Rarity.COMMON).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
                     )));
         };
     }
 
-    public static void release(){
-        List.of(tagMap, seedMap, seedPacketMap).forEach(Map::clear);
+    public static void release() {
+        List.of(tagMap, seedMap, seedPacketMap, composterMap).forEach(Map::clear);
         modelList.clear();
-    }
-
-    public static void queueRelease() {
-        composterMap.clear();
     }
 
     public enum Model {

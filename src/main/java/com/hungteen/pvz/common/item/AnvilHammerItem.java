@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.hungteen.pvz.common.network.PlayerKnockBackPacket;
 import com.hungteen.pvz.common.register.PVZDamageSource;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -71,6 +72,7 @@ public class AnvilHammerItem extends SwordItem {
     @Override
     public boolean hurtEnemy(ItemStack itemStack, LivingEntity target, LivingEntity user) {
         if (user instanceof Player player && player.getAttackStrengthScale(0.5F) >= 1) {
+            player.playSound(PVZSoundEvents.ANVIL_HAMMER_CRASH.get());
             target.hurt(PVZDamageSource.ignoreInvTime(DamageSource.playerAttack(player).bypassArmor()), (float) user.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2F);
             List<Entity> list = player.level.getEntities((Entity) null,
                     new AABB(target.position().add(-0.8, 0, -0.8), target.position().add(0.8, 1, 0.8)),

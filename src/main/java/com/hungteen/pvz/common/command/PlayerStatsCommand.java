@@ -25,21 +25,19 @@ public class PlayerStatsCommand {
                                                 }))))
                         .then(Commands.literal("query")
                                 .then(Commands.argument("name", StringArgumentType.word())
-                                        .then(Commands.literal("value")
-                                                .executes((command) -> {
-                                                    return queryPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), true);
-                                                }))
+                                        .executes((command) -> {
+                                            return queryPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), true);
+                                        })
                                         .then(Commands.literal("limit")
                                                 .executes((command) -> {
                                                     return queryPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), false);
                                                 }))))
                         .then(Commands.literal("set")
                                 .then(Commands.argument("name", StringArgumentType.word())
-                                        .then(Commands.literal("value")
-                                                .then(Commands.argument("amount", IntegerArgumentType.integer())
-                                                        .executes((command) -> {
-                                                            return setPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "amount"));
-                                                        })))
+                                        .then(Commands.argument("amount", IntegerArgumentType.integer())
+                                                .executes((command) -> {
+                                                    return setPlayerStats(command.getSource(), EntityArgument.getPlayer(command, "player"), StringArgumentType.getString(command, "name"), IntegerArgumentType.getInteger(command, "amount"));
+                                                }))
                                         .then(Commands.literal("limit")
                                                 .then(Commands.argument("min", IntegerArgumentType.integer())
                                                         .then(Commands.argument("max", IntegerArgumentType.integer())
@@ -53,8 +51,8 @@ public class PlayerStatsCommand {
     }
 
     public static int addPlayerStats(CommandSourceStack source, ServerPlayer player, String name, int num) {
-        AtomicInteger before = new AtomicInteger();
-        AtomicInteger after = new AtomicInteger();
+        AtomicInteger before = new AtomicInteger(0);
+        AtomicInteger after = new AtomicInteger(0);
         PVZPlayerCapability.getPlayerData(player).ifPresent(((nbt) -> {
             before.set(nbt.getValue(name));
             nbt.addValue(name, num);
@@ -65,7 +63,7 @@ public class PlayerStatsCommand {
     }
 
     public static int queryPlayerStats(CommandSourceStack source, ServerPlayer player, String name, boolean valueOrLimit) {
-        AtomicInteger num = new AtomicInteger();
+        AtomicInteger num = new AtomicInteger(0);
         if (valueOrLimit) {
             PVZPlayerCapability.getPlayerData(player).ifPresent(((nbt) -> {
                 num.set(nbt.getValue(name));

@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:book"
+		},
+		{
+			"item": "pvz:pea"
+		}
+	],
+	"result": {
+		"item": "patchouli:guide_book",
+		"nbt": {
+			"patchouli:book": "pvz:pvz_guide"
+		},
+		"count": 1
+	}
+}

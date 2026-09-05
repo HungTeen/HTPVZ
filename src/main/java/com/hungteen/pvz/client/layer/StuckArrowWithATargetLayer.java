@@ -1,11 +1,9 @@
 package com.hungteen.pvz.client.layer;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.bullet.ArrowWithATarget;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -25,14 +23,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StuckArrowWithATargetLayer <T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
-    private static final Comparator<String> cpr = (a, b) -> stringToInt(a) - stringToInt(b);
+    private static final Comparator<String> cpr = Comparator.comparingInt(StuckArrowWithATargetLayer::stringToInt);
     public StuckArrowWithATargetLayer(RenderLayerParent<T, M> p_117346_) {
         super(p_117346_);
     }
 
     public int numStuck(T entity) {
-        AtomicInteger result = new AtomicInteger();
-        result.set(0);
+        AtomicInteger result = new AtomicInteger(0);
         entity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> result.set(cap.getStuckArrowWithATarget()));
         return result.get();
     }
@@ -49,7 +46,7 @@ public class StuckArrowWithATargetLayer <T extends LivingEntity, M extends Entit
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int p_117351_, T entity, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
         int i = this.numStuck(entity);
-        RandomSource random = RandomSource.create((long)entity.getId() + 820162226);
+        RandomSource random = RandomSource.create((long)entity.getId() + 820162326);
         if (i > 0) {
             for(int j = 0; j < i; j ++) {
                 poseStack.pushPose();
@@ -73,17 +70,19 @@ public class StuckArrowWithATargetLayer <T extends LivingEntity, M extends Entit
                     poseStack.popPose();
                     return;
                 }
-                ModelPart.Cube modelpart$cube = modelpart.getRandomCube(random);
                 float f = random.nextFloat();
                 float f1 = random.nextFloat();
                 float f2 = random.nextFloat();
-                float f3 = Mth.lerp(f, modelpart$cube.minX, modelpart$cube.maxX) / 16.0F;
-                float f4 = Mth.lerp(f1, modelpart$cube.minY, modelpart$cube.maxY) / 16.0F;
-                float f5 = Mth.lerp(f2, modelpart$cube.minZ, modelpart$cube.maxZ) / 16.0F;
-                poseStack.translate(f3, f4, f5);
-                f = -1.0F * (f * 2.0F - 1.0F);
-                f1 = -1.0F * (f1 * 2.0F - 1.0F);
-                f2 = -1.0F * (f2 * 2.0F - 1.0F);
+                if (! modelpart.cubes.isEmpty()) {
+                    ModelPart.Cube modelpart$cube = modelpart.getRandomCube(random);
+                    float f3 = Mth.lerp(f, modelpart$cube.minX, modelpart$cube.maxX) / 16.0F;
+                    float f4 = Mth.lerp(f1, modelpart$cube.minY, modelpart$cube.maxY) / 16.0F;
+                    float f5 = Mth.lerp(f2, modelpart$cube.minZ, modelpart$cube.maxZ) / 16.0F;
+                    poseStack.translate(f3, f4, f5);
+                    f = -1.0F * (f * 2.0F - 1.0F);
+                    f1 = -1.0F * (f1 * 2.0F - 1.0F);
+                    f2 = -1.0F * (f2 * 2.0F - 1.0F);
+                }
                 this.renderStuckItem(poseStack, bufferSource, p_117351_, entity, f, f1, f2, p_117355_);
                 poseStack.popPose();
             }

@@ -1,0 +1,33 @@
+{
+  "parent": "pvz:plants_vs_zombies",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.essence_furnace.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.essence_furnace.description"
+    },
+    "icon": {
+      "item": "pvz:essence_furnace"
+      }
+    },
+  "criteria": {
+    "has_origin": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:essence_furnace"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_origin"
+    ]
+  ]
+}

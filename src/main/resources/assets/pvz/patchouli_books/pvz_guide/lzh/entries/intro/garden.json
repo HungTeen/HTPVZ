@@ -1,0 +1,31 @@
+{
+    "name": "*0",
+    "icon": "pvz:zen_garden_portal",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "*1"
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:watering_pot",
+            "recipe2": "pvz:zen_garden_portal"
+        },
+        {
+            "type": "spotlight",
+            "title": "*4",
+            "item": "pvz:sprout",
+            "text": "既勝敵襲，或得花芽於諸戰實。其僅可植於禪境園之禪境盆中。既植，施以水，以肥土，而花芽長。待成，穫之得花芽所成植物之種。製肥土可循此方。"
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:fertilizer"
+        },
+        {
+            "type": "text",
+            "text": "*3"
+        }
+    ],
+    "sortnum": 6
+}

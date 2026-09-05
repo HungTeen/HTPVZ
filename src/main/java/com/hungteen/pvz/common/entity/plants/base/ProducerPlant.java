@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.entity.plants.base;
 
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
@@ -8,7 +8,7 @@ import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -19,6 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.dimension.DimensionType;
+
+import javax.annotation.Nullable;
 
 public abstract class ProducerPlant extends SimplePlant {
     public AnimationState idleAnimationState = new AnimationState();
@@ -72,7 +74,7 @@ public abstract class ProducerPlant extends SimplePlant {
      */
     protected void genSun(int num, int cnt) {
         Sun.spawnSunsWithEffectsByAmount(level, this.blockPosition(), num, num / cnt, 0.25F);
-        EntityUtil.playSound(this, SoundEvents.EXPERIENCE_ORB_PICKUP);
+        if (getProduceSound() != null) EntityUtil.playSound(this, getProduceSound());
     }
 
     /**
@@ -88,6 +90,9 @@ public abstract class ProducerPlant extends SimplePlant {
      */
     public abstract int getGenCD();
 
+    public @Nullable SoundEvent getProduceSound() {
+        return null;
+    }
 
     /**
      * is producer going to gen, use for render sunflower sun layer.
@@ -138,7 +143,7 @@ public abstract class ProducerPlant extends SimplePlant {
             final int time = this.producer.getAttackTime();
             if (time <= 1) {
                 this.producer.genSomething();
-                this.producer.setAttackTime(this.producer.getGenCD());
+                this.producer.setAttackTime((int) (this.producer.getGenCD() * PVZAPI.get().getSunProductionDatum(this.producer.level)));
             } else if (! producer.level.getBiome(producer.blockPosition()).is(PVZBiomeTags.UNABLE_SUN_PRODUCTION)){
                 this.producer.setAttackTime(Math.max(0, time - 1));
             }

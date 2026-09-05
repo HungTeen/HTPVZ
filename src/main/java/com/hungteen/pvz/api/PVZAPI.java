@@ -8,6 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +34,8 @@ public class PVZAPI {
         return LAZY_INSTANCE.get();
     }
 
-    public interface IPVZAPI{
+    public interface IPVZAPI {
+        default boolean isDummy() {return true;}
         //player
         /**The key for sun in playerStats and EntityCap. */
         default String getSunResourceName() {
@@ -63,7 +65,14 @@ public class PVZAPI {
         default void setPlantHaveCost(Player player, boolean value) {}
         default void setPlantHaveCD(Player player, boolean value) {}
         default void setAutoSetCostAndCD(Player player, boolean value) {}
-
+        /**the universal damage multiplier of plants according to {@link com.hungteen.pvz.PVZConfig.Common#plantDamageDatum pvz gamerule}.*/
+        default float getPlantDamageDatum(Level level) {
+            return 1;
+        }
+        /**the production speed multiplier of productive plants according to {@link com.hungteen.pvz.PVZConfig.Common#sunProductionDatum pvz gamerule}.*/
+        default float getSunProductionDatum(Level level) {
+            return 1;
+        }
         //entity
         /**Return the attribute that PVZMod Register. Input the {@link PVZAttributes} as entry.*/
         default @Nullable Attribute getAttribute(PVZAttributes entry) {

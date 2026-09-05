@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.4
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.JalapenoAnimation;
+import com.hungteen.pvz.client.model.plants.animation.JalapenoModelAnimation;
 import com.hungteen.pvz.common.entity.plants.Jalapeno;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -63,7 +63,7 @@ public class JalapenoModel<T extends Jalapeno> extends HierarchicalModel<T> {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		this.inner.x = (float) (random.nextFloat() * 0.5 - 0.25);
 		this.inner.z = (float) (random.nextFloat() * 0.5 - 0.25);
-		this.animate(entity.explodeAnimationState, JalapenoAnimation.explode, ageInTicks);
+		this.animate(entity.explodeAnimationState, JalapenoModelAnimation.explode, ageInTicks);
 	}
 
 	@Override

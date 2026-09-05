@@ -12,7 +12,9 @@ import net.minecraft.data.loot.BlockLoot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -53,17 +55,26 @@ public class BlockLootGen extends BlockLoot {
                 this.addSlabDrop(map.get(PVZBlocks.WoodSet.Slab).get());
         });
         this.addCropDrop(PVZBlocks.PEA.get(), PVZItems.PEA.get(), PVZItems.PEA.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.PEA.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
+        this.addCropDrop(PVZBlocks.PEPPER.get(), PVZItems.PEPPER.get(), PVZItems.PEPPER.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.PEPPER.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
         this.addCropDrop(PVZBlocks.CABBAGE_SEEDS.get(), PVZItems.CABBAGE.get(), PVZItems.CABBAGE_SEED.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.CABBAGE_SEEDS.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
         this.addDoubleCropDrop(PVZBlocks.CORN_KERNELS.get(), PVZItems.CORN.get(), PVZItems.CORN_KERNELS.get(), LootItemBlockStatePropertyCondition.hasBlockStateProperties(PVZBlocks.CORN_KERNELS.get()).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CropBlock.AGE, 7)));
         this.dropOther(PVZBlocks.NUT_LEAVES_WITH_NUTS.get(), PVZItems.NUT.get());
         this.addOreDrop(PVZBlocks.ORIGIN_ORE.get(), PVZItems.ORIGIN_ESSENCE.get());
         this.addSlabDrop(PVZBlocks.GARDEN_FLOWER_POT.get());
         this.addConditionDrop(PVZBlocks.FLOATING_SOUL_SOIL.get(), HAS_SILK_TOUCH);
+        this.addNoLoot(PVZBlocks.INVASION_SPAWNER.get());
+        this.addConditionDrop(PVZBlocks.WARPED_OBSILIUM.get(), Blocks.OBSIDIAN, HAS_SILK_TOUCH);
+        this.add(PVZBlocks.TOMBSTONE.get(), LootTable.lootTable().withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1F))
+                        .add(LootItem.lootTableItem(Items.GOLD_NUGGET).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 12F))))
+                        .add(LootItem.lootTableItem(Items.IRON_NUGGET).setWeight(19).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 12F))))
+                        .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(1)))
+        );
         //TODO bug that essence alter and origin block drop self without tool.
 
         //the rest
-        PVZBlocks.BLOCKS.getEntries().forEach((blockObj) ->{
-            if (blockObj.getId().getNamespace().equals(PVZMod.MODID) && !lootedList.contains(blockObj.get()) && blockObj.get().asItem() != Items.AIR) {
+        PVZBlocks.BLOCKS.getEntries().forEach((blockObj) -> {
+            if (blockObj.getId().getNamespace().equals(PVZMod.MODID) && ! lootedList.contains(blockObj.get()) && blockObj.get().asItem() != Items.AIR) {
                 outPut(blockObj.get());
                 this.dropSelf(blockObj.get());
                 lootedList.add(blockObj.get());
@@ -80,6 +91,13 @@ public class BlockLootGen extends BlockLoot {
         this.add(block, LootTable.lootTable().withPool(LootPool.lootPool().when(condition)
                 .setRolls(ConstantValue.exactly(1.0F))
                 .add(LootItem.lootTableItem(block))));
+    }
+    protected void addConditionDrop(Block block, ItemLike otherwise, LootItemCondition.Builder condition) {
+        outPut(block);
+        lootedList.add(block);
+        this.add(block, LootTable.lootTable().withPool(LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0F))
+                .add(LootItem.lootTableItem(block).when(condition).otherwise(LootItem.lootTableItem(otherwise)))));
     }
     protected void addLeavesDrops(Block block, Block sapling, float... chance) {
         outPut(block);
@@ -100,6 +118,11 @@ public class BlockLootGen extends BlockLoot {
         outPut(block);
         lootedList.add(block);
         this.add(block, createSlabItemTable(block));
+    }
+    protected void addNoLoot(Block block) {
+        outPut(block);
+        lootedList.add(block);
+        this.add(block, LootTable.lootTable());
     }
     protected void addPottedDrop(Block block) {
         outPut(block);

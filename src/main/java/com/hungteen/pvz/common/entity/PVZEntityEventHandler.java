@@ -2,45 +2,38 @@ package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IDropWhenBroken;
-import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.entity.ai.goal.BeeGoToGardenPlantsGoal;
 import com.hungteen.pvz.common.entity.ai.goal.HypnotizedTargetGoal;
 import com.hungteen.pvz.common.entity.plants.Plantern;
+import com.hungteen.pvz.common.item.PVZShieldItem;
 import com.hungteen.pvz.common.network.DropDamagedArmorPacket;
-import com.hungteen.pvz.common.network.PVZPacketHandler;
-import com.hungteen.pvz.common.network.PlanternRefreshGlowPacket;
+import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZItemTags;
-import com.hungteen.pvz.util.EntityUtil;
-import net.minecraft.server.level.ServerPlayer;
+import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.entity.npc.WanderingTrader;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = PVZMod.MODID)
 public class PVZEntityEventHandler {
@@ -51,20 +44,9 @@ public class PVZEntityEventHandler {
             if (mob instanceof WanderingTrader trader) {
                 trader.goalSelector.addGoal(2, new AvoidEntityGoal<>(trader, Plantern.class, entity -> entity.level.isNight(),
                         8.0F, 0.5D, 0.5D, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test));
+            } else if (ev.getEntity() instanceof Bee bee) {
+                bee.goalSelector.addGoal(3, new BeeGoToGardenPlantsGoal(bee));
             }
-        }
-    }
-
-    @SubscribeEvent
-    public static void playerTick(TickEvent.PlayerTickEvent event) {
-        if (event.player instanceof ServerPlayer player && event.phase == TickEvent.Phase.END) {
-            Set<UUID> set = new HashSet<>();
-            List<Plantern> list = player.level.getEntities(EntityTypeTest.forClass(Plantern.class),
-                    new AABB(player.getX() - 200, player.getY() - 200, player.getZ() - 200,
-                            player.getX() + 200, player.getY() + 200, player.getZ() + 200),
-                    (plantern) -> plantern.hasSkill("skill.pvz.plantern.light_house") && EntityUtil.isTeammate(player, plantern));
-            list.forEach((plantern) -> set.add(plantern.getUUID()));
-            PVZPacketHandler.sendToClient(player, new PlanternRefreshGlowPacket(set));
         }
     }
 
@@ -79,17 +61,14 @@ public class PVZEntityEventHandler {
     public static void onLivingDie(LivingDeathEvent event) {
         if (! event.getEntity().level.isClientSide) {
             //occur invasion.
-            event.getEntity().getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
-                if (cap.containsInvasion) {
-                    if (event.getSource().getEntity() instanceof ServerPlayer player) {
-                        player.addEffect(new MobEffectInstance(PVZMobEffects.INVASION_OMEN.get(),
-                                player.getRandom().nextInt(600) + 400,
-                                (int) Math.floor((float) PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY) / 10)));
-                    }
-                }
-            });
-            //player lose sun.TODO adapt keep inventory game rule
-            if (event.getEntity() instanceof Player player) {
+            var cap = PVZZombieEventCapability.fromLevel(event.getEntity().level);
+            if (cap != null) {
+                InvasionTeam team = cap.getNearestEventRanged(InvasionTeam.class, event.getEntity().blockPosition()
+                        , t -> t.leaderUUID != null && t.leaderUUID.equals(event.getEntity().getUUID()));
+                if (team != null) team.onLeaderDie(event.getEntity(), event.getSource());
+            }
+            //player lose sun.
+            if (event.getEntity() instanceof Player player && player.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
                 int fall = PVZPlayerCapability.getValue(player, PVZPlayerCapStats.SUN) - 50;
                 if (fall > 0) {
                     Sun.spawnSunsWithEffectsByAmount(player.level, player.getOnPos().above(), fall, 0, 0.4F);
@@ -100,8 +79,8 @@ public class PVZEntityEventHandler {
 
     @SubscribeEvent
     public static void PVZShieldBlock(ShieldBlockEvent ev) {
+        if (! PVZDamageSource.isVanillaShieldBlocking) return;
         LivingEntity entity = ev.getEntity();
-
         if (! (entity instanceof Player)) {
             ItemStack item = entity.getUseItem();
 
@@ -143,6 +122,9 @@ public class PVZEntityEventHandler {
                     entity.playSound(SoundEvents.SHIELD_BREAK, 0.8F, 0.8F + entity.level.random.nextFloat() * 0.4F);
                 }
             }
+        }
+        if (entity.getUseItem().getItem() instanceof PVZShieldItem item) {
+            entity.playSound(item.getBlockSound());
         }
     }
 }

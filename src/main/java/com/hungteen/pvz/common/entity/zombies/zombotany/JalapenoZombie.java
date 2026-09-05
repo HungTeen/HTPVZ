@@ -28,7 +28,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
-import static com.hungteen.pvz.common.register.PVZDamageSource.transferKiller;
 
 /**
  * 火爆辣椒僵尸 - 接近玩家时会爆炸，向四个方向发射怒妖
@@ -87,19 +86,19 @@ public class JalapenoZombie extends PVZZombie implements IZombotany {
             }
         }
     }
-    @Override
-    public boolean fireImmune() {
-        return true;
-    }
 
     public void explode() {
-        level.explode(this, transferKiller(teamFilter(DamageSource.explosion(this).bypassArmor()), PVZEntityCapability.getOwner(this)), null, this.getX(), this.getY() + 1.5, this.getZ(),
+        level.explode(this, teamFilter(DamageSource.explosion(this).bypassArmor()), null, this.getX(), this.getY() + 1.5, this.getZ(),
                 1F, false, Explosion.BlockInteraction.NONE);
         if (!level.isClientSide) {
             for (Direction direction : List.of(Direction.EAST, Direction.WEST, Direction.SOUTH, Direction.NORTH)) {
                 Anger anger = new Anger(level);
                 anger.setPos(this.position().add(0, 1, 0));
-                anger.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(this));
+                this.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+                    if (cap.getOwner() != null) {
+                        anger.getCapability(PVZEntityCapability.CAP).ifPresent(angerCap -> angerCap.setOwner(cap.getOwner()));
+                    }
+                });
                 anger.yRot = direction.toYRot();
                 level.addFreshEntity(anger);
                 anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 4);

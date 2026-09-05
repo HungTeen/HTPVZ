@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.10.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.StarfruitAnimation;
+import com.hungteen.pvz.client.model.plants.animation.StarfruitModelAnimation;
 import com.hungteen.pvz.common.entity.plants.Starfruit;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -104,8 +104,8 @@ public class StarfruitModel<T extends Starfruit> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(Starfruit starfruit, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(starfruit.idleAnimationState, StarfruitAnimation.idle, ageInTicks);
-		this.animate(starfruit.shootAnimationState, StarfruitAnimation.shoot, ageInTicks);
+		this.animate(starfruit.idleAnimationState, StarfruitModelAnimation.idle, ageInTicks);
+		this.animate(starfruit.shootAnimationState, StarfruitModelAnimation.shoot, ageInTicks);
 	}
 
 	@Override

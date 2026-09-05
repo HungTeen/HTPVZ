@@ -1,0 +1,33 @@
+{
+  "parent": "pvz:first_plant",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.nether_wart_seed_packet.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.nether_wart_seed_packet.description"
+    },
+    "icon": {
+      "item": "pvz:nether_wart_seed_packet"
+      }
+    },
+  "criteria": {
+    "has_item": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:nether_wart_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_item"
+    ]
+  ]
+}

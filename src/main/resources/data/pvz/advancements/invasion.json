@@ -1,0 +1,26 @@
+{
+  "parent": "pvz:plants_vs_zombies",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.invasion.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.invasion.description"
+    },
+    "icon": {
+      "item": "pvz:cone_helmet"
+      }
+    },
+  "criteria": {
+    "invasion": {
+      "conditions": {
+      },
+      "trigger": "pvz:occur_invasion"
+    }
+  },
+  "requirements": [
+    [
+      "invasion"
+    ]
+  ]
+}

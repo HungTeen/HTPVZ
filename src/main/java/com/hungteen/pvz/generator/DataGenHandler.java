@@ -22,12 +22,15 @@ public class DataGenHandler {
         g.addProvider(i, new EntityTagGen(g, helper));
         g.addProvider(i, new BannerPatternTagGen(g, helper));
         g.addProvider(i, new BiomeTagGen(g, helper));
+        g.addProvider(i, new StructureTagGen(g, helper));
 
         g.addProvider(i, new InvasionTypeGen(g));
 
         g.addProvider(i, new RecipeGen(g));
         g.addProvider(i, new LootGen(g));
         g.addProvider(i, new LootModifierGen(g));
+
+        g.addProvider(i, new SoundGen(g, helper));
     }
 
 }

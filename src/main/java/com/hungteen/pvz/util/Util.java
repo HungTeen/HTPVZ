@@ -15,9 +15,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -70,13 +70,22 @@ public class Util {
 
 
     //planting tools
-    /**in order to put event into api, the rapid way to create the events are defined here.*/
+    public static int getSeedPacketExtraCostRange(Player player) {
+        if (player.level instanceof ServerLevel serverLevel) {
+            return PVZConfig.PVZGameRules.getInt(serverLevel, PVZConfig.Common.advancedPlantExtraCostRange);
+        } else {
+            PVZPlayerCapability cap = player.getCapability(PVZPlayerCapability.CAP).orElse(null);
+            return cap == null ? 30 : cap.advancedPlantsExtraCostRange;
+        }
+    }
+
+    /**in order to put event into api, the rapid methods to create the events are defined here.*/
     public static PVZResourceEvent.CheckResourceEvent checkPlantResourceEvent(Player player, ItemStack plantCard) {
         SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
         String resource = item.getResource(plantCard);
         int cost = (resource.equals(PVZPlayerCapStats.SUN)
                 && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
-                0 : item.getBaseCost(plantCard);
+                0 : item.getBaseCost(plantCard) + item.getTotalExtraCost(player);
         int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
                 1 : item.getBaseCoolDown(plantCard);
         return new PVZResourceEvent.CheckResourceEvent(player, plantCard, resource, cost, coolDown);
@@ -87,7 +96,7 @@ public class Util {
         String resource = item.getResource(plantCard);
         int cost = (resource.equals(PVZPlayerCapStats.SUN)
                 && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
-                0 : item.getBaseCost(plantCard);
+                0 : item.getBaseCost(plantCard) + item.getTotalExtraCost(player);
         int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
                 1 : item.getBaseCoolDown(plantCard);
         return new PVZResourceEvent.CheckPlantConditionEvent(player, plantCard, spawningEntity, resource, cost, coolDown);
@@ -106,7 +115,10 @@ public class Util {
 
     public static boolean isTeamBattleOn(Level level) {
         if (level.isClientSide) {
-            return PVZSavedData.isTeamBattleOn;
+            Player player = ClientProxy.getPlayer();
+            if (player == null) return false;
+            PVZPlayerCapability cap = player.getCapability(PVZPlayerCapability.CAP).orElse(null);
+            return cap == null ? false : cap.isTeamBattleOn;
         } else {
             Scoreboard scoreboard = level.getScoreboard();
             return PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.teamBattle);
@@ -147,10 +159,27 @@ public class Util {
         BlockHitResult result = level.clip(new ClipContext(pos1, pos2, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
         return result.getType() != HitResult.Type.MISS;
     }
-
-    public static long getServerTime(MinecraftServer server) {
-        return PVZSavedData.getServerTime(server.getScoreboard());
+    public static int getInvasionLevel(Player player) {
+        return Math.min(20, Math.max(0, (int) Math.sqrt(((double) PVZPlayerCapability.getValue(player, PVZPlayerCapStats.INVASION_DIFFICULTY) - 4) / 1.5)));
     }
+
+    /**Available in server only.*/
+    public static int getDarknessSunThreshold(Player player) {
+        int gameRuleValue = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.darknessDecreaseSunThreshold);
+        if (gameRuleValue >= 0) {
+            return gameRuleValue;
+        }
+        Difficulty difficulty = player.getServer().getWorldData().getDifficulty();
+        int limitSun;
+        switch (difficulty) {
+            case PEACEFUL -> limitSun = 300;
+            case EASY -> limitSun = 200;
+            case HARD -> limitSun = 50;
+            default -> limitSun = 100;//normal difficulty or other possible situations.
+        }
+        return limitSun;
+    }
+
 
     //debug tools
     public static void showPathEnd(Mob mob) {

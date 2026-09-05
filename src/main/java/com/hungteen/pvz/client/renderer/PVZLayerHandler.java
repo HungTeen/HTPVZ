@@ -1,10 +1,7 @@
 package com.hungteen.pvz.client.renderer;
 
-import com.hungteen.pvz.client.model.SilverSwordOrnamentModel;
-import com.hungteen.pvz.client.model.SproutModel;
+import com.hungteen.pvz.client.model.*;
 import com.hungteen.pvz.client.model.attached.*;
-import com.hungteen.pvz.client.model.FloatEssenceBlockModel;
-import com.hungteen.pvz.client.model.GrassCarpModel;
 import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
 import com.hungteen.pvz.client.model.bullet.DandelionSeedBulletModel;
 import com.hungteen.pvz.client.model.bullet.MelonBulletModel;
@@ -41,6 +38,11 @@ public class PVZLayerHandler {
         PVZEntities.simpleRenderHandler();
         //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
+        L(e, PVZEntities.SNAIL, SnailModel::createBodyLayer);
+        L(e, "lava_ghastling_light", LavaGhastlingLightModel::createBodyLayer);
+
+
+        L(e, PVZEntities.PEA_SHOOTER, PeaShooterModel::createBodyLayer);
         L(e, PVZEntities.SUN_FLOWER, SunFlowerModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, WallNutModel::createBodyLayer);
         L(e, PVZEntities.WALL_NUT, "armor", WallNutArmorModel::createBodyLayer);
@@ -60,8 +62,8 @@ public class PVZLayerHandler {
         L(e, PVZEntities.FLOWER_POT, FlowerPotModel::createBodyLayer);
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
         L(e, PVZEntities.GATLING_PEA, GatlingPeaModel::createBodyLayer);
-        L(e, PVZEntities.SPROUT, SproutModel::createBodyLayer);
         L(e, PVZEntities.DANDELION, DandelionModel::createBodyLayer);
+        L(e, PVZEntities.SPROUT, SproutModel::createBodyLayer);
         L(e, "melon_bullet", MelonBulletModel::createBodyLayer);
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "starfruit_bullet", StarfruitBulletModel::createBodyLayer);
@@ -73,11 +75,11 @@ public class PVZLayerHandler {
         L(e, "butter_head", ButterHeadModel::createBodyLayer);
         L(e, "butter_bottom", ButterBottomModel::createBodyLayer);
         L(e, "ice", FrozenModel::createBodyLayer);
+
         L(e, PVZEntities.POLE_VAULTING_ZOMBIE, PoleVaultingZombieModel::createBodyLayer);
         L(e, PVZEntities.SNORKEL_ZOMBIE, SnorkelZombieModel::createBodyLayer);
         L(e, PVZEntities.TACO_IMP, TacoImpModel::createBodyLayer);
         L(e, PVZEntities.FIRE_IMP, FireImpModel::createBodyLayer);
-        L(e, PVZEntities.LAVA_GHASTLING, LavaGhastlingModel::createBodyLayer);
         L(e, PVZEntities.JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieModel::createBodyLayer);
         L(e, PVZEntities.DIGGER_ZOMBIE, DiggerZombieModel::createBodyLayer);
         L(e, PVZEntities.GARGANTUAR, GargantuarModel::createBodyLayer);
@@ -88,7 +90,7 @@ public class PVZLayerHandler {
 
         //simple rendered entities
         for (EntityType<? extends Entity> entity: PVZEntities.simpleRenderedMap.keySet()){
-            L(e, name(entity), (Supplier<LayerDefinition>) PVZEntities.simpleRenderedMap.get(entity).get(1));
+            L(e, name(entity), PVZEntities.simpleRenderedMap.get(entity).b);
         }
     }
 

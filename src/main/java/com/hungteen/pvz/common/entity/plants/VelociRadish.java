@@ -5,13 +5,15 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,6 +27,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -51,7 +54,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-import static com.hungteen.pvz.common.entity.SimplePlant.tryShovel;
+import static com.hungteen.pvz.common.entity.plants.base.SimplePlant.tryShovel;
 import static net.minecraftforge.event.ForgeEventFactory.canMountEntity;
 
 public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, INeedSafeSituation, IHaveSkills {
@@ -64,8 +67,8 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public static final String GROUP_SKILL_NAME = "skill.pvz.veloci_radish.clever_girls";
 
     public static List<Skill> staticSkillList = List.of(
-            new Skill(STRONG_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 4, 25, 440),
-            new Skill(GROUP_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 4, 100, 440).avoidSkills(STRONG_SKILL_NAME)
+            new Skill(STRONG_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 12, 8, 25, PVZSeedPackets.SLOW - PVZSeedPackets.FAST),
+            new Skill(GROUP_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 100, PVZSeedPackets.SLOW - PVZSeedPackets.FAST).avoidSkills(STRONG_SKILL_NAME)
     );
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
@@ -80,7 +83,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         super(entityType, level);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
-        this.setPathfindingMalus(BlockPathTypes.WATER, 4.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 8.0F);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -106,12 +109,12 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 (entity -> entity instanceof Mob mob && mob.getTarget() == this &&
                         (this.getAttribute(Attributes.ATTACK_DAMAGE).getModifier(ATTACK_MODIFIER_UUID) == null)),
                 6.0F, 1.0D, 1.0D));
+        this.goalSelector.addGoal(1, new GroupShareEnemyGoal(this));
+        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(2, new TurnipAttackGoal(this, 1, true));
         this.goalSelector.addGoal(3, new FollowGroupLeaderGoal(this));
         this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
-        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.goalSelector.addGoal(1, new GroupShareEnemyGoal(this));
         this.targetSelector.addGoal(1, new DisperseEnemyTargetGoal(this));
     }
     @Override
@@ -213,10 +216,11 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
-            //2. when clicked on sides of blocks, plant on relative plants.
+            //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Y;
         direction = getGrowDirection();
+        pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
         //collision check.
         AABB aabb = AABB.ofSize(new Vec3(pos.getX() + 0.5, pos.getY() + 1 + getBbHeight() / 2, pos.getZ() + 0.5), getBbWidth(), getBbHeight() - 0.0001, getBbWidth());
@@ -237,7 +241,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 //final plant.
                 this.moveTo(
                         pos.getX() + 0.5 + offset.getX(),
-                        pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
+                        pos.getY() + (isSide ? 1 : direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
                                 (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
                                 state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
                         pos.getZ() + 0.5 + offset.getZ());
@@ -295,21 +299,23 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
             this.disappear();
         }
         // skill
-        if (hasSkill(this, STRONG_SKILL_NAME)) {
-            if (! level.isClientSide) {
-                setGlowingTag(tickCount < 200 && (tickCount <= 100 || tickCount % 10 < 5));
+        if (! level.isClientSide) {
+            if (hasSkill(this, STRONG_SKILL_NAME)) {
                 if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER_UUID)) {
                     this.getAttribute(Attributes.ATTACK_DAMAGE).addTransientModifier(new AttributeModifier(ATTACK_MODIFIER_UUID, "skill bonus", 26, AttributeModifier.Operation.ADDITION));
-                    this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 14, AttributeModifier.Operation.ADDITION));
+                    this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 15, AttributeModifier.Operation.ADDITION));
+                    this.getAttribute(Attributes.MOVEMENT_SPEED).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 0.15, AttributeModifier.Operation.ADDITION));
                     this.heal(20);
                 } else if (tickCount > 200) {
                     this.removeSkill(this, getSkillFromName(STRONG_SKILL_NAME));
+                    ((ServerLevel) this.level).sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE
+                            , this.getX(), this.getY() + 0.5, this.getZ(), 10
+                            , 0.3F, 0.3F, 0.3F, 0.01f);
                     this.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(ATTACK_MODIFIER_UUID);
                     this.getAttribute(Attributes.MAX_HEALTH).removeModifier(HEALTH_MODIFIER_UUID);
+                    this.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(HEALTH_MODIFIER_UUID);
                 }
-            }
-        } else if (hasSkill(this, GROUP_SKILL_NAME)) {
-            if (! level.isClientSide) {
+            } else if (hasSkill(this, GROUP_SKILL_NAME)) {
                 for (int i = 0; i < 3; i ++) {
                     VelociRadish turnip = PVZEntities.VELOCI_RADISH.get().create(level);
                     turnip.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
@@ -327,6 +333,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         }
         //check plant situation damage.
         firstUnsafeSituationMercy = SimplePlant.testPlantSafe(this, firstUnsafeSituationMercy);
+        SimplePlant.testDisappear(this);
         //animation
         animationTick ++;
         if (entityData.get(POSE) == 0) {
@@ -360,7 +367,6 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public boolean canBeLeashed(Player p_21418_) {
         return true;
     }
-
     //ICanGroupUp
     ICanGroupUp leader = null;
     int schoolSize = 1;
@@ -389,6 +395,11 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
         return 64;
     }
 
+    @Override
+    public Mob self() {
+        return this;
+    }
+
     private static class TurnipAttackGoal extends MeleeAttackGoal {
         public TurnipAttackGoal(VelociRadish p_25552_, double p_25553_, boolean p_25554_) {
             super(p_25552_, p_25553_, p_25554_);
@@ -404,6 +415,10 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                 //TODO remake the relationship of attack and animation
                 this.mob.swing(InteractionHand.MAIN_HAND);
                 this.mob.doHurtTarget(entity);
+                this.mob.level.playSound(null, mob, ((VelociRadish) mob).hasSkill(STRONG_SKILL_NAME)
+                        ? PVZSoundEvents.VELOCI_RADISH_STRONG_ATTACK.get()
+                        : PVZSoundEvents.VELOCI_RADISH_ATTACK.get()
+                        , SoundSource.NEUTRAL, 1.0F, 1.0F);
             }
         }
         @Override

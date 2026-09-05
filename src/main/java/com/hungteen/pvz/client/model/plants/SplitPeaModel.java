@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.4
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.SplitPeaAnimation;
+import com.hungteen.pvz.client.model.plants.animation.SplitPeaModelAnimation;
 import com.hungteen.pvz.common.entity.plants.SplitPea;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -63,7 +63,7 @@ public class SplitPeaModel<T extends SplitPea> extends HierarchicalModel<T> {
 
 		PartDefinition w_r1 = down.addOrReplaceChild("w_r1", CubeListBuilder.create().texOffs(-4, 27).addBox(1.0F, -1.0F, -2.0F, 6.0F, 0.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.8F, 0.0F, 0.1745F, -0.7854F, -0.1745F));
 
-		PartDefinition e_r1 = down.addOrReplaceChild("e_r1", CubeListBuilder.create().texOffs(9, 27).addBox(-7.0F, -1.0F, -2.0F, 6.0F, 0.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.8F, 0.0F, -0.1745F, -0.7854F, 0.1745F));
+		PartDefinition e_r1 = down.addOrReplaceChild("e_r1", CubeListBuilder.create().texOffs(8, 27).addBox(-7.0F, -1.0F, -2.0F, 6.0F, 0.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.8F, 0.0F, -0.1745F, -0.7854F, 0.1745F));
 
 		PartDefinition s_r1 = down.addOrReplaceChild("s_r1", CubeListBuilder.create().texOffs(2, 20).addBox(-2.0F, -1.0F, 1.0F, 4.0F, 0.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.8F, 0.0F, 0.1745F, -0.7854F, 0.0F));
 
@@ -74,9 +74,9 @@ public class SplitPeaModel<T extends SplitPea> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T splitPea, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(splitPea.idleAnimationState, SplitPeaAnimation.idle, ageInTicks);
-		this.animate(splitPea.forwardAnimationState, SplitPeaAnimation.front_shoot, ageInTicks);
-		this.animate(splitPea.backwardAnimationState, SplitPeaAnimation.back_shoot, ageInTicks);
+		this.animate(splitPea.idleAnimationState, SplitPeaModelAnimation.idle, ageInTicks);
+		this.animate(splitPea.forwardAnimationState, SplitPeaModelAnimation.front_shoot, ageInTicks);
+		this.animate(splitPea.backwardAnimationState, SplitPeaModelAnimation.back_shoot, ageInTicks);
 	}
 
 	@Override

@@ -24,32 +24,42 @@ public class PVZPacketHandler {
         CHANNEL.registerMessage(id ++, PlayerCoolDownPacket.class, PlayerCoolDownPacket::toBytes, PlayerCoolDownPacket::new, PlayerCoolDownPacket::handle);
         CHANNEL.registerMessage(id ++, PlayerContinueCoolDownPacket.class, PlayerContinueCoolDownPacket::toBytes, PlayerContinueCoolDownPacket::new, PlayerContinueCoolDownPacket::handle);
         CHANNEL.registerMessage(id ++, DropDamagedArmorPacket.class, DropDamagedArmorPacket::toBytes, DropDamagedArmorPacket::new, DropDamagedArmorPacket::handle);
-        CHANNEL.registerMessage(id ++, PlanternRefreshGlowPacket.class, PlanternRefreshGlowPacket::toBytes, PlanternRefreshGlowPacket::new, PlanternRefreshGlowPacket::handle);
         CHANNEL.registerMessage(id ++, ZombieEventPacket.class, ZombieEventPacket::toBytes, ZombieEventPacket::new, ZombieEventPacket::handle);
         CHANNEL.registerMessage(id ++, PlayerKnockBackPacket.class, PlayerKnockBackPacket::toBytes, PlayerKnockBackPacket::new, PlayerKnockBackPacket::handle);
         CHANNEL.registerMessage(id ++, PVZEntityCapPacket.class, PVZEntityCapPacket::toBytes, PVZEntityCapPacket::new, PVZEntityCapPacket::handle);
-        CHANNEL.registerMessage(id ++, TeamEvilnessPacket.class, TeamEvilnessPacket::toBytes, TeamEvilnessPacket::new, TeamEvilnessPacket::handle);
+        CHANNEL.registerMessage(id ++, ServerInfoPacket.class, ServerInfoPacket::toBytes, ServerInfoPacket::new, ServerInfoPacket::handle);
+        CHANNEL.registerMessage(id ++, PennyOffersPacket.class, PennyOffersPacket::toBytes, PennyOffersPacket::new, PennyOffersPacket::handle);
+        CHANNEL.registerMessage(id ++, ChorusTerminatorSyncPacket.class, ChorusTerminatorSyncPacket::toBytes, ChorusTerminatorSyncPacket::new, ChorusTerminatorSyncPacket::handle);
         //CLIENT TO SERVER.
         CHANNEL.registerMessage(id ++, PVZAddSkillPacket.class, PVZAddSkillPacket::toBytes, PVZAddSkillPacket::new, PVZAddSkillPacket::handle);
         CHANNEL.registerMessage(id ++, PVZEntityInteractPacket.class, PVZEntityInteractPacket::toBytes, PVZEntityInteractPacket::new, PVZEntityInteractPacket::handle);
         //BETWEEN SIDES
         CHANNEL.registerMessage(id ++, PVZFogPacket.class, PVZFogPacket::toBytes, PVZFogPacket::new, PVZFogPacket::handle);
+        CHANNEL.registerMessage(id ++, EnderSeedBundleContainerPacket.class, EnderSeedBundleContainerPacket::toBytes, EnderSeedBundleContainerPacket::new, EnderSeedBundleContainerPacket::handle);
     }
 
     public static <MSG> void sendToServer(MSG msg){
         CHANNEL.sendToServer(msg);
     }
 
-    public static <MSG> void sendToClient(ServerPlayer serverPlayer, MSG msg){
+    public static <MSG> void sendToClient(ServerPlayer serverPlayer, MSG msg) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), msg);
+//        PVZMod.LOGGER.info("sent packet " + msg + " to " + serverPlayer.getName().getString());
     }
 
-    public static <MSG> void sendToNearByClient(Level world, Vec3 vec, double dis, MSG msg){
+    public static <MSG> void sendToNearByClient(Level level, Vec3 vec, double dis, MSG msg){
+//        PVZMod.LOGGER.info("sent packet " + msg + " nearby");
         CHANNEL.send(PacketDistributor.NEAR.with(() ->
-                new PacketDistributor.TargetPoint(vec.x, vec.y, vec.z, dis, world.dimension())), msg);
+                new PacketDistributor.TargetPoint(vec.x, vec.y, vec.z, dis, level.dimension())), msg);
+    }
+
+    public static <MSG> void sendToLevel(Level level, MSG msg) {
+//        PVZMod.LOGGER.info("sent packet " + msg + " level " + level);
+        CHANNEL.send(PacketDistributor.DIMENSION.with(level::dimension), msg);
     }
 
     public static <MSG> void sendToPlayers(MSG msg) {
+//        PVZMod.LOGGER.info("sent packet " + msg + " to all");
         CHANNEL.send(PacketDistributor.ALL.noArg(), msg);
     }
 }

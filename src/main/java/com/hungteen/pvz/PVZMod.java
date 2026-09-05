@@ -1,5 +1,6 @@
 package com.hungteen.pvz;
 
+import com.hungteen.pvz.client.PVZKeyBindings;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.gui.screens.AlmanacScreen;
 import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
@@ -10,7 +11,6 @@ import com.hungteen.pvz.common.capability.level.PVZFogCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.command.*;
-import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
 import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.CommonProxy;
@@ -18,6 +18,7 @@ import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.world.PVZFog;
 import com.hungteen.pvz.common.world.PVZSavedData;
+import com.hungteen.pvz.common.world.PVZWorldEvents;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
@@ -26,6 +27,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -63,6 +65,7 @@ public class PVZMod
     public static String FRIENDLY_TEAM = "team.pvz.friendly_team";
     public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
     public static float clientTime = 0;
+    public static int serverAverageTickTime = 0;
 
     public PVZMod() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -92,12 +95,14 @@ public class PVZMod
         PVZStructures.register(modBus);
 
         PVZParticles.PARTICLES.register(modBus);
+        PVZSoundEvents.SOUNDS.register(modBus);
 
         PVZMenus.MENU_TYPES.register(modBus);
 
         PVZLootModifiers.LOOT_MODIFIERS.register(modBus);
 
         PVZZombieEvents.ZOMBIE_EVENTS.register(modBus);
+        PVZStats.STATS.register(modBus);
         OtherRegisters.modBusRegister(modBus);
         modBus.addListener(PVZConfig.PVZGameRules::init);
 
@@ -118,7 +123,6 @@ public class PVZMod
     }
 
 
-
     private void commonSetup(final FMLCommonSetupEvent event)
     {
 
@@ -133,25 +137,25 @@ public class PVZMod
             PVZItems.composterMap.forEach((itemObj, chance) ->
                     ComposterBlock.add(chance, (ItemLike) itemObj.get())
             );
+            ComposterBlock.add(0.1f, Items.ROTTEN_FLESH);
                     PVZBlocks.woodList.forEach((map) -> {
                 AxeItem.STRIPPABLES = new HashMap<>(AxeItem.STRIPPABLES);
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Log).get(), map.get(PVZBlocks.WoodSet.StLog).get());
                 AxeItem.STRIPPABLES.put(map.get(PVZBlocks.WoodSet.Wood).get(), map.get(PVZBlocks.WoodSet.StWood).get());
             });
-            PVZBlocks.queueRelease();
-            PVZItems.queueRelease();
             PVZMobEffects.addMixs();
+            PVZWorldEvents.commonBootstrap();
+            //clear variables
+            PVZBlocks.release();
+            PVZItems.release();
+            PVZEntities.release();
         });
         RegisterSproutsEvent sproutEvent = new RegisterSproutsEvent();
         MinecraftForge.EVENT_BUS.post(sproutEvent);
 
-        //clear variables
-        PVZBlocks.release();
-        PVZItems.release();
-        PVZEntities.release();
-
         //network
         PVZPacketHandler.init();
+        PVZCriteriaTriggers.init();
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
@@ -159,6 +163,7 @@ public class PVZMod
     public void onServerStarting(ServerStartingEvent event)
     {
         PVZBiomes.checkFeatures();
+        PVZWorldEvents.serverBootstrap();
     }
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -175,6 +180,7 @@ public class PVZMod
                 PVZMenus.registerScreens();
             });
             PVZItems.registerProperties();
+            PVZKeyBindings.init();
 
             //clear variables
             PVZParticles.particleMap.clear();
@@ -215,10 +221,11 @@ public class PVZMod
             PVZEntityCapability.tick(ev);
             PVZFogCapability.tick(ev);
             PVZZombieEventCapability.tick(ev);
+            PVZWorldEvents.tick(ev);
             //scoreboard tick
             PVZSavedData.tick();
             //server stress releasing
-            ServerStressReleaseGoals.averageTickTime = Math.round(ev.getServer().getAverageTickTime());
+            serverAverageTickTime = Math.round(ev.getServer().getAverageTickTime());
         }
     }
 
@@ -239,7 +246,7 @@ public class PVZMod
                 if (EssenceAltarScreen.nameRollTime > 20) {
                     EssenceAltarScreen.nameRollTime -= 20;
                 }
-                PVZFog.clientFogsTick(0.05F);
+                PVZFog.clientTick(0.05F);
             }
             //caps tick
             PVZEntityCapability.clientTick(ev);
@@ -250,8 +257,8 @@ public class PVZMod
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent ev) {
         CommandDispatcher<CommandSourceStack> dispatcher = ev.getDispatcher();
-        CoolDownCommand.register(dispatcher, ev.getBuildContext());
-        InvasionCommand.register(dispatcher);
+        ItemCoolDownCommand.register(dispatcher, ev.getBuildContext());
+        ZombieEventCommands.register(dispatcher);
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);
         PVZFogCommand.register(dispatcher);

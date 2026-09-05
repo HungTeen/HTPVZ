@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.entity.creatures;
 
 import com.hungteen.pvz.common.register.PVZBlocks;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -50,9 +51,8 @@ import java.util.Optional;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
-import static net.minecraft.world.level.biome.Biomes.LUSH_CAVES;
 
-public class GrassCarp extends AbstractFish implements IForgeShearable {
+public class GrassCarp extends AbstractFish implements Shearable, IForgeShearable {
 
     private static final EntityDataAccessor<Boolean> BALD = SynchedEntityData.defineId(GrassCarp.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> FROM_BUCKET = SynchedEntityData.defineId(GrassCarp.class, EntityDataSerializers.BOOLEAN);
@@ -82,7 +82,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     }
 
     public static boolean checkGrassCarpSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
-        return level.getBiome(pos).is(LUSH_CAVES) && level.getBlockState(pos.below()).is(Blocks.CLAY) && level.getBlockState(pos.above()).is(Blocks.AIR);
+        return level.getBlockState(pos.below()).is(Blocks.CLAY) && level.getBlockState(pos.above()).is(Blocks.AIR);
     }
 
     @Override
@@ -248,7 +248,7 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     @NotNull
     @Override
     public List<ItemStack> onSheared(@Nullable Player player, @NotNull ItemStack item, Level level, BlockPos pos, int fortune) {
-        level.playSound(null, this, SoundEvents.SHEEP_SHEAR, player == null ? SoundSource.BLOCKS : SoundSource.PLAYERS, 1.0F, 1.0F);
+        level.playSound(null, this, PVZSoundEvents.GRASS_CARP_SHEAR.get(), player == null ? SoundSource.NEUTRAL : SoundSource.PLAYERS, 1.0F, 1.0F);
         this.gameEvent(GameEvent.SHEAR, player);
         if (!level.isClientSide) {
             this.setBald(true);
@@ -256,6 +256,22 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
             return List.of(Items.KELP.getDefaultInstance());
         }
         return java.util.Collections.emptyList();
+    }
+
+    @Override
+    public void shear(SoundSource p_21749_) {
+        level.playSound(null, this, PVZSoundEvents.GRASS_CARP_SHEAR.get(), p_21749_, 1.0F, 1.0F);
+        this.gameEvent(GameEvent.SHEAR, this);
+        if (!level.isClientSide) {
+            this.setBald(true);
+            this.growHairTick = 400 + this.random.nextInt(600);
+            this.level.addFreshEntity(new ItemEntity(this.level, this.getX(), this.getY(1.0D), this.getZ(), Items.KELP.getDefaultInstance()));
+        }
+    }
+
+    @Override
+    public boolean readyForShearing() {
+        return this.isShearable(null, null, null);
     }
 
     public boolean isBald() {
@@ -346,39 +362,39 @@ public class GrassCarp extends AbstractFish implements IForgeShearable {
     @Override
     public SoundEvent getPickupSound() {
         //TODO sounds has not changed.
-        return SoundEvents.BUCKET_FILL_AXOLOTL;
+        return SoundEvents.BUCKET_FILL;
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource p_149161_) {
-        return SoundEvents.AXOLOTL_HURT;
+        return PVZSoundEvents.GRASS_CARP_HURT.get();
     }
 
     @Override
     @javax.annotation.Nullable
     protected SoundEvent getDeathSound() {
-        return SoundEvents.AXOLOTL_DEATH;
+        return PVZSoundEvents.GRASS_CARP_DEATH.get();
     }
 
     @Override
     @javax.annotation.Nullable
     protected SoundEvent getAmbientSound() {
-        return this.isInWater() ? SoundEvents.AXOLOTL_IDLE_WATER : SoundEvents.AXOLOTL_IDLE_AIR;
+        return this.isInWater() ? PVZSoundEvents.GRASS_CARP_IDLE_WATER.get() : PVZSoundEvents.GRASS_CARP_IDLE_AIR.get();
     }
 
     @Override
     protected SoundEvent getSwimSplashSound() {
-        return SoundEvents.AXOLOTL_SPLASH;
+        return PVZSoundEvents.GRASS_CARP_SPLASH.get();
     }
 
     @Override
     protected SoundEvent getFlopSound() {
-        return SoundEvents.COD_FLOP;
+        return PVZSoundEvents.GRASS_CARP_FLOP.get();
     }
 
     @Override
     protected SoundEvent getSwimSound() {
-        return SoundEvents.AXOLOTL_SWIM;
+        return PVZSoundEvents.GRASS_CARP_SWIM.get();
     }
 
     class CollectItemsGoal extends Goal {

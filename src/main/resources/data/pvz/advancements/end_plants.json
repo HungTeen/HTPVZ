@@ -1,0 +1,34 @@
+{
+  "parent": "pvz:chorus_fruit_seed_packet",
+  "display": {
+    "frame": "challenge",
+    "title": {
+      "translate": "advancements.pvz.end_plants.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.end_plants.description"
+    },
+    "icon": {
+      "item": "pvz:chorus_fruit_seed_packet"
+      }
+    },
+  "criteria": {
+    "has_item": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:gatling_pea_seed_packet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_item"
+    ]
+  ]
+}

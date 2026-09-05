@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.11.1
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.HypnoShroomAnimation;
+import com.hungteen.pvz.client.model.plants.animation.HypnoShroomModelAnimation;
 import com.hungteen.pvz.common.entity.plants.HypnoShroom;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -61,8 +61,8 @@ public class HypnoShroomModel<T extends HypnoShroom> extends HierarchicalModel<T
 	@Override
 	public void setupAnim(HypnoShroom hypnoShroom, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(hypnoShroom.idleAnimationState, HypnoShroomAnimation.idle, ageInTicks);
-		this.animate(hypnoShroom.sleepAnimationState, HypnoShroomAnimation.sleep, ageInTicks);
+		this.animate(hypnoShroom.idleAnimationState, HypnoShroomModelAnimation.idle, ageInTicks);
+		this.animate(hypnoShroom.sleepAnimationState, HypnoShroomModelAnimation.sleep, ageInTicks);
 	}
 
 	@Override

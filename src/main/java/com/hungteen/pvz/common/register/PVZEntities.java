@@ -2,28 +2,24 @@ package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.MooBloomModel;
+import com.hungteen.pvz.client.model.PennyModel;
+import com.hungteen.pvz.client.model.SnailModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.model.zombie.*;
 import com.hungteen.pvz.client.renderer.EntityLifterRenderer;
-import com.hungteen.pvz.client.renderer.ModelPartRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.bullet.*;
-import com.hungteen.pvz.client.renderer.creatures.AngerRenderer;
-import com.hungteen.pvz.client.renderer.creatures.GrassCarpRenderer;
-import com.hungteen.pvz.client.renderer.creatures.LavaGhastlingRenderer;
-import com.hungteen.pvz.client.renderer.creatures.SproutRenderer;
+import com.hungteen.pvz.client.renderer.creatures.*;
 import com.hungteen.pvz.client.renderer.misc.FallenStarRenderer;
 import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
 import com.hungteen.pvz.client.renderer.misc.SunRenderer;
 import com.hungteen.pvz.client.renderer.plants.*;
-import com.hungteen.pvz.client.renderer.zombie.*;
+import com.hungteen.pvz.client.renderer.zombies.*;
 import com.hungteen.pvz.common.entity.*;
 import com.hungteen.pvz.common.entity.bullet.*;
-import com.hungteen.pvz.common.entity.creatures.Anger;
-import com.hungteen.pvz.common.entity.creatures.GrassCarp;
-import com.hungteen.pvz.common.entity.creatures.MooBloom;
-import com.hungteen.pvz.common.entity.creatures.Sprout;
+import com.hungteen.pvz.common.entity.creatures.*;
+import com.hungteen.pvz.common.entity.npcs.Penny;
 import com.hungteen.pvz.common.entity.plants.*;
 import com.hungteen.pvz.common.entity.zombies.*;
 import com.hungteen.pvz.common.entity.zombies.zombotany.*;
@@ -35,6 +31,7 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.ShulkerRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
@@ -56,6 +53,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.antlr.v4.runtime.misc.Triple;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -73,18 +71,23 @@ public class PVZEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, PVZMod.MODID);
     public static final PVZEntities reflector = new PVZEntities();
     //client
-    public static Map<EntityType<? extends Entity>, List</*0:model, 1:layerDefinition, 2:shadowSize*/?>> simpleRenderedMap = new HashMap<>();
-    public static Map<EntityType<? extends Entity>, Function<Mob, ResourceLocation>> simpleTextureLocationMap = new HashMap<>();
+    public static Map<EntityType<? extends Mob>,
+            Triple<Function<ModelPart, ? extends EntityModel<? extends Mob>>, Supplier<LayerDefinition>, Float>> simpleRenderedMap
+            = new HashMap<>();
+    public static Map<EntityType<? extends Mob>, Function<Mob, ResourceLocation>> simpleTextureLocationMap = new HashMap<>();
     //collision
     private static Pair<Float, Float> storedCollision = Pair.of(0.6F, 1.95F);
+    //update & client track
+    private static int storedInterval = 3;
+    private static int storedTrackingRange = 8;
     //spawn egg
     private static Pair<Integer, Integer> storedSpawnEgg = null;
     @Deprecated // will be cleared after register.
     public static Map<RegistryObject, Pair<Integer, Integer>> spawnEggMap = new HashMap<>();
     //spawn placements
-    private static List</*0:SpawnPlacements.type, 1:HeightMap.types, 2:checkSpawnRulesMethod*/?> storedSpawnPlacement = null;
+    private static Triple<Type, Types, SpawnPredicate> storedSpawnPlacement = null;
     @Deprecated // will be cleared after register.
-    public static Map<RegistryObject, List</*0:SpawnPlacements.type, 1:HeightMap.types, 2:checkSpawnRulesMethod*/?>> spawnPlacementMap = new HashMap<>();
+    public static Map<RegistryObject, Triple<Type, Types, SpawnPredicate>> spawnPlacementMap = new HashMap<>();
     //attributes
     private static Supplier<AttributeSupplier.Builder> storedAttribute = null;
     public static Map<RegistryObject, Supplier<AttributeSupplier.Builder>> attributesMap = new HashMap<>();
@@ -92,7 +95,8 @@ public class PVZEntities {
     private static List<TagKey<EntityType<?>>> storedTags = null;
     @Deprecated // will be cleared after register.
     public static Map<RegistryObject, List<TagKey<EntityType<?>>>> tagMap = new HashMap<>();
-    //no summon
+    //save & summon
+    public static boolean storedCanSave = true;
     public static boolean storedCanSummon = true;
     //fire immuine
     public static boolean storedFireImmuine = false;
@@ -112,15 +116,23 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<GrassCarp>> GRASSCARP = summonRule(Type.IN_WATER, Types.MOTION_BLOCKING_NO_LEAVES, GrassCarp::checkGrassCarpSpawnRules)
             .spawnEgg(0x708849, 0xd4d78a).attribute(GrassCarp::createAttributes)
             .collision(0.4F, 0.4F).entity("grass_carp", GrassCarp::new, MobCategory.AXOLOTLS);
+    public static final RegistryObject<EntityType<Snail>> SNAIL = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Snail::checkSnailSpawnRules)
+            .spawnEgg(0xa56f4a, 0xdad9b3).attribute(Snail::createAttributes)
+            .collision(0.75F, 0.75F).entity("snail", Snail::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<Snail>> WALL_NAIL = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Snail::checkSnailSpawnRules)
+            .spawnEgg(0xcda65d, 0xdad9b3).attribute(Snail::createAttributes)
+            .collision(0.75F, 0.75F).entity("wallnail", Snail::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<Snail>> FUNGICICOLIDAE = summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Snail::checkSnailSpawnRules)
+            .spawnEgg(0xaa9395, 0xe5d3b5).attribute(Snail::createAttributes)
+            .collision(0.75F, 0.75F).entity("fungicicolidae", Snail::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Anger>> ANGER = spawnEgg(0xff2f3b, 0xfff45b).attribute(Anger::createAttributes)
             .collision(0.4F, 0.4F).entity("anger", Anger::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F)
             .entity("sprout", Sprout::new, MobCategory.CREATURE);
-    public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
-
-    //client
-    public static final RegistryObject<EntityType<ModelPartEntity>> MODEL_PART = collision(0.2F, 0.2F).noSummon()
-            .entity("model_part", ModelPartEntity::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<Penny>> PENNY = spawnEgg(0x737b85, 0xe24220).attribute(Penny::createAttributes)
+            .collision(3f, 3f).entity("penny", Penny::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).noSummon()
+            .entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
 
     //plants
     public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes).tag(PVZEntityTags.PLANT)
@@ -128,27 +140,27 @@ public class PVZEntities {
             .collision(0.8F, 1F).entity("wall_nut", WallNut::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = attribute(SunFlower::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SunFlower::checkSpawnRules)
-            .collision(0.75F, 1.1F).entity("sun_flower", SunFlower::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.65F, 1.1F).entity("sun_flower", SunFlower::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<MariGold>> MARIGOLD = attribute(MariGold::createAttributes).tag(PVZEntityTags.PLANT)
-            .collision(0.75F, 1.0F).entity("marigold", MariGold::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.65F, 1.0F).entity("marigold", MariGold::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<TallNut>> TALL_NUT = attribute(TallNut::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TallNut::checkSpawnRules)
             .collision(1F, 1.9F).entity("tall_nut", TallNut::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = attribute(PeaShooter::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PeaShooter::checkSpawnRules)
-            .collision(0.7F, 1.3F).entity("pea_shooter", PeaShooter::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.65F, 1.3F).entity("pea_shooter", PeaShooter::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<SplitPea>> SPLIT_PEA = attribute(SplitPea::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SplitPea::checkSpawnRules)
-            .collision(0.7F, 1.3F).entity("split_pea", SplitPea::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.65F, 1.3F).entity("split_pea", SplitPea::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Repeater>> REPEATER = attribute(Repeater::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Repeater::checkSpawnRules)
-            .collision(0.7F, 1.3F).entity("repeater", Repeater::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.65F, 1.3F).entity("repeater", Repeater::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<GatlingPea>> GATLING_PEA = attribute(GatlingPea::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, GatlingPea::checkSpawnRules)
-            .collision(0.7F, 1.3F).entity("gatling_pea", GatlingPea::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.65F, 1.3F).entity("gatling_pea", GatlingPea::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<SnowPea>> SNOW_PEA = attribute(SnowPea::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SnowPea::checkSpawnRules)
-            .collision(0.7F, 1.3F).entity("snow_pea", SnowPea::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.65F, 1.3F).entity("snow_pea", SnowPea::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<TangleKelp>> TANGLE_KELP = attribute(TangleKelp::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TangleKelp::checkSpawnRules)
             .collision(0.6F, 0.5F).entity("tangle_kelp", TangleKelp::new, OtherRegisters.PVZPlantMobCategory);
@@ -169,10 +181,10 @@ public class PVZEntities {
             .collision(0.8F, 2F).entity("plantern", Plantern::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<CabbagePult>> CABBAGE_PULT = attribute(CabbagePult::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, CabbagePult::checkSpawnRules)
-            .collision(0.7F, 1F).entity("cabbage_pult", CabbagePult::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.5F, 0.625F).entity("cabbage_pult", CabbagePult::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<MelonPult>> MELON_PULT = attribute(MelonPult::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, MelonPult::checkSpawnRules)
-            .collision(0.9F, 1F).entity("melon_pult", MelonPult::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.8F, 0.75F).entity("melon_pult", MelonPult::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<UmbrellaLeaf>> UMBRELLA_LEAF = attribute(UmbrellaLeaf::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, UmbrellaLeaf::checkSpawnRules)
             .collision(0.8F, 0.8F).entity("umbrella_leaf", UmbrellaLeaf::new, OtherRegisters.PVZPlantMobCategory);
@@ -190,7 +202,7 @@ public class PVZEntities {
             .collision(0.6F, 0.6F).entity("gold_bloom", GoldBloom::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<SpikeWeed>> SPIKE_WEED = attribute(SpikeWeed::createAttributes).tag(PVZEntityTags.PLANT, PVZEntityTags.MUST_PLANT_IN_DIRT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SpikeWeed::checkSpawnRules)
-            .collision(0.95F, 0.125F).entity("spike_weed", SpikeWeed::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.95F, 0.15F).entity("spike_weed", SpikeWeed::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<TorchWood>> TORCH_WOOD = attribute(TorchWood::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, TorchWood::checkSpawnRules)
             .collision(0.95F, 0.65F).entity("torch_wood", TorchWood::new, OtherRegisters.PVZPlantMobCategory);
@@ -199,13 +211,13 @@ public class PVZEntities {
             .collision(0.5F, 0.5825F).entity("veloci_radish", VelociRadish::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<KernelPult>> KERNEL_PULT = attribute(KernelPult::createAttributes).tag(PVZEntityTags.PLANT, PVZEntityTags.BUTTER_INVULNERABLE)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, KernelPult::checkSpawnRules)
-            .collision(0.6F, 1F).entity("kernel_pult", KernelPult::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.6F, 0.8F).entity("kernel_pult", KernelPult::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Chomper>> CHOMPER = attribute(Chomper::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Chomper::checkSpawnRules)
             .collision(1.2F, 1.8F).entity("chomper", Chomper::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<HypnoShroom>> HYPNO_SHROOM = attribute(HypnoShroom::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, HypnoShroom::checkSpawnRules)
-            .collision(0.8F, 1F).entity("hypno_shroom", HypnoShroom::new, OtherRegisters.PVZPlantMobCategory);
+            .collision(0.7F, 1F).entity("hypno_shroom", HypnoShroom::new, OtherRegisters.PVZPlantMobCategory);
     public static final RegistryObject<EntityType<Dandelion>> DANDELION = attribute(Dandelion::createAttributes).tag(PVZEntityTags.PLANT)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, Dandelion::checkSpawnRules)
             .collision(0.7F, 1.3F).entity("dandelion", Dandelion::new, OtherRegisters.PVZPlantMobCategory);
@@ -223,7 +235,7 @@ public class PVZEntities {
             .spawnEgg(0xffe300, 0xa03232)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SnorkelZombie::checkSpawnRules)
             .entity("snorkel_zombie", SnorkelZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<JackInABoxZombie>> JACK_IN_A_BOX_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
+    public static final RegistryObject<EntityType<JackInABoxZombie>> JACK_IN_A_BOX_ZOMBIE = attribute(JackInABoxZombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
             .spawnEgg(0xddd4d4, 0xcc4646)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .entity("jack_in_a_box_zombie", JackInABoxZombie::new, MobCategory.MONSTER);
@@ -262,46 +274,77 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<PeaShooterZombie>> PEA_SHOOTER_ZOMBIE = attribute(PeaShooterZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0x90b030)
             .entity("pea_shooter_zombie", PeaShooterZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<SnowPeaZombie>> SNOW_PEA_ZOMBIE = attribute(PeaShooterZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+    public static final RegistryObject<EntityType<SnowPeaZombie>> SNOW_PEA_ZOMBIE = attribute(SnowPeaZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0x4bcecf)
             .entity("snow_pea_zombie", SnowPeaZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<JalapenoZombie>> JALAPENO_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
+    public static final RegistryObject<EntityType<JalapenoZombie>> JALAPENO_ZOMBIE = attribute(JalapenoZombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
             .spawnEgg(0x799587, 0xff472a)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .fireImmuine()
             .entity("jalapeno_zombie", JalapenoZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<GatlingPeaZombie>> GATLING_PEA_ZOMBIE = attribute(Zombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+    public static final RegistryObject<EntityType<GatlingPeaZombie>> GATLING_PEA_ZOMBIE = attribute(GatlingPeaZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0x475d67)
             .entity("gatling_pea_zombie", GatlingPeaZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<WallNutZombie>> WALL_NUT_ZOMBIE = attribute(WallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0xd4b367)
             .entity("wall_nut_zombie", WallNutZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<TallNutZombie>> TALL_NUT_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
-            .spawnEgg(0x799587, 0xcda65d)
+            .spawnEgg(0x799587, 0xcda65d).collision(0.6F, 2.6F)
             .entity("tall_nut_zombie", TallNutZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<PumpkinZombie>> PUMPKIN_ZOMBIE = attribute(TallNutZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
+    public static final RegistryObject<EntityType<PumpkinZombie>> PUMPKIN_ZOMBIE = attribute(PumpkinZombie::createAttributes).tag(PVZEntityTags.ZOMBIE)
             .spawnEgg(0x799587, 0xdd854c)
             .entity("pumpkin_zombie", PumpkinZombie::new, MobCategory.MONSTER);
 
 
     //bosses
-    public static final RegistryObject<EntityType<GhastRiderBoss>> GHAST_RIDER = attribute(GhastRiderBoss::createAttributes).tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES)
-            .fireImmuine()
-//            .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, FireImp::checkSpawnRules)
+    public static final RegistryObject<EntityType<GhastRiderBoss>> GHAST_RIDER = attribute(GhastRiderBoss::createAttributes)
+            .tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES).fireImmuine()
             .entity("ghast_rider", GhastRiderBoss::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<EnderZomboss>> ENDER_ZOMBOSS = attribute(EnderZomboss::createAttributes)
+            .tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES).fireImmuine()
+            .entity("ender_zomboss", EnderZomboss::new, MobCategory.MONSTER);
+    public static final RegistryObject<EntityType<ChorusTerminatorBoss>> CHORUS_TERMINATOR = attribute(ChorusTerminatorBoss::createAttributes)
+            .tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES)
+            .collision(7F, 6F)
+            .entity("chorus_terminator", ChorusTerminatorBoss::new, MobCategory.MONSTER);
 
     //bullets
-    public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F).entity("pea", PeaBullet::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<StarfruitBullet>> STARFRUIT_BULLET = collision(0.6F, 0.2F).entity("starfruit_bullet", StarfruitBullet::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<CabbageBullet>> CABBAGE = collision(0.4F, 0.4F).entity("cabbage", CabbageBullet::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<CornBullet>> CORN = collision(0.25F, 0.25F).entity("corn", CornBullet::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<ButterBullet>> BUTTER = collision(0.5F, 0.5F).entity("butter", ButterBullet::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<MelonBullet>> MELON = collision(0.8F, 0.8F).entity("melon", MelonBullet::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<DandelionSeedBullet>> DANDELION_SEED = collision(0.4F, 0.4F).entity("dandelion_seed", DandelionSeedBullet::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<SeedArrow>> SEED_ARROW = collision(0.2F, 0.2F).tag(EntityTypeTags.ARROWS).entity("seed_arrow", SeedArrow::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<ArrowWithATarget>> ARROW_WITH_A_TARGET = collision(0.2F, 0.2F).tag(EntityTypeTags.ARROWS).entity("arrow_with_a_target", ArrowWithATarget::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<Hook>> HOOK = collision(0.2F, 0.2F).entity("hook", Hook::new, MobCategory.MISC);
-    public static final RegistryObject<EntityType<ThrownFogInBottle>> FOG_IN_BOTTLE = collision(0.25F, 0.25F).entity("fog_in_bottle", ThrownFogInBottle::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<PeaBullet>> PEA = collision(0.4F, 0.4F)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
+            .entity("pea", PeaBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<StarfruitBullet>> STARFRUIT_BULLET = collision(0.6F, 0.2F)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
+            .entity("starfruit_bullet", StarfruitBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<CabbageBullet>> CABBAGE = collision(0.4F, 0.4F)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
+            .entity("cabbage", CabbageBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<CornBullet>> CORN = collision(0.25F, 0.25F)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
+            .entity("corn", CornBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<ButterBullet>> BUTTER = collision(0.5F, 0.5F)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
+            .entity("butter", ButterBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<MelonBullet>> MELON = collision(0.8F, 0.8F)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
+            .entity("melon", MelonBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<DandelionSeedBullet>> DANDELION_SEED = collision(0.4F, 0.4F)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
+            .entity("dandelion_seed", DandelionSeedBullet::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<SeedArrow>> SEED_ARROW = collision(0.2F, 0.2F).tag(EntityTypeTags.ARROWS)
+            .trackRange(4).updateInterval(20)
+            .entity("seed_arrow", SeedArrow::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<ArrowWithATarget>> ARROW_WITH_A_TARGET = collision(0.2F, 0.2F).tag(EntityTypeTags.ARROWS)
+            .trackRange(4).updateInterval(20)
+            .entity("arrow_with_a_target", ArrowWithATarget::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<Hook>> HOOK = collision(0.2F, 0.2F)
+            .trackRange(4).updateInterval(20)
+            .entity("hook", Hook::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<ModifiedFireBall>> FIREBALL = collision(0.2F, 0.2F)
+            .trackRange(4).updateInterval(20)
+            .entity("fireball", ModifiedFireBall::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<ThrownFogInBottle>> FOG_IN_BOTTLE = collision(0.25F, 0.25F)
+            .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
+            .entity("fog_in_bottle", ThrownFogInBottle::new, MobCategory.MISC);
 
     //client
     /** For simply rendered entities (accepts only Mob!), auto render at {@link PVZEntities#simpleRenderHandler()}.
@@ -314,17 +357,18 @@ public class PVZEntities {
     @OnlyIn(Dist.CLIENT)
     public static void simpleRenderHandler() {
         rS(MOOBLOOM, MooBloomModel::new, MooBloomModel::createBodyLayer, 0.7F);
-        rS(PEA_SHOOTER, PeaShooterModel::new, PeaShooterModel::createBodyLayer, 0.5F, "textures/entity/plants/pea_shooter/pea_shooter.png");
         rS(STARFRUIT, StarfruitModel::new, StarfruitModel::createBodyLayer, 0.5F, "textures/entity/plants/starfruit/starfruit.png");
         rS(SPLIT_PEA, SplitPeaModel::new, SplitPeaModel::createBodyLayer, 0.5F, "textures/entity/plants/split_pea/split_pea.png");
         rS(REPEATER, RepeaterModel::new, RepeaterModel::createBodyLayer, 0.5F, "textures/entity/plants/repeater/repeater.png");
         rS(CABBAGE_PULT, CabbagePultModel::new, CabbagePultModel::createBodyLayer, 0.5F, "textures/entity/plants/cabbage_pult/cabbage_pult.png");
-        rS(VELOCI_RADISH, VelociTurnipModel::new, VelociTurnipModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
+        rS(VELOCI_RADISH, VelociRadishModel::new, VelociRadishModel::createBodyLayer, 0.5F, "textures/entity/plants/veloci_radish/veloci_radish.png");
         rS(LILY_PAD, LilyPadModel::new, LilyPadModel::createBodyLayer, 0.5F, "textures/entity/plants/lily_pad/lily_pad.png");
         rS(KERNEL_PULT, KernelPultModel::new, KernelPultModel::createBodyLayer, 0.5F, "textures/entity/plants/kernel_pult/kernel_pult.png");
         rS(UMBRELLA_LEAF, UmbrellaLeafModel::new, UmbrellaLeafModel::createBodyLayer, 0.5F, "textures/entity/plants/umbrella_leaf/umbrella_leaf.png");
         rS(MELON_PULT, MelonPultModel::new, MelonPultModel::createBodyLayer, 0.5F, "textures/entity/plants/melon_pult/melon_pult.png");
         rS(ICEBERG_LETTUCE, IcebergLettuceModel::new, IcebergLettuceModel::createBodyLayer, 0F, "textures/entity/plants/iceberg_lettuce/iceberg_lettuce.png");
+        rS(PENNY, PennyModel::new, PennyModel::createBodyLayer, 1.5F);
+        rS(CHORUS_TERMINATOR, ChorusTerminatorModel::new, ChorusTerminatorModel::createBodyLayer, 1F, "textures/entity/zombie/chorus_terminator/chorus_terminator.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -333,6 +377,9 @@ public class PVZEntities {
         r(e, BOAT, (c) -> new PVZBoatRenderer(c, false));
         r(e, CHEST_BOAT, (c) -> new PVZBoatRenderer(c, true));
         r(e, GRASSCARP, GrassCarpRenderer::new);
+        r(e, SNAIL, c -> new SnailRenderer(c, SnailModel.Type.snail));
+        r(e, WALL_NAIL, c -> new SnailRenderer(c, SnailModel.Type.wall_nail));
+        r(e, FUNGICICOLIDAE, c -> new SnailRenderer(c, SnailModel.Type.fungicocilidae));
         r(e, ANGER, AngerRenderer::new);
         r(e, WALL_NUT, WallNutRenderer::new);
         r(e, PUMPKIN, PumpkinRenderer::new);
@@ -347,6 +394,7 @@ public class PVZEntities {
         r(e, TALL_NUT, TallNutRenderer::new);
         r(e, PLANTERN, PlanternRenderer::new);
         r(e, FLOWER_POT, FlowerPotRenderer::new);
+        r(e, PEA_SHOOTER, PeaShooterRenderer::new);
         r(e, GATLING_PEA, GatlingPeaRenderer::new);
         r(e, PEA, PeaBulletRenderer::new);
         r(e, FOG_IN_BOTTLE, ctx -> new ThrownItemRenderer(ctx, 1, false));
@@ -371,14 +419,15 @@ public class PVZEntities {
         r(e, IMP, ImpRenderer::new);
         r(e, FIRE_IMP, FireImpRenderer::new);
         r(e, TACO_IMP, TacoImpRenderer::new);
-        r(e, GHAST_RIDER, GhastRiderRenderer::new);
         r(e, GARGANTUAR, GargantuarRenderer::new);
         r(e, LAVA_GHASTLING, LavaGhastlingRenderer::new);
+        r(e, GHAST_RIDER, GhastRiderRenderer::new);
+        r(e, ENDER_ZOMBOSS, ShulkerRenderer::new);
         r(e, SPROUT, SproutRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);
         r(e, HOOK, HookRenderer::new);
-        r(e, MODEL_PART, ModelPartRenderer::new);
+        r(e, FIREBALL, ctx -> new ThrownItemRenderer<>(ctx, 1.5F, true));
         r(e, ENTITY_LIFTER, EntityLifterRenderer::new);
         r(e, FALLEN_STAR, FallenStarRenderer::new);
         r(e, PEA_SHOOTER_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, PeaShooterZombieModel.class));
@@ -400,9 +449,13 @@ public class PVZEntities {
     private static <T extends Entity> RegistryObject<EntityType<T>> entity(String name, EntityType.EntityFactory<T> factory, MobCategory classification) {
         float coh = storedCollision.getFirst();
         float cov = storedCollision.getSecond();
-        EntityType.Builder<T> builder = EntityType.Builder.of(factory, classification).sized(coh, cov);
+        EntityType.Builder<T> builder = EntityType.Builder.of(factory, classification).sized(coh, cov)
+                .updateInterval(storedInterval).clientTrackingRange(storedTrackingRange);
         if (! storedCanSummon) {
             builder.noSummon();
+        }
+        if (! storedCanSave) {
+            builder.noSave();
         }
         if (storedFireImmuine) {
             builder.fireImmune();
@@ -412,8 +465,11 @@ public class PVZEntities {
         };
         RegistryObject<EntityType<T>> entity = ENTITIES.register(name, supplier);
         storedCanSummon = true;
+        storedCanSave = true;
         storedFireImmuine = false;
         storedCollision = Pair.of(0.6F, 1.95F);
+        storedInterval = 3;
+        storedTrackingRange = 8;
         //spawn egg
         if (storedSpawnEgg != null) {
             spawnEggMap.put(entity, storedSpawnEgg);
@@ -438,8 +494,16 @@ public class PVZEntities {
         return entity;
     }
 
-    private static PVZEntities collision(Float width, Float height) {
+    private static PVZEntities collision(float width, float height) {
         storedCollision = Pair.of(width, height);
+        return reflector;
+    }
+    private static PVZEntities updateInterval(int interval) {
+        storedInterval = interval;
+        return reflector;
+    }
+    private static PVZEntities trackRange(int range) {
+        storedTrackingRange = range;
         return reflector;
     }
     private static PVZEntities tag(TagKey<EntityType<?>>... tags){
@@ -456,12 +520,16 @@ public class PVZEntities {
     }
 
     private static PVZEntities summonRule(Type type, Types types, SpawnPredicate predicate) {
-        storedSpawnPlacement = List.of(type, types, predicate);
+        storedSpawnPlacement = new Triple<>(type, types, predicate);
         return reflector;
     }
 
     private static PVZEntities noSummon() {
         storedCanSummon = false;
+        return reflector;
+    }
+    private static PVZEntities noSave() {
+        storedCanSave = false;
         return reflector;
     }
 
@@ -491,7 +559,7 @@ public class PVZEntities {
 
     @OnlyIn(Dist.CLIENT)
     public static <T extends Mob> void rS(RegistryObject<EntityType<T>> entity, Function<ModelPart, EntityModel<T>> model, Supplier<LayerDefinition> layer, float shadowSize, Function<T, ResourceLocation> textureDirectory) {
-        simpleRenderedMap.put(entity.get(), List.of(model, layer, shadowSize));
+        simpleRenderedMap.put(entity.get(), new Triple<>(model, layer, shadowSize));
         simpleTextureLocationMap.put(entity.get(), (Function<Mob, ResourceLocation>) textureDirectory);
     }
 
@@ -507,9 +575,8 @@ public class PVZEntities {
 
     @SubscribeEvent
     public static void addSummonRules(SpawnPlacementRegisterEvent e) {
-        spawnPlacementMap.forEach((obj, list) ->
-                e.register((EntityType<? extends Entity>) obj.get(), (Type) list.get(0),
-                        (Types) list.get(1), (SpawnPredicate) list.get(2),
+        spawnPlacementMap.forEach((obj, triple) ->
+                e.register((EntityType<? extends Entity>) obj.get(), triple.a, triple.b, triple.c,
                         SpawnPlacementRegisterEvent.Operation.OR
                 )
         );

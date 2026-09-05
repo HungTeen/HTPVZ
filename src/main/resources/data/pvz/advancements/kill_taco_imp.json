@@ -1,0 +1,36 @@
+{
+  "parent": "pvz:invasion",
+  "display": {
+    "frame": "goal",
+    "title": {
+      "translate": "advancements.pvz.kill_taco_imp.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.kill_taco_imp.description"
+    },
+    "icon": {
+      "item": "pvz:golden_taco"
+    }
+  },
+  "criteria": {
+    "kill_taco_imp": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "pvz:taco_imp"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:player_killed_entity"
+    }
+  },
+  "requirements": [
+    [
+      "kill_taco_imp"
+    ]
+  ]
+}

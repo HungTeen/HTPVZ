@@ -1,12 +1,13 @@
 package com.hungteen.pvz.common.entity.bullet;
 
-import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZParticles;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -67,9 +68,16 @@ public class DandelionSeedBullet extends BaseBullet {
     }
     @Override
     protected void onHitEntity(EntityHitResult result) {
+        super.onHitEntity(result);
         if (!this.level.isClientSide()) {
             explode(result.getEntity().position());
         }
+        explode(result.getEntity().position());
+    }
+
+    @Override
+    public SoundEvent getHitSound() {
+        return PVZSoundEvents.DANDELION_HIT.get();
     }
     @Override
     protected void onHitBlock(BlockHitResult result) {
@@ -80,16 +88,14 @@ public class DandelionSeedBullet extends BaseBullet {
         explode(this.position());
     }
     protected DamageSource getDamageSource(Entity target) {
-        return transferKiller(
-                knockBack(ignoreInvTime(teamFilter(multiply(
-                        PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()).setExplosion().damageHelmet(), 0.5F))), 0F)
-                , PVZEntityCapability.getOwner(this));
+        return knockBack(ignoreInvTime(teamFilter(
+                        PVZDamageSource.projectileDamageSource(getDamageName(), this, getOwner()).setExplosion().damageHelmet())), 0F);
     }
     public void explode(Vec3 pos) {
         this.level.gameEvent(this, GameEvent.EXPLODE, pos);
         AreaEffectCloud areaeffectcloud = new AreaEffectCloud(this.level, pos.x, pos.y, pos.z);
-        areaeffectcloud.setRadius(1.5F);
-        areaeffectcloud.setDuration(60);
+        areaeffectcloud.setRadius(2.5F);
+        areaeffectcloud.setDuration(120);
         areaeffectcloud.setWaitTime(0);
         areaeffectcloud.setOwner(EntityUtil.isEntityValid(this.getOwner()) && this.getOwner() instanceof LivingEntity living ? living : null);
         Explosion tmpExplosion = new Explosion(this.level, this, pos.x, pos.y, pos.z, 1.5F);
@@ -116,7 +122,7 @@ public class DandelionSeedBullet extends BaseBullet {
                         double d14 = Explosion.getSeenPercent(pos, entity);
                         double d10 = (1 - d12) * d14;
                         entity.hurt(this.getDamageSource(entity), (float) ((int) ((d10 * d10 + d10) / 2.0D * 7.0D * (double) scale + 1.0D)));
-                        if (! entity.isAlive() && entity instanceof LivingEntity living) {
+                        if (entity instanceof LivingEntity living && living.isDeadOrDying()) {
                             living.getActiveEffects().forEach(instance -> {
                                 if (! instances.containsKey(instance.getEffect())) {
                                     instances.put(instance.getEffect(), instance);

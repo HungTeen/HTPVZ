@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanAttack;
@@ -8,12 +9,14 @@ import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import com.mojang.serialization.Dynamic;
@@ -22,7 +25,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -42,9 +48,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.ai.navigation.WallClimberNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
@@ -62,15 +67,18 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import static com.hungteen.pvz.common.entity.SimplePlant.tryShovel;
+import static com.hungteen.pvz.common.entity.plants.base.SimplePlant.tryShovel;
 
+@Mod.EventBusSubscriber
 public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanAttack, VibrationListener.VibrationListenerConfig {
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState digAnimationState = new AnimationState();
@@ -91,7 +99,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
 
     public static final String SUN_SKILL_NAME = "skill.pvz.chomper.energy_transduction";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SUN_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 50, 300)
+            new Skill(SUN_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 8, 50, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM)
     );
     Vec3 storedPosition;
     private BlockPos originalPos;
@@ -120,14 +128,53 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         return 150;
     }
 
-    protected BlockPos getOriginalPos() {
+    public BlockPos getRootBlockPos() {
         return originalPos;
     }
-    protected void setOriginalPos(BlockPos pos) {
+    protected void setRootBlockPos(BlockPos pos) {
         this.originalPos = pos;
     }
-    public BlockPos getRootBlockPos() {
-        return this.getOriginalPos();
+    public BlockPos findNearbyRootablePos() {
+        if (isPositionSafe(null, level, blockPosition().below(), Direction.UP, false) == null) {
+            return blockPosition().below();
+        }
+        BlockPos blockPos;
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                blockPos = blockPosition().offset(x, 0, z);
+                if (isPositionSafe(null, level, blockPosition().offset(x, 0, z), Direction.UP, false) == null) {
+                    return blockPos.below();
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, 1, z), Direction.UP, false) == null) {
+                    return blockPos;
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, 2, z), Direction.UP, false) == null) {
+                    return blockPos.above();
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, -1, z), Direction.UP, false) == null) {
+                    return blockPos.below().below();
+                }
+            }
+        }
+        for (int x = -2; x <= 2; x++) {
+            for (int z = -2; z <= 2; z++) {
+                if (Math.abs(x) < 2 && Math.abs(z) < 2) continue;
+                blockPos = blockPosition().offset(x, 0, z);
+                if (isPositionSafe(null, level, blockPosition().offset(x, 0, z), Direction.UP, false) == null) {
+                    return blockPos.below();
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, -1, z), Direction.UP, false) == null) {
+                    return blockPos.below().below();
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, 1, z), Direction.UP, false) == null) {
+                    return blockPos;
+                }
+                if (isPositionSafe(null, level, blockPosition().offset(x, 2, z), Direction.UP, false) == null) {
+                    return blockPos.above();
+                }
+            }
+        }
+        return blockPosition().below();
     }
 
     //entity settings
@@ -135,7 +182,9 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         return SimplePlant.createAttributes()
                 .add(Attributes.MAX_HEALTH, 40D)
                 .add(Attributes.MOVEMENT_SPEED, 0D)
-                .add(Attributes.FOLLOW_RANGE, 24D);
+                .add(Attributes.ATTACK_DAMAGE, 40D)
+                .add(ForgeMod.ATTACK_RANGE.get(), 4D)
+                .add(Attributes.FOLLOW_RANGE, 32D);
     }
     public static boolean checkSpawnRules(EntityType<? extends LivingEntity> entityType, ServerLevelAccessor level, MobSpawnType mobSpawnType, BlockPos pos, RandomSource random) {
         return true;
@@ -175,39 +224,43 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         animTick ++;
         //check plant situation damage.
         firstUnsafeSituationMercy = SimplePlant.testPlantSafe(this, firstUnsafeSituationMercy);
+        SimplePlant.testDisappear(this);
         //TODO relative codes. add particle when plant is dying.
     }
 
     @Override
     public void tick() {
         if (this.getPose() == Pose.SWIMMING) {
-            EntityUtil.addModifierToAttribute(this, Attributes.MOVEMENT_SPEED, new AttributeModifier(SPEED_MODIFIER_UUID, "pose_addon", 0.6, AttributeModifier.Operation.ADDITION));
+            EntityUtil.addModifierToAttribute(this, Attributes.MOVEMENT_SPEED, new AttributeModifier(SPEED_MODIFIER_UUID, "pose_addon", 0.4, AttributeModifier.Operation.ADDITION));
         } else {
             EntityUtil.removeModifierFromAttribute(this, Attributes.MOVEMENT_SPEED, SPEED_MODIFIER_UUID);
         }
+
         if (this.storedPosition == null) {
             this.storedPosition = this.position();
-            this.setOriginalPos(new BlockPos((int) (storedPosition.x > 0 ? storedPosition.x : storedPosition.x - 1),
+            this.setRootBlockPos(new BlockPos((int) (storedPosition.x > 0 ? storedPosition.x : storedPosition.x - 1),
                     (int) storedPosition.y - 1,
                     (int) (storedPosition.z > 0 ? storedPosition.z : storedPosition.z - 1)));
         }
-        if (this.getPose() == Pose.SWIMMING && ((this.position().distanceTo(this.storedPosition) < 0.1 && this.tickCount % 10 == 0) || super.isInWall())) {
-            this.noPhysics = true;
-            this.setNoGravity(true);
-            if (level.getBlockState(this.blockPosition()).isSuffocating(level, this.blockPosition())) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0, 0.05, 0));
-            }
-            super.tick();
-            this.setNoGravity(false);
-            this.noPhysics = false;
+        if (this.getPose() == Pose.SWIMMING && ((this.position().distanceTo(this.storedPosition) < 0.1 && this.tickCount % 10 == 0))) {
             this.storedPosition = this.position();
-        } else {
-            super.tick();
         }
-        if (level instanceof ServerLevel serverlevel) {
+
+        super.tick();
+        if (level instanceof ServerLevel serverlevel && this.isEffectiveAi()) {
             this.dynamicGameEventListener.getListener().tick(serverlevel);
             if (getTarget() != null) {
                 this.setYBodyRot(this.getYRot());
+            }
+            if (this.getPose() == Pose.SWIMMING && this.getDeltaMovement().y < 0.25) {
+                AABB aabb = this.getBoundingBox().inflate(0.2, 0, 0.2);
+                if (BlockPos.betweenClosedStream(aabb).anyMatch((pos1) -> {
+                    BlockState blockstate = this.level.getBlockState(pos1);
+                    return !blockstate.isAir() && blockstate.isSuffocating(this.level, pos1) &&
+                            Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, pos1).move(pos1.getX(), pos1.getY(), pos1.getZ()), Shapes.create(aabb), BooleanOp.AND);
+                })) {
+                    this.setDeltaMovement(this.getDeltaMovement().add(0, 0.12, 0));
+                }
             }
         }
     }
@@ -298,7 +351,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         saveSkills(tag);
         tag.putInt("PlantAttackTime", getAttackTime());
         tag.putInt("Pose", getEntityData().get(DATA_POSE).ordinal());
-        tag.putLong("OriginalPos", this.getOriginalPos().asLong());
+        tag.putLong("RootPos", this.getRootBlockPos().asLong());
         VibrationListener.codec(this).encodeStart(NbtOps.INSTANCE, this.dynamicGameEventListener.getListener()).resultOrPartial(PVZMod.LOGGER::error).ifPresent((p_219418_) -> {
             tag.put("listener", p_219418_);
         });
@@ -320,8 +373,8 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         if (tag.contains("Pose")) {
             this.getEntityData().set(DATA_POSE, Pose.values()[tag.getInt("Pose")]);
         }
-        if (tag.contains("OriginalPos")) {
-            setOriginalPos(BlockPos.of(tag.getLong("OriginalPos")));
+        if (tag.contains("RootPos")) {
+            setRootBlockPos(BlockPos.of(tag.getLong("RootPos")));
         }
         if (tag.contains("listener")) {
             VibrationListener.codec(this).parse(new Dynamic<>(NbtOps.INSTANCE, tag.getCompound("listener"))).resultOrPartial(PVZMod.LOGGER::error)
@@ -342,10 +395,11 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         if (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() && direction != null) {
             pos = pos.offset(direction.getOpposite().getNormal());
         }
-            //2. when clicked on sides of blocks, plant on relative plants.
+            //2. when clicked on sides of blocks, plant on relative place.
         Vec3i offset = direction == null ? Vec3i.ZERO : direction.getNormal();
-        pos = pos.offset(offset).offset(getGrowDirection() == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
+        boolean isSide = direction != null && direction.getAxis() != Direction.Axis.Y;
         direction = getGrowDirection();
+        pos = pos.offset(offset).offset(direction == null ? Vec3i.ZERO : getGrowDirection().getOpposite().getNormal());
         offset = direction == null ? Vec3i.ZERO : direction.getNormal();
         //now pos is the rooted block position.
         //collision check.
@@ -373,7 +427,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
             if (isPlanting) {
                 this.moveTo(
                         pos.getX() + 0.5 + offset.getX(),
-                        pos.getY() + (direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
+                        pos.getY() + (isSide ? 1 : direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
                                 (level.getFluidState(pos).isEmpty() ? 0: level.getFluidState(pos).getHeight(level, pos)) :
                                 state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
                         pos.getZ() + 0.5 + offset.getZ());
@@ -393,7 +447,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     }
     @Override
     protected PathNavigation createNavigation(Level level) {
-        return new GroundPathNavigation(this, level);
+        return new WallClimberNavigation(this, level);
     }
     @Override
     public Set<TagKey<Block>> getAcceptableTags() {
@@ -404,9 +458,11 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
         return SimplePlant.shouldHaveCoincideDmg(this, level, position);
     }
     //bb and pushing
-    @Override
-    public AABB makeBoundingBox() {
-        return this.getPose() == Pose.SWIMMING ? super.makeBoundingBox().inflate(-0.2,-0.8, -0.2).move(0, -0.8, 0) : super.makeBoundingBox();
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onRefreshDimensions(net.minecraftforge.event.entity.EntityEvent.Size ev) {
+        if (ev.getEntity() instanceof Chomper chomper && chomper.getPose() == Pose.SWIMMING) {
+            ev.setNewSize(ev.getOldSize().scale(0.5F, 0.2F));
+        }
     }
     @Override
     protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
@@ -429,7 +485,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     }
                 }
                 if (j > i - 1) {
-                    this.hurt(DamageSource.CRAMMING, 6.0F);
+                    this.hurt(DamageSource.CRAMMING, 6);
                 }
             }
             for (Entity entity : list) {
@@ -458,7 +514,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     }
     @Override
     public boolean shouldListen(ServerLevel p_223872_, GameEventListener p_223873_, BlockPos p_223874_, GameEvent p_223875_, GameEvent.Context context) {
-        return isSculk(this) && EntityUtil.checkCanEntityBeAttack(this, context.sourceEntity()) && ! (context.sourceEntity() instanceof Slime);
+        return isSculk(this) && EntityUtil.checkCanEntityBeAttack(this, context.sourceEntity());
     }
 
     @Override
@@ -501,7 +557,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
             switch (chomper.getPose()) {
                 case STANDING -> {
                     if (chomper.animTick > 59 && chomper.animTick % 60 <= 1 && EntityUtil.checkCanEntityBeAttack(chomper, this.chomper.getTarget())) {
-                        if (chomper.getTarget().distanceToSqr(chomper) < 16) {
+                        if (chomper.getTarget().distanceToSqr(chomper) < chomper.getAttributeValue(ForgeMod.ATTACK_RANGE.get())) {
                             return true;
                         } else {
                             Path path = chomper.getNavigation().createPath(this.chomper.getTarget(), 0);
@@ -520,6 +576,9 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     if (chomper.getAttackTime() <= 0) {
                         return chomper.animTick > 59 && chomper.animTick % 60 <= 1;
                     } else {
+                        if (chomper.animTick % 20 == 10 || chomper.animTick % 20 == 11) {
+                            chomper.playSound(PVZSoundEvents.CHOMPER_CHEW.get(), 1.0F, 1.0F);
+                        }
                         return false;
                     }
                 }
@@ -541,9 +600,10 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     if (! EntityUtil.isEntityValid(this.chomper.getTarget())) {
                         return;
                     }
-                    if (chomper.getTarget().distanceToSqr(chomper) < 16) {
+                    if (chomper.getTarget().distanceToSqr(chomper) < chomper.getAttributeValue(ForgeMod.ATTACK_RANGE.get())) {
                         chomper.setPose(Pose.SPIN_ATTACK);
                     } else {
+                        chomper.playSound(PVZSoundEvents.CHOMPER_START_BURROW.get(), 1.0F, 1.0F);
                         chomper.setPose(Pose.DIGGING);
                     }
                 }
@@ -553,19 +613,21 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                 case USING_TONGUE, SPIN_ATTACK -> {
                     if (chomper.animTick == (chomper.getPose() == Pose.USING_TONGUE ? 11 : 14)) {
                         LivingEntity target = chomper.getTarget();
+                        chomper.playSound(PVZSoundEvents.CHOMPER_ATTACK.get(), 1.0F, 1.0F);
                         if (EntityUtil.checkCanEntityBeAttack(chomper, target) && !(target.getVehicle() instanceof Chomper) &&
-                                chomper.distanceToSqr(target.position()) <= (chomper.getPose() == Pose.SPIN_ATTACK ? 16 : 6) && ! target.getType().is(Tags.EntityTypes.BOSSES)) {
+                                chomper.distanceToSqr(target.position()) <= ((chomper.getPose() == Pose.SPIN_ATTACK ? 1 : 0.5) * chomper.getAttributeValue(ForgeMod.ATTACK_RANGE.get())) && ! target.getType().is(Tags.EntityTypes.BOSSES)) {
                             target.startRiding(chomper);
-                            target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper, target), 2F), 5F);
-                            if (target.getBbWidth() > 1.25 || target instanceof Slime /*to prevent a vanilla bug*/) {
+                            target.hurt(PVZDamageSource.knockBack(PVZDamageSource.chomperHurt(chomper, target), 2F), (float) (chomper.getAttributeValue(Attributes.ATTACK_DAMAGE) / 8 * PVZAPI.get().getPlantDamageDatum(chomper.level)));
+                            if (target.getBbWidth() > 1.25) {
                                 target.stopRiding();
                             }
                         }
                     } else if (chomper.animTick == 53) {
                         Entity rider = chomper.getFirstPassenger();
+                        chomper.playSound(PVZSoundEvents.CHOMPER_ATTACK_END.get(), 1.0F, 1.0F);
                         if (rider != null) {
                             chomper.setAttackTime(chomper.getAttackCD());
-                            rider.hurt(PVZDamageSource.chomperHurt(chomper, rider).bypassArmor(), 40);
+                            rider.hurt(PVZDamageSource.chomperHurt(chomper, rider).bypassArmor(), (float) (chomper.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(chomper.level)));
                             if (rider.isAlive()) {
                                 rider.stopRiding();
                             } else {
@@ -573,7 +635,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                             }
                         }
                     } else if (chomper.animTick > 79) {
-                        chomper.setPose(chomper.blockPosition().below().equals(chomper.getOriginalPos()) ?
+                        chomper.setPose(chomper.blockPosition().below().equals(chomper.getRootBlockPos()) ?
                                 (chomper.getAttackTime() <= 0 ? Pose.STANDING : Pose.CROUCHING) : Pose.DIGGING);
                         if (chomper.getPose() == Pose.CROUCHING) {
                             chomper.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 350, 3));
@@ -618,26 +680,29 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
                     LivingEntity target = chomper.getTarget();
                     PathNavigation navigation = chomper.getNavigation();
                     if (! EntityUtil.isEntityValid(target) || target.getVehicle() instanceof Chomper || chomper.getAttackTime() != 0) {
-                        BlockPos pos = chomper.getOriginalPos().above();
+                        BlockPos pos = chomper.getRootBlockPos().above();
                         boolean homeSafe = chomper.isPositionSafe(null, chomper.level, pos.below(), Direction.UP, false) == null;
-                        if (chomper.blockPosition().distSqr(pos) < 3 || ! homeSafe) {
+                        if (chomper.blockPosition().distSqr(pos) < 4 || ! homeSafe) {
                             if (! homeSafe) {
-                                chomper.setOriginalPos(this.chomper.blockPosition().below());
+                                chomper.setRootBlockPos(chomper.findNearbyRootablePos());
                             }
+                            chomper.playSound(PVZSoundEvents.CHOMPER_END_BURROW.get(), 1.0F, 1.0F);
                             chomper.setPose(Pose.EMERGING);
-                            navigation.stop();
                             chomper.alignBlocks();
-                            chomper.moveTo(chomper.position().x, chomper.getOriginalPos().getY() + 1, chomper.position().z);
+                            pos = chomper.getRootBlockPos().above();
+                            chomper.moveTo(Vec3.atBottomCenterOf(pos));
+                            navigation.stop();
                             chomper.setDeltaMovement(Vec3.ZERO);
                         } else if (navigation.isDone()) {
-                            navigation.moveTo(navigation.createPath(pos, 0), 1);
-                            if (navigation.getPath() == null ||
-                                    (navigation.getPath().getEndNode() != null && navigation.getPath().getEndNode().asBlockPos().distSqr(chomper.getOriginalPos()) >= 2)) {
-                                chomper.setOriginalPos(this.chomper.blockPosition().below());
+                            Path path = navigation.createPath(pos, 0);
+                            navigation.moveTo(path, 1);
+                            Vec3i vec = chomper.blockPosition().offset(pos.multiply(-1));
+                            if (navigation.isDone() && chomper.tickCount % 50 < 2 && Math.max(Math.max(vec.getX() * vec.getX(), vec.getY() * vec.getY()), vec.getZ() * vec.getZ()) > 9) {
+                                chomper.setRootBlockPos(chomper.findNearbyRootablePos());
                             }
                         }
                     } else if (navigation.isDone()) {
-                        navigation.moveTo(navigation.createPath(target, 0), 1);
+                        navigation.moveTo(target, 1);
                         if (navigation.getPath() == null) {
                             chomper.setTarget(null);
                         }

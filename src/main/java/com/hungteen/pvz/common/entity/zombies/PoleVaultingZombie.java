@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.zombies;
 
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -107,6 +108,7 @@ public class PoleVaultingZombie extends PVZZombie {
             var lookAngle = this.zombie.getViewVector(0).normalize();
             zombie.addEffect(new MobEffectInstance(MobEffects.JUMP, 1, 2));
             zombie.jumpControl.jump();
+            zombie.playSound(PVZSoundEvents.POLE_VAULTING.get());
             zombie.setDeltaMovement(zombie.getDeltaMovement().add(lookAngle));
             //to reset path when landing.
             zombie.getNavigation().timeLastRecompute = this.zombie.level.getGameTime() - 13;

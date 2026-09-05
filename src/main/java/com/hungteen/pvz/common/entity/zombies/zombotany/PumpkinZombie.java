@@ -20,6 +20,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -162,7 +163,7 @@ public class PumpkinZombie extends PVZZombie implements IZombotany, IArmorEntity
         }
         public void tick() {
             List<LivingEntity> passengerAlts = entity.level.getEntitiesOfClass(LivingEntity.class, this.entity.getBoundingBox().inflate(0.5F),
-                    alt -> alt.getBbWidth() < 1 && ! alt.isPassenger() && EntityUtil.isTeammate(alt, entity) && alt != entity);
+                    alt -> alt.getBbWidth() < 1 && ! alt.isPassenger() && ! (alt instanceof Slime) && EntityUtil.isTeammate(alt, entity) && alt != entity);
             if (! passengerAlts.isEmpty()) {
                 passengerAlts.get(0).startRiding(entity);
             }

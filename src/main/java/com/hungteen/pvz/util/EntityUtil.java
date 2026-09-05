@@ -4,6 +4,8 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.CheckReteamableToOwnerEvent;
 import com.hungteen.pvz.api.events.SculkJudgmentEvent;
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
+import com.hungteen.pvz.common.entity.plants.WallNut;
+import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
@@ -20,11 +22,13 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -58,6 +62,20 @@ public class EntityUtil {
         if (attr != null && attr.modifierById.keySet().stream().noneMatch(uuid1 -> uuid1.equals(modifier.getId()))) {
             attr.addTransientModifier(modifier);
         }
+    }
+
+    public static int getExtraArmorHealth(Entity entity) {
+        if (! (entity instanceof LivingEntity entity1)) return 0;
+        int armorHealth = 0;
+        for (ItemStack itemStack : entity1.getArmorSlots()) {
+            if (itemStack.getItem() instanceof ExtraHealthArmorItem) {
+                armorHealth += (itemStack.getMaxDamage() - itemStack.getDamageValue()) / 5;
+            }
+        }
+        if (entity instanceof WallNut wallNut) {
+            armorHealth += (int) wallNut.getIronArmor();
+        }
+        return armorHealth;
     }
 
 
@@ -109,9 +127,28 @@ public class EntityUtil {
     }
 
     //Hating & Teaming
+    public static boolean isEntityEvil(Entity entity) {
+        if (entity instanceof Projectile proj && proj.getOwner() != null) {
+            return isEntityEvil(proj.getOwner());
+        }
+        if (entity == null) {
+            PVZMod.LOGGER.error("entity is found null in evil check!");
+            return false;
+        }
+        return entity.getTeam() == null ? (! entity.getType().is(PVZEntityTags.FRIENDLY))
+                && (entity instanceof Enemy || entity.getType().is(PVZEntityTags.ENEMY) || entity.getType().is(Tags.EntityTypes.BOSSES))
+                : Util.isTeamEvil(entity.level, entity.getTeam());
+    }
     /**Check if entities are teammates. can call on server or client.
      * <br>I you want to check if an entity is attackable, use {@link EntityUtil#checkCanEntityBeAttack(Entity, Entity)}.*/
     public static boolean isTeammate(Entity A, Entity B) {
+        if (A == null || B == null) {
+            PVZMod.LOGGER.error("{} is found null in teammate check!", A == null ? "A" : "B");
+            return false;
+        }
+        if (A == B) return true;
+        if (A instanceof PartEntity<?> p) return isTeammate(p.getParent(), B);
+        if (B instanceof PartEntity<?> p) return isTeammate(A, p.getParent());
         if (A instanceof Projectile proj && proj.getOwner() != null) {
             return isTeammate(proj.getOwner(), B);
         }
@@ -119,10 +156,6 @@ public class EntityUtil {
             return isTeammate(A, proj.getOwner());
         }
         boolean result;
-        if (A == null || B == null) {
-            PVZMod.LOGGER.error((A == null ? "A" : "B") + " is found null in teammate check!");
-            return false;
-        }
 
         Team teamA = A.getTeam();
         Team teamB = B.getTeam();
@@ -148,13 +181,34 @@ public class EntityUtil {
         MinecraftForge.EVENT_BUS.post(event);
         return event.currentResult;
     }
+
+    public static boolean isTeammateIgnoringTeam(Entity A, Entity B) {
+        if (A == null || B == null) {
+            PVZMod.LOGGER.error("{} is found null in teammate check!", A == null ? "A" : "B");
+            return false;
+        }
+        if (A == B) return true;
+        if (A instanceof PartEntity<?> p) return isTeammateIgnoringTeam(p.getParent(), B);
+        if (B instanceof PartEntity<?> p) return isTeammateIgnoringTeam(A, p.getParent());
+        if (A instanceof Projectile proj && proj.getOwner() != null) {
+            return isTeammate(proj.getOwner(), B);
+        }
+        if (B instanceof Projectile proj && proj.getOwner() != null) {
+            return isTeammate(A, proj.getOwner());
+        }
+        boolean AIsEnemy = (! A.getType().is(PVZEntityTags.FRIENDLY)) && (A instanceof Enemy || A.getType().is(PVZEntityTags.ENEMY) || A.getType().is(Tags.EntityTypes.BOSSES));
+        boolean BIsEnemy = (! B.getType().is(PVZEntityTags.FRIENDLY)) && (B instanceof Enemy || B.getType().is(PVZEntityTags.ENEMY) || B.getType().is(Tags.EntityTypes.BOSSES));
+        return AIsEnemy == BIsEnemy;
+    }
+
     /**
      * check can AttackGoal continue to attack target. <b>CAN ONLY</b> call on server.
      */
     public static boolean checkCanEntityBeAttack(Entity attacker, Entity target) {
+        if (target instanceof PartEntity<?> p) return checkCanEntityBeAttack(attacker, p.getParent());
         if (attacker == null || target == null) return false;
-        boolean result = (!(target instanceof Player) || isSurvivalPlayer(target)) && isEntityValid(target) && ! isTeammate(attacker, target);
-        TeammateTestingEvent event = new TeammateTestingEvent(attacker, target, !result, true);
+        boolean result = ((! (target instanceof Player)) || isSurvivalPlayer(target)) && isEntityValid(target) && ! isTeammate(attacker, target);
+        TeammateTestingEvent event = new TeammateTestingEvent(attacker, target, ! result, true);
         MinecraftForge.EVENT_BUS.post(event);
         return ! event.currentResult;
     }
@@ -193,7 +247,7 @@ public class EntityUtil {
      * use to play sound in world.
      */
     public static void playSound(Entity entity, SoundEvent ev) {
-        if(ev != null) {
+        if (ev != null) {
             entity.playSound(ev, 1.0F, random.nextFloat() * 0.2F + 0.9F);
         }
     }

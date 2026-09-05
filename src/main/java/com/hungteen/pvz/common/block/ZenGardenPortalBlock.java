@@ -5,6 +5,7 @@ import com.hungteen.pvz.common.world.zen_garden.ZenGardenTeleporter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -49,6 +50,7 @@ public class ZenGardenPortalBlock extends HorizontalDirectionalBlock implements 
 
     public InteractionResult use(BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
         if (! level.isClientSide) {
+            if (player.isPassenger()) player.stopRiding();
             this.transport(player, pos);
 //            this.playSound(player, level, pos, true); TODO add sound.
             level.gameEvent(player, GameEvent.TELEPORT, pos);
@@ -58,13 +60,18 @@ public class ZenGardenPortalBlock extends HorizontalDirectionalBlock implements 
 
     public void transport(Player player, BlockPos pos) {
         if (player.level instanceof ServerLevel serverlevel) {
+            if (player.level.dimension() != Level.OVERWORLD && player.level.dimension() != ZenGardenTeleporter.GARDEN) {
+                player.displayClientMessage(Component.translatable("hint.pvz.zen_garden_portal.dimension_not_available"), true);
+                return;
+            }
             MinecraftServer server = serverlevel.getServer();
-            ResourceKey<Level> resourcekey = player.level.dimension() == ZenGardenTeleporter.GARDEN ? Level.OVERWORLD : ZenGardenTeleporter.GARDEN;
-            ServerLevel destWorld = server.getLevel(resourcekey);
+            ResourceKey<Level> destWorldKey = player.level.dimension() == ZenGardenTeleporter.GARDEN ? Level.OVERWORLD : ZenGardenTeleporter.GARDEN;
+            ResourceKey<Level> curWorldKey = destWorldKey == ZenGardenTeleporter.GARDEN ? Level.OVERWORLD : ZenGardenTeleporter.GARDEN;
+            ServerLevel destWorld = server.getLevel(destWorldKey);
             if (destWorld != null) {
+                PVZPlayerCapability.setTeleportPos(player, Vec3.atBottomCenterOf(pos), curWorldKey);
                 player.setPortalCooldown();
                 player.changeDimension(destWorld, new ZenGardenTeleporter(destWorld));
-                PVZPlayerCapability.setTeleportPos(player, Vec3.atBottomCenterOf(pos), destWorld);
             }
         }
     }
@@ -84,10 +91,10 @@ public class ZenGardenPortalBlock extends HorizontalDirectionalBlock implements 
             int j = p_221797_.nextInt(2) * 2 - 1;
             if (!p_221795_.getBlockState(p_221796_.west()).is(this) && !p_221795_.getBlockState(p_221796_.east()).is(this)) {
                 d0 = (double)p_221796_.getX() + 0.5D + 0.25D * (double)j;
-                d3 = (double)(p_221797_.nextFloat() * 2.0F * (float)j);
+                d3 = p_221797_.nextFloat() * 2.0F * (float)j;
             } else {
                 d2 = (double)p_221796_.getZ() + 0.5D + 0.25D * (double)j;
-                d5 = (double)(p_221797_.nextFloat() * 2.0F * (float)j);
+                d5 = p_221797_.nextFloat() * 2.0F * (float)j;
             }
 
             p_221795_.addParticle(ParticleTypes.PORTAL, d0, d1, d2, d3, d4, d5);

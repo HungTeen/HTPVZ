@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.4
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.UmbrellaLeafAnimation;
+import com.hungteen.pvz.client.model.plants.animation.UmbrellaLeafModelAnimation;
 import com.hungteen.pvz.common.entity.plants.UmbrellaLeaf;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -65,9 +65,9 @@ public class UmbrellaLeafModel<T extends UmbrellaLeaf> extends HierarchicalModel
 	public void setupAnim(T umbrellaLeaf, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		flower.visible = ! umbrellaLeaf.hasSkill("skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf");
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(umbrellaLeaf.idleAnimationState, UmbrellaLeafAnimation.idle, ageInTicks);
+		this.animate(umbrellaLeaf.idleAnimationState, UmbrellaLeafModelAnimation.idle, ageInTicks);
 		this.animate(umbrellaLeaf.openAnimationState, umbrellaLeaf.hasSkill(UmbrellaLeaf.BOUNCE_SKILL_NAME) ?
-				UmbrellaLeafAnimation.open_expanded : UmbrellaLeafAnimation.open, ageInTicks);
+				UmbrellaLeafModelAnimation.open_expanded : UmbrellaLeafModelAnimation.open, ageInTicks);
 	}
 
 	@Override

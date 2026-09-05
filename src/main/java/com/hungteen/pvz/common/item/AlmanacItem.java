@@ -2,6 +2,7 @@ package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.common.menu.AlmanacMenu;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -24,6 +25,7 @@ public class AlmanacItem extends Item {
                     (id, inventory, player1) -> new AlmanacMenu(inventory, id),
                     this.getName(itemstack)));
         }
+        player.playSound(SoundEvents.BOOK_PAGE_TURN);
         player.awardStat(Stats.ITEM_USED.get(this));
         return InteractionResultHolder.sidedSuccess(itemstack, level.isClientSide());
     }

@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.FlowerPotAnimation;
+import com.hungteen.pvz.client.model.plants.animation.FlowerPotModelAnimation;
 import com.hungteen.pvz.common.entity.plants.FlowerPot;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -42,7 +42,7 @@ public class FlowerPotModel<T extends FlowerPot> extends HierarchicalModel<T> {
 	@Override
 	public void setupAnim(T flowerPot, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(flowerPot.idleAnimationState, FlowerPotAnimation.idle, ageInTicks);
+		this.animate(flowerPot.idleAnimationState, FlowerPotModelAnimation.idle, ageInTicks);
 	}
 
 	@Override

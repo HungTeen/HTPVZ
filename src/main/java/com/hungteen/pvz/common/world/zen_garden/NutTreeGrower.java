@@ -22,7 +22,6 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.BlobFoliagePlac
 import net.minecraft.world.level.levelgen.feature.foliageplacers.MegaJungleFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
-import net.minecraft.world.level.levelgen.feature.trunkplacers.MegaJungleTrunkPlacer;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
@@ -36,7 +35,9 @@ import static net.minecraft.data.worldgen.placement.VegetationPlacements.treePla
 public class NutTreeGrower extends AbstractMegaTreeGrower {
     public static Holder<ConfiguredFeature<TreeConfiguration, ?>> tree = null;
     public static Holder<ConfiguredFeature<TreeConfiguration, ?>> megaTree = null;
+    public static Holder<ConfiguredFeature<TreeConfiguration, ?>> megaTreeBeehive = null;
     public static Holder<PlacedFeature> MEGA_NUT_TREE_CHECKED = null;
+    public static Holder<PlacedFeature> MEGA_NUT_TREE_BEEHIVE_CHECKED = null;
     public static Holder<ConfiguredFeature<?, ?>> TREES_NUT_CF = null;
     public static Holder<PlacedFeature> TREES_NUT_PF = null;
 
@@ -48,10 +49,10 @@ public class NutTreeGrower extends AbstractMegaTreeGrower {
         return megaTree;
     }
 
-    public static void init(){
+    public static void init() {
         tree = FeatureUtils.register("pvz:nut_tree", Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(NUT.get(Log).get()),
-                new StraightTrunkPlacer(10, 2, 0),
+                new StraightTrunkPlacer(8, 3, 3),
                 new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
                         .add(NUT.get(Leaves).get().defaultBlockState(), 8)
                         .add(PVZBlocks.NUT_LEAVES_WITH_NUTS.get().defaultBlockState(), 1)),
@@ -61,20 +62,36 @@ public class NutTreeGrower extends AbstractMegaTreeGrower {
         );
         megaTree = FeatureUtils.register("pvz:mega_nut_tree", Feature.TREE, (new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(NUT.get(Log).get()),
-                new MegaJungleTrunkPlacer(15, 10, 10),
+                new MegaNutTrunkPlacer(10, 16, 16),
                 new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
-                        .add(NUT.get(Leaves).get().defaultBlockState(), 8)
+                        .add(NUT.get(Leaves).get().defaultBlockState(), 15)
                         .add(PVZBlocks.NUT_LEAVES_WITH_NUTS.get().defaultBlockState(), 1)),
                 new MegaJungleFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), 2),
                 new TwoLayersFeatureSize(1, 1, 2)))
                 .decorators(ImmutableList.of(GlowBerryDecorator.INSTANCE))
                 .build()
         );
+        megaTreeBeehive = FeatureUtils.register("pvz:mega_nut_tree_beehive", Feature.TREE, (new TreeConfiguration.TreeConfigurationBuilder(
+                BlockStateProvider.simple(NUT.get(Log).get()),
+                new MegaNutTrunkPlacer(10, 16, 16),
+                new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                        .add(NUT.get(Leaves).get().defaultBlockState(), 15)
+                        .add(PVZBlocks.NUT_LEAVES_WITH_NUTS.get().defaultBlockState(), 1)),
+                new MegaJungleFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), 2),
+                new TwoLayersFeatureSize(1, 1, 2)))
+                .decorators(ImmutableList.of(GlowBerryDecorator.INSTANCE))
+                .decorators(ImmutableList.of(NutTreeBeeHiveDecorator.INSTANCE))
+                .build()
+        );
         MEGA_NUT_TREE_CHECKED = BuiltinRegistries.register(BuiltinRegistries.PLACED_FEATURE, Util.prefix("mega_nut_tree_checked"),
                 new PlacedFeature(Holder.hackyErase(NutTreeGrower.megaTree), List.of(PlacementUtils.filteredByBlockSurvival(PVZBlocks.NUT.get(PVZBlocks.WoodSet.Sapling).get()))));
+        MEGA_NUT_TREE_BEEHIVE_CHECKED = BuiltinRegistries.register(BuiltinRegistries.PLACED_FEATURE, Util.prefix("mega_nut_tree_beehive_checked"),
+                new PlacedFeature(Holder.hackyErase(NutTreeGrower.megaTreeBeehive), List.of(PlacementUtils.filteredByBlockSurvival(PVZBlocks.NUT.get(PVZBlocks.WoodSet.Sapling).get()))));
         TREES_NUT_CF = BuiltinRegistries.register(BuiltinRegistries.CONFIGURED_FEATURE, Util.prefix("trees_nut"),
-                new ConfiguredFeature<>(Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(new WeightedPlacedFeature(MEGA_NUT_TREE_CHECKED, 0.01F)), MEGA_NUT_TREE_CHECKED)));
+                new ConfiguredFeature<>(Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(
+                        new WeightedPlacedFeature(MEGA_NUT_TREE_CHECKED, 0.4F),
+                        new WeightedPlacedFeature(MEGA_NUT_TREE_BEEHIVE_CHECKED, 0.1F)), MEGA_NUT_TREE_CHECKED)));
         TREES_NUT_PF = BuiltinRegistries.register(BuiltinRegistries.PLACED_FEATURE, Util.prefix("trees_nut"),
-                new PlacedFeature(Holder.hackyErase(TREES_NUT_CF), List.copyOf(treePlacement(PlacementUtils.countExtra(1, 0.1F, 1)))));
+                new PlacedFeature(Holder.hackyErase(TREES_NUT_CF), List.copyOf(treePlacement(PlacementUtils.countExtra(2, 0.5F, 1)))));
     }
 }

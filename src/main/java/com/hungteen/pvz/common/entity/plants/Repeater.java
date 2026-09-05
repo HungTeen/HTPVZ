@@ -1,13 +1,18 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.register.PVZCriteriaTriggers;
+import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.EntityUtil;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
 import java.util.Set;
@@ -15,8 +20,8 @@ import java.util.Set;
 public class Repeater extends PeaShooter {
     public static final String TRIPLE_SKILL_NAME = "skill.pvz.repeater.triple_tap";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(PeaShooter.PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 6, 100, 0),
-            new Skill(TRIPLE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 4, 50, 0)
+            new Skill(PeaShooter.PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 3, 8, 100, 0),
+            new Skill(TRIPLE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 18, 8, 50, 0)
 );
     public Repeater(EntityType<? extends Mob> type, Level worldIn) {
         super(type, worldIn);
@@ -34,6 +39,11 @@ public class Repeater extends PeaShooter {
     public void baseTick() {
         if (! EntityUtil.attributeHasModifierOfUUID(this, Attributes.ATTACK_KNOCKBACK, ATTRIBUTE_MODIFIER_UUID)) {
             this.getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(new AttributeModifier(ATTRIBUTE_MODIFIER_UUID, "skill bonus", 0.4, AttributeModifier.Operation.ADDITION));
+        }
+        if (this.getType() == PVZEntities.REPEATER.get()
+                && ! level.isClientSide && PVZEntityCapability.getOwner(this) instanceof ServerPlayer player
+                && level.getBlockState(blockPosition()).is(Blocks.REDSTONE_WIRE)) {
+            PVZCriteriaTriggers.REPEATER.trigger(player);
         }
         super.baseTick();
     }

@@ -1,10 +1,12 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.MelonBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -21,8 +23,8 @@ public class MelonPult extends ShooterPlant {
     public static final String POTION_SKILL_NAME = "skill.pvz.melon_pult.glistering_melon";
     public static final String GRAVITY_SKILL_NAME = "skill.pvz.melon_pult.gravitational_potential";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(POTION_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 4, 100, 0),
-            new Skill(GRAVITY_SKILL_NAME, PVZItems.TERRA_ESSENCE, 8, 8, 50, 0).avoidSkills(POTION_SKILL_NAME)
+            new Skill(POTION_SKILL_NAME, PVZItems.AQUA_ESSENCE, 8, 8, 100, 0),
+            new Skill(GRAVITY_SKILL_NAME, PVZItems.TERRA_ESSENCE, 16, 12, 50, 0).avoidSkills(POTION_SKILL_NAME)
     );
 
     public MelonPult(EntityType<? extends Mob> type, Level worldIn) {
@@ -35,7 +37,7 @@ public class MelonPult extends ShooterPlant {
 
     @Override
     public void shootBullet() {
-        this.performShoot(SHOOT_OFFSET, 0, 0, true, 0);
+        this.performShoot(SHOOT_OFFSET, 0, this.getBbHeight(), true, 0);
     }
     @Override
     public double getMaxShootAngleTangent() {
@@ -51,6 +53,11 @@ public class MelonPult extends ShooterPlant {
             bullet.setMelonSkill(MelonBullet.MelonSkill.GRAVITY);
         }
         return bullet;
+    }
+
+    @Override
+    protected SoundEvent getShootSound() {
+        return PVZSoundEvents.MELON_SHOOT.get();
     }
 
     @Override
@@ -83,7 +90,7 @@ public class MelonPult extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 16D)
+                .add(Attributes.ATTACK_DAMAGE, 30D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

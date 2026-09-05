@@ -12,6 +12,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.features.CaveFeatures;
+import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
@@ -22,19 +23,27 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.Musics;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.WeightedListInt;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.*;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.placement.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator.ISLAND_DISTANCE;
 import static net.minecraft.data.worldgen.placement.VegetationPlacements.treePlacement;
 
 /**Temporary work. will be replaced somewhen.*/
@@ -53,19 +62,33 @@ public class ZenGardenBiomeSource extends BiomeSource {
             PlacementUtils.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT, EnvironmentScanPlacement.scanningFor(
                     Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 12),
             RandomOffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome());
+
     public static final Holder<PlacedFeature> GARDEN_ROOTED_AZALEA_TREE = PlacementUtils.register("pvz:garden_rooted_azalea_tree", CaveFeatures.ROOTED_AZALEA_TREE,
             CountPlacement.of(4), InSquarePlacement.spread(),
             PlacementUtils.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT, EnvironmentScanPlacement.scanningFor(
                     Direction.UP, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 12),
             RandomOffsetPlacement.vertical(ConstantInt.of(-1)), BiomeFilter.biome());
+
     public static final Holder<PlacedFeature> HUGE_MUSHROOMS_GARDEN = PlacementUtils.register("pvz:huge_mushrooms_garden", VegetationFeatures.MUSHROOM_ISLAND_VEGETATION,
             List.copyOf(treePlacement(PlacementUtils.countExtra(12, 0.1F, 1))));
+
+    public static final Holder<ConfiguredFeature<SimpleBlockConfiguration, ?>> GARDEN_BEE_NEST_CF = FeatureUtils.register("pvz:garden_bee_nest",
+            Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(BlockStateProvider.simple(Blocks.BEE_NEST.defaultBlockState())));
+    public static final Holder<PlacedFeature> GARDEN_BEE_NEST = PlacementUtils.register("pvz:garden_bee_nest", GARDEN_BEE_NEST_CF,
+            CountPlacement.of(new WeightedListInt(
+                    SimpleWeightedRandomList.<IntProvider>builder()
+                            .add(ConstantInt.of(1), 1)
+                            .add(ConstantInt.of(0), 2)
+                            .build())), InSquarePlacement.spread(),
+            PlacementUtils.HEIGHTMAP_WORLD_SURFACE, EnvironmentScanPlacement.scanningFor(
+                    Direction.DOWN, BlockPredicate.solid(), BlockPredicate.ONLY_IN_AIR_PREDICATE, 1),
+            RandomOffsetPlacement.vertical(ConstantInt.of(1)), BiomeFilter.biome());
 
 
     public ZenGardenBiomeSource(Registry<Biome> biomeRegistry) {
         super(() -> getStartBiomes(biomeRegistry));
         this.biomeRegistry = biomeRegistry;
-        end = biomeRegistry.getHolderOrThrow(Biomes.THE_VOID);
+        end = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_VOID.getKey());
         plain = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_PLAINS.getKey());
         mushroom = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_MUSHROOM.getKey());
         river = biomeRegistry.getHolderOrThrow(PVZBiomes.GARDEN_RIVER.getKey());
@@ -73,7 +96,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
     }
 
     private static List<Holder<Biome>> getStartBiomes(Registry<Biome> registry) {
-        return Stream.of(Biomes.THE_VOID, PVZBiomes.GARDEN_PLAINS.getKey(), PVZBiomes.GARDEN_MUSHROOM.getKey(), PVZBiomes.GARDEN_RIVER.getKey(), PVZBiomes.GARDEN_ISLAND.getKey())
+        return Stream.of(PVZBiomes.GARDEN_VOID.getKey(), PVZBiomes.GARDEN_PLAINS.getKey(), PVZBiomes.GARDEN_MUSHROOM.getKey(), PVZBiomes.GARDEN_RIVER.getKey(), PVZBiomes.GARDEN_ISLAND.getKey())
                 .map(s -> registry.getHolderOrThrow(ResourceKey.create(BuiltinRegistries.BIOME.key(), s.location()))).collect(Collectors.toList());
     }
 
@@ -87,12 +110,12 @@ public class ZenGardenBiomeSource extends BiomeSource {
     }
 
     @Override
-    public Holder<Biome> getNoiseBiome(int ix, int iy, int iz, Climate.Sampler sampler) {
+    public @NotNull Holder<Biome> getNoiseBiome(int ix, int iy, int iz, Climate.Sampler sampler) {
         int x = QuartPos.toBlock(ix);
         int y = QuartPos.toBlock(iy);
         int z = QuartPos.toBlock(iz);
-        x = x - Math.round(((float) (x / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16;
-        z = z - Math.round(((float) (z / 16)) / ISLAND_DISTANCE) * ISLAND_DISTANCE * 16;
+        x = x - Math.round(((float) (x / 16)) / ZenGardenChunkGenerator.ISLAND_DISTANCE) * ZenGardenChunkGenerator.ISLAND_DISTANCE * 16;
+        z = z - Math.round(((float) (z / 16)) / ZenGardenChunkGenerator.ISLAND_DISTANCE) * ZenGardenChunkGenerator.ISLAND_DISTANCE * 16;
         if (x * x + z * z >= 25000) {
             return this.end;
         } else if (y < 65) {
@@ -115,13 +138,19 @@ public class ZenGardenBiomeSource extends BiomeSource {
 
     public static Biome gardenPlains() {
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
-        mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(PVZEntities.MOOBLOOM.get(), 50, 3, 4));
+        mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(PVZEntities.MOOBLOOM.get(), 40, 3, 4));
+        mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(PVZEntities.WALL_NAIL.get(), 15, 1, 2));
         mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.VELOCI_RADISH.get(), 80, 5, 8));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.PEA_SHOOTER.get(), 15, 2, 3));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.SUN_FLOWER.get(), 40, 4, 6));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.WALL_NUT.get(), 20, 4, 6));
+        mobSpawnBuilder.addSpawn(OtherRegisters.PVZPlantMobCategory, new MobSpawnSettings.SpawnerData(PVZEntities.TALL_NUT.get(), 1, 1, 1));
         BiomeGenerationSettings.Builder biomeGenBuilder = new BiomeGenerationSettings.Builder();
         addNutTrees(biomeGenBuilder);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_SUNFLOWER);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.FLOWER_MEADOW);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_GRASS_PLAIN);
+        biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_BEE_NEST);
         BiomeDefaultFeatures.addWaterTrees(biomeGenBuilder);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.PATCH_WATERLILY);
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, GARDEN_ROOTED_AZALEA_TREE);
@@ -138,6 +167,7 @@ public class ZenGardenBiomeSource extends BiomeSource {
     }
     public static Biome gardenMushroom() {
         MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
+        mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(PVZEntities.FUNGICICOLIDAE.get(), 10, 3, 4));
         mobSpawnBuilder.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.MOOSHROOM, 25, 4, 8));
         BiomeGenerationSettings.Builder biomeGenBuilder = new BiomeGenerationSettings.Builder();
         biomeGenBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.CLASSIC_VINES);
@@ -150,6 +180,16 @@ public class ZenGardenBiomeSource extends BiomeSource {
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
         return PVZBiomes.biome(Biome.Precipitation.NONE, 0x7575df, 0xad7ee6, 0x47bbc5, 0x053134,
                 0.8F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
+                new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
+    }
+
+    public static Biome gardenVoid() {
+        MobSpawnSettings.Builder mobSpawnBuilder = new MobSpawnSettings.Builder();
+        mobSpawnBuilder.addSpawn(MobCategory.MONSTER, new MobSpawnSettings.SpawnerData(EntityType.PHANTOM, 25, 4, 8));
+        BiomeGenerationSettings.Builder biomeGenBuilder = new BiomeGenerationSettings.Builder();
+        Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES);
+        return PVZBiomes.biome(Biome.Precipitation.NONE, 0x15082b, 0x15082b, 0x47bbc5, 0x053134,
+                0F, 0.5F, mobSpawnBuilder, biomeGenBuilder,
                 new AmbientParticleSettings(PVZParticles.FOG.get(), 0.00005F), music);
     }
 

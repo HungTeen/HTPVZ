@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.plants;// Made with Blockbench 4.9.3
 // Paste this class into your mod and generate all required imports
 
 
-import com.hungteen.pvz.client.model.plants.animation.CabbagePultAnimation;
+import com.hungteen.pvz.client.model.plants.animation.CabbagePultModelAnimation;
 import com.hungteen.pvz.common.entity.plants.CabbagePult;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -14,9 +14,27 @@ import net.minecraft.client.model.geom.builders.*;
 
 public class CabbagePultModel<T extends CabbagePult> extends HierarchicalModel<T> {
 	private final ModelPart total;
+	private final ModelPart bottom;
+	private final ModelPart cabbage;
+	private final ModelPart eye_brow;
+	private final ModelPart eyes_closed;
+	private final ModelPart decoration;
+	private final ModelPart pult;
+	private final ModelPart out;
+	private final ModelPart bullet;
+	private final ModelPart leaf;
 
 	public CabbagePultModel(ModelPart root) {
 		this.total = root.getChild("total");
+		this.bottom = this.total.getChild("bottom");
+		this.cabbage = this.bottom.getChild("cabbage");
+		this.eye_brow = this.cabbage.getChild("eye_brow");
+		this.eyes_closed = this.cabbage.getChild("eyes_closed");
+		this.decoration = this.cabbage.getChild("decoration");
+		this.pult = this.cabbage.getChild("pult");
+		this.out = this.pult.getChild("out");
+		this.bullet = this.out.getChild("bullet");
+		this.leaf = this.pult.getChild("leaf");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -26,10 +44,12 @@ public class CabbagePultModel<T extends CabbagePult> extends HierarchicalModel<T
 		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
 
 		PartDefinition bottom = total.addOrReplaceChild("bottom", CubeListBuilder.create().texOffs(0, 0).addBox(-7.0F, -0.5F, -7.0F, 14.0F, 0.0F, 14.0F, new CubeDeformation(0.0F))
-		.texOffs(4, 47).addBox(-6.0F, -0.1F, -6.0F, 12.0F, 0.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+				.texOffs(4, 47).addBox(-6.0F, -0.1F, -6.0F, 12.0F, 0.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition cabbage = bottom.addOrReplaceChild("cabbage", CubeListBuilder.create().texOffs(0, 28).addBox(-4.5F, -8.0F, -4.5F, 9.0F, 8.0F, 9.0F, new CubeDeformation(0.0F))
-		.texOffs(32, 20).addBox(-4.0F, -9.0F, -4.0F, 8.0F, 1.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+				.texOffs(32, 20).addBox(-4.0F, -9.0F, -4.0F, 8.0F, 1.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+		PartDefinition eye_brow = cabbage.addOrReplaceChild("eye_brow", CubeListBuilder.create().texOffs(42, 10).addBox(-5.0F, -5.75F, -5.25F, 10.0F, 1.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition eyes_closed = cabbage.addOrReplaceChild("eyes_closed", CubeListBuilder.create().texOffs(36, 37).addBox(-4.5F, -4.0F, -5.0F, 9.0F, 8.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -4.0F, 0.6F));
 
@@ -38,10 +58,14 @@ public class CabbagePultModel<T extends CabbagePult> extends HierarchicalModel<T
 		PartDefinition pult = cabbage.addOrReplaceChild("pult", CubeListBuilder.create().texOffs(8, 0).addBox(-1.0F, -6.0F, -1.0F, 2.0F, 7.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -9.0F, 0.0F, -0.4363F, 0.0F, 0.0F));
 
 		PartDefinition out = pult.addOrReplaceChild("out", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -6.0F, 0.0F, 2.0F, 6.0F, 2.0F, new CubeDeformation(0.0F))
-		.texOffs(42, 0).addBox(-3.0F, -12.0F, 0.0F, 6.0F, 6.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -6.0F, -1.0F, -1.309F, 0.0F, 0.0F));
+				.texOffs(42, 0).addBox(-3.0F, -12.0F, 0.0F, 6.0F, 6.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -6.0F, -1.0F, -1.309F, 0.0F, 0.0F));
 
 		PartDefinition bullet = out.addOrReplaceChild("bullet", CubeListBuilder.create().texOffs(0, 45).addBox(-2.0F, -2.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
-		.texOffs(0, 53).addBox(-2.0F, -2.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.5F)), PartPose.offsetAndRotation(0.0F, -9.0F, 1.0F, 1.5708F, 0.0F, 0.0F));
+				.texOffs(0, 53).addBox(-2.0F, -2.0F, -2.0F, 4.0F, 4.0F, 4.0F, new CubeDeformation(0.5F)), PartPose.offsetAndRotation(0.0F, -9.0F, 1.0F, 1.5708F, 0.0F, 0.0F));
+
+		PartDefinition leaf = pult.addOrReplaceChild("leaf", CubeListBuilder.create(), PartPose.offsetAndRotation(0.0F, -4.0F, -0.25F, -0.2618F, 0.0F, 0.0F));
+
+		PartDefinition cube_r1 = leaf.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(0, 8).addBox(-2.0F, 0.0F, -1.0F, 4.0F, 5.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.5F, -0.5F, -1.309F, 0.0F, 0.0F));
 
 		return LayerDefinition.create(meshdefinition, 64, 64);
 	}
@@ -49,8 +73,10 @@ public class CabbagePultModel<T extends CabbagePult> extends HierarchicalModel<T
 	@Override
 	public void setupAnim(T cabbagePult, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
-		this.animate(cabbagePult.idleAnimationState, CabbagePultAnimation.idle, ageInTicks);
-		this.animate(cabbagePult.shootAnimationState, CabbagePultAnimation.shoot, ageInTicks);
+		this.leaf.visible = cabbagePult.hasSkill(CabbagePult.SPEED_SKILL_NAME);
+		this.eye_brow.visible = cabbagePult.hasSkill(CabbagePult.SPEED_SKILL_NAME);
+		this.animate(cabbagePult.idleAnimationState, CabbagePultModelAnimation.idle, ageInTicks);
+		this.animate(cabbagePult.shootAnimationState, CabbagePultModelAnimation.shoot, ageInTicks);
 	}
 
 	@Override

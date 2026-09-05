@@ -1,0 +1,33 @@
+{
+  "parent": "pvz:nether_wart_seed_packet",
+  "display": {
+    "title": {
+      "translate": "advancements.pvz.pumpkin_on_head.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.pumpkin_on_head.description"
+    },
+    "icon": {
+      "item": "pvz:pumpkin_seed_packet"
+    }
+  },
+  "criteria": {
+    "has_origin": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pvz:pumpkin_helmet"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_origin"
+    ]
+  ]
+}

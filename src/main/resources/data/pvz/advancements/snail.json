@@ -1,0 +1,27 @@
+{
+  "parent": "pvz:zen_garden",
+  "display": {
+    "frame": "challenge",
+    "title": {
+      "translate": "advancements.pvz.snail.title"
+    },
+    "description": {
+      "translate": "advancements.pvz.snail.description"
+    },
+    "icon": {
+      "item": "pvz:snail_gachapon"
+      }
+    },
+  "criteria": {
+    "invasion": {
+      "conditions": {
+      },
+      "trigger": "pvz:snail"
+    }
+  },
+  "requirements": [
+    [
+      "invasion"
+    ]
+  ]
+}

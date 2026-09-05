@@ -2,20 +2,18 @@ package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IHangable;
-import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
-import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.PVZSeedPackets;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -25,9 +23,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
 
@@ -38,12 +38,11 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState openAnimationState = new AnimationState();
-    protected static final EntityDataAccessor<Boolean> POSE = SynchedEntityData.defineId(UmbrellaLeaf.class, EntityDataSerializers.BOOLEAN);
     public static final String FREE_SKILL_NAME = "skill.pvz.umbrella_leaf.a_skill_name_for_cheap_but_breakable_umbrella_leaf";
     public static final String BOUNCE_SKILL_NAME = "skill.pvz.umbrella_leaf.bounce_bounds_bonus";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 3, -75, -190),
-            new Skill(BOUNCE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 6, 50, 0)
+            new Skill(FREE_SKILL_NAME, PVZItems.LUX_ESSENCE, 8, 1, -75, PVZSeedPackets.VERY_FAST - PVZSeedPackets.MEDIUM),
+            new Skill(BOUNCE_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 8, 9, 50, 0)
     );
 
     public UmbrellaLeaf(EntityType<? extends Mob> entityType, Level level) {
@@ -53,7 +52,6 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(POSE, false);
     }
 
     /** for players, another method in client side is used. See {@link #tick()}. */
@@ -65,30 +63,34 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         this.goalSelector.addGoal(1, new AttractEnemyGoal(this));
     }
 
-    public boolean canBounce(Entity entity, boolean isClient) {
+    public boolean canBounce(Entity target, boolean isClient) {
+        if (target == this) return false;
         AttributeInstance instance = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if (instance != null && instance.getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
             return false;
         }
-        if (entity.getType().is(Tags.EntityTypes.BOSSES) || ! this.isAlive()) {
+        if (target.getType().is(Tags.EntityTypes.BOSSES) || ! this.isAlive()) {
             return false;
         }
-        if (entity.getDeltaMovement().length() < 0.5 || entity.getDeltaMovement().subtract(this.getDeltaMovement()).length() < 0.5) {
-            return false;
-        }
-        if (Util.hasBlockBetween(this.level, this.position(), entity.position())) {
+        if (Util.hasBlockBetween(this.level, this.position(), target.position())) {
             return false;
         }
         if (isClient) {
-            return entity == ClientProxy.getPlayer() && ! entity.isShiftKeyDown();
+            if (target.getDeltaMovement().length() < 0.45 || target.getDeltaMovement().subtract(this.getDeltaMovement()).length() < 0.45) {
+                return false;
+            }
+            return (! EntityUtil.isTeammate(target, this)) || target.isCrouching();
         }
-        Vec3 vec31 = entity.getDeltaMovement();
-        Vec3 vec32 = this.position().subtract(entity.position());
+        if (target.getDeltaMovement().length() < 0.5 || target.getDeltaMovement().subtract(this.getDeltaMovement()).length() < 0.5) {
+            return false;
+        }
+        Vec3 vec31 = target.getDeltaMovement();
+        Vec3 vec32 = this.position().subtract(target.position());
         if (vec31.x * vec32.x + vec31.y * vec32.y + vec31.z * vec32.z < 0) {
             return false;
         }
-        return ((entity instanceof LivingEntity && ! (entity instanceof Player)) || EntityUtil.checkCanEntityBeAttack(entity, this)
-                || (entity instanceof Projectile && EntityUtil.checkCanEntityBeAttack(((Projectile) entity).getOwner(), this)));
+        return ((target instanceof LivingEntity && ! (target instanceof Player)) || EntityUtil.checkCanEntityBeAttack(target, this)
+                || (target instanceof Projectile proj && EntityUtil.checkCanEntityBeAttack(proj.getOwner(), this)));
     }
 
     @Override
@@ -100,7 +102,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         if (level.isClientSide) {
             float width = hasSkill(BOUNCE_SKILL_NAME) ? 3 : 1F;
             List<Entity> entities = this.level.getEntities(this, this.getBoundingBox().inflate(width, 1.5, width).move(0, 0.5, 0),
-                    (entity) -> canBounce(entity, true));
+                    (entity) -> entity == ClientProxy.getPlayer() && canBounce(entity, true));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
                     Vec3 vec = entity1.getDeltaMovement();
@@ -118,11 +120,13 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_219422_) {
-        if (POSE.equals(p_219422_)) {
-            if (entityData.get(POSE)) {
+        if (ATTACK_TIME.equals(p_219422_)) {
+            if (entityData.get(ATTACK_TIME) == 30) {
+                this.openAnimationState.stop();
                 this.idleAnimationState.stop();
+                playSound(PVZSoundEvents.UMBRELLA_LEAF_BOUNCE.get(), 1.0F, 1.0F);
                 this.openAnimationState.start(this.tickCount);
-            } else {
+            } else if (entityData.get(ATTACK_TIME) < 20 && ! this.idleAnimationState.isStarted()) {
                 this.openAnimationState.stop();
                 this.idleAnimationState.start(this.tickCount);
             }
@@ -145,7 +149,7 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
 
     @Override
     public void handlePVZPacket(ServerPlayer player, int val) {
-        if (this.getAttackTime() <= 20) {
+        if (this.getAttackTime() <= 24) {
             setAttackTime(30);
         }
         player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 5, 0, false, false));
@@ -164,7 +168,6 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
             if (entity.getAttackTime() < 0) {
                 entity.setAttackTime(19);
             }
-            entity.getEntityData().set(POSE, entity.getAttackTime() > 20);
             if (entity.getAttackTime() == 25 && entity.hasSkill(FREE_SKILL_NAME)) {
                 entity.discard();
             }
@@ -176,35 +179,36 @@ public class UmbrellaLeaf extends SimplePlant implements IEntityPacketHandler {
         }
         @Override
         public void tick() {
-            float width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 6 : 4F;
+            float width = entity.hasSkill(BOUNCE_SKILL_NAME) ? 6 : 2.5F;
             List<Entity> entities = entity.level.getEntities(entity, entity.getBoundingBox().inflate(width, 2.5, width),
                     (entity) -> this.entity.canBounce(entity, false));
             if (! entities.isEmpty()) {
                 entities.forEach((entity1 -> {
-                    Vec3 vec = entity1.getDeltaMovement();
-                    entity.setDeltaMovement(0, 0.25, 0);
-                    double dist = Math.sqrt((entity1.getX() - entity.getX()) * (entity1.getX() - entity.getX()) + (entity1.getZ() - entity.getZ()) * (entity1.getZ() - entity.getZ()));
-                    dist = dist == 0 ? 0.01 : dist;
-                    entity1.setDeltaMovement(Math.max(-0.8, Math.min((entity1.getX() - entity.getX()) / dist, 0.8)),
-                            Math.max(Math.abs(vec.y), 0.35),
-                            Math.max(-0.8, Math.min((entity1.getZ() - entity.getZ()) / dist, 0.8)));
-                    entity1.fallDistance = 0;
-                    Vec3 vec3 = entity1.getDeltaMovement().multiply(1, 0, 1).normalize();
-                    entity1.setYRot((float) (vec3.z == 0 ? (vec3.x > 0 ? - Math.PI / 2 : Math.PI) : Math.atan(- vec3.x / vec3.z) + (vec3.z < 0 ? Math.PI : 0)) * 57.3F);
-                    if (entity1 instanceof Projectile) {
-                        ((Projectile) entity1).setOwner(entity);
-                        if (entity1 instanceof AbstractHurtingProjectile projectile) {
-                            vec3 = entity.getDeltaMovement().normalize();
-                            projectile.setDeltaMovement(vec3);
-                            projectile.xPower = vec3.x * 0.1D;
-                            projectile.yPower = vec3.y * 0.1D;
-                            projectile.zPower = vec3.z * 0.1D;
-                            projectile.hurt(PVZEntityCapability.getOwner(entity) instanceof Player player ?
-                                            DamageSource.playerAttack(player) : DamageSource.mobAttack(entity)
-                                    , 0F);
+                    if (entity1 instanceof AbstractArrow arrow && arrow.getPierceLevel() > 0) {
+                        arrow.setPierceLevel((byte) (arrow.getPierceLevel() - 1));
+                    } else {
+                        Vec3 vec = entity1.getDeltaMovement();
+                        entity.setDeltaMovement(0, 0.25, 0);
+                        double dist = Math.sqrt((entity1.getX() - entity.getX()) * (entity1.getX() - entity.getX()) + (entity1.getZ() - entity.getZ()) * (entity1.getZ() - entity.getZ()));
+                        dist = dist == 0 ? 0.01 : dist;
+                        entity1.setDeltaMovement(Math.max(-0.8, Math.min((entity1.getX() - entity.getX()) / dist, 0.8)),
+                                Math.max(Math.abs(vec.y), 0.35),
+                                Math.max(-0.8, Math.min((entity1.getZ() - entity.getZ()) / dist, 0.8)));
+                        entity1.fallDistance = 0;
+                        Vec3 vec3 = entity1.getDeltaMovement().normalize();
+                        Vec2 vec2 = new Vec2((float) vec3.x, (float) vec3.z).normalized();
+                        entity1.setYRot((float) (vec2.y == 0 ? (vec2.x > 0 ? - Math.PI / 2 : Math.PI) : Math.atan(- vec2.x / vec2.y) + (vec2.y < 0 ? Math.PI : 0)) * 57.3F);
+                        entity1.hasImpulse = true; //to let server sync entity motions.
+                        if (entity1 instanceof Projectile proj) {
+                            proj.setOwner(entity);
+                            if (proj instanceof AbstractHurtingProjectile hProj) {
+                                hProj.xPower = vec3.x * 0.12D;
+                                hProj.yPower = vec3.y * 0.12D;
+                                hProj.zPower = vec3.z * 0.12D;
+                            }
+                        } else if (entity1 instanceof IHangable hangable) {
+                            hangable.setHangingPosition(null);
                         }
-                    } else if (entity1 instanceof IHangable hangable) {
-                        hangable.setHangingPosition(null);
                     }
                 }));
                 entity.setAttackTime(30);

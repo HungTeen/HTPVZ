@@ -5,6 +5,7 @@ import com.hungteen.pvz.client.ClientUtil;
 import com.hungteen.pvz.client.model.attached.ButterBottomModel;
 import com.hungteen.pvz.client.model.attached.ButterHeadModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
+import com.hungteen.pvz.common.entity.plants.KernelPult;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.util.Util;
@@ -38,8 +39,9 @@ public class ButterHeadLayer<T extends LivingEntity, M extends EntityModel<T>> e
         VertexConsumer vertexConsumer;
         int packedOverlay = OverlayTexture.NO_OVERLAY;
         poseStack.pushPose();
-        if (entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null) {
-            if (PVZConfig.renderButterOnHead()) {
+        boolean isButterKernelPult = entity instanceof KernelPult pult && pult.hasSkill(KernelPult.BUTTER_SKILL_NAME);
+        if (entity.getAttribute(Attributes.MOVEMENT_SPEED).getModifier(PVZMobEffects.BUTTER_EFFECT_UUID) != null || isButterKernelPult) {
+            if (PVZConfig.renderButterOnHead() && ! isButterKernelPult) {
                 if (model.young && model instanceof AgeableListModel<T> model1) {
                     poseStack.pushPose();
                     ClientUtil.translateAgeable(poseStack, model1);

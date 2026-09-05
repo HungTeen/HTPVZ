@@ -1,6 +1,6 @@
 package com.hungteen.pvz.client.model.plants;
 
-import com.hungteen.pvz.client.model.plants.animation.SunFlowerAnimation;
+import com.hungteen.pvz.client.model.plants.animation.SunFlowerModelAnimation;
 import com.hungteen.pvz.common.entity.plants.SunFlower;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -57,8 +57,8 @@ public class SunFlowerModel<T extends SunFlower> extends HierarchicalModel<T> {
     @Override
     public void setupAnim(T sunFlower, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.total.getAllParts().forEach(ModelPart::resetPose);
-        this.animate(sunFlower.idleAnimationState, SunFlowerAnimation.idle, ageInTicks);
-        this.animate(sunFlower.produceAnimationState, SunFlowerAnimation.produce, ageInTicks);
+        this.animate(sunFlower.idleAnimationState, SunFlowerModelAnimation.idle, ageInTicks);
+        this.animate(sunFlower.produceAnimationState, SunFlowerModelAnimation.produce, ageInTicks);
     }
 
     @Override

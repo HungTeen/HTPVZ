@@ -1,10 +1,12 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.api.Skill;
-import com.hungteen.pvz.common.entity.SimplePlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -20,7 +22,7 @@ public class CabbagePult extends ShooterPlant {
     protected static final double SHOOT_OFFSET = 0.2D;//pea position offset
     public static final String SPEED_SKILL_NAME = "skill.pvz.cabbage_pult.deft_hand";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(SPEED_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 8, 8, 100, 0)
+            new Skill(SPEED_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 18, 16, 100, 0)
     );
 
     public CabbagePult(EntityType<? extends Mob> type, Level worldIn) {
@@ -33,7 +35,7 @@ public class CabbagePult extends ShooterPlant {
 
     @Override
     public void shootBullet() {
-        this.performShoot(SHOOT_OFFSET, 0, 0, true, 0);
+        this.performShoot(SHOOT_OFFSET, 0, this.getBbHeight(), true, 0);
     }
     @Override
     public double getMaxShootAngleTangent() {
@@ -43,6 +45,11 @@ public class CabbagePult extends ShooterPlant {
     @Override
     protected CabbageBullet createBullet() {
         return new CabbageBullet(this.level, this);
+    }
+
+    @Override
+    protected SoundEvent getShootSound() {
+        return PVZSoundEvents.CABBAGE_SHOOT.get();
     }
 
     @Override
@@ -71,7 +78,7 @@ public class CabbagePult extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 5D)
+                .add(Attributes.ATTACK_DAMAGE, 8D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

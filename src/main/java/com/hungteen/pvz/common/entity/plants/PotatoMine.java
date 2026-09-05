@@ -1,17 +1,16 @@
 package com.hungteen.pvz.common.entity.plants;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.entity.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.network.ClientProxy;
-import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.register.PVZMobEffects;
-import com.hungteen.pvz.common.register.PVZParticles;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
@@ -22,6 +21,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -46,7 +47,6 @@ import static com.hungteen.pvz.common.register.PVZDamageSource.*;
 public class PotatoMine extends SimplePlant {
     public static final EntityDataAccessor<Integer> EXPLODE_COUNT = SynchedEntityData.defineId(PotatoMine.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> PREPARE_COUNT = SynchedEntityData.defineId(PotatoMine.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Boolean> IS_POISONOUS = SynchedEntityData.defineId(PotatoMine.class, EntityDataSerializers.BOOLEAN);
 
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState sleepAnimationState = new AnimationState();
@@ -58,11 +58,11 @@ public class PotatoMine extends SimplePlant {
     public static String QUICK_LOAD_SKILL_NAME = "skill.pvz.potato_mine.quick_load";
     public static String POISONOUS_SKILL_NAME = "skill.pvz.potato_mine.poison_enrichment";
     public static List<Skill> staticSkillList = List.of(
-            new Skill(MINER_SKILL_NAME, PVZItems.TERRA_ESSENCE, 4, 6, 0, 0),
-            new Skill(STRONG_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 8, 8, 25, 300),
-            new Skill(QUICK_LOAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 50, 300)
+            new Skill(MINER_SKILL_NAME, PVZItems.TERRA_ESSENCE, 3, 1, 0, 0),
+            new Skill(STRONG_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 6, 6, 25, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM),
+            new Skill(QUICK_LOAD_SKILL_NAME, PVZItems.LUX_ESSENCE, 10, 12, 50, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM)
                     .avoidSkills(STRONG_SKILL_NAME),
-            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 6, 8, 75, 300)
+            new Skill(POISONOUS_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 12, 6, 75, PVZSeedPackets.SLOW - PVZSeedPackets.MEDIUM)
                     .avoidSkills(STRONG_SKILL_NAME)
     );
     public PotatoMine(EntityType<? extends Mob> entityType, Level level) {
@@ -71,14 +71,23 @@ public class PotatoMine extends SimplePlant {
     }
 
     private void explode() {
-        if (!this.level.isClientSide) {
+        if (! this.level.isClientSide) {
             this.dead = true;
             float radius = this.hasSkill(STRONG_SKILL_NAME) ? 3F : 2F;
-            level.explode(this, transferKiller(knockBack(ignoreInvTime(teamFilter(multiply(DamageSource.explosion(this).bypassArmor(), this.isPoisonous() ? 0.75F : 1.25F))), 0.2F), PVZEntityCapability.getOwner(this)),
-                    null, this.getX(), this.getY(), this.getZ(),
-                    radius, false, Explosion.BlockInteraction.NONE);
+//            level.playSound(null, this, PVZSoundEvents.POTATO_MINE_EXPLODE.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+            level.explode(this, isPlantDamage(knockBack(
+                    ignoreInvTime(
+                            teamFilter(
+                                    multiply(
+                                            DamageSource.explosion(this).bypassArmor()
+                                            , (this.isPoisonous() ? 0.75F : 1.25F) * PVZAPI.get().getPlantDamageDatum(this.level))))
+                    , 0.2F), null),
+                    null, this.getX(), this.getY(), this.getZ(), radius, false, Explosion.BlockInteraction.NONE);
             if (this.isPoisonous()) {
                 this.spawnPoisonCloud();
+            }
+            if (PVZEntityCapability.getOwner(this) instanceof ServerPlayer player) {
+                PVZCriteriaTriggers.SPUDOW.trigger(player);
             }
             this.discard();
             ((ServerLevel) this.level).sendParticles(PVZParticles.MASHED_POTATO.get(),
@@ -150,9 +159,10 @@ public class PotatoMine extends SimplePlant {
     }
     @Override
     public void baseTick() {
-        if (this.hasEffect(MobEffects.POISON)) {
+        if (this.hasEffect(MobEffects.POISON) || this.hasEffect(PVZMobEffects.PHYTOTOXIN.get())) {
             this.setPoisonous(true);
             this.removeEffect(MobEffects.POISON);
+            this.removeEffect(PVZMobEffects.PHYTOTOXIN.get());
         }
         super.baseTick();
         if (getEntityData().get(PREPARE_COUNT) - 1 <= 7) {
@@ -160,9 +170,6 @@ public class PotatoMine extends SimplePlant {
         }
         if (EntityUtil.isLeavingGround(this) || (hasSkill(QUICK_LOAD_SKILL_NAME) && this.getEntityData().get(PREPARE_COUNT) > 10)) {
             this.getEntityData().set(PREPARE_COUNT, 10);
-        }
-        if (hasSkill(POISONOUS_SKILL_NAME) && ! this.getEntityData().get(IS_POISONOUS)) {
-            this.getEntityData().set(IS_POISONOUS, true);
         }
         if (this.getEntityData().get(EXPLODE_COUNT) > -1) {
             this.getEntityData().set(EXPLODE_COUNT, this.getEntityData().get(EXPLODE_COUNT) + 1);
@@ -205,7 +212,11 @@ public class PotatoMine extends SimplePlant {
     public EntityDimensions getDimensions(Pose pose) {
         return pose == Pose.DIGGING ? this.getType().getDimensions() : EntityDimensions.scalable(0.7F, 0.4F);
     }
-
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if (source == DamageSource.FALL) return false;
+        return super.hurt(source, amount);
+    }
     @Override
     public void die(DamageSource damageSource) {
         if (this.entityData.get(PREPARE_COUNT) <= 0 && ! damageSource.isMagic() && (damageSource.getEntity() == null || ! EntityUtil.isTeammate(this, damageSource.getEntity()))) {
@@ -228,6 +239,7 @@ public class PotatoMine extends SimplePlant {
                 this.sleepAnimationState.stop();
                 this.idleAnimationState.stop();
                 this.outAnimationState.start(this.tickCount);
+                level.playSound(null, this, PVZSoundEvents.POTATO_MINE_EMERGE.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
             }
         }
         super.onSyncedDataUpdated(p_219422_);
@@ -238,7 +250,6 @@ public class PotatoMine extends SimplePlant {
         super.defineSynchedData();
         this.entityData.define(EXPLODE_COUNT, -1);
         this.entityData.define(PREPARE_COUNT, 80);
-        this.entityData.define(IS_POISONOUS, false);
         this.entityData.set(DATA_POSE, Pose.DIGGING);
     }
     @Override
@@ -256,7 +267,6 @@ public class PotatoMine extends SimplePlant {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("PrepareTime", this.getEntityData().get(PREPARE_COUNT));
-        tag.putBoolean("isPoisonous",this.getEntityData().get(IS_POISONOUS));
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag){
@@ -264,16 +274,17 @@ public class PotatoMine extends SimplePlant {
         if (tag.contains("PrepareTime")) {
             this.getEntityData().set(PREPARE_COUNT, tag.getInt("PrepareTime"));
         }
-        if(tag.contains("isPoisonous")){
-            this.getEntityData().set(IS_POISONOUS, tag.getBoolean("isPoisonous"));
-        }
         this.tickCount += random.nextInt(50);
     }
     public boolean isPoisonous() {
-        return this.getEntityData().get(IS_POISONOUS);
+        return this.hasSkill(POISONOUS_SKILL_NAME);
     }
     public void setPoisonous(boolean isPoisonous) {
-        this.getEntityData().set(IS_POISONOUS, isPoisonous);
+        if (this.hasSkill(POISONOUS_SKILL_NAME) && ! isPoisonous) {
+            this.removeSkill(this, getSkillFromName(POISONOUS_SKILL_NAME));
+        } else if (! this.hasSkill(POISONOUS_SKILL_NAME) && isPoisonous) {
+            this.addSkill(this, getSkillFromName(POISONOUS_SKILL_NAME));
+        }
     }
 
     public static class PotatoPrepareGoal extends Goal {

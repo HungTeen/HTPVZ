@@ -1,10 +1,7 @@
 package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.network.ClientProxy;
-import com.hungteen.pvz.common.register.OtherRegisters;
-import com.hungteen.pvz.common.register.PVZDamageSource;
-import com.hungteen.pvz.common.register.PVZEntities;
-import com.hungteen.pvz.common.register.PVZMobEffects;
+import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -12,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -59,7 +57,7 @@ public class MelonBullet extends BaseBullet {
                 List<Entity> entities = level.getEntities(this, this.getBoundingBox().inflate(1.5, 1, 1.5).move(0, -0.5, 0),
                         (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, entity));
                 entities.forEach((target -> {
-                    target.hurt(PVZDamageSource.hitBossWithProportion(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(PVZDamageSource.setInterrupting(
+                    target.hurt(PVZDamageSource.isPlantDamage(PVZDamageSource.knockBack(PVZDamageSource.ignoreInvTime(PVZDamageSource.setInterrupting(
                                     PVZDamageSource.owned(getDamageName(), getOwner() instanceof LivingEntity ? (LivingEntity) getOwner() : null)))
                             , getKnockBackStrength()), target), this.getAttackDamage() / 3);//splash damage regarded as non-projectile.
                     if (this.getMelonType() == MelonType.Ice && target.canFreeze()) {
@@ -70,6 +68,12 @@ public class MelonBullet extends BaseBullet {
         }
         super.onHitEntity(result);
     }
+
+    @Override
+    public SoundEvent getHitSound() {
+        return PVZSoundEvents.MELON_HIT.get();
+    }
+
     @Override
     protected void onHitBlock(BlockHitResult result) {
         if (!this.level.isClientSide()) {
@@ -94,6 +98,10 @@ public class MelonBullet extends BaseBullet {
     public float getAttackDamage() {
         return (float) (this.attackDamage * (this.getMelonSkill() == MelonSkill.GRAVITY ? this.getDeltaMovement().distanceToSqr(Vec3.ZERO) : 1));
     }
+    public float getKnockBackStrength() {
+        return (float) (knockBackStrengh * (this.getMelonSkill() == MelonSkill.GRAVITY ? this.getDeltaMovement().distanceToSqr(Vec3.ZERO) : 1));
+    }
+
     public List<MobEffectInstance> getMobEffects() {
         List<MobEffectInstance> list = new java.util.ArrayList<>(List.of(new MobEffectInstance(MobEffects.HEAL, 2)));
         if (this.getMelonType() == MelonType.Ice) {
@@ -119,7 +127,8 @@ public class MelonBullet extends BaseBullet {
     }
     protected void splashParticle() {
         Vec3 movement = getDeltaMovement();
-        for (int i = 0; i < 50; i ++) {
+        double skillMultiplier = this.getMelonSkill() == MelonSkill.GRAVITY ? this.getDeltaMovement().distanceToSqr(Vec3.ZERO) : 1;
+        for (int i = 0; i < (int) (50 * skillMultiplier); i ++) {
             level.addParticle(new ItemParticleOption(ParticleTypes.ITEM,
                             new ItemStack(this.getMelonSkill() == MelonSkill.POTION ? Items.GLISTERING_MELON_SLICE : Items.MELON_SLICE)),
                     getX() + random.nextFloat() * 0.5 - 0.25,

@@ -9,12 +9,12 @@ import net.minecraft.world.entity.EntityType;
 public class PVZEntityTags {
 
     /**Basic tags.*/
-    public static TagKey<EntityType<?>> PLANT = pvzTag("pvz_plant");
-    public static TagKey<EntityType<?>> ZOMBIE = pvzTag("pvz_zombie");
+    public static TagKey<EntityType<?>> PLANT = pvzTag("plant");
+    public static TagKey<EntityType<?>> ZOMBIE = pvzTag("zombie");
     /**By adding this tag, mobs will be considered as {@link net.minecraft.world.entity.monster.Enemy} by pvz mobs. Attention that plants <b>WON'T</b> target non-livings. <br>This tag will be covered by {@link PVZEntityTags#FRIENDLY pvz:pvz_friendly}.*/
-    public static TagKey<EntityType<?>> ENEMY = pvzTag("pvz_enemy");
+    public static TagKey<EntityType<?>> ENEMY = pvzTag("enemy");
     /**By adding this tag, mobs <b>WON'T</b> be considered as {@link net.minecraft.world.entity.monster.Enemy} by pvz mobs. <br>This tag will cover {@link PVZEntityTags#ENEMY pvz:pvz_enemy}.*/
-    public static TagKey<EntityType<?>> FRIENDLY = pvzTag("pvz_friendly");
+    public static TagKey<EntityType<?>> FRIENDLY = pvzTag("friendly");
 
     /** For non-pvz entities, with this tag will it be regarded as iron. <br>
      * {@link com.hungteen.pvz.api.interfaces.IIronEntity} has the same effect and is more controllable.*/

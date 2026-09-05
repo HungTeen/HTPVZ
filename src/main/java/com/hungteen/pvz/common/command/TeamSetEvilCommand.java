@@ -17,8 +17,8 @@ public class TeamSetEvilCommand {
         LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("team").requires((ctx) -> ctx.hasPermission(2))
                 .then(Commands.literal("modify")
                         .then(Commands.argument("team", TeamArgument.team())
-                                .then(Commands.literal("pvz:isEvil").then(Commands.argument("isEvil", BoolArgumentType.bool()).executes(
-                                        (cmd) -> setTeamEvil(cmd.getSource(), TeamArgument.getTeam(cmd, "team"), BoolArgumentType.getBool(cmd, "isEvil"))
+                                .then(Commands.literal("pvz:is_evil").then(Commands.argument("is_evil", BoolArgumentType.bool()).executes(
+                                        (cmd) -> setTeamEvil(cmd.getSource(), TeamArgument.getTeam(cmd, "team"), BoolArgumentType.getBool(cmd, "is_evil"))
                                 )))
                         )
                 );
