@@ -1,0 +1,35 @@
+{
+    "name": "精華",
+    "icon": "pvz:origin_essence",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "獲取原始精華是這個Mod的開始。它們會在樹苗嘗試生長時生成在樹苗下的泥土裡，將其變為原始精華礦。你可以在樹苗上方放置方塊阻擋其生長來促使原始精華礦形成。原始精華是合成種子包和一些道具的原料。 "
+        },
+        {
+            "type": "text",
+            "text": "原始精華礦是種子包的原料，也可以用來製作精華熔爐。精華熔爐能小號原始精華將不同的原材料輻射成爲不同元素的精華，輻射后的精華可以用於製作種子包或為植物學習技能。"
+        },
+        {
+            "type": "text",
+            "text": "可以參考如下的配方。其中，墜星4會在夜晚自然從空中掉落，但它們白天會消失。螢石粉除在地獄挖掘螢石獲取外，還可以用熔爐熔煉地下城的夜明石獲取。"
+        },
+        {
+            "type": "pvz:essence",
+            "input1": "minecraft:clay_ball",
+            "input2": "minecraft:prismarine_crystals",
+            "input3": "minecraft:blaze_powder",
+            "input4": "pvz:fallen_star",
+            "input5": "minecraft:glowstone_dust",
+            "input6": "minecraft:snowball",
+            "output1": "pvz:terra_essence",
+            "output2": "pvz:aqua_essence",
+            "output3": "pvz:ignis_essence",
+            "output4": "pvz:ventus_essence",
+            "output5": "pvz:lux_essence",
+            "output6": "pvz:gelum_essence"
+        }
+    ],
+    "sortnum": 1
+}

@@ -1,8 +1,8 @@
 package com.hungteen.pvz.common.entity.ai.goal;
 
-import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.util.EntityUtil;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -75,7 +75,7 @@ public class AttractEnemyGoal extends Goal {
                 double originalLevel = getAttractingLevel(targetEntity, targetOfTarget);
                 if (! EntityUtil.isEntityValid(targetOfTarget) ||
                         ((originalLevel < thisLevel || (originalLevel == thisLevel && getAttractingStrength(targetEntity, targetOfTarget) < getAttractingStrength(targetEntity, entity))) &&
-                                ((! PVZConfig.PVZGameRules.getBoolean(entity.level, PVZConfig.Common.teamBattle)) || (EntityUtil.isTeammate(entity, targetOfTarget))))) {
+                                ((! Util.isTeamBattleOn(entity.level)) || (EntityUtil.isTeammate(entity, targetOfTarget))))) {
                     if (((Mob) targetEntity).targetSelector.getAvailableGoals().stream().anyMatch((goal) -> goal.getGoal() instanceof TargetGoal)) {
                         ((Mob) targetEntity).setTarget(entity);
                     }

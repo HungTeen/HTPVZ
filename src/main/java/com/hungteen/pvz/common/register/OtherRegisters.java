@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.entity.ai.ChorusTerminatorActivitiesGoal;
 import com.hungteen.pvz.common.entity.bullet.MelonBullet;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
 import com.hungteen.pvz.common.event.RegisterSproutsEvent;
@@ -12,6 +13,7 @@ import com.hungteen.pvz.common.world.zen_garden.NutTreeBeeHiveDecorator;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.world.entity.MobCategory;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorTy
 import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacerType;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RegisterRecipeBookCategoriesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -86,6 +89,24 @@ public class OtherRegisters {
     //Loot Table Function
     public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTIONS = DeferredRegister.create(Registry.LOOT_FUNCTION_REGISTRY, PVZMod.MODID);
     public static final RegistryObject<LootItemFunctionType> SET_SPROUT = LOOT_FUNCTIONS.register("set_sprout", () -> new LootItemFunctionType(new RegisterSproutsEvent.SetSproutTypeFunction.Serializer()));
+
+    //Entity Data Serializers
+    public static final DeferredRegister<EntityDataSerializer<?>> ENTITY_DATA_SERIALIZERS = DeferredRegister.create(ForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, PVZMod.MODID);
+    public static final RegistryObject<EntityDataSerializer<ChorusTerminatorActivitiesGoal.Action>> CHORUS_TERMINATOR_ACTION = ENTITY_DATA_SERIALIZERS.register("chorus_terminator_action", () -> EntityDataSerializer.simpleEnum(ChorusTerminatorActivitiesGoal.Action.class));
+    public static final RegistryObject<EntityDataSerializer<Vec3>> VEC3 = ENTITY_DATA_SERIALIZERS.register("vec3", () -> new EntityDataSerializer.ForValueType<>() {
+        @Override
+        public void write(FriendlyByteBuf buf, Vec3 vec3) {
+            buf.writeDouble(vec3.x);
+            buf.writeDouble(vec3.y);
+            buf.writeDouble(vec3.z);
+        }
+
+        @Override
+        public Vec3 read(FriendlyByteBuf buf) {
+            return new Vec3(buf.readFloat(), buf.readFloat(), buf.readFloat());
+        }
+    });
+
     public static void modBusRegister(IEventBus bus) {
         TREE_DECORATORS.register(bus);
         TRUNK_PLACER.register(bus);
@@ -93,5 +114,6 @@ public class OtherRegisters {
         RECIPE_TYPE.register(bus);
         LOOT_CONDITIONS.register(bus);
         LOOT_FUNCTIONS.register(bus);
+        ENTITY_DATA_SERIALIZERS.register(bus);
     }
 }

@@ -8,6 +8,7 @@ import com.hungteen.pvz.common.entity.ai.goal.GhastRiderActivitiesGoal;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -16,6 +17,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,6 +44,7 @@ import java.util.UUID;
 
 public class GhastRiderBoss extends FireImp {
     public BlockPos homePos = null;
+    public ResourceKey<Level> homeLevel;
     protected GhastRiderActivitiesGoal bossGoal;
     public Set<LavaGhastling> ghastlings = new HashSet<>(); // effective only on server.
     public int cantFreeze = 0;
@@ -52,6 +56,7 @@ public class GhastRiderBoss extends FireImp {
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 0.0F);
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, 0.0F);
         this.setPathfindingMalus(BlockPathTypes.LAVA, 0.0F);
+        this.homeLevel = p_34272_.dimension();
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -70,10 +75,12 @@ public class GhastRiderBoss extends FireImp {
         this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 32.0F, 1));
         this.bossGoal = new GhastRiderActivitiesGoal(this);
         this.goalSelector.addGoal(1, bossGoal);
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class,
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class,
                 false, (entity) -> EntityUtil.checkCanEntityBeAttack(this, entity)));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class,
                 true, (entity) -> entity instanceof IPlant && EntityUtil.checkCanEntityBeAttack(this, entity)));
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Mob.class,
+                true, (entity) -> entity == this.getLastHurtByMob()));
     }
 
     @Override
@@ -98,6 +105,7 @@ public class GhastRiderBoss extends FireImp {
             posTag.putInt("x", this.homePos.getX());
             posTag.putInt("y", this.homePos.getY());
             posTag.putInt("z", this.homePos.getZ());
+            posTag.putString("level", this.homeLevel.location().toString());
             tag.put("HomePos", posTag);
         }
         CompoundTag AITag = new CompoundTag();
@@ -119,8 +127,10 @@ public class GhastRiderBoss extends FireImp {
             CompoundTag posTag = tag.getCompound("HomePos");
             try {
                 this.homePos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
+                this.homeLevel = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(posTag.getString("level")));
             } catch (Exception ignored) {
                 this.homePos = this.blockPosition();
+                this.homeLevel = this.level.dimension();
             }
         }
         if (tag.contains("AIMemories")) {
@@ -159,8 +169,10 @@ public class GhastRiderBoss extends FireImp {
                 this.setDeltaMovement(0, 0.5, 0);
                 return true;
             } else {
-                return super.hurt(damageSource, amount);
+                return false;
             }
+        } else if (this.homePos != null && this.blockPosition().distSqr(homePos) < 9 && this.getTarget() == null) {
+            return super.hurt(damageSource, amount / 10);
         }
         return super.hurt(damageSource, amount);
     }
@@ -198,6 +210,7 @@ public class GhastRiderBoss extends FireImp {
                 }
                 if (this.homePos == null) {
                     this.homePos = this.blockPosition();
+                    this.homeLevel = this.level.dimension();
                 }
             } else {
                 this.stopRiding();

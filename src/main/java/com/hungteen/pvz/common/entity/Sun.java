@@ -168,7 +168,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
                     Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
                     if (entry != null) {
                         ItemStack itemStack = entry.getValue();
-                        int amount = getAmount() / 50;
+                        int amount = getAmount() / 25;
                         this.remove(Entity.RemovalReason.DISCARDED);
                         this.playSound(PVZSoundEvents.COLLECT_SUN.get());
                         itemStack.setDamageValue(Math.max(0, itemStack.getDamageValue() - amount));

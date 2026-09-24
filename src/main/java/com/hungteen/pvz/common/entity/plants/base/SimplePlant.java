@@ -186,7 +186,8 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             if (isPlanting) {
                 this.moveTo(
                         pos.getX() + 0.5 + offset.getX(),
-                        pos.getY() + (isSide ? 1 : direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
+                        pos.getY() + (isSide ? (getGrowDirection() == Direction.UP ? 1 : 0)
+                                : direction == Direction.UP ? (state.getCollisionShape(level, pos).isEmpty() ?
                                 (level.getFluidState(pos).isEmpty() ? 0 : level.getFluidState(pos).getHeight(level, pos)) :
                                 state.getCollisionShape(level, pos).bounds().maxY) : offset.getY()),
                         pos.getZ() + 0.5 + offset.getZ());
@@ -304,11 +305,11 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         int plantDisappearDatum = PVZConfig.PVZGameRules.getInt(plant.level, PVZConfig.Common.plantDisappearDatum);
         if (plant.isEffectiveAi() && ! plant.level.isClientSide
                 && plant.getDisappearTicks() > 0 && plantDisappearDatum > 0) {
-            if (plant.tickCount > plant.getDisappearTicks() && plant.tickCount % 300 == 0) {
-                int disappearable = PVZMod.serverAverageTickTime * 100 / plantDisappearDatum;
-                int plantCount = plant.level.getEntities(plant, plant.getBoundingBox().inflate(disappearable), entity -> EntityUtil.isTeammate(plant, entity)).size();
-                int playerCount = plant.level.getEntitiesOfClass(Player.class, plant.getBoundingBox().inflate((double) disappearable / 2)).size();
-                int enemyCount = plant.level.getEntities(plant, plant.getBoundingBox().inflate(Math.max(16, (double) 2500 / disappearable)), entity -> EntityUtil.checkCanEntityBeAttack(plant, entity)).size();
+            if (plant.tickCount > plant.getDisappearTicks() * plantDisappearDatum / 100 && plant.tickCount % 300 == 0) {
+                int testRange = PVZMod.serverAverageTickTime * 100 / plantDisappearDatum;
+                int plantCount = plant.level.getEntities(plant, plant.getBoundingBox().inflate(testRange), entity -> EntityUtil.isTeammate(plant, entity)).size();
+                int playerCount = plant.level.getEntitiesOfClass(Player.class, plant.getBoundingBox().inflate((double) testRange / 2)).size();
+                int enemyCount = plant.level.getEntities(plant, plant.getBoundingBox().inflate(Math.max(16, (double) 2500 / testRange)), entity -> EntityUtil.checkCanEntityBeAttack(plant, entity)).size();
                 if (enemyCount < 10 && playerCount == 0 && plantCount > 20 * plant.getDisappearTicks() / plant.tickCount - 1) {
                     plant.discard();
                     //TODO add some particle.

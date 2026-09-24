@@ -173,7 +173,7 @@ public class SplitPea extends PeaShooter {
             return super.performShoot(forwardOffset, rightOffset, heightOffset, needSound, randomAngle);
         } else {
             Entity target = this.getBackTarget();
-            if (target != null) {
+            if (target != null && target.getParts() != null) {
                 double distSqr = target.position().distanceToSqr(this.position());
                 for (PartEntity<?> part : target.getParts()) {
                     if (! isHeightAvailable(part)) continue;

@@ -15,14 +15,14 @@ public class SlimeAttackGoalMixin {
     @Final @Shadow private Slime slime;
 
     @Inject(method = "canContinueToUse", at = @At("HEAD"), cancellable = true)
-    public void canContinueToUse(CallbackInfoReturnable<Boolean> cir) {
+    public void pvz$canContinueToUse(CallbackInfoReturnable<Boolean> cir) {
         if (! (slime.getMoveControl() instanceof Slime.SlimeMoveControl)) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
-    public void canContinueToUse(CallbackInfo ci) {
+    public void pvz$tick(CallbackInfo ci) {
         if (! (slime.getMoveControl() instanceof Slime.SlimeMoveControl)) {
             ci.cancel();
         }

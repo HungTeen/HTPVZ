@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
     }
 
     public static Predicate<Entity> getDefaultPredicate(Mob mobIn) {
-        return (entity) -> EntityUtil.checkCanEntityBeAttack(mobIn, entity) && entity != mobIn
+        return (entity) -> EntityUtil.checkCanEntityBeAttack(mobIn, entity) && ! (entity instanceof Projectile) && entity != mobIn
                 && (! Util.hasBlockBetween(mobIn.level, mobIn.position().add(0, mobIn.getEyeHeight(), 0), entity.position().add(0, entity.getEyeHeight(), 0)));
     }
     protected double getFollowDistance() {

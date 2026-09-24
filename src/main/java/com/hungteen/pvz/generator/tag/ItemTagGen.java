@@ -3,11 +3,11 @@ package com.hungteen.pvz.generator.tag;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.tags.PVZItemTags;
+import com.hungteen.pvz.util.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -62,6 +62,6 @@ public class ItemTagGen extends ItemTagsProvider {
     public static final List<TagKey<Item>> LOGS = new ArrayList<>();
 
     private static TagKey<Item> tag(String path) {
-        return TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(PVZMod.MODID + ":" + path));
+        return TagKey.create(Registry.ITEM_REGISTRY, Util.prefix(path));
     }
 }

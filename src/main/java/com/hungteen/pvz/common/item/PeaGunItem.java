@@ -46,8 +46,7 @@ public class PeaGunItem extends ProjectileWeaponItem {
     public UseAnim getUseAnimation(ItemStack p_40678_) {
         return super.getUseAnimation(p_40678_);//UseAnim.BOW;
     }
-    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment)
-    {
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
         return super.canApplyAtEnchantingTable(stack, enchantment) ||
                 (enchantment == Enchantments.INFINITY_ARROWS && ! stack.getAllEnchantments().containsKey(Enchantments.FLAMING_ARROWS)) ||
                 (enchantment == Enchantments.FLAMING_ARROWS && ! stack.getAllEnchantments().containsKey(Enchantments.INFINITY_ARROWS)) ||

@@ -54,7 +54,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     public static List<Skill> staticSkillList = List.of(
             new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 3, 8, 150, 0),
             new Skill(LOW_BUDGET_SKILL_NAME, PVZItems.LUX_ESSENCE, 4, 4, -250, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.FAST),
-            new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 3, 100, 0).avoidSkills(LOW_BUDGET_SKILL_NAME),
+            new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 4, 3, 250, 0).avoidSkills(LOW_BUDGET_SKILL_NAME),
             new Skill(RAPID_DEPLOYMENT_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 16, 4, 200, 0)
     );
     public GatlingPea(EntityType<? extends Mob> type, Level worldIn) {
@@ -87,7 +87,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         entityData.set(OVERHEATING, value);
     }
 
-    public boolean getFusing() {
+    public boolean isFusing() {
         return entityData.get(FUSING);
     }
     public void setFusing(boolean value) {
@@ -104,7 +104,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                 this.getOverheat() > MAX_OVERHEAT * 0.67 ? (this.getOverheat() - MAX_OVERHEAT * 0.67) / 25 : 0);
         this.setOverheat(this.getOverheat() + 12 * (this.getFirstPassenger() instanceof Player player && player.isCreative() ? 0 : 1));
         if (getOverheat() > MAX_OVERHEAT && ! this.entityData.get(FUSING)) {
-            this.entityData.set(FUSING, true);
+            this.setFusing(true);
         }
     }
 
@@ -155,13 +155,17 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                 if (this.getFirstPassenger().xRot < 21 && this.getFirstPassenger().xRot > -21) {
                     this.getFirstPassenger().xRot = (float) Math.max(-20 - random.nextFloat(), Math.min(20 + random.nextFloat(), this.getFirstPassenger().xRot - random.nextFloat() * 1.5 * (usingSpyGlass ? 0.2 : 1)));
                 } else {
-                    this.getFirstPassenger().xRot += random.nextFloat() - 0.5;
+                    this.getFirstPassenger().xRot += random.nextFloat() - 0.5f;
                 }
-                this.getFirstPassenger().yRot -= (random.nextFloat() * 1 - 0.5) * (usingSpyGlass ? 0.2 : 1);
+                this.getFirstPassenger().yRot -= (random.nextFloat() - 0.5f) * (usingSpyGlass ? 0.2f : 1);
             }
             if (this.getFirstPassenger() != null) {
                 this.setYBodyRot(this.getYRot());
             }
+        }
+        if (isFusing() && this.controlledAnimationState.isStarted()) {
+            this.controlledAnimationState.stop();
+            this.idleAnimationState.start(this.tickCount);
         }
     }
 
@@ -171,7 +175,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
         if (this.getOverheat() > 0) {
             this.setOverheat(this.getOverheat() - (this.getOverheat() < MAX_OVERHEAT * 0.67 && ! entityData.get(FUSING) ? 2 : 1));
         } else {
-            this.entityData.set(FUSING, false);
+            this.setFusing(false);
         }
     }
 

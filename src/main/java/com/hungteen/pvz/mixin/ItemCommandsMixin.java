@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ItemCommandsMixin {
 
     @Inject(method = "getEntityItem", at = @At("HEAD"), cancellable = true)
-    private static void getEntityItem(Entity p_180246_, int p_180247_, CallbackInfoReturnable<ItemStack> cir) throws CommandSyntaxException {
+    private static void pvz$getEntityItem(Entity p_180246_, int p_180247_, CallbackInfoReturnable<ItemStack> cir) throws CommandSyntaxException {
         if (p_180247_ >= 73562 && p_180247_ < 73571 && p_180246_ instanceof Player player) {
             cir.setReturnValue(PVZPlayerCapability.getEnderSeedBundleSlot(player, p_180247_ - 73562));
         }
@@ -28,7 +28,7 @@ public class ItemCommandsMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/Entity;getSlot(I)Lnet/minecraft/world/entity/SlotAccess;")
     )
-    private static SlotAccess redirectGetSlotInSet(Entity entity, int p_146919_) {
+    private static SlotAccess pvz$redirectGetSlotInSet(Entity entity, int p_146919_) {
         SlotAccess original = entity.getSlot(p_146919_);
         if (p_146919_ >= 73562 && p_146919_ < 73571 && entity instanceof Player player) {
             return new PVZPlayerCapability.EnderSeedBundleSlotAccess(player, p_146919_ - 73562);
@@ -41,7 +41,7 @@ public class ItemCommandsMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/Entity;getSlot(I)Lnet/minecraft/world/entity/SlotAccess;")
     )
-    private static SlotAccess redirectGetSlotInModify(Entity entity, int p_146919_) {
+    private static SlotAccess pvz$redirectGetSlotInModify(Entity entity, int p_146919_) {
         SlotAccess original = entity.getSlot(p_146919_);
         if (p_146919_ >= 73562 && p_146919_ < 73571 && entity instanceof Player player) {
             return new PVZPlayerCapability.EnderSeedBundleSlotAccess(player, p_146919_ - 73562);

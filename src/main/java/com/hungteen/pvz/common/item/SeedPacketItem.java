@@ -22,6 +22,7 @@ import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -485,5 +486,12 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                     , false, true, hasExtraCost));
         }
         return Optional.empty();
+    }
+
+    public static void registerProperties() {
+        seedPacketItemList.forEach(item -> {
+            ItemProperties.register(item, Util.prefix("skilled"),
+                    (itemStack, level, entity, seed) -> item.getSkillVal(itemStack) > 0 ? 1 : 0);
+        });
     }
 }

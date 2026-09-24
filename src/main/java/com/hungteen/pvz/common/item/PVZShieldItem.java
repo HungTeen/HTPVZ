@@ -41,7 +41,7 @@ public class PVZShieldItem extends ShieldItem implements IDropWhenBroken {
         return PVZSoundEvents.DAMAGE_METAL.get();
     }
 
-    public static void registerProperties(){
+    public static void registerProperties() {
         ItemProperties.register(PVZItems.SCREEN_DOOR_SHIELD.get(), new ResourceLocation("durability"),
                 (itemStack, level, entity, seed) -> (150 - itemStack.getDamageValue()) / 51);
         ItemProperties.register(PVZItems.SCREEN_DOOR_SHIELD.get(), new ResourceLocation("blocking"),

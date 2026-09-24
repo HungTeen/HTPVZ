@@ -46,6 +46,11 @@ public class WateringPotItem extends BlockItem {
         return stack;
     }
 
+    @Override
+    public boolean isEnchantable(ItemStack itemStack) {
+        return false;
+    }
+
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
         BlockHitResult blockhitresult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);

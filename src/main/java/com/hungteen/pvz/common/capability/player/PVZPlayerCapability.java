@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.capability.player;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
+import com.hungteen.pvz.api.interfaces.ISunContainer;
 import com.hungteen.pvz.client.PVZKeyBindings;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.npcs.Penny;
@@ -38,7 +39,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
@@ -207,8 +207,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                         });
                     } else if (player.tickCount % 5 == 0) {
                         //delete modifiers caused by entities & blocks out of region or requiring refresh.
-                        List<BlockPos> refreshBlocks = new ArrayList<>();
-                        List<Entity> refreshEntities = new ArrayList<>();
+                        List<Pair<BlockPos, IMaxSunExpander>> refreshed = new ArrayList<>();
                         maxSun.getModifiers().forEach((modifier) -> {
                             Entity entity = ((ServerLevel) player.level).getEntity(modifier.getId());
                             if (! EntityUtil.isEntityValid(entity)) {
@@ -218,7 +217,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                                         maxSun.removeModifier(modifier.getId());
                                     } else if (player.level.getBlockState(pos).getBlock() instanceof IMaxSunExpander maxSunExpander && maxSunExpander.requireRefreshExtraMaxSun()) {
                                         maxSun.removeModifier(modifier.getId());
-                                        refreshBlocks.add(pos);
+                                        refreshed.add(new Pair<>(pos, maxSunExpander));
                                     }
                                 } else {
                                     maxSun.removeModifier(modifier.getId());
@@ -228,37 +227,34 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                                     maxSun.removeModifier(modifier.getId());
                                 } else if (entity instanceof IMaxSunExpander maxSunExpander && maxSunExpander.requireRefreshExtraMaxSun()) {
                                     maxSun.removeModifier(modifier.getId());
-                                    refreshEntities.add(entity);
+                                    refreshed.add(new Pair<>(entity.blockPosition(), maxSunExpander));
                                 }
                             }
                         });
-                        //add entity modifier.
+                        //add modifiers.
+                        int maxSunLimit = (int) player.getAttribute(PVZAttributes.MAX_SUN.get()).getBaseValue();
                         List<Entity> entities = player.level.getEntities(player, player.getBoundingBox().inflate(6, 6, 6).move(0, -3, 0),
                                 EntitySelector.NO_SPECTATORS.and((entity) -> entity instanceof IMaxSunExpander));
-                        entities.addAll(refreshEntities);
-                        entities.forEach((entity) -> {
-                            if (entity instanceof IMaxSunExpander) {
-                                if (maxSun.modifierById.keySet().stream().noneMatch(uuid1 -> uuid1.equals(entity.getUUID()))) {
-                                    maxSun.addTransientModifier(getEntityModifier(entity, player));
-                                }
-                            }
-                        });
-                        //add block modifier.
+                        refreshed.addAll(entities.stream().map(e -> new Pair<>(e.blockPosition(), (IMaxSunExpander) e)).toList());
                         for (int x = -6; x < 6; x ++) {
                             for (int y = -6; y < 6; y ++) {
                                 for (int z = -6; z < 6; z ++) {
                                     BlockPos pos = player.getOnPos().offset(x, y, z);
                                     if (player.level.getBlockState(pos).getBlock() instanceof IMaxSunExpander sunExpander) {
-                                        maxSun.addTransientModifier( getBlockModifier(pos, sunExpander, player));
+                                        refreshed.add(new Pair<>(pos, sunExpander));
                                     }
                                 }
                             }
                         }
-                        refreshBlocks.forEach(pos -> {
-                            if (player.level.getBlockState(pos).getBlock() instanceof IMaxSunExpander sunExpander) {
-                                maxSun.addTransientModifier( getBlockModifier(pos, sunExpander, player));
+                        ISunContainer playerWrapper = new ISunContainer.PlayerSunContainerWrapper(player);
+                        for (Pair<BlockPos, IMaxSunExpander> pair : refreshed) {
+                            maxSunLimit = pair.getSecond().extraMaxSunLimit(pair.getFirst(), playerWrapper);
+                        }
+                        for (Pair<BlockPos, IMaxSunExpander> pair : refreshed) {
+                            if (maxSun.modifierById.keySet().stream().noneMatch(uuid1 -> uuid1.equals(pair.getSecond().getUUID(pair.getFirst())))) {
+                                maxSun.addTransientModifier(pair.getSecond().getModifier(pair.getFirst(), maxSunLimit, playerWrapper));
                             }
-                        });
+                        }
                     }
                     //refresh player capability sun limit.
                     int toMax = (int) player.getAttributeValue(PVZAttributes.MAX_SUN.get());
@@ -289,30 +285,32 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                     nbt.setValue(PVZPlayerCapStats.PLANT_HAVE_COST, player.isCreative() ? 0 : 1);
                     nbt.setValue(PVZPlayerCapStats.PLANT_HAVE_CD, player.isCreative() ? 0 : 1);
                 }
-                //invasion spawn
-                int interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnInvasionsInterval) / 100;
-                if (player.tickCount % 100 == 0 && interval > 0) {
-                    int lastInvasion = nbt.getValue(PVZPlayerCapStats.LAST_INVASION);
-                    if (player.getRandom().nextInt(lastInvasion + 1) > interval) {
-                        if (InvasionTeam.spawnFor(player)) nbt.setValue(PVZPlayerCapStats.LAST_INVASION, 0);
-                    }
-                    nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 1);
-                }
-                //zombie group spawn
-                interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnZombieGroupInterval);
-                if (interval != 0 && player.tickCount % interval == interval / 2 && player.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
-                    ZombieGroup.spawnFor(player);
-                }
-                //penny spawn
-                if (player.level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
-                    interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnPennyInterval);
-                    int gameTime = Math.toIntExact(player.level.getGameTime() % interval);
-                    if (gameTime > 500 && gameTime < interval / 2) {
-                        if (nbt.getValue(PVZPlayerCapStats.SUMMONED_PENNY) == 0 && spawnPenny(player)) {
-                            nbt.setValue(PVZPlayerCapStats.SUMMONED_PENNY, 1);
+                if (player.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
+                    //invasion spawn
+                    int interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnInvasionsInterval) / 100;
+                    if (player.tickCount % 100 == 0 && interval > 0) {
+                        int lastInvasion = nbt.getValue(PVZPlayerCapStats.LAST_INVASION);
+                        if (player.getRandom().nextInt(lastInvasion + 1) > interval) {
+                            if (InvasionTeam.spawnFor(player)) nbt.setValue(PVZPlayerCapStats.LAST_INVASION, 0);
                         }
-                    } else if (gameTime < interval) {
-                        nbt.setValue(PVZPlayerCapStats.SUMMONED_PENNY, 0);
+                        nbt.addValue(PVZPlayerCapStats.LAST_INVASION, 1);
+                    }
+                    //zombie group spawn
+                    interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnZombieGroupInterval);
+                    if (interval != 0 && player.tickCount % interval == interval / 2 && player.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
+                        ZombieGroup.spawnFor(player);
+                    }
+                    //penny spawn
+                    if (player.level.dimension().location().equals(PVZDimensions.ZEN_GARDEN)) {
+                        interval = PVZConfig.PVZGameRules.getInt(player.level, PVZConfig.Common.naturallySpawnPennyInterval);
+                        int gameTime = Math.toIntExact(player.level.getGameTime() % interval);
+                        if (gameTime > 500 && gameTime < interval / 2) {
+                            if (nbt.getValue(PVZPlayerCapStats.SUMMONED_PENNY) == 0 && spawnPenny(player)) {
+                                nbt.setValue(PVZPlayerCapStats.SUMMONED_PENNY, 1);
+                            }
+                        } else if (gameTime < interval) {
+                            nbt.setValue(PVZPlayerCapStats.SUMMONED_PENNY, 0);
+                        }
                     }
                 }
                 //pumpkin helmet
@@ -393,15 +391,6 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                 }
             }
         }));
-    }
-
-    private static AttributeModifier getBlockModifier(BlockPos pos, IMaxSunExpander sunExpander, Player player) {
-        return new AttributeModifier(
-                MathUtil.posToUuid(pos), "extra_max_sun", sunExpander.extraMaxSun(pos, player), AttributeModifier.Operation.ADDITION);
-    }
-
-    private static AttributeModifier getEntityModifier(Entity entity, Player player) {
-        return new AttributeModifier(entity.getUUID(), "extra_max_sun", ((IMaxSunExpander) entity).extraMaxSun(entity.getOnPos(), player), AttributeModifier.Operation.ADDITION);
     }
 
     private static boolean spawnPenny(ServerPlayer player) {

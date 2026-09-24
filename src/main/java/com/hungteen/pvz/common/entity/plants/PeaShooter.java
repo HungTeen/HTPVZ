@@ -31,7 +31,7 @@ public class PeaShooter extends ShooterPlant {
     public static String FIRE_SKILL_NAME = "skill.pvz.pea_shooter.fire_shooter";
     public static List<Skill> staticSkillList = List.of(
             new Skill(PUNCH_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 3, 8, 100, 0),
-            new Skill(SNIPER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 16, 16, 150, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.FAST).avoidSkills(PUNCH_SKILL_NAME), //for pvp.
+            new Skill(SNIPER_SKILL_NAME, PVZItems.VENTUS_ESSENCE, 16, 16, 100, PVZSeedPackets.VERY_SLOW - PVZSeedPackets.FAST).avoidSkills(PUNCH_SKILL_NAME), //for pvp.
             new Skill(FIRE_SKILL_NAME, PVZItems.IGNIS_ESSENCE, 6, 12, 50, 0).avoidSkills(PUNCH_SKILL_NAME, SNIPER_SKILL_NAME)
     );
 

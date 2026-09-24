@@ -60,7 +60,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 	 */
 	public @Nullable Projectile performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double randomAngle) {
 		Entity target = this.getTarget();
-		if (target != null) {
+		if (target != null && target.getParts() != null) {
 			double distSqr = target.position().distanceToSqr(this.position());
 			for (PartEntity<?> part : target.getParts()) {
 				if (! isHeightAvailable(part)) continue;

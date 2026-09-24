@@ -73,7 +73,7 @@ public class PVZDamageSource {
     public static DamageSource spikeWeedHurt(LivingEntity source, Entity target) {
         return isPlantDamage(setSharp(anoOwned("spike_weed", source)), target);
     }
-    public static DamageSource gargantuarCrash(LivingEntity source) {
+    public static DamageSource crash(LivingEntity source) {
         return setNotEating(new EntityDamageSource("crush", source));
     }
     public static DamageSource tangleKelpHurt(LivingEntity source, Entity target) {

@@ -40,6 +40,5 @@ public class SilverSwordOrnamentRenderer implements BlockEntityRenderer<SilverSw
             model.renderToBuffer(stack, builder, combinedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1 ,1);
         }
         stack.popPose();
-
     }
 }

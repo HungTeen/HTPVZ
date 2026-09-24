@@ -141,9 +141,9 @@ public class Anger extends FlyingMob {
                     float damage = (float) anger.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
                     entity.hurt(DamageSource.ON_FIRE, damage);
                     entity.hurt(PVZDamageSource.angerAttack(anger), 2);
-                    entity.setSecondsOnFire(entity instanceof Player ? 2 : (int) damage);
+                    entity.setSecondsOnFire(entity instanceof Player ? 4 : (int) damage);
                 } else if (friendlyFire) {
-                    entity.setSecondsOnFire(2);
+                    entity.setSecondsOnFire(4);
                 }
             });
             if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(anger.level, anger)) {

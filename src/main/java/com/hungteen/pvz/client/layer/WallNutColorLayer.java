@@ -1,11 +1,9 @@
 package com.hungteen.pvz.client.layer;
 
 import com.hungteen.pvz.client.model.plants.WallNutModel;
-import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.plants.WallNut;
 import com.hungteen.pvz.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -30,7 +28,7 @@ public class WallNutColorLayer<T extends WallNut> extends RenderLayer<T, WallNut
     public void render(PoseStack stack, MultiBufferSource bufferSource, int p_117351_, T wallNut, float p_117353_, float p_117354_, float p_117355_, float p_117356_, float p_117357_, float p_117358_) {
         if (wallNut.hasSkill(this, "skill.pvz.wall_nut.explode") || (! wallNut.isInvisible() && wallNut.hasCustomName())) {
             int R, G, B;
-            Vec3i color = getColor(wallNut.getName().getString());
+            Vec3i color = getColor(wallNut.getName().getString(), wallNut, p_117355_);
             if (wallNut.hasSkill(this, "skill.pvz.wall_nut.explode") || color != null) {
                 float healthPercent = wallNut.getHealth() / wallNut.getMaxHealth();
                 R = color != null ? color.getX() : 256-0xFF;
@@ -44,8 +42,20 @@ public class WallNutColorLayer<T extends WallNut> extends RenderLayer<T, WallNut
         }
     }
 
-    private Vec3i getColor(String name) {
-        char[] str = name.toUpperCase().toCharArray();
+    private Vec3i getColor(String name, WallNut wallNut, float partialTick) {
+        char[] str;
+        if (name.equals("HungTeen")) {
+            float loop = 6 * ((float) ((wallNut.tickCount + wallNut.getId()) % 59) + partialTick) / 60;
+            String r = Integer.toHexString((int) (255 * Math.min(1, Math.max(0, loop < 3 ? 2 - loop : loop - 4))));
+            r = r.length() < 2 ? "0" + r : r;
+            String g = Integer.toHexString((int) (255 * Math.min(1, Math.max(0, loop > 3 ? 4 - loop : loop))));
+            g = g.length() < 2 ? "0" + g : g;
+            String b = Integer.toHexString((int) (255 * Math.min(1, Math.max(0, loop > 5 ? 6 - loop : loop - 2))));
+            b = b.length() < 2 ? "0" + b : b;
+            str = (r + g + b).toUpperCase().toCharArray();
+        } else {
+            str = name.toUpperCase().toCharArray();
+        }
         int[] bytes = new int[6];
         final String compare = "0123456789ABCDEF";
         if (str.length == 6) {

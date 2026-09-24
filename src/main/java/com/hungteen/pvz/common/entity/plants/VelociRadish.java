@@ -68,7 +68,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
 
     public static List<Skill> staticSkillList = List.of(
             new Skill(STRONG_SKILL_NAME, PVZItems.ORIGIN_ESSENCE, 12, 8, 25, PVZSeedPackets.SLOW - PVZSeedPackets.FAST),
-            new Skill(GROUP_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 100, PVZSeedPackets.SLOW - PVZSeedPackets.FAST).avoidSkills(STRONG_SKILL_NAME)
+            new Skill(GROUP_SKILL_NAME, PVZItems.LUX_ESSENCE, 12, 8, 100, PVZSeedPackets.MEDIUM - PVZSeedPackets.FAST).avoidSkills(STRONG_SKILL_NAME)
     );
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState moveAnimationState = new AnimationState();
@@ -306,7 +306,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
                     this.getAttribute(Attributes.MAX_HEALTH).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 15, AttributeModifier.Operation.ADDITION));
                     this.getAttribute(Attributes.MOVEMENT_SPEED).addTransientModifier(new AttributeModifier(HEALTH_MODIFIER_UUID, "skill bonus", 0.15, AttributeModifier.Operation.ADDITION));
                     this.heal(20);
-                } else if (tickCount > 200) {
+                } else if (tickCount > 300) {
                     this.removeSkill(this, getSkillFromName(STRONG_SKILL_NAME));
                     ((ServerLevel) this.level).sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE
                             , this.getX(), this.getY() + 0.5, this.getZ(), 10

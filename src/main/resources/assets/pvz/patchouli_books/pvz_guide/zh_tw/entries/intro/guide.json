@@ -1,0 +1,16 @@
+{
+    "name": "教程書",
+    "icon": "minecraft:book",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "這裏展示的是這本書的合成配方。"
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:patchouli_guide_book"
+        }
+    ],
+    "sortnum": 0
+}

@@ -2,10 +2,7 @@ package com.hungteen.pvz.client.renderer;
 
 import com.hungteen.pvz.client.model.*;
 import com.hungteen.pvz.client.model.attached.*;
-import com.hungteen.pvz.client.model.bullet.CommonBulletModel;
-import com.hungteen.pvz.client.model.bullet.DandelionSeedBulletModel;
-import com.hungteen.pvz.client.model.bullet.MelonBulletModel;
-import com.hungteen.pvz.client.model.bullet.StarfruitBulletModel;
+import com.hungteen.pvz.client.model.bullet.*;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.model.zombie.*;
 import com.hungteen.pvz.common.register.PVZEntities;
@@ -36,7 +33,6 @@ public class PVZLayerHandler {
     @SubscribeEvent
     public static void createModelDefinitions(EntityRenderersEvent.RegisterLayerDefinitions e) {
         PVZEntities.simpleRenderHandler();
-        //enter here.
         L(e, PVZEntities.GRASSCARP, GrassCarpModel::createBodyLayer);
         L(e, PVZEntities.SNAIL, SnailModel::createBodyLayer);
         L(e, "lava_ghastling_light", LavaGhastlingLightModel::createBodyLayer);
@@ -68,6 +64,7 @@ public class PVZLayerHandler {
         L(e, "common_bullet", CommonBulletModel::createBodyLayer);
         L(e, "starfruit_bullet", StarfruitBulletModel::createBodyLayer);
         L(e, "dandelion_seed_bullet", DandelionSeedBulletModel::createBodyLayer);
+        L(e, "chorus_terminator_bullet", ChorusTerminatorBulletModel::createBodyLayer);
 
         L(e, "floating_essence_block", FloatEssenceBlockModel::createBodyLayer);
         L(e, "silver_sword_ornament", SilverSwordOrnamentModel::createBodyLayer);
@@ -83,6 +80,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieModel::createBodyLayer);
         L(e, PVZEntities.DIGGER_ZOMBIE, DiggerZombieModel::createBodyLayer);
         L(e, PVZEntities.GARGANTUAR, GargantuarModel::createBodyLayer);
+        L(e, PVZEntities.CHORUS_TERMINATOR, ChorusTerminatorModel::createBodyLayer);
         L(e, PVZItems.CONE_HELMET, () -> ConeHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
         L(e, PVZItems.BUCKET_HELMET, () -> BucketHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
         L(e, PVZItems.PUMPKIN_HELMET, () -> PumpkinHelmetModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));

@@ -59,17 +59,16 @@ public class ZombieGroup extends ZombieEvent {
     @Override
     public void tick(TickEvent.ServerTickEvent ev) {
         super.tick(ev);
-        if (tickCount % 20 == 0 && target instanceof ServerPlayer player && ! player.isDeadOrDying() && ! player.isCreative()
+        if (tickCount % 40 == 0 && target instanceof ServerPlayer player && ! player.isDeadOrDying() && ! player.isCreative()
                 && PVZZombieEventCapability.fromLevel(player.level).getNearestEvent(ZombieEvent.class, this.position
                 , e -> e.position.distSqr(this.position) < Math.pow(e.range + 8, 2) && e != this && e.isMainEvent()) == null) {
             int plantCost = Math.max(200, getPlantsCostNearby(player));
             if ((player.getRespawnPosition() == null ? player.level.getSharedSpawnPos() : player.getRespawnPosition())
-                    .distSqr(player.blockPosition()) > 2048 && plantCost < 400) {
-                remove();
-                return;
+                    .distSqr(player.blockPosition()) > 2048) {
+                plantCost /= 2;
             }
             float angle = player.getRandom().nextFloat() * 6.28f;
-            float dist = player.getRandom().nextFloat() * 16 + 24;
+            float dist = player.getRandom().nextFloat() * 24 + 24;
             BlockPos pos = player.blockPosition().offset(Math.sin(angle) * dist, 0, Math.cos(angle) * dist);
             pos = new BlockPos(pos.getX(), player.level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, pos.getX(), pos.getZ()), pos.getZ());
             if (! level.getEntities((Entity) null

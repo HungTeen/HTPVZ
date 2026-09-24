@@ -123,6 +123,7 @@ public class JackInTheBoxItem extends Item {
     public int getUseDuration(ItemStack p_40680_) {
         return 72000;
     }
+
     public static void registerProperties() {
         ItemProperties.register(PVZItems.JACK_IN_THE_BOX.get(), new ResourceLocation("open"),
                 (itemStack, level, entity, seed) -> entity instanceof LivingEntity && entity.isUsingItem() && entity.getUseItem() == itemStack ? 1 : 0);

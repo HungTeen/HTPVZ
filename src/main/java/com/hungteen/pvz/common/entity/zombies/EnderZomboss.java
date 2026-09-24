@@ -32,8 +32,9 @@ public class EnderZomboss extends Shulker {
 
     @Override
     public boolean hurt(DamageSource damageSource, float amount) {
-        return super.hurt(damageSource, 1);
+        return super.hurt(damageSource, damageSource == DamageSource.OUT_OF_WORLD ? amount : 1);
     }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 100D)

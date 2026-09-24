@@ -14,11 +14,14 @@ import java.util.function.Supplier;
 public class ChorusTerminatorSyncPacket {
     private ChorusTerminatorBoss boss;
     Map<String, Vec3> posMap = new HashMap<>();
+    Map<String, Vec3> spdMap = new HashMap<>();
+    Map<String, Vec3> itnMap = new HashMap<>();
     public ChorusTerminatorSyncPacket(ChorusTerminatorBoss boss) {
         this.boss = boss;
     }
 
     public ChorusTerminatorSyncPacket(FriendlyByteBuf buf) {
+        if (ClientProxy.getLevel() == null) return;
         Entity boss = ClientProxy.getLevel().getEntity(buf.readInt());
         if (boss instanceof ChorusTerminatorBoss b) {
             this.boss = b;
@@ -28,7 +31,12 @@ public class ChorusTerminatorSyncPacket {
         boolean stopped = false;
         while (! stopped) {
             try {
-                posMap.put(buf.readUtf(), new Vec3(buf.readFloat(), buf.readFloat(), buf.readFloat()));
+                String name = buf.readUtf();
+                posMap.put(name, new Vec3(buf.readFloat(), buf.readFloat(), buf.readFloat()));
+                spdMap.put(name, new Vec3(buf.readFloat(), buf.readFloat(), buf.readFloat()));
+                try {
+                    itnMap.put(name, new Vec3(buf.readFloat(), buf.readFloat(), buf.readFloat()));
+                } catch (Exception ignored) {}
             } catch (Exception e) {
                 stopped = true;
             }
@@ -43,6 +51,16 @@ public class ChorusTerminatorSyncPacket {
             buf.writeFloat((float) part.getX());
             buf.writeFloat((float) part.getY());
             buf.writeFloat((float) part.getZ());
+            Vec3 vec3 = part.getDeltaMovement();
+            buf.writeFloat((float) vec3.x);
+            buf.writeFloat((float) vec3.y);
+            buf.writeFloat((float) vec3.z);
+            vec3 = part.getIntention();
+            if (vec3 != null) {
+                buf.writeFloat((float) vec3.x);
+                buf.writeFloat((float) vec3.y);
+                buf.writeFloat((float) vec3.z);
+            }
         }
     }
 
@@ -53,6 +71,8 @@ public class ChorusTerminatorSyncPacket {
                 if (! part.needSync) continue;
                 if (posMap.containsKey(part.name)) {
                     part.setPos(posMap.get(part.name));
+                    part.setDeltaMovement(spdMap.get(part.name));
+                    if (itnMap.containsKey(part.name)) part.setIntention(itnMap.get(part.name));
                 }
             }
         });

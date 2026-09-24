@@ -64,13 +64,14 @@ public class Jalapeno extends SimplePlant {
                     }
                 });
                 anger.yRot = direction.toYRot();
-                anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(this.level));
                 if (this.hasSkill(TRACK_SKILL_NAME)) {
                     anger.maxLife = 150;
                     anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(0.6F);
+                    anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.33 * PVZAPI.get().getPlantDamageDatum(this.level));
                 } else {
                     anger.targetSelector.disableControlFlag(Goal.Flag.TARGET);
                     anger.getAttribute(Attributes.FLYING_SPEED).setBaseValue(1F);
+                    anger.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.getAttributeValue(Attributes.ATTACK_DAMAGE) * PVZAPI.get().getPlantDamageDatum(this.level));
                 }
                 level.addFreshEntity(anger);
             }

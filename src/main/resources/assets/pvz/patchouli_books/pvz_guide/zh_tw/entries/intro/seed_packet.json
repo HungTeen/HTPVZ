@@ -1,0 +1,33 @@
+{
+    "name": "種子包",
+    "icon": "pvz:flower_seed_packet",
+    "category": "pvz:intro",
+    "pages": [
+        {
+            "type": "text",
+            "text": "你需要在工作臺上製作植物種子包。不同的種子包有不同的配方，但配方的結構大體上是類似的。這裏展示了豌豆射手種子包的兩種配方。 "
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:seed_packets/fusion/pea_shooter_seed_packet",
+            "recipe2": "pvz:seed_packets/pea_shooter_seed_packet"
+        },
+        {
+            "type": "text",
+            "text": "第一種需要種子和種子包模板，其中所需要的種子可以通過入侵或種植花苗來獲取，這些後面會講到。只有一部分植物可以通過第二種格式的配方獲取。這些配方通常需要一個植物原料，種子包模板和特定的元素精華。"
+        },
+        {
+            "type": "text",
+            "text": "種子包模板代表了植物所屬的維度。它們的配方一般由原始精華（只有歌萊果種子包需要藏識樹脂）、一種該維度的植物和一些礦物組成。遵循以下的模式："
+        },
+        {
+            "type": "crafting",
+            "recipe": "pvz:flower_seed_packet"
+        },
+        {
+            "type": "text",
+            "text": "種子本身也可以用於種植植物，但它們是一次性的；種子包則有更多耐久。"
+        }
+    ],
+    "sortnum": 2
+}

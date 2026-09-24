@@ -1,11 +1,12 @@
 package com.hungteen.pvz.api;
 
 import com.hungteen.pvz.api.events.ZombieEventEvent;
-import com.hungteen.pvz.common.register.PVZZombieEvents;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.registries.RegistryManager;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -39,6 +41,8 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
     public boolean removed;
     protected Set<Entity> members = new HashSet<>();
     protected int tickCount = 1;// not 0 to avoid ticking before the entities finished loading.
+    public static final ResourceKey<Registry<Class<? extends ZombieEvent>>> ZOMBIE_EVENT_KEY =
+            ResourceKey.createRegistryKey(new ResourceLocation("pvz", "zombie_events"));
 
     public ZombieEvent(Level level, UUID uuid) {
         this.level = level;
@@ -115,7 +119,8 @@ public abstract class ZombieEvent implements INBTSerializable<CompoundTag> {
     }
 
     public Component getDisplayName() {
-        return Component.translatable(Util.makeDescriptionId("zombie_event", PVZZombieEvents.REGISTRY.get().getKey(this.getClass())));
+        ResourceLocation key = RegistryManager.ACTIVE.getRegistry(ZOMBIE_EVENT_KEY).getKey(this.getClass());
+        return Component.translatable(Util.makeDescriptionId("zombie_event", key));
     }
 
     @Override

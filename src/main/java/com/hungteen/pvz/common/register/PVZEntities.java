@@ -13,6 +13,7 @@ import com.hungteen.pvz.client.renderer.bullet.*;
 import com.hungteen.pvz.client.renderer.creatures.*;
 import com.hungteen.pvz.client.renderer.misc.FallenStarRenderer;
 import com.hungteen.pvz.client.renderer.misc.PVZBoatRenderer;
+import com.hungteen.pvz.client.renderer.misc.PortalRenderer;
 import com.hungteen.pvz.client.renderer.misc.SunRenderer;
 import com.hungteen.pvz.client.renderer.plants.*;
 import com.hungteen.pvz.client.renderer.zombies.*;
@@ -133,6 +134,9 @@ public class PVZEntities {
             .collision(3f, 3f).entity("penny", Penny::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).noSummon()
             .entity("entity_lifter", EntityLifter::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<Portal>> PORTAL = collision(1F, 4F).noSummon()
+            .entity("portal", Portal::new, MobCategory.MISC);
+
 
     //plants
     public static final RegistryObject<EntityType<WallNut>> WALL_NUT = attribute(WallNut::createAttributes).tag(PVZEntityTags.PLANT)
@@ -305,7 +309,7 @@ public class PVZEntities {
             .entity("ender_zomboss", EnderZomboss::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<ChorusTerminatorBoss>> CHORUS_TERMINATOR = attribute(ChorusTerminatorBoss::createAttributes)
             .tag(PVZEntityTags.ZOMBIE, Tags.EntityTypes.BOSSES)
-            .collision(7F, 6F)
+            .collision(4.5F, 6F)
             .entity("chorus_terminator", ChorusTerminatorBoss::new, MobCategory.MONSTER);
 
     //bullets
@@ -345,6 +349,9 @@ public class PVZEntities {
     public static final RegistryObject<EntityType<ThrownFogInBottle>> FOG_IN_BOTTLE = collision(0.25F, 0.25F)
             .trackRange(4).updateInterval(20).tag(EntityTypeTags.IMPACT_PROJECTILES)
             .entity("fog_in_bottle", ThrownFogInBottle::new, MobCategory.MISC);
+    public static final RegistryObject<EntityType<ChorusTerminatorBullet>> CHORUS_TERMINATOR_BULLET = collision(0.8F, 0.8F)
+            .tag(EntityTypeTags.IMPACT_PROJECTILES, PVZEntityTags.ENEMY)
+            .entity("chorus_terminator_bullet", ChorusTerminatorBullet::new, MobCategory.MISC);
 
     //client
     /** For simply rendered entities (accepts only Mob!), auto render at {@link PVZEntities#simpleRenderHandler()}.
@@ -368,7 +375,6 @@ public class PVZEntities {
         rS(MELON_PULT, MelonPultModel::new, MelonPultModel::createBodyLayer, 0.5F, "textures/entity/plants/melon_pult/melon_pult.png");
         rS(ICEBERG_LETTUCE, IcebergLettuceModel::new, IcebergLettuceModel::createBodyLayer, 0F, "textures/entity/plants/iceberg_lettuce/iceberg_lettuce.png");
         rS(PENNY, PennyModel::new, PennyModel::createBodyLayer, 1.5F);
-        rS(CHORUS_TERMINATOR, ChorusTerminatorModel::new, ChorusTerminatorModel::createBodyLayer, 1F, "textures/entity/zombie/chorus_terminator/chorus_terminator.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -422,6 +428,8 @@ public class PVZEntities {
         r(e, GARGANTUAR, GargantuarRenderer::new);
         r(e, LAVA_GHASTLING, LavaGhastlingRenderer::new);
         r(e, GHAST_RIDER, GhastRiderRenderer::new);
+        r(e, CHORUS_TERMINATOR, ChorusTerminatorRenderer::new);
+        r(e, CHORUS_TERMINATOR_BULLET, ChorusTerminatorBulletRenderer::new);
         r(e, ENDER_ZOMBOSS, ShulkerRenderer::new);
         r(e, SPROUT, SproutRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
@@ -429,6 +437,7 @@ public class PVZEntities {
         r(e, HOOK, HookRenderer::new);
         r(e, FIREBALL, ctx -> new ThrownItemRenderer<>(ctx, 1.5F, true));
         r(e, ENTITY_LIFTER, EntityLifterRenderer::new);
+        r(e, PORTAL, PortalRenderer::new);
         r(e, FALLEN_STAR, FallenStarRenderer::new);
         r(e, PEA_SHOOTER_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, PeaShooterZombieModel.class));
         r(e, SNOW_PEA_ZOMBIE, ctx -> new ZombotanyRenderer(ctx, SnowPeaZombieModel.class));

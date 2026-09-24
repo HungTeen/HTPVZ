@@ -137,7 +137,7 @@ public class PVZItems {
     public static final RegistryObject<Item> ENDER_SEED_BUNDLE = item("ender_seed_bundle", () -> new EnderSeedBundleItem((new Item.Properties()).tab(PVZItemTabs.PVZ_FUNCTIONAL).stacksTo(1)));
 
     public static final RegistryObject<Item> MUSIC_DISC_ZEN_GARDEN = item("music_disc_zen_garden", () -> new RecordItem(11, PVZSoundEvents.MUSIC_DISC_ZEN_GARDEN, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC).rarity(Rarity.RARE), 69));
-    public static final RegistryObject<Item> MUSIC_DISC_BRAINIAC_MANIAC = item("music_disc_brainiac_maniac", () -> new RecordItem(12, PVZSoundEvents.MUSIC_DISC_ZEN_GARDEN, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC).rarity(Rarity.RARE), 102));
+    public static final RegistryObject<Item> MUSIC_DISC_BRAINIAC_MANIAC = item("music_disc_brainiac_maniac", () -> new RecordItem(12, PVZSoundEvents.MUSIC_DISC_BRAINIAC_MANIAC, (new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_MISC).rarity(Rarity.RARE), 102));
 
     static {
         createBannerPatterns();
@@ -151,6 +151,7 @@ public class PVZItems {
         WateringPotItem.registerProperties();
         PVZShieldItem.registerProperties();
         JackInTheBoxItem.registerProperties();
+        SeedPacketItem.registerProperties();
     }
 
     //definitions

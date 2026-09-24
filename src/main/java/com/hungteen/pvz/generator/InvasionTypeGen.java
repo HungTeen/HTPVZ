@@ -321,7 +321,7 @@ public class InvasionTypeGen implements DataProvider {
                                 EntityBuilder.of(PVZEntities.SNOW_PEA_ZOMBIE.get()).get(),
                                 conditions(
                                         condition(new InvasionCondition.InBiomeCondition(), arg(Tags.Biomes.IS_COLD))
-                                ), CONE, 20, false, 0.2F
+                                ), CONE + ZOMBIE, 20, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get()).get(), BUCKET, 20, false, 0.7F
@@ -333,9 +333,10 @@ public class InvasionTypeGen implements DataProvider {
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.SNOW_PEA_ZOMBIE.get())).get(),
                                 conditions(
-                                        condition(new InvasionCondition.InBiomeCondition(), arg(Tags.Biomes.IS_COLD))
+                                        condition(new InvasionCondition.InBiomeCondition(), arg(Tags.Biomes.IS_COLD)),
+                                        condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "8")
                                 )
-                                , BUCKET + 100, 2, false, 0.2F
+                                , BUCKET + CONE, 2, false, 0.2F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get())).get()
@@ -362,16 +363,15 @@ public class InvasionTypeGen implements DataProvider {
                                 EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get())).get()
                                 , conditions(
                                         condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "16")
-                                ), GARG, 5, false, 0.3F
+                                ), BUCKET, 5, false, 0.3F
                         )
                 ),
-                false, 1, 1, 1F,500
+                false, 1, 1, 1F,40
         ));
         map.put(Util.prefix("overworld_zombotany_jalapeno"), new InvasionType(loot("pvz:invasion/overworld_zombotany"),
                 conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:overworld"),
                         condition(new InvasionCondition.ObtainedAdvancementCondition(), "pvz:kill_ender_zomboss"),
-                        condition(new InvasionCondition.InBiomeCondition(), "#forge:is_hot"),
                         condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "6")
                 ),
                 entityModifiers(InvasionEntityModifiers.ADD_LIFEBUOY, InvasionEntityModifiers.WITH_SUN_BLOOD, InvasionEntityModifiers.HOLD_RANDOM_JEWEL, InvasionEntityModifiers.FINALIZE_SPAWN, InvasionEntityModifiers.CHECK_SPAWN_RULES),
@@ -388,7 +388,7 @@ public class InvasionTypeGen implements DataProvider {
                                 EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get()).get(), DOOR, 15, false, 0
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get()).get(), BUCKET, 20, false, 0.7F
+                                EntityBuilder.of(PVZEntities.GATLING_PEA_ZOMBIE.get()).get(), BUCKET, 4, false, 0.7F
                         ),
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.JALAPENO_ZOMBIE.get()).get(), DOOR, 15, false, 0.4F
@@ -396,13 +396,25 @@ public class InvasionTypeGen implements DataProvider {
                         new InvasionType.EnemyType(
                                 EntityBuilder.of(PVZEntities.JALAPENO_ZOMBIE.get())
                                         .equip(EquipmentSlot.MAINHAND, PVZItems.SCREEN_DOOR_SHIELD.get().getDefaultInstance()).get()
-                                , DOOR, 15, false, 0.8F
+                                , DOOR + CONE, 15, false, 0.8F
                         ),
                         new InvasionType.EnemyType(
-                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).get(), BUCKET, 5, false, 0
+                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).get(), BUCKET, 5, false, 0.3F
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.WALL_NUT_ZOMBIE.get())).get()
+                                , conditions(
+                                condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "16")
+                        ), BUCKET, 8, false, 0.3F
+                        ),
+                        new InvasionType.EnemyType(
+                                EntityBuilder.of(PVZEntities.PUMPKIN_ZOMBIE.get()).passenger(EntityBuilder.of(PVZEntities.JALAPENO_ZOMBIE.get())).get()
+                                , conditions(
+                                condition(new InvasionCondition.InvasionDifficultyGreaterThanCondition(), "16")
+                        ), GARG, 5, true, 0.6F
                         )
                 ),
-                false, 1, 1, 1F,800
+                false, 1, 1, 1F,60
         ));
 
 
@@ -497,7 +509,7 @@ public class InvasionTypeGen implements DataProvider {
                                 ), BUCKET, 15, true, 0.6F
                         )
                 ),
-                false, 1, 1, 1.2F,500
+                false, 1, 1, 1.2F,100
         ));
         map.put(Util.prefix("nether_magma"), new InvasionType(
                 loot("pvz:invasion/nether_magma",
@@ -592,7 +604,7 @@ public class InvasionTypeGen implements DataProvider {
                                 ), GARG + CONE, 15, true, 0.5F
                         )
                 ),
-                false, 1, 1, 1.2F,300
+                false, 1, 1, 1.2F,60
         ));
         map.put(Util.prefix("nether_basic"), new InvasionType(
                 loot("pvz:invasion/nether_basic"),
@@ -649,9 +661,8 @@ public class InvasionTypeGen implements DataProvider {
                                 ), GARG + CONE, 15, true, 0.5F
                         )
                 ),
-                false, 1, 1, 1.2F,500
+                false, 1, 1, 1.2F,100
         ));
-        //TODO need one on lava seas?
         return map;
     }
 

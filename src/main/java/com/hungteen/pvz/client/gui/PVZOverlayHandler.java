@@ -223,7 +223,7 @@ public class PVZOverlayHandler {
             if (j > 0) {
                 blit(stack, width / 2 - 91, k, 0, 35, j, 5);
             }
-            if (gatlingPea.getFusing()) {
+            if (gatlingPea.isFusing()) {
                 blitColor(stack, width / 2 - 91, k, 0, 40, 182, 5, 0xffffff,
                         (int) (128 + Math.sin((float) gatlingPea.getOverheat() / 15 - Math.PI / 2) * 80));
             }

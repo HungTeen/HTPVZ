@@ -3,20 +3,17 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.interfaces.IMaxSunExpander;
 import com.hungteen.pvz.api.interfaces.ISunContainer;
-import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
-import com.hungteen.pvz.common.register.PVZAttributes;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.tags.PVZBiomeTags;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -53,19 +50,20 @@ public class SunFlower extends ProducerPlant implements IMaxSunExpander {
     }
 
     @Override
-    public int extraMaxSun(BlockPos pos, Entity giveTo) {
+    public int extraMaxSun(BlockPos pos, ISunContainer giveTo) {
+        if (giveTo instanceof Entity e && ! EntityUtil.isTeammate(e, this)) return 0;
         if (level.getBiome(blockPosition()).is(PVZBiomeTags.UNABLE_SUN_PRODUCTION)) return 0;
         SunState sunState = this.getSunState();
-        int extra = sunState == SunState.FULL ? 50 : sunState == SunState.HALF ? 25 : 0;
-        int current = 0;
-        if (giveTo instanceof Player player && player.getAttribute(PVZAttributes.MAX_SUN.get()) != null) {
-            current = (int) ((LivingEntity) giveTo).getAttributeValue(PVZAttributes.MAX_SUN.get());
-        } else if (giveTo instanceof ISunContainer container) {
-            current = container.getCapacity();
-        }
-        return EntityUtil.isTeammate(giveTo, this) ?
-                Math.min(extra, Math.max(1000 - current, 0)) : 0;
+        return sunState == SunState.FULL ? 50 : sunState == SunState.HALF ? 25 : 0;
     }
+
+    @Override
+    public int extraMaxSunLimit(BlockPos pos, ISunContainer giveTo) {
+        if (giveTo instanceof Entity e && ! EntityUtil.isTeammate(e, this)) return 0;
+        if (level.getBiome(blockPosition()).is(PVZBiomeTags.UNABLE_SUN_PRODUCTION)) return 0;
+        return 1000;
+    }
+
     @Override
     public boolean requireRefreshExtraMaxSun() {
         return true;

@@ -90,7 +90,7 @@ public class MelonPult extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 30D)
+                .add(Attributes.ATTACK_DAMAGE, 24D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

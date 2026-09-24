@@ -4,18 +4,21 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.CheckReteamableToOwnerEvent;
 import com.hungteen.pvz.api.events.SculkJudgmentEvent;
 import com.hungteen.pvz.api.events.TeammateTestingEvent;
+import com.hungteen.pvz.common.entity.Portal;
 import com.hungteen.pvz.common.entity.plants.WallNut;
 import com.hungteen.pvz.common.item.ExtraHealthArmorItem;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZMobEffects;
 import com.hungteen.pvz.common.tags.PVZBlockTags;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
+import com.hungteen.pvz.common.world.PVZPortalCache;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -23,7 +26,11 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.Node;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
@@ -33,9 +40,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class EntityUtil {
     public static final Random random = new Random();
@@ -87,7 +92,7 @@ public class EntityUtil {
         for (int x = -1; x < 2; x ++) {
             for (int z = -1; z < 2 ; z ++) {
                 if (width < 1 && (x == 0 || z == 0)) continue;
-                BlockPos pos = new BlockPos(entity.getX() + x * width * 0.5F ,entity.getOnPos().getY(), entity.getZ() + z * width * 0.5F);
+                BlockPos pos = new BlockPos(entity.getX() + x * width * 0.5F , entity.getOnPos().getY(), entity.getZ() + z * width * 0.5F);
                 if (entity.getY() - entity.getOnPos().getY()
                         - Math.max(entity.level.getBlockState(pos).getCollisionShape(entity.level, pos).max(Direction.Axis.Y), 0)
                          < tolerance) {
@@ -110,7 +115,7 @@ public class EntityUtil {
     }
 
     public static boolean isLeavingGround(Entity entity) {
-        return isLeavingGround(entity, 0.0001);
+        return isLeavingGround(entity, 1e-5);
     }
 
     public static boolean isSculk(LivingEntity entity) {
@@ -257,5 +262,45 @@ public class EntityUtil {
         final double dz = b.getZ() - a.getZ();
         final double dis = Math.sqrt(dx * dx + dz * dz);
         return new Vec3(dis == 0 ? 0 : dx / dis, 0, dis == 0 ? 0 : dz / dis);
+    }
+
+    public static Path rewritePathThroughPortal(Level level, Mob mob, Path path) {
+        int count = path.getNodeCount();
+        for (int i = 0; i < count - 1; i++) {
+            Node entryNode = path.getNode(i);
+            PVZPortalCache.Pair pair = PVZPortalCache.getPair(level, entryNode.asBlockPos());
+            if (pair == null) continue;
+            if (! path.getNode(i + 1).asBlockPos().equals(pair.exitNode())) continue;
+
+            List<Node> guides = makeGuideNodes(level, mob, pair, entryNode);
+            if (guides.isEmpty()) return path;
+
+            List<Node> list = new ArrayList<>(i + 1 + guides.size());
+            for (int j = 0; j <= i; j++) list.add(path.getNode(j));
+            list.addAll(guides);
+            return new Path(list, path.getTarget(), path.canReach());
+        }
+        return path;
+    }
+
+    private static List<Node> makeGuideNodes(Level level, Mob mob, PVZPortalCache.Pair pair, Node entryNode) {
+        Portal entry = pair.entry();
+        Vec3 center = entry.getPortalCenter();
+        Vec3 normal = entry.getPlaneNormal();
+        double side = Math.signum(Vec3.atCenterOf(entryNode.asBlockPos()).subtract(center).dot(normal));
+        if (side == 0) side = 1;
+        Vec3 out = normal.scale(- side);
+        int baseY = entry.blockPosition().getY();
+
+        List<Node> guides = new ArrayList<>(2);
+        for (int d = 1; d <= 2; d++) {
+            BlockPos pos = new BlockPos(center.x + out.x * d, baseY, center.z + out.z * d);
+            if (pos.equals(entryNode.asBlockPos())) continue;
+            Node node = new Node(pos.getX(), pos.getY(), pos.getZ());
+            node.type = BlockPathTypes.WALKABLE;
+            node.costMalus = 0.0F;
+            guides.add(node);
+        }
+        return guides;
     }
 }

@@ -260,10 +260,13 @@ public class Pumpkin extends SimplePlant implements IArmorEntity, ICanBePlantedO
                 }
             //target is not riding.
             } else if (target.getVehicle() == null) {
+                Vec3 pos = target.position();
                 target.startRiding(this);
                 var positionCheck = customPositionSafe(event, target.level, target.getOnPos(), Direction.UP, true);
                 if (positionCheck != null) {
                     target.stopRiding();
+                    target.setPos(pos);
+                    target.boardingCooldown = 0;
                     return positionCheck;
                 }
                 return target instanceof IPlant plant ? plant.customVehicleSafe(event, this, false) :

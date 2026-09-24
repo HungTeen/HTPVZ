@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BeeMixin {
 
     @Inject(method = "isFlowerValid", at = @At("HEAD"), cancellable = true)
-    private void isFlowerValid(BlockPos p_27897_, CallbackInfoReturnable<Boolean> cir) {
+    private void pvz$isFlowerValid(BlockPos p_27897_, CallbackInfoReturnable<Boolean> cir) {
         if (p_27897_ == null) cir.setReturnValue(false);
         Bee bee = (Bee) (Object) this;
         if (! bee.level.getEntities(bee

@@ -99,6 +99,9 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
                             cap.setOwner(entity1);
                         }
                     }
+                    if (entity instanceof Mob mob && cap.getOwner() == mob.getTarget()) {
+                        mob.setTarget(null);
+                    }
                     String name = cap.entity.getScoreboardName();
                     if (! EntityUtil.isEntityValid(cap.owner)) {
                         cap.owner = null;

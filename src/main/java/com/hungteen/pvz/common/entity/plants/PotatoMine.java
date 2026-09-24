@@ -32,6 +32,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -74,7 +75,6 @@ public class PotatoMine extends SimplePlant {
         if (! this.level.isClientSide) {
             this.dead = true;
             float radius = this.hasSkill(STRONG_SKILL_NAME) ? 3F : 2F;
-//            level.playSound(null, this, PVZSoundEvents.POTATO_MINE_EXPLODE.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
             level.explode(this, isPlantDamage(knockBack(
                     ignoreInvTime(
                             teamFilter(
@@ -97,6 +97,7 @@ public class PotatoMine extends SimplePlant {
                     20, 0.5, 0.5, 0.5, 0.1);
         }
     }
+
     @Override
     public boolean isInvisible() {
         if (this.level.isClientSide) {
@@ -137,7 +138,7 @@ public class PotatoMine extends SimplePlant {
         areaeffectcloud.setOwner(this);
         areaeffectcloud.addEffect(new MobEffectInstance(PVZMobEffects.PHYTOTOXIN.get(), 400));
 
-        if(!this.level.isClientSide)this.level.addFreshEntity(areaeffectcloud);
+        if(!this.level.isClientSide) this.level.addFreshEntity(areaeffectcloud);
     }
     public void setupPresentationAnim() {
         this.idleAnimationState.start(this.tickCount);
@@ -235,10 +236,11 @@ public class PotatoMine extends SimplePlant {
                 this.sleepAnimationState.stop();
                 this.outAnimationState.stop();
                 this.idleAnimationState.start(this.tickCount);
-            } else if (entityData.get(PREPARE_COUNT) == 10){
+            } else if (entityData.get(PREPARE_COUNT) == 10)  {
                 this.sleepAnimationState.stop();
                 this.idleAnimationState.stop();
                 this.outAnimationState.start(this.tickCount);
+            } else if (entityData.get(PREPARE_COUNT) == 5) {
                 level.playSound(null, this, PVZSoundEvents.POTATO_MINE_EMERGE.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
             }
         }
@@ -249,7 +251,7 @@ public class PotatoMine extends SimplePlant {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(EXPLODE_COUNT, -1);
-        this.entityData.define(PREPARE_COUNT, 80);
+        this.entityData.define(PREPARE_COUNT, 100);
         this.entityData.set(DATA_POSE, Pose.DIGGING);
     }
     @Override
@@ -312,9 +314,9 @@ public class PotatoMine extends SimplePlant {
         public boolean canUse() {
             if (potatoMine.getEntityData().get(EXPLODE_COUNT) == -1 && potatoMine.getEntityData().get(PREPARE_COUNT) == 0) {
                 List<Entity> targets = this.potatoMine.level.getEntities(potatoMine, potatoMine.getBoundingBox().inflate(0.6, 0.3, 0.6),
-                        (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(potatoMine, entity));
+                        (entity) -> ! (entity instanceof Projectile) && EntityUtil.checkCanEntityBeAttack(potatoMine, entity));
                 targets.addAll(this.potatoMine.level.getEntities(potatoMine, new AABB(potatoMine.getRootBlockPos()),
-                        (entity) -> entity instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(potatoMine, entity)));
+                        (entity) -> ! (entity instanceof Projectile) && EntityUtil.checkCanEntityBeAttack(potatoMine, entity)));
                 if (! targets.isEmpty()) {
                     targets.forEach(target -> {
                         if (target instanceof Mob mob) {

@@ -21,11 +21,6 @@ public interface ISun extends ISunAbsorber, ISunContainer {
     void onAbsorbedBy(Player player);
 
     @Override
-    default boolean canAbsorb(ISun sun) {
-        return ISunAbsorber.super.canAbsorb(sun);
-    }
-
-    @Override
     void onAbsorb(ISun sun);
 
 

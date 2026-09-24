@@ -457,6 +457,10 @@ public class GhastRiderActivitiesGoal extends Goal {
     public void tpTo(Entity zombie, BlockPos pos, boolean exact, int offset) {
         zombie.setPose(Pose.STANDING);
         zombie.stopRiding();
+        ServerLevel homeLevel = zombie instanceof GhastRiderBoss boss ? boss.level.getServer().getLevel(boss.homeLevel) : null;
+        if (homeLevel != null && homeLevel != zombie.level) {
+            zombie.changeDimension(homeLevel);
+        }
         zombie.teleportTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         if (zombie.isInWall()) {
             if (exact) {

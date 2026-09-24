@@ -1,6 +1,7 @@
 package com.hungteen.pvz.generator;
 
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.data.DataGenerator;
@@ -34,7 +35,7 @@ public class ItemModelGen extends ItemModelProvider {
         });
     }
 
-    public void simple(Item item, List<ResourceLocation> list){
+    public void simple(Item item, List<ResourceLocation> list) {
         if (list.isEmpty()){
             basicItem(item);
         } else if (list.size() == 1){
@@ -43,7 +44,7 @@ public class ItemModelGen extends ItemModelProvider {
                     .texture("layer0", list.get(0));
         }
     }
-    public void handheld(Item item, List<ResourceLocation> list){
+    public void handheld(Item item, List<ResourceLocation> list) {
         if (list.isEmpty()){
             getBuilder(item.toString())
                     .parent(new ModelFile.UncheckedModelFile("item/handheld"))
@@ -54,7 +55,7 @@ public class ItemModelGen extends ItemModelProvider {
                     .texture("layer0", list.get(0));
         }
     }
-    public void fishingRod(Item item, List<ResourceLocation> list){
+    public void fishingRod(Item item, List<ResourceLocation> list) {
         if (list.isEmpty()){
             getBuilder(item.toString())
                     .parent(new ModelFile.UncheckedModelFile("item/handheld_rod"))
@@ -65,17 +66,24 @@ public class ItemModelGen extends ItemModelProvider {
                     .texture("layer0", list.get(0));
         }
     }
-    public void seedPacket(Item item, List<ResourceLocation> list){
+    public void seedPacket(Item item, List<ResourceLocation> list) {
         if (list.isEmpty()){
             basicItem(item);
-        } else if (list.size() == 2){
-            getBuilder(item.toString())
+        } else if (list.size() == 2) {
+            var model = getBuilder(item.toString())
                     .parent(new ModelFile.UncheckedModelFile("item/generated"))
                     .texture("layer0", list.get(0))
                     .texture("layer1", list.get(1));
+            if (item instanceof SeedPacketItem<?> s && s.canBoost()) {
+                model.override().predicate(Util.prefix("skilled"), 1)
+                        .model(new ModelFile.UncheckedModelFile(Util.prefix("item/" + item + "_skilled")));
+                getBuilder(item + "_skilled")
+                        .parent(new ModelFile.UncheckedModelFile(Util.prefix("item/" + item)))
+                        .texture("layer2", new ResourceLocation(PVZMod.MODID, "item/seed_packets/skilled_packet"));
+            }
         }
     }
-    public void block(Item item, List<ResourceLocation> list){
+    public void block(Item item, List<ResourceLocation> list) {
         if (list.isEmpty()){
             getBuilder(item.toString())
                     .parent(new ModelFile.UncheckedModelFile(new ResourceLocation(PVZMod.MODID,"block/"+item)));
@@ -84,7 +92,7 @@ public class ItemModelGen extends ItemModelProvider {
                     .parent(new ModelFile.UncheckedModelFile(list.get(0)));
         }
     }
-    public void spawnEgg(Item item){
+    public void spawnEgg(Item item) {
         getBuilder(item.toString())
                 .parent(new ModelFile.UncheckedModelFile(new ResourceLocation("item/template_spawn_egg")));
     }

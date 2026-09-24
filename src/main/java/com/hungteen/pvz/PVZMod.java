@@ -17,6 +17,7 @@ import com.hungteen.pvz.common.network.CommonProxy;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.common.world.PVZFog;
+import com.hungteen.pvz.common.world.PVZPortalCache;
 import com.hungteen.pvz.common.world.PVZSavedData;
 import com.hungteen.pvz.common.world.PVZWorldEvents;
 import com.hungteen.pvz.generator.DataGenHandler;
@@ -221,6 +222,7 @@ public class PVZMod
             PVZEntityCapability.tick(ev);
             PVZFogCapability.tick(ev);
             PVZZombieEventCapability.tick(ev);
+            PVZPortalCache.tick(ev);
             PVZWorldEvents.tick(ev);
             //scoreboard tick
             PVZSavedData.tick();
@@ -262,6 +264,7 @@ public class PVZMod
         PlayerStatsCommand.register(dispatcher);
         OwnCommand.register(dispatcher);
         PVZFogCommand.register(dispatcher);
+        PVZPortalCommand.register(dispatcher);
         TeamSetEvilCommand.register(dispatcher);
         ZombieEventDataCommand.register(dispatcher);
     }

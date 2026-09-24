@@ -1,13 +1,15 @@
 package com.hungteen.pvz.common.entity.plants;
 
+import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.tags.PVZEntityTags;
@@ -89,11 +91,17 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
     //overrides
     @Override
     public boolean canBeCollidedWith() {
+        if (this.level.isClientSide) {
+            Player player = ClientProxy.getPlayer();
+            if (Math.sqrt((getX() - player.getX()) * (getX() - player.getX()) + (getZ() - player.getZ()) * (getZ() - player.getZ())) < (this.getBbWidth() + player.getBbWidth()) / 2
+                    && player.getY() < this.getY() - 0.5) {
+                return false;
+            } else {
+                PVZMod.LOGGER.info(Math.sqrt((getX() - player.getX()) * (getX() - player.getX()) + (getZ() - player.getZ()) * (getZ() - player.getZ())) + " " +
+                        ((this.getBbWidth() + player.getBbWidth()) / 2));
+            }
+        }
         return this.isAlive();
-    }
-    @Override
-    public boolean canCollideWith(Entity entity) {
-        return super.canCollideWith(entity) || true;
     }
     @Override
     protected float getWaterSlowDown() {

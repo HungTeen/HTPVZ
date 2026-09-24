@@ -135,7 +135,7 @@ public class Gargantuar extends PVZZombie {
             p_21372_.setSecondsOnFire(i * 4);
         }
 
-        boolean flag = p_21372_.hurt(PVZDamageSource.gargantuarCrash(this), f);
+        boolean flag = p_21372_.hurt(PVZDamageSource.crash(this), f);
         if (flag) {
             if (f1 > 0.0F && p_21372_ instanceof LivingEntity) {
                 ((LivingEntity)p_21372_).knockback(f1 * 0.5F, Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), -Mth.cos(this.getYRot() * ((float)Math.PI / 180F)));
@@ -299,7 +299,7 @@ public class Gargantuar extends PVZZombie {
                     if (distance <= dis) {
                         if (mob.getMainHandItem().is(PVZItemTags.GIANT_HAMMER)) {
                             mob.playSound(PVZSoundEvents.ANVIL_HAMMER_CRASH.get());
-                            target.hurt(PVZDamageSource.ignoreInvTime(PVZDamageSource.gargantuarCrash(mob).bypassArmor()), (float) mob.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2F);
+                            target.hurt(PVZDamageSource.ignoreInvTime(PVZDamageSource.crash(mob).bypassArmor()), (float) mob.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2F);
                             List<Entity> list = mob.level.getEntities((Entity) null,
                                     new AABB(target.position().add(-0.8, 0, -0.8), target.position().add(0.8, 1, 0.8)),
                                     (entity -> entity instanceof LivingEntity));
