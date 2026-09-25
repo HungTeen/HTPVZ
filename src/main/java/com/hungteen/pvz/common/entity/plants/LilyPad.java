@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.entity.plants;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
@@ -97,8 +96,8 @@ public class LilyPad extends SimplePlant implements ICanBePlantedOn, IPlant.IWat
                     && player.getY() < this.getY() - 0.5) {
                 return false;
             } else {
-                PVZMod.LOGGER.info(Math.sqrt((getX() - player.getX()) * (getX() - player.getX()) + (getZ() - player.getZ()) * (getZ() - player.getZ())) + " " +
-                        ((this.getBbWidth() + player.getBbWidth()) / 2));
+//                PVZMod.LOGGER.info(Math.sqrt((getX() - player.getX()) * (getX() - player.getX()) + (getZ() - player.getZ()) * (getZ() - player.getZ())) + " " +
+//                        ((this.getBbWidth() + player.getBbWidth()) / 2));
             }
         }
         return this.isAlive();

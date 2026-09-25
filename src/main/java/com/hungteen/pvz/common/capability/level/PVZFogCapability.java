@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.capability.level;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.network.PVZFogPacket;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.world.PVZFog;
@@ -44,7 +43,6 @@ public class PVZFogCapability implements ICapabilitySerializable<CompoundTag> {
                 if (fog.lifeLeft % 60 == 0) {
                     PVZPacketHandler.sendToLevel(level, new PVZFogPacket(fog));
                 }
-                PVZMod.LOGGER.info(fog.lifeLeft + " ");
                 fog.lifeLeft --;
                 if (fog.targetPos != null && ! fog.position.equals(fog.targetPos)) {
                     fog.position = new BlockPos(

@@ -29,8 +29,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class MelonBullet extends BaseBullet {
-    protected static final EntityDataAccessor<MelonType> TYPE = SynchedEntityData.defineId(MelonBullet.class, OtherRegisters.melonTypeDataSerializer);
-    protected static final EntityDataAccessor<MelonSkill> SKILL = SynchedEntityData.defineId(MelonBullet.class, OtherRegisters.melonSkillDataSerializer);
+    protected static final EntityDataAccessor<MelonType> TYPE = SynchedEntityData.defineId(MelonBullet.class, OtherRegisters.MELON_TYPE.get());
+    protected static final EntityDataAccessor<MelonSkill> SKILL = SynchedEntityData.defineId(MelonBullet.class, OtherRegisters.MELON_SKILL.get());
 
     public MelonBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);

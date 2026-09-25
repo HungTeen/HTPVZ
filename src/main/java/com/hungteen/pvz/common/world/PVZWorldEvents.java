@@ -21,6 +21,7 @@ import com.hungteen.pvz.common.world.invasion.InvasionTypeManager;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.commands.arguments.SlotArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,6 +35,7 @@ import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.EntityHitResult;
@@ -162,23 +164,25 @@ public class PVZWorldEvents {
     //called by PVZMod#onServerTick(ev).
     public static void tick(TickEvent.ServerTickEvent event) {
         //spawn player resources
-        Map<ServerLevel, List<ServerPlayer>> playerMap = new HashMap<>();
+        Map<ResourceKey<Level>, List<ServerPlayer>> playerMap = new HashMap<>();
         event.getServer().getPlayerList().getPlayers().forEach(player -> {
             ServerLevel level = player.getLevel();
             List<ServerPlayer> list = playerMap.getOrDefault(level, null);
             if (list == null) {
                 list = new ArrayList<>();
                 list.add(player);
-                playerMap.put(level, list);
+                playerMap.put(level.dimension(), list);
             }
         });
-        for (ServerLevel level : playerMap.keySet()) {
+        for (ResourceKey<Level> dimension : playerMap.keySet()) {
+            ServerLevel level = event.getServer().getLevel(dimension);
+            if (level == null) continue;
             long time = level.getGameTime();
             int sunInt = PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.naturallySpawnSunInterval);
-            List<ChunkPos> sunChunks = new ArrayList<>();
+            Set<ChunkPos> sunChunks = new HashSet<>();
             int starInt = PVZConfig.PVZGameRules.getInt(level, PVZConfig.Common.naturallySpawnFallenStarInterval);
-            List<ChunkPos> starChunks = new ArrayList<>();
-            for (ServerPlayer player : playerMap.get(level)) {
+            Set<ChunkPos> starChunks = new HashSet<>();
+            for (ServerPlayer player : playerMap.get(dimension)) {
                 ChunkPos pos = player.chunkPosition();
                 Random random = new Random(time + pos.x * 14 + pos.z * 37);
                 for (int i = 0; i < 9; i ++) {

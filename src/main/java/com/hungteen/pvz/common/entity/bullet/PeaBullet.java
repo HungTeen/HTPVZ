@@ -23,7 +23,7 @@ public class PeaBullet extends BaseBullet {
     public int changeCoolDown = 0;
     public boolean neverMelt = false;
     public boolean ignoreShield = false;
-    protected static final EntityDataAccessor<PeaType> TYPE = SynchedEntityData.defineId(PeaBullet.class, OtherRegisters.peaTypeDataSerializer);
+    protected static final EntityDataAccessor<PeaType> TYPE = SynchedEntityData.defineId(PeaBullet.class, OtherRegisters.PEA_TYPE.get());
 
     public PeaBullet(EntityType<? extends BaseBullet> entityIn, Level level) {
         super(entityIn,level);

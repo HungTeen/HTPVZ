@@ -75,7 +75,6 @@ public class PVZFog {
             level.getCapability(PVZFogCapability.CAP).ifPresent(cap -> {
                 for (PVZFog fog : Set.copyOf(cap.fogs.values())) {
                     fog.lifeLeft -= (int) (tickTime * 50);
-                    PVZMod.LOGGER.info(fog.lifeLeft + " ");
                     Player player = ClientProxy.getPlayer();
                     if (player != null) {
                         boolean playerInFog = getFogStrengthAt(player.level, player.position()) >= 0.5;

@@ -15,7 +15,6 @@ import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +32,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -68,17 +68,6 @@ public class OtherRegisters {
         ev.registerAggregateCategory(aggregateCategory, List.of(essenceFurnaceEssencesCategory, essenceFurnaceOthersCategory));
     }
 
-    //Bullet types.
-    public static EntityDataSerializer<PeaBullet.PeaType> peaTypeDataSerializer = EntityDataSerializer.simpleEnum(PeaBullet.PeaType.class);
-    public static EntityDataSerializer<MelonBullet.MelonType> melonTypeDataSerializer = EntityDataSerializer.simpleEnum(MelonBullet.MelonType.class);
-    public static EntityDataSerializer<MelonBullet.MelonSkill> melonSkillDataSerializer = EntityDataSerializer.simpleEnum(MelonBullet.MelonSkill.class);
-
-    static {
-        EntityDataSerializers.registerSerializer(peaTypeDataSerializer);
-        EntityDataSerializers.registerSerializer(melonTypeDataSerializer);
-        EntityDataSerializers.registerSerializer(melonSkillDataSerializer);
-    }
-
     //Mob Category.
     public static MobCategory PVZPlantMobCategory = MobCategory.create("pvz_plant", "pvz:pvz_plant", 64, true, false, 64);
 
@@ -96,16 +85,19 @@ public class OtherRegisters {
     public static final RegistryObject<EntityDataSerializer<Vec3>> VEC3 = ENTITY_DATA_SERIALIZERS.register("vec3", () -> new EntityDataSerializer.ForValueType<>() {
         @Override
         public void write(FriendlyByteBuf buf, Vec3 vec3) {
-            buf.writeDouble(vec3.x);
-            buf.writeDouble(vec3.y);
-            buf.writeDouble(vec3.z);
+            buf.writeFloat((float) vec3.x);
+            buf.writeFloat((float) vec3.y);
+            buf.writeFloat((float) vec3.z);
         }
 
         @Override
-        public Vec3 read(FriendlyByteBuf buf) {
+        public @NotNull Vec3 read(FriendlyByteBuf buf) {
             return new Vec3(buf.readFloat(), buf.readFloat(), buf.readFloat());
         }
     });
+    public static final RegistryObject<EntityDataSerializer<PeaBullet.PeaType>> PEA_TYPE = ENTITY_DATA_SERIALIZERS.register("pea_type", () -> EntityDataSerializer.simpleEnum(PeaBullet.PeaType.class));
+    public static final RegistryObject<EntityDataSerializer<MelonBullet.MelonType>> MELON_TYPE = ENTITY_DATA_SERIALIZERS.register("melon_type", () -> EntityDataSerializer.simpleEnum(MelonBullet.MelonType.class));
+    public static final RegistryObject<EntityDataSerializer<MelonBullet.MelonSkill>> MELON_SKILL = ENTITY_DATA_SERIALIZERS.register("melon_skill", () -> EntityDataSerializer.simpleEnum(MelonBullet.MelonSkill.class));
 
     public static void modBusRegister(IEventBus bus) {
         TREE_DECORATORS.register(bus);
