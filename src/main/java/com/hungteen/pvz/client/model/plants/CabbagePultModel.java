@@ -77,6 +77,7 @@ public class CabbagePultModel<T extends CabbagePult> extends HierarchicalModel<T
 		this.eye_brow.visible = cabbagePult.hasSkill(CabbagePult.SPEED_SKILL_NAME);
 		this.animate(cabbagePult.idleAnimationState, CabbagePultModelAnimation.idle, ageInTicks);
 		this.animate(cabbagePult.shootAnimationState, CabbagePultModelAnimation.shoot, ageInTicks);
+		this.cabbage.yRot = netHeadYaw / 57.3f;
 	}
 
 	@Override

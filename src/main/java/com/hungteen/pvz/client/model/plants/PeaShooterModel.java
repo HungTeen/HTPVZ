@@ -76,8 +76,10 @@ public class PeaShooterModel<T extends PeaShooter> extends HierarchicalModel<T> 
         this.glass.visible = flag;
         this.animate(peaShooter.idleAnimationState, PeaShooterModelAnimation.idle, ageInTicks);
         this.animate(peaShooter.shootAnimationState, PeaShooterModelAnimation.shoot, ageInTicks);
-        this.body.xRot -= flag ? 0.25 : 0;
-        this.head.xRot += flag ? 0.25 : 0;
+        this.body.xRot -= flag ? 0.25f : 0;
+        this.head.xRot += flag ? 0.25f : 0;
+        this.body.yRot += netHeadYaw / 57.3f;
+        this.body.xRot += Math.max(-0.5f, Math.min(0.5f, headPitch / 57.3f));
     }
 
     @Override

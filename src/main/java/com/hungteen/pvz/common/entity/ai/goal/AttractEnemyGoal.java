@@ -40,7 +40,7 @@ public class AttractEnemyGoal extends Goal {
 
     @Override
     public void tick() {
-        countDown = 15;
+        countDown = 5;
         attractEnemies(entity);
     }
 

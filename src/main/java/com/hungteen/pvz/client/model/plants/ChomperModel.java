@@ -14,9 +14,11 @@ import net.minecraft.client.model.geom.builders.*;
 
 public class ChomperModel<T extends Chomper> extends HierarchicalModel<T> {
 	private final ModelPart bone;
+	private final ModelPart neck;
 
 	public ChomperModel(ModelPart root) {
 		this.bone = root.getChild("bone");
+		this.neck = bone.getChild("total").getChild("neck");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -96,6 +98,7 @@ public class ChomperModel<T extends Chomper> extends HierarchicalModel<T> {
 		this.animate(chomper.swallowAnimationState, ChomperModelAnimation.swallow, ageInTicks);
 		this.animate(chomper.swimAnimationState, ChomperModelAnimation.swim, ageInTicks);
 		this.animate(chomper.meleeAnimationState, ChomperModelAnimation.melee, ageInTicks);
+		this.neck.yRot += netHeadYaw / 57.3f;
 	}
 
 	@Override

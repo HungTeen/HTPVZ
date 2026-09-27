@@ -120,7 +120,7 @@ public class PeaShooter extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 4D)
+                .add(Attributes.ATTACK_DAMAGE, 4.5D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.35D);
     }
 

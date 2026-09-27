@@ -25,6 +25,7 @@ public class PVZPlayerCapStats {
     public static final String PLANT_HAVE_CD = "plant_have_cd";
     public static final String INVASION_DIFFICULTY = "invasion_difficulty";
     public static final String LAST_INVASION = "last_invasion";
+    public static final String CONS_WIN_INVASION = "cons_win_invasion";
     public static final String SUMMONED_PENNY = "summoned_penny";
 
     //sun effect count
@@ -46,6 +47,7 @@ public class PVZPlayerCapStats {
         initValue(PLANT_HAVE_CD, 1, 0, 1);//naturally creative:0, survival:1.
         initValueNoSync(SUMMONED_PENNY, 0, 0, 1);//if the player has summoned Penny recently.
         initValueNoSync(INVASION_DIFFICULTY, 0, 0, 305);//invasion difficulty.
+        initValueNoSync(CONS_WIN_INVASION, 0, 0, 10);//invasion difficulty.
         initValueNoSync(LAST_INVASION, 0, 0, 10000);//time since last invasion occurred on this player.
         //resource
         initValue(SUN, 50, 0, 200);

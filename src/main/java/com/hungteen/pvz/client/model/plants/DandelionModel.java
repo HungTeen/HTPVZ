@@ -143,6 +143,8 @@ public class DandelionModel<T extends Dandelion> extends HierarchicalModel<T> {
 		this.decoration.visible = special;
 		this.animate(dandelion.idleAnimationState, DandelionModelAnimation.idle, ageInTicks);
 		this.animate(dandelion.shootAnimationState, DandelionModelAnimation.shoot, ageInTicks);
+		this.body.yRot += netHeadYaw / 57.3f;
+		this.body.xRot += Math.max(-0.5f, Math.min(0.5f, headPitch / 57.3f));
 	}
 
 	@Override

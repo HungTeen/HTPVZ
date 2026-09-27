@@ -14,9 +14,11 @@ import net.minecraft.client.model.geom.builders.*;
 
 public class MelonPultModel<T extends MelonPult> extends HierarchicalModel<T> {
 	private final ModelPart total;
+	private final ModelPart head;
 
 	public MelonPultModel(ModelPart root) {
 		this.total = root.getChild("total");
+		this.head = total.getChild("head");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -69,6 +71,7 @@ public class MelonPultModel<T extends MelonPult> extends HierarchicalModel<T> {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		this.animate(melonPult.idleAnimationState, MelonPultModelAnimation.idle, ageInTicks);
 		this.animate(melonPult.shootAnimationState, MelonPultModelAnimation.shoot, ageInTicks);
+		this.head.yRot += netHeadYaw / 57.3f;
 	}
 
 	@Override

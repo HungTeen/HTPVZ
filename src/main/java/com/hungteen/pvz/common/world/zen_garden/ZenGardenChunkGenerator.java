@@ -262,6 +262,9 @@ public class ZenGardenChunkGenerator extends NoiseBasedChunkGenerator {
             if (Mth.floor(bounds[1] - depth) < bounds[0]) {
                 return Integer.MIN_VALUE;
             }
+            if (bounds[1] < seaLevel) {
+                return Integer.MIN_VALUE;
+            }
             return seaLevel - 1;
         }
 

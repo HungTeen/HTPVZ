@@ -12,12 +12,14 @@ import net.minecraft.client.model.geom.builders.*;
 public class KernelPultModel<T extends KernelPult> extends HierarchicalModel<T> {
     private final ModelPart total;
     private final ModelPart pult;
+    private final ModelPart head;
     private final ModelPart butter;
     private final ModelPart kernel;
 
     public KernelPultModel(ModelPart root) {
         this.total = root.getChild("total");
-        this.pult = total.getChild("head").getChild("pult");
+        this.head = total.getChild("head");
+        this.pult = head.getChild("pult");
         ModelPart basket = pult.getChild("cube_r29").getChild("cube_r28").getChild("cube_r27").getChild("basket");
         this.butter = basket.getChild("butter");
         this.kernel = basket.getChild("kernel");
@@ -109,6 +111,7 @@ public class KernelPultModel<T extends KernelPult> extends HierarchicalModel<T> 
         this.animate(kernelPult.shootAnimationState, KernelPultModelAnimation.shoot, ageInTicks);
         this.kernel.visible = kernelPult.getCurrentBullet() == KernelPult.CornTypes.KERNEL;
         this.butter.visible = kernelPult.getCurrentBullet() == KernelPult.CornTypes.BUTTER;
+        this.head.yRot += netHeadYaw / 57.3f;
 
     }
 

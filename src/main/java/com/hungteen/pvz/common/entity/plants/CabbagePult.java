@@ -78,7 +78,7 @@ public class CabbagePult extends ShooterPlant {
     public static AttributeSupplier.Builder createAttributes() {
         return SimplePlant.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 24D)
-                .add(Attributes.ATTACK_DAMAGE, 8D)
+                .add(Attributes.ATTACK_DAMAGE, 7D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D);
     }
 

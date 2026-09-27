@@ -11,13 +11,15 @@ import net.minecraft.client.model.geom.builders.*;
 
 public class MariGoldModel<T extends MariGold> extends HierarchicalModel<T> {
     private final ModelPart total;
+    private final ModelPart body;
     private final ModelPart nerd;
     private final ModelPart l_brow;
     private final ModelPart r_brow;
 
     public MariGoldModel(ModelPart root) {
         this.total = root.getChild("total");
-        ModelPart head = total.getChild("body").getChild("head");
+        this.body = total.getChild("body");
+        ModelPart head = body.getChild("head");
         this.nerd = head.getChild("nerd");
         this.l_brow = head.getChild("eye_brow").getChild("l_brow");
         this.r_brow = head.getChild("eye_brow").getChild("r_brow");
@@ -109,6 +111,8 @@ public class MariGoldModel<T extends MariGold> extends HierarchicalModel<T> {
         total.yScale *= scale;
         total.zScale *= scale;
         total.z += (1 - scale) * 8;
+        this.body.yRot += netHeadYaw / 57.3f;
+        this.body.xRot += Math.max(-0.5f, Math.min(0.5f, headPitch / 57.3f));
     }
 
     @Override

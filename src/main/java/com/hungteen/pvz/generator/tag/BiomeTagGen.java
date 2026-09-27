@@ -20,6 +20,7 @@ public class BiomeTagGen extends BiomeTagsProvider {
     public void addTags() {
         this.tag(PVZBiomeTags.HAS_GREEN_HOUSE).add(PVZBiomes.GARDEN_PLAINS.get());
         this.tag(PVZBiomeTags.HAS_GARDEN_PORTAL).add(PVZBiomes.GARDEN_PLAINS.get());
+        this.tag(PVZBiomeTags.HAS_HOUSE).addTags(BiomeTags.IS_FOREST, Tags.Biomes.IS_PLAINS);
         this.tag(PVZBiomeTags.HAS_GARDEN_SHELVES).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_MUSHROOM.get());
         this.tag(PVZBiomeTags.HAS_SACRIFICIAL_VENUE).add(Biomes.NETHER_WASTES, Biomes.SOUL_SAND_VALLEY, Biomes.CRIMSON_FOREST, Biomes.WARPED_FOREST, Biomes.BASALT_DELTAS);
         this.tag(PVZBiomeTags.HAS_OVERWORLD_INVASION_RUIN).add(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.SNOWY_PLAINS, Biomes.ICE_SPIKES, Biomes.DESERT

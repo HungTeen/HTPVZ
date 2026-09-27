@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.event.RegisterSproutsEvent;
 import com.hungteen.pvz.common.item.ModifiedSpawnEggItem;
-import com.hungteen.pvz.common.item.SeedItem;
+import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZStructures;
@@ -38,7 +38,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.EnchantRandomlyFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -132,31 +131,30 @@ public class InvasionTypeGen implements DataProvider {
                         LootTable.lootTable().withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(3F, 5F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.ICEBERG_LETTUCE.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PEA_SHOOTER.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.WALL_NUT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.LILY_PAD.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.FLOWER_POT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(1F, 3F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.CABBAGE_PULT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 2F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PLANTERN.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 2F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TANGLE_KELP.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 2F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.VELOCI_RADISH.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 2F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(2))
+                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(100)
+                                                .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.common")))
                                         .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
                                         .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5))
                                         .add(LootItem.lootTableItem(Items.BOOK).setWeight(10).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                                         .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 8F))))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.SPLIT_PEA.get())).setWeight(6))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.WALL_NUT.get())).setWeight(5))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.LILY_PAD.get())).setWeight(3))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.FLOWER_POT.get())).setWeight(4))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.SNOW_PEA.get())).setWeight(6))
                         ).withPool(
                                 LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(2))
-                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(5)
+                                        .setRolls(UniformGenerator.between(1F, 3F))
+                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(100)
                                                 .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.common")))
+                                        .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 4F))))
+                                        .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5))
+                                        .add(LootItem.lootTableItem(Items.BOOK).setWeight(10).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
+                                        .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 8F))))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.CABBAGE_PULT.get())).setWeight(4))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.TANGLE_KELP.get())).setWeight(4))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.PLANTERN.get())).setWeight(7))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.VELOCI_RADISH.get())).setWeight(7))
                         )
                 ),
                 conditionsB(
@@ -283,23 +281,16 @@ public class InvasionTypeGen implements DataProvider {
                         LootTable.lootTable().withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(3F, 5F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.VELOCI_RADISH.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.POTATO_MINE.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.ICEBERG_LETTUCE.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.JALAPENO.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TALL_NUT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(2))
+                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(100)
+                                                .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.ender")))
                                         .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 8F))))
                                         .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5))
                                         .add(LootItem.lootTableItem(Items.BOOK).setWeight(10).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                                         .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 8F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(2))
-                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(5)
-                                                .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.ender")))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.VELOCI_RADISH.get())).setWeight(7))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.POTATO_MINE.get())).setWeight(5))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.ICEBERG_LETTUCE.get())).setWeight(7))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.TALL_NUT.get())).setWeight(6))
                         )
                 ),
                 conditionsB(
@@ -424,28 +415,18 @@ public class InvasionTypeGen implements DataProvider {
                         LootTable.lootTable().withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(3F, 5F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.REPEATER.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.STARFRUIT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.SPIKE_WEED.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(1F, 2F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TALL_NUT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(3F, 5F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(2))
+                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(100)
+                                                .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.nether_aggressive")))
                                         .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 8F))))
                                         .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5))
                                         .add(LootItem.lootTableItem(Items.BOOK).setWeight(10).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                                         .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 8F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(2))
-                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(5)
-                                                .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.nether_aggressive")))
-                        )
-                ),
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.UMBRELLA_LEAF.get())).setWeight(5))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.STARFRUIT.get())).setWeight(5))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.REPEATER.get())).setWeight(4))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.SPIKE_WEED.get())).setWeight(3))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.TALL_NUT.get())).setWeight(8))
+                        )),
                 conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether"),
                         condition(new InvasionCondition.InBiomeCondition(), "minecraft:soul_sand_valley")
@@ -516,26 +497,17 @@ public class InvasionTypeGen implements DataProvider {
                         LootTable.lootTable().withPool(
                                 LootPool.lootPool()
                                         .setRolls(UniformGenerator.between(3F, 5F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TALL_NUT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.PUMPKIN.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.UMBRELLA_LEAF.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.TORCH_WOOD.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(UniformGenerator.between(1F, 2F))
-                                        .add(LootItem.lootTableItem(SeedItem.getSeed(PVZEntities.MELON_PULT.get())).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 4F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(2))
+                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(100)
+                                                .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.nether_defensive")))
                                         .add(LootItem.lootTableItem(PVZItems.JEWEL.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 8F))))
                                         .add(LootItem.lootTableItem(PVZItems.ALAYA_RESIN.get()).setWeight(5))
                                         .add(LootItem.lootTableItem(Items.BOOK).setWeight(10).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                                         .add(LootItem.lootTableItem(PVZItems.FERTILIZER.get()).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(4F, 8F))))
-                        ).withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(2))
-                                        .add(LootItem.lootTableItem(PVZItems.SPROUT.get()).setWeight(5)
-                                                .apply(RegisterSproutsEvent.SetSproutTypeFunction.Builder.of("sprout.pvz.nether_defensive")))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.TALL_NUT.get())).setWeight(4))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.PUMPKIN.get())).setWeight(5))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.UMBRELLA_LEAF.get())).setWeight(6))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.TORCH_WOOD.get())).setWeight(4))
+                                        .add(LootItem.lootTableItem(SeedPacketItem.getSeedPacket(PVZEntities.MELON_PULT.get())).setWeight(6))
                         )),
                 conditionsB(
                         condition(new InvasionCondition.InDimensionCondition(), "minecraft:the_nether"),

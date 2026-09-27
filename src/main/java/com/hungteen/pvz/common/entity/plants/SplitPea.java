@@ -317,9 +317,9 @@ public class SplitPea extends PeaShooter {
             LivingEntity target = this.shooter.getTarget();
             LivingEntity backTarget = ((SplitPea) this.shooter).getBackTarget();
             if (EntityUtil.isEntityValid(target)) {
-                this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
+                this.shooter.getLookControl().setLookAt(target.getX(), target.getY() + target.getEyeHeight(), target.getZ());
             } else if (EntityUtil.isEntityValid(backTarget)) {
-                this.shooter.getLookControl().setLookAt(2 * shooter.getX() - backTarget.getX(), 2 * shooter.getY() - backTarget.getY(), 2 * shooter.getZ() - backTarget.getZ());
+                this.shooter.getLookControl().setLookAt(2 * shooter.getX() - backTarget.getX(), 2 * shooter.getY() - backTarget.getY() - backTarget.getEyeHeight(), 2 * shooter.getZ() - backTarget.getZ());
             }
             //shooting
             final int time = this.shooter.getAttackTime();

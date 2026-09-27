@@ -14,9 +14,11 @@ import net.minecraft.client.model.geom.builders.*;
 
 public class RepeaterModel<T extends Repeater> extends HierarchicalModel<T> {
 	private final ModelPart total;
+	private final ModelPart body;
 
 	public RepeaterModel(ModelPart root) {
 		this.total = root.getChild("total");
+		this.body = total.getChild("body");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -77,6 +79,8 @@ public class RepeaterModel<T extends Repeater> extends HierarchicalModel<T> {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		this.animate(peaShooter.idleAnimationState, RepeaterModelAnimation.idle, ageInTicks);
 		this.animate(peaShooter.shootAnimationState, RepeaterModelAnimation.shoot, ageInTicks);
+		this.body.yRot += netHeadYaw / 57.3f;
+		this.body.xRot += Math.max(-0.5f, Math.min(0.5f, headPitch / 57.3f));
 	}
 
 	@Override

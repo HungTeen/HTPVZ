@@ -298,6 +298,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
             }
         }
     }
+
     /**For IPlants not extending SimplePlant, manually add this in {@link Entity#baseTick() baseTick()}.*/
     public static <T extends Mob & IPlant> void testDisappear(T plant) {
         //disappear

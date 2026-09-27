@@ -14,9 +14,11 @@ import net.minecraft.client.model.geom.builders.*;
 
 public class SplitPeaModel<T extends SplitPea> extends HierarchicalModel<T> {
 	private final ModelPart total;
+	private final ModelPart body;
 
 	public SplitPeaModel(ModelPart root) {
 		this.total = root.getChild("total");
+		this.body = total.getChild("body");
 	}
 
 	public static LayerDefinition createBodyLayer() {MeshDefinition meshdefinition = new MeshDefinition();
@@ -77,6 +79,8 @@ public class SplitPeaModel<T extends SplitPea> extends HierarchicalModel<T> {
 		this.animate(splitPea.idleAnimationState, SplitPeaModelAnimation.idle, ageInTicks);
 		this.animate(splitPea.forwardAnimationState, SplitPeaModelAnimation.front_shoot, ageInTicks);
 		this.animate(splitPea.backwardAnimationState, SplitPeaModelAnimation.back_shoot, ageInTicks);
+		this.body.yRot += netHeadYaw / 57.3f;
+		this.body.xRot += Math.max(-0.5f, Math.min(0.5f, headPitch / 57.3f));
 	}
 
 	@Override

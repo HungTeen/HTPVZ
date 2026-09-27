@@ -555,7 +555,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 player.awardStat(PVZStats.INVASIONS_WON);
                 InvasionType invasionType = this.getMainType();
                 if (invasionType != null && invasionType.loot().isPresent()) {
-                    float size = (float) this.invasionLevel / 2 + 5;
+                    float size = (float) this.invasionLevel / 3 + 4;
                     for (InvasionType type : this.types) {
                         size *= type.lootFactor();
                     }
@@ -574,11 +574,21 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
             }
             PVZPlayerCapability.getPlayerData(player)
                     .ifPresent(cap -> {
-                        int difficultyGrow = success ? (int) Math.max(3, 2 + (((float) this.expectedTotalTime / (this.totalTime + 1) - 1) * 5 + (threatFactor - 1) * 5)) : - 3;
-                        cap.addValue(PVZPlayerCapStats.INVASION_DIFFICULTY, difficultyGrow);
-                                if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
-                                    PVZMod.LOGGER.info("Difficulty added " + difficultyGrow + ", current: " + cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY));
-                                }
+                        if (success) {
+                            cap.addValue(PVZPlayerCapStats.CONS_WIN_INVASION, 1);
+                            int consWins = cap.getValue(PVZPlayerCapStats.CONS_WIN_INVASION);
+                            int difficultyGrow = (int) Math.max(3, consWins + (((float) this.expectedTotalTime / (this.totalTime + 1) - 1) * 5 + (threatFactor - 1) * 5));
+                            cap.addValue(PVZPlayerCapStats.INVASION_DIFFICULTY, difficultyGrow);
+                            if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
+                                PVZMod.LOGGER.info("Difficulty added " + difficultyGrow + ", current: " + cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY));
+                            }
+                        } else {
+                            cap.setValue(PVZPlayerCapStats.CONS_WIN_INVASION, 0);
+                            cap.addValue(PVZPlayerCapStats.INVASION_DIFFICULTY, -3);
+                            if (PVZConfig.PVZGameRules.getBoolean(level, PVZConfig.Common.showInvasionDetails)) {
+                                PVZMod.LOGGER.info("Difficulty subtracted 3, current: " + cap.getValue(PVZPlayerCapStats.INVASION_DIFFICULTY));
+                            }
+                        }
                     });
         }
         this.invasionEvent.setName(component);

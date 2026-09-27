@@ -393,7 +393,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
             if (shooter.isVehicle() && shooter.getFirstPassenger() instanceof Player player) {
                 ((GatlingPea) shooter).LookAtLookingAngleOf(player);
             } else if (EntityUtil.isEntityValid(target)) {
-                this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
+                this.shooter.getLookControl().setLookAt(target.getX(), target.getY() + target.getEyeHeight(), target.getZ());
             }
             if (! hasRotToPosition()) return;
             //shooting

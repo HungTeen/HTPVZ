@@ -12,8 +12,10 @@ import net.minecraft.client.model.geom.builders.*;
 public class SunFlowerModel<T extends SunFlower> extends HierarchicalModel<T> {
     // This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
     private final ModelPart total;
+    private final ModelPart body;
     public SunFlowerModel(ModelPart root) {
         this.total = root.getChild("total");
+        this.body = total.getChild("body");
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -59,6 +61,8 @@ public class SunFlowerModel<T extends SunFlower> extends HierarchicalModel<T> {
         this.total.getAllParts().forEach(ModelPart::resetPose);
         this.animate(sunFlower.idleAnimationState, SunFlowerModelAnimation.idle, ageInTicks);
         this.animate(sunFlower.produceAnimationState, SunFlowerModelAnimation.produce, ageInTicks);
+        this.body.yRot += netHeadYaw / 57.3f;
+        this.body.xRot += Math.max(-0.5f, Math.min(0.5f, headPitch / 57.3f));
     }
 
     @Override

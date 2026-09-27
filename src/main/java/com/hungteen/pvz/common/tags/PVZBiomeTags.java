@@ -10,6 +10,7 @@ public class PVZBiomeTags {
     public static TagKey<Biome> HAS_GREEN_HOUSE = pvzTag("has_structure/green_house");
     public static TagKey<Biome> HAS_GARDEN_SHELVES = pvzTag("has_structure/garden_shelves");
     public static TagKey<Biome> HAS_GARDEN_PORTAL = pvzTag("has_structure/garden_portal");
+    public static TagKey<Biome> HAS_HOUSE = pvzTag("has_structure/house");
     public static TagKey<Biome> HAS_SACRIFICIAL_VENUE = pvzTag("has_structure/sacrificial_venue");
     public static TagKey<Biome> HAS_OVERWORLD_INVASION_RUIN = pvzTag("has_overworld_invasion_ruin");
     public static TagKey<Biome> HAS_NETHER_INVASION_RUIN = pvzTag("has_nether_invasion_ruin");

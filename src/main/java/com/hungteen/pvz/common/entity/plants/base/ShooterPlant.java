@@ -277,7 +277,7 @@ public abstract class ShooterPlant extends SimplePlant implements IShooter {
 			//looking control
 			LivingEntity target = this.shooter.getTarget();
 			if (EntityUtil.isEntityValid(target)) {
-				this.shooter.getLookControl().setLookAt(target.getX(), target.getY(), target.getZ());
+				this.shooter.getLookControl().setLookAt(target.getX(), target.getY() + target.getEyeHeight(), target.getZ());
 			}
 			//shooting
 			if (this.shooter.shootTimes().contains(this.shooter.getAttackTime())) {

@@ -14,9 +14,11 @@ import net.minecraft.client.model.geom.builders.*;
 
 public class GatlingPeaModel<T extends GatlingPea> extends HierarchicalModel<T> {
 	private final ModelPart total;
+	private final ModelPart body;
 
 	public GatlingPeaModel(ModelPart root) {
 		this.total = root.getChild("total");
+		this.body = total.getChild("body");
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -65,6 +67,8 @@ public class GatlingPeaModel<T extends GatlingPea> extends HierarchicalModel<T> 
 		this.animate(peaShooter.idleAnimationState, GatlingPeaModelAnimation.idle, ageInTicks);
 		this.animate(peaShooter.shootAnimationState, GatlingPeaModelAnimation.shoot, ageInTicks);
 		this.animate(peaShooter.controlledAnimationState, GatlingPeaModelAnimation.controlled_shoot, ageInTicks);
+		this.body.yRot += netHeadYaw / 57.3f;
+		this.body.xRot += Math.max(-0.5f, Math.min(0.5f, headPitch / 57.3f));
 	}
 
 	@Override
