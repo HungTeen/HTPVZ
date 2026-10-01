@@ -119,6 +119,10 @@ public class PVZBlocks {
     public static final RegistryObject<Block> TOMBSTONE = loot(false).model(Model.Modeled)
             .tag(BlockTags.FEATURES_CANNOT_REPLACE, BlockTags.MINEABLE_WITH_PICKAXE).blockEntity("tombstone")
             .block("tombstone", () -> new TombstoneBlock(BlockBehaviour.Properties.copy(Blocks.DEEPSLATE)));
+    public static final RegistryObject<Block> COPPER_LADDER = tag(BlockTags.CLIMBABLE, BlockTags.MINEABLE_WITH_AXE)
+            .model(Model.Modeled)
+            .itemModel(PVZItems.Model.Simple, new ResourceLocation("minecraft", "block/ladder"))
+            .block("copper_ladder", () -> new CopperLadderBlock(BlockBehaviour.Properties.copy(Blocks.LADDER)));
     //NO_TAB
     public static final RegistryObject<Block> ENTITY_LIGHT = loot(false).model(Model.Modeled).blockEntity("entity_light").noItem().block("entity_light", () -> new EntityLightBlock(BlockBehaviour.Properties.of(Material.AIR)
             .strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> i.getValue(EntityLightBlock.LEVEL))));
