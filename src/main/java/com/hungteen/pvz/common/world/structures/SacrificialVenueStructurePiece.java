@@ -18,7 +18,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 public class SacrificialVenueStructurePiece extends TemplateStructurePiece {
     public SacrificialVenueStructurePiece(StructureTemplateManager templateManager, StructurePlaceSettings settings, BlockPos pos) {
         super(PVZStructures.SACRIFICIAL_VENUE_PIECE.get(), 0, templateManager,
-                Util.prefix("sacrificial_venue"), "pvz_sv", settings, pos);
+                Util.prefix("sacrificial_venue"), "pvz:sacrificial_venue", settings, pos);
     }
     public SacrificialVenueStructurePiece(StructureTemplateManager structureTemplateManager, CompoundTag tag) {
         super(PVZStructures.SACRIFICIAL_VENUE_PIECE.get(), tag, structureTemplateManager, (p_227512_) -> makeSettings());

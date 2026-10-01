@@ -97,7 +97,7 @@ public class PVZStructures {
             new StructureSet(HOUSE.getHolder().get(), new RandomSpreadStructurePlacement(20, 10, RandomSpreadType.LINEAR, 125796541)));
 
     //sacrificial_venue
-    public static final RegistryObject<StructurePieceType> SACRIFICIAL_VENUE_PIECE = STRUCTURE_PIECE_TYPES.register("sacrificial_venue", () -> StructurePieceType.setTemplatePieceId(SacrificialVenueStructurePiece::new, "PVZSV"));
+    public static final RegistryObject<StructurePieceType> SACRIFICIAL_VENUE_PIECE = STRUCTURE_PIECE_TYPES.register("sacrificial_venue", () -> StructurePieceType.setTemplatePieceId(SacrificialVenueStructurePiece::new, "pvz:sacrificial_venue"));
     public static final RegistryObject<StructureType<SacrificialVenueStructure>> SACRIFICIAL_VENUE_TYPE = STRUCTURE_TYPES.register("sacrificial_venue", () -> () -> SacrificialVenueStructure.CODEC);
     public static final RegistryObject<Structure> SACRIFICIAL_VENUE = STRUCTURES.register("sacrificial_venue", () -> new SacrificialVenueStructure(new Structure.StructureSettings(
             biomes(PVZBiomeTags.HAS_SACRIFICIAL_VENUE), Map.of(), GenerationStep.Decoration.UNDERGROUND_DECORATION, TerrainAdjustment.NONE)));

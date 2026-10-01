@@ -235,7 +235,7 @@ public class PVZItems {
             }
             seedPacketMap.put(data,
                     tag(PVZItemTags.SEED_PACKETS).item(name + "_seed_packet", () -> new SeedPacketItem(
-                            new Item.Properties().stacksTo(1).rarity(data.advanced ? Rarity.EPIC : Rarity.COMMON).defaultDurability(data.advanced ? 350 : 150).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
+                            new Item.Properties().stacksTo(1).rarity(data.advanced ? Rarity.EPIC : Rarity.COMMON).defaultDurability(data.advanced ? 350 : 115).tab(PVZItemTabs.PVZ_PLANT_CARDS), data.entitySupplier, data.skillList, data.resource, data.cost, data.coolDown, data.creativeOnly, data.advanced
                     )));
         };
 

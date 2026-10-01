@@ -18,6 +18,7 @@ public class PVZBiomeTags {
     public static TagKey<Biome> HAS_ZOMBIE_STRUCTURE_SNOWMAN = pvzTag("has_zombie_structure_snowman");
     public static TagKey<Biome> HAS_ZOMBIE_STRUCTURE_DUCK = pvzTag("has_zombie_structure_duck");
     public static TagKey<Biome> HAS_ZOMBIE_STRUCTURE_CEMETERY = pvzTag("has_zombie_structure_cemetery");
+    public static TagKey<Biome> HAS_ORIGIN_ORE = pvzTag("has_origin_ore");
     public static TagKey<Biome> UNABLE_SUN_PRODUCTION = pvzTag("unable_sun_production");
     public static TagKey<Biome> UNABLE_SUN_FALLING = pvzTag("unable_sun_falling");
     public static TagKey<Biome> UNABLE_STAR_FALLING = pvzTag("unable_star_falling");

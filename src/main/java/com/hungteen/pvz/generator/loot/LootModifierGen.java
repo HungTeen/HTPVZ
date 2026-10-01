@@ -34,6 +34,11 @@ public class LootModifierGen extends GlobalLootModifierProvider {
                 MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)).invert().build(),
                 LootItemRandomChanceCondition.randomChance(0.1F).build()
         }, List.of(PVZItems.PEA.get().getDefaultInstance())));
+        this.add("cabbage_from_grass", new AddItemModifier(new LootItemCondition[] {
+                LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.GRASS).build(),
+                MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)).invert().build(),
+                LootItemRandomChanceCondition.randomChance(0.03F).build()
+        }, List.of(PVZItems.CABBAGE_SEED.get().getDefaultInstance())));
 
         //spawn bonus chest
         this.add("seed_packets_from_spawn_bonus_chest", new AddItemModifier(new LootItemCondition[] {
