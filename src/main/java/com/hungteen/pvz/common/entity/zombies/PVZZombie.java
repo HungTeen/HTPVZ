@@ -5,6 +5,8 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.ICanGroupUp;
 import com.hungteen.pvz.api.interfaces.IHangable;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.common.entity.ai.PVZZombieGroundPathNavigation;
+import com.hungteen.pvz.common.entity.ai.PVZZombieMoveControl;
 import com.hungteen.pvz.common.entity.ai.goal.BlockWithShieldGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
 import com.hungteen.pvz.common.entity.ai.goal.GroupShareEnemyGoal;
@@ -37,6 +39,7 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.monster.Zombie;
@@ -86,6 +89,12 @@ public class PVZZombie extends Zombie implements ICanGroupUp, IHangable {
         this.setPathfindingMalus(BlockPathTypes.DANGER_CACTUS, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.RAIL, 0F);
         this.setPathfindingMalus(BlockPathTypes.WATER, 8.0F);
+        this.moveControl = new PVZZombieMoveControl(this);
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level p_21480_) {
+        return new PVZZombieGroundPathNavigation(this, p_21480_);
     }
 
     //methods

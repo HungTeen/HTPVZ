@@ -90,6 +90,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         super.defineSynchedData();
         this.entityData.define(CLIMBING, false);
     }
+
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new SnailPaniclyRetreatIntoShellGoal(this));
@@ -102,6 +103,8 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         super.registerGoals();
     }
+
+    @Override
     @Nullable
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor p_21434_, DifficultyInstance p_21435_, MobSpawnType p_21436_, @javax.annotation.Nullable SpawnGroupData p_21437_, @javax.annotation.Nullable CompoundTag p_21438_) {
         SpawnGroupData data = super.finalizeSpawn(p_21434_, p_21435_, p_21436_, p_21437_, p_21438_);
@@ -109,7 +112,8 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         return data;
     }
 
-        protected PathNavigation createNavigation(Level p_33802_) {
+    @Override
+    protected PathNavigation createNavigation(Level p_33802_) {
         return new WallClimberNavigation(this, p_33802_);
     }
 
@@ -117,6 +121,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         return this.entityData.get(CLIMBING);
     }
 
+    @Override
     public boolean onClimbable() {
         return this.isClimbing();
     }
@@ -249,6 +254,7 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         }
     }
 
+    @Override
     public InteractionResult mobInteract(Player player, InteractionHand p_30413_) {
         ItemStack itemstack = player.getItemInHand(p_30413_);
         if (this.level.isClientSide) {
@@ -323,14 +329,17 @@ public class Snail extends TamableAnimal implements InventoryCarrier {
         return p_27600_.is(PVZItems.CHOCOLATE.get());
     }
 
+    @Override
     public SimpleContainer getInventory() {
         return this.inventory;
     }
 
+    @Override
     protected void pickUpItem(ItemEntity p_35467_) {
         InventoryCarrier.pickUpItem(this, this, p_35467_);
     }
 
+    @Override
     public boolean wantsToPickUp(ItemStack itemStack) {
         boolean hadPot = this.getInventory().hasAnyMatching(itemStack1 -> itemStack1.is(PVZItemTags.WATERING_POTS));
         return itemStack.is(PVZItemTags.SNAILS_CAN_PICK_UP)
