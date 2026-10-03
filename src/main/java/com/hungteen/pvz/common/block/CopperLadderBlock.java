@@ -20,8 +20,17 @@ import java.util.List;
  * It can be attached to the side of a block like a ladder, and it can also
  * hang in the air as long as there is another copper ladder or a solid
  * ground below it. Whenever it loses its support, it will drop itself.
+ *
+ * @program: HTPVZ2
+ * @author: HungTeen
+ * @create: 2026-10-01
  */
 public class CopperLadderBlock extends LadderBlock {
+
+    /**
+     * How far the placement searches around the clicked ladder.
+     */
+    public static final int MAX_SEARCH_DISTANCE = 8;
 
     public CopperLadderBlock(Properties properties) {
         super(properties);
@@ -29,33 +38,67 @@ public class CopperLadderBlock extends LadderBlock {
 
     @Override
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        return this.hasWallSupport(state, level, pos) || this.hasGroundSupport(level, pos);
+        // 当前位置靠谱
+        if(isStableLadderPosition(level, pos)) {
+            return true;
+        }
+        // 上下搜索是否有靠谱的位置
+        BlockPos.MutableBlockPos upPos = pos.mutable();
+        BlockPos.MutableBlockPos downPos = pos.mutable();
+        for (int i = 1; i <= MAX_SEARCH_DISTANCE; ++i) {
+            if(isStableLadderPosition(level, upPos.move(Direction.UP))
+                || isStableLadderPosition(level, downPos.move(Direction.DOWN))) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    /**Attached to the side of a sturdy block face, just like a vanilla ladder.*/
+    private boolean isStableLadderPosition(LevelReader level, BlockPos pos) {
+        // 要么靠墙，要么靠在地上
+        return hasWallSupport(level.getBlockState(pos), level, pos) || this.hasGroundSupport(level, pos);
+    }
+
+    /**
+     * Holding a ladder lets it be replaced by the stack placement, same as scaffolding.
+     */
+    @Override
+    public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
+        return context.getItemInHand().is(this.asItem());
+    }
+
+    /**
+     * Attached to the side of a sturdy block face, just like a vanilla ladder.
+     */
     private boolean hasWallSupport(BlockState state, LevelReader level, BlockPos pos) {
+        if (!state.is(this)) {
+            return false;
+        }
         Direction direction = state.getValue(FACING);
         BlockPos wallPos = pos.relative(direction.getOpposite());
         return level.getBlockState(wallPos).isFaceSturdy(level, wallPos, direction);
     }
 
-    /**Floating in the air: supported by a copper ladder or the ground below.*/
+    /**
+     * Floating in the air: supported by a copper ladder or the ground below.
+     */
     private boolean hasGroundSupport(LevelReader level, BlockPos pos) {
         BlockPos belowPos = pos.below();
         BlockState below = level.getBlockState(belowPos);
-        return below.is(this) || below.isFaceSturdy(level, belowPos, Direction.UP);
+        return below.isFaceSturdy(level, belowPos, Direction.UP);
     }
 
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (!this.canSurvive(state, level, pos)) {
-            //no support anymore, so drop itself and break.
-            if (!level.isClientSide()) {
-                dropResources(state, level, pos, null);
-            }
+            // no support anymore, so drop itself and break.
+            // 掉落由 Block.updateOrDestroy -> Level.destroyBlock 负责，不能手动再 drop 一次
             return Blocks.AIR.defaultBlockState();
         }
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return state;
     }
 
     @Nullable
@@ -73,16 +116,27 @@ public class CopperLadderBlock extends LadderBlock {
         boolean waterlogged = fluidState.getType() == Fluids.WATER;
         List<Direction> directions = Arrays.stream(context.getNearestLookingDirections())
                 .filter(direction -> direction.getAxis().isHorizontal()).toList();
-        //attached to a wall first, same as the vanilla ladder.
+        // attached to a wall first, same as the vanilla ladder.
         for (Direction direction : directions) {
             BlockState state = this.defaultBlockState().setValue(FACING, direction.getOpposite());
             if (this.hasWallSupport(state, level, pos)) {
                 return state.setValue(WATERLOGGED, waterlogged);
             }
         }
-        //hanging in the air above another copper ladder or the ground.
-        if (!directions.isEmpty() && this.hasGroundSupport(level, pos)) {
-            return this.defaultBlockState().setValue(FACING, directions.get(0).getOpposite())
+        // hanging in the air above another copper ladder or the ground.
+        if (!directions.isEmpty() && this.canSurvive(this.defaultBlockState(), level, pos)) {
+            BlockState below = level.getBlockState(pos.below());
+            BlockState above = level.getBlockState(pos.above());
+            //keep the column straight when stacking ladders.
+            Direction facing;
+            if (below.is(this)) {
+                facing = below.getValue(FACING);
+            } else if (above.is(this)) {
+                facing = above.getValue(FACING);
+            } else {
+                facing = directions.get(0).getOpposite();
+            }
+            return this.defaultBlockState().setValue(FACING, facing)
                     .setValue(WATERLOGGED, waterlogged);
         }
         return null;
