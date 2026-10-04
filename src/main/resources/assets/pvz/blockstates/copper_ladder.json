@@ -1,34 +1,39 @@
 {
-  "variants": {
-    "facing=east,waterlogged=false": {
-      "model": "pvz:block/copper_ladder",
-      "y": 90
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "pvz:block/copper_ladder"
+      }
     },
-    "facing=east,waterlogged=true": {
-      "model": "pvz:block/copper_ladder",
-      "y": 90
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "pvz:block/copper_ladder",
+        "y": 90
+      }
     },
-    "facing=north,waterlogged=false": {
-      "model": "pvz:block/copper_ladder"
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "pvz:block/copper_ladder",
+        "y": 180
+      }
     },
-    "facing=north,waterlogged=true": {
-      "model": "pvz:block/copper_ladder"
-    },
-    "facing=south,waterlogged=false": {
-      "model": "pvz:block/copper_ladder",
-      "y": 180
-    },
-    "facing=south,waterlogged=true": {
-      "model": "pvz:block/copper_ladder",
-      "y": 180
-    },
-    "facing=west,waterlogged=false": {
-      "model": "pvz:block/copper_ladder",
-      "y": 270
-    },
-    "facing=west,waterlogged=true": {
-      "model": "pvz:block/copper_ladder",
-      "y": 270
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "pvz:block/copper_ladder",
+        "y": 270
+      }
     }
-  }
+  ]
 }

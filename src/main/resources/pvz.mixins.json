@@ -6,6 +6,7 @@
   "refmap": "pvz.refmap.json",
   "mixins": [
     "BeeMixin",
+    "HoneycombItemMixin",
     "ItemCommandsMixin",
     "NodeEvaluatorMixin",
     "PathFinderMixin",

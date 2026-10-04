@@ -11,16 +11,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
 /**
- * Right click a copper ladder with a copper ladder to stack another one on the
+ * Right-click a copper ladder with a copper ladder to stack another one on the
  * top of the whole column, just like scaffolding does. Sneaking stacks downwards
  * instead. Only the first free spot within {@link com.hungteen.pvz.common.block.CopperLadderBlock#MAX_SEARCH_DISTANCE} blocks
  * around the clicked ladder can be reached.
+ *
+ * @program: HTPVZ2
+ * @author: HungTeen
+ * @create: 2026-10-01
  */
 public class CopperLadderBlockItem extends BlockItem {
 
@@ -37,8 +40,7 @@ public class CopperLadderBlockItem extends BlockItem {
             clickedPos = clickedPos.relative(context.getClickedFace().getOpposite());
         }
         Level level = context.getLevel();
-        Block block = this.getBlock();
-        if (!level.getBlockState(clickedPos).is(block)) {
+        if (!(level.getBlockState(clickedPos).getBlock() instanceof CopperLadderBlock)) {
             return context;
         }
         //stack upwards, downwards when sneaking.
@@ -56,7 +58,7 @@ public class CopperLadderBlockItem extends BlockItem {
             }
             BlockState state = level.getBlockState(pos);
             //the first free spot of the column has been reached.
-            if (!state.is(block)) {
+            if (!(state.getBlock() instanceof CopperLadderBlock)) {
                 return state.canBeReplaced(context) ? BlockPlaceContext.at(context, pos, direction) : null;
             }
         }
