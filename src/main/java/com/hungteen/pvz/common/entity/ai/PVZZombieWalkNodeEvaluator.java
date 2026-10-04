@@ -1,9 +1,8 @@
 package com.hungteen.pvz.common.entity.ai;
 
-import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.block.CopperLadderBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
@@ -41,9 +40,9 @@ public class PVZZombieWalkNodeEvaluator extends WalkNodeEvaluator {
     private boolean inValidNeighbor(@Nullable Node neighbor, Node current) {
         if (neighbor != null) {
             BlockState neighborState = level.getBlockState(neighbor.asBlockPos());
-            if (neighborState.is(PVZBlocks.COPPER_LADDER.get())) {
+            Direction direction = CopperLadderBlock.getCopperLadderFacing(neighborState);
+            if (direction != null) {
                 // 往铜梯子上扩散的节点，一定不能是它的反面
-                Direction direction = neighborState.getValue(LadderBlock.FACING);
                 if (current.asBlockPos().relative(direction).equals(neighbor.asBlockPos())) {
                     return false;
                 }
@@ -78,6 +77,6 @@ public class PVZZombieWalkNodeEvaluator extends WalkNodeEvaluator {
     }
 
     private boolean isCopperLadder(int x, int y, int z) {
-        return this.mob.level.getBlockState(new BlockPos(x, y, z)).is(PVZBlocks.COPPER_LADDER.get());
+        return CopperLadderBlock.isCopperLadder(this.mob.level.getBlockState(new BlockPos(x, y, z)));
     }
 }

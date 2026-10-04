@@ -5,6 +5,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.hungteen.pvz.common.item.CopperLadderBlockItem;
 import com.hungteen.pvz.common.register.PVZBlocks;
+import com.hungteen.pvz.common.tags.PVZBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -77,7 +78,15 @@ public class CopperLadderBlock extends LadderBlock {
     }
 
     public static boolean isCopperLadder(BlockState state) {
-        return state.getBlock() instanceof CopperLadderBlock;
+        return state.is(PVZBlockTags.COPPER_LADDERS);
+    }
+
+    /**
+     * Not every copper ladder in the tag is guaranteed to have the FACING property.
+     */
+    @Nullable
+    public static Direction getCopperLadderFacing(BlockState state) {
+        return isCopperLadder(state) && state.hasProperty(FACING) ? state.getValue(FACING) : null;
     }
 
     @Override
@@ -114,10 +123,10 @@ public class CopperLadderBlock extends LadderBlock {
     }
 
     private boolean hasWallSupport(BlockState state, LevelReader level, BlockPos pos) {
-        if (! isCopperLadder(state)) {
+        Direction direction = getCopperLadderFacing(state);
+        if (direction == null) {
             return false;
         }
-        Direction direction = state.getValue(FACING);
         BlockPos wallPos = pos.relative(direction.getOpposite());
         return level.getBlockState(wallPos).isFaceSturdy(level, wallPos, direction);
     }
@@ -161,7 +170,7 @@ public class CopperLadderBlock extends LadderBlock {
         BlockPos pos = context.getClickedPos();
         if (! context.replacingClickedOnBlock()) {
             BlockState behind = level.getBlockState(pos.relative(context.getClickedFace().getOpposite()));
-            if (isCopperLadder(behind) && behind.getValue(FACING) == context.getClickedFace()) {
+            if (getCopperLadderFacing(behind) == context.getClickedFace()) {
                 return null;
             }
         }
@@ -176,16 +185,11 @@ public class CopperLadderBlock extends LadderBlock {
             }
         }
         if (! directions.isEmpty() && this.canSurvive(this.defaultBlockState(), level, pos)) {
-            BlockState below = level.getBlockState(pos.below());
-            BlockState above = level.getBlockState(pos.above());
-            Direction facing;
-            if (isCopperLadder(below)) {
-                facing = below.getValue(FACING);
-            } else if (isCopperLadder(above)) {
-                facing = above.getValue(FACING);
-            } else {
-                facing = directions.get(0).getOpposite();
-            }
+            Direction belowFacing = getCopperLadderFacing(level.getBlockState(pos.below()));
+            Direction aboveFacing = getCopperLadderFacing(level.getBlockState(pos.above()));
+            Direction facing = belowFacing != null ? belowFacing
+                    : aboveFacing != null ? aboveFacing
+                    : directions.get(0).getOpposite();
             return this.defaultBlockState().setValue(FACING, facing)
                     .setValue(WATERLOGGED, waterlogged);
         }

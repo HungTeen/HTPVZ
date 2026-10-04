@@ -135,7 +135,7 @@ public class BlockLootGen extends BlockLoot {
     protected void addCopperLadderDrop(Block block) {
         outPut(block);
         lootedList.add(block);
-        this.dropOther(block, PVZItems.COPPER_LADDER.get());
+        this.dropSelf(block);
     }
     protected void addPottedDrop(Block block) {
         outPut(block);

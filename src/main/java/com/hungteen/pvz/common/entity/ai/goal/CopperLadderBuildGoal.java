@@ -109,7 +109,7 @@ public class CopperLadderBuildGoal extends Goal {
         BlockPos nextPos = null;
         while (!pos.equals(this.buildingEnd)) {
             pos.move(this.buildingDirection);
-            if (!this.zombie.level.getBlockState(pos).is(PVZBlocks.COPPER_LADDER.get())) {
+            if (!CopperLadderBlock.isCopperLadder(this.zombie.level.getBlockState(pos))) {
                 nextPos = pos.immutable();
                 break;
             }
@@ -230,16 +230,16 @@ public class CopperLadderBuildGoal extends Goal {
             }
             BlockState state = level.getBlockState(pos);
             // 当前位置要么有梯子了，要么可被替换
-            if (!state.is(PVZBlocks.COPPER_LADDER.get()) && !state.getMaterial().isReplaceable()) {
+            if (!CopperLadderBlock.isCopperLadder(state) && !state.getMaterial().isReplaceable()) {
                 return null;
             }
-            if (state.is(PVZBlocks.COPPER_LADDER.get())) {
-                Direction facing = state.getValue(LadderBlock.FACING);
-                if (buildFacing != null && !buildFacing.equals(facing)) {
+            Direction ladderFacing = CopperLadderBlock.getCopperLadderFacing(state);
+            if (ladderFacing != null) {
+                if (buildFacing != null && !buildFacing.equals(ladderFacing)) {
                     // 存在方向不同的梯子
                     return null;
                 }
-                buildFacing = facing;
+                buildFacing = ladderFacing;
             }
             // 找到了安全平台，直接返回即可
             Direction stablePlatformFacing = getStablePlatformFacing(pos.immutable(), buildFacing);

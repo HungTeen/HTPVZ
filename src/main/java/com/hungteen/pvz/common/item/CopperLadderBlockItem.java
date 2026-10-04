@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.common.block.CopperLadderBlock;
-import com.hungteen.pvz.common.register.PVZBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
@@ -27,8 +27,8 @@ import javax.annotation.Nullable;
  */
 public class CopperLadderBlockItem extends BlockItem {
 
-    public CopperLadderBlockItem(Properties properties) {
-        super(PVZBlocks.COPPER_LADDER.get(), properties);
+    public CopperLadderBlockItem(Block block, Properties properties) {
+        super(block, properties);
     }
 
     @Nullable
@@ -40,7 +40,7 @@ public class CopperLadderBlockItem extends BlockItem {
             clickedPos = clickedPos.relative(context.getClickedFace().getOpposite());
         }
         Level level = context.getLevel();
-        if (!(level.getBlockState(clickedPos).getBlock() instanceof CopperLadderBlock)) {
+        if (!CopperLadderBlock.isCopperLadder(level.getBlockState(clickedPos))) {
             return context;
         }
         //stack upwards, downwards when sneaking.
@@ -58,7 +58,7 @@ public class CopperLadderBlockItem extends BlockItem {
             }
             BlockState state = level.getBlockState(pos);
             //the first free spot of the column has been reached.
-            if (!(state.getBlock() instanceof CopperLadderBlock)) {
+            if (!CopperLadderBlock.isCopperLadder(state)) {
                 return state.canBeReplaced(context) ? BlockPlaceContext.at(context, pos, direction) : null;
             }
         }

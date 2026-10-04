@@ -175,7 +175,7 @@ public class PVZBlocks {
         if (! waxed) {
             properties.randomTicks();
         }
-        return tag(BlockTags.CLIMBABLE, BlockTags.MINEABLE_WITH_AXE)
+        return tag(BlockTags.CLIMBABLE, BlockTags.MINEABLE_WITH_AXE, PVZBlockTags.COPPER_LADDERS)
                 .model(Model.Modeled).noItem(/*registered separatedly.*/)
                 .block(name, () -> waxed
                         ? new WaxedCopperLadderBlock(properties)
