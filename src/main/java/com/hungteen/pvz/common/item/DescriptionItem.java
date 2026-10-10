@@ -5,6 +5,7 @@ import com.hungteen.pvz.api.events.PVZPlantConditionMatchingEvent;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.common.register.PVZItems;
+import com.hungteen.pvz.common.world.PlayerSunContainerWrapper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -40,8 +41,9 @@ public class DescriptionItem extends Item {
     //ShellStartupItem
 
     private static PVZPlantConditionMatchingEvent.OnBlock handlingEvent = null;
+
     @SubscribeEvent
-    public static void shellStartupPlantGoal(PVZPlantConditionMatchingEvent.OnBlock event) {
+    public static void shellStartupPlant(PVZPlantConditionMatchingEvent.OnBlock event) {
         if (event.event == null) {
             return;
         }
@@ -49,9 +51,9 @@ public class DescriptionItem extends Item {
             if (event.phase != PVZPlantConditionMatchingEvent.Phase.POST) {
                 return;
             }
-            if (event.isPlanting && event.result != null && event.event.spawningEntity instanceof INeedSafeSituation && event.event.getEntity() != null) {
+            if (event.isPlanting && event.result != null && event.event.spawningEntity instanceof INeedSafeSituation && event.event.container instanceof PlayerSunContainerWrapper wrapper) {
                 PVZResourceEvent.CheckPlantConditionEvent resEv = event.event;
-                Player player = event.event.getEntity();
+                Player player = (Player) wrapper.getEntity();
                 if ((resEv.seedPacket.getItem() instanceof SeedPacketItem<?> item) && item.canBoost()) {
                     //寻找玩家的iCanBePlantedOn的种子包 和 ShellStartup
                     boolean hasShellStartup = false;
@@ -71,7 +73,7 @@ public class DescriptionItem extends Item {
                     if (hasShellStartup && ! toTestList.isEmpty()) {
                         handlingEvent = event;
                         for (ItemStack itemStack : toTestList) {
-                            ((SeedPacketItem<?>) itemStack.getItem()).plantOnBlock(event.event.getEntity(), itemStack, event.level, event.pos, event.direction);
+                            ((SeedPacketItem<?>) itemStack.getItem()).plantOnBlock((Player) wrapper.getEntity(), itemStack, event.level, event.pos, event.direction);
                             if (handlingEvent.result == null) {
                                 break;
                             }

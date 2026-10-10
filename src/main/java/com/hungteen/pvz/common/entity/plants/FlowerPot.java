@@ -3,7 +3,6 @@ package com.hungteen.pvz.common.entity.plants;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.creatures.Snail;
@@ -115,7 +114,7 @@ public class FlowerPot extends SimplePlant implements ICanBePlantedOn {
             if (isPlanting) {
                 if (! target.isVehicle()) {
                     if (event != null) {
-                        if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+                        if (event.cost > event.container.getAmount()) {
                             return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
                         }
                     }

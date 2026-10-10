@@ -4,7 +4,6 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.ai.goal.AvoidTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.DisperseEnemyTargetGoal;
 import com.hungteen.pvz.common.entity.ai.goal.FollowGroupLeaderGoal;
@@ -207,7 +206,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
-            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+            if (event.cost > event.container.getAmount()) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
@@ -260,7 +259,7 @@ public class VelociRadish extends PathfinderMob implements ICanGroupUp, IPlant, 
     public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
-            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+            if (event.cost > event.container.getAmount()) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }

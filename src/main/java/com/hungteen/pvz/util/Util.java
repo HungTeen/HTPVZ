@@ -3,12 +3,14 @@ package com.hungteen.pvz.util;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
+import com.hungteen.pvz.api.interfaces.ISunContainer;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
 import com.hungteen.pvz.common.world.PVZSavedData;
+import com.hungteen.pvz.common.world.PlayerSunContainerWrapper;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
@@ -36,6 +38,8 @@ import net.minecraft.world.scores.Team;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.RegistryObject;
+
+import javax.annotation.Nullable;
 
 public class Util {
 
@@ -70,36 +74,35 @@ public class Util {
 
 
     //planting tools
-    public static int getSeedPacketExtraCostRange(Player player) {
-        if (player.level instanceof ServerLevel serverLevel) {
-            return PVZConfig.PVZGameRules.getInt(serverLevel, PVZConfig.Common.advancedPlantExtraCostRange);
-        } else {
-            PVZPlayerCapability cap = player.getCapability(PVZPlayerCapability.CAP).orElse(null);
+    public static int getSeedPacketExtraCostRange(@Nullable ISunContainer container) {
+        if (container != null && container.getLevel() != null) {
+            return PVZConfig.PVZGameRules.getInt(container.getLevel(), PVZConfig.Common.advancedPlantExtraCostRange);
+        } else if (container instanceof PlayerSunContainerWrapper wrapper) {
+            PVZPlayerCapability cap = wrapper.getEntity().getCapability(PVZPlayerCapability.CAP).orElse(null);
             return cap == null ? 30 : cap.advancedPlantsExtraCostRange;
         }
+        return 30;
     }
 
     /**in order to put event into api, the rapid methods to create the events are defined here.*/
     public static PVZResourceEvent.CheckResourceEvent checkPlantResourceEvent(Player player, ItemStack plantCard) {
         SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
+        PlayerSunContainerWrapper wrapper = new PlayerSunContainerWrapper(player);
         String resource = item.getResource(plantCard);
         int cost = (resource.equals(PVZPlayerCapStats.SUN)
                 && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
-                0 : item.getBaseCost(plantCard) + item.getTotalExtraCost(player);
+                0 : item.getBaseCost(plantCard) + item.getTotalExtraCost(wrapper, plantCard);
         int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
-                1 : item.getBaseCoolDown(plantCard);
-        return new PVZResourceEvent.CheckResourceEvent(player, plantCard, resource, cost, coolDown);
+                1 : item.getBaseCoolDown(plantCard) + item.getTotalExtraCoolDown(wrapper, plantCard);
+        return new PVZResourceEvent.CheckResourceEvent(new PlayerSunContainerWrapper(player), plantCard, resource, cost, coolDown);
     }
 
-    public static PVZResourceEvent.CheckPlantConditionEvent checkPlantConditionEvent(Player player, ItemStack plantCard, Entity spawningEntity) {
+    public static PVZResourceEvent.CheckPlantConditionEvent checkPlantConditionEvent(ISunContainer planter, ItemStack plantCard, Entity spawningEntity) {
         SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
         String resource = item.getResource(plantCard);
-        int cost = (resource.equals(PVZPlayerCapStats.SUN)
-                && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
-                0 : item.getBaseCost(plantCard) + item.getTotalExtraCost(player);
-        int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
-                1 : item.getBaseCoolDown(plantCard);
-        return new PVZResourceEvent.CheckPlantConditionEvent(player, plantCard, spawningEntity, resource, cost, coolDown);
+        int cost = item.getBaseCost(plantCard) + item.getTotalExtraCost(planter, plantCard);
+        int coolDown = item.getBaseCoolDown(plantCard) + item.getTotalExtraCoolDown(planter, plantCard);
+        return new PVZResourceEvent.CheckPlantConditionEvent(planter, plantCard, spawningEntity, resource, cost, coolDown);
     }
 
 

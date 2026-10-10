@@ -6,10 +6,9 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.IIronEntity;
 import com.hungteen.pvz.client.sound.WallNutSoundInstance;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
-import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
+import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
 import com.hungteen.pvz.common.register.*;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.MathUtil;
@@ -43,7 +42,8 @@ import net.minecraftforge.common.ForgeHooks;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.hungteen.pvz.common.register.PVZDamageSource.*;
+import static com.hungteen.pvz.common.register.PVZDamageSource.ignoreInvTime;
+import static com.hungteen.pvz.common.register.PVZDamageSource.teamFilter;
 
 public class WallNut extends SimplePlant implements IIronEntity {
     float storedHealth;
@@ -175,7 +175,7 @@ public class WallNut extends SimplePlant implements IIronEntity {
     @Override
     public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (isPlanting && event != null) {
-            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+            if (event.cost > event.container.getAmount()) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
@@ -191,7 +191,7 @@ public class WallNut extends SimplePlant implements IIronEntity {
                     if (target != null) {
                         ((WallNut) target).setSkillVal(this.getSkillVal());
                         if (event != null) {
-                            target.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                            target.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.container.getEntity()));
                         }
                     }
                     this.discard();
