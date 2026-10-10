@@ -119,6 +119,14 @@ public class PVZBlocks {
     public static final RegistryObject<Block> TOMBSTONE = loot(false).model(Model.Modeled)
             .tag(BlockTags.FEATURES_CANNOT_REPLACE, BlockTags.MINEABLE_WITH_PICKAXE).blockEntity("tombstone")
             .block("tombstone", () -> new TombstoneBlock(BlockBehaviour.Properties.copy(Blocks.DEEPSLATE)));
+    public static final RegistryObject<Block> COPPER_LADDER = copperLadder("copper_ladder", WeatheringCopper.WeatherState.UNAFFECTED, false);
+    public static final RegistryObject<Block> EXPOSED_COPPER_LADDER = copperLadder("exposed_copper_ladder", WeatheringCopper.WeatherState.EXPOSED, false);
+    public static final RegistryObject<Block> WEATHERED_COPPER_LADDER = copperLadder("weathered_copper_ladder", WeatheringCopper.WeatherState.WEATHERED, false);
+    public static final RegistryObject<Block> OXIDIZED_COPPER_LADDER = copperLadder("oxidized_copper_ladder", WeatheringCopper.WeatherState.OXIDIZED, false);
+    public static final RegistryObject<Block> WAXED_COPPER_LADDER = copperLadder("waxed_copper_ladder", WeatheringCopper.WeatherState.UNAFFECTED, true);
+    public static final RegistryObject<Block> WAXED_EXPOSED_COPPER_LADDER = copperLadder("waxed_exposed_copper_ladder", WeatheringCopper.WeatherState.EXPOSED, true);
+    public static final RegistryObject<Block> WAXED_WEATHERED_COPPER_LADDER = copperLadder("waxed_weathered_copper_ladder", WeatheringCopper.WeatherState.WEATHERED, true);
+    public static final RegistryObject<Block> WAXED_OXIDIZED_COPPER_LADDER = copperLadder("waxed_oxidized_copper_ladder", WeatheringCopper.WeatherState.OXIDIZED, true);
     //NO_TAB
     public static final RegistryObject<Block> ENTITY_LIGHT = loot(false).model(Model.Modeled).blockEntity("entity_light").noItem().block("entity_light", () -> new EntityLightBlock(BlockBehaviour.Properties.of(Material.AIR)
             .strength(-1.0F, 3600000.8F).noLootTable().noOcclusion().lightLevel(i -> i.getValue(EntityLightBlock.LEVEL))));
@@ -160,6 +168,18 @@ public class PVZBlocks {
     }
     private static RegistryObject<Block> block(String name){
         return block(name, storedSup);
+    }
+
+    private static RegistryObject<Block> copperLadder(String name, WeatheringCopper.WeatherState state, boolean waxed) {
+        BlockBehaviour.Properties properties = BlockBehaviour.Properties.copy(Blocks.LADDER);
+        if (! waxed) {
+            properties.randomTicks();
+        }
+        return tag(BlockTags.CLIMBABLE, BlockTags.MINEABLE_WITH_AXE, PVZBlockTags.COPPER_LADDERS)
+                .model(Model.Modeled).noItem(/*registered separatedly.*/)
+                .block(name, () -> waxed
+                        ? new WaxedCopperLadderBlock(properties)
+                        : new WeatheringCopperLadderBlock(state, properties));
     }
 
     private static RegistryObject<Block> block(String name, Supplier<Block> sup){

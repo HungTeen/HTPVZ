@@ -17,6 +17,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.model.generators.ModelProvider;
@@ -127,6 +128,14 @@ public class PVZItems {
     public static final RegistryObject<Item> SEED_DISPENSARY = item("seed_dispensary", () -> new SeedDispensaryItem(new Item.Properties().stacksTo(16).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> ARROW_WITH_A_TARGET = tag(ItemTags.ARROWS).item("arrow_with_a_target", () -> new ArrowWithATargetItem(new Item.Properties().tab(PVZItemTabs.PVZ_FUNCTIONAL)));
     public static final RegistryObject<Item> WATERING_POT = tag(PVZItemTags.SNAILS_CAN_PICK_UP, PVZItemTags.WATERING_POTS).model(Model.Modeled).item("watering_pot", () -> new WateringPotItem(new Item.Properties().stacksTo(1).durability(5).tab(PVZItemTabs.PVZ_BLOCKS)));
+    public static final RegistryObject<Item> COPPER_LADDER = copperLadder("copper_ladder", PVZBlocks.COPPER_LADDER);
+    public static final RegistryObject<Item> EXPOSED_COPPER_LADDER = copperLadder("exposed_copper_ladder", PVZBlocks.EXPOSED_COPPER_LADDER);
+    public static final RegistryObject<Item> WEATHERED_COPPER_LADDER = copperLadder("weathered_copper_ladder", PVZBlocks.WEATHERED_COPPER_LADDER);
+    public static final RegistryObject<Item> OXIDIZED_COPPER_LADDER = copperLadder("oxidized_copper_ladder", PVZBlocks.OXIDIZED_COPPER_LADDER);
+    public static final RegistryObject<Item> WAXED_COPPER_LADDER = copperLadder("waxed_copper_ladder", PVZBlocks.WAXED_COPPER_LADDER);
+    public static final RegistryObject<Item> WAXED_EXPOSED_COPPER_LADDER = copperLadder("waxed_exposed_copper_ladder", PVZBlocks.WAXED_EXPOSED_COPPER_LADDER);
+    public static final RegistryObject<Item> WAXED_WEATHERED_COPPER_LADDER = copperLadder("waxed_weathered_copper_ladder", PVZBlocks.WAXED_WEATHERED_COPPER_LADDER);
+    public static final RegistryObject<Item> WAXED_OXIDIZED_COPPER_LADDER = copperLadder("waxed_oxidized_copper_ladder", PVZBlocks.WAXED_OXIDIZED_COPPER_LADDER);
     public static final RegistryObject<Item> ZEN_GARDEN_PORTAL = model(Model.Modeled).item("zen_garden_portal", () -> new BlockItem(PVZBlocks.ZEN_GARDEN_PORTAL.get(), new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_BLOCKS)));
     public static final RegistryObject<Item> LOOT_BAG = item("loot_bag", () -> new LootBagItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL).fireResistant()));
     public static final RegistryObject<Item> ALMANAC = item("almanac", () -> new AlmanacItem(new Item.Properties().stacksTo(1).tab(PVZItemTabs.PVZ_FUNCTIONAL)));
@@ -155,6 +164,11 @@ public class PVZItems {
     }
 
     //definitions
+    private static RegistryObject<Item> copperLadder(String name, Supplier<Block> block) {
+        return tag(PVZItemTags.COPPER_LADDERS).model(Model.Block).item(name,
+                () -> new CopperLadderBlockItem(block.get(), new Item.Properties().tab(PVZItemTabs.PVZ_BLOCKS)));
+    }
+
     private static PVZItems model(Model model, ResourceLocation... res){
         storedModel = Pair.of(model, List.of(res));
         return reflector;

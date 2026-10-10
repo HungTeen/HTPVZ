@@ -64,6 +64,14 @@ public class BlockLootGen extends BlockLoot {
         this.addConditionDrop(PVZBlocks.FLOATING_SOUL_SOIL.get(), HAS_SILK_TOUCH);
         this.addNoLoot(PVZBlocks.INVASION_SPAWNER.get());
         this.addConditionDrop(PVZBlocks.WARPED_OBSILIUM.get(), Blocks.OBSIDIAN, HAS_SILK_TOUCH);
+        this.addCopperLadderDrop(PVZBlocks.COPPER_LADDER.get());
+        this.addCopperLadderDrop(PVZBlocks.EXPOSED_COPPER_LADDER.get());
+        this.addCopperLadderDrop(PVZBlocks.WEATHERED_COPPER_LADDER.get());
+        this.addCopperLadderDrop(PVZBlocks.OXIDIZED_COPPER_LADDER.get());
+        this.addCopperLadderDrop(PVZBlocks.WAXED_COPPER_LADDER.get());
+        this.addCopperLadderDrop(PVZBlocks.WAXED_EXPOSED_COPPER_LADDER.get());
+        this.addCopperLadderDrop(PVZBlocks.WAXED_WEATHERED_COPPER_LADDER.get());
+        this.addCopperLadderDrop(PVZBlocks.WAXED_OXIDIZED_COPPER_LADDER.get());
         this.add(PVZBlocks.TOMBSTONE.get(), LootTable.lootTable().withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1F))
                         .add(LootItem.lootTableItem(Items.GOLD_NUGGET).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 12F))))
@@ -123,6 +131,11 @@ public class BlockLootGen extends BlockLoot {
         outPut(block);
         lootedList.add(block);
         this.add(block, LootTable.lootTable());
+    }
+    protected void addCopperLadderDrop(Block block) {
+        outPut(block);
+        lootedList.add(block);
+        this.dropSelf(block);
     }
     protected void addPottedDrop(Block block) {
         outPut(block);
