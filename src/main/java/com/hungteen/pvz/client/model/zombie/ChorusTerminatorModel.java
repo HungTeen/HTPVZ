@@ -33,6 +33,7 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 	private final ModelPart bone;
 	private final ModelPart mouth;
 	private final ModelPart mouth_link;
+	private final ModelPart portal;
 	private final ModelPart eye;
 	private final ModelPart eyeball;
 	private final ModelPart pupil;
@@ -73,6 +74,7 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 		this.bone = this.flag.getChild("bone");
 		this.mouth = this.head.getChild("mouth");
 		this.mouth_link = this.mouth.getChild("mouth_link");
+		this.portal = this.mouth.getChild("portal");
 		this.eye = this.head.getChild("eye");
 		this.eyeball = this.eye.getChild("eyeball");
 		this.pupil = this.eyeball.getChild("pupil");
@@ -151,10 +153,11 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 				.texOffs(452, 552).addBox(23.0F, -3.0F, -6.0F, 4.0F, 18.0F, 11.0F, new CubeDeformation(0.0F))
 				.texOffs(482, 552).addBox(-27.0F, -3.0F, -6.0F, 4.0F, 18.0F, 11.0F, new CubeDeformation(0.0F))
 				.texOffs(560, 237).addBox(12.0F, -3.0F, -32.0F, 8.0F, 18.0F, 2.0F, new CubeDeformation(0.0F))
-				.texOffs(562, 422).addBox(-20.0F, -3.0F, -32.0F, 8.0F, 18.0F, 2.0F, new CubeDeformation(0.0F))
-				.texOffs(577, 0).addBox(-22.0F, -34.0F, -27.0F, 44.0F, 46.0F, 27.0F, new CubeDeformation(0.0F)), PartPose.offset(-1.0F, -12.0F, 4.0F));
+				.texOffs(562, 422).addBox(-20.0F, -3.0F, -32.0F, 8.0F, 18.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offset(-1.0F, -12.0F, 4.0F));
 
 		PartDefinition mouth_link = mouth.addOrReplaceChild("mouth_link", CubeListBuilder.create().texOffs(0, 450).addBox(-25.0F, -29.0F, -4.0F, 50.0F, 29.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
+		PartDefinition portal = mouth.addOrReplaceChild("portal", CubeListBuilder.create().texOffs(577, 0).addBox(-22.0F, -34.0F, -27.0F, 44.0F, 46.0F, 27.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition eye = head.addOrReplaceChild("eye", CubeListBuilder.create().texOffs(544, 162).addBox(-9.0F, -11.0F, -1.0F, 20.0F, 20.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offset(-2.0F, -21.0F, -32.0F));
 
@@ -245,6 +248,7 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 		this.animate(entity.preDefenceAnimationState, ChorusTerminatorModelAnimation.preDefence, ageInTicks);
 
 		this.shell.visible = false;
+		this.portal.visible = false;
 		float pTick = Minecraft.getInstance().getPartialTick();
 		float yRot = (Mth.rotLerp(pTick, entity.yBodyRotO, entity.yBodyRot)) / 57.3f;
 		Vec3 intention = entity.body.getIntention();

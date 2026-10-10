@@ -8,7 +8,6 @@ import com.hungteen.pvz.api.interfaces.ICanAttack;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
@@ -386,7 +385,7 @@ public class Chomper extends PathfinderMob implements IPlant, IHaveSkills, ICanA
     public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
-            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+            if (event.cost > event.container.getAmount()) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }

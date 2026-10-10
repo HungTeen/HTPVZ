@@ -1,5 +1,6 @@
 package com.hungteen.pvz.api.interfaces;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -12,6 +13,10 @@ public interface ISun extends ISunAbsorber, ISunContainer {
     @Override
     default int getCapacity() {
         return 150;
+    }
+    @Override
+    default Entity getEntity() {
+        return (Entity) this;
     }
 
     void onAbsorbedBy(ISunAbsorber entity);

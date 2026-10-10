@@ -4,7 +4,6 @@ import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.client.sound.GatlingPeaSoundInstance;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.IEntityPacketHandler;
 import com.hungteen.pvz.common.entity.ai.goal.ShooterTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.PeaBullet;
@@ -12,6 +11,7 @@ import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
+import com.hungteen.pvz.common.world.PlayerSunContainerWrapper;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -244,7 +244,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     @Override
     public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting) {
-            if (hasSkill(RAPID_DEPLOYMENT_SKILL_NAME) || (event != null && event.getEntity() != null && event.getEntity().isCreative())) {
+            if (hasSkill(RAPID_DEPLOYMENT_SKILL_NAME) || (event != null && event.container instanceof PlayerSunContainerWrapper wrapper && wrapper.player().isCreative())) {
                 return super.customPositionSafe(event, level, pos, direction, true);
             }
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());
@@ -254,7 +254,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     @Override
     public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         if (isPlanting && event != null) {
-            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+            if (event.cost > event.container.getAmount()) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
@@ -279,7 +279,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
                     gatlingPea.setSkillVal(this.getSkillVal());
                     if (event != null) {
                         event.spawningEntity = gatlingPea;
-                        gatlingPea.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                        gatlingPea.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.container.getEntity()));
                     }
                     if (this.hasCustomName()) {
                         gatlingPea.setCustomName(this.getCustomName());

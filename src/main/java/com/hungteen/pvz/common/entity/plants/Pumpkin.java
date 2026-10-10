@@ -7,7 +7,6 @@ import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
 import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.api.interfaces.IPlant;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.entity.ai.goal.AttractEnemyGoal;
 import com.hungteen.pvz.common.entity.ai.goal.AxisLookAroundGoal;
 import com.hungteen.pvz.common.entity.plants.base.SimplePlant;
@@ -177,7 +176,7 @@ public class Pumpkin extends SimplePlant implements IArmorEntity, ICanBePlantedO
     public MutableComponent customVehicleSafe(PVZResourceEvent.CheckPlantConditionEvent event, Entity target, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
-            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+            if (event.cost > event.container.getAmount()) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
@@ -214,7 +213,7 @@ public class Pumpkin extends SimplePlant implements IArmorEntity, ICanBePlantedO
                     if (target != null) {
                         ((Pumpkin) target).setSkillVal(this.getSkillVal());
                         if (event != null) {
-                            target.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.getEntity()));
+                            target.getCapability(PVZEntityCapability.CAP).ifPresent((cap) -> cap.setOwner(event.container.getEntity()));
                         }
                     }
                     this.discard();

@@ -28,6 +28,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.BodyRotationControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
@@ -200,6 +201,23 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
         this.goalSelector.addGoal(1, actionGoal);
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, false,
                 entity -> EntityUtil.checkCanEntityBeAttack(this, entity)));
+    }
+
+    @Override
+    protected BodyRotationControl createBodyControl() {
+        return new BodyRotationControl(this) {
+            @Override
+            public void clientTick() {
+                ChorusTerminatorActivitiesGoal.Action action = getAction();
+                if (action == ChorusTerminatorActivitiesGoal.Action.DEFENCE
+                        || action == ChorusTerminatorActivitiesGoal.Action.DEFENCE_SHOOT
+                        || action == ChorusTerminatorActivitiesGoal.Action.DEFENCE_SUMMON) {
+                    yBodyRot = Mth.wrapDegrees(Math.round(getYRot() / 90F) * 90F);
+                    return;
+                }
+                super.clientTick();
+            }
+        };
     }
 
     //multipart entity
@@ -381,6 +399,26 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
         super.tick();
         if (homePos == null) homePos = this.blockPosition();
         this.actionTime ++;
+        ChorusTerminatorActivitiesGoal.Action action = getAction();
+        if (action == ChorusTerminatorActivitiesGoal.Action.DEFENCE
+                || action == ChorusTerminatorActivitiesGoal.Action.DEFENCE_SHOOT
+                || action == ChorusTerminatorActivitiesGoal.Action.DEFENCE_SUMMON) {
+            BlockPos group = this.actionGoal == null ? null : this.actionGoal.targetGroup;
+            double dx = 0;
+            double dz = 0;
+            if (group != null) {
+                dx = group.getX() + 0.5D - this.getX();
+                dz = group.getZ() + 0.5D - this.getZ();
+            } else if (this.getTarget() != null) {
+                dx = this.getTarget().getX() - this.getX();
+                dz = this.getTarget().getZ() - this.getZ();
+            }
+            if (dx != 0 && dz != 0) {
+                float snapped = Mth.wrapDegrees(Math.round(Mth.atan2(- dx, dz) / 0.78) * 90F);
+                this.setYRot(snapped);
+                this.yBodyRot = snapped;
+            }
+        }
         Arrays.stream(this.getParts()).forEach(Entity::tick);
         if (! this.level.isClientSide) {
             if (this.tickCount % 2 == 0) ChorusTerminatorSyncPacket.sync(this);
@@ -414,22 +452,24 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
                 i.discard();
                 this.addShield(10);
             });
-            if (this.portals.isEmpty() && this.pendingPortals.isEmpty()) {
-                resetPortals();
-            } else if (! pendingPortals.isEmpty()) {
-                Iterator<Pair<UUID, UUID>> it = pendingPortals.iterator();
-                while (it.hasNext()) {
-                    Pair<UUID, UUID> pair = it.next();
-                    Entity first = serverLevel.getEntity(pair.getFirst());
-                    Entity second = serverLevel.getEntity(pair.getSecond());
-                    if (first instanceof Portal portalA && second instanceof Portal portalB
-                            && portalA.isAlive() && portalB.isAlive()) {
-                        this.portals.add(new Pair<>(portalA, portalB));
-                        it.remove();
-                    } else if (first != null || second != null) {
-                        if (first instanceof Portal p) p.discard();
-                        if (second instanceof Portal p) p.discard();
-                        it.remove();
+            if (this.isAlive()) {
+                if (this.portals.isEmpty() && this.pendingPortals.isEmpty()) {
+                    resetPortals();
+                } else if (! pendingPortals.isEmpty()) {
+                    Iterator<Pair<UUID, UUID>> it = pendingPortals.iterator();
+                    while (it.hasNext()) {
+                        Pair<UUID, UUID> pair = it.next();
+                        Entity first = serverLevel.getEntity(pair.getFirst());
+                        Entity second = serverLevel.getEntity(pair.getSecond());
+                        if (first instanceof Portal portalA && second instanceof Portal portalB
+                                && portalA.isAlive() && portalB.isAlive()) {
+                            this.portals.add(new Pair<>(portalA, portalB));
+                            it.remove();
+                        } else if (first != null || second != null) {
+                            if (first instanceof Portal p) p.discard();
+                            if (second instanceof Portal p) p.discard();
+                            it.remove();
+                        }
                     }
                 }
             }

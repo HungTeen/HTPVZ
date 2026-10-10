@@ -8,7 +8,6 @@ import com.hungteen.pvz.api.events.PlantShoveledEvent;
 import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
-import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.enchantment.SunShovelEnchantment;
 import com.hungteen.pvz.common.entity.Sun;
 import com.hungteen.pvz.common.entity.ai.goal.ServerStressReleaseGoals;
@@ -145,7 +144,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
     public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         //resource check.
         if (isPlanting && event != null) {
-            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+            if (event.cost > event.container.getAmount()) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }
@@ -205,7 +204,7 @@ public class SimplePlant extends Mob implements IHaveSkills, IPlant, ICanAttack 
         }
         //resource check.
         if (isPlanting && event != null) {
-            if (event.cost > PVZPlayerCapability.getValue(event.getEntity(), event.resource)) {
+            if (event.cost > event.container.getAmount()) {
                 return Component.translatable("hint.pvz.plant.no_enough_resource", Component.translatable(event.resource));
             }
         }

@@ -2,13 +2,13 @@ package com.hungteen.pvz.common.item;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.events.SeedPacketPlantEvent;
 import com.hungteen.pvz.api.interfaces.IHaveSkills;
 import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.api.interfaces.IPlant;
+import com.hungteen.pvz.api.interfaces.ISunContainer;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
@@ -19,6 +19,7 @@ import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.register.PVZStats;
+import com.hungteen.pvz.common.world.PlayerSunContainerWrapper;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.ChatFormatting;
@@ -53,6 +54,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
@@ -112,20 +114,36 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         return cost;
     }
 
-    public int getTotalExtraCost(Player player) {
+    public int getTotalExtraCost(ISunContainer planter, ItemStack itemStack) {
+        return getNumExtraCost(planter) + getSkillExtraCost(itemStack);
+    }
+
+    public int getSingleNumExtraCost(ISunContainer container, T entity) {
+        return 50;
+    }
+
+    public int getNumExtraCost(@Nullable ISunContainer container) {
         AtomicInteger result = new AtomicInteger();
-        int range = Util.getSeedPacketExtraCostRange(player);
-        if (range >= 0) {
-            player.level.getEntities((Entity) null
-                            , player.getBoundingBox().inflate(range)
-                            , entity1 -> (entity1.getType() == getEntity() && extraCost && EntityUtil.isTeammate(player, entity1)))
-                    .forEach(entity1 -> result.addAndGet(getExtraCost(player, (T) entity1)));
+        int range = Util.getSeedPacketExtraCostRange(container);
+        if (range >= 0 && container != null && container.getLevel() != null && container.getPosition() != null) {
+            container.getLevel().getEntities((Entity) null
+                            , new AABB(container.getPosition()
+                                    .add(-1, -1, -1), container.getPosition().add(1, 1 ,1)).inflate(range)
+                            , entity1 -> (entity1.getType() == getEntity() && extraCost
+                                    && (container.getEntity() == null || EntityUtil.isTeammate(container.getEntity(), entity1))))
+                    .forEach(entity1 -> result.addAndGet(getSingleNumExtraCost(container, (T) entity1)));
         }
         return result.get();
     }
 
-    public int getExtraCost(Player player, T entity) {
-        return 50;
+    public int getSkillExtraCost(ItemStack itemStack) {
+        int addition = 0;
+        for (int i : this.getSkills(itemStack)) {
+            if (this.getStaticSkillList().size() - 1 >= i) {
+                addition += this.getStaticSkillList().get(i).addCostResource;
+            }
+        }
+        return addition;
     }
 
     /** This method returns the original cool down of the itemStack, not including the effects of enchantments and buffs. To get the accurate number, use {@link PVZResourceEvent.CheckResourceEvent}.
@@ -135,6 +153,28 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             return itemStack.getTag().contains("CoolDown") ? itemStack.getTag().getInt("CoolDown") : coolDown;
         }
         return coolDown;
+    }
+
+    public int getTotalExtraCoolDown(@Nullable ISunContainer container, ItemStack itemStack) {
+        return getEnchantExtraCoolDown(itemStack) + getSkillExtraCoolDown(itemStack);
+    }
+
+    public int getEnchantExtraCoolDown(ItemStack itemStack) {
+        int level = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.QUICK_COOL_DOWN.get(), itemStack);
+        if (level > 0) {
+            return getBaseCoolDown(itemStack) * (10 - level) / 10;
+        }
+        return 0;
+    }
+
+    public int getSkillExtraCoolDown(ItemStack itemStack) {
+        int addition = 0;
+        for (int i : this.getSkills(itemStack)) {
+            if (this.getStaticSkillList().size() - 1 >= i) {
+                addition += this.getStaticSkillList().get(i).addCoolDown;
+            }
+        }
+        return addition;
     }
 
     /**SeedPacket may not cost sun but other resource instead. */
@@ -261,14 +301,19 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     public MutableComponent plantOnBlock(Player player, ItemStack itemStack, Level level, BlockPos pos, Direction direction) {
-        if (PVZPlayerCapability.getValue(player, PVZPlayerCapStats.CAN_PLANT) == 0)
-            return Component.translatable("hint.pvz.plant.player_cant_plant");
-        if (itemStack.getItem() instanceof SeedPacketItem<?> item && !player.getCooldowns().isOnCooldown(this)) {
+        return plantOnBlock(new PlayerSunContainerWrapper(player), itemStack, level, pos, direction);
+    }
+
+    public MutableComponent plantOnBlock(ISunContainer sunContainer, ItemStack itemStack, Level level, BlockPos pos, Direction direction) {
+        if (! level.isClientSide && itemStack.getItem() instanceof SeedPacketItem<?>
+                && sunContainer.getCooldowns() != null && ! sunContainer.getCooldowns().isOnCooldown(this)) {
+            Entity planter = sunContainer.getEntity();
             //check entity.
             Entity entity = getEntity().create((ServerLevel) level, null,
                     itemStack.hasCustomHoverName() ? getName(itemStack) : null,
-                    player, pos.above(), MobSpawnType.SPAWN_EGG, false, false);
-            if (entity != null && itemStack.hasCustomHoverName()) {
+                    planter instanceof Player p ? p : null, pos.above(), MobSpawnType.SPAWN_EGG, false, false);
+            if (entity == null) return Component.translatable("hint.pvz.plant.player_cant_plant");
+            if (itemStack.hasCustomHoverName()) {
                 entity.setCustomName(itemStack.getHoverName());
             }
             //CanPlaceOn test
@@ -284,59 +329,42 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
                     itemStack.getOrCreateTag().contains("CanPlaceOn"))) {
                 entity.getEntityData().set(((IPlant) entity).root(), false);
             }
-            PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
-            if (cap != null && shouldDefineOwner(itemStack)) {
-                cap.setOwner(player);
-            }
             //handle skills.
             if (entity instanceof IHaveSkills) {
                 ((IHaveSkills) entity).setSkillVal(entity, getSkillVal(itemStack));
             }
             //check sun and position.
-            PVZResourceEvent.CheckPlantConditionEvent event = Util.checkPlantConditionEvent(player, itemStack, entity);
-            MinecraftForge.EVENT_BUS.post(event);
-
-            MutableComponent posCheck = entity instanceof INeedSafeSituation ?
-                    ((INeedSafeSituation) entity).isPositionSafe(event, entity.level, pos, direction, true) : null;
-
+            PVZResourceEvent.CheckPlantConditionEvent event = Util.checkPlantConditionEvent(sunContainer, itemStack, entity);
+            MutableComponent posCheck = sunContainer.prePlantOnBlock(event, entity, itemStack, level, pos, direction);
+            if (posCheck == null) {
+                MinecraftForge.EVENT_BUS.post(event);
+                posCheck = entity instanceof INeedSafeSituation ?
+                        ((INeedSafeSituation) entity).isPositionSafe(event, entity.level, pos, direction, true) : null;
+                sunContainer.postPlantOnBlock(event, entity, itemStack, posCheck, level, pos, direction);
+            }
             if (posCheck == null) {
                 //plant.
                 ((ServerLevel) level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(entity.getOnPos()))
                         .setPos(entity.getOnPos()), entity.getX(), entity.getY(), entity.getZ(), 5, 0.0D, 0.0D, 0.0D, 0.25F);
-                PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, - event.cost));
                 level.playSound(null, pos, level.getBlockState(pos).getFluidState().isEmpty() ? PVZSoundEvents.PLANT.get() : PVZSoundEvents.PLANT_WATER.get(), SoundSource.PLAYERS,1, 1);
-                if (event.resource.equals(PVZAPI.get().getSunResourceName())) {
-                    player.awardStat(PVZStats.USE_SUN, event.cost);
-                }
-                if (event.coolDown > 0) {
-                    SeedPacketItem.seedPacketItemList.forEach(item1 -> {
-                        if (item1.getEntity().equals(item.entitySupplier.get())) {
-                            player.getCooldowns().addCooldown(item1, event.coolDown);
-                        }
-                    });
-                }
                 if (! entity.isRemoved()) {
-                    SeedPacketPlantEvent event1 = new SeedPacketPlantEvent(player, itemStack, entity);
-                    MinecraftForge.EVENT_BUS.post(event1);
+                    MinecraftForge.EVENT_BUS.post(new SeedPacketPlantEvent(sunContainer, itemStack, entity));
                     ((ServerLevel) level).addFreshEntityWithPassengers(entity);
                 }
+                PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
                 if (cap != null) {
                     cap.cost = event.cost;
                     cap.resource = event.resource;
                 }
-                player.awardStat(PVZStats.PLANT);
                 return null;
             }
-            if (entity != null) {
-                entity.discard();
-                return posCheck;
-            }
+            entity.discard();
+            return posCheck;
         }
-        return Component.translatable("");
+        return Component.translatable("hint.pvz.plant.player_cant_plant");
     }
 
     /**Situation of interacting with mobs.*/
-
     @SubscribeEvent
     public static void interactEntity(PlayerInteractEvent.EntityInteract ev) {
         Level level = ev.getLevel();
@@ -359,20 +387,26 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         }
     }
 
+
     public MutableComponent plantOnEntity(Player player, ItemStack itemStack, Level level, Entity target) {
-        if (PVZPlayerCapability.getValue(player, PVZPlayerCapStats.CAN_PLANT) == 0)
-            return Component.translatable("hint.pvz.plant.player_cant_plant");
-        if (! level.isClientSide && itemStack.getItem() instanceof SeedPacketItem<?> item && !player.getCooldowns().isOnCooldown(item)) {
+        return plantOnEntity(new PlayerSunContainerWrapper(player), itemStack,  level, target);
+    }
+
+    public MutableComponent plantOnEntity(ISunContainer sunContainer, ItemStack itemStack, Level level, Entity target) {
+        if (! level.isClientSide && itemStack.getItem() instanceof SeedPacketItem<?>
+                && sunContainer.getCooldowns() != null && ! sunContainer.getCooldowns().isOnCooldown(this)) {
+            Entity planter = sunContainer.getEntity();
             //check entity.
-            Entity entity = item.getEntity().create((ServerLevel) level, null,
-                    itemStack.hasCustomHoverName() ? item.getName(itemStack) : null,
-                    player, target.blockPosition(), MobSpawnType.SPAWN_EGG, false, false);
-            if (entity != null && itemStack.hasCustomHoverName()) {
+            Entity entity = this.getEntity().create((ServerLevel) level, null,
+                    itemStack.hasCustomHoverName() ? this.getName(itemStack) : null,
+                    planter instanceof Player p ? p : null, target.blockPosition(), MobSpawnType.SPAWN_EGG, false, false);
+            if (entity == null) return Component.translatable("hint.pvz.plant.player_cant_plant");
+            if (itemStack.hasCustomHoverName()) {
                 entity.setCustomName(itemStack.getHoverName());
             }
             PVZEntityCapability cap = entity.getCapability(PVZEntityCapability.CAP).orElse(null);
             if (cap != null && shouldDefineOwner(itemStack)) {
-                cap.setOwner(player);
+                cap.setOwner(planter);
             }
             //enchantment.
             if (entity instanceof IPlant && (EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.SOILLESS_CULTURE.get(), itemStack) > 0 ||
@@ -381,73 +415,35 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
             }
             //handle skills.
             if (entity instanceof IHaveSkills) {
-                ((IHaveSkills) entity).setSkillVal(entity, item.getSkillVal(itemStack));
+                ((IHaveSkills) entity).setSkillVal(entity, this.getSkillVal(itemStack));
             }
             //check sun and position.
-            PVZResourceEvent.CheckPlantConditionEvent event = Util.checkPlantConditionEvent(player, itemStack, entity);
-            MinecraftForge.EVENT_BUS.post(event);
 
-            MutableComponent targetCheck = entity instanceof INeedSafeSituation ?
-                    ((INeedSafeSituation) entity).isVehicleSafe(event, target, true) : null;
-
+            PVZResourceEvent.CheckPlantConditionEvent event = Util.checkPlantConditionEvent(sunContainer, itemStack, entity);
+            MutableComponent targetCheck = sunContainer.prePlantOnEntity(event, entity, itemStack, entity);
+            if (targetCheck == null) {
+                MinecraftForge.EVENT_BUS.post(event);
+                targetCheck = entity instanceof INeedSafeSituation ?
+                        ((INeedSafeSituation) entity).isVehicleSafe(event, target, true) : null;
+                sunContainer.postPlantOnEntity(event, entity, itemStack, targetCheck, target);
+            }
             if (targetCheck == null) {
                 //plant.
                 level.playSound(null, entity.blockPosition(), level.getBlockState(entity.blockPosition()).getFluidState().isEmpty() ? PVZSoundEvents.PLANT.get() : PVZSoundEvents.PLANT_WATER.get(), SoundSource.PLAYERS,1, 1);
-                PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, -event.cost));
-                if (event.resource.equals(PVZAPI.get().getSunResourceName())) {
-                    player.awardStat(PVZStats.USE_SUN, event.cost);
-                }
-                if (event.coolDown > 0) {
-                    SeedPacketItem.seedPacketItemList.forEach(itemToCD -> {
-                        if (itemToCD.getEntity().equals(item.entitySupplier.get())) {
-                            player.getCooldowns().addCooldown(itemToCD, event.coolDown);
-                        }
-                    });
-                }
                 if (! entity.isRemoved()) {
-                    SeedPacketPlantEvent event1 = new SeedPacketPlantEvent(player, itemStack, entity);
-                    MinecraftForge.EVENT_BUS.post(event1);
+                    MinecraftForge.EVENT_BUS.post(new SeedPacketPlantEvent(sunContainer, itemStack, entity));
                     ((ServerLevel) level).addFreshEntityWithPassengers(entity);
                 }
                 if (cap != null && shouldDefineOwner(itemStack)) {
-                    cap.setOwner(player);
                     cap.cost = event.cost;
                     cap.resource = event.resource;
                 }
-                player.awardStat(PVZStats.PLANT);
-                item.used(itemStack, player);
                 return null;
-            } else {
-                if (entity != null) {
-                    entity.discard();
-                    return targetCheck;
-                }
             }
+            entity.discard();
+            return targetCheck;
         }
-        return Component.translatable("");
-    }
-
-    @SubscribeEvent
-    public static void HandlePlantConditions(PVZResourceEvent.CheckResourceEvent ev) {
-        if (! (ev.seedPacket.getItem() instanceof SeedPacketItem<?> item) || item.canBoost()) {
-            SeedPacketItem<?> item = ((SeedPacketItem<?>) ev.seedPacket.getItem());
-            for (int i : item.getSkills(ev.seedPacket)) {
-                if (item.getStaticSkillList().size() - 1 >= i) {
-                    if (PVZPlayerCapability.getValue(ev.getEntity(), "plant_have_cost") > 0) {
-                        ev.cost += item.getStaticSkillList().get(i).addCostResource;
-                    }
-                    if (PVZPlayerCapability.getValue(ev.getEntity(), "plant_have_cd") > 0) {
-                        ev.coolDown += item.getStaticSkillList().get(i).addCoolDown;
-                    }
-                }
-            }
-            if (ev instanceof PVZResourceEvent.CheckPlantConditionEvent e) {
-                int level = EnchantmentHelper.getTagEnchantmentLevel(PVZEnchantments.QUICK_COOL_DOWN.get(), e.seedPacket);
-                if (level > 0) {
-                    e.coolDown = e.coolDown * (10 - level) / 10;
-                }
-            }
-        }
+        return Component.translatable("hint.pvz.plant.player_cant_plant");
     }
 
     @Override
@@ -481,7 +477,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         if (player != null && !player.isCreative() && !player.isSpectator()) {
             PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, itemStack);
             MinecraftForge.EVENT_BUS.post(event);
-            boolean hasExtraCost = this.extraCost && Util.getSeedPacketExtraCostRange(player) >= 0; //TODO let tooltip show whether it has advanced plant extra cost.
+            boolean hasExtraCost = this.extraCost && Util.getSeedPacketExtraCostRange(new PlayerSunContainerWrapper(player)) >= 0; //TODO let tooltip show whether it has advanced plant extra cost.
             return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, getResource(itemStack).equals(PVZPlayerCapStats.SUN)
                     , false, true, hasExtraCost));
         }

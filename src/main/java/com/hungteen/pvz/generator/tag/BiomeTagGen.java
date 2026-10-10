@@ -32,15 +32,16 @@ public class BiomeTagGen extends BiomeTagsProvider {
                 , Biomes.MEADOW, Biomes.GROVE, Biomes.SNOWY_SLOPES);
         this.tag(PVZBiomeTags.HAS_NETHER_INVASION_RUIN).add(Biomes.NETHER_WASTES, Biomes.SOUL_SAND_VALLEY, Biomes.CRIMSON_FOREST, Biomes.WARPED_FOREST);
         this.tag(BiomeTags.HAS_CLOSER_WATER_FOG).replace(false).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get(), PVZBiomes.GARDEN_VOID.get());
+        this.tag(PVZBiomeTags.HAS_ORIGIN_ORE).addTags(Tags.Biomes.IS_PLAINS, BiomeTags.IS_FOREST, Tags.Biomes.IS_SPARSE_OVERWORLD, Tags.Biomes.IS_DENSE_OVERWORLD);
         this.tag(PVZBiomeTags.UNABLE_SUN_PRODUCTION).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_ISLAND.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get(), PVZBiomes.GARDEN_VOID.get());
         this.tag(PVZBiomeTags.UNABLE_SUN_FALLING).add(PVZBiomes.GARDEN_PLAINS.get(), PVZBiomes.GARDEN_ISLAND.get(), PVZBiomes.GARDEN_MUSHROOM.get(), PVZBiomes.GARDEN_RIVER.get(), PVZBiomes.GARDEN_VOID.get());
         this.tag(PVZBiomeTags.UNABLE_MOOBLOOM_SPAWNING).add(Biomes.END_MIDLANDS);
         this.tag(PVZBiomeTags.UNABLE_INVASION).add(Biomes.MUSHROOM_FIELDS
                 , PVZBiomes.GARDEN_MUSHROOM.getKey(), PVZBiomes.GARDEN_PLAINS.getKey() , PVZBiomes.GARDEN_RIVER.getKey(), PVZBiomes.GARDEN_ISLAND.getKey(), PVZBiomes.GARDEN_VOID.getKey());
         this.tag(PVZBiomeTags.EXTRA_MOOBLOOM_SPAWNING).add(Biomes.MEADOW, Biomes.FLOWER_FOREST, Biomes.SUNFLOWER_PLAINS);
-        this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_BUCKET).addTags(Tags.Biomes.IS_DENSE_OVERWORLD, Tags.Biomes.IS_HOT_OVERWORLD);
+        this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_BUCKET).addTags(BiomeTags.IS_OVERWORLD);
         this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_DUCK).addTags(BiomeTags.IS_OCEAN);
         this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_SNOWMAN).addTags(Tags.Biomes.IS_SNOWY);
-        this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_CEMETERY).addTags(Tags.Biomes.IS_PLAINS);
+        this.tag(PVZBiomeTags.HAS_ZOMBIE_STRUCTURE_CEMETERY).addTags(BiomeTags.IS_OVERWORLD);
     }
 }

@@ -65,7 +65,9 @@ public class JackInTheBoxSoundInstance extends AbstractTickableSoundInstance {
     public boolean canPlaySound() {
         boolean holding = (entity.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof JackInTheBoxItem
                 || entity.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof JackInTheBoxItem);
-        return ! this.entity.isSilent() && holding;
+        boolean result = ! this.entity.isSilent() && holding;
+        if (! result) playingItems.remove(entity.getUUID());
+        return result;
     }
 
 }

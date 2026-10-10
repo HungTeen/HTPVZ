@@ -1,6 +1,7 @@
 package com.hungteen.pvz.common.entity.bullet;
 
 import com.hungteen.pvz.common.entity.zombies.ChorusTerminatorBoss;
+import com.hungteen.pvz.common.register.OtherRegisters;
 import com.hungteen.pvz.common.register.PVZDamageSource;
 import com.hungteen.pvz.common.register.PVZEntities;
 import net.minecraft.core.BlockPos;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,22 +34,22 @@ import java.util.Random;
 public class ChorusTerminatorBullet extends BaseBullet {
 
     private static final EntityDataAccessor<Boolean> IS_CHORUS = SynchedEntityData.defineId(ChorusTerminatorBullet.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Vec3> TARGET = SynchedEntityData.defineId(ChorusTerminatorBullet.class, OtherRegisters.VEC3.get());
     public double health;
-    public Vec3 target;
     public Direction.Axis directionIdentity = null;
     public double angleIdentity = 361;
 
     public ChorusTerminatorBullet(EntityType<? extends BaseBullet> p_37248_, Level p_37249_) {
         super(p_37248_, p_37249_);
         this.health = 20;
-        this.target = this.position();
+        this.setTarget(this.position());
     }
 
     public ChorusTerminatorBullet(Level worldIn, LivingEntity owner, Vec3 target, boolean isChorus) {
         super(PVZEntities.CHORUS_TERMINATOR_BULLET.get(), worldIn, owner);
         this.health = 20;
         setOwner(owner);
-        this.target = target;
+        this.setTarget(target);
         setChorus(isChorus);
         this.knockBackStrengh = (float) owner.getAttribute(Attributes.ATTACK_KNOCKBACK).getValue();
     }
@@ -65,6 +67,7 @@ public class ChorusTerminatorBullet extends BaseBullet {
     @Override
     protected void defineSynchedData() {
         this.entityData.define(IS_CHORUS, false);
+        this.entityData.define(TARGET, Vec3.ZERO);
     }
 
     @Override
@@ -73,7 +76,18 @@ public class ChorusTerminatorBullet extends BaseBullet {
         Vec3 dMov = this.getDeltaMovement();
         if (level.isClientSide) {
             if (this.tickCount % 3 == 0) this.level.addParticle(ParticleTypes.END_ROD, this.getX(), this.getY() + 0.45, this.getZ(), 0.0D, 0.0D, 0.0D);
+            if (this.tickCount % 60 == 0) {
+                Vec3 target = this.getTarget();
+                for (int i = 0; i < 10; i ++) {
+                    this.level.addParticle(ParticleTypes.END_ROD
+                            , target.x * i / 10 + position().x * (10 - i) / 10
+                            , target.y * i / 10 + position().y * (10 - i) / 10 + 0.3
+                            , target.z * i / 10 + position().z * (10 - i) / 10,
+                            0, 0, 0);
+                }
+            }
         } else {
+            Vec3 target = this.getTarget();
             BlockPos[] poses = new BlockPos[] {
                     new BlockPos(getX() - 0.5, getY(), getZ() - 0.5),
                     new BlockPos(getX() + 0.5, getY(), getZ() - 0.5),
@@ -97,15 +111,6 @@ public class ChorusTerminatorBullet extends BaseBullet {
                 if (! state.getCollisionShape(level, pos).isEmpty()) continue;
                 if (state.getDestroySpeed(level, pos) < 4f) this.level.removeBlock(pos, false);
             }
-            if (this.tickCount % 20 == 0) {
-                for (int i = 0; i < 10; i ++) {
-                    ((ServerLevel) this.level).sendParticles(ParticleTypes.END_ROD
-                            , target.x * i / 10 + position().x * (10 - i) / 10
-                            , target.y * i / 10 + position().y * (10 - i) / 10 + 0.3
-                            , target.z * i / 10 + position().z * (10 - i) / 10,
-                            1, 0, 0, 0, 0);
-                }
-            }
             boolean xzTest = Math.abs(dMov.x) > Math.abs(dMov.z);
             Direction.Axis xTest = Math.abs(dMov.y) > Math.abs(dMov.x) ? Direction.Axis.Y : Direction.Axis.X;
             Direction.Axis zTest = Math.abs(dMov.y) > Math.abs(dMov.z) ? Direction.Axis.Y : Direction.Axis.Z;
@@ -113,18 +118,18 @@ public class ChorusTerminatorBullet extends BaseBullet {
             if (directionIdentity == null) {
                 directionIdentity = currentMovingDirection;
             }
-            boolean shouldTurnZ = dMov.x / (this.getX() - this.target.x) > 0;
-            boolean shouldTurnX = dMov.z / (this.getZ() - this.target.z) > 0;
+            boolean shouldTurnZ = dMov.x / (this.getX() - target.x) > 0;
+            boolean shouldTurnX = dMov.z / (this.getZ() - target.z) > 0;
             boolean rotating = angleIdentity <= 360 && Math.abs(((angleIdentity - getYRot()) % 360 + 540) % 360 - 180) > 45;
             if (! rotating) {
-                if (directionIdentity != Direction.Axis.Y && Math.abs(this.getX() - this.target.x) < 2 && Math.abs(this.getZ() - this.target.z) < 2) {
+                if (directionIdentity != Direction.Axis.Y && Math.abs(this.getX() - target.x) < 2 && Math.abs(this.getZ() - target.z) < 2) {
                     directionIdentity = Direction.Axis.Y;
                 } else if (directionIdentity == Direction.Axis.X && shouldTurnZ && ! shouldTurnX) {
                     directionIdentity = Direction.Axis.Z;
-                    angleIdentity = (this.getZ() - this.target.z) > 0 ? (dMov.x > 0 ? 360 : -360) : (dMov.x > 0 ? -180 : 180);
+                    angleIdentity = (this.getZ() - target.z) > 0 ? (dMov.x > 0 ? 360 : -360) : (dMov.x > 0 ? -180 : 180);
                 } else if (directionIdentity == Direction.Axis.Z && shouldTurnX && ! shouldTurnZ) {
                     directionIdentity = Direction.Axis.X;
-                    angleIdentity = (this.getX() - this.target.x) > 0 ? (dMov.z > 0 ? -90 : 270) : (dMov.z > 0 ? 90 : -270);
+                    angleIdentity = (this.getX() - target.x) > 0 ? (dMov.z > 0 ? -90 : 270) : (dMov.z > 0 ? 90 : -270);
                 }
             }
             final double speed = 0.1;
@@ -137,8 +142,8 @@ public class ChorusTerminatorBullet extends BaseBullet {
                 toDMov = dMov.add(toDMov).normalize().multiply(tmp1, tmp1, tmp1);
             } else {
                 toDMov = directionIdentity == Direction.Axis.Y ? new Vec3(0, - speed, 0)
-                        : (directionIdentity == Direction.Axis.X ? new Vec3(speed * Math.signum(this.target.x - this.getX()), 0, 0)
-                        : new Vec3(0, 0, speed * Math.signum(this.target.z - this.getZ())));
+                        : (directionIdentity == Direction.Axis.X ? new Vec3(speed * Math.signum(target.x - this.getX()), 0, 0)
+                        : new Vec3(0, 0, speed * Math.signum(target.z - this.getZ())));
                 toDMov = dMov.multiply(0.9, 0.9, 0.9).add(toDMov.multiply(0.1, 0.1, 0.1));
             }
             if (tickCount < 20 && this.getUUID().getMostSignificantBits() % 2 == 0) toDMov = toDMov.add(0, 0.05, 0);
@@ -158,6 +163,14 @@ public class ChorusTerminatorBullet extends BaseBullet {
     }
     public void setChorus(boolean value) {
         this.entityData.set(IS_CHORUS, value);
+    }
+
+    public Vec3 getTarget() {
+        return this.entityData.get(TARGET);
+    }
+
+    public void setTarget(Vec3 target) {
+        this.entityData.set(TARGET, target);
     }
 
     @Override
@@ -191,7 +204,7 @@ public class ChorusTerminatorBullet extends BaseBullet {
             if (this.isChorus()) {
                 if (boss != null && boss.homePos != null) {
                     entities = this.level.getEntities(this, this.getBoundingBox().inflate(3, 1, 3)
-                            , e -> ! (e instanceof PartEntity) && e != boss);
+                            , e -> e instanceof Projectile || e instanceof LivingEntity);
                     if (! entities.isEmpty()) {
                         int teleportType = new Random().nextInt(4);
                         Vec3 center = Vec3.atCenterOf(boss.homePos);

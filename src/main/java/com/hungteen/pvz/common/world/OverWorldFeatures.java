@@ -50,9 +50,9 @@ public class OverWorldFeatures {
         ORE_ORIGIN_CF = FeatureUtils.register("pvz:ore_origin", Feature.VEGETATION_PATCH,
                 new VegetationPatchConfiguration(BlockTags.MOSS_REPLACEABLE, BlockStateProvider.simple(PVZBlocks.ORIGIN_ORE.get()),
                         PlacementUtils.inlinePlaced(ORIGIN_VEGETATION), CaveSurface.FLOOR,
-                        ConstantInt.of(1), 0.0F, 2, 0.8F, UniformInt.of(1, 2), 0F));
+                        ConstantInt.of(1), 0.0F, 2, 0.15F, UniformInt.of(1, 2), 0F));
         ORE_ORIGIN_PF = PlacementUtils.register("pvz:ore_origin", ORE_ORIGIN_CF,
-                List.of(CountPlacement.of(1),
+                List.of(CountPlacement.of(2),
                         InSquarePlacement.spread(), HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.top()),
                         BiomeFilter.biome()));
         PLANTERN_CF = FeatureUtils.register("pvz:plantern", Feature.FLOWER,
