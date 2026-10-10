@@ -49,6 +49,7 @@ public record PlayerSunContainerWrapper(Player player) implements ISunContainer 
             String resource = item.getResource(plantCard);
             if (resource.equals(PVZPlayerCapStats.SUN) && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) event.cost = 0;
             if (PVZPlayerCapability.getValue(player, "plant_have_cd") == 0) event.coolDown = 1;
+            return null;
         }
         return Component.translatable("hint.pvz.plant.player_cant_plant");
     }
@@ -62,6 +63,7 @@ public record PlayerSunContainerWrapper(Player player) implements ISunContainer 
             String resource = item.getResource(plantCard);
             if (resource.equals(PVZPlayerCapStats.SUN) && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) event.cost = 0;
             if (PVZPlayerCapability.getValue(player, "plant_have_cd") == 0) event.coolDown = 1;
+            return null;
         }
         return Component.translatable("hint.pvz.plant.player_cant_plant");
     }
@@ -75,6 +77,14 @@ public record PlayerSunContainerWrapper(Player player) implements ISunContainer 
                 cap.setOwner(getEntity());
             }
             if (posCheck == null) { // plant success.
+                PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, - event.cost));
+                if (event.coolDown > 0) {
+                    SeedPacketItem.seedPacketItemList.forEach(item1 -> {
+                        if (item1.getEntity().equals(item.getEntity())) {
+                            player.getCooldowns().addCooldown(item1, event.coolDown);
+                        }
+                    });
+                }
                 if (event.resource.equals(PVZAPI.get().getSunResourceName())) {
                     getEntity().awardStat(PVZStats.USE_SUN, event.cost);
                 }
@@ -95,6 +105,14 @@ public record PlayerSunContainerWrapper(Player player) implements ISunContainer 
                 cap.setOwner(getEntity());
             }
             if (entityCheck == null) { // plant success.
+                PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> nbt.addValue(event.resource, - event.cost));
+                if (event.coolDown > 0) {
+                    SeedPacketItem.seedPacketItemList.forEach(item1 -> {
+                        if (item1.getEntity().equals(item.getEntity())) {
+                            player.getCooldowns().addCooldown(item1, event.coolDown);
+                        }
+                    });
+                }
                 if (event.resource.equals(PVZAPI.get().getSunResourceName())) {
                     getEntity().awardStat(PVZStats.USE_SUN, event.cost);
                 }
