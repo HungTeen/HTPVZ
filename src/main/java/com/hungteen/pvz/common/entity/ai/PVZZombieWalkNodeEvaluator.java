@@ -15,6 +15,24 @@ import org.jetbrains.annotations.Nullable;
  **/
 public class PVZZombieWalkNodeEvaluator extends WalkNodeEvaluator {
 
+    private static final float LADDER_PATH_PENALTY = 1.0F;
+
+    @Nullable
+    private BlockPos startOverride;
+
+    public void setStartOverride(@Nullable BlockPos pos) {
+        this.startOverride = pos;
+    }
+
+    @Override
+    public Node getStart() {
+        if (this.startOverride != null) {
+            // 根据平台位置计算节点类型和代价
+            return this.getStartNode(this.startOverride);
+        }
+        return super.getStart();
+    }
+
     @Override
     public int getNeighbors(Node[] neighborsArray, Node current) {
         int neighbors = super.getNeighbors(neighborsArray, current);
@@ -57,6 +75,7 @@ public class PVZZombieWalkNodeEvaluator extends WalkNodeEvaluator {
             count = this.addLadderNeighbor(neighbors, current.x, current.y + 1, current.z, count);
         }
         // TODO PT: 僵尸往下的寻路还不太好实现，因为 travel 里面只能往上
+        // GC: 没事要是有往下的情况僵尸可以直接跳（？）
 //        if (this.isCopperLadder(current.x, current.y, current.z)
 //            || this.isCopperLadder(current.x, current.y - 1, current.z)) {
 //            count = this.addLadderNeighbor(neighbors, current.x, current.y - 1, current.z, count);
@@ -72,6 +91,7 @@ public class PVZZombieWalkNodeEvaluator extends WalkNodeEvaluator {
         if (node == null || node.closed || node.costMalus < 0.0F) {
             return count;
         }
+        node.costMalus = Math.max(node.costMalus, LADDER_PATH_PENALTY);
         neighbors[count++] = node;
         return count;
     }

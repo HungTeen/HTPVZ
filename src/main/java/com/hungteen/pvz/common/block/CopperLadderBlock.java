@@ -94,27 +94,31 @@ public class CopperLadderBlock extends LadderBlock {
         if (this.isStableLadderPosition(state, level, pos)) {
             return true;
         }
-        return this.hasConnectedSupport(level, pos, Direction.UP)
-                || this.hasConnectedSupport(level, pos, Direction.DOWN);
+        return this.getConnectedSupport(level, pos) != null;
     }
 
-    private boolean hasConnectedSupport(LevelReader level, BlockPos pos, Direction direction) {
+    private BlockPos getConnectedSupport(LevelReader level, BlockPos pos, Direction direction) {
         BlockPos.MutableBlockPos checkPos = pos.mutable();
         for (int i = 1; i <= MAX_SEARCH_DISTANCE; ++i) {
             checkPos.move(direction);
             BlockState state = level.getBlockState(checkPos);
-            if (! isCopperLadder(state)) {
-                return false;
-            }
-            if (this.isStableLadderPosition(state, level, checkPos)) {
-                return true;
-            }
+            if (!isCopperLadder(state)) return null;
+            if (this.isStableLadderPosition(state, level, checkPos)) return checkPos;
         }
-        return false;
+        return null;
+    }
+
+    private BlockPos getConnectedSupport(LevelReader level, BlockPos pos) {
+        BlockPos result = this.getConnectedSupport(level, pos, Direction.UP);
+        if (result == null) {
+            result = this.getConnectedSupport(level, pos, Direction.DOWN);
+        }
+        return result;
     }
 
     private boolean isStableLadderPosition(BlockState state, LevelReader level, BlockPos pos) {
-        return this.hasWallSupport(state, level, pos) || this.hasGroundSupport(level, pos);
+        return this.hasWallSupport(state, level, pos)
+                || level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP);
     }
 
     @Override
@@ -131,10 +135,19 @@ public class CopperLadderBlock extends LadderBlock {
         return level.getBlockState(wallPos).isFaceSturdy(level, wallPos, direction);
     }
 
-    private boolean hasGroundSupport(LevelReader level, BlockPos pos) {
-        BlockPos belowPos = pos.below();
-        BlockState below = level.getBlockState(belowPos);
-        return below.isFaceSturdy(level, belowPos, Direction.UP);
+    public Direction getSupportableWall(LevelReader level, BlockPos pos) {
+        for (Direction direction: Direction.values()) {
+            BlockPos wallPos = pos.relative(direction.getOpposite());
+            if (level.getBlockState(wallPos).isFaceSturdy(level, wallPos, direction)) {
+                return direction;
+            }
+        }
+        return null;
+    }
+
+    public boolean isGroundSupport(LevelReader level, BlockPos pos) {
+        return level.getBlockState(pos).isFaceSturdy(level, pos, Direction.UP)
+                || this.getConnectedSupport(level, pos, Direction.DOWN) != null;
     }
 
     @Override

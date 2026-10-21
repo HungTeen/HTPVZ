@@ -1,6 +1,7 @@
 package com.hungteen.pvz.client.layer;
 
 import com.hungteen.pvz.common.entity.plants.base.ProducerPlant;
+import com.hungteen.pvz.compat.ShaderCompatHandler;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -76,6 +77,15 @@ public class LightLayer<T extends Entity, M extends EntityModel<T>> extends Rend
 	}
 
 	public RenderType renderType(ResourceLocation p_110437_, float p_110438_, float p_110439_) {
+		return ShaderCompatHandler.isShaderPackActive() ? this.shaderRenderType(p_110437_, p_110438_, p_110439_)
+				: this.createRenderType(p_110437_, p_110438_, p_110439_);
+	}
+
+	protected RenderType shaderRenderType(ResourceLocation p_110437_, float p_110438_, float p_110439_) {
+		return RenderType.eyes(p_110437_);
+	}
+
+	protected RenderType createRenderType(ResourceLocation p_110437_, float p_110438_, float p_110439_) {
 		return RenderType.create("pvz_light", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true,
 				RenderType.CompositeState.builder()
 						.setShaderState(RENDERTYPE_ENERGY_SWIRL_SHADER)

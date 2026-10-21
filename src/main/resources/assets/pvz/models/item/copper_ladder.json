@@ -1,0 +1,4 @@
+{
+  "parent": "pvz:block/copper_ladder",
+  "gui_light": "front"
+}

@@ -68,6 +68,7 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
     public final List<Pair<Portal, Portal>> portals = new ArrayList<>();
     private final List<Pair<UUID, UUID>> pendingPortals = new ArrayList<>();
     public int actionTime = 0;
+    public int shieldBarTime = 0;
 
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState stiffAnimationState = new AnimationState();
@@ -270,6 +271,12 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
     }
 
     @Override
+    public void pushEntities() {
+        super.pushEntities();
+        Arrays.stream(this.subEntities).forEach(ChorusTerminatorPart::pushEntities);
+    }
+
+    @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
         if (data == ACTION) {
@@ -399,6 +406,7 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
         super.tick();
         if (homePos == null) homePos = this.blockPosition();
         this.actionTime ++;
+        if (this.shieldBarTime > 0) this.shieldBarTime --;
         ChorusTerminatorActivitiesGoal.Action action = getAction();
         if (action == ChorusTerminatorActivitiesGoal.Action.DEFENCE
                 || action == ChorusTerminatorActivitiesGoal.Action.DEFENCE_SHOOT
@@ -429,7 +437,7 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
             float l = 1f / (this.legs.length);
             center = center.multiply(l, l, l);
             this.setPos(center.add(0, 0.01, 0));
-            if (getAction() == ChorusTerminatorActivitiesGoal.Action.DEFENCE) {
+            if (getAction() == ChorusTerminatorActivitiesGoal.Action.DEFENCE || shieldBarTime > 0) {
                 this.bossEvent.setProgress(this.getShield() / MAX_SHIELD);
                 this.bossEvent.setColor(BossEvent.BossBarColor.PINK);
                 this.bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
@@ -446,12 +454,16 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
                     , 0, 0, 0, 0);
             AABB aabb = new AABB(homePos.getX() - 22, homePos.getY() - 3, homePos.getZ() - 22
                     , homePos.getX() + 22, homePos.getY() + 15, homePos.getZ() + 22);
+            float shield = this.getShield();
             serverLevel.getEntitiesOfClass(ItemEntity.class, aabb, e ->
                             (e.getItem().is(Items.CHORUS_FLOWER) || e.getItem().is(Items.CHORUS_FRUIT)) && ! e.hasPickUpDelay())
                     .forEach(i -> {
                 i.discard();
                 this.addShield(10);
             });
+            if (shield < this.getShield()) {
+                this.shieldBarTime = 40;
+            }
             if (this.isAlive()) {
                 if (this.portals.isEmpty() && this.pendingPortals.isEmpty()) {
                     resetPortals();
@@ -487,6 +499,12 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
     public void remove(Entity.RemovalReason reason) {
         this.removePortals();
         super.remove(reason);
+    }
+
+    @Override
+    public void teleportTo(double x, double y, double z) {
+        super.teleportTo(x, y, z);
+        Arrays.stream(this.legs).forEach(leg -> leg.teleportTo(x, y + 1, z));
     }
 
     private void resetPortals() {

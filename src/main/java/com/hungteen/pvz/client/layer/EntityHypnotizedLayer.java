@@ -48,7 +48,8 @@ public class EntityHypnotizedLayer<T extends LivingEntity, M extends EntityModel
         }
     }
 
-    public RenderType renderType(ResourceLocation p_110437_, float p_110438_, float p_110439_) {
+    @Override
+    public RenderType createRenderType(ResourceLocation p_110437_, float p_110438_, float p_110439_) {
         return RenderType.create("pvz_hypnotized_light", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true,
                 RenderType.CompositeState.builder()
                         .setShaderState(RENDERTYPE_ENERGY_SWIRL_SHADER)

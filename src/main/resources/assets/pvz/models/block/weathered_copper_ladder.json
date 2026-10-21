@@ -1,4 +1,7 @@
 {
-  "parent": "minecraft:block/ladder",
-  "render_type": "minecraft:cutout"
+  "parent": "pvz:block/copper_ladder",
+  "textures": {
+    "0": "pvz:block/weathered_copper_ladder",
+    "particle": "pvz:block/weathered_copper_ladder"
+  }
 }

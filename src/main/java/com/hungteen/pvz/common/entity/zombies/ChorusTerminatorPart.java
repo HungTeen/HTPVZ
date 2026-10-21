@@ -59,16 +59,6 @@ public class ChorusTerminatorPart extends PartEntity<ChorusTerminatorBoss> imple
     }
 
     @Override
-    public boolean canBeCollidedWith() {
-        return this.type == Type.LEG && ! EntityUtil.isLeavingGround(this);
-    }
-    @Override
-    public boolean canCollideWith(Entity entity) {
-        return (this.type != Type.LEG && entity instanceof ChorusTerminatorPart p && p.type != Type.LEG || EntityUtil.isLeavingGround(this))
-                && super.canCollideWith(entity);
-    }
-
-    @Override
     public boolean hurt(@NotNull DamageSource damageSource, float amount) {
         if (this.type == Type.EYE && ! this.level.isClientSide) Sun.spawnSunWithEffects(this.level, 50, this.blockPosition(), 0.3f);
         return ! this.isInvulnerableTo(damageSource) && this.getParent().hurt(this, damageSource, amount);
@@ -251,6 +241,15 @@ public class ChorusTerminatorPart extends PartEntity<ChorusTerminatorBoss> imple
         this.intentionOld = this.getIntention();
         this.tickCount ++;
         if (this.tickCount > 60000) this.tickCount -= 60000;
+    }
+
+    protected void pushEntities() {
+        List<Entity> list = this.level.getEntities(this, this.getBoundingBox(), EntitySelector.pushableBy(this));
+        if (!list.isEmpty()) {
+            for (Entity entity : list) {
+                push(entity);
+            }
+        }
     }
 
     @Override

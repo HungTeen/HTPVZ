@@ -132,7 +132,7 @@ public class ChorusTerminatorBullet extends BaseBullet {
                     angleIdentity = (this.getX() - target.x) > 0 ? (dMov.z > 0 ? -90 : 270) : (dMov.z > 0 ? 90 : -270);
                 }
             }
-            final double speed = 0.1;
+            final double speed = 0.25;
             Vec3 toDMov;
             if (directionIdentity != Direction.Axis.Y && angleIdentity <= 360 && Math.abs(((angleIdentity - getYRot()) % 360 + 540) % 360 - 180) > 45) {
                 double addSpeed = speed * speed / 1.5;

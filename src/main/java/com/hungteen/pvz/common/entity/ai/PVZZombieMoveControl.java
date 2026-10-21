@@ -9,6 +9,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.Node;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
@@ -38,7 +40,27 @@ public class PVZZombieMoveControl extends MoveControl {
             BlockPos blockpos = this.mob.blockPosition();
             BlockState blockstate = this.mob.level.getBlockState(blockpos);
             boolean justClimb = blockstate.is(BlockTags.CLIMBABLE) && blockstate.hasProperty(LadderBlock.FACING);
-            if (justClimb && (this.mob.getTarget() == null || this.mob.getTarget().getY() > this.mob.getY())) {
+            boolean wantsToClimb = false;
+            Path path = this.mob.getNavigation().getPath();
+            if (path != null) {
+                int nextIndex = path.getNextNodeIndex();
+                if (nextIndex >= 0 && nextIndex < path.getNodeCount()) {
+                    Node next = path.getNode(nextIndex);
+                    if (next.y > Mth.floor(this.mob.getY())) {
+                        wantsToClimb = true;
+                    } else if (nextIndex + 1 < path.getNodeCount()) {
+                        Node afterNext = path.getNode(nextIndex + 1);
+                        if (afterNext.y > Mth.floor(this.mob.getY())) {
+                            wantsToClimb = true;
+                        }
+                    }
+                }
+            }
+            if (! wantsToClimb) {
+                wantsToClimb = this.wantedY > this.mob.getY() + 0.5D;
+            }
+            boolean climbUp = justClimb && wantsToClimb;
+            if (climbUp) {
                 // 往梯子上挤就完事了，啥也别干
                 Direction direction = blockstate.getValue(LadderBlock.FACING).getOpposite();
                 d0 = direction.getStepX();
@@ -47,7 +69,7 @@ public class PVZZombieMoveControl extends MoveControl {
             float f9 = (float)(Mth.atan2(d1, d0) * (double)(180F / (float)Math.PI)) - 90.0F;
             this.mob.setYRot(this.rotlerp(this.mob.getYRot(), f9, 90.0F));
             this.mob.setSpeed((float)(this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED)));
-            if (justClimb) {
+            if (climbUp) {
                 return;
             }
             VoxelShape voxelshape = blockstate.getCollisionShape(this.mob.level, blockpos);
@@ -60,4 +82,5 @@ public class PVZZombieMoveControl extends MoveControl {
         }
         super.tick();
     }
+
 }

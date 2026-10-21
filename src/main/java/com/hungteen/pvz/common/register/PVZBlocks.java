@@ -118,7 +118,7 @@ public class PVZBlocks {
             .block("invasion_spawner", () -> new InvasionSpawnerBlock(BlockBehaviour.Properties.copy(Blocks.SPAWNER)));
     public static final RegistryObject<Block> TOMBSTONE = loot(false).model(Model.Modeled)
             .tag(BlockTags.FEATURES_CANNOT_REPLACE, BlockTags.MINEABLE_WITH_PICKAXE).blockEntity("tombstone")
-            .block("tombstone", () -> new TombstoneBlock(BlockBehaviour.Properties.copy(Blocks.DEEPSLATE)));
+            .block("tombstone", () -> new TombstoneBlock(BlockBehaviour.Properties.copy(Blocks.DEEPSLATE).strength(10F, 6F)));
     public static final RegistryObject<Block> COPPER_LADDER = copperLadder("copper_ladder", WeatheringCopper.WeatherState.UNAFFECTED, false);
     public static final RegistryObject<Block> EXPOSED_COPPER_LADDER = copperLadder("exposed_copper_ladder", WeatheringCopper.WeatherState.EXPOSED, false);
     public static final RegistryObject<Block> WEATHERED_COPPER_LADDER = copperLadder("weathered_copper_ladder", WeatheringCopper.WeatherState.WEATHERED, false);
@@ -166,9 +166,6 @@ public class PVZBlocks {
             return p_50763_.getValue(BlockStateProperties.LIT) ? p_50760_ : 0;
         };
     }
-    private static RegistryObject<Block> block(String name){
-        return block(name, storedSup);
-    }
 
     private static RegistryObject<Block> copperLadder(String name, WeatheringCopper.WeatherState state, boolean waxed) {
         BlockBehaviour.Properties properties = BlockBehaviour.Properties.copy(Blocks.LADDER);
@@ -180,6 +177,10 @@ public class PVZBlocks {
                 .block(name, () -> waxed
                         ? new WaxedCopperLadderBlock(properties)
                         : new WeatheringCopperLadderBlock(state, properties));
+    }
+
+    private static RegistryObject<Block> block(String name){
+        return block(name, storedSup);
     }
 
     private static RegistryObject<Block> block(String name, Supplier<Block> sup){

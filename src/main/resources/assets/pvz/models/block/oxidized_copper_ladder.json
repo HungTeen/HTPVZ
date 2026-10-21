@@ -1,4 +1,7 @@
 {
-  "parent": "minecraft:block/ladder",
-  "render_type": "minecraft:cutout"
+  "parent": "pvz:block/copper_ladder",
+  "textures": {
+    "0": "pvz:block/oxidized_copper_ladder",
+    "particle": "pvz:block/oxidized_copper_ladder"
+  }
 }

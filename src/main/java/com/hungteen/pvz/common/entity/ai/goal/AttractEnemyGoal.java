@@ -22,7 +22,7 @@ public class AttractEnemyGoal extends Goal {
         this.entity = entity;
         this.condition = condition;
         this.range = range;
-        countDown = 15;
+        countDown = 8;
     }
     public AttractEnemyGoal(Mob entity) {
         this(entity, () -> true, -1);

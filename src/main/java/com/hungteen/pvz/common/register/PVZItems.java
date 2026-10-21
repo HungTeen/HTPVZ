@@ -165,7 +165,7 @@ public class PVZItems {
 
     //definitions
     private static RegistryObject<Item> copperLadder(String name, Supplier<Block> block) {
-        return tag(PVZItemTags.COPPER_LADDERS).model(Model.Block).item(name,
+        return tag(PVZItemTags.COPPER_LADDERS).model(Model.Modeled).item(name,
                 () -> new CopperLadderBlockItem(block.get(), new Item.Properties().tab(PVZItemTabs.PVZ_BLOCKS)));
     }
 

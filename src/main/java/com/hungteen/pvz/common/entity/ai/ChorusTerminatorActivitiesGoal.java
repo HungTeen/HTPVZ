@@ -113,9 +113,26 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
         if (target != null) {
             this.boss.setPhase((int) Math.min(2, (this.boss.getMaxHealth() - this.boss.getHealth()) * 3 / boss.getMaxHealth()));
         }
+        //position
+        int position = -1;
+        BlockPos center = boss.homePos;
+        if (center != null) {
+            BlockPos bossPos = boss.blockPosition();
+            int dx = bossPos.getX() - center.getX();
+            int dy = bossPos.getY() - center.getY();
+            int dz = bossPos.getZ() - center.getZ();
+            if (dy > 3) {
+                position = -2;
+            } else if (Math.abs(dx) < 21 && Math.abs(dz) < 21) {
+                position = (dx * dx + dz * dz < 9) ? 0 : (Math.abs(dx) < 13 && Math.abs(dz) < 13) ? 1 : 2;
+            }
+        }
         //action states
         switch (boss.getAction()) {
             case STIFF, DEFENCE_STIFF -> {
+                setBody(14, new Vec3(0, 3, 0));
+                setBody(23, new Vec3(0, 0, 0));
+                setBody(140, new Vec3(0, 3, 0));
                 targetGroup = null;
                 boss.getNavigation().stop();
                 if (boss.actionTime >= 160) {
@@ -126,9 +143,6 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                         boss.act(Action.IDLE);
                     }
                 }
-                setBody(14, new Vec3(0, 3, 0));
-                setBody(23, new Vec3(0, 0, 0));
-                setBody(140, new Vec3(0, 3, 0));
             }
             case IDLE -> {
                 setBody(20, 80, new Vec3(0, 3, 0));
@@ -141,7 +155,7 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                     double distSqrToCenter = this.boss.blockPosition().distSqr(this.boss.homePos);
                     if (boss.actionTime % 80 == 0 && (this.boss.getShield() >= ChorusTerminatorBoss.MAX_SHIELD || offBattleCount >= 600)) {
                         boss.act(Action.PRE_DEFENCE);
-                        boss.setPhase(0);
+                        if (offBattleCount >= 600) boss.setPhase(0);
                     } else if ((phase >= 2 && boss.getRandom().nextBoolean()) || (phase < 2 && boss.actionTime % (160 - phase * 80) == 0)) {
                         if (boss.actionTime % 80 == 0 && distSqrToCenter > 160) {
                             boss.act(Action.PRE_JUMP);
@@ -156,7 +170,7 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                     } else if (boss.actionTime == 1 && boss.getRandom().nextBoolean()) {
                         if (distSqrToCenter < 160) {
                             List<BlockPos> candidates;
-                            if (phase <= 2 || this.groups.isEmpty()) {
+                            if (phase < 2 || (phase == 2 && ! groups.isEmpty())) {
                                 candidates = new ArrayList<>(Arrays.asList(
                                         boss.homePos.offset(20, 0, 0), boss.homePos.offset(-20, 0, 0),
                                         boss.homePos.offset(0, 0, 20), boss.homePos.offset(0, 0, -20)));
@@ -196,6 +210,8 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
             }
 
             case PRE_DASH -> {
+                setBody(40, new Vec3(0, 4, 0));
+                setBody(83, new Vec3(0, 3, 0));
                 if (boss.actionTime == 80) {
                     if (targetGroup != null) {
                         moveTo(Vec3.atBottomCenterOf(targetGroup));
@@ -210,8 +226,6 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                         boss.act(Action.PRE_JUMP);
                     }
                 }
-                setBody(40, new Vec3(0, 4, 0));
-                setBody(83, new Vec3(0, 3, 0));
             }
             case DASH -> {
                 if (boss.getNavigation().isDone() || boss.actionTime >= 300) {
@@ -257,6 +271,8 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
             }
 
             case DEFENCE_SHOOT -> {
+                setBody(40, new Vec3(0, 3, 0));
+                setBody(119, new Vec3(0, 1, 0));
                 if (boss.actionTime >= 120) boss.act(Action.DEFENCE);
                 if ((phase >= 1 && boss.actionTime == 88) || boss.actionTime == 90 || boss.actionTime == 92 || (phase >= 2 && boss.actionTime == 94)) {
                     Vec3 bulletTarget = this.boss.position()
@@ -279,8 +295,6 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                     }
                     boss.level.addFreshEntity(bullet);
                 }
-                setBody(40, new Vec3(0, 3, 0));
-                setBody(119, new Vec3(0, 1, 0));
             }
             case SHOOT_BULLET -> {
                 if (boss.actionTime >= 120) boss.act(Action.IDLE);
@@ -313,6 +327,16 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
             }
 
             case SUMMON, DEFENCE_SUMMON -> {
+                if (boss.getAction() == Action.SUMMON) {
+                    setBody(20, new Vec3(0, 1, 0));
+                    setBody(40, new Vec3(0, 2, 0));
+                    setBody(150, new Vec3(0, 3, 0));
+                } else {
+                    setBody(40, new Vec3(0, 2, 0));
+                    setBody(150, new Vec3(0, 1, 0));
+                }
+                setMouth(40, new Vec3(0, -2, 0));
+                setMouth(140, new Vec3(0, 0, 0));
                 if (boss.actionTime >= 160) boss.act(this.boss.getAction() == Action.SUMMON ? Action.IDLE : Action.DEFENCE);
                 BlockPos home = boss.homePos;
                 if (boss.actionTime > 50 && boss.actionTime < 130) {
@@ -387,16 +411,6 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                         }
                     }
                 }
-                if (boss.getAction() == Action.SUMMON) {
-                    setBody(20, new Vec3(0, 1, 0));
-                    setBody(40, new Vec3(0, 2, 0));
-                    setBody(150, new Vec3(0, 3, 0));
-                } else {
-                    setBody(40, new Vec3(0, 2, 0));
-                    setBody(150, new Vec3(0, 1, 0));
-                }
-                setMouth(40, new Vec3(0, -2, 0));
-                setMouth(140, new Vec3(0, 0, 0));
             }
         }
     }
@@ -409,16 +423,23 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
         boss.getNavigation().moveTo(target, 1);
     }
 
+    public void teleportTo(Vec3 position) {
+        boss.teleportTo(position.x, position.y, position.z);
+    }
+
     public void jumpTo(Vec3 position) {
         ((ChorusTerminatorBoss.ChorusTerminatorMoveControl) boss.getMoveControl()).jumpTo(position);
     }
 
     private void setBody(int timeStamp, Vec3 position) {
-        if (boss.actionTime == timeStamp) this.boss.body.setIntention(position);
+        setBody(timeStamp, -1, position);
     }
 
     private void setBody(int timeStamp, int looptime, Vec3 position) {
-        if (boss.actionTime % looptime == timeStamp) this.boss.body.setIntention(position);
+        if (boss.actionTime % looptime == timeStamp) {
+            this.boss.body.move(MoverType.SELF, position.subtract(this.boss.body.getIntention()));
+            this.boss.body.setIntention(position);
+        }
     }
 
     private void setMouth(int timeStamp, Vec3 position) {

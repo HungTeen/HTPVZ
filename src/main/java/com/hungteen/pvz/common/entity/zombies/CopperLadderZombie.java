@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.entity.zombies;
 
+import com.hungteen.pvz.common.block.CopperLadderBlock;
 import com.hungteen.pvz.common.entity.ai.goal.CopperLadderBuildGoal;
 import com.hungteen.pvz.common.register.PVZItems;
 import net.minecraft.nbt.CompoundTag;
@@ -11,6 +12,8 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 
@@ -23,8 +26,7 @@ import javax.annotation.Nullable;
  **/
 public class CopperLadderZombie extends PVZZombie {
 
-    private static final int DEFAULT_LADDER_COUNT = 64;
-    private int ladderCount = DEFAULT_LADDER_COUNT;
+    private static final int DEFAULT_LADDER_COUNT = 8;
 
     public CopperLadderZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
@@ -46,33 +48,21 @@ public class CopperLadderZombie extends PVZZombie {
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
         SpawnGroupData spawnGroupData = super.finalizeSpawn(level, difficulty, spawnType, data, tag);
         this.setLeftHanded(false);
-        this.setItemInHand(InteractionHand.MAIN_HAND, PVZItems.COPPER_LADDER.get().getDefaultInstance());
+        ItemStack ladders = PVZItems.COPPER_LADDER.get().getDefaultInstance();
+        ladders.setCount(DEFAULT_LADDER_COUNT);
+        this.setItemInHand(InteractionHand.MAIN_HAND, ladders);
         return spawnGroupData;
     }
 
     public boolean canBuildLadder() {
-        return this.ladderCount > 0;
+        return this.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof BlockItem b && b.getBlock() instanceof CopperLadderBlock;
     }
 
     public boolean consumeLadder() {
         if (! this.canBuildLadder()) {
             return false;
         }
-        -- this.ladderCount;
+        this.getItemInHand(InteractionHand.MAIN_HAND).shrink(1);
         return true;
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.putInt("ladder_count", this.ladderCount);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.contains("ladder_count")) {
-            this.ladderCount = Math.max(0, tag.getInt("ladder_count"));
-        }
     }
 }
