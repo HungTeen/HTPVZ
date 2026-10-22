@@ -24,11 +24,11 @@ import javax.annotation.Nullable;
  * @program HTPVZ
  * @create 2026/10/3 15:00
  **/
-public class CopperLadderZombie extends PVZZombie {
+public class LadderZombie extends PVZZombie {
 
     private static final int DEFAULT_LADDER_COUNT = 8;
 
-    public CopperLadderZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
+    public LadderZombie(EntityType<? extends Zombie> p_34271_, Level p_34272_) {
         super(p_34271_, p_34272_);
     }
 

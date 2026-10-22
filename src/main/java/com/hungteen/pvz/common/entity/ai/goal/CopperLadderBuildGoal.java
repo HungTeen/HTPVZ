@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.common.block.CopperLadderBlock;
 import com.hungteen.pvz.common.entity.ai.PVZZombieWalkNodeEvaluator;
-import com.hungteen.pvz.common.entity.zombies.CopperLadderZombie;
+import com.hungteen.pvz.common.entity.zombies.LadderZombie;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,7 +42,7 @@ public class CopperLadderBuildGoal extends Goal {
     private static final int PATH_MAX_VISITED_NODES = 512;
     private static final int TARGET_TOLERANCE = 2;
 
-    private final CopperLadderZombie zombie;
+    private final LadderZombie zombie;
     private Direction buildingDirection;
     private Direction buildingFacing;
     private BlockPos buildingStart;
@@ -52,7 +52,7 @@ public class CopperLadderBuildGoal extends Goal {
     private int nextBuildTick;
     private long retryAt;
 
-    public CopperLadderBuildGoal(CopperLadderZombie zombie) {
+    public CopperLadderBuildGoal(LadderZombie zombie) {
         this.zombie = zombie;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
     }

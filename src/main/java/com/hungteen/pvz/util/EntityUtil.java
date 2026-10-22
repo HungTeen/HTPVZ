@@ -57,12 +57,14 @@ public class EntityUtil {
     }
 
     public static void removeModifierFromAttribute(LivingEntity entity, Attribute attribute, UUID uuid) {
+        if (attribute == null) return;
         AttributeInstance attr = entity.getAttribute(attribute);
         if (attr != null) {
             attr.removeModifier(uuid);
         }
     }
     public static void addModifierToAttribute(LivingEntity entity, Attribute attribute, AttributeModifier modifier) {
+        if (attribute == null) return;
         AttributeInstance attr = entity.getAttribute(attribute);
         if (attr != null && attr.modifierById.keySet().stream().noneMatch(uuid1 -> uuid1.equals(modifier.getId()))) {
             attr.addTransientModifier(modifier);

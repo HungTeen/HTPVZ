@@ -235,10 +235,10 @@ public class PVZEntities {
             .spawnEgg(0xd1575b, 0x3d97dc)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
             .entity("pole_vaulting_zombie", PoleVaultingZombie::new, MobCategory.MONSTER);
-    public static final RegistryObject<EntityType<CopperLadderZombie>> COPPER_LADDER_ZOMBIE = attribute(CopperLadderZombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
+    public static final RegistryObject<EntityType<LadderZombie>> LADDER_ZOMBIE = attribute(LadderZombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
             .spawnEgg(0xb87333, 0x799587)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, PVZZombie::checkSpawnRules)
-            .entity("copper_ladder_zombie", CopperLadderZombie::new, MobCategory.MONSTER);
+            .entity("ladder_zombie", LadderZombie::new, MobCategory.MONSTER);
     public static final RegistryObject<EntityType<SnorkelZombie>> SNORKEL_ZOMBIE = attribute(SnorkelZombie::createAttributes).tag(PVZEntityTags.ZOMBIE, EntityTypeTags.AXOLOTL_ALWAYS_HOSTILES)
             .spawnEgg(0xffe300, 0xa03232)
             .summonRule(Type.ON_GROUND, Types.MOTION_BLOCKING_NO_LEAVES, SnorkelZombie::checkSpawnRules)
@@ -421,7 +421,7 @@ public class PVZEntities {
         r(e, HYPNO_SHROOM, HypnoShroomRenderer::new);
         r(e, ZOMBIE, PVZZombieRenderer::new);
         r(e, POLE_VAULTING_ZOMBIE, PoleVaultingZombieRenderer::new);
-        r(e, COPPER_LADDER_ZOMBIE, PVZZombieRenderer::new);
+        r(e, LADDER_ZOMBIE, LadderZombieRenderer::new);
         r(e, JACK_IN_A_BOX_ZOMBIE, JackInABoxZombieRenderer::new);
         r(e, DIGGER_ZOMBIE, DiggerZombieRenderer::new);
         r(e, BUNGEE_ZOMBIE, BungeeZombieRenderer::new);

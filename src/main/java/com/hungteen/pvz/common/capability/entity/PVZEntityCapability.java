@@ -47,6 +47,8 @@ public class PVZEntityCapability implements ICapabilitySerializable<CompoundTag>
     public Set<UUID> zombieEventUUIDs = new HashSet<>();
     public short tickCount = 0;
     public String hypnosisTempTeam;
+    //lifebuoy
+    public boolean lifebuoyAdjusted = false;
     //client
     public boolean isDirty = false;
     private int stuckArrowWithATarget = 0;

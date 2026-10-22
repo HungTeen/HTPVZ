@@ -4,6 +4,8 @@ import com.google.common.collect.Multimap;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.model.attached.DuckLifebuoyModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
+import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -11,7 +13,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
@@ -53,31 +54,31 @@ public class DuckLifebuoyItem extends ArmorItem implements Wearable {
         if (livingEntity.level.isClientSide() && ! (ev.getEntity() instanceof Player)) {
             return;
         }
-        boolean isInWater = false;
-        Vec3 lifeBuoyPos = livingEntity.position().add(0, livingEntity.getBbHeight() * 0.55, 0);
-        if (! livingEntity.level.getFluidState(new BlockPos(lifeBuoyPos.x, lifeBuoyPos.y, lifeBuoyPos.z)).isEmpty()) {
-            if (livingEntity.getVehicle() == null && livingEntity.getItemBySlot(EquipmentSlot.LEGS).getItem() instanceof DuckLifebuoyItem item && item.getSlot() == EquipmentSlot.LEGS) {
-                    livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().add(0, 0.03, 0));
-                isInWater = true;
-                if (livingEntity instanceof PathfinderMob mob && ! mob.getNavigation().isDone()) {
-                    if (! mob.getNavigation().canFloat() && mob.isInWater() && mob.tickCount % 3 == 0) {
-                        //TODO find a way to decrease calculation.
+        boolean lifebuoy = livingEntity.getItemBySlot(EquipmentSlot.LEGS).getItem() instanceof DuckLifebuoyItem;
+        if (lifebuoy) {
+            Vec3 lifeBuoyPos = livingEntity.position().add(0, livingEntity.getBbHeight() * 0.5, 0);
+            if (! livingEntity.level.getFluidState(new BlockPos(lifeBuoyPos.x, lifeBuoyPos.y, lifeBuoyPos.z)).isEmpty() && livingEntity.tickCount % 2 == 0) {
+                livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().add(0, 0.06, 0));
+            }
+            EntityUtil.addModifierToAttribute(livingEntity, ForgeMod.SWIM_SPEED.get(), new AttributeModifier(SPEED_MODIFIER_UUID,
+                    "duck_lifebuoy", livingEntity instanceof Player ? 0.5 : 2, AttributeModifier.Operation.ADDITION));
+        } else {
+            EntityUtil.removeModifierFromAttribute(livingEntity, ForgeMod.SWIM_SPEED.get(), SPEED_MODIFIER_UUID);
+        }
+        if (livingEntity instanceof PathfinderMob mob) {
+            livingEntity.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> {
+                if (lifebuoy && livingEntity.getPose() == Pose.STANDING) {
+                    if (! mob.getNavigation().canFloat() && ! cap.lifebuoyAdjusted) {
+                        cap.lifebuoyAdjusted = true;
                         mob.getNavigation().setCanFloat(true);
-                        mob.getNavigation().path = null;
-                        mob.getNavigation().path = mob.getNavigation().createPath(mob.getNavigation().getTargetPos(), 0);
+                    }
+                } else {
+                    if (cap.lifebuoyAdjusted) {
+                        cap.lifebuoyAdjusted = false;
                         mob.getNavigation().setCanFloat(false);
                     }
                 }
-            }
-        }
-        AttributeInstance speed = livingEntity.getAttribute(ForgeMod.SWIM_SPEED.get());
-        if (speed != null && ! (livingEntity instanceof Player)) {
-            if (isInWater && livingEntity.getPose() == Pose.STANDING /*getWaterSlowDown() is not callable...*/ && speed.getModifier(SPEED_MODIFIER_UUID) == null) {
-                speed.addTransientModifier(new AttributeModifier(SPEED_MODIFIER_UUID,
-                        "duck_lifebuoy", 15, AttributeModifier.Operation.ADDITION));
-            } else if (speed.getModifier(SPEED_MODIFIER_UUID) != null){
-                speed.removeModifier(SPEED_MODIFIER_UUID);
-            }
+            });
         }
     }
 
