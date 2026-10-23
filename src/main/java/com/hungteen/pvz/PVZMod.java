@@ -23,6 +23,8 @@ import com.hungteen.pvz.common.world.PVZWorldEvents;
 import com.hungteen.pvz.generator.DataGenHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
@@ -176,6 +178,9 @@ public class PVZMod
             event.enqueueWork(() -> {
                 //register sign materials
                 PVZBlocks.woodTypeList.forEach(Sheets::addWoodType);
+
+                //render layers
+                ItemBlockRenderTypes.setRenderLayer(PVZBlocks.RESIN_BEACON.get(), RenderType.cutout());
 
                 //registerScreens
                 PVZMenus.registerScreens();
