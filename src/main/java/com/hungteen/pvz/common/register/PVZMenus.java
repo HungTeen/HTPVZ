@@ -1,14 +1,12 @@
 package com.hungteen.pvz.common.register;
 
 import com.hungteen.pvz.PVZMod;
-import com.hungteen.pvz.client.gui.screens.AlmanacScreen;
-import com.hungteen.pvz.client.gui.screens.EssenceAltarScreen;
-import com.hungteen.pvz.client.gui.screens.EssenceFurnaceScreen;
-import com.hungteen.pvz.client.gui.screens.PennyScreen;
+import com.hungteen.pvz.client.gui.screens.*;
 import com.hungteen.pvz.common.menu.AlmanacMenu;
 import com.hungteen.pvz.common.menu.EssenceAltarMenu;
 import com.hungteen.pvz.common.menu.EssenceFurnaceMenu;
 import com.hungteen.pvz.common.menu.PennyMenu;
+import com.hungteen.pvz.common.menu.SunCollectorMenu;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,6 +22,8 @@ public class PVZMenus {
 
     public static final RegistryObject<MenuType<EssenceAltarMenu>> ESSENCE_ALTAR = MENU_TYPES.register("essence_altar",
             () -> IForgeMenuType.create((id, inv, data) -> new EssenceAltarMenu(inv, id)));
+    public static final RegistryObject<MenuType<SunCollectorMenu>> SUN_COLLECTOR = MENU_TYPES.register("sun_collector",
+            () -> IForgeMenuType.create((id, inv, data) -> new SunCollectorMenu(inv, id, data.readBlockPos())));
     public static final RegistryObject<MenuType<EssenceFurnaceMenu>> ESSENCE_FURNACE = MENU_TYPES.register("essence_furnace",
             () -> IForgeMenuType.create((id, inv, data) -> new EssenceFurnaceMenu(inv, id, data.readBlockPos())));
     public static final RegistryObject<MenuType<AlmanacMenu>> ALMANAC = MENU_TYPES.register("almanac",
@@ -35,6 +35,7 @@ public class PVZMenus {
     @OnlyIn(Dist.CLIENT)
     public static void registerScreens() {
         MenuScreens.register(ESSENCE_ALTAR.get(), EssenceAltarScreen::new);
+        MenuScreens.register(SUN_COLLECTOR.get(), SunCollectorScreen::new);
         MenuScreens.register(ESSENCE_FURNACE.get(), EssenceFurnaceScreen::new);
         MenuScreens.register(ALMANAC.get(), AlmanacScreen::new);
         MenuScreens.register(PENNY.get(), PennyScreen::new);

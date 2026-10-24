@@ -7,6 +7,8 @@ import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.api.interfaces.ISunContainer;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZParticles;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
+import com.hungteen.pvz.common.world.PVZPlayerWrapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -15,14 +17,17 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
+
     public static final float SUN_FALL_SPEED = 0.03F;
     public static final int DEFAULT_AMOUNT = 50;
     public static final int MAX_LIVE_TICK = 750;
@@ -30,10 +35,8 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     public Vec3 ColorBase = new Vec3(255, 235, 30);
     public Vec3 ColorChange = new Vec3(0, 10, 15);
     private ISunAbsorber attractedBy;
-    private static final EntityDataAccessor<Integer> AMOUNT =
-        SynchedEntityData.defineId(Sun.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> LIVE_TICK =
-        SynchedEntityData.defineId(Sun.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> AMOUNT = SynchedEntityData.defineId(Sun.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> LIVE_TICK = SynchedEntityData.defineId(Sun.class, EntityDataSerializers.INT);
 
     public Sun(EntityType<?> p_19870_, Level p_19871_) {
         super(p_19870_, p_19871_);
@@ -87,6 +90,17 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     }
 
     @Override
+    public void onSunConsume(int amount) {
+        if (amount > 0) {
+            this.playSound(PVZSoundEvents.COLLECT_SUN.get());
+        }
+        if (this.getAmount() <= amount) {
+            // 阳光数量不足，直接移除
+            this.discard();
+        }
+    }
+
+    @Override
     public void setAmount(int num) {
         this.entityData.set(AMOUNT, num);
     }
@@ -100,11 +114,16 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     }
 
     @Override
-    public boolean canAttractThis(ISunAbsorber absorber) {
+    public boolean canAttractThis(ISunAbsorber sunAbsorber) {
         if (this.tickCount < 20) {
             return false;
         }
-        return absorber.canAbsorb(this);
+        if (this.distanceToSqr(sunAbsorber.getAbsorbPosition()) > 64.0D) {
+            // 距离太远了
+            return false;
+        }
+        // TODO PT: 射线检测有没有方块挡住了
+        return sunAbsorber.canAbsorb(this);
     }
 
     @Override
@@ -113,9 +132,12 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     }
 
     @Override
-    public boolean setAttractor(ISunAbsorber attractor) {
-        this.attractedBy = attractor;
-        return true;
+    public boolean trySetAttractor(ISunAbsorber candidateAbsorber) {
+        if (this.attractedBy == null || this.compareAbsorber(this.attractedBy, candidateAbsorber) < 0) {
+            this.attractedBy = candidateAbsorber;
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -143,9 +165,15 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     }
 
     @Override
+    public Vec3 getAbsorbPosition() {
+        return getEyePosition(0.5F);
+    }
+
+    @Override
     public boolean canAbsorb(ISun sun) {
         if (sun instanceof Sun sun1) {
-            return getAmount() < 250 && sun.getAmount() < 250 && sun1.getId() < getId() && distanceToSqr(sun1) < 4;
+            return getAmount() < 250 && sun.getAmount() < 250 && sun1.getId() < getId()
+                && this.distanceToSqr(sun1.getAbsorbPosition()) < 4;
         } else {
             return false;
         }
@@ -185,26 +213,21 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
             this.attractedBy = null;
         }
         if (this.attractedBy == null || (this.tickCount + this.getId()) % 50 == 0) {
-            // 重新选择吸引者
-            // 先比较优先级，再比较距离
-            this.attractedBy =
-                level.getEntities(this, this.getBoundingBox().inflate(6)).stream()
-                    .filter(ISunAbsorber.class::isInstance).map(ISunAbsorber.class::cast)
-                    .filter(this::canAttractThis).min((e1, e2) -> {
-                        // 先比较优先级，再比较距离
-                        if (e1.getAbsorbPriority() == e2.getAbsorbPriority()) {
-                            return Double.compare(this.distanceToSqr(e1.getAbsorbPosition()),
-                                this.distanceToSqr(e2.getAbsorbPosition()));
-                        }
-                        return Integer.compare(e1.getAbsorbPriority(), e2.getAbsorbPriority());
-                    }).orElse(null);
+            // 重新选择吸引者，先比较优先级，再比较距离
+            Optional<ISunAbsorber> candidateAbsorberOpt = level.getEntities(this, this.getBoundingBox().inflate(6)).stream().map(e -> {
+                    if (e instanceof Player player) {
+                        return new PVZPlayerWrapper(player);
+                    }
+                    return e;
+                }).filter(ISunAbsorber.class::isInstance).map(ISunAbsorber.class::cast).filter(this::canAttractThis)
+                .min(this::compareAbsorber);
+            candidateAbsorberOpt.ifPresent(this::trySetAttractor);
         }
         // being attracted.
         if (this.attractedBy != null) {
             if (!level.isClientSide && distanceToSqr(attractedBy.getAbsorbPosition()) < 0.8F) {
                 this.onAbsorbedBy(attractedBy);
             }
-            // // TODO PT: 一会儿 position，一会儿 absorbPosition，此处看看要不要调整位置
             Vec3 vec3 = this.attractedBy.getAbsorbPosition().subtract(this.position());
             double d0 = vec3.lengthSqr();
             if (d0 < 25.0D) {
@@ -221,6 +244,13 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
             ColorBase = new Vec3(255, 235, 30);
             ColorChange = new Vec3(0, 10, 15);
         }
+    }
+
+    private Integer compareAbsorber(ISunAbsorber e1, ISunAbsorber e2) {
+        if (e1.getAbsorbPriority() == e2.getAbsorbPriority()) {
+            return Double.compare(this.distanceToSqr(e1.getAbsorbPosition()), this.distanceToSqr(e2.getAbsorbPosition()));
+        }
+        return Integer.compare(e1.getAbsorbPriority(), e2.getAbsorbPriority());
     }
 
     @Override

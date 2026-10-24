@@ -11,9 +11,15 @@ public interface ISun extends ISunAbsorber, ISunContainer {
         return 150;
     }
 
+    /**
+     * 开始被吸收
+     */
     void onAbsorbedBy(ISunAbsorber entity);
 
-    boolean canAttractThis(ISunAbsorber entity);
+    /**
+     * 是否能被吸收
+     */
+    boolean canAttractThis(ISunAbsorber sunAbsorber);
 
     /**
      * @return Can be ISunAbsorber or player.
@@ -21,9 +27,16 @@ public interface ISun extends ISunAbsorber, ISunContainer {
     ISunAbsorber getAttractor();
 
     /**
+     * 被消耗一定数量
+     * @param amount 阳光数量
+     */
+    void onSunConsume(int amount);
+
+    /**
+     * 尝试设置吸引者，给阳光收集器、太阳神僵尸用
      * @return whether succeeded in setting attractor.
      */
-    default boolean setAttractor(ISunAbsorber attractor) {
+    default boolean trySetAttractor(ISunAbsorber candidateAbsorber) {
         return false;
     }
 

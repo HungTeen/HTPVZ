@@ -5,6 +5,7 @@ import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanUseSeedPack;
 import com.hungteen.pvz.api.interfaces.ISun;
 import com.hungteen.pvz.api.interfaces.ISunAbsorber;
+import com.hungteen.pvz.common.block.entity.SunCollectorBlockEntity;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
@@ -12,7 +13,6 @@ import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZAttributes;
 import com.hungteen.pvz.common.register.PVZEnchantments;
-import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.register.PVZStats;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -26,6 +26,7 @@ import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -143,7 +144,7 @@ public record PVZPlayerWrapper(Player player) implements ISunAbsorber, ICanUseSe
         if (!(sun instanceof Entity entity)) {
             return ISunAbsorber.super.canAbsorb(sun);
         }
-        if(!EntityUtil.isEntityValid(player) || entity.distanceToSqr(this.getAbsorbPosition()) > 64.0D) {
+        if(!EntityUtil.isEntityValid(player)) {
             return false;
         }
         if (player.isCreative()) {
@@ -165,42 +166,38 @@ public record PVZPlayerWrapper(Player player) implements ISunAbsorber, ICanUseSe
 
     @Override
     public void onAbsorb(ISun sun) {
-        if (sun instanceof Entity entity) {
-            PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
-                int currentSun = nbt.getValue(PVZPlayerCapStats.SUN);
-                //sun mending enchantment.
-                if (currentSun >= nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond()) {
-                    Map.Entry<EquipmentSlot, ItemStack> entry =
-                        EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player,
-                            ItemStack::isDamaged);
-                    if (entry != null) {
-                        ItemStack itemStack = entry.getValue();
-                        int amount = getAmount() / 25;
-                        entity.remove(Entity.RemovalReason.DISCARDED);
-                        entity.playSound(PVZSoundEvents.COLLECT_SUN.get());
-                        itemStack.setDamageValue(Math.max(0, itemStack.getDamageValue() - amount));
-                    }
+        PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
+            int currentSun = nbt.getValue(PVZPlayerCapStats.SUN);
+            // sun mending enchantment.
+            if (currentSun >= nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond()) {
+                Map.Entry<EquipmentSlot, ItemStack> entry =
+                    EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player,
+                        ItemStack::isDamaged);
+                if (entry != null) {
+                    ItemStack itemStack = entry.getValue();
+                    int amount = sun.getAmount() / SunCollectorBlockEntity.SUN_AMOUNT_PER_REPAIR;
+                    sun.onSunConsume(sun.getAmount());
+                    itemStack.setDamageValue(Math.max(0, itemStack.getDamageValue() - amount));
+                    return;
                 }
-                //player absorb.
-                int num = getAmount();
-                nbt.addValue(PVZPlayerCapStats.SUN, num);
-                int actual = nbt.getValue(PVZPlayerCapStats.SUN);
-                if (actual - currentSun >= num || player.isCreative()) {
-                    entity.remove(Entity.RemovalReason.DISCARDED);
-                } else {
-                    this.setAmount(num - actual + currentSun);
-                }
-                if (!player.isCreative()) {
-                    player.awardStat(PVZStats.COLLECT_SUN_VALUE, actual - currentSun);
-                }
-                if (actual - currentSun > 0) {
-                    player.awardStat(PVZStats.COLLECT_SUN);
-                }
-                if (currentSun < actual) {
-                    entity.playSound(PVZSoundEvents.COLLECT_SUN.get());
-                }
-            });
-        }
+            }
+            //player absorb.
+            int num = sun.getAmount();
+            nbt.addValue(PVZPlayerCapStats.SUN, num);
+            int actualConsume = nbt.getValue(PVZPlayerCapStats.SUN) - currentSun;
+            int consumeAmount = player.isCreative() ? num : actualConsume;
+            sun.onSunConsume(consumeAmount);
+            if (!player.isCreative()) {
+                player.awardStat(PVZStats.COLLECT_SUN_VALUE, actualConsume);
+            }
+            if (actualConsume > 0) {
+                player.awardStat(PVZStats.COLLECT_SUN);
+            }
+        });
     }
 
+    @Override
+    public Vec3 getAbsorbPosition() {
+        return player.getEyePosition(0.5F);
+    }
 }

@@ -1,7 +1,5 @@
 package com.hungteen.pvz.api.interfaces;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -29,9 +27,6 @@ public interface ISunAbsorber {
 
     void onAbsorb(ISun sun);
 
-    default Vec3 getAbsorbPosition() {
-        return this instanceof Entity ? ((Entity) this).position().add(0, ((Entity) this).getBbHeight() / 2, 0) :
-            Vec3.atCenterOf(((BlockEntity) this).getBlockPos());
-    }
+    Vec3 getAbsorbPosition();
 
 }

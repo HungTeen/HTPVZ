@@ -4,7 +4,7 @@ import com.hungteen.pvz.common.world.PVZPlayerWrapper;
 
 /**
  * ISunContainer includes all object that can store sun. When use player as a sun container, use the wrapper
- * {@link PVZPlayerWrapper PlayerSunContainerWrapper}.
+ * {@link PVZPlayerWrapper}.
  */
 public interface ISunContainer {
 

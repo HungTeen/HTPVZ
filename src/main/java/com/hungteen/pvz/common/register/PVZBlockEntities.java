@@ -4,6 +4,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.renderer.blockentity.EssenceAltarRenderer;
 import com.hungteen.pvz.client.renderer.blockentity.ResinBeaconRenderer;
 import com.hungteen.pvz.client.renderer.blockentity.SilverSwordOrnamentRenderer;
+import com.hungteen.pvz.client.renderer.blockentity.SunCollectorRenderer;
 import com.hungteen.pvz.client.renderer.blockentity.TombstoneRender;
 import com.hungteen.pvz.common.block.entity.*;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -29,6 +30,7 @@ public class PVZBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, PVZMod.MODID);
     public static final RegistryObject<BlockEntityType<PVZSignBlockEntity>> SIGN = bEntity("pvz_sign", PVZSignBlockEntity::new);
     public static final RegistryObject<BlockEntityType<EssenceAltarBlockEntity>> ESSENCE_ALTAR = bEntity("essence_altar", EssenceAltarBlockEntity::new);
+    public static final RegistryObject<BlockEntityType<SunCollectorBlockEntity>> SUN_COLLECTOR = bEntity("sun_collector", SunCollectorBlockEntity::new);
     public static final RegistryObject<BlockEntityType<InvasionSpawnerBlockEntity>> INVASION_SPAWNER = bEntity("invasion_spawner", InvasionSpawnerBlockEntity::new);
     public static final RegistryObject<BlockEntityType<EssenceFurnaceBlockEntity>> ESSENCE_FURNACE = bEntity("essence_furnace", EssenceFurnaceBlockEntity::new);
     public static final RegistryObject<BlockEntityType<ResinBeaconBlockEntity>> RESIN_BEACON = bEntity("resin_beacon", ResinBeaconBlockEntity::new);
@@ -59,6 +61,7 @@ public class PVZBlockEntities {
     public static void registerRenderer(EntityRenderersEvent.RegisterRenderers e) {
         r(e, SIGN, SignRenderer::new);
         r(e, ESSENCE_ALTAR, EssenceAltarRenderer::new);
+        r(e, SUN_COLLECTOR, SunCollectorRenderer::new);
         r(e, SILVER_SWORD_SCULPTURE, SilverSwordOrnamentRenderer::new);
         r(e, TOMBSTONE, TombstoneRender::new);
         r(e, RESIN_BEACON, ResinBeaconRenderer::new);
