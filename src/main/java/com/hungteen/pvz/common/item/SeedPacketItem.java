@@ -5,10 +5,7 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.events.SeedPacketPlantEvent;
-import com.hungteen.pvz.api.interfaces.IHaveSkills;
-import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
-import com.hungteen.pvz.api.interfaces.IPlant;
-import com.hungteen.pvz.api.interfaces.ISunContainer;
+import com.hungteen.pvz.api.interfaces.*;
 import com.hungteen.pvz.client.gui.PVZOverlayHandler;
 import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
@@ -114,15 +111,15 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         return cost;
     }
 
-    public int getTotalExtraCost(ISunContainer planter, ItemStack itemStack) {
+    public int getTotalExtraCost(ICanUseSeedPack planter, ItemStack itemStack) {
         return getNumExtraCost(planter) + getSkillExtraCost(itemStack);
     }
 
-    public int getSingleNumExtraCost(ISunContainer container, T entity) {
+    public int getSingleNumExtraCost(ICanUseSeedPack container, T entity) {
         return 50;
     }
 
-    public int getNumExtraCost(@Nullable ISunContainer container) {
+    public int getNumExtraCost(@Nullable ICanUseSeedPack container) {
         AtomicInteger result = new AtomicInteger();
         int range = Util.getSeedPacketExtraCostRange(container);
         if (range >= 0 && container != null && container.getLevel() != null && container.getPosition() != null) {
@@ -304,7 +301,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         return plantOnBlock(new PlayerSunContainerWrapper(player), itemStack, level, pos, direction);
     }
 
-    public MutableComponent plantOnBlock(ISunContainer sunContainer, ItemStack itemStack, Level level, BlockPos pos, Direction direction) {
+    public MutableComponent plantOnBlock(ICanUseSeedPack sunContainer, ItemStack itemStack, Level level, BlockPos pos, Direction direction) {
         if (! level.isClientSide && itemStack.getItem() instanceof SeedPacketItem<?>
                 && sunContainer.getCooldowns() != null && ! sunContainer.getCooldowns().isOnCooldown(this)) {
             Entity planter = sunContainer.getEntity();
@@ -392,7 +389,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         return plantOnEntity(new PlayerSunContainerWrapper(player), itemStack,  level, target);
     }
 
-    public MutableComponent plantOnEntity(ISunContainer sunContainer, ItemStack itemStack, Level level, Entity target) {
+    public MutableComponent plantOnEntity(ICanUseSeedPack sunContainer, ItemStack itemStack, Level level, Entity target) {
         if (! level.isClientSide && itemStack.getItem() instanceof SeedPacketItem<?>
                 && sunContainer.getCooldowns() != null && ! sunContainer.getCooldowns().isOnCooldown(this)) {
             Entity planter = sunContainer.getEntity();

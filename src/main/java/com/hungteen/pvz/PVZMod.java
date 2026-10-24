@@ -179,7 +179,8 @@ public class PVZMod
                 //register sign materials
                 PVZBlocks.woodTypeList.forEach(Sheets::addWoodType);
 
-                //render layers
+                // render layers
+                // TODO PT 后续鱼放在 json 里面，这个版本应该是放在了 json 里面？
                 ItemBlockRenderTypes.setRenderLayer(PVZBlocks.RESIN_BEACON.get(), RenderType.cutout());
 
                 //registerScreens

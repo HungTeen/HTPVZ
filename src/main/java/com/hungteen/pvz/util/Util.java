@@ -3,7 +3,7 @@ package com.hungteen.pvz.util;
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.api.interfaces.ISunContainer;
+import com.hungteen.pvz.api.interfaces.ICanUseSeedPack;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.item.SeedPacketItem;
@@ -74,7 +74,7 @@ public class Util {
 
 
     //planting tools
-    public static int getSeedPacketExtraCostRange(@Nullable ISunContainer container) {
+    public static int getSeedPacketExtraCostRange(@Nullable ICanUseSeedPack container) {
         if (container != null && container.getLevel() != null) {
             return PVZConfig.PVZGameRules.getInt(container.getLevel(), PVZConfig.Common.advancedPlantExtraCostRange);
         } else if (container instanceof PlayerSunContainerWrapper wrapper) {
@@ -97,7 +97,7 @@ public class Util {
         return new PVZResourceEvent.CheckResourceEvent(new PlayerSunContainerWrapper(player), plantCard, resource, cost, coolDown);
     }
 
-    public static PVZResourceEvent.CheckPlantConditionEvent checkPlantConditionEvent(ISunContainer planter, ItemStack plantCard, Entity spawningEntity) {
+    public static PVZResourceEvent.CheckPlantConditionEvent checkPlantConditionEvent(ICanUseSeedPack planter, ItemStack plantCard, Entity spawningEntity) {
         SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
         String resource = item.getResource(plantCard);
         int cost = item.getBaseCost(plantCard) + item.getTotalExtraCost(planter, plantCard);

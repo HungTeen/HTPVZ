@@ -1,6 +1,6 @@
 package com.hungteen.pvz.api.events;
 
-import com.hungteen.pvz.api.interfaces.ISunContainer;
+import com.hungteen.pvz.api.interfaces.ICanUseSeedPack;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -14,9 +14,9 @@ public class PVZResourceEvent extends Event {
     public int cost;
     public int coolDown;
     public String resource;
-    public ISunContainer container;
+    public ICanUseSeedPack container;
 
-    private PVZResourceEvent(ISunContainer sunContainer, String resource, int cost, int coolDown) {
+    private PVZResourceEvent(ICanUseSeedPack sunContainer, String resource, int cost, int coolDown) {
         super();
         this.container = sunContainer;
         this.cost = cost;
@@ -32,7 +32,7 @@ public class PVZResourceEvent extends Event {
      */
     public static class CheckResourceEvent extends PVZResourceEvent {
         public final ItemStack seedPacket;
-        public CheckResourceEvent(ISunContainer sunContainer, ItemStack plantCard, String resource, int cost, int coolDown) {
+        public CheckResourceEvent(ICanUseSeedPack sunContainer, ItemStack plantCard, String resource, int cost, int coolDown) {
             super(sunContainer, resource, cost, coolDown);
             this.seedPacket = plantCard;
         }
@@ -43,13 +43,13 @@ public class PVZResourceEvent extends Event {
      * <br>this event is cancelable. If cancel this event, the plant won't br planted.
      * <br>if you want to change the resource cost, subscribe {@link CheckResourceEvent}.
      * <br>fired only on the server.
-     * <br><br> {@link com.hungteen.pvz.util.Util#checkPlantConditionEvent(ISunContainer, ItemStack, Entity) <b>rapid method</b>} here.
+     * <br><br> {@link com.hungteen.pvz.util.Util#checkPlantConditionEvent(ICanUseSeedPack, ItemStack, Entity) <b>rapid method</b>} here.
      */
     @Cancelable
     public static class CheckPlantConditionEvent extends CheckResourceEvent {
         public Entity spawningEntity;
 
-        public CheckPlantConditionEvent(ISunContainer sunContainer, ItemStack plantCard, Entity spawningEntity, String resource, int cost, int coolDown) {
+        public CheckPlantConditionEvent(ICanUseSeedPack sunContainer, ItemStack plantCard, Entity spawningEntity, String resource, int cost, int coolDown) {
             super(sunContainer, plantCard, resource, cost, coolDown);
             this.spawningEntity = spawningEntity;
         }

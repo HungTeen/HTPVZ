@@ -103,7 +103,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
             return false;
         }
         if (attractedBy != null && attractingPlayer != null) {
-            if (distanceToSqr(attractedBy.position()) > 16 && distanceToSqr(attractingPlayer) > 36) {
+            if (distanceToSqr(attractedBy.getAbsorbPosition()) > 16 && distanceToSqr(attractingPlayer) > 36) {
                 return absorber.canAbsorb(this);
             }
         }
@@ -201,11 +201,11 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
     //ISunAbsorber
     @Override
     public void onAbsorb(ISun sun) {
-        if (sun instanceof Entity) {
+        if (sun instanceof Entity entity) {
             setAmount(getAmount() + sun.getAmount());
             float width = ((Entity) sun).getBbWidth() / 2;
             ((ServerLevel) level).sendParticles(PVZParticles.SUN.get(),
-                    sun.position().x + width, sun.position().y + width, sun.position().z + width,
+                entity.getX() + width, entity.getY() + entity.getBbHeight() / 2 + width, entity.getZ() + width,
                     sun.getAmount() / 20, width, width, width, 0.1);
             ((Entity) sun).remove(Entity.RemovalReason.DISCARDED);
         }
@@ -250,7 +250,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
         }
         //choose attractor.
         if ((this.tickCount+this.getId()) % ((this.attractedBy != null && this.attractingPlayer != null) ? 250 : 50) == 0 ||
-                ((this.attractedBy != null && this.distanceToSqr(this.attractedBy.position()) > 64.0D) ||
+                ((this.attractedBy != null && this.distanceToSqr(this.attractedBy.getAbsorbPosition()) > 64.0D) ||
                         (this.attractingPlayer != null && this.distanceToSqr(this.attractingPlayer) > 64.0D)) ||
                 (attractedBy instanceof Entity entity && ! EntityUtil.isEntityValid(entity)) ||
                 (attractedBy instanceof BlockEntity bEntity && bEntity.isRemoved()) ||
@@ -260,7 +260,7 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
                     EntitySelector.NO_SPECTATORS.and((player) -> player instanceof Player && canAttractThis((Player) player)));
             if (attractingPlayer == null) {
                 level.getEntities(this, this.getBoundingBox().inflate(6)).forEach((targetEntity) -> {
-                    if ((this.attractedBy == null || distanceToSqr(targetEntity) < distanceToSqr(attractedBy.position()))) {
+                    if ((this.attractedBy == null || distanceToSqr(targetEntity) < distanceToSqr(attractedBy.getAbsorbPosition()))) {
                         if ((targetEntity != this && targetEntity instanceof ISunAbsorber absorber && canAttractThis(absorber))) {
                             this.attractedBy = absorber;
                         }
@@ -290,10 +290,10 @@ public class Sun extends Entity implements ISunAbsorber, ISunContainer, ISun {
                 this.setDeltaMovement(this.getDeltaMovement().add(vec3.normalize().scale(d1 * d1 * 0.3D)));
             }
         } else if (this.attractedBy != null) {
-            if (! level.isClientSide && distanceToSqr(attractedBy.position()) < 0.8F){
+            if (! level.isClientSide && distanceToSqr(attractedBy.getAbsorbPosition()) < 0.8F){
                 onAbsorbedBy(attractedBy);
             }
-            Vec3 vec3 = this.attractedBy.position().subtract(this.position());
+            Vec3 vec3 = this.attractedBy.getAbsorbPosition().subtract(this.position());
             double d0 = vec3.lengthSqr();
             if (d0 < 25.0D) {
                 double d1 = 1.0D - Math.sqrt(d0) / 5.0D;

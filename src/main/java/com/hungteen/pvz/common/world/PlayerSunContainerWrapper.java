@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.world;
 
 import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
-import com.hungteen.pvz.api.interfaces.ISunContainer;
+import com.hungteen.pvz.api.interfaces.ICanUseSeedPack;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
@@ -19,7 +19,13 @@ import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public record PlayerSunContainerWrapper(Player player) implements ISunContainer {
+public record PlayerSunContainerWrapper(Player player) implements ICanUseSeedPack {
+
+    @Override
+    public void setAmount(int num) {
+        // TODO PT 直接设置 Cap
+    }
+
     @Override
     public int getAmount() {
         return PVZAPI.get().getSun(player);
