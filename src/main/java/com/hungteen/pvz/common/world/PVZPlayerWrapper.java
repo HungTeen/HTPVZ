@@ -3,23 +3,34 @@ package com.hungteen.pvz.common.world;
 import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.ICanUseSeedPack;
+import com.hungteen.pvz.api.interfaces.ISun;
+import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
 import com.hungteen.pvz.common.item.SeedPacketItem;
+import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZAttributes;
+import com.hungteen.pvz.common.register.PVZEnchantments;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.register.PVZStats;
+import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 
-public record PlayerSunContainerWrapper(Player player) implements ICanUseSeedPack {
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public record PVZPlayerWrapper(Player player) implements ISunAbsorber, ICanUseSeedPack {
 
     @Override
     public void setAmount(int num) {
@@ -126,4 +137,70 @@ public record PlayerSunContainerWrapper(Player player) implements ICanUseSeedPac
             }
         }
     }
+
+    @Override
+    public boolean canAbsorb(ISun sun) {
+        if (!(sun instanceof Entity entity)) {
+            return ISunAbsorber.super.canAbsorb(sun);
+        }
+        if(!EntityUtil.isEntityValid(player) || entity.distanceToSqr(this.getAbsorbPosition()) > 64.0D) {
+            return false;
+        }
+        if (player.isCreative()) {
+            return true;
+        }
+        if (player.level.isClientSide && ClientProxy.getPlayer() != player) {
+            return false;
+        }
+        Map.Entry<EquipmentSlot, ItemStack> entry =
+            EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player, ItemStack::isDamaged);
+        if (entry != null) {
+            return true;
+        }
+        final AtomicBoolean result = new AtomicBoolean();
+        PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> result.set(
+            nbt.getValue(PVZPlayerCapStats.SUN) < nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond()));
+        return result.get();
+    }
+
+    @Override
+    public void onAbsorb(ISun sun) {
+        if (sun instanceof Entity entity) {
+            PVZPlayerCapability.getPlayerData(player).ifPresent((nbt) -> {
+                int currentSun = nbt.getValue(PVZPlayerCapStats.SUN);
+                //sun mending enchantment.
+                if (currentSun >= nbt.getValueLimit(PVZPlayerCapStats.SUN).getSecond()) {
+                    Map.Entry<EquipmentSlot, ItemStack> entry =
+                        EnchantmentHelper.getRandomItemWith(PVZEnchantments.SUN_MENDING.get(), player,
+                            ItemStack::isDamaged);
+                    if (entry != null) {
+                        ItemStack itemStack = entry.getValue();
+                        int amount = getAmount() / 25;
+                        entity.remove(Entity.RemovalReason.DISCARDED);
+                        entity.playSound(PVZSoundEvents.COLLECT_SUN.get());
+                        itemStack.setDamageValue(Math.max(0, itemStack.getDamageValue() - amount));
+                    }
+                }
+                //player absorb.
+                int num = getAmount();
+                nbt.addValue(PVZPlayerCapStats.SUN, num);
+                int actual = nbt.getValue(PVZPlayerCapStats.SUN);
+                if (actual - currentSun >= num || player.isCreative()) {
+                    entity.remove(Entity.RemovalReason.DISCARDED);
+                } else {
+                    this.setAmount(num - actual + currentSun);
+                }
+                if (!player.isCreative()) {
+                    player.awardStat(PVZStats.COLLECT_SUN_VALUE, actual - currentSun);
+                }
+                if (actual - currentSun > 0) {
+                    player.awardStat(PVZStats.COLLECT_SUN);
+                }
+                if (currentSun < actual) {
+                    entity.playSound(PVZSoundEvents.COLLECT_SUN.get());
+                }
+            });
+        }
+    }
+
 }

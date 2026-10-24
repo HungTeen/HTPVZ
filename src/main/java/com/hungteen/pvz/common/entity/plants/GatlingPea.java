@@ -11,7 +11,7 @@ import com.hungteen.pvz.common.entity.plants.base.ShooterPlant;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
-import com.hungteen.pvz.common.world.PlayerSunContainerWrapper;
+import com.hungteen.pvz.common.world.PVZPlayerWrapper;
 import com.hungteen.pvz.util.EntityUtil;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -244,7 +244,7 @@ public class GatlingPea extends Repeater implements PlayerRideableJumping, IEnti
     @Override
     public MutableComponent customPositionSafe(PVZResourceEvent.CheckPlantConditionEvent event, Level level, BlockPos pos, Direction direction, boolean isPlanting) {
         if (isPlanting) {
-            if (hasSkill(RAPID_DEPLOYMENT_SKILL_NAME) || (event != null && event.container instanceof PlayerSunContainerWrapper wrapper && wrapper.player().isCreative())) {
+            if (hasSkill(RAPID_DEPLOYMENT_SKILL_NAME) || (event != null && event.container instanceof PVZPlayerWrapper wrapper && wrapper.player().isCreative())) {
                 return super.customPositionSafe(event, level, pos, direction, true);
             }
             return Component.translatable("hint.pvz.plant.can_only_plant_on", this.getName(), PVZEntities.REPEATER.get().getDescription());

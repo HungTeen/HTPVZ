@@ -16,7 +16,7 @@ import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
 import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.register.PVZStats;
-import com.hungteen.pvz.common.world.PlayerSunContainerWrapper;
+import com.hungteen.pvz.common.world.PVZPlayerWrapper;
 import com.hungteen.pvz.util.EntityUtil;
 import com.hungteen.pvz.util.Util;
 import net.minecraft.ChatFormatting;
@@ -298,7 +298,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     }
 
     public MutableComponent plantOnBlock(Player player, ItemStack itemStack, Level level, BlockPos pos, Direction direction) {
-        return plantOnBlock(new PlayerSunContainerWrapper(player), itemStack, level, pos, direction);
+        return plantOnBlock(new PVZPlayerWrapper(player), itemStack, level, pos, direction);
     }
 
     public MutableComponent plantOnBlock(ICanUseSeedPack sunContainer, ItemStack itemStack, Level level, BlockPos pos, Direction direction) {
@@ -386,7 +386,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
 
 
     public MutableComponent plantOnEntity(Player player, ItemStack itemStack, Level level, Entity target) {
-        return plantOnEntity(new PlayerSunContainerWrapper(player), itemStack,  level, target);
+        return plantOnEntity(new PVZPlayerWrapper(player), itemStack,  level, target);
     }
 
     public MutableComponent plantOnEntity(ICanUseSeedPack sunContainer, ItemStack itemStack, Level level, Entity target) {
@@ -474,7 +474,7 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
         if (player != null && !player.isCreative() && !player.isSpectator()) {
             PVZResourceEvent.CheckResourceEvent event = Util.checkPlantResourceEvent(player, itemStack);
             MinecraftForge.EVENT_BUS.post(event);
-            boolean hasExtraCost = this.extraCost && Util.getSeedPacketExtraCostRange(new PlayerSunContainerWrapper(player)) >= 0; //TODO let tooltip show whether it has advanced plant extra cost.
+            boolean hasExtraCost = this.extraCost && Util.getSeedPacketExtraCostRange(new PVZPlayerWrapper(player)) >= 0; //TODO let tooltip show whether it has advanced plant extra cost.
             return Optional.of(new SunImageToolTipComponent(event.cost, event.coolDown, getResource(itemStack).equals(PVZPlayerCapStats.SUN)
                     , false, true, hasExtraCost));
         }

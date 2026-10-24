@@ -1,8 +1,10 @@
 package com.hungteen.pvz.api.interfaces;
 
+import com.hungteen.pvz.common.world.PVZPlayerWrapper;
+
 /**
  * ISunContainer includes all object that can store sun. When use player as a sun container, use the wrapper
- * {@link com.hungteen.pvz.common.world.PlayerSunContainerWrapper PlayerSunContainerWrapper}.
+ * {@link PVZPlayerWrapper PlayerSunContainerWrapper}.
  */
 public interface ISunContainer {
 

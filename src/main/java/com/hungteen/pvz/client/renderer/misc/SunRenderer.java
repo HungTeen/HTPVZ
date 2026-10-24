@@ -45,7 +45,7 @@ public class SunRenderer extends EntityRenderer<Sun> {
 	public void render(Sun sun, float p_114600_, float partialTicks, PoseStack stack, MultiBufferSource bufferSource, int p_114604_) {
 		//TODO matrix not big enough. Fix that.
 		stack.pushPose();
-		final int i = sun.getIcon();
+		final int i = getIcon(sun);
 		final float x = (float) (i % 2 * 32 + 16) / 64.0F;
 		final float y = (float) (i / 2 * 32 + 16) / 64.0F;
 		final float tick = ((float) sun.tickCount + partialTicks) / 20.0F + 0.79F;
@@ -95,6 +95,11 @@ public class SunRenderer extends EntityRenderer<Sun> {
 		stack.popPose();
 		super.render(sun, p_114600_, partialTicks, stack, bufferSource, p_114604_);
 	}
+
+    public static int getIcon(Sun sun) {
+        final int value = sun.getAmount();
+        return value < 25 ? 0 : value < 50 ? 1 : value < 150 ? 2 : 3;
+    }
 
 	private static void vertex(VertexConsumer p_114609_, Matrix4f p_114610_, Matrix3f p_114611_, float p_114612_, float p_114613_, int p_114614_, int p_114615_, int p_114616_, double p_114617_, double p_114618_, int p_114619_, int alpha) {
 		p_114609_.vertex(p_114610_, p_114612_, p_114613_ + 0.5F, 0.0F).color(p_114614_, p_114615_, p_114616_, alpha).uv((float) p_114617_, (float) p_114618_).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(p_114619_).normal(p_114611_, 0.0F, 1.0F, 0.0F).endVertex();

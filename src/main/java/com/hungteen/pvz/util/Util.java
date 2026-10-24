@@ -10,7 +10,7 @@ import com.hungteen.pvz.common.item.SeedPacketItem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.network.PlayerCoolDownPacket;
 import com.hungteen.pvz.common.world.PVZSavedData;
-import com.hungteen.pvz.common.world.PlayerSunContainerWrapper;
+import com.hungteen.pvz.common.world.PVZPlayerWrapper;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
@@ -77,7 +77,7 @@ public class Util {
     public static int getSeedPacketExtraCostRange(@Nullable ICanUseSeedPack container) {
         if (container != null && container.getLevel() != null) {
             return PVZConfig.PVZGameRules.getInt(container.getLevel(), PVZConfig.Common.advancedPlantExtraCostRange);
-        } else if (container instanceof PlayerSunContainerWrapper wrapper) {
+        } else if (container instanceof PVZPlayerWrapper wrapper) {
             PVZPlayerCapability cap = wrapper.getEntity().getCapability(PVZPlayerCapability.CAP).orElse(null);
             return cap == null ? 30 : cap.advancedPlantsExtraCostRange;
         }
@@ -87,14 +87,14 @@ public class Util {
     /**in order to put event into api, the rapid methods to create the events are defined here.*/
     public static PVZResourceEvent.CheckResourceEvent checkPlantResourceEvent(Player player, ItemStack plantCard) {
         SeedPacketItem<?> item = (SeedPacketItem<?>) plantCard.getItem();
-        PlayerSunContainerWrapper wrapper = new PlayerSunContainerWrapper(player);
+        PVZPlayerWrapper wrapper = new PVZPlayerWrapper(player);
         String resource = item.getResource(plantCard);
         int cost = (resource.equals(PVZPlayerCapStats.SUN)
                 && PVZPlayerCapability.getValue(player, "plant_have_cost") == 0) ?
                 0 : item.getBaseCost(plantCard) + item.getTotalExtraCost(wrapper, plantCard);
         int coolDown = PVZPlayerCapability.getValue(player, "plant_have_cd") == 0 ?
                 1 : item.getBaseCoolDown(plantCard) + item.getTotalExtraCoolDown(wrapper, plantCard);
-        return new PVZResourceEvent.CheckResourceEvent(new PlayerSunContainerWrapper(player), plantCard, resource, cost, coolDown);
+        return new PVZResourceEvent.CheckResourceEvent(new PVZPlayerWrapper(player), plantCard, resource, cost, coolDown);
     }
 
     public static PVZResourceEvent.CheckPlantConditionEvent checkPlantConditionEvent(ICanUseSeedPack planter, ItemStack plantCard, Entity spawningEntity) {

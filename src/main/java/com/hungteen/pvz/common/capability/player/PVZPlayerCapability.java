@@ -15,7 +15,7 @@ import com.hungteen.pvz.common.network.EnderSeedBundleContainerPacket;
 import com.hungteen.pvz.common.network.PlayerContinueCoolDownPacket;
 import com.hungteen.pvz.common.network.ServerInfoPacket;
 import com.hungteen.pvz.common.register.*;
-import com.hungteen.pvz.common.world.PlayerSunContainerWrapper;
+import com.hungteen.pvz.common.world.PVZPlayerWrapper;
 import com.hungteen.pvz.common.world.ZombieGroup;
 import com.hungteen.pvz.common.world.invasion.InvasionTeam;
 import com.hungteen.pvz.common.world.zen_garden.ZenGardenChunkGenerator;
@@ -247,7 +247,7 @@ public class PVZPlayerCapability implements ICapabilitySerializable<CompoundTag>
                                 }
                             }
                         }
-                        ISunContainer playerWrapper = new PlayerSunContainerWrapper(player);
+                        ISunContainer playerWrapper = new PVZPlayerWrapper(player);
                         for (Pair<BlockPos, IMaxSunExpander> pair : refreshed) {
                             maxSunLimit = pair.getSecond().extraMaxSunLimit(pair.getFirst(), playerWrapper);
                         }

@@ -5,7 +5,7 @@ import com.hungteen.pvz.api.events.PVZPlantConditionMatchingEvent;
 import com.hungteen.pvz.api.events.PVZResourceEvent;
 import com.hungteen.pvz.api.interfaces.INeedSafeSituation;
 import com.hungteen.pvz.common.register.PVZItems;
-import com.hungteen.pvz.common.world.PlayerSunContainerWrapper;
+import com.hungteen.pvz.common.world.PVZPlayerWrapper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -51,7 +51,7 @@ public class DescriptionItem extends Item {
             if (event.phase != PVZPlantConditionMatchingEvent.Phase.POST) {
                 return;
             }
-            if (event.isPlanting && event.result != null && event.event.spawningEntity instanceof INeedSafeSituation && event.event.container instanceof PlayerSunContainerWrapper wrapper) {
+            if (event.isPlanting && event.result != null && event.event.spawningEntity instanceof INeedSafeSituation && event.event.container instanceof PVZPlayerWrapper wrapper) {
                 PVZResourceEvent.CheckPlantConditionEvent resEv = event.event;
                 Player player = (Player) wrapper.getEntity();
                 if ((resEv.seedPacket.getItem() instanceof SeedPacketItem<?> item) && item.canBoost()) {

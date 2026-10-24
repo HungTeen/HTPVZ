@@ -1,7 +1,5 @@
 package com.hungteen.pvz.api.interfaces;
 
-import net.minecraft.world.entity.player.Player;
-
 /**
  * ISun can be absorbed by ISunAbsorber. It doesn't directly interact with ISunContainer but ISunContainers may call
  * {@link ISun#getAmount()}.
@@ -18,24 +16,14 @@ public interface ISun extends ISunAbsorber, ISunContainer {
     boolean canAttractThis(ISunAbsorber entity);
 
     /**
-     * Player can absorb sun but doesn't implement ISunAbsorber. So put it separately.
-     */
-    void onAbsorbedBy(Player player);
-
-    @Override
-    void onAbsorb(ISun sun);
-
-    boolean canAttractThis(Player player);
-
-    /**
      * @return Can be ISunAbsorber or player.
      */
-    Object getAttractor();
+    ISunAbsorber getAttractor();
 
     /**
      * @return whether succeeded in setting attractor.
      */
-    default boolean setAttractor(Object attractor) {
+    default boolean setAttractor(ISunAbsorber attractor) {
         return false;
     }
 
