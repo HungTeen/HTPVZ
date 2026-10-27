@@ -56,6 +56,7 @@ public class PVZLayerHandler {
         L(e, PVZEntities.PLANTERN, PlanternModel::createBodyLayer);
         L(e, PVZEntities.PUMPKIN, PumpkinModel::createBodyLayer);
         L(e, PVZEntities.FLOWER_POT, FlowerPotModel::createBodyLayer);
+        L(e, PVZEntities.FLOWER_POT_GOLEM, FlowerPotGolemModel::createBodyLayer);
         L(e, PVZEntities.MARIGOLD, MariGoldModel::createBodyLayer);
         L(e, PVZEntities.GATLING_PEA, GatlingPeaModel::createBodyLayer);
         L(e, PVZEntities.DANDELION, DandelionModel::createBodyLayer);

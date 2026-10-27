@@ -2,6 +2,11 @@ package com.hungteen.pvz.api.interfaces;
 
 import net.minecraft.world.entity.LivingEntity;
 
+/**
+ * @author PangTeen
+ * @program HTPVZ
+ * @create 2026/10/24 16:00
+ **/
 public interface ICanBePlantedOn {
     default <T extends LivingEntity & ICanBePlantedOn> boolean canHold(LivingEntity plant, boolean isPlanting) {
         return this instanceof LivingEntity living && canHold((T) living, plant, isPlanting, false);

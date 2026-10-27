@@ -11,6 +11,7 @@ import com.hungteen.pvz.client.gui.components.SunImageToolTipComponent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapStats;
 import com.hungteen.pvz.common.capability.player.PVZPlayerCapability;
+import com.hungteen.pvz.common.entity.creatures.FlowerPotGolem;
 import com.hungteen.pvz.common.network.ClientProxy;
 import com.hungteen.pvz.common.register.PVZEnchantments;
 import com.hungteen.pvz.common.register.PVZSeedPackets;
@@ -364,6 +365,9 @@ public class SeedPacketItem<T extends Entity> extends Item implements IHaveSkill
     /**Situation of interacting with mobs.*/
     @SubscribeEvent
     public static void interactEntity(PlayerInteractEvent.EntityInteract ev) {
+        if (ev.getTarget() instanceof FlowerPotGolem) {
+            return;
+        }
         Level level = ev.getLevel();
         ItemStack itemStack = ev.getEntity().getItemInHand(ev.getHand());
         if (ev.getEntity().getItemInHand(ev.getHand()).getItem() instanceof SeedPacketItem<?> item) {

@@ -13,9 +13,12 @@ import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * {@link BeaconBlockEntity}
@@ -31,18 +34,20 @@ public class ResinBeaconBlockEntity extends BlockEntity {
     /**Horizontal search radius for vanilla beacons whose powers are absorbed.*/
     public static final int SOURCE_RADIUS = 16;
 
-    private int level = 0;
+    private static final Map<Level, Map<BlockPos, Integer>> ACTIVE_BEACONS = new WeakHashMap<>();
+
+    private int resinLevel = 0;
 
     public ResinBeaconBlockEntity(BlockPos pos, BlockState state) {
         super(PVZBlockEntities.RESIN_BEACON.get(), pos, state);
     }
 
     public int getResinLevel() {
-        return this.level;
+        return this.resinLevel;
     }
 
     public int getRange() {
-        return this.level <= 0 ? 0 : this.level * 10 + 10;
+        return this.resinLevel <= 0 ? 0 : this.resinLevel * 10 + 10;
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, ResinBeaconBlockEntity blockEntity) {
@@ -63,7 +68,56 @@ public class ResinBeaconBlockEntity extends BlockEntity {
             }
             newLevel = layer;
         }
-        this.level = newLevel;
+        this.resinLevel = newLevel;
+        if (!level.isClientSide) {
+            if (newLevel > 0) {
+                ACTIVE_BEACONS.computeIfAbsent(level, ignored -> new java.util.HashMap<>())
+                        .put(this.worldPosition.immutable(), newLevel);
+            } else {
+                removeActiveBeacon(level);
+            }
+        }
+    }
+
+    public static boolean isWithinActiveBeacon(Level level, Vec3 position) {
+        Map<BlockPos, Integer> beacons = ACTIVE_BEACONS.get(level);
+        if (beacons == null || beacons.isEmpty()) {
+            return false;
+        }
+        for (Map.Entry<BlockPos, Integer> entry : beacons.entrySet()) {
+            int range = entry.getValue() * 10 + 10;
+            AABB area = new AABB(entry.getKey()).inflate(range).expandTowards(0.0D, level.getHeight(), 0.0D);
+            if (area.contains(position)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void removeActiveBeacon(Level level) {
+        Map<BlockPos, Integer> beacons = ACTIVE_BEACONS.get(level);
+        if (beacons != null) {
+            beacons.remove(this.worldPosition);
+            if (beacons.isEmpty()) {
+                ACTIVE_BEACONS.remove(level);
+            }
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        if (this.level != null) {
+            this.removeActiveBeacon(this.level);
+        }
+        super.setRemoved();
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        if (this.level != null) {
+            this.removeActiveBeacon(this.level);
+        }
+        super.onChunkUnloaded();
     }
 
     private boolean isLayerComplete(Level level, int layer) {
@@ -80,7 +134,7 @@ public class ResinBeaconBlockEntity extends BlockEntity {
     }
 
     private void applyEffects(Level level) {
-        if (this.level <= 0) {
+        if (this.resinLevel <= 0) {
             return;
         }
         Set<MobEffect> effects = new HashSet<>();
@@ -108,8 +162,8 @@ public class ResinBeaconBlockEntity extends BlockEntity {
         }
         AABB aabb = new AABB(this.worldPosition).inflate(this.getRange())
                 .expandTowards(0, level.getHeight(), 0);
-        int duration = 100 * this.level;
-        int amplifier = this.level >= MAX_LEVEL ? 1 : 0;
+        int duration = 100 * this.resinLevel;
+        int amplifier = this.resinLevel >= MAX_LEVEL ? 1 : 0;
         for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, aabb)) {
             if (entity instanceof IPlant) {
                 for (MobEffect effect : effects) {

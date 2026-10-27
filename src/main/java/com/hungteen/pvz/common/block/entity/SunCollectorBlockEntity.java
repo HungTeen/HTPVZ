@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.block.entity;
 import com.hungteen.pvz.api.interfaces.ISun;
 import com.hungteen.pvz.api.interfaces.ISunAbsorber;
 import com.hungteen.pvz.api.interfaces.ISunContainer;
+import com.hungteen.pvz.api.interfaces.ICanChargeSun;
 import com.hungteen.pvz.common.menu.SunCollectorMenu;
 import com.hungteen.pvz.common.register.PVZBlockEntities;
 import com.hungteen.pvz.common.register.PVZEnchantments;
@@ -13,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -37,6 +39,7 @@ public class SunCollectorBlockEntity extends BaseContainerBlockEntity implements
     public static final int COLLECT_RADIUS = 6;
     public static final int MAX_SUN_AMOUNT = 10000;
     public static final int SUN_AMOUNT_PER_REPAIR = 25;
+    public static final int SUN_AMOUNT_PER_CHARGE = 25;
     private static final int COLLECT_INTERVAL = 20;
     private static final int REPAIR_INTERVAL = 10;
 
@@ -76,9 +79,9 @@ public class SunCollectorBlockEntity extends BaseContainerBlockEntity implements
         }
 
         ++ blockEntity.tickCount;
-        if (blockEntity.getAmount() < blockEntity.getCapacity()) {
+        if (blockEntity.tickCount % COLLECT_INTERVAL == 0) {
             // 需要寻找阳光并吸收
-            if (blockEntity.tickCount % COLLECT_INTERVAL == 0) {
+            if (blockEntity.getAmount() < blockEntity.getCapacity()) {
                 Vec3 center = Vec3.atCenterOf(pos);
                 AABB aabb = new AABB(center.x - COLLECT_RADIUS, center.y - COLLECT_RADIUS, center.z - COLLECT_RADIUS, center.x + COLLECT_RADIUS,
                         center.y + COLLECT_RADIUS, center.z + COLLECT_RADIUS);
@@ -88,6 +91,10 @@ public class SunCollectorBlockEntity extends BaseContainerBlockEntity implements
                     .filter(sun -> sun.canAttractThis(blockEntity))
                     .forEach(sun -> sun.trySetAttractor(blockEntity));
             }
+            Vec3 center = Vec3.atCenterOf(pos);
+            AABB aabb = new AABB(center.x - COLLECT_RADIUS, center.y - COLLECT_RADIUS, center.z - COLLECT_RADIUS, center.x + COLLECT_RADIUS,
+                    center.y + COLLECT_RADIUS, center.z + COLLECT_RADIUS);
+            blockEntity.chargeNearbyContainers(level, aabb);
         }
         if (blockEntity.getAmount() >= SUN_AMOUNT_PER_REPAIR && blockEntity.tickCount % REPAIR_INTERVAL == 1) {
             // 寻找需要修补的物品
@@ -100,6 +107,24 @@ public class SunCollectorBlockEntity extends BaseContainerBlockEntity implements
                     blockEntity.setChanged();
                     break;
                 }
+            }
+        }
+    }
+
+    private void chargeNearbyContainers(Level level, AABB aabb) {
+        if (this.getAmount() <= 0) {
+            return;
+        }
+        for (Entity entity : level.getEntitiesOfClass(Entity.class, aabb,
+                entity -> entity instanceof ICanChargeSun chargeable && chargeable.canChargeSun())) {
+            ICanChargeSun chargeable = (ICanChargeSun) entity;
+            int accepted = chargeable.chargeSun(Math.min(SUN_AMOUNT_PER_CHARGE, this.getAmount()));
+            if (accepted > 0) {
+                this.setAmount(this.getAmount() - accepted);
+                this.setChanged();
+            }
+            if (this.getAmount() <= 0) {
+                break;
             }
         }
     }

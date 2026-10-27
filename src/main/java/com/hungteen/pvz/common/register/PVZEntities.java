@@ -130,6 +130,8 @@ public class PVZEntities {
             .collision(0.4F, 0.4F).entity("anger", Anger::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Sprout>> SPROUT = attribute(Sprout::createAttributes).collision(0.4F, 0.4F)
             .entity("sprout", Sprout::new, MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<FlowerPotGolem>> FLOWER_POT_GOLEM = attribute(FlowerPotGolem::createAttributes)
+            .collision(0.75F, 1.0F).entity("flower_pot_golem", FlowerPotGolem::new, MobCategory.CREATURE);
     public static final RegistryObject<EntityType<Penny>> PENNY = spawnEgg(0x737b85, 0xe24220).attribute(Penny::createAttributes)
             .collision(3f, 3f).entity("penny", Penny::new, MobCategory.MISC);
     public static final RegistryObject<EntityType<EntityLifter>> ENTITY_LIFTER = collision(0.1F, 0.1F).noSummon()
@@ -437,6 +439,7 @@ public class PVZEntities {
         r(e, CHORUS_TERMINATOR_BULLET, ChorusTerminatorBulletRenderer::new);
         r(e, ENDER_ZOMBOSS, ShulkerRenderer::new);
         r(e, SPROUT, SproutRenderer::new);
+        r(e, FLOWER_POT_GOLEM, FlowerPotGolemRenderer::new);
         r(e, SEED_ARROW, SeedArrowRenderer::new);
         r(e, ARROW_WITH_A_TARGET, ArrowWithATargetRenderer::new);
         r(e, HOOK, HookRenderer::new);
