@@ -76,8 +76,8 @@ public class SnowPeaModel<T extends SnowPea> extends HierarchicalModel<T> {
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		this.animate(snowPea.idleAnimationState, SnowPeaModelAnimation.idle, ageInTicks);
 		this.animate(snowPea.shootAnimationState, SnowPeaModelAnimation.shoot, ageInTicks);
-		this.body.yRot = netHeadYaw * 57.3f;
-		this.body.xRot += headPitch * 57.3f;
+		this.body.yRot += netHeadYaw / 57.3f;
+		this.body.xRot += Math.max(-0.5f, Math.min(0.5f, headPitch / 57.3f));
 	}
 
 	@Override

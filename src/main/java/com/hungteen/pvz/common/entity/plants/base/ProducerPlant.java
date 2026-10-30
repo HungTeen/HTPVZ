@@ -113,7 +113,7 @@ public abstract class ProducerPlant extends SimplePlant {
     }
 
 
-    static class ProducerGenGoal extends Goal {
+    private static class ProducerGenGoal extends Goal {
 
         private final ProducerPlant producer;
 

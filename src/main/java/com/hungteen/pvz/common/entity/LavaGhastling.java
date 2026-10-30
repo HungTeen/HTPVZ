@@ -64,7 +64,7 @@ public class LavaGhastling extends Ghast {
         return super.hurt(damageSource, amount);
     }
 
-    static class GhastLookGoal extends Goal {
+    private static class GhastLookGoal extends Goal {
         private final Ghast ghast;
 
         public GhastLookGoal(Ghast p_32762_) {
@@ -97,7 +97,7 @@ public class LavaGhastling extends Ghast {
 
         }
     }
-    static class EvilGhastlingShootFireballGoal extends Goal {
+    private static class EvilGhastlingShootFireballGoal extends Goal {
         private final Ghast ghast;
         public int chargeTime;
 
@@ -156,7 +156,7 @@ public class LavaGhastling extends Ghast {
             }
         }
     }
-    static class RidenByBossGoal extends Goal {
+    private static class RidenByBossGoal extends Goal {
 
         private final Ghast ghast;
         public RidenByBossGoal(Ghast p_32783_) {
@@ -185,7 +185,7 @@ public class LavaGhastling extends Ghast {
             EntityUtil.removeModifierFromAttribute(this.ghast, Attributes.ARMOR_TOUGHNESS, RIDEN_BY_BOSS_MODIFIER_UUID);
         }
     }
-    static class EvilGhastlingRandomFloatAroundGoal extends Goal {
+    private static class EvilGhastlingRandomFloatAroundGoal extends Goal {
         private final Ghast ghast;
 
         public EvilGhastlingRandomFloatAroundGoal(Ghast p_32783_) {

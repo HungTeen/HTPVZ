@@ -87,7 +87,7 @@ public class SnorkelZombie extends PVZZombie {
         }
     }
 
-    static class SnorkelMoveControl extends MoveControl {
+    private static class SnorkelMoveControl extends MoveControl {
         private final SnorkelZombie zombie;
 
         public SnorkelMoveControl(SnorkelZombie p_32433_) {

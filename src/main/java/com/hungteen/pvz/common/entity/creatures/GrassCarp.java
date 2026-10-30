@@ -397,7 +397,7 @@ public class GrassCarp extends AbstractFish implements Shearable, IForgeShearabl
         return PVZSoundEvents.GRASS_CARP_SWIM.get();
     }
 
-    class CollectItemsGoal extends Goal {
+    private class CollectItemsGoal extends Goal {
         private final GrassCarp carp;
         private ItemEntity target;
         private int coolDown;

@@ -31,7 +31,7 @@ public class WeatheringCopperLadderBlock extends CopperLadderBlock implements We
     @Override
     public void onRandomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (this.weatherState == WeatherState.OXIDIZED) {
-            if (random.nextFloat() < 0.01F) {
+            if (random.nextFloat() < 0.1F) {
                 level.destroyBlock(pos, false);
             }
         } else {

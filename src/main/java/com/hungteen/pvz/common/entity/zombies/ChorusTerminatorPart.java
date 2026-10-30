@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.Enemy;
@@ -60,7 +59,7 @@ public class ChorusTerminatorPart extends PartEntity<ChorusTerminatorBoss> imple
 
     @Override
     public boolean hurt(@NotNull DamageSource damageSource, float amount) {
-        if (this.type == Type.EYE && ! this.level.isClientSide) Sun.spawnSunWithEffects(this.level, 50, this.blockPosition(), 0.3f);
+        if (this.type == Type.EYE && ! this.level.isClientSide) Sun.spawnSunWithEffects(this.level, 10, this.blockPosition(), 0.3f);
         return ! this.isInvulnerableTo(damageSource) && this.getParent().hurt(this, damageSource, amount);
     }
 
@@ -143,10 +142,10 @@ public class ChorusTerminatorPart extends PartEntity<ChorusTerminatorBoss> imple
                         this.setDeltaMovement(this.getDeltaMovement().multiply(1, 0, 1).add(0, - gravity, 0));
                     }
                     //destroying blocks & entities
-                    if (leavingGround) {
-                        int x = (int) (this.getX() + this.getDeltaMovement().x);
-                        int z = (int) (this.getZ() + this.getDeltaMovement().z);
-                        for (int y = 1; y <= 3; y ++) {
+                    if (leavingGround && ! level.isClientSide) {
+                        float x = (int) (this.getX() + this.getDeltaMovement().x);
+                        float z = (int) (this.getZ() + this.getDeltaMovement().z);
+                        for (int y = 1; y < 3; y ++) {
                             BlockPos[] poses = new BlockPos[] {
                                     new BlockPos(x - 0.5, getY() + y, z - 0.5),
                                     new BlockPos(x + 0.5, getY() + y, z - 0.5),
@@ -154,22 +153,20 @@ public class ChorusTerminatorPart extends PartEntity<ChorusTerminatorBoss> imple
                                     new BlockPos(x - 0.5, getY() + y, z + 0.5),
                             };
                             for (BlockPos pos : poses) {
-                                if (this.level instanceof ServerLevel level)
-                                    level.sendParticles(ParticleTypes.FLAME, pos.getX() + 0.5f, pos.getX() + 0.5f, pos.getX() + 0.5f, 1
-                                            , 0, 0, 0, 0);
                                 if (pos.getY() > this.level.getMaxBuildHeight() || pos.getY() <= this.level.getMinBuildHeight()) continue;
                                 BlockState state = level.getBlockState(pos);
-                                if (! state.getCollisionShape(level, pos).isEmpty()) continue;
-                                if (state.getDestroySpeed(level, pos) < 4f) this.level.removeBlock(pos, false);
+                                if (state.getCollisionShape(level, pos).isEmpty()) continue;
+                                float hardness = state.getDestroySpeed(level, pos);
+                                if (hardness > 0 && hardness < 4f) this.level.removeBlock(pos, false);
                             }
                         }
                         List<LivingEntity> list = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.5)
                                 , e -> e.getLastHurtByMob() != this.getParent() && e.hurtTime <= 0 && e != this.getParent() && e.isAlive());
                         list.forEach(e -> {
-                            e.hurt(PVZDamageSource.knockBack(PVZDamageSource.crash(this.getParent()), 4f), 4f);
+                            e.hurt(PVZDamageSource.knockBack(PVZDamageSource.crash(this.getParent()), 4f), 10f);
                             e.setDeltaMovement(e.getDeltaMovement().add(0, 0.3, 0));
                             if (dashing && e.isAlive() && e.getDeltaMovement().lengthSqr() < 0.1f) {
-                                getParent().act(ChorusTerminatorActivitiesGoal.Action.STIFF);
+                                getParent().act(ChorusTerminatorActivitiesGoal.Action.SHORT_STIFF);
                             }
                         });
                     }
@@ -206,17 +203,17 @@ public class ChorusTerminatorPart extends PartEntity<ChorusTerminatorBoss> imple
                         this.setDeltaMovement(this.getDeltaMovement().add(center.multiply(0.1, 0.1, 0.1)));
                     }
                     if (this.tickCount % 3 == 0) {
-                        for (int x = -3; x <= 3; x ++) {
-                            for (int z = -3; z <= 3; z ++) {
-                                for (int y = 0; y <= 5; y ++) {
-                                    BlockPos pos = new BlockPos(this.position().add(x, y, z));
-                                    if (this.level instanceof ServerLevel level)
-                                        level.sendParticles(ParticleTypes.FLAME, pos.getX() + 0.5f, pos.getX() + 0.5f, pos.getX() + 0.5f, 1
-                                                , 0, 0, 0, 0);
-                                    if (pos.getY() > this.level.getMaxBuildHeight() || pos.getY() <= this.level.getMinBuildHeight()) continue;
+                        for (int y = 0; y <= 5; y ++) {
+                            BlockPos yPos = this.blockPosition();
+                            yPos = yPos.offset(0, y, 0);
+                            if (yPos.getY() <= this.getParent().getBlockY() + 3) continue;
+                            if (yPos.getY() > this.level.getMaxBuildHeight() || yPos.getY() <= this.level.getMinBuildHeight()) continue;
+                            for (int x = -3; x <= 3; x ++) {
+                                for (int z = -3; z <= 3; z ++) {
+                                    BlockPos pos = yPos.offset(x, 0, z);
                                     BlockState state = level.getBlockState(pos);
-                                    if (! state.getCollisionShape(level, pos).isEmpty()) continue;
-                                    if (state.getDestroySpeed(level, pos) < 4) this.level.removeBlock(pos, false);
+                                    float hardness = state.getDestroySpeed(level, pos);
+                                    if (hardness > 0 && hardness < 4f) this.level.removeBlock(pos, false);
                                 }
                             }
                         }
@@ -247,7 +244,10 @@ public class ChorusTerminatorPart extends PartEntity<ChorusTerminatorBoss> imple
         List<Entity> list = this.level.getEntities(this, this.getBoundingBox(), EntitySelector.pushableBy(this));
         if (!list.isEmpty()) {
             for (Entity entity : list) {
-                push(entity);
+                if (entity instanceof ChorusTerminatorBoss) continue;
+                for (int i = 0; i < 3; i ++) {
+                    push(entity);
+                }
             }
         }
     }

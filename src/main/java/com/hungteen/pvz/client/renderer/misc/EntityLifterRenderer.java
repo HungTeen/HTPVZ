@@ -1,4 +1,4 @@
-package com.hungteen.pvz.client.renderer;
+package com.hungteen.pvz.client.renderer.misc;
 
 import com.hungteen.pvz.common.entity.EntityLifter;
 import net.minecraft.client.renderer.entity.EntityRenderer;

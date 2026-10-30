@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.entity.ai.goal;
 
 import com.hungteen.pvz.common.block.CopperLadderBlock;
 import com.hungteen.pvz.common.entity.ai.PVZZombieWalkNodeEvaluator;
-import com.hungteen.pvz.common.entity.zombies.LadderZombie;
+import com.hungteen.pvz.common.entity.zombies.ICanPlaceLadder;
 import com.hungteen.pvz.common.register.PVZBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,7 +42,7 @@ public class CopperLadderBuildGoal extends Goal {
     private static final int PATH_MAX_VISITED_NODES = 512;
     private static final int TARGET_TOLERANCE = 2;
 
-    private final LadderZombie zombie;
+    private final ICanPlaceLadder zombie;
     private Direction buildingDirection;
     private Direction buildingFacing;
     private BlockPos buildingStart;
@@ -52,17 +52,17 @@ public class CopperLadderBuildGoal extends Goal {
     private int nextBuildTick;
     private long retryAt;
 
-    public CopperLadderBuildGoal(LadderZombie zombie) {
+    public CopperLadderBuildGoal(ICanPlaceLadder zombie) {
         this.zombie = zombie;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
     }
 
     @Override
     public boolean canUse() {
-        if (this.zombie.level.isClientSide || this.zombie.level.getGameTime() < this.retryAt || ! this.zombie.canBuildLadder()) {
+        if (this.zombie.get().level.isClientSide || this.zombie.get().level.getGameTime() < this.retryAt || ! this.zombie.canBuildLadder()) {
             return false;
         }
-        LivingEntity target = this.zombie.getTarget();
+        LivingEntity target = this.zombie.get().getTarget();
         Direction direction = getBuildDirection(target);
         if (direction == null) {
             return false;
@@ -73,7 +73,7 @@ public class CopperLadderBuildGoal extends Goal {
             return false;
         }
         if (! this.findPlan(target, direction)) {
-            this.retryAt = this.zombie.level.getGameTime() + FAILURE_RETRY_INTERVAL;
+            this.retryAt = this.zombie.get().level.getGameTime() + FAILURE_RETRY_INTERVAL;
             return false;
         }
         return true;
@@ -92,7 +92,7 @@ public class CopperLadderBuildGoal extends Goal {
     public void start() {
         this.nextBuildTick = BUILD_INTERVAL;
         this.planFinished = false;
-        this.zombie.getNavigation().stop();
+        this.zombie.get().getNavigation().stop();
     }
 
     @Override
@@ -111,8 +111,8 @@ public class CopperLadderBuildGoal extends Goal {
             // 没有计划，直接跳过
             return;
         }
-        this.zombie.getLookControl().setLookAt(Vec3.atCenterOf(this.buildingStart));
-        if (this.zombie.getNavigation().moveTo(this.standingPos.getX(), this.standingPos.getY(), this.standingPos.getZ(), 1F)) {
+        this.zombie.get().getLookControl().setLookAt(Vec3.atCenterOf(this.buildingStart));
+        if (this.zombie.get().getNavigation().moveTo(this.standingPos.getX(), this.standingPos.getY(), this.standingPos.getZ(), 1F)) {
             // 必须站在正确的位置才能开始搭梯子，因此优先移动
             return;
         }
@@ -124,7 +124,7 @@ public class CopperLadderBuildGoal extends Goal {
         BlockPos nextPos = null;
         while (!pos.equals(this.buildingEnd)) {
             pos.move(this.buildingDirection);
-            if (!CopperLadderBlock.isCopperLadder(this.zombie.level.getBlockState(pos))) {
+            if (!CopperLadderBlock.isCopperLadder(this.zombie.get().level.getBlockState(pos))) {
                 nextPos = pos.immutable();
                 break;
             }
@@ -133,40 +133,40 @@ public class CopperLadderBuildGoal extends Goal {
         // 没找到说明放置完成了
         if (nextPos == null) {
             this.planFinished = true;
-            this.retryAt = this.zombie.level.getGameTime() + FAILURE_RETRY_INTERVAL;
-            if (this.zombie.getTarget() != null) {
-                this.zombie.getNavigation().createPath(this.zombie.getTarget(), 0);
+            this.retryAt = this.zombie.get().level.getGameTime() + FAILURE_RETRY_INTERVAL;
+            if (this.zombie.get().getTarget() != null) {
+                this.zombie.get().getNavigation().createPath(this.zombie.get().getTarget(), 0);
             }
             return;
         }
 
         BlockState ladderState = this.getLadderState(nextPos, this.buildingFacing);
-        if (ladderState == null || !this.zombie.canBuildLadder()) {
+        if (ladderState == null || ! this.zombie.canBuildLadder()) {
             this.planFinished = true;
-            this.retryAt = this.zombie.level.getGameTime() + FAILURE_RETRY_INTERVAL;
+            this.retryAt = this.zombie.get().level.getGameTime() + FAILURE_RETRY_INTERVAL;
             return;
         }
 
-        this.zombie.level.setBlock(nextPos, ladderState, 3);
+        this.zombie.get().level.setBlock(nextPos, ladderState, 3);
 
         this.zombie.consumeLadder();
         this.nextBuildTick = BUILD_INTERVAL;
-        this.zombie.swing(InteractionHand.MAIN_HAND);
+        this.zombie.get().swing(InteractionHand.MAIN_HAND);
     }
 
     private @Nullable CopperLadderBlock getBlock() {
-        return this.zombie.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof BlockItem i
+        return this.zombie.get().getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof BlockItem i
                 && i.getBlock() instanceof CopperLadderBlock b ? b : null;
     }
 
     private boolean pathFinished() {
-        Path path = this.zombie.getNavigation().getPath();
-        if (path == null || (path.isDone() && this.zombie.getRandom().nextFloat() < 0.2)) {
+        Path path = this.zombie.get().getNavigation().getPath();
+        if (path == null || (path.isDone() && this.zombie.get().getRandom().nextFloat() < 0.2)) {
             return true;
         }
-        if (this.zombie.getTarget() != null) {
-            double dx = this.zombie.getTarget().getX() - this.zombie.getX();
-            double dz = this.zombie.getTarget().getZ() - this.zombie.getZ();
+        if (this.zombie.get().getTarget() != null) {
+            double dx = this.zombie.get().getTarget().getX() - this.zombie.get().getX();
+            double dz = this.zombie.get().getTarget().getZ() - this.zombie.get().getZ();
             return dx * dx + dz * dz < 1;
         }
         return true;
@@ -187,9 +187,9 @@ public class CopperLadderBuildGoal extends Goal {
         if (block == null) {
             return false;
         }
-        BlockPos origin = this.zombie.blockPosition();
+        BlockPos origin = this.zombie.get().blockPosition();
         BlockPos targetPos = target.blockPosition();
-        int ladderCount = this.zombie.getItemInHand(InteractionHand.MAIN_HAND).getCount();
+        int ladderCount = this.zombie.get().getItemInHand(InteractionHand.MAIN_HAND).getCount();
         int maxLadders = Math.min(ladderCount, CopperLadderBlock.MAX_SEARCH_DISTANCE + 1);
         if (maxLadders <= 0) {
             return false;
@@ -214,7 +214,7 @@ public class CopperLadderBuildGoal extends Goal {
         }));
         for (BlockPos column : columns) {
             BlockPos base = null;
-            Level level = this.zombie.level;
+            Level level = this.zombie.get().level;
             for (int dy = 2; dy >= -3; -- dy) {
                 BlockPos pos = column.offset(0, dy, 0);
                 if (! level.isInWorldBounds(pos) || ! level.isLoaded(pos) || ! this.hasClearance(pos)) {
@@ -259,7 +259,7 @@ public class CopperLadderBuildGoal extends Goal {
 
     private List<PlatformCandidate> findPlatformsAbove(CopperLadderBlock block, BlockPos base, int maxLadders) {
         List<PlatformCandidate> candidates = new ArrayList<>();
-        Level level = this.zombie.level;
+        Level level = this.zombie.get().level;
         int maxY = Math.min(base.getY() + maxLadders - 1, level.getMaxBuildHeight() - 1);
         int lastStableY = Integer.MIN_VALUE;
         for (int y = base.getY(); y <= maxY; ++ y) {
@@ -307,12 +307,12 @@ public class CopperLadderBuildGoal extends Goal {
     }
 
     private boolean isFaceSturdy(BlockPos wallPos, Direction face) {
-        return this.zombie.level.getBlockState(wallPos).isFaceSturdy(this.zombie.level, wallPos, face);
+        return this.zombie.get().level.getBlockState(wallPos).isFaceSturdy(this.zombie.get().level, wallPos, face);
     }
 
     @Nullable
     private Path createPathFrom(BlockPos from, BlockPos targetPos) {
-        Level level = this.zombie.level;
+        Level level = this.zombie.get().level;
         if (from.distSqr(targetPos) > (double) (PATH_SEARCH_RANGE * PATH_SEARCH_RANGE)) {
             return null;
         }
@@ -326,14 +326,14 @@ public class CopperLadderBuildGoal extends Goal {
         BlockPos min = from.offset(-margin, -margin, -margin);
         BlockPos max = from.offset(margin, margin, margin);
         PathNavigationRegion region = new PathNavigationRegion(level, min, max);
-        return pathFinder.findPath(region, this.zombie, Set.of(targetPos), PATH_SEARCH_RANGE, PATH_ACCURACY, MAX_PATH_LENGTH);
+        return pathFinder.findPath(region, this.zombie.get(), Set.of(targetPos), PATH_SEARCH_RANGE, PATH_ACCURACY, MAX_PATH_LENGTH);
     }
 
     private boolean canWalkTo(BlockPos pos) {
-        if (this.zombie.blockPosition().distSqr(pos) <= 4.0D) {
+        if (this.zombie.get().blockPosition().distSqr(pos) <= 4.0D) {
             return this.hasClearance(pos);
         }
-        return this.zombie.getNavigation().createPath(pos, 0) != null;
+        return this.zombie.get().getNavigation().createPath(pos, 0) != null;
     }
 
     private BlockPos findStandingPos(BlockPos buildingStart, Direction facing, int minStartY, @Nullable BlockPos preferred) {
@@ -343,12 +343,12 @@ public class CopperLadderBuildGoal extends Goal {
         BlockPos relative = buildingStart.relative(facing, 3);
         // 随便往周围偏移，找找符合的位置
         for (int i = 0; i < 5; ++ i) {
-            int dx = this.zombie.getRandom().nextIntBetweenInclusive(-2, 2);
-            int dz = this.zombie.getRandom().nextIntBetweenInclusive(-2, 2);
+            int dx = this.zombie.get().getRandom().nextIntBetweenInclusive(-2, 2);
+            int dz = this.zombie.get().getRandom().nextIntBetweenInclusive(-2, 2);
             for (int j = -1; j <= 2; ++ j) {
                 // 上下偏移找地面
                 BlockPos curPos = relative.offset(dx, j, dz);
-                if (curPos.getY() >= minStartY && block.isGroundSupport(this.zombie.level, curPos.below()) && hasClearance(curPos)) {
+                if (curPos.getY() >= minStartY && block.isGroundSupport(this.zombie.get().level, curPos.below()) && hasClearance(curPos)) {
                     return curPos;
                 }
             }
@@ -381,7 +381,7 @@ public class CopperLadderBuildGoal extends Goal {
     }
 
     private boolean isPlatformSupport(BlockPos stepOn) {
-        Level level = this.zombie.level;
+        Level level = this.zombie.get().level;
         BlockState state = level.getBlockState(stepOn);
         VoxelShape shape = state.getCollisionShape(level, stepOn, CollisionContext.empty());
         if (! shape.isEmpty()) {
@@ -392,15 +392,15 @@ public class CopperLadderBuildGoal extends Goal {
     }
 
     private boolean hasClearance(BlockPos pos) {
-        double halfWidth = this.zombie.getBbWidth() / 2.0D;
-        double height = this.zombie.getBbHeight();
+        double halfWidth = this.zombie.get().getBbWidth() / 2.0D;
+        double height = this.zombie.get().getBbHeight();
         AABB box = new AABB(pos.getX() + 0.5D - halfWidth, pos.getY(), pos.getZ() + 0.5D - halfWidth,
             pos.getX() + 0.5D + halfWidth, pos.getY() + height, pos.getZ() + 0.5D + halfWidth);
-        return this.zombie.level.noCollision(box);
+        return this.zombie.get().level.noCollision(box);
     }
 
     private BlockState getLadderState(BlockPos pos, Direction facing) {
-        Level level = this.zombie.level;
+        Level level = this.zombie.get().level;
         BlockState oldState = level.getBlockState(pos);
         if (!oldState.getMaterial().isReplaceable()) {
             return null;

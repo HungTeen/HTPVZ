@@ -6,7 +6,6 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -165,12 +164,9 @@ public class Portal extends Entity {
                     EnumSet.of(ClientboundPlayerPositionPacket.RelativeArgument.X
                             , ClientboundPlayerPositionPacket.RelativeArgument.Y
                             , ClientboundPlayerPositionPacket.RelativeArgument.Z));
-        } else {
-            Vec3 motion = entity.getDeltaMovement();
+        } else {Vec3 motion = entity.getDeltaMovement();
             entity.teleportTo(newPos.x, newPos.y, newPos.z);
-            if (entity.level instanceof ServerLevel serverLevel) {
-                serverLevel.getChunkSource().broadcast(entity, new ClientboundTeleportEntityPacket(entity));
-            }
+            entity.hasImpulse = true;
             entity.setDeltaMovement(motion);
             if (entity instanceof Mob mob) {
                 mob.getNavigation().stop();

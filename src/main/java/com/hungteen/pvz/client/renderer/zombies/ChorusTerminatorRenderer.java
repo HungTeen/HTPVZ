@@ -1,5 +1,7 @@
 package com.hungteen.pvz.client.renderer.zombies;
 
+import com.hungteen.pvz.client.layer.ChorusTerminatorPortalLayer;
+import com.hungteen.pvz.client.layer.LightLayer;
 import com.hungteen.pvz.client.model.zombie.ChorusTerminatorModel;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.common.entity.zombies.ChorusTerminatorBoss;
@@ -12,9 +14,12 @@ import net.minecraft.resources.ResourceLocation;
 public class ChorusTerminatorRenderer extends MobRenderer<ChorusTerminatorBoss, ChorusTerminatorModel<ChorusTerminatorBoss>> {
 
     private static final ResourceLocation TEXTURE = Util.prefix("textures/entity/zombie/chorus_terminator/chorus_terminator.png");
+    private static final ResourceLocation SHIELD_TEXTURE = Util.prefix("textures/entity/zombie/chorus_terminator/chorus_terminator_shield.png");
 
     public ChorusTerminatorRenderer(EntityRendererProvider.Context context) {
         super(context, new ChorusTerminatorModel<>(context.bakeLayer(PVZLayerHandler.LayerLocationMap.get("chorus_terminator:main"))), 3F);
+        this.addLayer(new LightLayer<>(this, SHIELD_TEXTURE));
+        this.addLayer(new ChorusTerminatorPortalLayer(this));
     }
 
     @Override

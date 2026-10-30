@@ -166,7 +166,7 @@ public class PVZConfig {
                     "seedDispensaryGiveSprout", true);
             naturallySpawnInvasionsInterval = add(builder
                             .comment("invasion teams will spawn from time to time near players at this interval. set to 0 to turn off natural invasion spawn."),
-                    "naturallySpawnInvasionsInterval", 1000, 0, 1000000);
+                    "naturallySpawnInvasionsInterval", 10000, 0, 1000000);
             naturallySpawnZombieGroupInterval = add(builder
                             .comment("zombie groups will spawn from time to time near players at this interval. set to 0 to turn off natural fallen star spawn."),
                     "naturallySpawnZombieGroupInterval", 2500, 0, 1000000);

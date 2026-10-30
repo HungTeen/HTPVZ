@@ -3,6 +3,9 @@ package com.hungteen.pvz.common.world;
 import com.hungteen.pvz.api.ZombieEvent;
 import com.hungteen.pvz.common.capability.entity.PVZEntityCapability;
 import com.hungteen.pvz.common.capability.level.PVZZombieEventCapability;
+import com.hungteen.pvz.common.entity.EntityLifter;
+import com.hungteen.pvz.common.register.PVZEntities;
+import com.hungteen.pvz.common.register.PVZSoundEvents;
 import com.hungteen.pvz.common.world.invasion.InvasionCondition;
 import com.hungteen.pvz.common.world.invasion.InvasionType;
 import com.hungteen.pvz.util.EntityUtil;
@@ -63,49 +66,51 @@ public class ZombieGroup extends ZombieEvent {
                 && PVZZombieEventCapability.fromLevel(player.level).getNearestEvent(ZombieEvent.class, this.position
                 , e -> e.position.distSqr(this.position) < Math.pow(e.range + 8, 2) && e != this && e.isMainEvent()) == null) {
             int plantCost = Math.max(200, getPlantsCostNearby(player));
-            if ((player.getRespawnPosition() == null ? player.level.getSharedSpawnPos() : player.getRespawnPosition())
-                    .distSqr(player.blockPosition()) > 2048) {
-                plantCost /= 2;
-            }
             float angle = player.getRandom().nextFloat() * 6.28f;
             float dist = player.getRandom().nextFloat() * 24 + 24;
             BlockPos pos = player.blockPosition().offset(Math.sin(angle) * dist, 0, Math.cos(angle) * dist);
             pos = new BlockPos(pos.getX(), player.level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, pos.getX(), pos.getZ()), pos.getZ());
             if (! level.getEntities((Entity) null
-                    , new AABB(pos.getX() - 8, pos.getY() - 2, pos.getZ() - 8
-                            , pos.getX() + 8, pos.getY() + 2, pos.getZ() + 8)
+                    , new AABB(pos.getX() - 6, pos.getY() - 2, pos.getZ() - 6
+                            , pos.getX() + 6, pos.getY() + 2, pos.getZ() + 6)
                     , e -> EntityUtil.isTeammate(player, e)).isEmpty()) {
                 return;
             }
-            BlockPos pos1 = new BlockPos(pos.getX(), player.level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ()), pos.getZ());
-            if (pos1.getY() > pos.getY() + 2) return;
-            if (pos1.getY() < pos.getY()) pos = pos1;
+            BlockPos curPos = new BlockPos(pos.getX(), player.level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX(), pos.getZ()), pos.getZ());
+            if (curPos.getY() > pos.getY() + 4) return;
+            pos = curPos;
             InvasionCondition.AroundEntitiesCostCondition.shouldCalculateAroundEntityCost = false;
             List<InvasionType> types = InvasionType.generateTypes(target);
             InvasionCondition.AroundEntitiesCostCondition.shouldCalculateAroundEntityCost = true;
             if (types.isEmpty()) return;
-            int totalThreat = (int) (Math.min(3000, plantCost * 1.5) * (player.getRandom().nextFloat() * 2 + 1) / 3);
+            int totalThreat = (int) (Math.min(6000, plantCost * 2) * (player.getRandom().nextFloat() * 2 + 2) / 3);
             int tries = 0;
-            for (int threat = 0; threat < totalThreat && tries <= 10; ) {
+            for (int threat = 0; threat < totalThreat && tries <= 6;) {
                 InvasionType invasionType = types.get(player.getRandom().nextInt(types.size()));
                 List<InvasionType.EnemyType> enemies = invasionType.enemies().stream()
-                        .filter(t -> ! t.isElite() && t.startFrom() < 0.1 + ((float) totalThreat / 3000) && t.isAvailable(target, invasionType, types)).toList();
+                        .filter(t -> ! t.isElite() && t.startFrom() < 0.1 + ((float) totalThreat / 6000) && t.isAvailable(target, invasionType, types)).toList();
                 if (enemies.isEmpty()) return;
                 InvasionType.EnemyType type = enemies.get(player.getRandom().nextInt(enemies.size()));
-                tries ++;
                 if (totalThreat - threat >= type.threat()) {
                     threat += type.threat();
                     Entity entity = EntityType.loadEntityRecursive(type.entityData().copy(), level, Function.identity());
                     if (entity == null) {
+                        tries ++;
                         continue;
                     }
                     if (! NaturalSpawner.isValidEmptySpawnBlock(level, pos, level.getBlockState(pos), level.getFluidState(pos), entity.getType())) {
                         entity.discard();
+                        tries ++;
                         continue;
                     }
                     types.forEach(t -> t.getModifiers().forEach( m -> m.test(null, entity, type.threat())));
                     entity.setPos(Vec3.atCenterOf(pos));
-                    ((ServerLevel) level).addFreshEntityWithPassengers(entity);
+                    EntityLifter lifter = PVZEntities.ENTITY_LIFTER.get().create(this.level);
+                    entity.playSound(PVZSoundEvents.ZOMBIE_EMERGE.get());
+                    lifter.setPos(entity.position());
+                    entity.setPos(entity.position().add(0, - entity.getBbHeight(), 0));
+                    entity.getRootVehicle().startRiding(lifter);
+                    ((ServerLevel) level).addFreshEntityWithPassengers(lifter);
                     if (entity instanceof Mob mob) mob.setTarget(target);
                 }
                 remove();

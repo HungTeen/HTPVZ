@@ -23,7 +23,7 @@ public class EntityTagGen extends EntityTypeTagsProvider {
         this.tag(PVZEntityTags.IRON).add(EntityType.IRON_GOLEM, EntityType.MINECART);
         //atEntityRegister
         PVZEntities.tagMap.forEach((entity, tagList)-> tagList.forEach((tag) -> this.tag(tag).replace(false).add((EntityType<?>) entity.get())));
-        this.tag(PVZEntityTags.ENEMY).add(EntityType.END_CRYSTAL);
+        this.tag(PVZEntityTags.ENEMY).add(EntityType.END_CRYSTAL, EntityType.SHULKER_BULLET);
         this.tag(PVZEntityTags.FRIENDLY).add(EntityType.ENDERMAN);
     }
 

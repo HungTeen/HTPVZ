@@ -151,8 +151,9 @@ public class PVZItems {
     static {
         createBannerPatterns();
         createSpawnEggs();
-        createSeedPackets();
     }
+
+    private static boolean seedPacketsCreated = false;
 
 
     public static void registerProperties() {
@@ -242,6 +243,11 @@ public class PVZItems {
     }
 
     public static void createSeedPackets() {
+        if (seedPacketsCreated) {
+            return;
+        }
+        seedPacketsCreated = true;
+
         for (RegisterSeedPacketsEvent.SeedPacketData<?> data : PVZSeedPackets.seedPacketData) {
             String name = data.entitySupplier instanceof RegistryObject<?> ? name((RegistryObject<?>) data.entitySupplier) : name((EntityType<?>) data.entitySupplier.get());
             if (data instanceof PVZSeedPackets.RecipeSeedPacketData<?> && ((PVZSeedPackets.RecipeSeedPacketData<?>)data).recipe != null) {

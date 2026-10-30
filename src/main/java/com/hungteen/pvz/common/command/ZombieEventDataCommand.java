@@ -258,11 +258,11 @@ public class ZombieEventDataCommand extends DataCommands {
         }
     }
 
-    interface DataManipulator {
+    private interface DataManipulator {
         int modify(CommandContext<CommandSourceStack> p_139496_, CompoundTag p_139497_, NbtPathArgument.NbtPath p_139498_, List<Tag> p_139499_) throws CommandSyntaxException;
     }
 
-    interface DataManipulatorDecorator {
+    private interface DataManipulatorDecorator {
         ArgumentBuilder<CommandSourceStack, ?> create(DataManipulator p_139501_);
     }
 }

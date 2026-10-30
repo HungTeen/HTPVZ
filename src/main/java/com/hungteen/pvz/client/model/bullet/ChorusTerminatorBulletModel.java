@@ -50,8 +50,8 @@ public class ChorusTerminatorBulletModel<T extends ChorusTerminatorBullet> exten
 		this.bone2.xRot = Mth.rotLerp(ageInTicks, entity.tickCount, entity.tickCount + 1) / 17 % 6.28f;
 		this.bone3.zRot = Mth.rotLerp(ageInTicks, entity.tickCount, entity.tickCount + 1) / 13 % 6.28f;
 		this.bone3.xRot = Mth.rotLerp(ageInTicks, entity.tickCount, entity.tickCount + 1) / 11 % 6.28f;
-		this.total.xRot = Mth.rotLerp(ageInTicks % 1, - (entity.xRotO - 90) / 57.3f, - (entity.xRot - 90) / 57.3f);
-		this.total.yRot = Mth.rotLerp(ageInTicks % 1, entity.yRotO / 57.3f, entity.yRot / 57.3f);
+		this.total.xRot = Mth.rotLerp(ageInTicks % 1, - (entity.xRotO - 90), - (entity.xRot - 90)) / 57.3f;
+		this.total.yRot = Mth.rotLerp(ageInTicks % 1, entity.yRotO, entity.yRot) / 57.3f;
 	}
 
 	@Override

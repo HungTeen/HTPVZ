@@ -170,7 +170,9 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
     }
 
     public static boolean canInvade(ServerPlayer player) {
-        if ((player.getRespawnPosition() != null ? player.getRespawnPosition() : player.level.getSharedSpawnPos()).distSqr(player.blockPosition()) < 4096) return false;
+        if (player.getLevel().dimension().equals(player.getRespawnDimension())
+                && ( player.getRespawnPosition() != null ? player.getRespawnPosition() : player.level.getSharedSpawnPos()).distSqr(player.blockPosition()) < 4096)
+            return false;
         if (player.level.getEntitiesOfClass(Entity.class, player.getBoundingBox().inflate(50, 25, 50)
                 , e -> e instanceof AbstractVillager || (e instanceof IPlant && EntityUtil.isTeammate(e, player))).size() > 3) return false;
         if (player.level.getBiome(player.blockPosition()).is(PVZBiomeTags.UNABLE_INVASION)) return false;
@@ -555,7 +557,7 @@ public class Invasion extends ZombieEvent implements INBTSerializable<CompoundTa
                 player.awardStat(PVZStats.INVASIONS_WON);
                 InvasionType invasionType = this.getMainType();
                 if (invasionType != null && invasionType.loot().isPresent()) {
-                    float size = (float) this.invasionLevel / 3 + 4;
+                    float size = (float) (2 + this.invasionLevel) / 3 + 2;
                     for (InvasionType type : this.types) {
                         size *= type.lootFactor();
                     }

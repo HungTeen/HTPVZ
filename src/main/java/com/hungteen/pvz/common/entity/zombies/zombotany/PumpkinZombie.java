@@ -2,6 +2,8 @@ package com.hungteen.pvz.common.entity.zombies.zombotany;
 
 import com.hungteen.pvz.api.interfaces.IArmorEntity;
 import com.hungteen.pvz.api.interfaces.ICanBePlantedOn;
+import com.hungteen.pvz.common.entity.ai.goal.CopperLadderBuildGoal;
+import com.hungteen.pvz.common.entity.zombies.ICanPlaceLadder;
 import com.hungteen.pvz.common.entity.zombies.PVZZombie;
 import com.hungteen.pvz.common.register.PVZEntities;
 import com.hungteen.pvz.common.register.PVZItems;
@@ -31,7 +33,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class PumpkinZombie extends PVZZombie implements IZombotany, IArmorEntity, ICanBePlantedOn, ItemSteerable {
+public class PumpkinZombie extends PVZZombie implements IZombotany, IArmorEntity, ICanBePlantedOn, ItemSteerable, ICanPlaceLadder {
     private static final ResourceLocation STATE0 = Util.prefix("textures/entity/plants/pumpkin/pumpkin_0.png");
     private static final ResourceLocation STATE1 = Util.prefix("textures/entity/plants/pumpkin/pumpkin_1.png");
     private static final ResourceLocation STATE2 = Util.prefix("textures/entity/plants/pumpkin/pumpkin_2.png");
@@ -73,6 +75,7 @@ public class PumpkinZombie extends PVZZombie implements IZombotany, IArmorEntity
         attackGoal = new ZombieAttackGoal(this, 1.0D, false);
         randomStrollGoal = new RandomStrollGoal(this, 1.0D);
         this.goalSelector.addGoal(1, new PickUpPassengerGoal(this));
+        this.goalSelector.addGoal(2, new CopperLadderBuildGoal(this));
         this.targetSelector.addGoal(1, new PickUpPassengerGoal(this));
     }
     @Override

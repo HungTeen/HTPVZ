@@ -41,9 +41,11 @@ public class DataSkillManager extends SimpleJsonResourceReloadListener {
                         list.add(new Skill(name, () -> item, costItem, seedCount, addCostResource, addCoolDown));
                     }
                 }
-                map.put(entityType, list);
+                if (entityType != null) {
+                    map.put(entityType, List.copyOf(list));
+                }
             }
         }));
-        PVZSeedPackets.additionalSkills = map;
+        PVZSeedPackets.additionalSkills = Map.copyOf(map);
     }
 }

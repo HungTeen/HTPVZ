@@ -118,6 +118,8 @@ public class PVZMod
         forgeBus.addListener(PVZMod::onClientTick);
         PVZConfig.init();
 
+        PVZSeedPackets.init();
+
         PROXY.addClientListeners(modBus, forgeBus);
 
         forgeBus.register(this);
@@ -129,9 +131,10 @@ public class PVZMod
 
         PVZDimensions.register();
         PVZEnchantments.handleEnchantmentTypes();
-        PVZSeedPackets.sortAndClear();
 
         event.enqueueWork(() -> {
+            PVZSeedPackets.sortAndClear();
+
             PVZBlocks.flammableMap.forEach((blockObj, pair) ->
                     ((FireBlock) Blocks.FIRE).setFlammable(blockObj.get(), pair.getFirst(), pair.getSecond())
             );

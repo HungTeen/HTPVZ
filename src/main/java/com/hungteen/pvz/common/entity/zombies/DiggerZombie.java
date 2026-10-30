@@ -49,7 +49,7 @@ public class DiggerZombie extends PVZZombie implements VibrationListener.Vibrati
     }
     public static AttributeSupplier.Builder createAttributes() {
         return PVZZombie.createAttributes()
-                .add(Attributes.MAX_HEALTH, 25)
+                .add(Attributes.MAX_HEALTH, 26)
                 .add(Attributes.FOLLOW_RANGE, 8);
     }
     @Override

@@ -6,7 +6,7 @@ import com.hungteen.pvz.client.model.PennyModel;
 import com.hungteen.pvz.client.model.SnailModel;
 import com.hungteen.pvz.client.model.plants.*;
 import com.hungteen.pvz.client.model.zombie.*;
-import com.hungteen.pvz.client.renderer.EntityLifterRenderer;
+import com.hungteen.pvz.client.renderer.misc.EntityLifterRenderer;
 import com.hungteen.pvz.client.renderer.PVZLayerHandler;
 import com.hungteen.pvz.client.renderer.SimpleMobRenderer;
 import com.hungteen.pvz.client.renderer.bullet.*;

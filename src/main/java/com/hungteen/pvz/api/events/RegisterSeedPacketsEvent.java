@@ -9,7 +9,8 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.Event;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -19,7 +20,7 @@ import java.util.function.Supplier;
  Can't automatically create recipes or models.
  */
 public class RegisterSeedPacketsEvent extends Event {
-    private final Set<SeedPacketData<?>> packetSet = new HashSet<>();
+    private final Set<SeedPacketData<?>> packetSet = new LinkedHashSet<>();
 
     public void add(Supplier<EntityType<? extends LivingEntity>> entitySupplier, String resource, int cost, int coolDown) {
         packetSet.add(new SeedPacketData(entitySupplier, resource, cost, coolDown));
@@ -30,7 +31,7 @@ public class RegisterSeedPacketsEvent extends Event {
 
     /**Returns all newly-added data.*/
     public Set<SeedPacketData<?>> get() {
-        return packetSet;
+        return Collections.unmodifiableSet(packetSet);
     }
 
     public boolean contains(Supplier<EntityType> entitySupplier) {

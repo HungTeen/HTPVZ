@@ -21,9 +21,6 @@ import java.util.Map;
 
 public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends HierarchicalModel<T> {
 	private final ModelPart total;
-	private final ModelPart shell;
-	private final ModelPart down;
-	private final ModelPart up;
 	private final ModelPart body;
 	private final ModelPart head;
 	private final ModelPart decorations;
@@ -46,6 +43,7 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 	private final ModelPart chorus_left_render;
 	private final ModelPart chorus_right;
 	private final ModelPart chorus_right_render;
+	private final ModelPart up_shell;
 	private final ModelPart leg_lf;
 	private final ModelPart leg_lfm;
 	private final ModelPart leg_lfb;
@@ -58,13 +56,12 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 	private final ModelPart leg_rb;
 	private final ModelPart leg_rbm;
 	private final ModelPart leg_rbb;
+	private final ModelPart down_shell;
 	private final Map<ModelPart, ModelPart> legs;
+	private final Map<ModelPart, ModelPart> legBottoms;
 
 	public ChorusTerminatorModel(ModelPart root) {
 		this.total = root.getChild("total");
-		this.shell = this.total.getChild("shell");
-		this.down = this.shell.getChild("down");
-		this.up = this.shell.getChild("up");
 		this.body = this.total.getChild("body");
 		this.head = this.body.getChild("head");
 		this.decorations = this.head.getChild("decorations");
@@ -87,6 +84,7 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 		this.chorus_left_render = this.chorus_left.getChild("chorus_left_render");
 		this.chorus_right = this.head.getChild("chorus_right");
 		this.chorus_right_render = this.chorus_right.getChild("chorus_right_render");
+		this.up_shell = this.head.getChild("up_shell");
 		this.leg_lf = this.body.getChild("leg_lf");
 		this.leg_lfm = this.leg_lf.getChild("leg_lfm");
 		this.leg_lfb = this.leg_lfm.getChild("leg_lfb");
@@ -99,7 +97,9 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 		this.leg_rb = this.body.getChild("leg_rb");
 		this.leg_rbm = this.leg_rb.getChild("leg_rbm");
 		this.leg_rbb = this.leg_rbm.getChild("leg_rbb");
+		this.down_shell = this.total.getChild("down_shell");
 		legs = Map.of(leg_lf, leg_lfm, leg_rf, leg_rfm, leg_lb, leg_lbm, leg_rb, leg_rbm);
+		legBottoms = Map.of(leg_lf, leg_lfb, leg_rf, leg_rfb, leg_lb, leg_lbb, leg_rb, leg_rbb);
 	}
 
 	public static LayerDefinition createBodyLayer() {
@@ -107,13 +107,6 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
 		PartDefinition total = partdefinition.addOrReplaceChild("total", CubeListBuilder.create(), PartPose.offset(1.0F, 24.0F, 0.0F));
-
-		PartDefinition shell = total.addOrReplaceChild("shell", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
-
-		PartDefinition down = shell.addOrReplaceChild("down", CubeListBuilder.create().texOffs(0, 274).addBox(-43.0F, -40.0F, -42.0F, 84.0F, 40.0F, 84.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
-
-		PartDefinition up = shell.addOrReplaceChild("up", CubeListBuilder.create().texOffs(0, 0).addBox(-44.0F, -52.0F, -41.0F, 84.0F, 62.0F, 84.0F, new CubeDeformation(0.0F))
-				.texOffs(0, 146).addBox(-46.0F, -30.0F, -43.0F, 88.0F, 40.0F, 88.0F, new CubeDeformation(0.0F)), PartPose.offset(1.0F, -32.0F, -1.0F));
 
 		PartDefinition body = total.addOrReplaceChild("body", CubeListBuilder.create().texOffs(42, 552).addBox(-6.0F, -15.0F, -5.0F, 10.0F, 28.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -25.0F, 0.0F));
 
@@ -183,6 +176,9 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 
 		PartDefinition chorus_right_render = chorus_right.addOrReplaceChild("chorus_right_render", CubeListBuilder.create(), PartPose.offset(0.0F, -20.0F, 4.0F));
 
+		PartDefinition up_shell = head.addOrReplaceChild("up_shell", CubeListBuilder.create().texOffs(0, 0).addBox(-44.0F, -50.0F, -41.0F, 84.0F, 62.0F, 84.0F, new CubeDeformation(0.0F))
+				.texOffs(0, 146).addBox(-46.0F, -28.0F, -43.0F, 88.0F, 40.0F, 88.0F, new CubeDeformation(0.0F)), PartPose.offset(1.0F, -12.0F, -1.0F));
+
 		PartDefinition leg_lf = body.addOrReplaceChild("leg_lf", CubeListBuilder.create(), PartPose.offset(-1.0F, 3.0F, 0.0F));
 
 		PartDefinition cube_r1 = leg_lf.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(396, 552).addBox(-7.0F, -39.0F, -29.0F, 4.0F, 39.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(4.0F, 8.0F, -4.0F, 0.7854F, 0.0F, 0.0F));
@@ -227,6 +223,8 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 		PartDefinition leg_rbb = leg_rbm.addOrReplaceChild("leg_rbb", CubeListBuilder.create().texOffs(514, 460).addBox(-8.0F, -9.0F, -32.0F, 16.0F, 16.0F, 22.0F, new CubeDeformation(0.0F))
 				.texOffs(514, 546).addBox(-9.0F, -11.0F, -10.0F, 18.0F, 18.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 1.0F, -21.0F));
 
+		PartDefinition down_shell = total.addOrReplaceChild("down_shell", CubeListBuilder.create().texOffs(0, 274).addBox(-43.0F, -40.0F, -42.0F, 84.0F, 40.0F, 84.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+
 		return LayerDefinition.create(meshdefinition, 1024, 1024);
 	}
 
@@ -235,6 +233,7 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 		this.total.getAllParts().forEach(ModelPart::resetPose);
 		this.animate(entity.idleAnimationState, ChorusTerminatorModelAnimation.idle, ageInTicks);
 		this.animate(entity.stiffAnimationState, ChorusTerminatorModelAnimation.stiff, ageInTicks);
+		this.animate(entity.shortStiffAnimationState, ChorusTerminatorModelAnimation.shortStiff, ageInTicks);
 		this.animate(entity.summonAnimationState, ChorusTerminatorModelAnimation.summon, ageInTicks);
 		this.animate(entity.dieAnimationState, ChorusTerminatorModelAnimation.die, ageInTicks);
 		this.animate(entity.shootBulletsAnimationState, ChorusTerminatorModelAnimation.shootBullets, ageInTicks);
@@ -247,8 +246,6 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 		this.animate(entity.preJumpAnimationState, ChorusTerminatorModelAnimation.preJump, ageInTicks);
 		this.animate(entity.preDefenceAnimationState, ChorusTerminatorModelAnimation.preDefence, ageInTicks);
 
-		this.shell.visible = false;
-		this.portal.visible = false;
 		float pTick = Minecraft.getInstance().getPartialTick();
 		float yRot = (Mth.rotLerp(pTick, entity.yBodyRotO, entity.yBodyRot)) / 57.3f;
 		Vec3 intention = entity.body.getIntention();
@@ -273,30 +270,43 @@ public class ChorusTerminatorModel<T extends ChorusTerminatorBoss> extends Hiera
 		Map<ModelPart, ChorusTerminatorPart> map = Map.of(leg_lf, entity.legLeftFront, leg_rf, entity.legRightFront, leg_lb, entity.legLeftBack, leg_rb, entity.legRightBack);
 		for (ModelPart upper : legs.keySet()) {
 			ChorusTerminatorPart part = map.get(upper);
-			Vec3 rot = handleLegs(new Vec3((Math.cos(yRot) * this.body.x + Math.sin(yRot) * this.body.z) / 16
-							, - this.body.y / 16 - 0.5
-							, (Math.sin(yRot) * this.body.x - Math.cos(yRot) * this.body.z) / 16)
-					, new Vec3(
-							Mth.lerp(pTick, part.xOld, part.getX()),
-							Mth.lerp(pTick, part.yOld, part.getY()),
-							Mth.lerp(pTick, part.zOld, part.getZ())
-					).subtract(new Vec3(
-							Mth.lerp(pTick, entity.xOld, entity.getX()),
-							Mth.lerp(pTick, entity.yOld, entity.getY()),
-							Mth.lerp(pTick, entity.zOld, entity.getZ())
-							))
-					, 3f);
+			Vec3 start = new Vec3((Math.cos(yRot) * this.body.x + Math.sin(yRot) * this.body.z) / 16
+					, - this.body.y / 16 - 0.5
+					, (Math.sin(yRot) * this.body.x - Math.cos(yRot) * this.body.z) / 16);
+			Vec3 end = new Vec3(
+					Mth.lerp(pTick, part.xOld, part.getX()),
+					Mth.lerp(pTick, part.yOld, part.getY()),
+					Mth.lerp(pTick, part.zOld, part.getZ())
+			).subtract(new Vec3(
+					Mth.lerp(pTick, entity.xOld, entity.getX()),
+					Mth.lerp(pTick, entity.yOld, entity.getY()),
+					Mth.lerp(pTick, entity.zOld, entity.getZ())
+			));
+			double tmp = start.distanceTo(end) * 0.9;
+			float bottomLen = (float) Math.min(3, Math.max(2.5, tmp));
+			Vec3 rot = handleLegs(start, end, bottomLen);
 			if (rot == null) continue;
 			ModelPart lower = legs.get(upper);
 			upper.xRot = (float) rot.x;
 			upper.yRot = (float) rot.y - yRot;
 			lower.xRot = (float) rot.z;
+			legBottoms.get(upper).z += 32 * (3 - bottomLen);
 		}
 	}
 
 	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		total.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+	}
+
+	public void renderPortal(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+		poseStack.pushPose();
+		this.total.translateAndRotate(poseStack);
+		this.body.translateAndRotate(poseStack);
+		this.head.translateAndRotate(poseStack);
+		this.mouth.translateAndRotate(poseStack);
+		this.portal.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+		poseStack.popPose();
 	}
 
 	@Override

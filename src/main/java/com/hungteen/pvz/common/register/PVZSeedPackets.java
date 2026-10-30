@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.register;
 import com.hungteen.pvz.api.Skill;
 import com.hungteen.pvz.api.events.RegisterSeedPacketsEvent;
 import com.hungteen.pvz.common.entity.plants.*;
+import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
@@ -12,9 +13,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.registries.RegistryObject;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -22,21 +26,33 @@ import java.util.function.Supplier;
 /**This class is used for convenience only when registering. Then all the data in PVZSeedPackets.seedPackets will be released.
  */
 public class PVZSeedPackets {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     public static final int VERY_FAST = 10; //will a plant really use this?
     public static final int FAST = 40;
     public static final int MEDIUM = 300;
     public static final int SLOW = 500;
     public static final int VERY_SLOW = 1000;
     @Deprecated //clear after registry.
-    public static List<RegisterSeedPacketsEvent.SeedPacketData<?>> seedPacketData = new ArrayList<>();
-    public static Map<Item, RegisterSeedPacketsEvent.SeedPacketData<?>> dataMap = new HashMap<>();
-    public static List<Item> tabsSurvival = new ArrayList<>();
-    public static List<Item> tabsCreative = new ArrayList<>();
-    public static Map<Item, List<Item>> sortedSurvival = new HashMap<>();
-    public static Map<Item, List<Item>> sortedCreative = new HashMap<>();
-    public static Map<EntityType<?>, List<Skill>> additionalSkills = new HashMap<>();
+    public static final List<RegisterSeedPacketsEvent.SeedPacketData<?>> seedPacketData = new ArrayList<>();
 
-    static {
+    public static volatile Map<Item, RegisterSeedPacketsEvent.SeedPacketData<?>> dataMap = Map.of();
+    public static volatile List<Item> tabsSurvival = List.of();
+    public static volatile List<Item> tabsCreative = List.of();
+    public static volatile Map<Item, List<Item>> sortedSurvival = Map.of();
+    public static volatile Map<Item, List<Item>> sortedCreative = Map.of();
+    public static volatile Map<EntityType<?>, List<Skill>> additionalSkills = Map.of();
+
+    private static boolean initialized = false;
+    private static boolean sorted = false;
+
+    private PVZSeedPackets() {
+    }
+
+    public static synchronized void init() {
+        if (initialized) return;
+        initialized = true;
+
         //pvz packets.
 
         //overworld
@@ -107,7 +123,7 @@ public class PVZSeedPackets {
         add(PVZEntities.GATLING_PEA).advanced().cost(400).coolDown(VERY_SLOW).skillList(GatlingPea.staticSkillList)
                 .recipe(PVZItems.CHORUS_FRUIT_SEED_PACKET)
                 .note(Component.translatable("container.pvz.almanac.can_only_plant_on", Component.translatable("entity.pvz.repeater").withStyle(ChatFormatting.RED)));
-        //abyss
+        //creative
         add(PVZEntities.CHOMPER).cost(150).coolDown(MEDIUM).skillList(Chomper.staticSkillList)
                 .recipe(PVZItems.FLUORESCENT_DAISY_SEED_PACKET).setCreativeOnly()
                 .note(Component.translatable("container.pvz.almanac.can_sculkificate")); //TODO change to chomper block in abyss.
@@ -123,46 +139,94 @@ public class PVZSeedPackets {
         RegisterSeedPacketsEvent event = new RegisterSeedPacketsEvent();
         MinecraftForge.EVENT_BUS.post(event);
         seedPacketData.addAll(event.get());
+
+        //create.
+        PVZItems.createSeedPackets();
     }
 
-    public static <T extends LivingEntity> RecipeSeedPacketData<T> add(Supplier<EntityType<T>> goalEntity) {
+    public static synchronized <T extends LivingEntity> RecipeSeedPacketData<T> add(Supplier<EntityType<T>> goalEntity) {
         RecipeSeedPacketData<T> newPacket = new RecipeSeedPacketData<>(goalEntity);
         seedPacketData.add(newPacket);
         return newPacket;
     }
 
-    public static <T extends LivingEntity> RegisterSeedPacketsEvent.SeedPacketData<T> getData(Supplier<EntityType<T>> entity) {
+    @SuppressWarnings("unchecked")
+    public static synchronized <T extends LivingEntity> RegisterSeedPacketsEvent.SeedPacketData<T> getData(Supplier<EntityType<T>> entity) {
         for (RegisterSeedPacketsEvent.SeedPacketData<?> data : seedPacketData) {
-            if (data.entitySupplier.equals(entity)) return (RegisterSeedPacketsEvent.SeedPacketData<T>) data;
+            if (data.entitySupplier.equals(entity)) {
+                return (RegisterSeedPacketsEvent.SeedPacketData<T>) data;
+            }
+        }
+        for (RegisterSeedPacketsEvent.SeedPacketData<?> data : dataMap.values()) {
+            if (data.entitySupplier.equals(entity)) {
+                return (RegisterSeedPacketsEvent.SeedPacketData<T>) data;
+            }
         }
         return null;
     }
 
-    public static void sortAndClear() {
-        seedPacketData.forEach(data -> {
-            PVZSeedPackets.dataMap.put(PVZItems.seedPacketMap.get(data).get(), data);
-            PVZSeedPackets.dataMap.put(PVZItems.seedMap.get(data).get(), data);
-            Item base = data.basePacketSupplier.get();
-            if (sortedCreative.containsKey(base)) {
-                sortedCreative.get(base).add(PVZItems.seedPacketMap.get(data).get());
+    public static synchronized void sortAndClear() {
+        if (sorted) return;
+        if (! initialized) {
+            LOGGER.error("PVZSeedPackets.sortAndClear() called before init(), ignoring.");
+            return;
+        }
+        sorted = true;
+
+        Map<Item, RegisterSeedPacketsEvent.SeedPacketData<?>> newDataMap = new HashMap<>();
+        Map<Item, List<Item>> newSortedCreative = new LinkedHashMap<>();
+        Map<Item, List<Item>> newSortedSurvival = new LinkedHashMap<>();
+        List<Item> newTabsCreative = new ArrayList<>();
+        List<Item> newTabsSurvival = new ArrayList<>();
+        for (RegisterSeedPacketsEvent.SeedPacketData<?> data : seedPacketData) {
+            RegistryObject<Item> packetObject = PVZItems.seedPacketMap.get(data);
+            RegistryObject<Item> seedObject = PVZItems.seedMap.get(data);
+            if (packetObject == null || seedObject == null) {
+                LOGGER.error("No seed packet item was created for " + data.entitySupplier + ". It was registered after the ITEMS registry event.");
+                continue;
+            }
+            Item packet = packetObject.get();
+            Item seed = seedObject.get();
+            newDataMap.put(packet, data);
+            newDataMap.put(seed, data);
+            Item base = data.basePacketSupplier == null ? null : data.basePacketSupplier.get();
+            if (base == null) {
+                LOGGER.warn("Seed packet " + packet + " has no base packet and is skipped in the almanac tabs.");
+                continue;
+            }
+            if (newSortedCreative.containsKey(base)) {
+                newSortedCreative.get(base).add(packet);
             } else {
                 List<Item> items = new ArrayList<>();
-                tabsCreative.add(base);
-                items.add(PVZItems.seedPacketMap.get(data).get());
-                sortedCreative.put(base, items);
+                newTabsCreative.add(base);
+                items.add(packet);
+                newSortedCreative.put(base, items);
             }
-            if (! data.creativeOnly) {
-                if (sortedSurvival.containsKey(base)) {
-                    sortedSurvival.get(base).add(PVZItems.seedPacketMap.get(data).get());
+            if (!data.creativeOnly) {
+                if (newSortedSurvival.containsKey(base)) {
+                    newSortedSurvival.get(base).add(packet);
                 } else {
                     List<Item> items = new ArrayList<>();
-                    tabsSurvival.add(base);
-                    items.add(PVZItems.seedPacketMap.get(data).get());
-                    sortedSurvival.put(base, items);
+                    newTabsSurvival.add(base);
+                    items.add(packet);
+                    newSortedSurvival.put(base, items);
                 }
             }
-        });
+        }
+
+        dataMap = Map.copyOf(newDataMap);
+        sortedCreative = freeze(newSortedCreative);
+        sortedSurvival = freeze(newSortedSurvival);
+        tabsCreative = List.copyOf(newTabsCreative);
+        tabsSurvival = List.copyOf(newTabsSurvival);
+
         seedPacketData.clear();
+    }
+
+    private static Map<Item, List<Item>> freeze(Map<Item, List<Item>> source) {
+        Map<Item, List<Item>> copy = new LinkedHashMap<>();
+        source.forEach((key, value) -> copy.put(key, List.copyOf(value)));
+        return Collections.unmodifiableMap(copy);
     }
 
     public static class RecipeSeedPacketData<T extends LivingEntity> extends RegisterSeedPacketsEvent.SeedPacketData<T> {
@@ -227,12 +291,13 @@ public class PVZSeedPackets {
             noAutoRecipe = true;
             return this;
         }
+        @SuppressWarnings("unchecked")
         public RegistryObject<Item> getBackCard() {
             Object packet = recipe.get("packet");
             if (packet instanceof RegistryObject) {
                 return (RegistryObject<Item>) packet;
             }
-            return ((RecipeSeedPacketData) packet).getBackCard();
+            return ((RecipeSeedPacketData<?>) packet).getBackCard();
         }
     }
 }

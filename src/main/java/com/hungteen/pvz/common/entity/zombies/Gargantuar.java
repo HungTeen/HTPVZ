@@ -62,12 +62,13 @@ public class Gargantuar extends PVZZombie {
     }
     public static AttributeSupplier.Builder createAttributes() {
         return PVZZombie.createAttributes()
-                .add(Attributes.ARMOR, 80D)
-                .add(Attributes.ARMOR_TOUGHNESS, 50D)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.75D)
+                .add(Attributes.ARMOR, 30D)
+                .add(Attributes.ARMOR_TOUGHNESS, 30D)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.9D)
+                .add(Attributes.MOVEMENT_SPEED, 0.15F)
                 .add(Attributes.ATTACK_SPEED, 1D)
                 .add(Attributes.ATTACK_DAMAGE, 4D)
-                .add(Attributes.MAX_HEALTH, 100D);
+                .add(Attributes.MAX_HEALTH, 150D);
     }
     @Override
     protected void addBehaviourGoals() {

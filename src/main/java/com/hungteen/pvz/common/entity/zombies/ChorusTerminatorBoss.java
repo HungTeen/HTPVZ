@@ -72,6 +72,7 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
 
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState stiffAnimationState = new AnimationState();
+    public AnimationState shortStiffAnimationState = new AnimationState();
     public AnimationState summonAnimationState = new AnimationState();
     public AnimationState shootShulkerAnimationState = new AnimationState();
     public AnimationState shootBulletsAnimationState = new AnimationState();
@@ -83,11 +84,11 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
     public AnimationState preDashAnimationState = new AnimationState();
     public AnimationState preJumpAnimationState = new AnimationState();
     public AnimationState preDefenceAnimationState = new AnimationState();
-    private final AnimationState[] animationStates = new  AnimationState[] {idleAnimationState, stiffAnimationState, summonAnimationState
+    private final AnimationState[] animationStates = new  AnimationState[] {idleAnimationState, stiffAnimationState, shortStiffAnimationState, summonAnimationState
             , shootBulletsAnimationState, shootShulkerAnimationState, defenceAnimationState, defenceStiffAnimationState, defenceSummonAnimationState
             , defenceShootAnimationState, dieAnimationState, preDashAnimationState, preJumpAnimationState, preDefenceAnimationState};
 
-    public static final float MAX_SHIELD = 800;
+    public static final float MAX_SHIELD = 400;
     public static final UUID PLANT_RESISTANCE_UUID = UUID.fromString("816d9831-6c7a-6902-7e64-fad0ce2088b3");
     private static final EntityDataAccessor<Float> SHIELD = SynchedEntityData.defineId(ChorusTerminatorBoss.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> PHASE = SynchedEntityData.defineId(ChorusTerminatorBoss.class, EntityDataSerializers.INT);
@@ -134,10 +135,10 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
-        this.legLeftFront.setPos(this.position().add(-2.5, 0, -2.5));
-        this.legLeftBack.setPos(this.position().add(-2.5, 0, 2.5));
-        this.legRightBack.setPos(this.position().add(2.5, 0, 2.5));
-        this.legRightFront.setPos(this.position().add(2.5, 0, -2.5));
+        this.legLeftFront.setPos(this.position().add(-2.3, 0, -2.3));
+        this.legLeftBack.setPos(this.position().add(-2.3, 0, 2.3));
+        this.legRightBack.setPos(this.position().add(2.3, 0, 2.3));
+        this.legRightFront.setPos(this.position().add(2.3, 0, -2.3));
         this.body.setPos(this.position().add(0, 1, 0));
         this.eye.setPos(body.position().add(0, 1.1, 1.75));
         this.mouth.setPos(body.position());
@@ -186,10 +187,10 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
 
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
-                .add(Attributes.MAX_HEALTH, 800D)
+                .add(Attributes.MAX_HEALTH, 1023D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.95D)
-                .add(Attributes.ARMOR, 50D)
-                .add(Attributes.ARMOR_TOUGHNESS, 50D)
+                .add(Attributes.ARMOR, 80D)
+                .add(Attributes.ARMOR_TOUGHNESS, 80D)
                 .add(Attributes.FOLLOW_RANGE, 64D)
                 .add(ForgeMod.ENTITY_GRAVITY.get(), 0.12D)
                 .add(ForgeMod.STEP_HEIGHT_ADDITION.get(), 2D)
@@ -241,16 +242,17 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
     }
 
     public boolean hurt(ChorusTerminatorPart part, DamageSource source, float damage) {
-        if (this.getAction() == ChorusTerminatorActivitiesGoal.Action.DEFENCE) {
+        if (this.getAction() == ChorusTerminatorActivitiesGoal.Action.DEFENCE && damage > 0) {
             float shield = this.getShield();
-            this.addShield(- damage);
+            this.addShield(- Math.max(1, damage / (1 + getPhase() / 2f)));
             if (this.getShield() <= 0) {
                 this.act(ChorusTerminatorActivitiesGoal.Action.DEFENCE_STIFF);
             }
             damage -= shield;
             if (damage < 0) damage = 0;
         }
-        int phase = (int) ((this.getMaxHealth() - this.getHealth()) * 3 / this.getMaxHealth());
+        float healthPercent = this.getHealth() / this.getMaxHealth();
+        int phase = healthPercent < 0.5 ? 2 : healthPercent < 0.833 ? 1 : 0;
         if (getPhase() < phase) {
             setPhase(phase);
             this.act(ChorusTerminatorActivitiesGoal.Action.STIFF);
@@ -284,6 +286,7 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
                 case PRE_DASH -> animate(preDashAnimationState);
                 case PRE_JUMP -> animate(preJumpAnimationState);
                 case STIFF -> animate(stiffAnimationState);
+                case SHORT_STIFF -> animate(shortStiffAnimationState);
                 case SUMMON -> animate(summonAnimationState);
                 case SHOOT_SHULKER -> animate(shootShulkerAnimationState);
                 case SHOOT_BULLET -> animate(shootBulletsAnimationState);
@@ -442,7 +445,11 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
                 this.bossEvent.setColor(BossEvent.BossBarColor.PINK);
                 this.bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
             } else {
-                this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
+                float bar = this.getHealth() / this.getMaxHealth();
+                bar = bar < 0.5 ? bar * 0.667f
+                        : (bar - 0.5f < 0.333f ? 0.333f + (bar - 0.5f)
+                        : 0.667f + (bar - 0.833f) * 2);
+                this.bossEvent.setProgress(bar);
                 this.bossEvent.setColor(BossEvent.BossBarColor.PURPLE);
                 this.bossEvent.setOverlay(BossEvent.BossBarOverlay.NOTCHED_6);
             }
@@ -462,7 +469,7 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
                 this.addShield(10);
             });
             if (shield < this.getShield()) {
-                this.shieldBarTime = 40;
+                this.shieldBarTime = 20;
             }
             if (this.isAlive()) {
                 if (this.portals.isEmpty() && this.pendingPortals.isEmpty()) {
@@ -503,8 +510,12 @@ public class ChorusTerminatorBoss extends PathfinderMob implements Enemy {
 
     @Override
     public void teleportTo(double x, double y, double z) {
+        Arrays.stream(this.legs).forEach(leg -> {
+            leg.teleportTo(x, y + 1, z);
+            leg.setIntention(new Vec3(x, y, z));
+        });
+        this.navigation.stop();
         super.teleportTo(x, y, z);
-        Arrays.stream(this.legs).forEach(leg -> leg.teleportTo(x, y + 1, z));
     }
 
     private void resetPortals() {

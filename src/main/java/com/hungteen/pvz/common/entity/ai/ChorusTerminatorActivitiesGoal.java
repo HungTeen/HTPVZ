@@ -16,7 +16,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -111,7 +110,8 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
         }
         //phase
         if (target != null) {
-            this.boss.setPhase((int) Math.min(2, (this.boss.getMaxHealth() - this.boss.getHealth()) * 3 / boss.getMaxHealth()));
+            float healthPercent = boss.getHealth() / boss.getMaxHealth();
+            this.boss.setPhase(healthPercent < 0.5 ? 2 : healthPercent < 0.833 ? 1 : 0);
         }
         //position
         int position = -1;
@@ -129,13 +129,20 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
         }
         //action states
         switch (boss.getAction()) {
-            case STIFF, DEFENCE_STIFF -> {
+            case STIFF, SHORT_STIFF, DEFENCE_STIFF -> {
                 setBody(14, new Vec3(0, 3, 0));
-                setBody(23, new Vec3(0, 0, 0));
-                setBody(140, new Vec3(0, 3, 0));
+                setBody(24, new Vec3(0, 0, 0));
+                setBody(boss.getAction() == Action.STIFF ? 220 : 80, new Vec3(0, 3, 0));
                 targetGroup = null;
                 boss.getNavigation().stop();
-                if (boss.actionTime >= 160) {
+                if (boss.actionTime % 100 == 1) {
+                    BlockPos home = boss.homePos;
+                    boss.level.getNearbyPlayers(TargetingConditions.DEFAULT, boss
+                                    , new AABB(home.getX() - 21, home.getY() - 3, home.getZ() - 21
+                                            , home.getX() + 21, home.getY() + 15, home.getZ() + 21))
+                            .forEach(player -> player.addEffect(new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 100, 3)));
+                }
+                if (boss.actionTime >= (boss.getAction() == Action.STIFF ? 240 : 100)) {
                     if (boss.homePos != null) {
                         boss.act(Action.JUMP);
                         jumpTo(Vec3.atBottomCenterOf(boss.homePos));
@@ -146,49 +153,29 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
             }
             case IDLE -> {
                 setBody(20, 80, new Vec3(0, 3, 0));
+                int interval = phase >= 2 ? 80 : 160;
                 if (boss.actionTime % 80 == 0) {
                     boss.getNavigation().stop();
                     targetGroup = groups.isEmpty() ? null
                             : groups.keySet().stream().toList().get(boss.getRandom().nextInt(groups.size()));
                 }
                 if (boss.homePos != null) {
-                    double distSqrToCenter = this.boss.blockPosition().distSqr(this.boss.homePos);
-                    if (boss.actionTime % 80 == 0 && (this.boss.getShield() >= ChorusTerminatorBoss.MAX_SHIELD || offBattleCount >= 600)) {
+                    if (boss.actionTime % interval == 0 && (this.boss.getShield() >= ChorusTerminatorBoss.MAX_SHIELD || offBattleCount >= 600)) {
                         boss.act(Action.PRE_DEFENCE);
                         if (offBattleCount >= 600) boss.setPhase(0);
-                    } else if ((phase >= 2 && boss.getRandom().nextBoolean()) || (phase < 2 && boss.actionTime % (160 - phase * 80) == 0)) {
-                        if (boss.actionTime % 80 == 0 && distSqrToCenter > 160) {
+                    } else if (boss.actionTime % interval == 0) {
+                        if (position == -1) {
                             boss.act(Action.PRE_JUMP);
-                        } else if ((boss.lastAction != Action.SUMMON && phase == 2) || boss.getRandom().nextInt(3) == 0) {
-                                boss.act(Action.SUMMON);
+                        } else if ((boss.lastAction != Action.SUMMON && phase == 2) || boss.getRandom().nextInt(3) > 0) {
+                            boss.act(Action.SUMMON);
                         } else {
-                            boss.act(boss.getRandom().nextInt(3) == 0
-                                    ? ((distSqrToCenter >= 160 || boss.getRandom().nextInt(3) == 0) ? Action.PRE_JUMP : Action.PRE_DASH)
+                            boss.act(boss.getRandom().nextInt(3) == 0 ? Action.PRE_DASH
                                     : (phase >= 2 && boss.getRandom().nextBoolean() ? Action.SHOOT_SHULKER : Action.SHOOT_BULLET));
 
                         }
                     } else if (boss.actionTime == 1 && boss.getRandom().nextBoolean()) {
-                        if (distSqrToCenter < 160) {
-                            List<BlockPos> candidates;
-                            if (phase < 2 || (phase == 2 && ! groups.isEmpty())) {
-                                candidates = new ArrayList<>(Arrays.asList(
-                                        boss.homePos.offset(20, 0, 0), boss.homePos.offset(-20, 0, 0),
-                                        boss.homePos.offset(0, 0, 20), boss.homePos.offset(0, 0, -20)));
-                            } else {
-                                candidates = new ArrayList<>(this.groups.keySet().stream().toList());
-                            }
-                            while (! candidates.isEmpty()) {
-                                BlockPos candidate = candidates.remove(boss.getRandom().nextInt(candidates.size()));
-                                Vec3 pos = Vec3.atBottomCenterOf(candidate);
-                                if (! hasNearbyGroup(pos)) {
-                                    moveTo(pos);
-                                    break;
-                                }
-                            }
-                        } else {
-                            Vec3 pos = DefaultRandomPos.getPos(this.boss, 14, 2);
-                            if (pos != null) moveTo(pos);
-                        }
+                        Vec3 pos = getMovePos(phase, position);
+                        if (pos.distanceToSqr(boss.position()) > 400) jumpTo(pos); else moveTo(pos);
                     }
                 }
             }
@@ -200,12 +187,15 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
             case DEFENCE -> {
                 setBody(20, 80, new Vec3(0, 1, 0));
                 if (boss.actionTime % 20 == 0 && offBattleCount >= 600) boss.heal(1);
-                if (boss.actionTime % (160 - phase * 40) == 0 && target != null) {
-                    if (boss.lastAction != Action.DEFENCE_SUMMON && boss.getRandom().nextBoolean()) {
+                if (boss.actionTime % (120 - phase * 40) == 0 && target != null) {
+                    if (boss.lastAction != Action.DEFENCE_SUMMON && boss.getRandom().nextInt(3) > 0) {
                         boss.act(Action.DEFENCE_SUMMON);
                     } else {
                         boss.act(Action.DEFENCE_SHOOT);
                     }
+                } else if (boss.actionTime == 1 && boss.getRandom().nextBoolean()) {
+                    Vec3 pos = getMovePos(phase, position);
+                    teleportTo(pos);
                 }
             }
 
@@ -274,7 +264,7 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                 setBody(40, new Vec3(0, 3, 0));
                 setBody(119, new Vec3(0, 1, 0));
                 if (boss.actionTime >= 120) boss.act(Action.DEFENCE);
-                if ((phase >= 1 && boss.actionTime == 88) || boss.actionTime == 90 || boss.actionTime == 92 || (phase >= 2 && boss.actionTime == 94)) {
+                if (boss.actionTime == 88 || boss.actionTime == 90 || boss.actionTime == 92) {
                     Vec3 bulletTarget = this.boss.position()
                             .add(boss.getRandom().nextInt(40) - 20, 0, boss.getRandom().nextInt(40) - 20);
                     if (boss.actionTime > 90) {
@@ -290,7 +280,7 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                     bullet.setPos(boss.eye.position().add(0, 1.5, 0));
                     float speed = boss.getRandom().nextFloat() * 0.5f + 0.8f;
                     bullet.setDeltaMovement(boss.eye.position().subtract(boss.body.position()).multiply(1, 0, 1).normalize().multiply(speed, speed, speed));
-                    if (phase > 0 && boss.getRandom().nextInt(phase == 1 ? 3 : 2) == 0) {
+                    if (phase != 0 && boss.getRandom().nextInt(4) <= phase) {
                         bullet.setChorus(false);
                     }
                     boss.level.addFreshEntity(bullet);
@@ -298,7 +288,7 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
             }
             case SHOOT_BULLET -> {
                 if (boss.actionTime >= 120) boss.act(Action.IDLE);
-                if ((phase >= 1 && boss.actionTime == 68) || boss.actionTime == 70 || boss.actionTime == 72 || (phase >= 2 && boss.actionTime == 74)) {
+                if (boss.actionTime == 68 || boss.actionTime == 70 || boss.actionTime == 72) {
                     Vec3 bulletTarget = this.boss.position()
                             .add(boss.getRandom().nextInt(40) - 20, 0, boss.getRandom().nextInt(40) - 20);
                     if (boss.actionTime > 70) {
@@ -314,7 +304,7 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                     bullet.setPos(boss.eye.position().add(0, 1.5, 0));
                     float speed = boss.getRandom().nextFloat() * 0.5f + 0.8f;
                     bullet.setDeltaMovement(boss.eye.position().subtract(boss.body.position()).multiply(1, 0, 1).normalize().multiply(speed, speed, speed));
-                    if (phase > 0 && boss.getRandom().nextInt(phase == 1 ? 3 : 2) == 0) {
+                    if (phase != 0 && boss.getRandom().nextInt(4) <= phase) {
                         bullet.setChorus(false);
                     }
                     boss.level.addFreshEntity(bullet);
@@ -341,26 +331,26 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                 BlockPos home = boss.homePos;
                 if (boss.actionTime > 50 && boss.actionTime < 130) {
                     if (home != null) {
-                        if (boss.actionTime % (phase == 0 ? 40 : 20) == 0) {
+                        if (boss.actionTime % (30 - phase * 5) == 0) {
                             boss.level.getNearbyPlayers(TargetingConditions.DEFAULT, boss
                                     , new AABB(home.getX() - 21, home.getY() - 3, home.getZ() - 21
                                             , home.getX() + 21, home.getY() + 15, home.getZ() + 21))
-                                    .forEach(player -> player.addEffect(new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 30, 3)));
+                                    .forEach(player -> player.addEffect(new MobEffectInstance(PVZMobEffects.EXCITEMENT.get(), 40, 3)));
                             Map<EntityType<? extends Mob>, Integer> map = new HashMap<>();
                             map.put(PVZEntities.ZOMBIE.get(), 3);
-                            map.put(PVZEntities.PEA_SHOOTER_ZOMBIE.get(), 2);
-                            map.put(PVZEntities.WALL_NUT_ZOMBIE.get(), 2);
+                            map.put(PVZEntities.LADDER_ZOMBIE.get(), 3);
                             if (phase == 1) {
-                                map.put(PVZEntities.GARGANTUAR.get(), 1);
+                                map.put(PVZEntities.PEA_SHOOTER_ZOMBIE.get(), 2);
+                                map.put(PVZEntities.WALL_NUT_ZOMBIE.get(), 2);
                                 map.put(PVZEntities.SNOW_PEA_ZOMBIE.get(), 2);
-                                map.put(PVZEntities.GATLING_PEA_ZOMBIE.get(), 1);
-                                map.put(PVZEntities.TALL_NUT_ZOMBIE.get(), 1);
                             }
                             if (phase == 2) {
-                                map.put(PVZEntities.GARGANTUAR.get(), 3);
+                                map.put(PVZEntities.PEA_SHOOTER_ZOMBIE.get(), 2);
+                                map.put(PVZEntities.WALL_NUT_ZOMBIE.get(), 2);
+                                map.put(PVZEntities.GARGANTUAR.get(), 1);
                                 map.put(PVZEntities.SNOW_PEA_ZOMBIE.get(), 2);
                                 map.put(PVZEntities.PUMPKIN_ZOMBIE.get(), 2);
-                                map.put(PVZEntities.GATLING_PEA_ZOMBIE.get(), 2);
+                                map.put(PVZEntities.GATLING_PEA_ZOMBIE.get(), 1);
                                 map.put(PVZEntities.TALL_NUT_ZOMBIE.get(), 1);
                             }
                             AtomicInteger choice = new AtomicInteger(0);
@@ -380,9 +370,9 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                                 zombie.equipItemIfPossible((phase > 1 ? PVZItems.BUCKET_HELMET : PVZItems.CONE_HELMET).get().getDefaultInstance());
                                 zombie.setDropChance(EquipmentSlot.HEAD, 0);
                             }
-                            float sunBloodChance = 0.5f - phase / 4f;
+                            float sunBloodChance = 1 - phase / 2f;
                             if (sunBloodChance > 0 && boss.getRandom().nextFloat() < sunBloodChance) {
-                                zombie.addEffect(new MobEffectInstance(PVZMobEffects.SUN_BLOOD.get(), 1200, 3));
+                                zombie.addEffect(new MobEffectInstance(PVZMobEffects.SUN_BLOOD.get(), 1200));
                             }
                             zombie.finalizeSpawn((ServerLevel) boss.level, boss.level.getCurrentDifficultyAt(boss.blockPosition())
                                     , MobSpawnType.MOB_SUMMONED, null, null);
@@ -390,6 +380,12 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
                             boss.level.addFreshEntity(zombie);
                             zombie.getCapability(PVZEntityCapability.CAP).ifPresent(cap -> cap.setOwner(boss));
                             if (targetGroup != null) {
+                                LivingEntity entity = boss.level.getNearestEntity(boss.level.getEntitiesOfClass(LivingEntity.class
+                                                , new AABB(targetGroup.offset(-6, -2, -6)
+                                                        , targetGroup.offset(6, 2, 6))
+                                                , e -> ! EntityUtil.isTeammate(boss, e))
+                                        , TargetingConditions.DEFAULT, zombie, zombie.getX(), zombie.getY(), zombie.getZ());
+                                zombie.setTarget(entity);
                                 zombie.getNavigation().moveTo(targetGroup.getX() + 0.5, targetGroup.getY(), targetGroup.getZ() + 0.5, 1);
                             } else {
                                 List<Player> players = boss.level.getNearbyPlayers(TargetingConditions.DEFAULT, boss,
@@ -415,6 +411,35 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
         }
     }
 
+    private Vec3 getMovePos(int phase, int currentPos) {
+        if (! EntityUtil.isEntityValid(boss.getTarget())) {
+            return Vec3.atBottomCenterOf(boss.homePos);
+        }
+        if (currentPos >= 0) {
+            if (phase <= 2 && boss.getRandom().nextInt(phase >= 1 ? 8 : 12) == 0) return boss.position();
+            List<BlockPos> candidates = new ArrayList<>(Arrays.asList(boss.homePos.offset(18, 0, 0)
+                    , boss.homePos.offset(-18, 0, 0)
+                    , boss.homePos.offset(0, 0, 18)
+                    , boss.homePos.offset(0, 0, -18)
+                    , boss.homePos));
+            if (phase >= 2) {
+                candidates.addAll(Arrays.asList(boss.homePos.offset(5, 0, -5)
+                        , boss.homePos.offset(-5, 0, -5)
+                        , boss.homePos.offset(-5, 0, 5)
+                        , boss.homePos.offset(5, 0, 5)));
+            }
+            while (! candidates.isEmpty()) {
+                BlockPos candidate = candidates.remove(boss.getRandom().nextInt(candidates.size()));
+                Vec3 pos = Vec3.atBottomCenterOf(candidate);
+                if (! hasNearbyGroup(pos)) {
+                    return pos;
+                }
+            }
+            return Vec3.atBottomCenterOf(boss.homePos);
+        }
+        return Vec3.atBottomCenterOf(boss.homePos);
+    }
+
     public void moveTo(Vec3 position) {
         boss.getNavigation().moveTo(position.x, position.y, position.z, 1);
     }
@@ -432,7 +457,7 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
     }
 
     private void setBody(int timeStamp, Vec3 position) {
-        setBody(timeStamp, -1, position);
+        setBody(timeStamp, 2100000000, position);
     }
 
     private void setBody(int timeStamp, int looptime, Vec3 position) {
@@ -475,7 +500,7 @@ public class ChorusTerminatorActivitiesGoal extends Goal {
         return false;
     }
     public enum Action {
-        IDLE, STIFF, SUMMON, DEFENCE, DEFENCE_STIFF, DEFENCE_SUMMON,
+        IDLE, STIFF, SHORT_STIFF, SUMMON, DEFENCE, DEFENCE_STIFF, DEFENCE_SUMMON,
         DEFENCE_SHOOT, SHOOT_SHULKER, SHOOT_BULLET,
         DIE, PRE_DASH, DASH, PRE_JUMP, JUMP, PRE_DEFENCE
     }
