@@ -21,7 +21,10 @@ public interface IGardenPlant {
     int getGrowLevel();
     void setGrowLevel(int level);
 
-    /**@return The plant is requiring water or fertilizer.*/
+    /**
+     * TODO PT: 浇水还是施肥应该抽象一个可注册枚举，方便扩展，而不是一直堆方法
+     * @return The plant is requiring water or fertilizer.
+     */
     boolean isRequiringWater();
     boolean isRequiringFertilizer();
     void setRequiringWater(boolean bool);

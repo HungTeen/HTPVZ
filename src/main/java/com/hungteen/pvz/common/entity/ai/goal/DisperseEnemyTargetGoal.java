@@ -72,6 +72,7 @@ public class DisperseEnemyTargetGoal extends NearestAttackableTargetGoal<LivingE
                 this.predicate), this.targetConditions, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
         if (target != null) {
             double dist = this.mob.distanceTo(target);
+            // TODO PT：性能不佳，推荐用距离+角度偏差的排序
             List<Entity> list = this.mob.level.getEntities(target, target.getBoundingBox().inflate(dist / 4),
                     (entity) -> entity instanceof LivingEntity && this.predicate.test(entity));
             list.add(target);

@@ -1,6 +1,7 @@
 package com.hungteen.pvz.client.renderer;
 
 import com.hungteen.pvz.client.model.*;
+import com.hungteen.pvz.client.model.FlowerPotGolemModel;
 import com.hungteen.pvz.client.model.attached.*;
 import com.hungteen.pvz.client.model.bullet.*;
 import com.hungteen.pvz.client.model.plants.*;

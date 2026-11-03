@@ -7,6 +7,9 @@ import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 
 import java.util.EnumSet;
 
+/**
+ * TODO PT: 不够平滑，太粗暴了，待优化
+ */
 public class ServerStressReleaseGoals {
     public static class ServerStressReleaseTargetGoal extends TargetGoal {
         public ServerStressReleaseTargetGoal(Mob p_26140_, boolean p_26141_) {
@@ -16,6 +19,7 @@ public class ServerStressReleaseGoals {
 
         @Override
         public boolean canUse() {
+
             return PVZMod.serverAverageTickTime >= 50 && this.mob.level.getNearestPlayer(this.mob, Math.min(5, (125000D / Math.pow(PVZMod.serverAverageTickTime, 3)) * 100)) == null;
         }
     }
